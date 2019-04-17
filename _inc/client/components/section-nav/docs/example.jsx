@@ -1,20 +1,20 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' ),
-	forEach = require( 'lodash/forEach' );
-
-const createReactClass = require( 'create-react-class' );
+import React from 'react';
+import PureRenderMixin from 'react-pure-render/mixin';
+import createReactClass from 'create-react-class';
+import { forEach } from 'lodash';
 
 /**
  * Internal dependencies
  */
-const SectionNav = require( 'components/section-nav' ),
-	NavTabs = require( 'components/section-nav/tabs' ),
-	NavSegmented = require( 'components/section-nav/segmented' ),
-	NavItem = require( 'components/section-nav/item' ),
-	Search = require( 'components/search' );
+import SectionNav from 'components/section-nav';
+
+import NavTabs from 'components/section-nav/tabs';
+import NavSegmented from 'components/section-nav/segmented';
+import NavItem from 'components/section-nav/item';
+import Search from 'components/search';
 
 /**
  * Main
@@ -178,4 +178,4 @@ const SectionNavigation = createReactClass( {
 	demoSearch: function() {},
 } );
 
-module.exports = SectionNavigation;
+export default SectionNavigation;

@@ -67,7 +67,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
-		if ( ! Jetpack::active_plan_supports( $module_slug ) ) {
+		if ( ! Jetpack_Plan::supports( $module_slug ) ) {
 			return new WP_Error(
 				'not_supported',
 				esc_html__( 'The requested Jetpack module is not supported by your plan.', 'jetpack' ),
@@ -1503,7 +1503,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *     @type string $date Date range to restrict results to.
 	 * }
 	 *
-	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response Stats information relayed from WordPress.com.
 	 */
 	public function get_stats_data( WP_REST_Request $request ) {
 		// Get parameters to fetch Stats data.

@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { isCheckingAkismetKey, checkAkismetKey } from 'state/at-a-glance';
 
 class QueryAkismetKeyCheck extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.isCheckingAkismetKey ) {
 			this.props.checkAkismetKey();
 		}

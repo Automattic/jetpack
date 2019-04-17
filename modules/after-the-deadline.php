@@ -42,12 +42,8 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'jetpack_modules_loaded', 'AtD_load' );
 	function AtD_load() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, 'AtD_configuration_load' );
 	}
-	function AtD_configuration_load() {
-		wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#atd' );
-		exit;
-	}
+
 	function AtD_update_setting( $user_id, $name, $value ) {
 		return update_user_meta( $user_id, $name, $value );
 	}
@@ -223,7 +219,7 @@ function AtD_load_javascripts() {
 			array('jquery'),
 			ATD_VERSION
 		);
-		wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_settings', admin_url( 'admin-ajax.php?action=atd_settings' ), array('AtD_jquery'), ATD_VERSION );
 		wp_enqueue_script(
 			'AtD_autoproofread',
 			Jetpack::get_file_url_for_environment(

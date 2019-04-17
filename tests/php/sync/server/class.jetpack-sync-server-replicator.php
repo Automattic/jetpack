@@ -207,12 +207,13 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_users':
-				foreach ( $args as $user ) {
+
+				foreach ( $args['users'] as $user ) {
 					$this->store->upsert_user( $user );
 				}
 				break;
 			case 'jetpack_full_sync_terms':
-				foreach ( $args as $term_object ) {
+				foreach ( $args['terms'] as $term_object ) {
 					$this->store->update_term( $term_object );
 				}
 				break;

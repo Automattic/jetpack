@@ -1,9 +1,6 @@
 /**
  * External dependencies
- *
- * @format
  */
-
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
@@ -13,10 +10,9 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import UrlSearch from 'mixins/url-search';
 import analytics from 'lib/analytics';
-import intersection from 'lodash/intersection';
 
 /**
  * Internal dependencies
@@ -28,7 +24,13 @@ import {
 	userCanPublish,
 } from 'state/initial-state';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
-import { isModuleActivated, getModules } from 'state/modules';
+import {
+	getModules,
+	hasAnyOfTheseModules,
+	hasAnyPerformanceFeature,
+	hasAnySecurityFeature,
+	isModuleActivated,
+} from 'state/modules';
 import { isPluginActive } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
@@ -36,7 +38,7 @@ export const NavigationSettings = createReactClass( {
 	displayName: 'NavigationSettings',
 	mixins: [ UrlSearch ],
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		// We need to handle the search term not only on route update but also on page load in case of some external redirects
 		this.onRouteChange( this.context.router.getCurrentLocation() );
 		this.context.router.listen( this.onRouteChange );
@@ -98,18 +100,6 @@ export const NavigationSettings = createReactClass( {
 		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
 	},
 
-	/**
-	 * Check that the module list includes at least one of these modules.
-	 *
-	 * @param  {array}   modules Modules that are probably included in the module list.
-	 *
-	 * @return {boolean}         True if at least one of the modules is included in the list.
-	 */
-	hasAnyOfThese( modules = [] ) {
-		const moduleList = Object.keys( this.props.moduleList );
-		return 0 < intersection( moduleList, modules ).length;
-	},
-
 	handleClickForTracking( target ) {
 		return () => this.trackNavClick( target );
 	},
@@ -119,25 +109,27 @@ export const NavigationSettings = createReactClass( {
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
-					{ this.hasAnyOfThese( [
-						'carousel',
-						'lazy-images',
-						'photon',
-						'photon-cdn',
-						'search',
-						'videopress',
-					] ) && (
+					{ this.props.hasAnySecurityFeature && (
+						<NavItem
+							path="#security"
+							onClick={ this.handleClickForTracking( 'security' ) }
+							selected={
+								this.props.route.path === '/security' || this.props.route.path === '/settings'
+							}
+						>
+							{ __( 'Security', { context: 'Navigation item.' } ) }
+						</NavItem>
+					) }
+					{ this.props.hasAnyPerformanceFeature && (
 						<NavItem
 							path="#performance"
 							onClick={ this.handleClickForTracking( 'performance' ) }
-							selected={
-								this.props.route.path === '/performance' || this.props.route.path === '/settings'
-							}
+							selected={ this.props.route.path === '/performance' }
 						>
 							{ __( 'Performance', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ this.hasAnyOfThese( [
+					{ this.props.hasAnyOfTheseModules( [
 						'masterbar',
 						'markdown',
 						'after-the-deadline',
@@ -145,6 +137,7 @@ export const NavigationSettings = createReactClass( {
 						'post-by-email',
 						'infinite-scroll',
 						'minileven',
+						'copy-post',
 					] ) && (
 						<NavItem
 							path="#writing"
@@ -154,7 +147,7 @@ export const NavigationSettings = createReactClass( {
 							{ __( 'Writing', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ this.hasAnyOfThese( [ 'publicize', 'sharedaddy', 'likes' ] ) && (
+					{ this.props.hasAnyOfTheseModules( [ 'publicize', 'sharedaddy', 'likes' ] ) && (
 						<NavItem
 							path="#sharing"
 							onClick={ this.handleClickForTracking( 'sharing' ) }
@@ -163,7 +156,7 @@ export const NavigationSettings = createReactClass( {
 							{ __( 'Sharing', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ this.hasAnyOfThese( [
+					{ this.props.hasAnyOfTheseModules( [
 						'comments',
 						'gravatar-hovercards',
 						'markdown',
@@ -177,7 +170,7 @@ export const NavigationSettings = createReactClass( {
 							{ __( 'Discussion', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ this.hasAnyOfThese( [
+					{ this.props.hasAnyOfTheseModules( [
 						'seo-tools',
 						'wordads',
 						'stats',
@@ -194,16 +187,6 @@ export const NavigationSettings = createReactClass( {
 							{ __( 'Traffic', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ ( this.hasAnyOfThese( [ 'protect', 'sso', 'vaultpress' ] ) ||
-						this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
-						<NavItem
-							path="#security"
-							onClick={ this.handleClickForTracking( 'security' ) }
-							selected={ this.props.route.path === '/security' }
-						>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
@@ -212,7 +195,7 @@ export const NavigationSettings = createReactClass( {
 			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish ) {
 				sharingTab = '';
 			} else {
-				sharingTab = this.hasAnyOfThese( [ 'publicize' ] ) && (
+				sharingTab = this.props.hasAnyOfTheseModules( [ 'publicize' ] ) && (
 					<NavItem
 						path="#sharing"
 						onClick={ this.handleClickForTracking( 'sharing' ) }
@@ -224,7 +207,7 @@ export const NavigationSettings = createReactClass( {
 			}
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
-					{ this.hasAnyOfThese( [ 'after-the-deadline', 'post-by-email' ] ) && (
+					{ this.props.hasAnyOfTheseModules( [ 'after-the-deadline', 'post-by-email' ] ) && (
 						<NavItem
 							path="#writing"
 							onClick={ this.handleClickForTracking( 'writing' ) }
@@ -281,6 +264,9 @@ NavigationSettings.defaultProps = {
 
 export default connect(
 	state => ( {
+		hasAnyOfTheseModules: modules => hasAnyOfTheseModules( state, modules ),
+		hasAnyPerformanceFeature: hasAnyPerformanceFeature( state ),
+		hasAnySecurityFeature: hasAnySecurityFeature( state ),
 		userCanManageModules: _userCanManageModules( state ),
 		isSubscriber: _userIsSubscriber( state ),
 		userCanPublish: userCanPublish( state ),

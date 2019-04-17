@@ -478,6 +478,16 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Digg',
 			),
 			array(
+				'url'   => 'discord.gg',
+				'icon'  => 'discord',
+				'label' => 'Discord',
+			),
+			array(
+				'url'   => 'discordapp.com',
+				'icon'  => 'discord',
+				'label' => 'Discord',
+			),
+			array(
 				'url'   => 'dribbble.com',
 				'icon'  => 'dribbble',
 				'label' => 'Dribbble',
@@ -516,17 +526,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'goodreads.com',
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
-			),
-			array(
-				'url'   => 'google.com/+',
-				'icon'  => 'google-plus',
-				'label' => 'Google +',
-			),
-			array(
-				'url'   => 'plus.google.com',
-				'icon'  => 'google-plus',
-				'label' => 'Google +',
-			),
+			),			
 			array(
 				'url'   => 'google.com',
 				'icon'  => 'google',
@@ -563,7 +563,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Medium',
 			),
 			array(
-				'url'   => 'pinterest.com',
+				'url'   => 'pinterest.',
 				'icon'  => 'pinterest',
 				'label' => 'Pinterest',
 			),
@@ -606,6 +606,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'spotify.com',
 				'icon'  => 'spotify',
 				'label' => 'Spotify',
+			),
+			array(
+				'url'   => 'stackoverflow.com',
+				'icon'  => 'stackoverflow',
+				'label' => 'Stack Overflow',
 			),
 			array(
 				'url'   => 'stumbleupon.com',

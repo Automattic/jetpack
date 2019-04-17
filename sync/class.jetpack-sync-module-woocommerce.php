@@ -51,7 +51,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 	}
 
 	function name() {
-		return "woocommerce";
+		return 'woocommerce';
 	}
 
 	public function init_listeners( $callable ) {
@@ -206,7 +206,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 	);
 
 	private static $wc_constants_whitelist = array(
-		//woocommerce options
+		// woocommerce options
 		'WC_PLUGIN_FILE',
 		'WC_ABSPATH',
 		'WC_PLUGIN_BASENAME',
@@ -222,7 +222,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 	);
 
 	private static $wc_post_meta_whitelist = array(
-		//woocommerce products
+		// woocommerce products
 		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-product-data-store-cpt.php#L21
 		'_visibility',
 		'_sku',
@@ -262,7 +262,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_product_version',
 		'_wp_old_slug',
 
-		//woocommerce orders
+		// woocommerce orders
 		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L27
 		'_order_key',
 		'_order_currency',
@@ -314,7 +314,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L594
 		'_order_stock_reduced',
 
-		//woocommerce order refunds
+		// woocommerce order refunds
 		// https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20
 		'_order_currency',
 		'_refund_amount',

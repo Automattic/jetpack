@@ -3,7 +3,7 @@
 /**
  * External Dependencies
  */
-const React = require( 'react' );
+import React from 'react';
 
 class SelectDropdownSeparator extends React.Component {
 	render() {
@@ -11,4 +11,4 @@ class SelectDropdownSeparator extends React.Component {
 	}
 }
 
-module.exports = SelectDropdownSeparator;
+export default SelectDropdownSeparator;

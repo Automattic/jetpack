@@ -11,6 +11,7 @@ php:
 - "5.6"
 - "7.0"
 - "7.2"
+- "7.3"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -30,21 +31,17 @@ matrix:
   include:
   # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
   - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
-  - php: "5.2"
     env: WP_MODE=single WP_BRANCH=latest
     dist: precise
   - php: "5.2"
     env: WP_MODE=single WP_BRANCH=previous
     dist: precise
-  - php: "5.2"
-    env: WP_MODE=multi  WP_BRANCH=master
-    dist: precise
-  - language: node_js
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
     env: WP_TRAVISCI="yarn lint"
-  - language: node_js
-    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
+    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
 
 cache:
   directories:

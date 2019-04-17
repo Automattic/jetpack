@@ -9,7 +9,7 @@ import React from 'react';
  */
 import Gridicon from 'components/gridicon';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class NoticeAction extends React.Component {
 	static displayName = 'NoticeAction';

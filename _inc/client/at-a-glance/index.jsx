@@ -5,8 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import chunk from 'lodash/chunk';
-import get from 'lodash/get';
+import { chunk, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -42,6 +41,8 @@ const renderPairs = layout =>
 	] );
 
 class AtAGlance extends Component {
+	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+
 	render() {
 		const settingsProps = {
 			updateOptions: this.props.updateOptions,
@@ -52,8 +53,6 @@ class AtAGlance extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			siteRawUrl: this.props.siteRawUrl,
 		};
-		const trackSecurityClick = () =>
-			analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = (
 			<DashSectionHeader
 				key="securityHeader"
@@ -65,7 +64,7 @@ class AtAGlance extends Component {
 						: __( 'Manage security settings' )
 				}
 				externalLinkPath={ this.props.isDevMode ? '' : '#/security' }
-				externalLinkClick={ trackSecurityClick }
+				externalLinkClick={ this.trackSecurityClick }
 			/>
 		);
 		const connections = (
@@ -74,17 +73,18 @@ class AtAGlance extends Component {
 				<DashConnections />
 			</div>
 		);
-		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
+		// Status can be unavailable, active, provisioning, awaiting_credentials
+		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const securityCards = [
 			<DashScan
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
-				isRewindActive={ isRewindActive }
+				rewindStatus={ rewindStatus }
 			/>,
 			<DashBackups
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
-				isRewindActive={ isRewindActive }
+				rewindStatus={ rewindStatus }
 			/>,
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />,
@@ -98,7 +98,7 @@ class AtAGlance extends Component {
 		}
 
 		// Maybe add the rewind card
-		isRewindActive &&
+		'active' === rewindStatus &&
 			securityCards.unshift(
 				<DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 			);
@@ -139,7 +139,7 @@ class AtAGlance extends Component {
 
 		/*
 		 * Non-admin zone...
-         */
+		 */
 		let stats = '';
 		if ( this.props.userCanViewStats ) {
 			stats = <DashStats { ...settingsProps } { ...urls } />;

@@ -23,27 +23,29 @@ class WordAds {
 	 * @var array
 	 */
 	public static $ad_tag_ids = array(
-		'mrec'           => array(
+		'mrec'               => array(
 			'tag'    => '300x250_mediumrectangle',
 			'height' => '250',
 			'width'  => '300',
 		),
-		'lrec'           => array(
-			'tag'    => '336x280_largerectangle',
-			'height' => '280',
-			'width'  => '336',
-		),
-		'leaderboard'    => array(
+		'leaderboard'        => array(
 			'tag'    => '728x90_leaderboard',
 			'height' => '90',
 			'width'  => '728',
 		),
-		'wideskyscraper' => array(
+		'mobile_leaderboard' => array(
+			'tag'    => '320x50_mobileleaderboard',
+			'height' => '50',
+			'width'  => '320',
+		),
+		'wideskyscraper'     => array(
 			'tag'    => '160x600_wideskyscraper',
 			'height' => '600',
 			'width'  => '160',
 		),
 	);
+
+	public static $SOLO_UNIT_CSS = 'float:left;margin-right:5px;margin-top:0px;';
 
 	/**
 	 * Convenience function for grabbing options from params->options
@@ -63,6 +65,26 @@ class WordAds {
 	}
 
 	/**
+	 * Returns the ad tag property array for supported ad types.
+	 * @return array      array with ad tags
+	 *
+	 * @since 7.1.0
+	 */
+	function get_ad_tags() {
+		return self::$ad_tag_ids;
+	}
+
+	/**
+	 * Returns the solo css for unit
+	 * @return string the special css for solo units
+	 *
+	 * @since 7.1.0
+	 */
+	function get_solo_unit_css() {
+		return self::$SOLO_UNIT_CSS;
+	}
+
+	/**
 	 * Instantiate the plugin
 	 *
 	 * @since 4.5.0
@@ -77,20 +99,15 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	function init() {
-		// bail on infinite scroll
-		if ( self::is_infinite_scroll() ) {
-			return;
-		}
-
 		require_once WORDADS_ROOT . '/php/params.php';
 		$this->params = new WordAds_Params();
 
-		if ( is_admin() ) {
-			require_once WORDADS_ROOT . '/php/admin.php';
+		if ( $this->should_bail() || self::is_infinite_scroll() ) {
 			return;
 		}
 
-		if ( $this->should_bail() ) {
+		if ( is_admin() ) {
+			require_once WORDADS_ROOT . '/php/admin.php';
 			return;
 		}
 
@@ -415,14 +432,14 @@ HTML;
 				$width      = 300;
 				$height     = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$SOLO_UNIT_CSS );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
 					$snippet    .= $this->get_ad_snippet( $section_id2, $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
 			} elseif ( 'inline' === $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
-				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'mrec', self::$SOLO_UNIT_CSS );
 			}
 		} elseif ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -432,18 +449,7 @@ HTML;
 			}
 		}
 
-		$header = 'top' == $spot ? 'wpcnt-header' : '';
-		$about  = __( 'Advertisements', 'jetpack' );
-		return <<<HTML
-		<div class="wpcnt $header">
-			<div class="wpa">
-				<span class="wpa-about">$about</span>
-				<div class="u $spot">
-					$snippet
-				</div>
-			</div>
-		</div>
-HTML;
+		return $this->get_ad_div( $spot, $snippet );
 	}
 
 
@@ -465,12 +471,10 @@ HTML;
 			'width'    => $width,
 			'height'   => $height,
 		);
-		$ad_number   = count( $this->ads );
-		// Max 6 ads per page.
-		if ( $ad_number > 5 && 'top' !== $location ) {
-			return;
-		}
+		$ad_number   = count( $this->ads ) . '-' . uniqid();
+
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
+		$css = esc_attr( $css );
 
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
@@ -486,6 +490,41 @@ HTML;
 					});
 				});
 				</script>
+			</div>
+		</div>
+HTML;
+	}
+
+	/**
+	 * Returns the complete ad div with snippet to be inserted into the page
+	 *
+	 * @param  string  $spot top, side, inline, or belowpost
+	 * @param  string  $snippet The snippet to insert into the div
+	 * @param  array  $css_classes
+	 * @return string The supporting ad unit div
+	 *
+	 * @since 7.1
+	 */
+	function get_ad_div( $spot, $snippet, array $css_classes = array() ) {
+		if ( empty( $css_classes ) ) {
+			$css_classes = array();
+		}
+
+		$css_classes[] = 'wpcnt';
+		if ( 'top' == $spot ) {
+			$css_classes[] = 'wpcnt-header';
+		}
+
+		$spot = esc_attr( $spot );
+		$classes = esc_attr( implode( ' ', $css_classes ) );
+		$about  = esc_html__( 'Advertisements', 'jetpack' );
+		return <<<HTML
+		<div class="$classes">
+			<div class="wpa">
+				<span class="wpa-about">$about</span>
+				<div class="u $spot">
+					$snippet
+				</div>
 			</div>
 		</div>
 HTML;

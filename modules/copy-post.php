@@ -1,8 +1,8 @@
 <?php
 /**
  * Module Name: Copy Post
- * Module Description: Copy an existing post's content into a new post.
- * Jumpstart Description: Copy an existing post's content into a new post.
+ * Module Description: Copy an existing post's content into a new draft post
+ * Jumpstart Description: Copy an existing post's content into a new draft post
  * Sort Order: 15
  * First Introduced: 7.0
  * Requires Connection: No
@@ -32,6 +32,7 @@ class Jetpack_Copy_Post {
 
 		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
+			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
 	}
 
@@ -64,10 +65,13 @@ class Jetpack_Copy_Post {
 			'update_post_type_terms' => $this->update_post_type_terms( $source_post, $target_post_id ),
 		);
 
-		// Required to satify get_default_post_to_edit(), which has these filters after post creation.
+		// Required to satisfy get_default_post_to_edit(), which has these filters after post creation.
 		add_filter( 'default_title', array( $this, 'filter_title' ), 10, 2 );
 		add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
 		add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
+
+		// Required to avoid the block editor from adding default blocks according to post format.
+		add_filter( 'block_editor_settings', array( $this, 'remove_post_format_template' ) );
 
 		/**
 		 * Fires after all updates have been performed, and default content filters have been added.
@@ -85,13 +89,13 @@ class Jetpack_Copy_Post {
 	}
 
 	/**
-	 * Determine if the current user has access to the source post.
+	 * Determine if the current user has edit access to the source post.
 	 *
 	 * @param int $post_id Source post ID (the post being copied).
-	 * @return bool True if user has the meta cap of `read_post` for the given post ID, false otherwise.
+	 * @return bool True if user has the meta cap of `edit_post` for the given post ID, false otherwise.
 	 */
 	protected function user_can_access_post( $post_id ) {
-		return current_user_can( 'read_post', $post_id );
+		return current_user_can( 'edit_post', $post_id );
 	}
 
 	/**
@@ -110,6 +114,7 @@ class Jetpack_Copy_Post {
 			'comment_status' => $source_post->comment_status,
 			'ping_status'    => $source_post->ping_status,
 			'post_category'  => $source_post->post_category,
+			'post_password'  => $source_post->post_password,
 			'tags_input'     => $source_post->tags_input,
 		);
 
@@ -175,6 +180,17 @@ class Jetpack_Copy_Post {
 	protected function update_post_format( $source_post, $target_post_id ) {
 		$post_format = get_post_format( $source_post );
 		return set_post_format( $target_post_id, $post_format );
+	}
+
+	/**
+	 * Ensure the block editor doesn't modify the source post content for non-standard post formats.
+	 *
+	 * @param array $settings Settings to be passed into the block editor.
+	 * @return array Settings with any `template` key removed.
+	 */
+	public function remove_post_format_template( $settings ) {
+		unset( $settings['template'] );
+		return $settings;
 	}
 
 	/**

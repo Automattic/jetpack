@@ -141,7 +141,7 @@ abstract class Publicize_Base {
 	abstract function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
 
 	function can_connect_service( $service_name ) {
-		return 'google_plus' !== $service_name;
+		return true;
 	}
 
 	/**
@@ -207,9 +207,6 @@ abstract class Publicize_Base {
 		switch ( $service_name ) {
 			case 'linkedin':
 				return 'LinkedIn';
-				break;
-			case 'google_plus':
-				return  'Google+';
 				break;
 			case 'twitter':
 			case 'facebook':
@@ -335,10 +332,6 @@ abstract class Publicize_Base {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
-		} elseif ( 'google_plus' == $service_name && isset( $cmeta['connection_data']['meta']['google_plus_page'] ) ) {
-			return 'https://plus.google.com/' . $cmeta['connection_data']['meta']['google_plus_page'];
-		} elseif ( 'google_plus' == $service_name ) {
-			return 'https://plus.google.com/' . $cmeta['external_id'];
 		} else if ( 'linkedin' == $service_name ) {
 			if ( !isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;
@@ -434,6 +427,19 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * LinkedIn needs to be reauthenticated to use v2 of their API.
+	 * If it's using LinkedIn old API, it's an 'invalid' connection
+	 *
+	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
+	 * @return bool
+	 */
+	function is_invalid_linkedin_connection( $connection ) {
+		// LinkedIn API v1 included the profile link in the connection data.
+		$connection_meta = $this->get_connection_meta( $connection );
+		return isset( $connection_meta['connection_data']['meta']['profile_url'] );
+	}
+
+	/**
 	 * Whether the Connection currently being connected
 	 *
 	 * @param object|array The Connection object (WordPress.com) or array (Jetpack)
@@ -504,6 +510,13 @@ abstract class Publicize_Base {
 						$user_can_refresh = false;
 						$connection_test_message = __( 'Please select a Facebook Page to publish updates.', 'jetpack' );
 					}
+				}
+
+				// LinkedIn needs reauthentication to be compatible with v2 of their API
+				if ( 'linkedin' === $service_name && $this->is_invalid_linkedin_connection( $connection ) ) {
+					$connection_test_passed = 'must_reauth';
+					$user_can_refresh = false;
+					$connection_test_message = esc_html__( 'Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it.', 'jetpack' );
 				}
 
 				$unique_id = null;
@@ -788,9 +801,9 @@ abstract class Publicize_Base {
 		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
 		if ( $this->current_user_can_access_publicize_data() ) {
-			jetpack_register_plugin( 'publicize' );
+			Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
 		} else {
-			jetpack_set_extension_unavailability_reason( 'publicize', 'unauthorized' );
+			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
 
 		}
 	}
@@ -1040,6 +1053,12 @@ abstract class Publicize_Base {
 		if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 			return $messages;
 		}
+
+		// Bail early if the post is private.
+		if ( 'publish' !== $post->post_status ) {
+			return $messages;
+		}
+
 		$view_post_link_html = '';
 		$viewable = is_post_type_viewable( $post_type_object );
 		if ( $viewable ) {

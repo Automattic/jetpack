@@ -11,7 +11,7 @@ import classNames from 'classnames';
  */
 import JetpackBanner from 'components/jetpack-banner';
 
-require( './style.scss' );
+import './style.scss';
 
 class ModuleOverridenBanner extends JetpackBanner {
 	static propTypes = {

@@ -10,7 +10,7 @@
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
-	if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+	if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
 		return;
 	}
 
@@ -144,7 +144,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 				'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 				'tracksEventData'    => array(
-					'is_customizer' => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
+					'is_customizer' => (int) is_customize_preview(),
 				),
 				'i18n'               => array(
 					'month'        => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', false ),
@@ -397,11 +397,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 		?>
 		<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
-					var orderByDefault = <?php echo wp_json_encode( $orderby ); ?>,
-						orderDefault   = <?php echo wp_json_encode( $order ); ?>,
-						widgetId       = <?php echo wp_json_encode( $this->id ); ?>,
-						searchQuery    = <?php echo wp_json_encode( get_query_var( 's', '' ) ); ?>,
-						isSearch       = <?php echo wp_json_encode( is_search() ); ?>;
+					var orderByDefault = '<?php echo 'date' === $orderby ? 'date' : 'relevance'; ?>',
+						orderDefault   = '<?php echo 'ASC' === $order ? 'ASC' : 'DESC'; ?>',
+						widgetId       = decodeURIComponent( '<?php echo rawurlencode( $this->id ); ?>' ),
+						searchQuery    = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' ),
+						isSearch       = <?php echo (int) is_search(); ?>;
 
 					var container = $( '#' + widgetId + '-wrapper' ),
 						form = container.find('.jetpack-search-form form'),
@@ -668,8 +668,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param bool   $is_template Whether this is for an Underscore template or not.
 	 */
 	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
-		$compare_json = wp_json_encode( $compare );
-		echo $is_template ? "<%= $compare_json === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
+		$compare_js = rawurlencode( $compare );
+		echo $is_template ? "<%= decodeURIComponent( '$compare_js' ) === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
 	}
 
 	/**

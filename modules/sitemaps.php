@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: Public
  * Module Tags: Recommended, Traffic
+ * Feature: Recommended
  * Additional Search Queries: sitemap, traffic, search, site map, seo
  *
  * @package Jetpack

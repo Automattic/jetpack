@@ -41,6 +41,7 @@ fi
 git clone \
     --branch $TARGET_BRANCH \
     --depth 1000 \
+    --no-single-branch \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
 
@@ -61,9 +62,8 @@ hash yarn 2>/dev/null || {
     echo >&2 "Please install it following the instructions on https://yarnpkg.com. Aborting.";
     exit 1;
 }
-
-yarn --modules-folder=$TARGET_DIR/node_modules
-NODE_ENV=production BABEL_ENV=production $TARGET_DIR/node_modules/.bin/gulp
+yarn --cwd $TARGET_DIR cache clean
+yarn --cwd $TARGET_DIR run build
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore

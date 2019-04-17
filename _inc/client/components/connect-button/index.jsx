@@ -25,7 +25,7 @@ import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
-require( './style.scss' );
+import './style.scss';
 
 export class ConnectButton extends React.Component {
 	static displayName = 'ConnectButton';

@@ -19,10 +19,10 @@ import {
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
+	getConnectUrl as _getConnectUrl,
 } from 'state/connection';
 import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
-import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 
@@ -205,16 +205,15 @@ class JetpackNotices extends React.Component {
 					siteConnected={ true === this.props.siteConnectionStatus }
 					isLinked={ this.props.isLinked }
 				/>
-				{ ! this.props.siteConnectionStatus &&
-					! this.props.userCanConnectSite && (
-						<SimpleNotice
-							showDismiss={ false }
-							status="is-warning"
-							text={ __(
-								'This site is not connected to WordPress.com. Please ask the site administrator to connect.'
-							) }
-						/>
-					) }
+				{ ! this.props.siteConnectionStatus && ! this.props.userCanConnectSite && (
+					<SimpleNotice
+						showDismiss={ false }
+						status="is-warning"
+						text={ __(
+							'This site is not connected to WordPress.com. Please ask the site administrator to connect.'
+						) }
+					/>
+				) }
 			</div>
 		);
 	}

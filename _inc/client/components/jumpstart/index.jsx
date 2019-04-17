@@ -36,17 +36,18 @@ class JumpStart extends Component {
 		);
 	};
 
-	dismissLink = () => {
-		return (
-			<a
-				href={ '#/settings' }
-				onClick={ this.props.jumpStartSkip }
-				className="jp-jumpstart__skip-link"
-			>
-				{ __( 'Skip and explore features' ) }
-			</a>
-		);
-	};
+	dismissLink = () =>
+		__( '{{a}}Skip, and explore features individually{{/a}}.', {
+			components: {
+				a: (
+					<a
+						href={ '#/settings' }
+						onClick={ this.props.jumpStartSkip }
+						className="jp-jumpstart__skip-link"
+					/>
+				),
+			},
+		} );
 
 	render() {
 		return (
@@ -60,16 +61,12 @@ class JumpStart extends Component {
 							{ __( 'Your Jetpack site is ready to go!' ) }
 						</h3>
 						<p className="jp-jumpstart-card__description-text">
-							{ __(
-								'We’re now collecting stats, securing your site, and enhancing your editing experience. ' +
-									'Pretty soon you’ll be able to see everything going on with your site right through Jetpack! Welcome aboard.'
-							) }
+							{ __( 'We’re now collecting stats and securing your site. Welcome aboard.' ) }
 						</p>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								'Activate Jetpack’s recommended features to get the most out of your site. ' +
-									'Don’t worry, features can be activated and deactivated at any time. ' +
-									'{{a}}Learn more about recommended features{{/a}}.',
+								'Next, activate Jetpack’s recommended feature set to maximize your site’s security and performance. ' +
+									'{{a}}Learn more about what’s included{{/a}}.',
 								{
 									components: {
 										a: (

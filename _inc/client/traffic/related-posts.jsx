@@ -67,9 +67,7 @@ class RelatedPostsComponent extends React.Component {
 					} }
 				>
 					<p className="jp-form-setting-explanation">
-						{ __(
-							'The following settings will impact all related posts on your site, except for those you created via the block editor:'
-						) }
+						{ __( "These settings won't apply to related posts added using the block editor." ) }
 					</p>
 					<ModuleToggle
 						slug="related-posts"
@@ -122,7 +120,7 @@ class RelatedPostsComponent extends React.Component {
 									) }
 									{ [
 										{
-											url: '1-wpios-ipad-3-1-viewsite.png',
+											url: 'cat-blog.png',
 											text: __( 'Big iPhone/iPad Update Now Available' ),
 											context: __( 'In "Mobile"', {
 												comment:
@@ -130,7 +128,7 @@ class RelatedPostsComponent extends React.Component {
 											} ),
 										},
 										{
-											url: 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
+											url: 'devices.jpg',
 											text: __( 'The WordPress for Android App Gets a Big Facelift' ),
 											context: __( 'In "Mobile"', {
 												comment:
@@ -138,7 +136,7 @@ class RelatedPostsComponent extends React.Component {
 											} ),
 										},
 										{
-											url: 'videopresswedding.jpg',
+											url: 'mobile-wedding.jpg',
 											text: __( 'Upgrade Focus: VideoPress For Weddings' ),
 											context: __( 'In "Upgrade"', {
 												comment:
@@ -149,9 +147,7 @@ class RelatedPostsComponent extends React.Component {
 										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
 											{ this.state.show_thumbnails && (
 												<img
-													src={ `https://jetpackme.files.wordpress.com/2014/08/${
-														item.url
-													}?w=350&h=200&crop=1` }
+													src={ `https://jetpackme.files.wordpress.com/2019/03/${ item.url }` }
 													alt={ item.text }
 												/>
 											) }
@@ -166,17 +162,16 @@ class RelatedPostsComponent extends React.Component {
 						) }
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'related-posts' ) &&
-					isRelatedPostsActive && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href={ this.props.configureUrl }
-						>
-							{ __( 'Configure related posts in the Customizer' ) }
-						</Card>
-					) }
+				{ ! this.props.isUnavailableInDevMode( 'related-posts' ) && isRelatedPostsActive && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						onClick={ this.trackConfigureClick }
+						href={ this.props.configureUrl }
+					>
+						{ __( 'Configure related posts in the Customizer' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}

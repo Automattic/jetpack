@@ -1,13 +1,11 @@
-import ReactDom from 'react-dom';
-
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import classNames from 'classnames';
-import debounce from 'lodash/debounce';
-import noop from 'lodash/noop';
+import ReactDom from 'react-dom';
+import { debounce, noop } from 'lodash';
 
 /**
  * Internal dependencies
@@ -17,7 +15,7 @@ import Spinner from 'components/spinner';
 import Gridicon from 'components/gridicon';
 import { isMobile } from 'lib/viewport';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Internal variables
@@ -92,7 +90,7 @@ class Search extends React.Component {
 		hasFocus: false,
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.setState( {
 			instanceId: ++Search.instances,
 		} );
@@ -101,7 +99,7 @@ class Search extends React.Component {
 		this.openListener = keyListener.bind( this, 'openSearch' );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if (
 			nextProps.onSearch !== this.props.onSearch ||
 			nextProps.delaySearch !== this.props.delaySearch
@@ -353,7 +351,7 @@ class Search extends React.Component {
 						id={ 'dops-search-component-' + this.state.instanceId }
 						className={ inputClass }
 						placeholder={ placeholder }
-						role="search"
+						role="searchbox"
 						value={ searchValue }
 						ref="searchInput"
 						onKeyUp={ this.keyUp }
@@ -404,4 +402,4 @@ class Search extends React.Component {
 	};
 }
 
-module.exports = Search;
+export default Search;

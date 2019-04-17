@@ -26,7 +26,7 @@
 			return;
 		}
 	}
-
+  
 	/**
 	 * For images lacking explicit dimensions and needing them, try to add them.
 	 */
@@ -56,5 +56,6 @@
 			restore_dims();
 		}
 	}
+  
 	document.body.addEventListener( 'post-load', restore_dims );
 } )();

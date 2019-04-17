@@ -142,63 +142,62 @@ class ThemeEnhancements extends React.Component {
 				{ infiniteScrollDisabledByOverride && (
 					<ModuleOverriddenBanner moduleName={ infScr.name } compact />
 				) }
-				{ foundInfiniteScroll &&
-					! infiniteScrollDisabledByOverride && (
-						<SettingsGroup
-							hasChild
-							module={ { module: infScr.module } }
-							key={ `theme_enhancement_${ infScr.module }` }
-							support={ {
-								text: __(
-									'Loads the next posts automatically when the reader approaches the bottom of the page.'
-								),
-								link: 'https://jetpack.com/support/infinite-scroll',
-							} }
-						>
-							<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
-							{ this.props.isInfiniteScrollSupported ? (
-								[
-									{
-										key: 'infinite_default',
-										label: __( 'Load more posts using the default theme behavior' ),
-									},
-									{
-										key: 'infinite_button',
-										label: __( 'Load more posts in page with a button' ),
-									},
-									{
-										key: 'infinite_scroll',
-										label: __( 'Load more posts as the reader scrolls down' ),
-									},
-								].map( radio => (
-									<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
-										<input
-											type="radio"
-											name="infinite_mode"
-											value={ radio.key }
-											checked={ radio.key === this.state.infinite_mode }
-											disabled={ this.props.isSavingAnyOption( [ infScr.module, radio.key ] ) }
-											onChange={ this.handleInfiniteScrollModeChange( radio.key ) }
-										/>
-										<span className="jp-form-toggle-explanation">{ radio.label }</span>
-									</FormLabel>
-								) )
-							) : (
-								<span>
-									{ __( 'Theme support required.' ) + ' ' }
-									<a
-										onClick={ this.trackLearnMoreIS }
-										href={ infScr.learn_more_button + '#theme' }
-										title={ __(
-											'Learn more about adding support for Infinite Scroll to your theme.'
-										) }
-									>
-										{ __( 'Learn more' ) }
-									</a>
-								</span>
-							) }
-						</SettingsGroup>
-					) }
+				{ foundInfiniteScroll && ! infiniteScrollDisabledByOverride && (
+					<SettingsGroup
+						hasChild
+						module={ { module: infScr.module } }
+						key={ `theme_enhancement_${ infScr.module }` }
+						support={ {
+							text: __(
+								'Loads the next posts automatically when the reader approaches the bottom of the page.'
+							),
+							link: 'https://jetpack.com/support/infinite-scroll',
+						} }
+					>
+						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
+						{ this.props.isInfiniteScrollSupported ? (
+							[
+								{
+									key: 'infinite_default',
+									label: __( 'Load more posts using the default theme behavior' ),
+								},
+								{
+									key: 'infinite_button',
+									label: __( 'Load more posts in page with a button' ),
+								},
+								{
+									key: 'infinite_scroll',
+									label: __( 'Load more posts as the reader scrolls down' ),
+								},
+							].map( radio => (
+								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
+									<input
+										type="radio"
+										name="infinite_mode"
+										value={ radio.key }
+										checked={ radio.key === this.state.infinite_mode }
+										disabled={ this.props.isSavingAnyOption( [ infScr.module, radio.key ] ) }
+										onChange={ this.handleInfiniteScrollModeChange( radio.key ) }
+									/>
+									<span className="jp-form-toggle-explanation">{ radio.label }</span>
+								</FormLabel>
+							) )
+						) : (
+							<span>
+								{ __( 'Theme support required.' ) + ' ' }
+								<a
+									onClick={ this.trackLearnMoreIS }
+									href={ infScr.learn_more_button + '#theme' }
+									title={ __(
+										'Learn more about adding support for Infinite Scroll to your theme.'
+									) }
+								>
+									{ __( 'Learn more' ) }
+								</a>
+							</span>
+						) }
+					</SettingsGroup>
+				) }
 				{ foundMinileven && (
 					<SettingsGroup
 						hasChild

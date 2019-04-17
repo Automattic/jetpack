@@ -29,7 +29,7 @@
 //
 // [1] https://github.com/Automattic/wp-calypso/blob/master/docs/coding-guidelines/css.md#media-queries
 //
-function isWithinBreakpoint( breakpoint ) {
+export function isWithinBreakpoint( breakpoint ) {
 	const screenWidth = getWindowInnerWidth(),
 		breakpoints = {
 			'<480px': function() {
@@ -73,23 +73,16 @@ function isWithinBreakpoint( breakpoint ) {
 	return breakpoints[ breakpoint ]();
 }
 
-function isMobile() {
+export function isMobile() {
 	return isWithinBreakpoint( '<480px' );
 }
 
-function isDesktop() {
+export function isDesktop() {
 	return isWithinBreakpoint( '>960px' );
 }
 
 // FIXME: We can't detect window size on the server, so until we have more intelligent detection,
 // use 769, which is just above the general maximum mobile screen width.
-function getWindowInnerWidth() {
+export function getWindowInnerWidth() {
 	return global.window ? global.window.innerWidth : 769;
 }
-
-module.exports = {
-	isMobile: isMobile,
-	isDesktop: isDesktop,
-	isWithinBreakpoint: isWithinBreakpoint,
-	getWindowInnerWidth: getWindowInnerWidth,
-};

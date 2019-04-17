@@ -245,18 +245,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function current_user_can( $capability, $plugin = null ) {
-		global $wp_version;
-		if ( version_compare( $wp_version, '4.9-beta2' ) >= 0 ) {
-			if ( $plugin ) {
-				return current_user_can( $capability, $plugin );
-			}
-
-			return current_user_can( $capability );
+		if ( $plugin ) {
+			return current_user_can( $capability, $plugin );
 		}
 
-		// Assume that the user has the activate plugins capability.
-		return current_user_can( 'activate_plugins' );
-
+		return current_user_can( $capability );
 	}
 
 	protected function deactivate() {

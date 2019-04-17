@@ -1,14 +1,16 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
 
 /**
  * Internal dependencies
  */
-const Bar = require( './bar' ),
-	XAxis = require( './x-axis' );
+import Bar from './bar';
+
+import XAxis from './x-axis';
 
 export default class ModuleChartBarContainer extends React.Component {
 	static displayName = 'ModuleChartBarContainer';

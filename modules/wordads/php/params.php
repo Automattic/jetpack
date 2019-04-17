@@ -208,7 +208,7 @@ class WordAds_Params {
 			return false;
 		}
 
-		if ( is_archive() && ! $this->options['wordads_display_archive'] ) {
+		if ( ( is_archive() || is_search() ) && ! $this->options['wordads_display_archive'] ) {
 			return false;
 		}
 

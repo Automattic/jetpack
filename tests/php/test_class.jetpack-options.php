@@ -109,4 +109,14 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		remove_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		remove_filter( 'option_test_option', array( $this, 'get_test_option_from_cache' ) );
 	}
+
+	function test_raw_option_update_with_duplicate_value_returns_false() {
+		Jetpack_Options::delete_raw_option( 'test_option_2' );
+
+		Jetpack_Options::update_raw_option( 'test_option_2', 'blue' );
+		$this->assertEquals( 'blue', Jetpack_Options::get_raw_option( 'test_option_2' ) );
+
+		$this->assertFalse( Jetpack_Options::update_raw_option( 'test_option_2', 'blue' ) );
+		$this->assertTrue( Jetpack_Options::update_raw_option( 'test_option_2', 'yellow' ) );
+	}
 }

@@ -124,9 +124,13 @@ function wpme_rest_get_shortlink( $object ) {
 }
 
 // Add shortlinks to the REST API Post response.
-if ( function_exists( 'register_rest_field' ) ) {
-	add_action( 'rest_api_init', 'wpme_rest_register_shortlinks' );
+add_action( 'rest_api_init', 'wpme_rest_register_shortlinks' );
+
+/**
+ * Set the Shortlink Gutenberg extension as available.
+ */
+function wpme_set_extension_available() {
+	Jetpack_Gutenberg::set_extension_available( 'jetpack/shortlinks' );
 }
 
-// Register Gutenberg plugin
-jetpack_register_plugin( 'shortlinks' );
+add_action( 'init', 'wpme_set_extension_available' );

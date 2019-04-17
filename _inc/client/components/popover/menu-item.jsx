@@ -1,9 +1,9 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	noop = require( 'lodash/noop' ),
-	classnames = require( 'classnames' );
+import React from 'react';
+import { noop } from 'lodash';
+import classnames from 'classnames';
 
 class MenuItem extends React.Component {
 	static defaultProps = {
@@ -34,4 +34,4 @@ class MenuItem extends React.Component {
 	};
 }
 
-module.exports = MenuItem;
+export default MenuItem;

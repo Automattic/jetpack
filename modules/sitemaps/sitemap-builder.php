@@ -1319,6 +1319,20 @@ class Jetpack_Sitemap_Builder {
 
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
+		
+		// Include thumbnails for VideoPress videos, use blank image for others
+		if ( 'complete' === get_post_meta( $post->ID, 'videopress_status', true ) && has_post_thumbnail( $post ) ) {
+			$video_thumbnail_url = get_the_post_thumbnail_url( $post );
+		} else {
+			/**
+			 * Filter the thumbnail image used in the video sitemap for non-VideoPress videos.
+			 *
+			 * @since 7.2.0
+			 *
+			 * @param string $str Image URL.
+			 */
+			$video_thumbnail_url = apply_filters( 'jetpack_video_sitemap_default_thumbnail', 'https://s0.wp.com/i/blank.jpg' );
+		}
 
 		$item_array = array(
 			'url' => array(
@@ -1327,7 +1341,7 @@ class Jetpack_Sitemap_Builder {
 				'video:video' => array(
 					/** This filter is already documented in core/wp-includes/feed.php */
 					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
-					'video:thumbnail_loc' => '',
+					'video:thumbnail_loc' => esc_url( $video_thumbnail_url ),
 					'video:description'   => $content,
 					'video:content_loc'   => esc_url( wp_get_attachment_url( $post->ID ) ),
 				),

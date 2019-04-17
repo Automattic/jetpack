@@ -8,11 +8,10 @@ import { bindActionCreators } from 'redux';
 /**
  * Internal dependencies
  */
-import { fetchModules } from 'state/modules';
-import { isFetchingModulesList } from 'state/modules';
+import { fetchModules, isFetchingModulesList } from 'state/modules';
 
 class QueryModules extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingModulesList ) {
 			this.props.fetchModules();
 		}

@@ -83,4 +83,4 @@ services:
       - default.env
       - .env
     environment:
-      - HOST_PORT=${PORT_WORDPRESS}
+      - HOST_PORT=${PORT_WORDPRESS:-80}

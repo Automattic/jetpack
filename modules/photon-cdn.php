@@ -1,15 +1,15 @@
 <?php
 /**
  * Module Name: Asset CDN
- * Module Description: Serve static assets from our servers
+ * Module Description: Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.
  * Sort Order: 26
  * Recommendation Order: 1
  * First Introduced: 6.6
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
- * Feature: Recommended, Appearance
- * Additional Search Queries: photon, image, cdn, performance, speed, assets
+ * Feature: Recommended, Appearance, Jumpstart
+ * Additional Search Queries: site accelerator, accelerate, static, assets, javascript, css, files, performance, cdn, bandwidth, content delivery network, pagespeed, combine js, optimize css
  */
 
 $GLOBALS['concatenate_scripts'] = false;
@@ -38,6 +38,17 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 */
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles, $wp_version;
+
+		/*
+		 * Short-circuit if AMP since not relevant as custom JS is not allowed and CSS is inlined.
+		 * Note that it is not suitable to use the jetpack_force_disable_site_accelerator filter for this
+		 * because it will be applied before the wp action, which is the point at which the queried object
+		 * is available and we know whether the response will be AMP or not. This is particularly important
+		 * for AMP-first (native AMP) pages where there are no AMP-specific URLs.
+		 */
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
 
 		/**
 		 * Filters Jetpack CDN's Core version number and locale. Can be used to override the values
@@ -92,7 +103,20 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * @return string The expected relative path for the CDN-ed URL.
 	 */
 	public static function fix_script_relative_path( $relative, $src ) {
-		return substr( $src, 1 + strpos( $src, '/wp-includes/' ) );
+
+		// Note relevant in AMP responses. See note above.
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $relative;
+		}
+
+		$strpos = strpos( $src, '/wp-includes/' );
+
+		// We only treat URLs that have wp-includes in them. Cases like language textdomains
+		// can also use this filter, they don't need to be touched because they are local paths.
+		if ( false === $strpos ) {
+			return $relative;
+		}
+		return substr( $src, 1 + $strpos );
 	}
 
 	/**

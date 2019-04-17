@@ -235,11 +235,11 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
-			return $images;
+		if ( 'attachment' === get_post_type( $post ) && wp_attachment_is_image( $post ) ) {
+			$thumb = $post_id;
+		} else {
+			$thumb = get_post_thumbnail_id( $post );
 		}
-
-		$thumb = get_post_thumbnail_id( $post_id );
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
@@ -269,7 +269,7 @@ class Jetpack_PostImages {
 				$img_src = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
-			$url = $img_src[0];
+			$url    = $img_src[0];
 			$images = array( array( // Other methods below all return an array of arrays
 				'type'       => 'image',
 				'from'       => 'thumbnail',
@@ -277,6 +277,7 @@ class Jetpack_PostImages {
 				'src_width'  => $img_src[1],
 				'src_height' => $img_src[2],
 				'href'       => get_permalink( $thumb ),
+				'alt_text'   => self::get_alt_text( $thumb ),
 			) );
 
 		}
@@ -299,6 +300,7 @@ class Jetpack_PostImages {
 					'src_width'  => $meta_thumbnail['width'],
 					'src_height' => $meta_thumbnail['height'],
 					'href'       => $meta_thumbnail['URL'],
+					'alt_text'   => self::get_alt_text( $thumb ),
 				) );
 			}
 		}
@@ -317,11 +319,6 @@ class Jetpack_PostImages {
 	 */
 	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
-
-		// Bail early if the site does not support the block editor.
-		if ( ! function_exists( 'parse_blocks' ) ) {
-			return $images;
-		}
 
 		$html_info = self::get_post_html( $html_or_id );
 
@@ -350,11 +347,10 @@ class Jetpack_PostImages {
 			}
 
 			/**
-			 * Parse content from Core Gallery blocks and Jetpack's Tiled Gallery blocks.
+			 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
 			 * Gallery blocks include the ID of each one of the images in the gallery.
 			 */
-			if (
-				( 'core/gallery' === $block['blockName'] || 'jetpack/tiled-gallery' === $block['blockName'] )
+			if ( in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery', 'jetpack/slideshow' ) )
 				&& ! empty( $block['attrs']['ids'] )
 			) {
 				foreach ( $block['attrs']['ids'] as $img_id ) {
@@ -420,8 +416,9 @@ class Jetpack_PostImages {
 			}
 
 			$meta = array(
-				'width'  => (int) $image_tag->getAttribute( 'width' ),
-				'height' => (int) $image_tag->getAttribute( 'height' ),
+				'width'    => (int) $image_tag->getAttribute( 'width' ),
+				'height'   => (int) $image_tag->getAttribute( 'height' ),
+				'alt_text' => $image_tag->getAttribute( 'alt' ),
 			);
 
 			/**
@@ -456,6 +453,7 @@ class Jetpack_PostImages {
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
 				'href'       => $html_info['post_url'],
+				'alt_text'   => $meta['alt_text'],
 			);
 		}
 		return $images;
@@ -478,10 +476,11 @@ class Jetpack_PostImages {
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
-		} elseif ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
-			$url = get_site_icon_url( $size );
 		} else {
-			return array();
+			$url = get_site_icon_url( $size );
+			if ( ! $url ) {
+				return array();
+			}
 		}
 
 		return array( array(
@@ -491,6 +490,7 @@ class Jetpack_PostImages {
 			'src_width'  => $size,
 			'src_height' => $size,
 			'href'       => $permalink,
+			'alt_text'   => '',
 		) );
 	}
 
@@ -526,6 +526,7 @@ class Jetpack_PostImages {
 				'src_width'  => $size,
 				'src_height' => $size,
 				'href'       => $permalink,
+				'alt_text'   => '',
 			),
 		);
 	}
@@ -770,6 +771,19 @@ class Jetpack_PostImages {
 			'src_width'  => $meta['width'],
 			'src_height' => $meta['height'],
 			'href'       => $post_url,
+			'alt_text'   => self::get_alt_text( $attachment_id ),
 		);
+	}
+
+	/**
+	 * Get the alt text for an image or other media from the Media Library.
+	 *
+	 * @since 7.1
+	 *
+	 * @param int $attachment_id The Post ID of the media.
+	 * @return string The alt text value or an emptry string.
+	 */
+	public static function get_alt_text( $attachment_id ) {
+		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 	}
 }

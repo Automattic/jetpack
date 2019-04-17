@@ -8,7 +8,7 @@ import debugFactory from 'debug';
 import classNames from 'classnames';
 import clickOutside from 'click-outside';
 import uid from 'component-uid';
-import assign from 'lodash/assign';
+import { assign } from 'lodash';
 
 /**
  * Internal dependencies
@@ -23,7 +23,7 @@ import {
 	offset,
 } from './util';
 
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Module variables
@@ -84,7 +84,7 @@ class Popover extends Component {
 		bindWindowListeners();
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target) reference into a property
 		if ( ! isDOMElement( nextProps.context ) ) {
 			this.domContext = ReactDom.findDOMNode( nextProps.context );

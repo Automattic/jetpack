@@ -1,45 +1,44 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 6.9
-Requires at least: 4.8
-Tested up to: 5.0
+Stable tag: 7.2.1
+Requires at least: 5.0
+Tested up to: 5.2
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
 == Description ==
 
-Hassle-free design, marketing, and security — all in one place.
+Security, performance, and site management: the best way to WordPress is with Jetpack.
 
-= Design and Customization Services =
-Create and customize your WordPress site from start to finish. Jetpack helps you with:
+= 24/7 Site Security =
+Jetpack is your site's security detail, guarding you against brute-force attacks and unauthorized logins. Basic protection is always free, while premium plans add expanded backup and automated fixes. Jetpack's full suite of site security tools include:
 
-* Hundreds of professional themes for any kind of site
-* Intuitive and powerful customization tools
-* Unlimited and high-speed image and video content delivery network
-* Lazy image loading for a faster mobile experience
-* Integration with the official WordPress mobile apps
+* Brute-force attack protection, spam filtering, and downtime monitoring.
+* Backups of your entire site, either once daily or in real time.
+* Secure login, with optional two-factor authentication.
+* Malware scanning, code scanning, and automated threat resolution.
+* A record of every change on your site to simplify troubleshooting.
+* Fast, priority support from WordPress experts.
 
-= Marketing and Performance Services =
-Measure, promote, and earn money from your site. Jetpack helps you with:
+= Peak Performance =
+Activate site accelerator tools and watch your page load times and hosting costs drop -- we'll optimize your images and serve them from our own powerful global network, and speed up your mobile site to reduce bandwidth usage (and save money!). Connect Jetpack to take advantage of:
 
-* Site stats and analytics
-* Automated social media posting and scheduling in advance
-* Elasticsearch-powered related content and site search
-* SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com
-* Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
-* Simple PayPal payment buttons
-* Optimize: Activate Jetpack’s site accelerator to load pages faster, optimize your images, and serve your images and static files (like CSS and JavaScript) from our global network of servers. You’ll also reduce bandwidth usage, which may lead to lower hosting costs.
+* Images and static files, like CSS and JavaScript, served from our servers, not yours.
+* Elasticsearch-powered related content and site search, for relevant results with no drain on your servers.
+* Lazy image loading for a faster mobile experience.
+* Unlimited and high-speed video via our content delivery network.
 
-= Security and Backups Services =
-Stop worrying about data loss, downtime, and hacking. Jetpack helps you with:
+= Effortless Site Management =
+Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Built it, share it, and watch it grow with:
 
-* Brute force attack protection, spam filtering, and downtime monitoring
-* Daily or real-time backups of your entire site
-* Secure logins with optional two-factor authentication
-* Malware scanning, code scanning, and automated threat resolution
-* Activity: a record of every change and update on your site
-* Fast, priority support from WordPress experts
+* Advanced site stats and analytics for understanding your audience.
+* Hundreds of professional themes, for a pro site no matter what your niche.
+* Intuitive and powerful customization tools to match your website to your brand.
+* Simple PayPal payment buttons for selling products and services.
+* SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com to maximize your reach.
+* An advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo.
+* Integration with the official WordPress mobile apps, to manage your site from anywhere.
 
 = Expert Support =
 We have a global team of Happiness Engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
@@ -89,65 +88,80 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Themes: Choose from hundreds of customizable, professional themes.
-2. Performance: Free high-speed content delivery network for your images.
-3. Apps: Update your site from any device with the free WordPress apps.
-4. Analytics: Simple and concise site stats and traffic insights.
-5. Sharing: Connect your site to social networks for automated social sharing.
-6. Revenue: Sell products & take payments with simple payment buttons.
-7. Downtime Monitoring: Get notified if and when your site goes down.
-8. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
+1. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
+2. Downtime Monitoring: Know right away if and when your site goes down.
+3. Performance: Free high-speed content delivery network for your images.
+4. Analytics: Concise site stats and traffic insights.
+5. Themes: Hundreds of customizable, professional themes.
+6. Apps: Update your site from any device with the free WordPress apps.
+7. Revenue: Sell products and take payments with simple payment buttons.
+8. Sharing: Connect your site to social networks for automated social sharing.
 
 == Changelog ==
 
-= 7.0 =
+= 7.2.1 =
+* Release date: April 04, 2019
+* Release post: https://wp.me/p1moTy-h7o
 
-* Release date: February 05, 2019
-* Release post: https://wp.me/p1moTy-dqO
+* Feature Hints: display suggestions only for features available under the site's current plan.
+* Feature Hints: improve visual display to make more distinct from search results.
+* Feature Hints: disable hints once administrators have dismissed three hints.
+* Slideshow Block: resolve an issue that broke navigating between images.
+
+= 7.2 =
+
+* Release date: April 02, 2019
+* Release post: https://wp.me/p1moTy-foe
 
 **Major Enhancements**
 
-* Block Editor: introduce a new Gif block to help you quickly search and add Gif images to your posts.
-* Copy Post: this new feature allows you to quickly create a new draft based on a post that's already published.
+* Adds a Repeat Visitor block that controls block visibility based on how often a visitor has viewed the page.
+* New option to disable Ads blocks for visitors on mobile devices.
+
 
 **Enhancements**
 
-* Block editor: update the way we check for available blocks and extensions.
-* Connection flow: display a notice upon connection when the site is suspended.
-* Contact Form: add more options to customize the look of the submit button.
-* Likes / Publicize: in the Jetpack Dashboard, add explanation to clarify the role of the features.
-* REST API: add likes and sharing settings to the REST API Post response.
-* Sharing: deprecate the Google+ sharing Button.
-* Sharing: deprecate the Google+ embed shortcode.
-* Shortcodes: rely on WordPress Core to handle SlideShare slideshow embeds.
-* Shortcodes: cache the output of the Twitter shortcode.
-* Subscriptions: remove obsolete polyfill JavaScript from the Subscriptions form.
-* Subscriptions: allow more customization of the subscription form's submit button.
-* Sync: improvements to the synchronization of plugin and theme updates.
-* Sync: improve performance for sites using PHP 7, with `fastcgi_finish_request` enabled.
-* Sync: synchronize plugin and theme fatal errors reported by WordPress 5.1.
-* Widgets: deprecate the Google+ widgets.
-* WordPress.com: allow the display of plugin action links in the WordPress.com plugins' interface.
+* Admin Dashboard: improve text and design to make your administration experience all the better.
+* Jumpstart: streamline what features are suggested to be activated when setting up Jetpack for the first time.
+* Password Checker: adds a password checker class that will help Jetpack let you know if you're using a weak password. More about this coming in a future release!
+* Plans: refactor how Jetpack Plans are coded within Jetpack to improve performance and help prevent any future bugs.
+* Post Images: provide the image itself when requesting an attachment's post image.
+* REST API: Enable Likes and Sharing meta field for all post types.
+* Related Posts: improve HTML markup for related posts, with emphasis on accessibility.
+* Search: add an easy way to see the raw Jetpack Search query results in the search page's source code.
+* Shortcodes: allow links in Quiz shortcode explanations.
+* Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
 
 **Improved compatibility**
 
-* Lazy Images: fix a compatibility issue with themes that overwrite classes on html.
-* Contact Form: ensure contact form submissions with long words do not break the site layout, regardless of the theme.
-* Publicize: remove the option to connect your site to a Google+ account, in anticipation of the service's shutdown.
+* General: require WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
+* General: update various parts of Jetpack to fully align with WordPress coding standards to make developing Jetpack easier!
+* Connection: notify site owners when a plugin or theme is double-encoding URL redirects.
+* Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
+* Shortcodes: add AMP support for Crowdsignal polls and shortcodes.
+* Sitemaps: add thumbnails to video sitemaps to improve compatibility with Google Search Console. Props Adam Heckler!
+* Sync: improve performance when using the VIP Legacy Redirect plugin.
+* Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
+* VideoPress: update right-to-left language CSS to remove extra styles only used on browsers no longer supported.
+* Widgets: improve rendering of Contact Info widget map when using the AMP plugin.
 
 **Bug fixes**
 
-* Admin Page: avoid PHP notices when looking at non-Jetpack admin pages.
-* Carousel: fix display issue when viewing images with long captions.
-* Carousel: avoid errors when fetching comments in the Carousel modal.
-* CSS: fix the behaviour of the CSS concatenation filter.
-* Multisite: fix the display of the main connection banner.
-* Protect: ensure the Math fallback is displayed when necessary.
-* Publicize: avoid Fatal Errors on sites using Development Mode.
-* Responsive videos: do not apply for videos that benefit from WordPress' own Responsive Embeds solution.
-* Shortcodes: only load Mailchimp CSS when needed.
-* Subscriptions: display subscription options below the comment form, even when you are logged in to your WordPress account.
-* WordPress.com REST API: add new endpoint to allow the creation of a WooCommerce connection via the API.
+* Admin Dashboard: fix an error that you'd see in the console when changing your Carousel settings.
+* Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
+* Blocks: display all Business Hours details, even if they're the default set.
+* Blocks: fix an error that occurred when loading some translations in the Block Editor.
+* Blocks: resolve a conflict between the Ads block and infinite scroll that would cause new posts to sometimes not load.
+* General: ensure the proper Jetpack plan is reflected throughout Jetpack and the administrative dashboard.
+* Plugin Search: display Akismet and VaultPress plugin cards when WordPress.org suggests them.
+* Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
+* Related Posts: restore use of the jetpack_relatedposts_filter_options filter.
+* Security: Improvements to the Likes feature and the Slideshow block.
+* Sharing: update WhatsApp to be more consistent with the other sharing buttons.
+* Shortcodes: remove Lytro service, which closed in March.
+* Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
+* Widgets: display all characters in an address from Contact Info correctly when sometimes we encoded those that we'd expect in an URL.
+* Widgets: improve the performance of the Contact Info widget by eliminating unused JavaScript.
 
 --------
 

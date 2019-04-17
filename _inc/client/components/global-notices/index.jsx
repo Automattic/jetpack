@@ -17,7 +17,7 @@ import { removeNotice } from './state/notices/actions';
 
 const debug = debugModule( 'calypso:notices' );
 
-require( './style.scss' );
+import './style.scss';
 
 class NoticesList extends React.Component {
 	static displayName = 'NoticesList';
@@ -32,7 +32,7 @@ class NoticesList extends React.Component {
 		notices: Object.freeze( [] ),
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		debug( 'Mounting Global Notices React component.' );
 	}
 

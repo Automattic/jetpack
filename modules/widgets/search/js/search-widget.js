@@ -6,10 +6,14 @@ jQuery( document ).ready( function() {
 		checkbox.prop( 'checked', ! checkbox.prop( 'checked' ) );
 	} );
 
-	filter_list.find( 'input[type="checkbox"]' ).prop( 'disabled', false ).css( 'cursor', 'inherit' ).on( 'click', function() {
-		var anchor = jQuery( this ).siblings( 'a' );
-		if ( anchor.length ) {
-			window.location.href = anchor.prop( 'href' );
-		}
-	} );
+	filter_list
+		.find( 'input[type="checkbox"]' )
+		.prop( 'disabled', false )
+		.css( 'cursor', 'inherit' )
+		.on( 'click', function() {
+			var anchor = jQuery( this ).siblings( 'a' );
+			if ( anchor.length ) {
+				window.location.href = anchor.prop( 'href' );
+			}
+		} );
 } );

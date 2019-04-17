@@ -4,14 +4,13 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import Banner from 'components/banner';
 
 /**
  * Internal dependencies
  */
-import { arePromotionsActive } from 'state/initial-state';
-import { userCanManageModules } from 'state/initial-state';
+import { arePromotionsActive, userCanManageModules } from 'state/initial-state';
 
 class JetpackBanner extends Banner {
 	static propTypes = {

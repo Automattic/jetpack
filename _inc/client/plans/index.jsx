@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 
 /**
  * Internal dependencies

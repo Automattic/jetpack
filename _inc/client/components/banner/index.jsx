@@ -4,8 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import noop from 'lodash/noop';
-import size from 'lodash/size';
+import { noop, size } from 'lodash';
 
 /**
  * Internal dependencies
@@ -16,7 +15,7 @@ import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import PlanIcon from 'components/plans/plan-icon';
 
-require( './style.scss' );
+import './style.scss';
 
 class Banner extends Component {
 	static propTypes = {

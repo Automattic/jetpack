@@ -19,9 +19,10 @@ class DashPhoton extends Component {
 		isModuleAvailable: PropTypes.bool.isRequired,
 	};
 
+	activatePhoton = () => this.props.updateOptions( { photon: true } );
+
 	getContent() {
-		const labelName = __( 'Image Performance' ),
-			activatePhoton = () => this.props.updateOptions( { photon: true } );
+		const labelName = __( 'Image Performance' );
 
 		const support = {
 			text: __(
@@ -52,7 +53,7 @@ class DashPhoton extends Component {
 						? __( 'Unavailable in Dev Mode' )
 						: __( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
 								components: {
-									a: <a href="javascript:void(0)" onClick={ activatePhoton } />,
+									a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
 								},
 						  } ) }
 				</p>

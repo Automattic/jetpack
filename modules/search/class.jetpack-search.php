@@ -150,7 +150,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+		if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
 			return;
 		}
 
@@ -243,6 +243,13 @@ class Jetpack_Search {
 				intval( $this->last_query_info['elapsed_time'] ),
 				esc_html( $this->last_query_info['es_time'] )
 			);
+
+			if ( isset( $_GET['searchdebug'] ) ) {
+				printf(
+					'<!-- Query response data: %s -->',
+					esc_html( print_r( $this->last_query_info, 1 ) )
+				);
+			}
 		}
 	}
 

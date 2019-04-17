@@ -14,7 +14,14 @@
 	}
 
 	.jp-banner__button-container {
-		padding: rem( 12px ) 0 0;
+		padding: rem( 32px ) 0 0;
+		flex-direction: row-reverse;
+		align-items: center;
+		justify-content: flex-end;
+
+		@include minbreakpoint(phablet) {
+			display: flex;
+		}
 	}
 
 	.jp-banner__tos-blurb {
@@ -23,6 +30,13 @@
 		line-height: 1.5;
 		font-size: rem( 11px );
 		color: $gray-dark;
+		@include minbreakpoint(phablet) {
+			margin-left: rem(18px);
+		}
+
+		a {
+			color: inherit;
+		}
 	}
 }
 
@@ -52,8 +66,16 @@
 		background: rgb( 241, 241, 241 );
 		text-align: center;
 
+		@include breakpoint(large-phone) {
+			top: 42px;
+		};
+
+		@include minbreakpoint(tablet) {
+			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
+		};
+
 		.jp-connect-full__container-card {
-			padding: rem( 48px ) rem( 64px ) rem( 96px );
+			padding: rem( 64px ) rem( 64px ) rem( 96px );
 			background: white;
 			margin: 1em;
 
@@ -73,10 +95,6 @@
 			font-weight: normal;
 			margin: 1em 0;
 		}
-
-		@include minbreakpoint(tablet) {
-			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
-		};
 
 	}
 
@@ -120,10 +138,6 @@
 	padding: rem( 16px );
 	height: rem( 24px );
 	width: rem( 24px );
-
-	@include breakpoint(phablet) {
-		top: rem( 50px );
-	};
 }
 
 .jp-connect-full__step-header {
@@ -132,10 +146,14 @@
 	line-height: 1.5;
 
 	h2 {
-		margin: rem( 24px ) 0 0;
+		margin: rem( 24px ) 10% 0;
 		font-size: rem( 22px );
 		font-weight: bold;
 		color: black;
+
+		@include breakpoint(large-phone) {
+			margin: rem( 24px ) 0 0;
+		};
 	}
 
 	h3 {
@@ -149,21 +167,14 @@
 		margin-top: rem( 80px );
 	}
 }
-.jp-connect-full__tos-blurb {
-	font-size: rem( 11px );
-	margin: 0 auto rem( 24px );
-	color: $gray-text-min;
-	a{
-		text-decoration: none;
-		color: $green-primary;
-	}
-}
 
 .jp-connect-full__button-container {
 	margin: 0;
 	.dops-button.is-primary {
 		background: $green-primary;
 		border-color: $green-secondary;
+		padding-left: rem( 24px );
+		padding-right: rem( 24px );
 
 		&:hover, &:focus {
 			background: $green-secondary;
@@ -172,62 +183,53 @@
 	}
 }
 
+.jp-connect-full__tos-blurb {
+	font-size: rem( 11px );
+	margin: 0 auto rem( 16px );
+}
+
 .jp-connect-full__dismiss {
 	cursor: pointer;
 }
 
 .jp-connect-full__dismiss-paragraph {
 	font-size: .6875rem;
+}
 
-	a {
-		cursor: pointer;
-		color: $gray-text-min;
-		text-decoration: none;
-	}
+.jp-connect-full__tos-blurb a,
+.jp-connect-full__dismiss-paragraph a {
+	cursor: pointer;
+	color: inherit;
+	text-decoration: underline;
+}
 
-	a:hover {
-		text-decoration: underline;
-	}
+.jp-connect-full__row {
+	display: flex;
+	justify-content: space-evenly;
+	text-align: left;
+	align-items: baseline;
+	margin: 0 auto;
+	max-width: 1000px;
 }
 
 .jp-connect-full__slide {
-	max-width: 750px;
-	margin: 4em auto;
-	display: flex;
-	flex-direction: row;
-	justify-content: stretch;
+	max-width: 35%;
+	margin: rem(48px) 0;
 
 	@include breakpoint(tablet) {
-		flex-wrap: wrap;
-	};
+		margin: rem(30px) 0;
+	}
 
-	.jp-connect-full__slide-card {
-		flex: 1;
-		text-align: left;
-		order: 2;
-
-		@include minbreakpoint(tablet) {
-			order: unset;
-		};
+	p {
+		font-size: rem(14px);
 	}
 
 	.illustration {
-		order: 1;
+		padding: rem(12px);
 
-		@include minbreakpoint(tablet) {
-			order: unset;
+		@include minbreakpoint(phablet) {
+			margin-bottom: rem(42px);
 		};
-
-		img {
-			margin: 2.5em 1em;
-			display: block;
-			min-width: 200px;
-
-			@include minbreakpoint(phablet) {
-				margin: 2.5em auto;
-				width: 75%;
-			};
-		}
 	}
 }
 
@@ -249,6 +251,19 @@
 		font-weight: normal;
 		margin: rem( 10px ) 0 rem( 24px );
 	}
+}
+
+@media screen and (max-width: 480px) {
+  .jp-connect-full__row {
+	display: block;
+  }
+  .jp-connect-full__slide {
+	margin: 2em 0;
+	max-width: 100%;
+  }
+  .jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card {
+	padding: rem(48px) rem(32px);
+  }
 }
 
 
@@ -280,10 +295,11 @@
 // end overrides
 
 .jp-wpcom-connect__container-top-text {
-	padding: 15px 15px 25px 15px;
+	padding: 15px 35px 25px 15px;
 	background-color: $green-primary;
 	color: $white;
-	font-weight: 600;
+	display: flex;
+	align-items: baseline;
 
 	svg {
 		width: 24px;
@@ -291,6 +307,9 @@
 		margin-right: 10px;
 		position: relative;
 		top: 7px;
+		@include breakpoint(large-phone) {
+			flex: 1;
+		}
 
 		path {
 			fill: #fff;
@@ -299,6 +318,9 @@
 
 	span {
 		display: inline-block;
+		@include breakpoint(large-phone) {
+			flex: 9;
+		}
 	}
 }
 
@@ -327,10 +349,6 @@
 	position: relative;
 	padding: rem( 32px );
 	z-index: 0;
-
-	@include minbreakpoint(tablet) {
-		padding: rem( 32px ) rem( 32px ) rem( 96px ) rem( 32px );
-	};
 }
 
 .jp-wpcom-connect__content-container p {
@@ -340,24 +358,47 @@
 
 .jp-wpcom-connect__content-container h2 {
 	margin-top: 0;
-	color: #4F748E;
 	line-height: 1.6;
+	display: block;
+	margin-bottom: rem(24px);
 }
 
-
+.jp-wpcom-connect__hide-phone-and-smaller {
+	@include breakpoint(large-phone) {
+		display: none !important;
+	}
+}
 
 .jp-wpcom-connect__content-icon {
-	float: right;
-	margin: 0 rem( 24px ) 0 rem( 36px );
+	margin: 0 rem( 24px );
+	display: flex;
+	flex-direction: column;
+}
 
-	&.jp-connect-illo {
+.jp-connect-illo {
+	img {
+		display: block;
+		margin: 0 auto;
 
-		@include breakpoint(tablet) {
-			float: none;
-			width: 100%;
-			text-align: center;
-			margin: rem( 36px ) 0 rem( 24px );
+		&.jetpack-logo {
+			margin-bottom: rem(36px);
+
+			@include breakpoint(large-phone) {
+				margin-left: 0;
+			}
 		}
+	}
+
+	@include breakpoint(tablet) {
+		width: 100%;
+		margin: rem( 8px ) 0;
+		display: block;
+	}
+}
+
+.jp-wpcom-connect__slide-text {
+	@include minbreakpoint(desktop) {
+		padding-left: rem( 45px );
 	}
 }
 
@@ -365,7 +406,12 @@
 	display: none;
 
 	&.jp__slide-is-active {
-		display: block;
+		display: flex;
+		align-items: flex-start;
+
+		@include breakpoint(tablet) {
+			display: block;
+		}
 	}
 }
 
@@ -379,19 +425,15 @@
 	font-size: rem( 12px );
 }
 
-.jp-wpcom-connect__content-container .jp-banner__button-container {
-	@include minbreakpoint(tablet) {
-		position: absolute;
-		bottom: rem( 8px );
-	};
-}
-
 .jp-banner__button-container .dops-button {
 	margin: rem( 5px ) 0;
 
 	&.is-primary {
 		background: $green-primary;
 		border-color: $green-secondary;
+		padding-left: rem( 24px );
+		padding-right: rem( 24px );
+		flex-shrink: 0;
 
 		&:hover, &:focus {
 			background: $green-secondary;
@@ -399,99 +441,3 @@
 		}
 	}
 }
-
-// Connection Banner Vertical Menu
-.jp-wpcom-connect__vertical-nav {
-	background-color: #F3F6F8;
-
-	@include minbreakpoint(phablet) {
-		flex-direction: column;
-		justify-content: flex-start;
-	};
-
-	@include breakpoint(phablet) {
-		display: none; // hide nav on sm screens. becomes a linear tutorial
-	};
-}
-
-.jp-wpcom-connect__vertical-nav-container {
-	width: rem( 240px );
-}
-
-.vertical-menu__feature-item-label {
-	display: none;
-}
-
-@include minbreakpoint(phablet) {
-
-	.vertical-menu__feature-item {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		border: none;
-		padding: rem( 12px ) rem( 8px );
-		border-bottom: 1px solid #c8d7e1;
-		border-right: 1px solid #c8d7e1;
-		border-left: 3px solid #F3F6F8;
-		background-color: #F3F6F8;
-		color: #87a6bc;
-		cursor: pointer;
-
-		// trick to hide the bottom border of the last menu item when the menu is the tallest element,
-		// but display the border when the overall container is taller than the menu
-		&:last-of-type {
-			position: relative;
-			top: 1px;
-		}
-	}
-
-	.vertical-menu__feature-item-is-selected {
-		border-left: 3px solid #F3F6F8;
-		border-right: 1px solid #fff;
-		background-color: #fff;
-		color: #2e4453;
-
-		&.jp-feature-intro {
-			border-left: 3px solid #F3F6F8;
-		}
-	}
-
-	.vertical-menu__feature-item-icon {
-		width: rem( 20px );
-		height: rem( 20px );
-		padding: rem( 4px );
-		text-align: center;
-	}
-
-	// svg fill swaps
-	.vertical-menu__feature-item {
-		svg {
-			fill: #86A6BD;
-		}
-	}
-
-	.vertical-menu__feature-item-is-selected {
-
-		svg {
-			fill: #3D596D;
-		}
-
-		&.jp-feature-intro {
-			svg {
-				fill: $green-primary;
-			}
-		}
-
-		&.wp-app-logo {
-			svg path {
-				fill: #3D596D;
-			}
-		}
-	}
-	// end svg fill swaps
-
-	.vertical-menu__feature-item-label {
-		display: block;
-		padding: rem( 8px );
-	}
-};

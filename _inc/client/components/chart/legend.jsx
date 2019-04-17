@@ -3,11 +3,11 @@
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' );
+import PropTypes from 'prop-types';
 
-const createReactClass = require( 'create-react-class' );
+import React from 'react';
+import PureRenderMixin from 'react-pure-render/mixin';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal dependencies
@@ -41,7 +41,6 @@ const LegendItem = createReactClass( {
 						type="checkbox"
 						className="dops-chart__legend-checkbox"
 						checked={ this.props.checked }
-						onChange={ function() {} }
 					/>
 					<span className={ this.props.className } />
 					{ this.props.label }
@@ -106,4 +105,4 @@ class Legend extends React.Component {
 	}
 }
 
-module.exports = Legend;
+export default Legend;

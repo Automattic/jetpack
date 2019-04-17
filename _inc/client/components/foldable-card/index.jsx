@@ -1,20 +1,19 @@
 /**
  * External Dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' ),
-	noop = require( 'lodash/noop' );
+import PropTypes from 'prop-types';
+import React from 'react';
+import classNames from 'classnames';
+import { noop } from 'lodash';
 
 /**
  * Internal Dependencies
  */
-const Card = require( 'components/card' ),
-	CompactCard = require( 'components/card/compact' ),
-	Gridicon = require( 'components/gridicon' ),
-	onKeyDownCallback = require( 'utils/onkeydown-callback' );
-
-require( './style.scss' );
+import Card from 'components/card';
+import CompactCard from 'components/card/compact';
+import Gridicon from 'components/gridicon';
+import onKeyDownCallback from 'utils/onkeydown-callback';
+import './style.scss';
 
 class FoldableCard extends React.Component {
 	static propTypes = {
@@ -172,4 +171,4 @@ class FoldableCard extends React.Component {
 	}
 }
 
-module.exports = FoldableCard;
+export default FoldableCard;

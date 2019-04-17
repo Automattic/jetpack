@@ -65,36 +65,50 @@ abstract class Jetpack_Sync_Module {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page   = 1000;
-		$page             = 1;
-		$chunk_count      = 0;
-		$previous_max_id  = $state ? $state : '~0';
-		$listener         = Jetpack_Sync_Listener::get_instance();
+		$items_per_page        = 1000;
+		$page                  = 1;
+		$chunk_count           = 0;
+		$previous_interval_end = $state ? $state : '~0';
+		$listener              = Jetpack_Sync_Listener::get_instance();
 
 		// count down from max_id to min_id so we get newest posts/comments/etc first
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_max_id} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
 			// if we hit our row limit, process and return
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
 				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
-				$remaining_items = array_slice( $chunked_ids, 0, $remaining_items_count );
-
-				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items );
+				$remaining_items       = array_slice( $chunked_ids, 0, $remaining_items_count );
+				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
+				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
+			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
 
-			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids );
+			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
-			$chunk_count += count( $chunked_ids );
-			$page += 1;
-			$previous_max_id = end( $ids );
+			$chunk_count    += count( $chunked_ids );
+			$page           += 1;
+			// $ids are ordered in descending order
+			$previous_interval_end = end( $ids );
 		}
 
 		return array( $chunk_count, true );
+	}
+
+	private function get_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
+		foreach( $chunks as $chunk ) {
+			$chunks_with_ends[] = array(
+				'ids' => $chunk,
+				'previous_end' => $previous_interval_end
+			);
+			// Chunks are ordered in descending order
+			$previous_interval_end = end( $chunk );
+		}
+		return $chunks_with_ends;
 	}
 
 	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
@@ -110,9 +124,10 @@ abstract class Jetpack_Sync_Module {
 		return array_map(
 			array( $this, 'unserialize_meta' ),
 			$wpdb->get_results(
-				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )'.
-				" AND meta_key IN ( $private_meta_whitelist_sql ) "
-				, OBJECT )
+				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )' .
+				" AND meta_key IN ( $private_meta_whitelist_sql ) ",
+				OBJECT
+			)
 		);
 	}
 
@@ -145,7 +160,7 @@ abstract class Jetpack_Sync_Module {
 		}
 
 		$objects = array();
-		foreach( (array) $ids as $id ) {
+		foreach ( (array) $ids as $id ) {
 			$object = $this->get_object_by_id( $object_type, $id );
 
 			// Only add object if we have the object.

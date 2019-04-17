@@ -20,6 +20,7 @@ class Jetpack_WordAds_Shortcode {
 		if ( empty( $wordads ) ) {
 			return null;
 		}
+
 		add_shortcode( 'wordads', array( $this, 'wordads_shortcode' ) );
 	}
 
@@ -53,10 +54,7 @@ class Jetpack_WordAds_Shortcode {
 			return '<div>' . __( 'The WordAds module is not active', 'jetpack' ) . '</div>';
 		}
 
-		$html = '<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock">';
-
-		$html .= '</div>';
-
+		$html = '<div class="jetpack-wordad" itemscope itemtype="https://schema.org/WPAdBlock"></div>';
 		$html = $wordads->insert_inline_ad( $html );
 
 		return $html;

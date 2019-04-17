@@ -8,10 +8,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ), 10, 3 );
 		add_action( 'jetpack_sync_current_theme_support', $callable, 10, 2 );
-		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
+		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader' ), 10, 2 );
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_themes', $callable, 10, 2 );
-		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion') );
+		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion' ) );
 		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
@@ -43,8 +43,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$widget = array(
-			'name' => $widget_object->name,
-			'id' => $widget_object->id,
+			'name'  => $widget_object->name,
+			'id'    => $widget_object->id,
 			'title' => isset( $new_instance['title'] ) ? $new_instance['title'] : '',
 		);
 		/**
@@ -62,16 +62,16 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
 		$all_enabled_theme_slugs = array_keys( $value );
 
-		if ( count( $old_value ) > count( $value ) )  {
+		if ( count( $old_value ) > count( $value ) ) {
 
-			//Suppress jetpack_network_disabled_themes sync action when theme is deleted
+			// Suppress jetpack_network_disabled_themes sync action when theme is deleted
 			$delete_theme_call = $this->get_delete_theme_call();
 			if ( ! empty( $delete_theme_call ) ) {
 				return;
 			}
 
 			$newly_disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
-			$newly_disabled_themes = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
+			$newly_disabled_themes      = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
 			/**
 			 * Trigger action to alert $callable sync listener that network themes were disabled
 			 *
@@ -85,7 +85,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$newly_enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
-		$newly_enabled_themes = $this->get_theme_details_for_slugs( $newly_enabled_theme_names );
+		$newly_enabled_themes      = $this->get_theme_details_for_slugs( $newly_enabled_theme_names );
 		/**
 		 * Trigger action to alert $callable sync listener that network themes were enabled
 		 *
@@ -100,19 +100,19 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	private function get_theme_details_for_slugs( $theme_slugs ) {
 		$theme_data = array();
 		foreach ( $theme_slugs as $slug ) {
-			$theme = wp_get_theme( $slug );
+			$theme               = wp_get_theme( $slug );
 			$theme_data[ $slug ] = array(
-				'name' => $theme->get( 'Name' ),
+				'name'    => $theme->get( 'Name' ),
 				'version' => $theme->get( 'Version' ),
-				'uri' => $theme->get( 'ThemeURI' ),
-				'slug' => $slug,
+				'uri'     => $theme->get( 'ThemeURI' ),
+				'slug'    => $slug,
 			);
 		}
 		return $theme_data;
 	}
 
 	public function detect_theme_edit( $redirect_url ) {
-		$url = wp_parse_url( admin_url( $redirect_url ) );
+		$url              = wp_parse_url( admin_url( $redirect_url ) );
 		$theme_editor_url = wp_parse_url( admin_url( 'theme-editor.php' ) );
 
 		if ( $theme_editor_url['path'] !== $url['path'] ) {
@@ -129,11 +129,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		) {
 			return $redirect_url;
 		}
-		$theme = wp_get_theme( $query_params['theme'] );
+		$theme      = wp_get_theme( $query_params['theme'] );
 		$theme_data = array(
-			'name' => $theme->get('Name'),
-			'version' => $theme->get('Version'),
-			'uri' => $theme->get( 'ThemeURI' ),
+			'name'    => $theme->get( 'Name' ),
+			'version' => $theme->get( 'Version' ),
+			'uri'     => $theme->get( 'ThemeURI' ),
 		);
 
 		/**
@@ -204,9 +204,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 					$allowed_files = array_merge( $allowed_files, $theme->get_files( 'php', -1 ) );
 					break;
 				case 'css':
-					$style_files = $theme->get_files( 'css', -1 );
+					$style_files                = $theme->get_files( 'css', -1 );
 					$allowed_files['style.css'] = $style_files['style.css'];
-					$allowed_files = array_merge( $allowed_files, $style_files );
+					$allowed_files              = array_merge( $allowed_files, $style_files );
 					break;
 				default:
 					$allowed_files = array_merge( $allowed_files, $theme->get_files( $type, -1 ) );
@@ -243,9 +243,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		fclose( $file_pointer );
 
 		$theme_data = array(
-			'name' => $theme->get('Name'),
-			'version' => $theme->get('Version'),
-			'uri' => $theme->get( 'ThemeURI' ),
+			'name'    => $theme->get( 'Name' ),
+			'version' => $theme->get( 'Version' ),
+			'uri'     => $theme->get( 'ThemeURI' ),
 		);
 
 		/**
@@ -261,13 +261,13 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$slug = $delete_theme_call['args'][0];
-		$theme = wp_get_theme( $slug );
+		$slug       = $delete_theme_call['args'][0];
+		$theme      = wp_get_theme( $slug );
 		$theme_data = array(
-			'name' => $theme->get('Name'),
-			'version' => $theme->get('Version'),
-			'uri' => $theme->get( 'ThemeURI' ),
-			'slug' => $slug,
+			'name'    => $theme->get( 'Name' ),
+			'version' => $theme->get( 'Version' ),
+			'uri'     => $theme->get( 'ThemeURI' ),
+			'slug'    => $slug,
 		);
 
 		/**
@@ -284,9 +284,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 	public function check_upgrader( $upgrader, $details ) {
 		if ( ! isset( $details['type'] ) ||
-		     'theme' !== $details['type'] ||
-		     is_wp_error( $upgrader->skin->result ) ||
-		     ! method_exists( $upgrader, 'theme_info' )
+			 'theme' !== $details['type'] ||
+			 is_wp_error( $upgrader->skin->result ) ||
+			 ! method_exists( $upgrader, 'theme_info' )
 		) {
 			return;
 		}
@@ -297,9 +297,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				return;
 			}
 			$theme_info = array(
-				'name' => $theme->get( 'Name' ),
+				'name'    => $theme->get( 'Name' ),
 				'version' => $theme->get( 'Version' ),
-				'uri' => $theme->get( 'ThemeURI' ),
+				'uri'     => $theme->get( 'ThemeURI' ),
 			);
 
 			/**
@@ -317,7 +317,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		if ( 'update' === $details['action'] ) {
 			$themes = array();
 
-			if ( empty( $details['themes'] ) && isset ( $details['theme'] ) ) {
+			if ( empty( $details['themes'] ) && isset( $details['theme'] ) ) {
 				$details['themes'] = array( $details['theme'] );
 			}
 
@@ -329,9 +329,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				}
 
 				$themes[ $theme_slug ] = array(
-					'name' => $theme->get( 'Name' ),
-					'version' => $theme->get( 'Version' ),
-					'uri' => $theme->get( 'ThemeURI' ),
+					'name'       => $theme->get( 'Name' ),
+					'version'    => $theme->get( 'Version' ),
+					'uri'        => $theme->get( 'ThemeURI' ),
 					'stylesheet' => $theme->stylesheet,
 				);
 			}
@@ -358,11 +358,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_theme_support( $new_name, $new_theme = null, $old_theme = null ) {
-		// Previous theme support got added in WP 4.5
-		$previous_theme = false;
-		if ( $old_theme instanceof WP_Theme ) {
-			$previous_theme = $this->get_theme_support_info( $old_theme );
-		}
+		$previous_theme = $this->get_theme_support_info( $old_theme );
+
 		/**
 		 * Fires when the client needs to sync theme support info
 		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
@@ -372,7 +369,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 * @param array the theme support array
 		 * @param array the previous theme since Jetpack 6.5.0
 		 */
-		do_action( 'jetpack_sync_current_theme_support' , $this->get_theme_support_info(), $previous_theme );
+		do_action( 'jetpack_sync_current_theme_support', $this->get_theme_support_info(), $previous_theme );
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -421,16 +418,16 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return array();
 		}
 		$moved_to_sidebar = array();
-		$sidebar_name = $this->get_sidebar_name( $sidebar );
+		$sidebar_name     = $this->get_sidebar_name( $sidebar );
 
-		//Don't sync jetpack_widget_added if theme was switched
+		// Don't sync jetpack_widget_added if theme was switched
 		if ( $this->is_theme_switch() ) {
 			return array();
 		}
 
 		foreach ( $added_widgets as $added_widget ) {
 			$moved_to_sidebar[] = $added_widget;
-			$added_widget_name = $this->get_widget_name( $added_widget );
+			$added_widget_name  = $this->get_widget_name( $added_widget );
 			/**
 			 * Helps Sync log that a widget got added
 			 *
@@ -440,14 +437,13 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param string $added_widget, Widget id got added
 			 * @param string $sidebar_name, Sidebar id got changed Since 5.0.0
 			 * @param string $added_widget_name, Widget id got added Since 5.0.0
-			 *
 			 */
-			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name );
+			do_action( 'jetpack_widget_added', $sidebar, $added_widget, $sidebar_name, $added_widget_name );
 		}
 		return $moved_to_sidebar;
 	}
 
-	function sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $inactive_widgets  ) {
+	function sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $inactive_widgets ) {
 		$removed_widgets = array_diff( $old_widgets, $new_widgets );
 
 		if ( empty( $removed_widgets ) ) {
@@ -455,9 +451,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$moved_to_inactive = array();
-		$sidebar_name = $this->get_sidebar_name( $sidebar );
+		$sidebar_name      = $this->get_sidebar_name( $sidebar );
 
-		foreach( $removed_widgets as $removed_widget ) {
+		foreach ( $removed_widgets as $removed_widget ) {
 			// Lets check if we didn't move the widget to in_active_widgets
 			if ( isset( $inactive_widgets ) && ! in_array( $removed_widget, $inactive_widgets ) ) {
 				$removed_widget_name = $this->get_widget_name( $removed_widget );
@@ -515,7 +511,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$moved_to_inactive_ids = array();
-		$moved_to_sidebar = array();
+		$moved_to_sidebar      = array();
 
 		foreach ( $new_value as $sidebar => $new_widgets ) {
 			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ) ) ) {
@@ -530,16 +526,16 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			}
 
 			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
-			$moved_to_inactive_ids = array_merge( $moved_to_inactive_ids, $moved_to_inactive_recently );
+			$moved_to_inactive_ids      = array_merge( $moved_to_inactive_ids, $moved_to_inactive_recently );
 
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );
-			$moved_to_sidebar = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
+			$moved_to_sidebar          = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
 
 			$this->sync_widgets_reordered( $new_widgets, $old_widgets, $sidebar );
 
 		}
 
-		//Don't sync either jetpack_widget_moved_to_inactive or jetpack_cleared_inactive_widgets if theme was switched
+		// Don't sync either jetpack_widget_moved_to_inactive or jetpack_cleared_inactive_widgets if theme was switched
 		if ( $this->is_theme_switch() ) {
 			return;
 		}
@@ -557,8 +553,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 */
 			do_action( 'jetpack_widget_moved_to_inactive', $moved_to_inactive_ids, $moved_to_inactive_name );
 		} elseif ( empty( $moved_to_sidebar ) &&
-		           empty( $new_value['wp_inactive_widgets']) &&
-		           ! empty( $old_value['wp_inactive_widgets'] ) ) {
+				   empty( $new_value['wp_inactive_widgets'] ) &&
+				   ! empty( $old_value['wp_inactive_widgets'] ) ) {
 			/**
 			 * Helps Sync log that a got cleared from inactive.
 			 *
@@ -577,7 +573,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		global $_wp_theme_features;
 
 		$theme_support = array();
-		
+
 		// We are trying to get the current theme info.
 		if ( $theme === null ) {
 			$theme = wp_get_theme();
@@ -590,16 +586,16 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			}
 		}
 
-		$theme_support['name'] = $theme->get('Name');
-		$theme_support['version'] = $theme->get('Version');
-		$theme_support['slug'] = $theme->get_stylesheet();
-		$theme_support['uri'] = $theme->get('ThemeURI');
+		$theme_support['name']    = $theme->get( 'Name' );
+		$theme_support['version'] = $theme->get( 'Version' );
+		$theme_support['slug']    = $theme->get_stylesheet();
+		$theme_support['uri']     = $theme->get( 'ThemeURI' );
 
 		return $theme_support;
 	}
 
 	private function get_delete_theme_call() {
-		$backtrace = debug_backtrace();
+		$backtrace         = debug_backtrace();
 		$delete_theme_call = null;
 		foreach ( $backtrace as $call ) {
 			if ( isset( $call['function'] ) && 'delete_theme' === $call['function'] ) {

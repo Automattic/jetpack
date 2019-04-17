@@ -11,9 +11,8 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isUnavailableInDevMode } from 'state/connection';
-import { getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
@@ -30,14 +29,9 @@ class Performance extends Component {
 			getModuleOverride: this.props.getModuleOverride,
 		};
 
-		const found = [
-			'photon',
-			'carousel',
-			'videopress',
-			'lazy-images',
-			'photon-cdn',
-			'search',
-		].some( this.props.isModuleFound );
+		const found = [ 'photon', 'videopress', 'lazy-images', 'photon-cdn', 'search' ].some(
+			this.props.isModuleFound
+		);
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;

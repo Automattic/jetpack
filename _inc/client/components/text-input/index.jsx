@@ -3,9 +3,9 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import omit from 'lodash/omit';
+import { omit } from 'lodash';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class TextInput extends React.Component {
 	static displayName = 'TextInput';

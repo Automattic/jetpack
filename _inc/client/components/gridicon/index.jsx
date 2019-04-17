@@ -10,14 +10,13 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
 
-const createReactClass = require( 'create-react-class' );
-
-require( './style.scss' );
+import React from 'react';
+import PureRenderMixin from 'react-pure-render/mixin';
+import classNames from 'classnames';
+import createReactClass from 'create-react-class';
+import './style.scss';
 
 const Gridicon = createReactClass( {
 	displayName: 'Gridicon',
@@ -2551,4 +2550,4 @@ const Gridicon = createReactClass( {
 	},
 } );
 
-module.exports = Gridicon;
+export default Gridicon;

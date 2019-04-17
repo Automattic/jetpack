@@ -54,7 +54,6 @@ abstract class Jetpack_Admin_Page {
 		// hook
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
-		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
 
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
@@ -82,22 +81,6 @@ abstract class Jetpack_Admin_Page {
 		$this->add_page_actions( $hook );
 	}
 
-	function admin_head() {
-		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
-			/**
-			 * Fires in the <head> of a particular Jetpack configuation page.
-			 *
-			 * The dynamic portion of the hook name, `$_GET['configure']`,
-			 * refers to the slug of module, such as 'stats', 'sso', etc.
-			 * A complete hook for the latter would be
-			 * 'jetpack_module_configuation_head_sso'.
-			 *
-			 * @since 3.0.0
-			 */
-			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
-		}
-	}
-
 	// Render the page with a common top and bottom part, and page specific content
 	function render() {
 		// We're in an IDC: we need a decision made before we show the UI again.
@@ -106,12 +89,7 @@ abstract class Jetpack_Admin_Page {
 		}
 
 		// Check if we are looking at the main dashboard
-		if (
-			isset( $_GET['page'] ) &&
-			'jetpack' === $_GET['page'] &&
-		     empty( $_GET['configure'] )
-		)
-		{
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			$this->page_render();
 			return;
 		}
@@ -140,18 +118,6 @@ abstract class Jetpack_Admin_Page {
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
-	}
-
-	/**
-	 * Checks if WordPress version is too old to have REST API.
-	 *
-	 * @since 4.3
-	 *
-	 * @return bool
-	 */
-	function is_wp_version_too_old() {
-		global $wp_version;
-		return ( ! function_exists( 'rest_api_init' ) || version_compare( $wp_version, '4.4-z', '<=' ) );
 	}
 
 	/**
@@ -197,7 +163,7 @@ abstract class Jetpack_Admin_Page {
 			return false;
 		}
 
-		$current = Jetpack::get_active_plan();
+		$current = Jetpack_Plan::get();
 
 		$to_deactivate = array();
 		if ( isset( $current['product_slug'] ) ) {
@@ -219,7 +185,7 @@ abstract class Jetpack_Admin_Page {
 
 			$to_leave_enabled = array();
 			foreach ( $to_deactivate as $feature ) {
-				if ( Jetpack::active_plan_supports( $feature ) ) {
+				if ( Jetpack_Plan::supports( $feature ) ) {
 					$to_leave_enabled []= $feature;
 				}
 			}
@@ -244,7 +210,7 @@ abstract class Jetpack_Admin_Page {
 				padding-left: 0 !important;
 			}
 			#wpbody-content {
-				background-color: #f3f6f8;
+				background-color: #f6f6f6;
 			}
 
 			#jp-plugin-container .wrap {

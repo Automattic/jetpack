@@ -194,8 +194,16 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
+
 		$upgrader = new Plugin_Upgrader(
-			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) )
+			new Automatic_Upgrader_Skin( $plugin_defaults )
 		);
 		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
 		$upgrader->install( ABSPATH . self::PLUGIN_ZIP );

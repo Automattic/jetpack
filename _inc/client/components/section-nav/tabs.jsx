@@ -6,15 +6,15 @@
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import classNames from 'classnames';
 
 /**
  * Internal Dependencies
  */
-const SelectDropdown = require( 'components/select-dropdown' ),
-	DropdownItem = require( 'components/select-dropdown/item' ),
-	viewport = require( 'lib/viewport' );
+import DropdownItem from 'components/select-dropdown/item';
+import SelectDropdown from 'components/select-dropdown';
+import { getWindowInnerWidth } from 'lib/viewport';
 
 /**
  * Internal Variables
@@ -44,7 +44,7 @@ class NavTabs extends React.Component {
 		window.addEventListener( 'resize', this.debouncedAfterResize );
 	}
 
-	componentWillReceiveProps() {
+	UNSAFE_componentWillReceiveProps() {
 		this.setDropdown();
 	}
 
@@ -64,7 +64,7 @@ class NavTabs extends React.Component {
 			'has-siblings': this.props.hasSiblingControls,
 		} );
 
-		const innerWidth = viewport.getWindowInnerWidth();
+		const innerWidth = getWindowInnerWidth();
 
 		return (
 			<div className="dops-section-nav-group" ref="navGroup">
@@ -163,4 +163,4 @@ class NavTabs extends React.Component {
 	};
 }
 
-module.exports = NavTabs;
+export default NavTabs;

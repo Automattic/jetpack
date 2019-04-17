@@ -32,7 +32,6 @@ const concat_list = [
 	'modules/shortcodes/css/slideshow-shortcode.css',
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 	'modules/shortcodes/css/quiz.css',
-	'modules/shortcodes/css/jetpack-email-subscribe.css',
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
 	'modules/theme-tools/social-menu/social-menu.css',
@@ -71,30 +70,25 @@ const pathModifier = function( file, contents ) {
 	const regex = /url\((.*)\)/g,
 		f = file.path.replace( file.cwd + '/', '' );
 	return contents.replace( regex, function( match, group ) {
-		return 'url(\'' + transformRelativePath( group, f ) + '\')';
+		return "url('" + transformRelativePath( group, f ) + "')";
 	} );
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
 gulp.task( 'frontendcss', function() {
-	return gulp.src( concat_list )
+	return gulp
+		.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
-			'*/\n'
-		) )
+		.pipe(
+			banner(
+				'/*!\n' +
+					'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
+					'*/\n'
+			)
+		)
 		.pipe( gulp.dest( 'css' ) )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
@@ -105,28 +99,18 @@ gulp.task( 'frontendcss', function() {
 } );
 
 gulp.task( 'frontendcss:separate', function() {
-	return gulp.src( separate_list )
+	return gulp
+		.src( separate_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
-		.pipe( autoprefixer(
-			'last 2 versions',
-			'safari 5',
-			'ie 8',
-			'ie 9',
-			'Firefox 14',
-			'opera 12.1',
-			'ios 6',
-			'android 4'
-		) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( autoprefixer() )
+		.pipe( cleanCSS() )
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( gulp.dest( function( file ) {
-			return path.dirname( file.path );
-		} ) );
+		.pipe(
+			gulp.dest( function( file ) {
+				return path.dirname( file.path );
+			} )
+		);
 } );
 
-export default gulp.parallel(
-	'frontendcss',
-	'frontendcss:separate'
-);
-
+export default gulp.parallel( 'frontendcss', 'frontendcss:separate' );

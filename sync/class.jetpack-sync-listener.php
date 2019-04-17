@@ -10,7 +10,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-actions.php';
  */
 class Jetpack_Sync_Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT = 300; // 5 minutes
+	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes
 
 	private $sync_queue;
 	private $full_sync_queue;
@@ -35,7 +35,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	private function init() {
-		$handler = array( $this, 'action_handler' );
+		$handler           = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -86,7 +86,7 @@ class Jetpack_Sync_Listener {
 	// prevent adding items to the queue if it hasn't sent an item for 15 mins
 	// AND the queue is over 1000 items long (by default)
 	function can_add_to_queue( $queue ) {
-		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
 
@@ -102,8 +102,8 @@ class Jetpack_Sync_Listener {
 		list( $queue_size, $queue_age ) = $queue_state;
 
 		return ( $queue_age < $this->sync_queue_lag_limit )
-		       ||
-		       ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+			   ||
+			   ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
 	function full_sync_action_handler() {
@@ -117,6 +117,13 @@ class Jetpack_Sync_Listener {
 	}
 
 	// add many actions to the queue directly, without invoking them
+
+	/**
+	 * Bulk add action to the queue.
+	 *
+	 * @param $action_name String the name the full sync action.
+	 * @param $args_array Array of chunked arguments
+	 */
 	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
 		$queue = $this->get_full_sync_queue();
 
@@ -137,7 +144,10 @@ class Jetpack_Sync_Listener {
 		$currtime        = microtime( true );
 		$is_importing    = Jetpack_Sync_Settings::is_importing();
 
-		foreach( $args_array as $args ) {
+		foreach ( $args_array as $args ) {
+			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
+			$args = isset( $args['ids'] ) ? $args['ids'] : $args;
+
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
@@ -149,7 +159,10 @@ class Jetpack_Sync_Listener {
 			 * @param array The action parameters
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
-
+			$action_data = array( $args );
+			if ( ! is_null( $previous_end ) ) {
+				$action_data[] = $previous_end;
+			}
 			// allow listeners to abort
 			if ( $args === false ) {
 				continue;
@@ -157,7 +170,7 @@ class Jetpack_Sync_Listener {
 
 			$data_to_enqueue[] = array(
 				$action_name,
-				array( $args ),
+				$action_data,
 				$user_id,
 				$currtime,
 				$is_importing,
@@ -215,26 +228,30 @@ class Jetpack_Sync_Listener {
 				array(
 					'jetpack_full_sync_start',
 					'jetpack_full_sync_end',
-					'jetpack_full_sync_cancel'
+					'jetpack_full_sync_cancel',
 				)
 			)
 		) {
-			$queue->add( array(
-				$current_filter,
-				$args,
-				get_current_user_id(),
-				microtime( true ),
-				Jetpack_Sync_Settings::is_importing(),
-				$this->get_actor( $current_filter, $args ),
-			) );
+			$queue->add(
+				array(
+					$current_filter,
+					$args,
+					get_current_user_id(),
+					microtime( true ),
+					Jetpack_Sync_Settings::is_importing(),
+					$this->get_actor( $current_filter, $args ),
+				)
+			);
 		} else {
-			$queue->add( array(
-				$current_filter,
-				$args,
-				get_current_user_id(),
-				microtime( true ),
-				Jetpack_Sync_Settings::is_importing()
-			) );
+			$queue->add(
+				array(
+					$current_filter,
+					$args,
+					get_current_user_id(),
+					microtime( true ),
+					Jetpack_Sync_Settings::is_importing(),
+				)
+			);
 		}
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
@@ -247,7 +264,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	function get_actor( $current_filter, $args ) {
-		if ( 'wp_login' === $current_filter  ) {
+		if ( 'wp_login' === $current_filter ) {
 			$user = get_user_by( 'ID', $args[1]->data->ID );
 		} else {
 			$user = wp_get_current_user();
@@ -273,8 +290,8 @@ class Jetpack_Sync_Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
-			$actor['ip'] = jetpack_protect_get_ip();
+			require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+			$actor['ip']         = jetpack_protect_get_ip();
 			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
 		}
 
@@ -282,7 +299,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	function should_send_user_data_with_actor( $current_filter ) {
-		$should_send = in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
+		$should_send = in_array( $current_filter, array( 'jetpack_wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
 		/**
 		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
 		 *
@@ -297,7 +314,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	function set_defaults() {
-		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
 		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->set_queue_size_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
@@ -305,7 +322,7 @@ class Jetpack_Sync_Listener {
 
 	function get_request_url() {
 		if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
-			return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+			return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 		}
 		return is_admin() ? get_admin_url( get_current_blog_id() ) : home_url();
 	}

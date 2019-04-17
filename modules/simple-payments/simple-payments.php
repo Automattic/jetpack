@@ -62,9 +62,9 @@ class Jetpack_Simple_Payments {
 
 	function register_gutenberg_block() {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
-			jetpack_register_block( 'simple-payments' );
+			jetpack_register_block( 'jetpack/simple-payments' );
 		} else {
-			jetpack_set_extension_unavailability_reason( 'simple-payments', 'missing_plan' );
+			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/simple-payments', 'missing_plan' );
 		}
 	}
 
@@ -108,7 +108,7 @@ class Jetpack_Simple_Payments {
 		}
 
 		// For all Jetpack sites
-		return Jetpack::is_active() && Jetpack::active_plan_supports( 'simple-payments');
+		return Jetpack::is_active() && Jetpack_Plan::supports( 'simple-payments');
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {
@@ -288,7 +288,13 @@ class Jetpack_Simple_Payments {
 			);
 		}
 
-		return "$price $currency";
+		// Fall back to unspecified currency symbol like `¤1,234.05`.
+		// @link https://en.wikipedia.org/wiki/Currency_sign_(typography).
+		if ( ! $currency ) {
+			return '¤' . number_format_i18n( $price, 2 );
+		}
+
+		return number_format_i18n( $price, 2 ) . ' ' . $currency;
 	}
 
 	/**

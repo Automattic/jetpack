@@ -6,15 +6,13 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 import classnames from 'classnames';
-import assign from 'lodash/assign';
-import omit from 'lodash/omit';
+import { assign, omit } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
-
-require( './style.scss' );
+import './style.scss';
 
 export default createReactClass( {
 	displayName: 'ExternalLink',

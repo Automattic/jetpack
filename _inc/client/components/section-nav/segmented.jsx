@@ -1,15 +1,17 @@
 /**
  * External Dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classNames from 'classnames';
 
 /**
  * Internal Dependencies
  */
-const SegmentedControl = require( 'components/segmented-control' ),
-	ControlItem = require( 'components/segmented-control/item' );
+import SegmentedControl from 'components/segmented-control';
+
+import ControlItem from 'components/segmented-control/item';
 
 /**
  * Internal variables
@@ -26,7 +28,7 @@ class NavSegmented extends React.Component {
 		hasSiblingControls: false,
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.id = _instance;
 		_instance++;
 	}
@@ -64,4 +66,4 @@ class NavSegmented extends React.Component {
 	};
 }
 
-module.exports = NavSegmented;
+export default NavSegmented;

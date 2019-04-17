@@ -10,9 +10,9 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { getJetpackNotices as _getJetpackNotices } from 'state/jetpack-notices';
 import {
 	isNoticeDismissed as _isNoticeDismissed,
+	getJetpackNotices as _getJetpackNotices,
 	dismissJetpackActionNotice,
 } from 'state/jetpack-notices';
 

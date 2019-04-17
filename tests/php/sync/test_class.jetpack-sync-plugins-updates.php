@@ -48,10 +48,18 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_a_plugin_is_synced() {
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
+
 		$skins = array(
-			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' )  ),
+			new Plugin_Upgrader_Skin( $plugin_defaults ),
+			new Automatic_Upgrader_Skin( $plugin_defaults ),
+			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
 		);
 		foreach( $skins as $skin ) {
 			$this->update_the_plugin( $skin );
@@ -64,11 +72,18 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
 		$skins = array(
-			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' )  ),
-			new Bulk_Plugin_Upgrader_Skin( compact( 'nonce', 'url' ) ),
+			new Plugin_Upgrader_Skin( $plugin_defaults ),
+			new Automatic_Upgrader_Skin( $plugin_defaults ),
+			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
+			new Bulk_Plugin_Upgrader_Skin( $plugin_defaults ),
 		);
 		foreach ( $skins as $skin ) {
 			$this->update_bulk_plugins( $skin );
@@ -87,10 +102,17 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2" );
 
 		$this->server_event_storage->reset();
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
 		$skins = array(
-			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' )  ),
+			new Plugin_Upgrader_Skin( $plugin_defaults ),
+			new Automatic_Upgrader_Skin( $plugin_defaults ),
+			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
 		);
 		foreach( $skins as $skin ) {
 			$this->set_error();
@@ -104,11 +126,18 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_error_in_bulk_is_synced() {
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
 		$skins = array(
-			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
-			new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' )  ),
-			new Bulk_Plugin_Upgrader_Skin( compact( 'nonce', 'url' ) ),
+			new Plugin_Upgrader_Skin( $plugin_defaults ),
+			new Automatic_Upgrader_Skin( $plugin_defaults ),
+			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
+			new Bulk_Plugin_Upgrader_Skin( $plugin_defaults ),
 		);
 		foreach ( $skins as $skin ) {
 			$this->set_error();
@@ -122,10 +151,18 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
+
 		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 
 		$this->set_error();
-		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
+		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( $plugin_defaults ) );
 		$this->remove_error();
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
@@ -134,8 +171,16 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_with_autoupdate_constant_results_in_proper_state() {
+		$plugin_defaults = array(
+			'title'  => '',
+			'url'    => '',
+			'nonce'  => '',
+			'plugin' => '',
+			'api'    => '',
+		);
+
 		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
-		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
+		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( $plugin_defaults ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 		$this->assertTrue( $updated_plugin->args[1]['is_autoupdate'] );

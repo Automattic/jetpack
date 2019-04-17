@@ -56,6 +56,7 @@ class Jetpack_Options {
 				'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
 				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
 				'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
+				'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 			);
 
 		case 'private' :
@@ -93,6 +94,7 @@ class Jetpack_Options {
 			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
 			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
 			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
+			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
 		);
 	}
 
@@ -366,9 +368,17 @@ class Jetpack_Options {
 		global $wpdb;
 		$autoload_value = $autoload ? 'yes' : 'no';
 
+		$old_value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				$name
+			)
+		);
+		if ( $old_value === $value ) {
+			return false;
+		}
+
 		$serialized_value = maybe_serialize( $value );
-		// try updating, if no update then insert
-		// TODO: try to deal with the fact that unchanged values can return updated_num = 0
 		// below we used "insert ignore" to at least suppress the resulting error
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
@@ -378,6 +388,7 @@ class Jetpack_Options {
 			)
 		);
 
+		// Try inserting the option if the value doesn't exits.
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
@@ -387,7 +398,7 @@ class Jetpack_Options {
 				)
 			);
 		}
-		return $updated_num;
+		return (bool) $updated_num;
 	}
 
 	/**

@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import useMockery from 'test/helpers/use-mockery';
 import useFakeDom from 'test/helpers/use-fake-dom';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 
 describe( 'Search', function() {
 	let React, TestUtils, EMPTY_COMPONENT;

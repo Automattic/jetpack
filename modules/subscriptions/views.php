@@ -2,6 +2,10 @@
 
 class Jetpack_Subscriptions_Widget extends WP_Widget {
 	static $instance_count = 0;
+	/**
+	 * @var array When printing the submit button, what tags are allowed
+	 */
+	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
 
 	function __construct() {
 		$widget_ops = array(
@@ -289,14 +293,21 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                     <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
                     <input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>"/>
 					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
-                    <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"
+                    <button type="submit"
 	                    <?php if ( ! empty( $submit_button_classes ) ) { ?>
 	                        class="<?php echo esc_attr( $submit_button_classes ); ?>"
 	                    <?php }; ?>
 		                <?php if ( ! empty( $submit_button_styles ) ) { ?>
 			                style="<?php echo esc_attr( $submit_button_styles ); ?>"
 		                <?php }; ?>
-	                />
+	                >
+	                    <?php
+	                    echo wp_kses(
+		                    $subscribe_button,
+		                    self::$allowed_html_tags_for_submit_button
+	                    );
+	                    ?>
+                    </button>
                 </p>
             </form>
 			<?php
@@ -349,7 +360,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
 						}
 						?>
-                        <input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>"
+                        <button type="submit"
 	                        <?php if ( ! empty( $submit_button_classes ) ) { ?>
 	                            class="<?php echo esc_attr( $submit_button_classes ); ?>"
                             <?php }; ?>
@@ -357,7 +368,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			                    style="<?php echo esc_attr( $submit_button_styles ); ?>"
 		                    <?php }; ?>
 	                        name="jetpack_subscriptions_widget"
-	                    />
+	                    >
+	                        <?php
+	                        echo wp_kses(
+		                        $subscribe_button,
+		                        self::$allowed_html_tags_for_submit_button
+	                        ); ?>
+                        </button>
                     </p>
 				<?php } ?>
             </form>
@@ -672,10 +689,13 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( empty( $instance ) || ! is_array( $instance ) ) {
 		$instance = array();
 	}
-	$instance['show_subscribers_total']     = false;
-	if ( ! empty( $instance['show_subscribers_total'] ) && 'false' !== $instance['show_subscribers_total'] ) {
+
+	if ( empty( $instance['show_subscribers_total'] ) || 'false' === $instance['show_subscribers_total'] ) {
+		$instance['show_subscribers_total'] = false;
+	} else {
 		$instance['show_subscribers_total'] = true;
 	}
+
 	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
@@ -727,7 +747,9 @@ function jetpack_blog_subscriptions_init() {
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
 
 function jetpack_register_subscriptions_block() {
-	jetpack_register_block( 'subscriptions' );
+	if ( class_exists( 'WP_Block_Type_Registry' ) && ! WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/subscriptions' ) ) {
+		jetpack_register_block( 'jetpack/subscriptions' );
+	}
 }
 
 add_action( 'init', 'jetpack_register_subscriptions_block' );

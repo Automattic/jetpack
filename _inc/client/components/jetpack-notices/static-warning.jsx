@@ -8,8 +8,10 @@ import SimpleNotice from 'components/notice';
 /**
  * Internal dependencies
  */
-import { getJetpackNotices as _getJetpackNotices } from 'state/jetpack-notices';
-import { isNoticeDismissed as _isNoticeDismissed } from 'state/jetpack-notices';
+import {
+	getJetpackNotices as _getJetpackNotices,
+	isNoticeDismissed as _isNoticeDismissed,
+} from 'state/jetpack-notices';
 
 export class StaticWarning extends React.Component {
 	static displayName = 'StaticWarning';

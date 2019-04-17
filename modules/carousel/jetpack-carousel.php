@@ -84,9 +84,8 @@ class Jetpack_Carousel {
 			}
 		}
 
-		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
+		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
-			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
 		}
 	}
 
@@ -128,11 +127,6 @@ class Jetpack_Carousel {
 		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		 */
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
-	}
-
-	function jetpack_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-media.php#carousel_background_color' ) );
-		exit;
 	}
 
 	function asset_version( $version ) {
@@ -218,10 +212,7 @@ class Jetpack_Carousel {
 			return $content;
 		}
 
-		if (
-			function_exists( 'has_block' )
-			&& ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) )
-		) {
+		if ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) ) {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
@@ -345,10 +336,6 @@ class Jetpack_Carousel {
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
-			wp_register_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
-			$GLOBALS['wp_styles']->add_data( 'jetpack-carousel-ie8fix', 'conditional', 'lte IE 8' );
-			wp_enqueue_style( 'jetpack-carousel-ie8fix' );
-
 			/**
 			 * Fires after carousel assets are enqueued for the first time.
 			 * Allows for adding additional assets to the carousel page.
@@ -394,7 +381,8 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) ) {
+			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) &&
+				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
 				$attachment_id = absint( $class_id[2] );
 				/**
 				 * If exactly the same image tag is used more than once, overwrite it.

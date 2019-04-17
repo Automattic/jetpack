@@ -9,16 +9,14 @@ import Card from 'components/card';
 /**
  * Internal dependencies
  */
-import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
+import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getSiteAdminUrl } from 'state/initial-state';
-import { getSitePlan } from 'state/site';
-import { isFetchingSiteData } from 'state/site';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { FormFieldset } from 'components/forms';
-import { getPlanClass } from 'lib/plans/constants';
 
 class Search extends React.Component {
 	render() {
@@ -58,27 +56,25 @@ class Search extends React.Component {
 							) }
 						</ModuleToggle>
 					) }
-					{ plan_is_business &&
-						module_enabled && (
-							<FormFieldset>
-								<p className="jp-form-setting-explanation">
-									{ __(
-										'Add the Jetpack Search widget to your sidebar to configure sorting and filters.'
-									) }
-								</p>
-							</FormFieldset>
-						) }
-				</SettingsGroup>
-				{ plan_is_business &&
-					module_enabled && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							href="customize.php?autofocus[panel]=widgets"
-						>
-							{ __( 'Add Jetpack Search Widget' ) }
-						</Card>
+					{ plan_is_business && module_enabled && (
+						<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{ __(
+									'Add the Jetpack Search widget to your sidebar to configure sorting and filters.'
+								) }
+							</p>
+						</FormFieldset>
 					) }
+				</SettingsGroup>
+				{ plan_is_business && module_enabled && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href="customize.php?autofocus[panel]=widgets"
+					>
+						{ __( 'Add Jetpack Search Widget' ) }
+					</Card>
+				) }
 			</SettingsCard>
 		);
 	}
