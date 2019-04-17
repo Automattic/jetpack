@@ -177,7 +177,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function is_sync_enabled() {
-		return ! (  self::get_setting( 'disable' ) || self::get_setting( 'network_disable' ) );
+		return ! ( self::get_setting( 'disable' ) || self::get_setting( 'network_disable' ) );
 	}
 
 	static function set_doing_cron( $is_doing_cron ) {
