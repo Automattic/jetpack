@@ -74,6 +74,7 @@ class Jetpack_Cxn_Test_Base {
 		}
 
 		$this->tests[ $name ] = array(
+			'name'  => $name,
 			'test'  => $callable,
 			'group' => $groups,
 			'type'  => $type,
