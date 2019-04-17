@@ -37,13 +37,13 @@ class JumpStart extends Component {
 	};
 
 	dismissLink = () =>
-		__( '{{a}}Skip, and explore features individually{{/a}}.', {
+		__( '{{a}}Skip{{/a}}', {
 			components: {
 				a: (
 					<a
 						href={ '#/settings' }
 						onClick={ this.props.jumpStartSkip }
-						className="jp-jumpstart__skip-link"
+						className="jp-jumpstart__skip-link dops-button is-borderless"
 					/>
 				),
 			},
@@ -65,13 +65,50 @@ class JumpStart extends Component {
 						</p>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								'Next, activate Jetpack’s recommended feature set to maximize your site’s security and performance. ' +
-									'{{a}}Learn more about what’s included{{/a}}.',
+								"Next, activate Jetpack's recommended features to maximize your site's security and performance. The " +
+									'{{a1}}secure authentication{{/a1}}' +
+									' and ' +
+									'{{a2}}downtime monitoring{{/a2}}' +
+									' features will immediately help secure your website and inform you if your site goes down. ' +
+									'{{a3}}Image hosting{{/a3}}' +
+									', ' +
+									'{{a4}}static file hosting{{/a4}}' +
+									', and ' +
+									'{{a5}}lazy loading images{{/a5}}' +
+									' are all features that will speed up the loading of your site.',
 								{
 									components: {
-										a: (
+										a1: (
 											<a
-												href="https://jetpack.com/support/quick-start-guide/#jumpstart"
+												href="https://jetpack.com/features/security/secure-authentication/"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+										a2: (
+											<a
+												href="https://jetpack.com/features/security/downtime-monitoring/"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+										a3: (
+											<a
+												href="https://jetpack.com/features/design/content-delivery-network/"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+										a4: (
+											<a
+												href="https://jetpack.com/features/design/content-delivery-network/"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+										a5: (
+											<a
+												href="https://jetpack.com/features/design/lazy-loading-images-for-wordpress/"
 												target="_blank"
 												rel="noopener noreferrer"
 											/>
@@ -80,8 +117,10 @@ class JumpStart extends Component {
 								}
 							) }
 						</p>
-						<p>{ this.activateButton() }</p>
-						{ this.dismissLink() }
+						<p>
+							{ this.dismissLink() }
+							{ this.activateButton() }
+						</p>
 					</div>
 				</Card>
 			</div>
