@@ -5,6 +5,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	/**
 	 * Tracks which actions have already been synced for the import
 	 * to prevent the same event from being triggered a second time
+	 *
 	 * @var array
 	 */
 	private $synced_actions = array();
@@ -13,15 +14,16 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 * A mapping of known importers to friendly names.
 	 * Keys are the class name of the known importer.
 	 * Values are the friendly name.
+	 *
 	 * @var array
 	 */
 	private static $known_importers = array(
-		'Blogger_Importer' => 'blogger',
-		'LJ_API_Import' => 'livejournal',
-		'MT_Import' => 'mt',
-		'RSS_Import' => 'rss',
+		'Blogger_Importer'     => 'blogger',
+		'LJ_API_Import'        => 'livejournal',
+		'MT_Import'            => 'mt',
+		'RSS_Import'           => 'rss',
 		'WC_Tax_Rate_Importer' => 'woo-tax-rate',
-		'WP_Import' => 'wordpress',
+		'WP_Import'            => 'wordpress',
 	);
 
 	/**
@@ -33,6 +35,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 * jetpack_sync_import_end, as they both track the same type of action,
 	 * the successful completion of an import. Different import plugins use
 	 * differently named actions, and this is an attempt to consolidate.
+	 *
 	 * @var array
 	 */
 	private static $import_sync_action_map = array(
@@ -48,16 +51,16 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'export_wp', $callable );
 		add_action( 'jetpack_sync_import_start', $callable, 10, 2 );
-		add_action( 'jetpack_sync_import_end',   $callable, 10, 2 );
+		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
 
-		// WordPress
+		// WordPress.
 		add_action( 'import_start', array( $this, 'sync_import_action' ) );
 
-		// Movable type, RSS, Livejournal
-		add_action( 'import_done',  array( $this, 'sync_import_action' ) );
+		// Movable type, RSS, Livejournal.
+		add_action( 'import_done', array( $this, 'sync_import_action' ) );
 
-		// WordPress, Blogger, Livejournal, woo tax rate
-		add_action( 'import_end',   array( $this, 'sync_import_action' ) );
+		// WordPress, Blogger, Livejournal, woo tax rate.
+		add_action( 'import_end', array( $this, 'sync_import_action' ) );
 	}
 
 	public function set_defaults() {
@@ -66,24 +69,24 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 	public function sync_import_action( $importer ) {
 		$import_action = current_filter();
-		// map action to event name
+		// Map action to event name.
 		$sync_action = self::$import_sync_action_map[ $import_action ];
 
-		// Only sync each action once per import
+		// Only sync each action once per import.
 		if ( array_key_exists( $sync_action, $this->synced_actions ) && $this->synced_actions[ $sync_action ] ) {
 			return;
 		}
 
-		// Mark this action as synced
+		// Mark this action as synced.
 		$this->synced_actions[ $sync_action ] = true;
 
-		// prefer self-reported $importer value
+		// Prefer self-reported $importer value.
 		if ( ! $importer ) {
-			// fall back to inferring by calling class name
+			// Fall back to inferring by calling class name.
 			$importer = self::get_calling_importer_class();
 		}
 
-		// Get $importer from known_importers
+		// Get $importer from known_importers.
 		if ( isset( self::$known_importers[ $importer ] ) ) {
 			$importer = self::$known_importers[ $importer ];
 		}
@@ -105,16 +108,17 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 * @return string  The name of the calling class, or 'unknown'.
 	 */
 	private static function get_calling_importer_class() {
-		// If WP_Importer doesn't exist, neither will any importer that extends it
-		if ( ! class_exists( 'WP_Importer' ) ){
+		// If WP_Importer doesn't exist, neither will any importer that extends it.
+		if ( ! class_exists( 'WP_Importer' ) ) {
 			return 'unknown';
 		}
 
-		$action = current_filter();
+		$action    = current_filter();
 		$backtrace = wp_debug_backtrace_summary( null, 0, false );
 
 		$do_action_pos = -1;
-		for ( $i = 0; $i < count( $backtrace ); $i++ ) {
+		$backtrace_len = count( $backtrace );
+		for ( $i = 0; $i < $backtrace_len; $i++ ) {
 			// Find the location in the stack of the calling action
 			if ( preg_match( "/^do_action\s*\\(\s*\'([^\']+\s*)/", $backtrace[ $i ], $matches ) ) {
 				if ( $matches[1] === $action ) {
@@ -124,26 +128,27 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 			}
 		}
 
-		// if the action wasn't called, the calling class is unknown
+		// If the action wasn't called, the calling class is unknown.
 		if ( -1 === $do_action_pos ) {
 			return 'unknown';
 		}
 
-		// continue iterating the stack looking for a caller that extends WP_Importer
-		for ( $i = $do_action_pos + 1; $i < count( $backtrace ); $i++ ) {
-			// grab only class_name from the trace
+		// Continue iterating the stack looking for a caller that extends WP_Importer.
+		$backtrace_len = count( $backtrace );
+		for ( $i = $do_action_pos + 1; $i < $backtrace_len; $i++ ) {
+			// Grab only class_name from the trace.
 			list( $class_name ) = explode( '->', $backtrace[ $i ] );
 
-			// check if the class extends WP_Importer
+			// Check if the class extends WP_Importer.
 			if ( class_exists( $class_name ) ) {
 				$parents = class_parents( $class_name );
-				if ( $parents && in_array( 'WP_Importer', $parents ) ) {
+				if ( $parents && in_array( 'WP_Importer', $parents, true ) ) {
 					return $class_name;
 				}
 			}
 		}
 
-		// If we've exhausted the stack without a match, the calling class is unknown
+		// If we've exhausted the stack without a match, the calling class is unknown.
 		return 'unknown';
 	}
 }
