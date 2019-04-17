@@ -73,8 +73,8 @@
 
 		overlay.fadeOut( 400, function() {
 			overlay.remove();
-			var widgetSection = document.querySelector(".widget.widget_eu_cookie_law_widget");
-			widgetSection.parentNode.removeChild(widgetSection);
+			var widgetSection = document.querySelector( '.widget.widget_eu_cookie_law_widget' );
+			widgetSection.parentNode.removeChild( widgetSection );
 		} );
 	}
 } )( jQuery );
