@@ -2,13 +2,14 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0-beta.4":
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-beta.4.tgz#b9fa33e1a9b16943d43e7eabe13f3718456fea3e"
-  integrity sha512-YepaQ6lAqOv0hwmUSEuoCgkP6v2O0CT5NbdAvtytsMP7bvVpeBI6zLrd+riJ8wxdp9I3ID1KoOzHUhEzdEf4ow==
+"@automattic/calypso-build@1.0.0-beta.5":
+  version "1.0.0-beta.5"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-beta.5.tgz#aa69a39dba981a301c26c08abebaf9ad2841e66a"
+  integrity sha512-KBQunuYXpb0WTWc9vPSXI77wBp1ZBHqCXMLkcDUTNS3avjIiMl0ZJ5y+V77e2yJAwm+3a9+wQbd9LibZnXhIBQ==
   dependencies:
     "@automattic/calypso-color-schemes" "^1.0.0"
     "@automattic/wordpress-external-dependencies-plugin" "^1.0.0"
+    "@babel/core" "7.4.0"
     "@babel/plugin-proposal-class-properties" "7.4.0"
     "@babel/plugin-proposal-export-default-from" "7.2.0"
     "@babel/plugin-proposal-export-namespace-from" "7.2.0"
@@ -70,6 +71,7 @@
 "@babel/core@7.4.0":
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.4.0.tgz#248fd6874b7d755010bfe61f557461d4f446d9e9"
+  integrity sha512-Dzl7U0/T69DFOTwqz/FJdnOSWS57NpjNfCwMKHABr589Lg8uX1RrlBIJ7L5Dubt/xkLsx0xH5EBFzlBVes1ayA==
   dependencies:
     "@babel/code-frame" "^7.0.0"
     "@babel/generator" "^7.4.0"
@@ -287,16 +289,7 @@
     "@babel/traverse" "^7.1.0"
     "@babel/types" "^7.2.0"
 
-"@babel/helpers@^7.4.0":
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/@babel/helpers/-/helpers-7.4.2.tgz#3bdfa46a552ca77ef5a0f8551be5f0845ae989be"
-  integrity sha512-gQR1eQeroDzFBikhrCccm5Gs2xBjZ57DNjGbqTaHo911IpmSxflOQWMAHPw/TXk8L3isv7s9lYzUkexOeTQUYg==
-  dependencies:
-    "@babel/template" "^7.4.0"
-    "@babel/traverse" "^7.4.0"
-    "@babel/types" "^7.4.0"
-
-"@babel/helpers@^7.4.3":
+"@babel/helpers@^7.4.0", "@babel/helpers@^7.4.3":
   version "7.4.3"
   resolved "https://registry.yarnpkg.com/@babel/helpers/-/helpers-7.4.3.tgz#7b1d354363494b31cb9a2417ae86af32b7853a3b"
   integrity sha512-BMh7X0oZqb36CfyhvtbSmcWc3GXocfxv3yNsAEuM0l+fAqSO22rQrUpijr3oE/10jCTrB6/0b9kzmG4VetCj8Q==
@@ -756,12 +749,6 @@
     mkdirp "^0.5.1"
     pirates "^4.0.0"
     source-map-support "^0.5.9"
-
-"@babel/runtime@7.4.2":
-  version "7.4.2"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.2.tgz#f5ab6897320f16decd855eed70b705908a313fe8"
-  dependencies:
-    regenerator-runtime "^0.13.2"
 
 "@babel/runtime@^7.0.0", "@babel/runtime@^7.3.1":
   version "7.4.3"
