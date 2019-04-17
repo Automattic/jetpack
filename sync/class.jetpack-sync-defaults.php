@@ -557,6 +557,11 @@ class Jetpack_Sync_Defaults {
 		return floor( $max_exec_time / 3 );
 	}
 
+	static function get_default_setting( $setting ) {
+		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
+		return Jetpack_Sync_Defaults::$$default_name;
+	}
+
 	static $default_network_options_whitelist = array(
 		'site_name',
 		'jetpack_protect_key',
@@ -578,6 +583,7 @@ class Jetpack_Sync_Defaults {
 	static $default_post_meta_whitelist      = array();
 	static $default_comment_meta_whitelist   = array();
 	static $default_disable                  = 0; // completely disable sending data to wpcom
+	static $default_network_disable          = 0; // completely disable sending data to wpcom network wide
 	static $default_sync_via_cron            = 1; // use cron to sync
 	static $default_render_filtered_content  = 0; // render post_filtered_content
 	static $default_max_enqueue_full_sync    = 100; // max number of items to enqueue at a time when running full sync
@@ -586,4 +592,5 @@ class Jetpack_Sync_Defaults {
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
 	static $default_sync_queue_lock_timeout  = 120; // 2 minutes
 	static $default_cron_sync_time_limit     = 30; // 30 seconds
+
 }
