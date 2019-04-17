@@ -1535,7 +1535,7 @@ EOT;
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
 					$post_cat_context = sprintf(
-						esc_html_x( 'In “%s”', 'in {category/tag name}', 'jetpack' ),
+						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
 					/**
