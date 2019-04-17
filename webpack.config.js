@@ -1,75 +1,36 @@
+/**
+ * External dependencies
+ */
+const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const devMode = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const baseWebpackConfig = getBaseWebpackConfig(
+	{ WP: false },
+	{
+		entry: {}, // We'll override later
+		'output-filename': '[name].js',
+		'output-path': path.join( __dirname, '_inc', 'build' ),
+	}
+);
 
 const sharedWebpackConfig = {
-	mode: devMode ? 'development' : 'production',
-	output: {
-		path: path.join( __dirname, '_inc/build' ),
-		filename: '[name].js',
-	},
-	module: {
-		// Webpack loaders are applied when a resource is matches the test case
-		rules: [
-			{
-				test: /\.jsx?$/,
-				loader: 'babel-loader',
-				// include both typical npm-linked locations and default module
-				// locations to handle both cases
-				include: [ path.join( __dirname, 'test' ), path.join( __dirname, '_inc/client' ) ],
-			},
-			{
-				test: /\.css$/,
-				use: [ { loader: MiniCssExtractPlugin.loader }, 'css-loader', 'autoprefixer-loader' ],
-			},
-			{
-				test: /\.html$/,
-				loader: 'html-loader',
-			},
-			{
-				test: /\.scss$/,
-				use: [ { loader: MiniCssExtractPlugin.loader }, 'css-loader', 'sass-loader' ],
-			},
-			{
-				test: /\.svg/,
-				loader: 'url-loader',
-			},
-		],
-	},
+	...baseWebpackConfig,
 	resolve: {
-		extensions: [ '.js', '.jsx' ],
-		modules: [
-			path.resolve( __dirname, 'node_modules' ),
-			path.resolve( __dirname, '_inc/client' ),
-		],
-	},
-	resolveLoader: {
-		modules: [ path.join( __dirname, 'node_modules' ) ],
+		...baseWebpackConfig.resolve,
+		modules: [ 'node_modules', path.resolve( __dirname, '_inc/client' ) ],
 	},
 	node: {
 		fs: 'empty',
 		process: true,
 	},
-	plugins: [
-		new webpack.DefinePlugin( {
-			// NODE_ENV is used inside React to enable/disable features that should
-			// only be used in development
-			'process.env.NODE_ENV': JSON.stringify( NODE_ENV ),
-		} ),
-		new MiniCssExtractPlugin( {
-			// Options similar to the same options in webpackOptions.output
-			// both options are optional
-			filename: '[name].dops-style.css',
-		} ),
-	],
-	devtool: devMode ? 'source-map' : false,
+	devtool: isDevelopment ? 'source-map' : false,
 };
 
+// We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
 module.exports = [
 	{
 		...sharedWebpackConfig,
