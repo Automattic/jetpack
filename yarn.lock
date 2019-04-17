@@ -9175,9 +9175,9 @@ prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
 
-"prettier@https://github.com/Automattic/wp-prettier/releases/download/wp-1.16.4/wp-prettier-1.16.4.tgz":
-  version "1.16.4"
-  resolved "https://github.com/Automattic/wp-prettier/releases/download/wp-1.16.4/wp-prettier-1.16.4.tgz#06cbfb8c96bc095fff9c49ca1afe5075514d2f26"
+"prettier@https://github.com/Automattic/wp-prettier/releases/download/wp-1.17.0/wp-prettier-1.17.0.tgz":
+  version "1.17.0"
+  resolved "https://github.com/Automattic/wp-prettier/releases/download/wp-1.17.0/wp-prettier-1.17.0.tgz#6528e5a8579619dbf31bd511de4a5c6800674db3"
 
 pretty-format@^24.7.0:
   version "24.7.0"
