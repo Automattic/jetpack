@@ -247,12 +247,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * wp jetpack reset options
 	 * wp jetpack reset modules
+	 * wp jetpack reset sync-checksum
 	 *
 	 * @synopsis <modules|options>
 	 */
 	public function reset( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
-		if ( ! in_array( $action, array( 'options', 'modules' ) ) ) {
+		if ( ! in_array( $action, array( 'options', 'modules', 'sync-checksum' ) ) ) {
 			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
@@ -304,8 +305,43 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 				break;
 			case 'prompt':
-				WP_CLI::error( __( 'Please specify if you would like to reset your options, or modules', 'jetpack' ) );
+				WP_CLI::error( __( 'Please specify if you would like to reset your options, modules or sync-checksum', 'jetpack' ) );
 				break;
+			case 'sync-checksum':
+				global $wpdb;
+				$option = 'jetpack_callables_sync_checksum';
+				if ( is_multisite() && function_exists( 'get_sites' ) ) {
+					$sites  = get_sites( array( 'number' => 1000 ) );
+					$count_fixes  = 0;
+					foreach ( $sites as $site ) {
+						switch_to_blog( $site->blog_id );
+						$count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option ) );
+						if ( $count > 1 ) {
+							delete_option( $option );
+							WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
+							$count_fixes++;
+							sleep( 20 ); // Allow some time for replication to catch up.
+						}
+
+						restore_current_blog();
+					}
+					if ( $count_fixes ) {
+						WP_CLI::success( sprintf( __( "Successfully reset %s on %s sites.", 'jetpack' ), $option, $count_fixes ) );
+					} else {
+						WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
+					}
+					return;
+				}
+				$count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option ) );
+				if ( $count > 1 ) {
+					delete_option( $option );
+					WP_CLI::success( sprintf( __( 'Deleted %s %s options', 'jetpack' ), $count, $option ) );
+					return;
+				}
+
+				WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
+				break;
+
 		}
 	}
 
