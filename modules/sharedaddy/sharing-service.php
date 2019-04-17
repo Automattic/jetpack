@@ -749,11 +749,13 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	/**
-	 * Filter the Sharing buttons' Ajax action name Jetpack checks for, to allow the use of the buttons with your own Ajax implementation.
+	 * Filter the Sharing buttons' Ajax action name Jetpack checks for.
+	 * This allows the use of the buttons with your own Ajax implementation.
 	 *
 	 * @module sharedaddy
 	 *
-	 * @since 7.2.0
+	 * @since 7.3.0
+	 *
 	 * @param string $sharing_ajax_action_name Name of the Sharing buttons' Ajax action.
 	 */
 	$ajax_action = apply_filters( 'sharing_ajax_action', 'get_latest_posts' );
