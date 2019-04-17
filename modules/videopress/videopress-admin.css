@@ -95,3 +95,11 @@
 .uploader-videopress .videopress-errors div {
 	margin: 16px 0;
 }
+
+.compat-field-video-rating input[type="radio"],
+.compat-field-display_embed input[type="checkbox"]{
+	margin-top: -1px !important;
+	margin-right: 5px !important;
+	margin-left: 5px !important;
+	vertical-align: middle;
+}

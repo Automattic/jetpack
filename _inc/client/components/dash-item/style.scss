@@ -1,86 +1,103 @@
 .jp-dash-item {
-	a {
+	.jp-dash-item__content a {
 		font-style: italic;
+	}
+	.dops-section-header__actions {
+		.form-toggle__label {
+			position: relative;
+			top: 6px;
+			right: 0;
+		}
+		.form-toggle__label-content {
+			margin: 0;
+		}
 	}
 }
 
-.jp-dash-item__count {
-	margin-bottom: 0;
-	letter-spacing: rem( -1px );
+.jp-dash-item__content {
+	flex-grow: 1;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+}
 
-	@include breakpoint( ">960px" ) {
-		font-size: rem( 60px );
-		margin-top: 0;
-	}
-	@include breakpoint( ">660px" ) {
-		font-size: rem( 48px );
-		margin-top: 0;
-	}
+.jp-dash-item__card {
+	margin: 0;
+}
+
+.jp-dash-item__count {
+	margin-top: 0;
+	margin-bottom: 6px;
+	margin-right: 8px;
+	color: $blue-medium;
+	font-weight: 500;
+	font-size: rem( 32px );
+	display: inline-block;
+	border: 1px solid $dashboard-number-border;
+	border-radius: 4px;
+	padding: 0px 4px;
+	min-width: 36px;
+	text-align: center;
+
 	@include breakpoint( "<660px" ) {
-		font-size: rem( 32px );
+		font-size: rem( 23px );
+	}
+
+	+ .jp-dash-item__description {
+		max-width: 61%;
 	}
 }
 
 .jp-dash-item__description {
 	margin: 0;
 	font-size: rem( 14px );
+	max-width: calc( 100% - 18px ); // For the support icon
 }
 
 .jp-dash-item .dops-section-header {
-	background: lighten( $gray, 35% );
+	width: 100%;
 
-	.dops-section-header__label:before {
-		@include long-content-fade( $color : lighten( $gray, 35% ) );
+	.dops-button {
+		font-style: normal;
 	}
 
-	&.is-success {
-		background: $alert-green;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $alert-green );
-		}
-	}
-	&.is-warning {
-		background: $alert-yellow;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $alert-yellow );
-		}
-	}
-	&.is-error {
-		background: $alert-red;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $alert-red );
-		}
-	}
-	&.is-info {
-		background: $blue-wordpress;
-
-		.dops-section-header__label:before {
-			@include long-content-fade( $color : $blue-wordpress );
-		}
-	}
 	&.is-working,
 	&.is-premium-inactive {
 		.dops-section-header__actions {
-			color: lighten( $gray, 20% );
+			color: $gray-text-min;
 		}
 	}
+}
+
+.jp-dash-item {
+	.dops-section-header__actions {
+		.dops-notice {
+			margin-top: rem( 2px );
+		}
+	}
+}
+.jp-dash-item__active-label {
+	display: inline-block;
+	padding: rem( 6px ) 0;
+	color: darken( $gray, 10% );
+	color: $gray;
+	font-size: rem( 12px );
+	font-weight: 400;
+	text-transform: uppercase;
 }
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
-
-	.dops-section-header .dops-section-header__label:before {
-		@include long-content-fade( $color : $gray-light );
+	.dops-section-header__label {
+		padding-right: rem( 8px );
 	}
-
-	.dops-card {
-		background-color: $gray-light;
+	.dops-section-header__label-text {
+		&:before {
+			@include long-content-fade( $size: 8px, $color : $white );
+		}
 	}
-
 	.jp-dash-item__description {
+		font-style: italic;
 		color: darken( $gray, 20% );
 	}
 }
@@ -101,44 +118,7 @@
 	}
 }
 
-.jp-dash-item__recently-activated .dops-card:last-of-type {
-	padding: 0;
-}
-
-.jp-dash-item__recently-activated-lower {
-	background: $gray-light;
-
-	@include breakpoint( "<660px" ) {
-		background: $white;
-	}
-
-	&:before {
-		display: block;
-		content: "";
-		background: $white url('../../images/jp-4/long-clouds.svg') 50% 100% no-repeat;
-		background-size: 150%;
-		padding: 0;
-		height: rem( 63px );
-
-		@include breakpoint( "<660px" ) {
-			display: none;
-		}
-	}
-}
-
 .jp-dash-item__recently-activated .jp-dash-item__description {
-	padding: rem( 16px );
 	font-style: italic;
-}
-
-// I apologize for this, but the icons were misbehaving. - MJA
-.jp-dash-item .is-success .dops-section-header__label,
-.jp-dash-item .is-success .dops-section-header__actions,
-.jp-dash-item .is-warning .dops-section-header__label,
-.jp-dash-item .is-warning .dops-section-header__actions,
-.jp-dash-item .is-error .dops-section-header__label,
-.jp-dash-item .is-error .dops-section-header__actions,
-.jp-dash-item .is-info .dops-section-header__label,
-.jp-dash-item .is-info .dops-section-header__actions {
-	color: $white;
+	box-sizing: border-box;
 }

@@ -1,80 +1,69 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import Gridicon from 'components/gridicon';
-import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
-export default React.createClass( {
-	displayName: 'DashSectionHeader',
+export class DashSectionHeader extends React.Component {
+	static displayName = 'DashSectionHeader';
 
-	propTypes: {
-		label: React.PropTypes.string.isRequired,
-		settingsPath: React.PropTypes.string,
-		externalLinkPath: React.PropTypes.string,
-		externalLink: React.PropTypes.string
-	},
+	static propTypes = {
+		label: PropTypes.string.isRequired,
+		settingsPath: PropTypes.string,
+		externalLinkPath: PropTypes.string,
+		externalLink: PropTypes.string,
+		externalLinkClick: PropTypes.func,
+	};
 
-	getDefaultProps() {
-		return {
-			label: '',
-			settingsPath: '',
-			externalLinkPath: '',
-			externalLink: ''
-		};
-	},
+	static defaultProps = {
+		label: '',
+		settingsPath: '',
+		externalLinkPath: '',
+		externalLink: '',
+	};
+
+	trackCogClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'settings-cog',
+			group: 'security',
+			page: 'aag',
+		} );
+	};
 
 	render() {
-		let settingsIcon;
 		let externalLink;
 		let children;
 
-		const classes = classNames(
-			this.props.className,
-			'jp-dash-section-header'
-		);
-
-		if ( this.props.settingsPath ) {
-			settingsIcon = (
-				<a className="jp-dash-section-header__settings" href={ this.props.settingsPath }>
-					<span className="screen-reader-text">
-						{ __( 'Settings', { context: 'Noun. Displayed to screen readers.' } ) }
-					</span>
-					<Gridicon icon="cog" size={ 16 } />
-				</a>
-			);
-		}
+		const classes = classNames( this.props.className, 'jp-dash-section-header' );
 
 		if ( this.props.externalLink ) {
 			externalLink = (
 				<a
 					className="jp-dash-section-header__external-link"
-					href={ this.props.externalLinkPath }>
-						{ this.props.externalLink }
+					href={ this.props.externalLinkPath }
+					onClick={ this.props.externalLinkClick }
+				>
+					{ this.props.externalLink }
 				</a>
 			);
 		}
 
 		if ( this.props.children ) {
-			children = (
-				<div className="jp-dash-section-header__children" >
-					{ this.props.children }
-				</div>
-			);
+			children = <div className="jp-dash-section-header__children">{ this.props.children }</div>;
 		}
 
 		return (
 			<div className={ classes }>
 				<div className="jp-dash-section-header__label">
-					<h2 className="jp-dash-section-header__label">
-						{ this.props.label }
-					</h2>
-					{ settingsIcon }
+					<h2 className="jp-dash-section-header__name">{ this.props.label }</h2>
 				</div>
 				{ externalLink }
 				{ children }
 			</div>
 		);
 	}
-} );
+}
+
+export default DashSectionHeader;

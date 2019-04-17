@@ -2,20 +2,6 @@
 // Main Layout
 // ==========================================================================
 
-.jp-content {
-	background: $clouds;
-	margin: 0;
-	height: auto;
-	min-height: 100%;
-	width: 100%;
-	width: 100%;
-	-webkit-font-smoothing: antialiased;
-
-	.wrapper {
-		background: $clouds;
-	}
-}
-
 .configure .frame.top.fixed {
 	@include breakpoint(tablet){
 		padding-left: 0;
@@ -154,38 +140,6 @@
 		display: none;
 	}
 }
-// ==========================================================================
-// Masthead
-// ==========================================================================
-
-.clouds-sm {
-	$start: $green; // top gradient color and fallback
-	$end: lighten($green, 3%); // bottom gradient color
-
-	height: 100px;
-	position: relative;
-	text-align: center;
-	z-index: 1;
-	background-color: $start;
-	background-image: linear-gradient(to bottom, $start, $end);
-
-	&:after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		margin-bottom: -1px; // Removes subpixel gap on retina landscape
-		width: 100%;
-		height: 137px;
-		background: url('../images/the-cloud-sm.svg') center bottom repeat-x;
-		pointer-events: none;
-		z-index: 2;
-	}
-	@include breakpoint(large-phone){
-		height: 90px;
-	};
-}
-
 
 // ==========================================================================
 // Modal
@@ -251,7 +205,8 @@
 		text-align: left;
 		margin-top: 0;
 		color: #5d6d74;
-		font: 300 32px $proxima; // 36/14
+		font-weight: 300;
+		line-height: 32px;
 		text-shadow: 0 1px 1px #fff;
 
 		@include breakpoint(large-phone){
@@ -613,17 +568,9 @@
 	max-width:100%;
 }
 
-
 // ==========================================================================
 // Uncategorized
 // ==========================================================================
-
-@include breakpoint(phablet){
-	// clouds are nice, but occupy too much vert space on mobile
-	.clouds-sm {
-		display: none;
-	}
-};
 
 @include breakpoint(large-phone){
 	.wrap.inner.jp-support { // Used anywhere?
@@ -677,3 +624,11 @@
 		}
 	}
 } // max 515px
+
+// ==========================================================================
+// Fix notice in IE
+// ==========================================================================
+#ie-legacy-notice .dops-notice__content {
+	display: inline-block;
+	margin-left: 10px;
+}

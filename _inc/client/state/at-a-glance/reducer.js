@@ -2,19 +2,22 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import assign from 'lodash/assign';
+import { assign, get } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import {
 	STATS_SWITCH_TAB,
+	STATS_DATA_FETCH,
+	STATS_DATA_FETCH_FAIL,
+	STATS_DATA_FETCH_SUCCESS,
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
-	MONITOR_LAST_DOWNTIME_FETCH,
-	MONITOR_LAST_DOWNTIME_FETCH_FAIL,
-	MONITOR_LAST_DOWNTIME_FETCH_SUCCESS,
+	AKISMET_KEY_CHECK_FETCH,
+	AKISMET_KEY_CHECK_FETCH_FAIL,
+	AKISMET_KEY_CHECK_FETCH_SUCCESS,
 	VAULTPRESS_SITE_DATA_FETCH,
 	VAULTPRESS_SITE_DATA_FETCH_FAIL,
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
@@ -23,15 +26,18 @@ import {
 	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
 	PLUGIN_UPDATES_FETCH,
 	PLUGIN_UPDATES_FETCH_FAIL,
-	PLUGIN_UPDATES_FETCH_SUCCESS
+	PLUGIN_UPDATES_FETCH_SUCCESS,
+	MOCK_SWITCH_THREATS,
 } from 'state/action-types';
 
 const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case STATS_DATA_FETCH:
+			return assign( {}, state, { fetchingStatsData: true } );
 		case AKISMET_DATA_FETCH:
 			return assign( {}, state, { fetchingAkismetData: true } );
-		case MONITOR_LAST_DOWNTIME_FETCH:
-			return assign( {}, state, { fetchingMonitorData: true } );
+		case AKISMET_KEY_CHECK_FETCH:
+			return assign( {}, state, { checkingAkismetKey: true } );
 		case VAULTPRESS_SITE_DATA_FETCH:
 			return assign( {}, state, { fetchingVaultPressData: true } );
 		case DASHBOARD_PROTECT_COUNT_FETCH:
@@ -39,23 +45,24 @@ const requests = ( state = {}, action ) => {
 		case PLUGIN_UPDATES_FETCH:
 			return assign( {}, state, { fetchingPluginUpdates: true } );
 
+		case STATS_DATA_FETCH_FAIL:
+		case STATS_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingStatsData: false } );
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
-		case MONITOR_LAST_DOWNTIME_FETCH_FAIL:
-		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
-		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
-		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingAkismetData: false } );
+		case AKISMET_KEY_CHECK_FETCH_FAIL:
+		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
+			return assign( {}, state, { checkingAkismetKey: false } );
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingProtectData: false } );
 		case PLUGIN_UPDATES_FETCH_FAIL:
 		case PLUGIN_UPDATES_FETCH_SUCCESS:
-			return assign( {}, state, {
-				fetchingAkismetData: false,
-				fetchingMonitorData: false,
-				fetchingVaultPressData: false,
-				fetchingProtectData: false,
-				fetchingPluginUpdates: false
-			} );
+			return assign( {}, state, { fetchingPluginUpdates: false } );
+		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
+		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingVaultPressData: false } );
 
 		default:
 			return state;
@@ -71,10 +78,31 @@ const activeStatsTab = ( state = 'day', action ) => {
 	}
 };
 
+const statsData = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case STATS_DATA_FETCH_SUCCESS:
+			return assign( {}, state, action.statsData );
+		default:
+			return state;
+	}
+};
+
 const akismetData = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case AKISMET_DATA_FETCH_SUCCESS:
 			return action.akismetData;
+		default:
+			return state;
+	}
+};
+
+const akismet = (
+	state = { validKey: null, invalidKeyCode: '', invalidKeyMessage: '' },
+	action
+) => {
+	switch ( action.type ) {
+		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
+			return assign( {}, state, action.akismet );
 		default:
 			return state;
 	}
@@ -90,20 +118,23 @@ const protectCount = ( state = 'N/A', action ) => {
 	}
 };
 
-const lastDownTime = ( state = 'N/A', action ) => {
-	switch ( action.type ) {
-		case MONITOR_LAST_DOWNTIME_FETCH_SUCCESS:
-			return action.lastDownTime;
-
-		default:
-			return state;
-	}
-};
-
 const vaultPressData = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
 			return action.vaultPressData;
+
+		case MOCK_SWITCH_THREATS:
+			return assign( {}, 'N/A' === state ? {} : state, {
+				data: {
+					active: true,
+					features: {
+						security: true,
+					},
+					security: {
+						notice_count: action.mockCount,
+					},
+				},
+			} );
 
 		default:
 			return state;
@@ -124,10 +155,11 @@ export const dashboard = combineReducers( {
 	requests,
 	activeStatsTab,
 	protectCount,
-	lastDownTime,
 	vaultPressData,
+	statsData,
 	akismetData,
-	pluginUpdates
+	akismet,
+	pluginUpdates,
 } );
 
 /**
@@ -138,6 +170,26 @@ export const dashboard = combineReducers( {
  */
 export function getActiveStatsTab( state ) {
 	return state.jetpack.dashboard.activeStatsTab;
+}
+
+/**
+ * Returns true if currently requesting Stats data.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Stats data is being requested
+ */
+export function isFetchingStatsData( state ) {
+	return !! state.jetpack.dashboard.requests.fetchingStatsData;
+}
+
+/**
+ * Returns object with Stats data.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Object}			Stats data.
+ */
+export function getStatsData( state ) {
+	return state.jetpack.dashboard.statsData;
 }
 
 /**
@@ -161,6 +213,26 @@ export function getAkismetData( state ) {
 }
 
 /**
+ * Returns true if currently checking Akismet API key for validity.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Akismet API key is being checked.
+ */
+export function isCheckingAkismetKey( state ) {
+	return !! state.jetpack.dashboard.requests.checkingAkismetKey;
+}
+
+/**
+ * Checks if the Akismet key is valid.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {boolean} True if Akismet API key is valid.
+ */
+export function isAkismetKeyValid( state ) {
+	return get( state.jetpack.dashboard, [ 'akismet', 'validKey' ], false );
+}
+
+/**
  * Returns true if currently requesting Protect data
  *
  * @param  {Object}  state  Global state tree
@@ -178,26 +250,6 @@ export function isFetchingProtectData( state ) {
  */
 export function getProtectCount( state ) {
 	return state.jetpack.dashboard.protectCount;
-}
-
-/**
- * Returns true if currently requesting Monitor data
- *
- * @param  {Object}  state  Global state tree
- * @return {Boolean}        Whether Monitor data is being requested
- */
-export function isFetchingMonitorData( state ) {
-	return state.jetpack.dashboard.requests.fetchingMonitorData ? true : false;
-}
-
-/**
- * Returns last downtime of the site, from Monitor.
- *
- * @param  {Object}  state  Global state tree
- * @return {String} Date/time stamp when last downtime was detected/logged
- */
-export function getLastDownTime( state ) {
-	return state.jetpack.dashboard.lastDownTime;
 }
 
 /**
@@ -229,7 +281,7 @@ export function getVaultPressData( state ) {
  * @return {int} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
-	return state.jetpack.dashboard.vaultPressData.data.security.notice_count;
+	return get( state.jetpack.dashboard.vaultPressData, 'data.security.notice_count', 0 );
 }
 
 /**

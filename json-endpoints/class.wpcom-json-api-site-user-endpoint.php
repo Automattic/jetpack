@@ -1,5 +1,102 @@
 <?php
 
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Get details of a user of a site by ID.',
+	'group'       => '__do_not_document', //'users'
+	'stat'        => 'sites:1:user',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$user_id' => '(int) User ID',
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash",
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Get details of a user of a site by login.',
+	'group'       => 'users',
+	'stat'        => 'sites:1:user',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users/login:%s',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(string) The user\'s login.',
+	),
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/login:binarysmash',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash",
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
+new WPCOM_JSON_API_Site_User_Endpoint( array(
+	'description' => 'Update details of a user of a site.',
+	'group'       => 'users',
+	'stat'        => 'sites:1:user',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/users/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID or domain.',
+		'$user_id' => '(int) The user\'s ID.',
+	),
+	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/user/23',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'roles' => array(
+				array(
+					'administrator',
+				)
+			),
+			'first_name' => 'Rocco',
+			'last_name' => 'Tripaldi',
+		)
+	),
+	'example_response'     => '{
+		"ID": 18342963,
+		"login": "binarysmash",
+		"email": false,
+		"name": "binarysmash",
+		"URL": "http:\/\/binarysmash.wordpress.com",
+		"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+		"profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+		"roles": [ "administrator" ]
+	}'
+) );
+
 class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $user_format = array(
@@ -14,7 +111,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'avatar_URL'   => '(url) Gravatar image URL',
 		'profile_URL'  => '(url) Gravatar Profile URL',
 		'site_ID'      => '(int) ID of the user\'s primary blog',
-		'roles'        => '(array) The roles of the user',
+		'roles'        => '(array|string) The role or roles of the user',
 	);
 
 	// /sites/%s/users/%d -> $blog_id, $user_id
@@ -55,7 +152,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$the_user = $this->get_author( $user_id, true );
 		if ( $the_user && ! is_wp_error( $the_user ) ) {
 			$userdata = get_userdata( $user_id );
-			$the_user->roles = ! is_wp_error( $userdata ) ? $userdata->roles : array();
+			$the_user->roles = ! is_wp_error( $userdata ) ? array_values( $userdata->roles ) : array();
 		}
 
 		return $the_user;
@@ -64,7 +161,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Updates user data
 	 *
-	 * @return (array)
+	 * @return array
 	 */
 	public function update_user( $user_id, $blog_id ) {
 		$input = $this->input();
@@ -97,13 +194,23 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 			}
 		}
+
 		if ( isset( $input[ 'roles' ] ) ) {
+			// For now, we only use the first role in the array.
 			if ( is_array( $input['roles'] ) ) {
 				$user['role'] = $input['roles'][0];
-			} else {
+			} else if ( is_string( $input['roles'] ) ) {
 				$user['role'] = $input['roles'];
+			} else {
+				return new WP_Error( 'invalid_input', __( 'The roles property must be a string or an array.', 'jetpack' ), 400 );
+			}
+
+			$editable_roles = array_keys( get_editable_roles() );
+			if ( ! in_array( $user['role'], $editable_roles ) ) {
+				return new WP_Error( 'invalid_input', sprintf( __( '%s is not a valid role.', 'jetpack' ), $editable_roles ), 400 );
 			}
 		}
+
 		$result = wp_update_user( $user );
 		if ( is_wp_error( $result ) ) {
 			return $result;

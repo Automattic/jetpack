@@ -2,13 +2,14 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import assign from 'lodash/assign';
+import { assign, get, includes, merge } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	JETPACK_SET_INITIAL_STATE,
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
@@ -20,11 +21,15 @@ import {
 	DISCONNECT_SITE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
-	UNLINK_USER_SUCCESS
+	UNLINK_USER_SUCCESS,
+	MOCK_SWITCH_USER_PERMISSIONS,
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
-export const status = ( state = { siteConnected: window.Initial_State.connectionStatus }, action ) => {
+export const status = (
+	state = { siteConnected: window.Initial_State.connectionStatus },
+	action
+) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
@@ -38,9 +43,10 @@ export const status = ( state = { siteConnected: window.Initial_State.connection
 
 export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
+		case JETPACK_SET_INITIAL_STATE:
+			return get( action, 'initialState.connectUrl', state );
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
-
 		default:
 			return state;
 	}
@@ -52,8 +58,11 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 			return assign( {}, state, action.userConnectionData );
 
 		case UNLINK_USER_SUCCESS:
-			let currentUser = assign( {}, state.currentUser, { isConnected: false } );
+			const currentUser = assign( {}, state.currentUser, { isConnected: false } );
 			return assign( {}, state, { currentUser } );
+
+		case MOCK_SWITCH_USER_PERMISSIONS:
+			return merge( {}, state, action.initialState );
 
 		default:
 			return state;
@@ -64,7 +73,7 @@ export const connectionRequests = {
 	disconnectingSite: false,
 	unlinkingUser: false,
 	fetchingConnectUrl: false,
-	fetchingUserData: false
+	fetchingUserData: false,
 };
 
 export const requests = ( state = connectionRequests, action ) => {
@@ -103,7 +112,7 @@ export const reducer = combineReducers( {
 	connectUrl,
 	status,
 	user,
-	requests
+	requests,
 } );
 
 /**
@@ -120,6 +129,35 @@ export function getSiteConnectionStatus( state ) {
 		return 'dev';
 	}
 	return state.jetpack.connection.status.siteConnected.isActive;
+}
+
+/**
+ * Checks if the site is connected to WordPress.com. Unlike getSiteConnectionStatus, this one returns only a boolean.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is connected to WordPress.com. False if site is in Dev Mode or there's no connection data.
+ */
+export function isSiteConnected( state ) {
+	if (
+		'object' !== typeof state.jetpack.connection.status.siteConnected ||
+		true === state.jetpack.connection.status.siteConnected.devMode.isActive
+	) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnected.isActive;
+}
+
+/**
+ * Returns an object with information about the Dev Mode.
+ *
+ * @param  {Object}      state Global state tree
+ * @return {bool|object} False if site is not in Dev Mode. If it is, returns an object with information about the Dev Mode.
+ */
+export function getSiteDevMode( state ) {
+	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive' ] ) ) {
+		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode' ] );
+	}
+	return false;
 }
 
 /**
@@ -193,6 +231,26 @@ export function isDevMode( state ) {
 }
 
 /**
+ * Checks if the site is currently in staging.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is in staging. False otherwise.
+ */
+export function isStaging( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'isStaging' ], false );
+}
+
+/**
+ * Checks if the site is currently in an Identity Crisis.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is in IDC. False otherwise.
+ */
+export function isInIdentityCrisis( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'isInIdentityCrisis' ], false );
+}
+
+/**
  * Checks if the module requires connection.
  *
  * @param  {Object}  state Global state tree
@@ -200,10 +258,7 @@ export function isDevMode( state ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresConnection( state, slug ) {
-	return getModulesThatRequireConnection( state ).concat( [
-		'backups',
-		'scan'
-	] ).includes( slug );
+	return includes( getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ), slug );
 }
 
 /**
@@ -215,4 +270,14 @@ export function requiresConnection( state, slug ) {
  */
 export function isUnavailableInDevMode( state, module ) {
 	return isDevMode( state ) && requiresConnection( state, module );
+}
+
+/**
+ * Checks if the JETPACK__SANDBOX_DOMAIN is set
+ *
+ * @param  {Object} state Global state tree
+ * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
+ */
+export function getSandboxDomain( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
 }

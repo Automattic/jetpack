@@ -1,8 +1,10 @@
 <?php
 
+// These constants can be set in wp-config.php to ensure sites behind proxies will still work.
+// Setting these constants, though, is *not* the preferred method. It's better to configure
+// the proxy to send the X-Forwarded-Port header.
 defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
-defined( 'JETPACK__WPCOM_JSON_API_HOST' )  or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 
 class Jetpack_Signature {
 	public $token;
@@ -22,7 +24,7 @@ class Jetpack_Signature {
 		if ( isset( $override['scheme'] ) ) {
 			$scheme = $override['scheme'];
 			if ( !in_array( $scheme, array( 'http', 'https' ) ) ) {
-				return new Jetpack_Error( 'invalid_sheme', 'Invalid URL scheme' );
+				return new Jetpack_Error( 'invalid_scheme', 'Invalid URL scheme' );
 			}
 		} else {
 			if ( is_ssl() ) {
@@ -32,19 +34,62 @@ class Jetpack_Signature {
 			}
 		}
 
+		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
+
+		/**
+		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
+		 * Please update the test if any changes are made in this logic.
+		 */
 		if ( is_ssl() ) {
-			$port = JETPACK_SIGNATURE__HTTPS_PORT == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
+			// 443: Standard Port
+			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
+			//     with SSL termination proxies (self-served, Cloudflare, etc.) don't need to fiddle with
+			//     the JETPACK_SIGNATURE__HTTPS_PORT constant. The code also implies we can't talk to a
+			//     site at https://example.com:80/ (which would be a strange configuration).
+			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
+			//                                if the site is behind a proxy running on port 443 without
+			//                                X-Forwarded-Port and the back end's port is *not* 80. It's better,
+			//                                though, to configure the proxy to send X-Forwarded-Port.
+			$port = in_array( $host_port, array( 443, 80, JETPACK_SIGNATURE__HTTPS_PORT ) ) ? '' : $host_port;
 		} else {
-			$port = JETPACK_SIGNATURE__HTTP_PORT  == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
+			// 80: Standard Port
+			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
+			//                                if the site is behind a proxy running on port 80 without
+			//                                X-Forwarded-Port. It's better, though, to configure the proxy to
+			//                                send X-Forwarded-Port.
+			$port = in_array( $host_port, array( 80, JETPACK_SIGNATURE__HTTP_PORT ) ) ? '' : $host_port;
 		}
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
-		if ( array_key_exists( 'body', $override ) && !is_null( $override['body'] ) ) {
+		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
 		} else if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
+
+			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
+			// and encoded on the Jetpack side.
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				if ( empty( $body ) && is_array( $_POST ) && count( $_POST ) > 0 ) {
+					$body = $_POST;
+				}
+			}
+		} else if ( 'PUT' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+			// This is a little strange-looking, but there doesn't seem to be another way to get the PUT body
+			$raw_put_data = file_get_contents( 'php://input' );
+			parse_str( $raw_put_data, $body );
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$put_data = json_decode( $raw_put_data, true );
+				if ( is_array( $put_data ) && count( $put_data ) > 0 ) {
+					$body = $put_data;
+				}
+			}
 		} else {
+			$body = null;
+		}
+
+		if ( empty( $body ) ) {
 			$body = null;
 		}
 
@@ -77,6 +122,16 @@ class Jetpack_Signature {
 			return new Jetpack_Error( 'token_mismatch', 'Incorrect token' );
 		}
 
+		// If we got an array at this point, let's encode it, so we can see what it looks like as a string.
+		if ( is_array( $body ) ) {
+			if ( count( $body ) > 0 ) {
+				$body = json_encode( $body );
+
+			} else {
+				$body = '';
+			}
+		}
+
 		$required_parameters = array( 'token', 'timestamp', 'nonce', 'method', 'url' );
 		if ( !is_null( $body ) ) {
 			$required_parameters[] = 'body_hash';
@@ -95,7 +150,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		if ( is_null( $body ) ) {
+		if ( empty( $body ) ) {
 			if ( $body_hash ) {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
@@ -108,10 +163,6 @@ class Jetpack_Signature {
 		$parsed = parse_url( $url );
 		if ( !isset( $parsed['host'] ) ) {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
-		}
-
-		if ( $parsed['host'] === JETPACK__WPCOM_JSON_API_HOST ) {
-			$parsed['host'] = 'public-api.wordpress.com';
 		}
 
 		if ( !empty( $parsed['port'] ) ) {
@@ -152,6 +203,17 @@ class Jetpack_Signature {
 		);
 
 		$normalized_request_pieces = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
+		$flat_normalized_request_pieces = array();
+		foreach ($normalized_request_pieces as $piece) {
+			if ( is_array( $piece ) ) {
+				foreach ( $piece as $subpiece ) {
+					$flat_normalized_request_pieces[] = $subpiece;
+				}
+			} else {
+				$flat_normalized_request_pieces[] = $piece;
+			}
+		}
+		$normalized_request_pieces = $flat_normalized_request_pieces;
 
 		$normalized_request_string = join( "\n", $normalized_request_pieces ) . "\n";
 
@@ -178,12 +240,23 @@ class Jetpack_Signature {
 		return $pairs;
 	}
 
-	function encode_3986( $string ) {
-		$string = rawurlencode( $string );
-		return str_replace( '%7E', '~', $string ); // prior to PHP 5.3, rawurlencode was RFC 1738
+	function encode_3986( $string_or_array ) {
+		if ( is_array( $string_or_array ) ) {
+			return array_map( array( $this, 'encode_3986' ), $string_or_array );
+		}
+
+		$string_or_array = rawurlencode( $string_or_array );
+		return str_replace( '%7E', '~', $string_or_array ); // prior to PHP 5.3, rawurlencode was RFC 1738
 	}
 
 	function join_with_equal_sign( $name, $value ) {
+		if ( is_array( $value ) ) {
+			$result = array();
+			foreach ( $value as $array_key => $array_value ) {
+				$result[] = $name . '[' . $array_key . ']' . '=' . $array_value;
+			}
+			return $result;
+		}
 		return "{$name}={$value}";
 	}
 }

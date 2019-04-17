@@ -1,12 +1,10 @@
 jQuery( document ).ready( function( $ ) {
 	var body = $( 'body' ),
-		rememberMe = $( '#rememberme' ),
-		ssoButton = $( 'a.jetpack-sso.button' ),
 		toggleSSO = $( '.jetpack-sso-toggle' ),
 		userLogin = $( '#user_login' ),
-		ssoWrap   = $( '#jetpack-sso-wrap' ),
+		ssoWrap = $( '#jetpack-sso-wrap' ),
 		loginForm = $( '#loginform' ),
-		overflow  = $( '<div style="overflow: auto;"></div>' );
+		overflow = $( '<div class="jetpack-sso-clear"></div>' );
 
 	// The overflow div is a poor man's clearfloat. We reposition the remember me
 	// checkbox and the submit button within that to clear the float on the
@@ -24,23 +22,10 @@ jQuery( document ).ready( function( $ ) {
 	loginForm.append( ssoWrap );
 	body.addClass( 'jetpack-sso-repositioned' );
 
-	rememberMe.on( 'change', function() {
-		var url       = ssoButton.prop( 'href' ),
-			isChecked = rememberMe.prop( 'checked' ) ? 1 : 0;
-
-		if ( url.match( /&rememberme=\d/ ) ) {
-			url = url.replace( /&rememberme=\d/, '&rememberme=' + isChecked );
-		} else {
-			url += '&rememberme=' + isChecked;
-		}
-
-		ssoButton.prop( 'href', url );
-	} ).change();
-
 	toggleSSO.on( 'click', function( e ) {
 		e.preventDefault();
-		body.toggleClass( 'jetpack-sso-body' );
-		if ( ! body.hasClass( 'jetpack-sso-body' ) ) {
+		body.toggleClass( 'jetpack-sso-form-display' );
+		if ( ! body.hasClass( 'jetpack-sso-form-display' ) ) {
 			userLogin.focus();
 		}
 	} );

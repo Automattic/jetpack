@@ -15,10 +15,19 @@ class Jetpack_Admin {
 	private $jetpack;
 
 	static function init() {
+		if( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
+			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
+		}
+
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Admin;
 		}
 		return self::$instance;
+	}
+
+	static function add_no_store_header( $headers ) {
+		$headers['Cache-Control'] .= ', no-store';
+		return $headers;
 	}
 
 	private function __construct() {
@@ -27,29 +36,14 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page;
 
-		// TODO: reactify
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-dashboard.php';
-		$this->sync_dashboard = new Jetpack_Sync_Dashboard;
-		$this->sync_dashboard->init();
-
-//		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
-//		$this->landing_page = new Jetpack_Landing_Page;
-//
-//		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
-//		$this->settings_page = new Jetpack_Settings_Page;
-//
-//		jetpack_require_lib( 'admin-pages/class.jetpack-my-jetpack-page' );
-//		$this->my_jetpack_page = new Jetpack_My_Jetpack_Page;
-
-//		if ( isset( $_POST['jetpack-set-master-user'] ) ) {
-//			add_action( 'init', array( $this->my_jetpack_page, 'jetpack_my_jetpack_change_user' ) );
-//		}
-		// Add hooks for admin menus
-//		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'add_actions' ) );
+		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
+		$this->fallback_page = new Jetpack_Settings_Page;
 
 		add_action( 'admin_menu',                    array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
+		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
-		add_action( 'jetpack_admin_menu',            array( $this->sync_dashboard, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu',            array( $this->fallback_page, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ), 10, 2 );
@@ -75,12 +69,13 @@ class Jetpack_Admin {
 	// presentation like description, name, configuration url, etc.
 	function get_modules() {
 		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
-		$available_modules = $this->jetpack->get_available_modules();
-		$active_modules    = $this->jetpack->get_active_modules();
+		$available_modules = Jetpack::get_available_modules();
+		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
 		$jetpack_active = Jetpack::is_active() || Jetpack::is_development_mode();
+		$overrides = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
-			if ( $module_array = $this->jetpack->get_module( $module ) ) {
+			if ( $module_array = Jetpack::get_module( $module ) ) {
 				/**
 				 * Filters each module's short description.
 				 *
@@ -106,6 +101,7 @@ class Jetpack_Admin {
 				$module_array['available']         = self::is_module_available( $module_array );
 				$module_array['short_description'] = $short_desc_trunc;
 				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
+				$module_array['override']          = $overrides->get_module_override( $module );
 
 				ob_start();
 				/**
@@ -169,7 +165,7 @@ class Jetpack_Admin {
 					 */
 					apply_filters( 'jetpack_module_configurable_' . $module, false )
 				) {
-					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( Jetpack::module_configuration_url( $module ) ), __( 'Configure', 'jetpack' ) );
+					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( $module_array['configure_url'] ), __( 'Configure', 'jetpack' ) );
 				}
 
 				$modules[ $module ] = $module_array;
@@ -199,7 +195,11 @@ class Jetpack_Admin {
 		if ( Jetpack::is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
-			return Jetpack::is_active();
+			if ( ! Jetpack::is_active() ) {
+				return false;
+			}
+
+			return Jetpack_Plan::supports( $module['module'] );
 		}
 	}
 
@@ -251,15 +251,29 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_debugger() {
-		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
+		jetpack_require_lib( 'debugger' );
+		Jetpack_Debugger::disconnect_and_redirect();
+		$debugger_hook = add_submenu_page(
+			null,
+			__( 'Debugging Center', 'jetpack' ),
+			'',
+			'manage_options',
+			'jetpack-debugger',
+			array( $this, 'wrap_debugger_page' )
+		);
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}
 
-	function debugger_page() {
+	function wrap_debugger_page( ) {
 		nocache_headers();
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ) );
+	}
+
+	function debugger_page() {
+		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 }

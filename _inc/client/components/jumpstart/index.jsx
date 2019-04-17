@@ -1,102 +1,99 @@
 /**
  * External dependencies
+ *
+ * @format
  */
-import React from 'react';
+
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Card from 'components/card';
-import FoldableCard from 'components/foldable-card';
-import Button from 'components/button';
-import Spinner from 'components/spinner';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
+import Card from 'components/card';
+import { imagePath } from 'constants/urls';
 import {
 	jumpStartActivate,
 	jumpStartSkip,
-	isJumpstarting as _isJumpstarting
+	isJumpstarting as _isJumpstarting,
 } from 'state/jumpstart';
-import { getModulesByFeature as _getModulesByFeature } from 'state/modules';
 
-const JumpStart = React.createClass( {
-
-	displayName: 'JumpStart',
-
-	render: function() {
-		let jumpstartModules = this.props.jumpstartFeatures( this.props ).map( ( module ) => (
-			<div
-				className="jp-jumpstart__feature-list-column"
-				key={ `module-card_${ module.name }` /* https://fb.me/react-warning-keys */ }
+class JumpStart extends Component {
+	activateButton = () => {
+		return (
+			<Button
+				primary={ true }
+				onClick={ this.props.jumpStartActivate }
+				disabled={ this.props.isJumpstarting }
 			>
-				<div className="jp-jumpstart__feature-content">
-					<h4
-						className="jp-jumpstart__feature-content-title"
-						title={ module.name }>
-						{ module.name }
-					</h4>
-					<p dangerouslySetInnerHTML={ renderJumpstartDescription( module ) } />
-				</div>
-			</div>
-		) );
+				{ this.props.isJumpstarting
+					? __( 'Activating recommended features…' )
+					: __( 'Activate recommended features' ) }
+			</Button>
+		);
+	};
 
+	dismissLink = () =>
+		__( '{{a}}Skip, and explore features individually{{/a}}.', {
+			components: {
+				a: (
+					<a
+						href={ '#/settings' }
+						onClick={ this.props.jumpStartSkip }
+						className="jp-jumpstart__skip-link"
+					/>
+				),
+			},
+		} );
+
+	render() {
 		return (
 			<div className="jp-jumpstart">
-				<h2 className="jp-jumpstart__title">
-					{ __( 'Jump Start your Website' ) }
-				</h2>
-				<Card className="jp-jumpstart__cta-container">
-					<Card className="jp-jumpstart__cta">
-						{ this.props.jumpstarting( this.props ) ? <Spinner /> : null }
-						<p className="jp-jumpstart__description">
-							{ __( "Quickly enhance your site by activating Jetpack's recommended features." ) }
+				<Card className="jp-jumpstart-card__content">
+					<div className="jp-jumpstart-card__img">
+						<img src={ imagePath + 'man-and-laptop.svg' } alt={ __( 'Person with laptop' ) } />
+					</div>
+					<div className="jp-jumpstart-card__description">
+						<h3 className="jp-jumpstart-card__description-title">
+							{ __( 'Your Jetpack site is ready to go!' ) }
+						</h3>
+						<p className="jp-jumpstart-card__description-text">
+							{ __( 'We’re now collecting stats and securing your site. Welcome aboard.' ) }
 						</p>
-						<Button primary={ true } onClick={ this.props.jumpStartActivate }>
-							{ __( 'Activate Recommended Features' ) }
-						</Button>
-					</Card>
-					<FoldableCard
-						className="jp-jumpstart__features"
-						clickableHeaderText={ true }
-						subheader="Learn more"
-					>
-						<p className="jp-jumpstart__description">
-							{ __( "Jetpack's recommended features include:" ) }
+						<p className="jp-jumpstart-card__description-text">
+							{ __(
+								'Next, activate Jetpack’s recommended feature set to maximize your site’s security and performance. ' +
+									'{{a}}Learn more about what’s included{{/a}}.',
+								{
+									components: {
+										a: (
+											<a
+												href="https://jetpack.com/support/quick-start-guide/#jumpstart"
+												target="_blank"
+												rel="noopener noreferrer"
+											/>
+										),
+									},
+								}
+							) }
 						</p>
-
-						<div className="jp-jumpstart__feature-list">
-							{ jumpstartModules }
-						</div>
-
-						<p className="jp-jumpstart__note">
-							{ __( 'Features can be activated or deactivated at any time.' ) }
-						</p>
-					</FoldableCard>
+						<p>{ this.activateButton() }</p>
+						{ this.dismissLink() }
+					</div>
 				</Card>
-				<a
-					onClick={ this.props.jumpStartSkip }
-					className="jp-jumpstart__skip-step"
-					title={ __( 'Skip the Jetpack Jumpstart process' ) }>
-					{ __( 'Skip this step' ) }
-				</a>
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {
 		return {
-			jumpstarting: () => _isJumpstarting( state ),
-			jumpstartFeatures: () => _getModulesByFeature( state, 'Jumpstart' )
+			isJumpstarting: _isJumpstarting( state ),
 		};
 	},
 	dispatch => bindActionCreators( { jumpStartActivate, jumpStartSkip }, dispatch )
 )( JumpStart );
-
-function renderJumpstartDescription( module ) {
-	// Rationale behind returning an object and not just the string
-	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
-	return { __html: module.jumpstart_desc };
-}

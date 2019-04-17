@@ -1,89 +1,92 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
-	classnames = require( 'classnames' );
+import React from 'react';
 import classNames from 'classnames';
-import assign from 'lodash/assign';
-import noop from 'lodash/noop';
-import omit from 'lodash/omit';
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty, forOwn, omit } from 'lodash';
+import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
+import SelectDropdown from 'components/select-dropdown';
 
-export const FormFieldset = React.createClass( {
+export const FormFieldset = props => {
+	return (
+		<fieldset
+			{ ...omit( props, 'className' ) }
+			className={ classNames( props.className, 'jp-form-fieldset' ) }
+		>
+			{ props.children }
+		</fieldset>
+	);
+};
 
-	displayName: 'FormFieldset',
+export class FormLabel extends React.Component {
+	static displayName = 'FormLabel';
 
-	render: function() {
+	render() {
+		const { className, htmlFor, ...otherProps } = this.props;
 		return (
-			<fieldset { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-fieldset' ) } >
-				{ this.props.children }
-			</fieldset>
-		);
-	}
-} );
-
-export const FormLabel = React.createClass( {
-
-	displayName: 'FormLabel',
-
-	render: function() {
-		return (
-			<label { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-label' ) } >
+			<label
+				{ ...otherProps }
+				htmlFor={ htmlFor }
+				className={ classNames( className, 'jp-form-label' ) }
+			>
 				{ this.props.children }
 			</label>
 		);
 	}
-} );
+}
 
-export const FormLegend = React.createClass( {
+export class FormLegend extends React.Component {
+	static displayName = 'FormLegend';
 
-	displayName: 'FormLegend',
-
-	render: function() {
+	render() {
 		return (
-			<legend { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-legend' ) } >
+			<legend
+				{ ...omit( this.props, 'className' ) }
+				className={ classNames( this.props.className, 'jp-form-legend' ) }
+			>
 				{ this.props.children }
 			</legend>
 		);
 	}
-} );
+}
 
-export const FormCheckbox = React.createClass( {
+export class FormCheckbox extends React.Component {
+	static displayName = 'FormInputCheckbox';
 
-	displayName: 'FormInputCheckbox',
-
-	render: function() {
-		var otherProps = omit( this.props, [ 'className', 'type' ] );
+	render() {
+		const otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
-			<input { ...otherProps } type="checkbox" className={ classnames( this.props.className, 'form-checkbox' ) } />
+			<input
+				{ ...otherProps }
+				type="checkbox"
+				className={ classNames( this.props.className, 'jp-form-checkbox' ) }
+			/>
 		);
 	}
-} );
+}
 
-export const FormTextInput = React.createClass( {
+export class FormTextInput extends React.Component {
+	static displayName = 'FormTextInput';
 
-	displayName: 'FormTextInput',
+	static defaultProps = {
+		isError: false,
+		isValid: false,
+		selectOnFocus: false,
+		type: 'text',
+	};
 
-	getDefaultProps() {
-		return {
-			isError: false,
-			isValid: false,
-			selectOnFocus: false,
-			type: 'text'
-		};
-	},
-
-	focus() {
+	focus = () => {
 		this.refs.textField.focus();
-	},
+	};
 
 	render() {
 		const { className, selectOnFocus } = this.props;
 		const classes = classNames( className, {
-			'form-text-input': true,
+			'jp-form-text-input': true,
 			'is-error': this.props.isError,
-			'is-valid': this.props.isValid
+			'is-valid': this.props.isValid,
 		} );
 
 		return (
@@ -91,115 +94,100 @@ export const FormTextInput = React.createClass( {
 				{ ...this.props }
 				ref="textField"
 				className={ classes }
-				onClick={ selectOnFocus ? this.selectOnFocus : null } />
+				onClick={ selectOnFocus ? this.selectOnFocus : null }
+			/>
 		);
-	},
-
-	selectOnFocus( event ) {
-		event.target.select();
 	}
 
-} );
+	selectOnFocus = event => {
+		event.target.select();
+	};
+}
 
-export const FormTextarea = React.createClass( {
+export class FormTextarea extends React.Component {
+	static displayName = 'FormTextarea';
 
-	displayName: 'FormTextarea',
-
-	render: function() {
+	render() {
 		return (
-			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'form-textarea' ) } >
+			<textarea
+				{ ...omit( this.props, 'className' ) }
+				className={ classNames( this.props.className, 'jp-form-textarea' ) }
+			>
 				{ this.props.children }
 			</textarea>
 		);
 	}
-} );
+}
 
-export const FormRadio = React.createClass( {
+export class FormRadio extends React.Component {
+	static displayName = 'FormRadio';
 
-	displayName: 'FormRadio',
-
-	render: function() {
-		var otherProps = omit( this.props, [ 'className', 'type' ] );
+	render() {
+		const otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
 			<input
 				{ ...otherProps }
 				type="radio"
-				className={ classnames( this.props.className, 'form-radio' ) } />
+				className={ classNames( this.props.className, 'jp-form-radio' ) }
+			/>
 		);
 	}
-} );
+}
 
-export const FormButton = React.createClass( {
+export class FormButton extends React.Component {
+	static displayName = 'FormsButton';
 
-	displayName: 'FormsButton',
+	static defaultProps = {
+		isSubmitting: false,
+		isPrimary: true,
+		type: 'submit',
+	};
 
-	getDefaultProps: function() {
-		return {
-			isSubmitting: false,
-			isPrimary: true,
-			type: 'submit'
-		};
-	},
+	getDefaultButtonAction = () => {
+		return this.props.isSubmitting ? __( 'Saving…' ) : __( 'Save Settings' );
+	};
 
-	getDefaultButtonAction: function() {
-		return this.props.isSubmitting ? this.translate( 'Saving…' ) : this.translate( 'Save Settings' );
-	},
-
-	render: function() {
-		var buttonClasses = classNames( {
-			'form-button': true
+	render() {
+		const buttonClasses = classNames( {
+			'jp-form-button': true,
 		} );
 
 		return (
 			<Button
 				{ ...omit( this.props, 'className' ) }
 				primary={ this.props.isPrimary }
-				className={ classnames( this.props.className, buttonClasses ) }>
+				className={ classNames( this.props.className, buttonClasses ) }
+			>
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
 			</Button>
 		);
 	}
-} );
+}
 
-export const Button = React.createClass( {
-
-	displayName: 'Button',
-
-	propTypes: {
-		disabled: React.PropTypes.bool,
-		compact: React.PropTypes.bool,
-		primary: React.PropTypes.bool,
-		scary: React.PropTypes.bool,
-		type: React.PropTypes.string,
-		href: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		borderless: React.PropTypes.bool
-	},
-
-	getDefaultProps() {
-		return {
-			disabled: false,
-			type: 'button',
-			onClick: noop,
-			borderless: false
-		};
-	},
+export class FormSelect extends React.Component {
+	handleOnSelect = option => {
+		this.props.onOptionChange( {
+			target: {
+				type: 'select',
+				name: this.props.name,
+				value: option.value,
+			},
+		} );
+	};
 
 	render() {
-		const element = this.props.href ? 'a' : 'button';
-		const buttonClasses = classNames( {
-			button: true,
-			'is-compact': this.props.compact,
-			'is-primary': this.props.primary,
-			'is-scary': this.props.scary,
-			'is-borderless': this.props.borderless
+		const validValues = [];
+		forOwn( this.props.validValues, ( label, value ) => {
+			validValues.push( { label: label, value: value } );
 		} );
-
-		const props = assign( {}, this.props, {
-			className: classNames( this.props.className, buttonClasses )
-		} );
-
-		return React.createElement( element, props, this.props.children );
+		return (
+			<SelectDropdown
+				options={ validValues }
+				onSelect={ this.handleOnSelect }
+				disabled={ this.props.disabled }
+				initialSelected={ this.props.value }
+			/>
+		);
 	}
-} );
+}

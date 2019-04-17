@@ -11,7 +11,7 @@ var DashItem = require( 'components/dashitem' )
 render: function() {
 	return (
 		<DashItem label="Protect" status="is-success">
-			Sit back and relax. Protect is on and actively blocking malicious login attempts.
+			Jetpack is actively blocking malicious login attempts.
 		</DashItem>
 	);
 }

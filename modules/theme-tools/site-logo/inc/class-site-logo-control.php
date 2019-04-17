@@ -10,17 +10,17 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	 *
 	 * @param object $wp_customize
 	 * @param string $control_id
-	 * @param array $args
+	 * @param array  $args
 	 * @uses Site_Logo_Image_Control::l10n()
 	 */
 	public function __construct( $wp_customize, $control_id, $args = array() ) {
 		// declare these first so they can be overridden
 		$this->l10n = array(
-			'upload' =>      __( 'Add logo', 'jetpack' ),
-			'set' =>         __( 'Set as logo', 'jetpack' ),
-			'choose' =>      __( 'Choose logo', 'jetpack' ),
-			'change' =>      __( 'Change logo', 'jetpack' ),
-			'remove' =>      __( 'Remove logo', 'jetpack' ),
+			'upload'      => __( 'Add logo', 'jetpack' ),
+			'set'         => __( 'Set as logo', 'jetpack' ),
+			'choose'      => __( 'Choose logo', 'jetpack' ),
+			'change'      => __( 'Change logo', 'jetpack' ),
+			'remove'      => __( 'Remove logo', 'jetpack' ),
 			'placeholder' => __( 'No logo set', 'jetpack' ),
 		);
 
@@ -104,5 +104,6 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 
 		<div class="current"></div>
 		<div class="actions"></div>
-	<?php }
+		<?php
+	}
 }

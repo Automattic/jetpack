@@ -1,0 +1,57 @@
+---
+engines:
+  csslint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+      - php
+  fixme:
+    enabled: true
+  phpcodesniffer:
+    enabled: true
+    config:
+      standard: "WordPress"
+  phpmd:
+    enabled: true
+  eslint:
+    enabled: true
+    channel: "eslint-2"
+  scss-lint:
+    enabled: true
+  markdownlint:
+    enabled: true
+ratings:
+  paths:
+  - "**.css"
+  - "**.scss"
+  - "**.inc"
+  - "**.js"
+  - "**.jsx"
+  - "**.php"
+  - "**.md"
+exclude_paths:
+  - "**/.github/**"
+  - "**/tests/**"
+  - "**.png"
+  - "**.jpg"
+  - "**.gif"
+  - "gulpfile.js"
+  - "composer.lock"
+  - ".phpcs.xml.dist"
+  - "**.json"
+  - "**.jshintrc"
+  - "**.jshintignore"
+  - "**.svnignore"
+  - "**.travis.yml"
+  - "**.gitignore"
+  - "**.eslintrc.js"
+  - "**.editorconfig"
+  - "**.pot"
+  - "**.txt"
+  - "**-min.js"
+  - "**-min.css"
+  - "**.dist"
+  - "**.sh"

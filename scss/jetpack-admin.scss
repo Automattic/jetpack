@@ -1,7 +1,8 @@
 @import "atoms/colors/colors", // Color variables
+	"atoms/typography/functions",
+	"atoms/typography/variables",
 	"_utilities/mixins/breakpoint", // Mixins
 	"_utilities/grid",
-	"atoms/typography/typography",
 	"atoms/animations",
 	"atoms/buttons",
 	"atoms/icons/automatticons",
@@ -9,6 +10,6 @@
 	"templates/main", // Main template
 	"templates/settings", // Settings page
 	"pages/protect", // Protect config page
-	"pages/connection-settings", // Connection settings page
 	"pages/manage", // Actiavte and confirm manage
 	"templates/connection-landing"; // jetpack connection landing, main admin, jumpstart
+	

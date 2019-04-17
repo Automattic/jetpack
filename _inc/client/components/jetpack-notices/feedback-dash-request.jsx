@@ -4,20 +4,22 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 
 /**
  * Internal dependencies
  */
 import {
 	isNoticeDismissed as _isNoticeDismissed,
-	dismissJetpackNotice
+	dismissJetpackNotice,
 } from 'state/jetpack-notices';
+import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
-const FeedbackDashRequest = React.createClass( {
-	displayName: 'FeedbackDashRequest',
-	renderContent: function( e ) {
+class FeedbackDashRequest extends React.Component {
+	static displayName = 'FeedbackDashRequest';
+
+	renderContent = () => {
 		if ( this.props.isDismissed( 'feedback_dash_request' ) ) {
 			return;
 		}
@@ -27,40 +29,31 @@ const FeedbackDashRequest = React.createClass( {
 				<SimpleNotice
 					className="jp-dash-item__feedback-request"
 					status="is-basic"
-					onClick={ this.props.dismissNotice }
+					onDismissClick={ this.props.dismissNotice }
+					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
-				{
-					__( 'What would you like to see on your Jetpack Dashboard? {{a}}Let us know!{{/a}}', {
-						components: {
-							a: <a href="https://jetpack.com/contact" target="_blank" />
-						}
-					} )
-				}
+					<NoticeAction href={ JETPACK_CONTACT_SUPPORT }>{ __( 'Let us know!' ) }</NoticeAction>
 				</SimpleNotice>
 			</div>
 		);
-	},
+	};
 
 	render() {
-		return (
-			<div>
-				{ this.renderContent() }
-			</div>
-		);
+		return <div>{ this.renderContent() }</div>;
 	}
-} );
+}
 
 export default connect(
 	state => {
 		return {
-			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
+			isDismissed: notice => _isNoticeDismissed( state, notice ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
 			dismissNotice: () => {
 				return dispatch( dismissJetpackNotice( 'feedback_dash_request' ) );
-			}
+			},
 		};
 	}
 )( FeedbackDashRequest );

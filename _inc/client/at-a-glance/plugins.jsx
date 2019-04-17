@@ -1,106 +1,110 @@
 /**
  * External dependencies
+ *
+ * @format
  */
-import React from 'react';
+
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
-import {
-	getPluginUpdates as _getPluginUpdates
-} from 'state/at-a-glance';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule
-} from 'state/modules';
+import { getPluginUpdates } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 
-const DashPluginUpdates = React.createClass( {
-	activateAndRedirect: function( e ) {
-		e.preventDefault();
-		this.props.activateManage()
-			.then( window.location = 'https://wordpress.com/plugins/' + window.Initial_State.rawUrl )
-			.catch( console.log( 'Error activating Manage' ) );
-	},
+class DashPluginUpdates extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
+		pluginUpdates: PropTypes.any.isRequired,
+	};
 
-	getContent: function() {
+	getContent() {
 		const labelName = __( 'Plugin Updates' );
-		const pluginUpdates = this.props.getPluginUpdates();
-		const manageActive = this.props.isModuleActivated( 'manage' );
-		const ctaLink = manageActive ?
-			'https://wordpress.com/plugins/' + window.Initial_State.rawUrl :
-			window.Initial_State.adminUrl + 'plugins.php';
+		const pluginUpdates = this.props.pluginUpdates;
+
+		const support = {
+			text: __(
+				'Jetpack’s Plugin Updates allows you to choose which plugins update automatically.'
+			),
+			link: 'https://jetpack.com/support/site-management/',
+		};
 
 		if ( 'N/A' === pluginUpdates ) {
-			return(
-				<DashItem label={ labelName } status="is-working">
+			return (
+				<DashItem label={ labelName } module="manage" support={ support } status="is-working">
 					<QueryPluginUpdates />
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
 				</DashItem>
 			);
 		}
 
-		if ( 'updates-available' === pluginUpdates.code ) {
-			return(
-				<DashItem label={ labelName } status="is-warning">
-					<p className="jp-dash-item__description">
-						<strong>
-							{
-								__( '%(number)s plugin needs updating.', '%(number)s plugins need updating.', {
-									count: pluginUpdates.count,
-									args: {
-										number: pluginUpdates.count
-									}
-								} )
-							}
-						</strong>
-						<br/>
-						{
-							isDevMode( this.props ) ? '' :
-							manageActive ?
-								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ):
-								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="#" /> } } )
-						}
-					</p>
-				</DashItem>
-			);
-		}
+		const updatesAvailable = 'updates-available' === pluginUpdates.code;
+		const managePluginsUrl = `https://wordpress.com/plugins/manage/${ this.props.siteRawUrl }`;
+		const workingOrInactive = this.props.getOptionValue( 'manage' ) ? 'is-working' : 'is-inactive';
 
-		return(
-			<DashItem label={ labelName } status="is-working">
+		return [
+			<DashItem
+				key="plugin-updates"
+				label={ labelName }
+				module="manage"
+				support={ support }
+				status={ updatesAvailable ? 'is-warning' : workingOrInactive }
+			>
+				{ updatesAvailable && (
+					<h2 className="jp-dash-item__count">
+						{ __( '%(number)s', '%(number)s', {
+							count: pluginUpdates.count,
+							args: { number: pluginUpdates.count },
+						} ) }
+					</h2>
+				) }
 				<p className="jp-dash-item__description">
-					{ __( 'All plugins are up-to-date. Keep up the good work!' ) }
+					{ updatesAvailable
+						? [
+								__( 'Plugin needs updating.', 'Plugins need updating.', {
+									count: pluginUpdates.count,
+								} ) + ' ',
+								! this.props.isDevMode &&
+									__( '{{a}}Turn on plugin autoupdates{{/a}}', {
+										components: { a: <a href={ managePluginsUrl } /> },
+									} ),
+						  ]
+						: __( 'All plugins are up-to-date. Awesome work!' ) }
 				</p>
-			</DashItem>
-		);
-	},
+			</DashItem>,
+			! this.props.isDevMode && (
+				<Card
+					key="manage-plugins"
+					className="jp-dash-item__manage-in-wpcom"
+					compact
+					href={ managePluginsUrl }
+					target="_blank"
+				>
+					{ __( 'Manage your plugins' ) }
+				</Card>
+			),
+		];
+	}
 
-	render: function() {
-		return(
+	render() {
+		return (
 			<div>
 				<QueryPluginUpdates />
 				{ this.getContent() }
 			</div>
 		);
 	}
-} );
+}
 
-export default connect(
-	( state ) => {
-		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getPluginUpdates: () => _getPluginUpdates( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activateManage: () => {
-				return dispatch( activateModule( 'manage' ) );
-			}
-		}
-	}
-)( DashPluginUpdates );
+export default connect( state => ( {
+	pluginUpdates: getPluginUpdates( state ),
+	isDevMode: isDevMode( state ),
+} ) )( DashPluginUpdates );

@@ -38,6 +38,7 @@ class Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
+		$this->random_int   = mt_rand( 1, 1000000 );
 	}
 
 	function add( $item ) {
@@ -46,13 +47,15 @@ class Jetpack_Sync_Queue {
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
 		while ( ! $added ) {
-			$rows_added = $wpdb->query( $wpdb->prepare(
-				"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
-				$this->get_next_data_row_option_name(),
-				serialize( $item ),
-				'no'
-			) );
-			$added      = ( $rows_added !== 0 );
+			$rows_added = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
+					$this->get_next_data_row_option_name(),
+					serialize( $item ),
+					'no'
+				)
+			);
+			$added      = ( 0 !== $rows_added );
 		}
 	}
 
@@ -73,7 +76,7 @@ class Jetpack_Sync_Queue {
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
 
-		if ( $rows_added !== count( $items ) ) {
+		if ( count( $items ) === $rows_added ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 	}
@@ -88,52 +91,68 @@ class Jetpack_Sync_Queue {
 		return array();
 	}
 
-	// lag is the difference in time between the age of the oldest item and the current time
-	function lag() {
+	// lag is the difference in time between the age of the oldest item
+	// (aka first or frontmost item) and the current time
+	function lag( $now = null ) {
 		global $wpdb;
 
-		$last_item_name = $wpdb->get_var( $wpdb->prepare(
-			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
-			"jpsq_{$this->id}-%"
-		) );
+		$first_item_name = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
+				"jpsq_{$this->id}-%"
+			)
+		);
 
-		if ( ! $last_item_name ) {
-			return null;
+		if ( ! $first_item_name ) {
+			return 0;
+		}
+
+		if ( null === $now ) {
+			$now = microtime( true );
 		}
 
 		// break apart the item name to get the timestamp
 		$matches = null;
-		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $last_item_name, $matches ) ) {
-			return microtime( true ) - floatval( $matches[1] );
+		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
+			return $now - floatval( $matches[1] );
 		} else {
-			return null;
+			return 0;
 		}
 	}
 
 	function reset() {
 		global $wpdb;
 		$this->delete_checkout_id();
-		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
-		) );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				"jpsq_{$this->id}-%"
+			)
+		);
 	}
 
 	function size() {
 		global $wpdb;
 
-		return (int) $wpdb->get_var( $wpdb->prepare(
-			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
-		) );
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s",
+				"jpsq_{$this->id}-%"
+			)
+		);
 	}
 
 	// we use this peculiar implementation because it's much faster than count(*)
 	function has_any_items() {
 		global $wpdb;
-		$value = $wpdb->get_var( $wpdb->prepare(
-			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jpsq_{$this->id}-%"
-		) );
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )",
+				"jpsq_{$this->id}-%"
+			)
+		);
 
-		return ( $value === "1" );
+		return ( $value === '1' );
 	}
 
 	function checkout( $buffer_size ) {
@@ -163,7 +182,7 @@ class Jetpack_Sync_Queue {
 	// this checks out rows until it either empties the queue or hits a certain memory limit
 	// it loads the sizes from the DB first so that it doesn't accidentally
 	// load more data into memory than it needs to.
-	// The only way it will load more items than $max_size is if a single queue item 
+	// The only way it will load more items than $max_size is if a single queue item
 	// exceeds the memory limit, but in that case it will send that item by itself.
 	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
@@ -190,21 +209,36 @@ class Jetpack_Sync_Queue {
 			OBJECT
 		);
 
-		$total_memory = 0;
-		$item_ids     = array();
+		if ( count( $items_with_size ) === 0 ) {
+			return false;
+		}
 
-		foreach ( $items_with_size as $item_with_size ) {
+		$total_memory = 0;
+
+		$min_item_id = $max_item_id = $items_with_size[0]->id;
+
+		foreach ( $items_with_size as $id => $item_with_size ) {
 			$total_memory += $item_with_size->value_size;
 
 			// if this is the first item and it exceeds memory, allow loop to continue
 			// we will exit on the next iteration instead
-			if ( $total_memory > $max_memory && count( $item_ids ) > 0 ) {
+			if ( $total_memory > $max_memory && $id > 0 ) {
 				break;
 			}
-			$item_ids[] = $item_with_size->id;
+
+			$max_item_id = $item_with_size->id;
 		}
 
-		$items = $this->fetch_items_by_id( $item_ids );
+		$query = $wpdb->prepare(
+			"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name >= %s and option_name <= %s ORDER BY option_name ASC",
+			$min_item_id,
+			$max_item_id
+		);
+
+		$items = $wpdb->get_results( $query, OBJECT );
+		foreach ( $items as $item ) {
+			$item->value = maybe_unserialize( $item->value );
+		}
 
 		if ( count( $items ) === 0 ) {
 			$this->delete_checkout_id();
@@ -300,32 +334,83 @@ class Jetpack_Sync_Queue {
 	}
 
 	function unlock() {
-		$this->delete_checkout_id();
+		return $this->delete_checkout_id();
+	}
+
+	/**
+	 * This option is specifically chosen to, as much as possible, preserve time order
+	 * and minimise the possibility of collisions between multiple processes working
+	 * at the same time.
+	 *
+	 * @return string
+	 */
+	protected function generate_option_name_timestamp() {
+		return sprintf( '%.6f', microtime( true ) );
 	}
 
 	private function get_checkout_id() {
-		return get_transient( $this->get_checkout_transient_name() );
+		global $wpdb;
+		$checkout_value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s",
+				$this->get_lock_option_name()
+			)
+		);
+
+		if ( $checkout_value ) {
+			list( $checkout_id, $timestamp ) = explode( ':', $checkout_value );
+			if ( intval( $timestamp ) > time() ) {
+				return $checkout_id;
+			}
+		}
+
+		return false;
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		return set_transient( $this->get_checkout_transient_name(), $checkout_id, 5 * 60 ); // 5 minute timeout
+		global $wpdb;
+
+		$expires     = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
+		$updated_num = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
+				"$checkout_id:$expires",
+				$this->get_lock_option_name()
+			)
+		);
+
+		if ( ! $updated_num ) {
+			$updated_num = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )",
+					$this->get_lock_option_name(),
+					"$checkout_id:$expires"
+				)
+			);
+		}
+
+		return $updated_num;
 	}
 
 	private function delete_checkout_id() {
-		delete_transient( $this->get_checkout_transient_name() );
+		global $wpdb;
+		// rather than delete, which causes fragmentation, we update in place
+		return $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
+				'0:0',
+				$this->get_lock_option_name()
+			)
+		);
+
 	}
 
-	private function get_checkout_transient_name() {
+	private function get_lock_option_name() {
 		return "jpsq_{$this->id}_checkout";
 	}
 
 	private function get_next_data_row_option_name() {
-		// this option is specifically chosen to, as much as possible, preserve time order
-		// and minimise the possibility of collisions between multiple processes working 
-		// at the same time
-		// TODO: confirm we only need to support PHP 5.05+ (otherwise we'll need to emulate microtime as float, and avoid PHP_INT_MAX)
-		// @see: http://php.net/manual/en/function.microtime.php
-		$timestamp = sprintf( '%.6f', microtime( true ) );
+		$timestamp = $this->generate_option_name_timestamp();
 
 		// row iterator is used to avoid collisions where we're writing data waaay fast in a single process
 		if ( $this->row_iterator === PHP_INT_MAX ) {
@@ -334,7 +419,7 @@ class Jetpack_Sync_Queue {
 			$this->row_iterator += 1;
 		}
 
-		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . getmypid() . '-' . $this->row_iterator;
+		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . $this->random_int . '-' . $this->row_iterator;
 	}
 
 	private function fetch_items( $limit = null ) {
@@ -352,23 +437,6 @@ class Jetpack_Sync_Queue {
 		}
 
 		return $items;
-	}
-
-	private function fetch_items_by_id( $item_ids ) {
-		global $wpdb;
-
-		if ( count( $item_ids ) > 0 ) {
-			$sql   = "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $item_ids ), '%s' ) ) . ') ORDER BY option_name ASC';
-			$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $item_ids ) );
-			$items = $wpdb->get_results( $query, OBJECT );
-			foreach ( $items as $item ) {
-				$item->value = maybe_unserialize( $item->value );
-			}
-
-			return $items;
-		} else {
-			return array();
-		}
 	}
 
 	private function validate_checkout( $buffer ) {
@@ -400,11 +468,11 @@ class Jetpack_Sync_Utils {
 		return array_map( array( __CLASS__, 'get_item_id' ), $items );
 	}
 
-	static private function get_item_value( $item ) {
+	private static function get_item_value( $item ) {
 		return $item->value;
 	}
 
-	static private function get_item_id( $item ) {
+	private static function get_item_id( $item ) {
 		return $item->id;
 	}
 }

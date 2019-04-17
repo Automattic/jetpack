@@ -1,4 +1,128 @@
 <?php
+
+new WPCOM_JSON_API_Update_Comment_Endpoint( array(
+	'description' => 'Create a comment on a post.',
+	'group'       => 'comments',
+	'stat'        => 'posts:1:replies:new',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/replies/new',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID'
+	),
+
+	'request_format' => array(
+		// explicitly document all input
+		'content'   => '(HTML) The comment text.',
+//		@todo Should we open this up to unauthenticated requests too?
+//		'author'    => '(author object) The author of the comment.',
+	),
+
+	'pass_wpcom_user_details' => true,
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/843/replies/new/',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'content' => 'Your reply is very interesting. This is a reply.'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Comment_Endpoint( array(
+	'description' => 'Create a comment as a reply to another comment.',
+	'group'       => 'comments',
+	'stat'        => 'comments:1:replies:new',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/comments/%d/replies/new',
+	'path_labels' => array(
+		'$site'       => '(int|string) Site ID or domain',
+		'$comment_ID' => '(int) The comment ID'
+	),
+
+	'request_format' => array(
+		'content'   => '(HTML) The comment text.',
+//		@todo Should we open this up to unauthenticated requests too?
+//		'author'    => '(author object) The author of the comment.',
+	),
+
+	'pass_wpcom_user_details' => true,
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/29/replies/new',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'content' => 'This reply is very interesting. This is editing a comment reply via the API.',
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Comment_Endpoint( array(
+	'description' => 'Edit a comment.',
+	'group'       => 'comments',
+	'stat'        => 'comments:1:POST',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/comments/%d',
+	'path_labels' => array(
+		'$site'       => '(int|string) Site ID or domain',
+		'$comment_ID' => '(int) The comment ID'
+	),
+
+	'request_format' => array(
+		'author'       => "(string) The comment author's name.",
+		'author_email' => "(string) The comment author's email.",
+		'author_url'   => "(string) The comment author's URL.",
+		'content'      => '(HTML) The comment text.',
+		'date'         => "(ISO 8601 datetime) The comment's creation time.",
+		'status'       => array(
+			'approved'   => 'Approve the comment.',
+			'unapproved' => 'Remove the comment from public view and send it to the moderation queue.',
+			'spam'       => 'Mark the comment as spam.',
+			'unspam'     => 'Unmark the comment as spam. Will attempt to set it to the previous status.',
+			'trash'      => 'Send a comment to the trash if trashing is enabled (see constant: EMPTY_TRASH_DAYS).',
+			'untrash'    => 'Untrash a comment. Only works when the comment is in the trash.',
+		),
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/29',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'content' => 'This reply is now edited via the API.',
+			'status'  => 'approved',
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Comment_Endpoint( array(
+	'description' => 'Delete a comment.',
+	'group'       => 'comments',
+	'stat'        => 'comments:1:delete',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/comments/%d/delete',
+	'path_labels' => array(
+		'$site'       => '(int|string) Site ID or domain',
+		'$comment_ID' => '(int) The comment ID'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/comments/$comment_ID/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
 class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
 	function __construct( $args ) {
 		parent::__construct( $args );
@@ -67,7 +191,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
-		if ( !comments_open( $post->ID ) ) {
+		if ( ! comments_open( $post->ID ) && ! current_user_can( 'edit_post', $post->ID ) ) {
 			return new WP_Error( 'unauthorized', 'Comments on this post are closed', 403 );
 		}
 
@@ -101,6 +225,17 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 				}
 				if ( !isset( $user->ID ) ) {
 					$user->ID = 0;
+				}
+
+				// If we have a user with an external ID saved, we can use it.
+				if (
+					! $auth_required
+					&& $user->ID
+					&& (
+						$author = get_user_by( 'id', intval( $user->ID ) )
+					)
+				) {
+					$user = $author;
 				}
 			} else {
 				$auth_required = true;
@@ -168,15 +303,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		$comment_status = wp_get_comment_status( $comment->comment_ID );
-		if ( $comment_status !== $update['status'] && !current_user_can( 'moderate_comments' ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot moderate comments', 403 );
-		}
-
 		if ( isset( $update['comment_status'] ) ) {
-			if ( count( $update ) === 1 ) {
-				// We are only here to update the comment status so let's respond ASAP
-				add_action( 'wp_set_comment_status', array( $this, 'output_comment' ), 0, 1 );
-			}
 			switch ( $update['comment_status'] ) {
 				case 'approved' :
 					if ( 'approve' !== $comment_status ) {
@@ -262,11 +389,5 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		return $this->get_comment( $comment->comment_ID, $args['context'] );
-	}
-
-	function output_comment( $comment_id ) {
-		$args  = $this->query_args();
-		$output = $this->get_comment( $comment_id, $args['context'] );
-		$this->api->output_early( 200, $output );
 	}
 }

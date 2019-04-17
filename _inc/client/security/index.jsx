@@ -1,120 +1,122 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import FoldableCard from 'components/foldable-card';
+import { get } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	deactivateModule,
-	isActivatingModule,
-	isDeactivatingModule,
-	getModule as _getModule
-} from 'state/modules';
-import { ModuleToggle } from 'components/module-toggle';
-import { SecurityModulesSettings } from 'components/module-options/moduleoptions';
-import {
-	fetchPluginsData,
-	isFetchingPluginsData,
-	isPluginActive,
-	isPluginInstalled
-} from 'state/site/plugins';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import { isUnavailableInDevMode } from 'state/connection';
+import Card from 'components/card';
+import { getModule } from 'state/modules';
+import { getSettings } from 'state/settings';
+import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isModuleFound } from 'state/search';
+import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
+import QuerySite from 'components/data/query-site';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import BackupsScan from './backups-scan';
+import Antispam from './antispam';
+import { ManagePlugins } from './manage-plugins';
+import { Monitor } from './monitor';
+import { Protect } from './protect';
+import { SSO } from './sso';
 
-export const Page = ( props ) => {
-	let {
-		toggleModule,
-		isModuleActivated,
-		isTogglingModule,
-		getModule
-		} = props;
-	var cards = [
-		[ 'protect', getModule( 'protect' ).name, getModule( 'protect' ).description, getModule( 'protect' ).learn_more_button ],
-		[ 'monitor', getModule( 'monitor' ).name, getModule( 'monitor' ).description, getModule( 'monitor' ).learn_more_button ],
-		[ 'scan', __( 'Security Scanning' ), __( 'Automatically scan your site for common threats and attacks.' ) ],
-		[ 'sso', getModule( 'sso' ).name, getModule( 'sso' ).description, getModule( 'sso' ).learn_more_button ]
-	].map( ( element ) => {
-		var unavailableInDevMode = isUnavailableInDevMode( props, element[0] ),
-			toggle = (
-				unavailableInDevMode ? __( 'Unavailable in Dev Mode' ) :
-				<ModuleToggle slug={ element[0] } activated={ isModuleActivated( element[0] ) }
-					toggling={ isTogglingModule( element[0] ) }
-					toggleModule={ toggleModule } />
-			),
-			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
-			isScan = 'scan' === element[0],
-			scanProps = {};
+export class Security extends Component {
+	static displayName = 'SecuritySettings';
 
-		if ( isScan ) {
-			toggle = '';
-			scanProps = {
-				module: 'scan',
-				isFetchingPluginsData: props.isFetchingPluginsData,
-				isVaultPressInstalled: props.isPluginInstalled( 'vaultpress/vaultpress.php' ),
-				isVaultPressActive: props.isPluginActive( 'vaultpress/vaultpress.php' )
-			};
+	/**
+	 * Check if Akismet plugin is being searched and matched.
+	 *
+	 * @returns {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
+	 */
+	isAkismetFound = () => {
+		if ( ! this.props.isPluginActive( 'akismet/akismet.php' ) ) {
+			return false;
+		}
+
+		if ( this.props.searchTerm ) {
+			const akismetData = this.props.isPluginInstalled( 'akismet/akismet.php' );
+			return (
+				[
+					'akismet',
+					'antispam',
+					'spam',
+					'comments',
+					akismetData.Description,
+					akismetData.PluginURI,
+				]
+					.join( ' ' )
+					.toLowerCase()
+					.indexOf( this.props.searchTerm.toLowerCase() ) > -1
+			);
+		}
+
+		return true;
+	};
+
+	render() {
+		const commonProps = {
+			settings: this.props.settings,
+			getModule: this.props.module,
+			isDevMode: this.props.isDevMode,
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			rewindStatus: this.props.rewindStatus,
+			siteRawUrl: this.props.siteRawUrl,
+		};
+
+		const foundProtect = this.props.isModuleFound( 'protect' ),
+			foundSso = this.props.isModuleFound( 'sso' ),
+			foundAkismet = this.isAkismetFound(),
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
+			foundMonitor = this.props.isModuleFound( 'monitor' );
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
+		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
+			return null;
 		}
 
 		return (
-			<FoldableCard className={ customClasses } key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-				header={ element[1] }
-				subheader={ element[2] }
-				summary={ toggle }
-				expandedSummary={ toggle }
-				clickableHeaderText={ true }
-			>
-				{ isModuleActivated( element[0] ) || isScan ?
-					<SecurityModulesSettings module={ isScan ? scanProps : getModule( element[ 0 ] ) } /> :
-					// Render the long_description if module is deactivated
-					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
-				}
-				<br/>
-				<a href={ element[3] } target="_blank">{ __( 'Learn More' ) }</a>
-			</FoldableCard>
+			<div>
+				<QuerySite />
+
+				<Card
+					title={ __(
+						'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
+					) }
+					className="jp-settings-description"
+				/>
+
+				{ foundBackups && <BackupsScan { ...commonProps } /> }
+				{ foundMonitor && <Monitor { ...commonProps } /> }
+				{ foundAkismet && (
+					<div>
+						<Antispam { ...commonProps } />
+						<QueryAkismetKeyCheck />
+					</div>
+				) }
+				<ManagePlugins { ...commonProps } />
+				{ foundProtect && <Protect { ...commonProps } /> }
+				{ foundSso && <SSO { ...commonProps } /> }
+			</div>
 		);
-	} );
-
-	return (
-		<div>
-			<QuerySitePlugins />
-			{ cards }
-		</div>
-	);
-};
-
-function renderLongDescription( module ) {
-	// Rationale behind returning an object and not just the string
-	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
-	return { __html: module.long_description };
+	}
 }
 
-export default connect(
-	( state ) => {
-		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-				isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name ),
-			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
-		};
-	},
-	( dispatch ) => {
-		return {
-			toggleModule: ( module_name, activated ) => {
-				return ( activated )
-					? dispatch( deactivateModule( module_name ) )
-					: dispatch( activateModule( module_name ) );
-			},
-			fetchPluginsData: () => dispatch( fetchPluginsData() )
-		};
-	}
-)( Page );
+export default connect( state => {
+	return {
+		module: module_name => getModule( state, module_name ),
+		settings: getSettings( state ),
+		isDevMode: isDevMode( state ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
+		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
+	};
+} )( Security );

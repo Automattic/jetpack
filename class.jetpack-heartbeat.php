@@ -114,12 +114,9 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}language"]       = get_bloginfo( 'language' );
 		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
-		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
+		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
-
-		$return["{$prefix}single-user-site"]= Jetpack::is_single_user_site();
-
-		$return["{$prefix}manage-enabled"] = Jetpack::is_module_active( 'manage' );
+		$return["{$prefix}manage-enabled"] = true;
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';
@@ -143,8 +140,16 @@ class Jetpack_Heartbeat {
 	}
 
 	public static function jetpack_xmlrpc_methods( $methods ) {
-		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'generate_stats_array' );
+		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'xmlrpc_data_response' );
 		return $methods;
+	}
+
+	public static function xmlrpc_data_response( $params = array() ) {
+		// The WordPress XML-RPC server sets a default param of array()
+		// if no argument is passed on the request and the method handlers get this array in $params.
+		// generate_stats_array() needs a string as first argument.
+		$params = empty( $params ) ? '' : $params;
+		return self::generate_stats_array( $params );
 	}
 
 	public function deactivate() {

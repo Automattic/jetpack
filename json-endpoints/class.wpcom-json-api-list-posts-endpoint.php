@@ -1,5 +1,64 @@
 <?php
 
+new WPCOM_JSON_API_List_Posts_Endpoint( array(
+	'description' => 'Get a list of matching posts.',
+	'new_version' => '1.1',
+	'max_version' => '1',
+	'group'       => 'posts',
+	'stat'        => 'posts',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=20) The number of posts to return. Limit: 100.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
+		'order'    => array(
+			'DESC' => 'Return posts in descending order. For dates, that means newest to oldest.',
+			'ASC'  => 'Return posts in ascending order. For dates, that means oldest to newest.',
+		),
+		'order_by' => array(
+			'date'          => 'Order by the created time of each post.',
+			'modified'      => 'Order by the modified time of each post.',
+			'title'         => "Order lexicographically by the posts' titles.",
+			'comment_count' => 'Order by the number of comments for each post.',
+			'ID'            => 'Order by post ID.',
+		),
+		'after'    => '(ISO 8601 datetime) Return posts dated on or after the specified datetime.',
+		'before'   => '(ISO 8601 datetime) Return posts dated on or before the specified datetime.',
+		'tag'      => '(string) Specify the tag name or slug.',
+		'category' => '(string) Specify the category name or slug.',
+		'term'     => '(object:string) Specify comma-separated term slugs to search within, indexed by taxonomy slug.',
+		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+		'exclude'  => '(array:int|int) Excludes the specified post ID(s) from the response',
+		'exclude_tree' => '(int) Excludes the specified post and all of its descendants from the response. Applies only to hierarchical post types.',
+		'status'   => array(
+			'publish' => 'Return only published posts.',
+			'private' => 'Return only private posts.',
+			'draft'   => 'Return only draft posts.',
+			'pending' => 'Return only posts pending editorial approval.',
+			'future'  => 'Return only posts scheduled for future publishing.',
+			'trash'   => 'Return only posts in the trash.',
+			'any'     => 'Return all posts regardless of status.',
+		),
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
+		'author'   => "(int) Author's user ID",
+		'search'   => '(string) Search query',
+		'meta_key'   => '(string) Metadata key that the post should contain',
+		'meta_value'   => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/?number=5'
+) );
+
 class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	public $date_range = array();
 
@@ -170,6 +229,23 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( isset( $args['tag'] ) ) {
 			$query['tag'] = $args['tag'];
+		}
+
+		if ( ! empty( $args['term'] ) ) {
+			$query['tax_query'] = array();
+			foreach ( $args['term'] as $taxonomy => $slug ) {
+				$taxonomy_object = get_taxonomy( $taxonomy );
+				if ( false === $taxonomy_object || ( ! $taxonomy_object->public && 
+						! current_user_can( $taxonomy_object->cap->assign_terms ) ) ) {
+					continue;
+				}
+
+				$query['tax_query'][] = array(
+					'taxonomy' => $taxonomy,
+					'field' => 'slug',
+					'terms' => explode( ',', $slug )
+				);				
+			}
 		}
 
 		if ( isset( $args['page'] ) ) {

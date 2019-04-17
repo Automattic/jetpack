@@ -1,7 +1,10 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20150408';
+	const VERSION   = '20190204';
 	const SHORTCODE = 'jetpack-related-posts';
+
+	private static $instance     = null;
+	private static $instance_raw = null;
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -9,20 +12,15 @@ class Jetpack_RelatedPosts {
 	 * @return Jetpack_RelatedPosts
 	 */
 	public static function init() {
-		static $instance = NULL;
-
-		if ( ! $instance ) {
+		if ( ! self::$instance ) {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
-				$instance = WPCOM_RelatedPosts::init();
+				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
-				$instance = new Jetpack_RelatedPosts(
-					get_current_blog_id(),
-					Jetpack_Options::get_option( 'id' )
-				);
+				self::$instance = new Jetpack_RelatedPosts();
 			}
 		}
 
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
@@ -31,24 +29,17 @@ class Jetpack_RelatedPosts {
 	 * @return Jetpack_RelatedPosts
 	 */
 	public static function init_raw() {
-		static $instance = NULL;
-
-		if ( ! $instance ) {
+		if ( ! self::$instance_raw ) {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
-				$instance = WPCOM_RelatedPosts::init_raw();
+				self::$instance_raw = WPCOM_RelatedPosts::init_raw();
 			} else {
-				$instance = new Jetpack_RelatedPosts_Raw(
-					get_current_blog_id(),
-					Jetpack_Options::get_option( 'id' )
-				);
+				self::$instance_raw = new Jetpack_RelatedPosts_Raw();
 			}
 		}
 
-		return $instance;
+		return self::$instance_raw;
 	}
 
-	protected $_blog_id_local;
-	protected $_blog_id_wpcom;
 	protected $_options;
 	protected $_allow_feature_toggle;
 	protected $_blog_charset;
@@ -59,14 +50,10 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
-	 * @param int $blog_id_local
-	 * @param int $blog_id_wpcom
 	 * @uses get_option, add_action, apply_filters
 	 * @return null
 	 */
-	public function __construct( $blog_id_local, $blog_id_wpcom ) {
-		$this->_blog_id_local = $blog_id_local;
-		$this->_blog_id_wpcom = $blog_id_wpcom;
+	public function __construct() {
 		$this->_blog_charset = get_option( 'blog_charset' );
 		$this->_convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->_blog_charset ) );
 
@@ -76,6 +63,20 @@ class Jetpack_RelatedPosts {
 		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 			jetpack_require_lib( 'class.media-summary' );
 		}
+
+		// Add Related Posts to the REST API Post response.
+		add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
+
+		jetpack_register_block(
+			'jetpack/related-posts',
+			array(
+				'render_callback' => array( $this, 'render_block' ),
+			)
+		);
+	}
+
+	protected function get_blog_id() {
+		return Jetpack_Options::get_option( 'id' );
 	}
 
 	/**
@@ -105,7 +106,7 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Load related posts assets if it's a elegiable frontend page or execute search and return JSON if it's an endpoint request.
+	 * Load related posts assets if it's a elegiable front end page or execute search and return JSON if it's an endpoint request.
 	 *
 	 * @global $_GET
 	 * @action wp
@@ -120,11 +121,7 @@ class Jetpack_RelatedPosts {
 			return;
 
 		if ( isset( $_GET['relatedposts'] ) ) {
-			$excludes = array();
-			if ( isset( $_GET['relatedposts_exclude'] ) ) {
-				$excludes = explode( ',', $_GET['relatedposts_exclude'] );
-			}
-
+			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
 			$this->_action_frontend_init_ajax( $excludes );
 		} else {
 			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) {
@@ -138,14 +135,41 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
+	 * Render insertion point.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return string
+	 */
+	public function get_headline() {
+		$options = $this->get_options();
+
+		if ( $options['show_headline'] ) {
+			$headline = sprintf(
+				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html( $options['headline'] ), 'related-posts' ),
+				esc_html( $options['headline'] )
+			);
+		} else {
+			$headline = '';
+		}
+		return $headline;
+	}
+
+	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
+	 * Will skip adding the target if the post content contains a Related Posts block.
 	 *
 	 * @filter the_content
 	 * @param string $content
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( !$this->_found_shortcode ) {
+		if ( has_block( 'jetpack/related-posts', $content ) ) {
+			return $content;
+		}
+
+		if ( ! $this->_found_shortcode ) {
 			$content .= "\n" . $this->get_target_html();
 		}
 
@@ -173,15 +197,9 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
-		$options = $this->get_options();
-
-		if ( $options['show_headline'] ) {
-			$headline = sprintf(
-				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
-				esc_html__( 'Related', 'jetpack' )
-			);
-		} else {
-			$headline = '';
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return '';
 		}
 
 		/**
@@ -193,7 +211,7 @@ class Jetpack_RelatedPosts {
 		 *
 		 * @param string $headline Related Posts heading.
 		 */
-		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
+		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() );
 
 		if ( $this->_previous_post_id ) {
 			$exclude = "data-exclude='{$this->_previous_post_id}'";
@@ -214,7 +232,176 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return '';
+		}
 		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
+	}
+
+	/**
+	 * ===============
+	 * GUTENBERG BLOCK
+	 * ===============
+	 */
+
+	/**
+	 * Echoes out items for the Gutenberg block
+	 *
+	 * @param array $related_post The post oject.
+	 * @param array $block_attributes The block attributes.
+	 */
+	public function render_block_item( $related_post, $block_attributes ) {
+		$instance_id = 'related-posts-item-' . uniqid();
+		$label_id    = $instance_id . '-label';
+
+		$item_markup = sprintf(
+			'<ul id="%1$s" aria-labelledby="%2$s" class="jp-related-posts-i2__post" role="menuitem">',
+			esc_attr( $instance_id ),
+			esc_attr( $label_id )
+		);
+
+		$item_markup .= sprintf(
+			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" rel="%4$s">%3$s</a></li>',
+			esc_attr( $label_id ),
+			esc_url( $related_post['url'] ),
+			esc_attr( $related_post['title'] ),
+			esc_attr( $related_post['rel'] )
+		);
+
+		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
+			$img_link = sprintf(
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" rel="%2$s"><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
+				esc_url( $related_post['url'] ),
+				esc_attr( $related_post['rel'] ),
+				esc_url( $related_post['img']['src'] ),
+				esc_attr( $related_post['img']['width'] ),
+				esc_attr( $related_post['img']['alt_text'] )
+			);
+
+			$item_markup .= $img_link;
+		}
+
+		if ( $block_attributes['show_date'] ) {
+			$date_tag = sprintf(
+				'<li class="jp-related-posts-i2__post-date">%1$s</li>',
+				esc_html( $related_post['date'] )
+			);
+
+			$item_markup .= $date_tag;
+		}
+
+		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['context'] ) ) {
+			$context_tag = sprintf(
+				'<li class="jp-related-posts-i2__post-context">%1$s</li>',
+				esc_html( $related_post['context'] )
+			);
+
+			$item_markup .= $context_tag;
+		}
+
+		$item_markup .= '</ul>';
+
+		return $item_markup;
+	}
+
+	/**
+	 * Render a related posts row.
+	 *
+	 * @param array $posts The posts to render into the row.
+	 * @param array $block_attributes Block attributes.
+	 */
+	public function render_block_row( $posts, $block_attributes ) {
+		$rows_markup = '';
+		foreach ( $posts as $post ) {
+			$rows_markup .= $this->render_block_item( $post, $block_attributes );
+		}
+		return sprintf(
+			'<div class="jp-related-posts-i2__row" data-post-count="%1$s">%2$s</div>',
+			count( $posts ),
+			$rows_markup
+		);
+	}
+
+	/**
+	 * Render the related posts markup.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string
+	 */
+	public function render_block( $attributes ) {
+		$block_attributes = array(
+			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
+			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
+			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
+			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
+			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
+		);
+
+		$excludes      = $this->parse_numeric_get_arg( 'relatedposts_origin' );
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'size'             => $block_attributes['size'],
+				'exclude_post_ids' => $excludes,
+			)
+		);
+
+		$display_lower_row = $block_attributes['size'] > 3;
+
+		if ( empty( $related_posts ) ) {
+			return '';
+		}
+
+		switch ( count( $related_posts ) ) {
+			case 2:
+			case 4:
+			case 5:
+				$top_row_end = 2;
+				break;
+
+			default:
+				$top_row_end = 3;
+				break;
+		}
+
+		$upper_row_posts = array_slice( $related_posts, 0, $top_row_end );
+		$lower_row_posts = array_slice( $related_posts, $top_row_end );
+
+		$rows_markup = $this->render_block_row( $upper_row_posts, $block_attributes );
+		if ( $display_lower_row ) {
+			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
+		}
+
+		$target_to_dom_priority = has_filter(
+			'the_content',
+			array( $this, 'filter_add_target_to_dom' )
+		);
+		remove_filter(
+			'the_content',
+			array( $this, 'filter_add_target_to_dom' ),
+			$target_to_dom_priority
+		);
+
+		/*
+		Below is a hack to get the block content to render correctly.
+
+		This functionality should be covered in /inc/blocks.php but due to an error,
+		this has not been fixed as of this writing.
+
+		Alda has submitted a patch to Core in order to have this issue fixed at
+		https://core.trac.wordpress.org/attachment/ticket/45495/do_blocks.diff and
+		hopefully it makes to to the final RC of WP 5.1.
+		*/
+		$priority = has_filter( 'the_content', 'wpautop' );
+		remove_filter( 'the_content', 'wpautop', $priority );
+		add_filter( 'the_content', '_restore_wpautop_hook', $priority + 1 );
+
+		return sprintf(
+			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s</nav>',
+			esc_attr( $block_attributes['layout'] ),
+			$rows_markup
+		);
 	}
 
 	/**
@@ -224,6 +411,32 @@ EOT;
 	 */
 
 	/**
+	 * Parse a numeric GET variable to an array of values.
+	 *
+	 * @since 6.9.0
+	 *
+	 * @uses absint
+	 *
+	 * @param string $arg Name of the GET variable
+	 * @return array $result Parsed value(s)
+	 */
+	public function parse_numeric_get_arg( $arg ) {
+		$result = array();
+
+		if ( isset( $_GET[ $arg ] ) ) {
+			if ( is_string( $_GET[ $arg ] ) ) {
+				$result = explode( ',', $_GET[ $arg ] );
+			} elseif ( is_array( $_GET[ $arg ] ) ) {
+				$result = array_values( $_GET[ $arg ] );
+			}
+
+			$result = array_unique( array_filter( array_map( 'absint', $result ) ) );
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Gets options set for Jetpack_RelatedPosts and merge with defaults.
 	 *
 	 * @uses Jetpack_Options::get_option, apply_filters
@@ -231,7 +444,7 @@ EOT;
 	 */
 	public function get_options() {
 		if ( null === $this->_options ) {
-			$this->_options = Jetpack_Options::get_option( 'relatedposts' );
+			$this->_options = Jetpack_Options::get_option( 'relatedposts', array() );
 			if ( ! is_array( $this->_options ) )
 				$this->_options = array();
 			if ( ! isset( $this->_options['enabled'] ) )
@@ -240,6 +453,18 @@ EOT;
 				$this->_options['show_headline'] = true;
 			if ( ! isset( $this->_options['show_thumbnails'] ) )
 				$this->_options['show_thumbnails'] = false;
+			if ( ! isset( $this->_options['show_date'] ) ) {
+				$this->_options['show_date'] = true;
+			}
+			if ( ! isset( $this->_options['show_context'] ) ) {
+				$this->_options['show_context'] = true;
+			}
+			if ( ! isset( $this->_options['layout'] ) ) {
+				$this->_options['layout'] = 'grid';
+			}
+			if ( ! isset( $this->_options['headline'] ) ) {
+				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
+			}
 			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
 				$this->_options['size'] = 3;
 
@@ -258,8 +483,18 @@ EOT;
 		return $this->_options;
 	}
 
+	public function get_option( $option_name ) {
+		$options = $this->get_options();
+
+		if ( isset( $options[ $option_name ] ) ) {
+			return $options[ $option_name ];
+		}
+
+		return false;
+	}
+
 	/**
-	 * Parses input and returnes normalized options array.
+	 * Parses input and returns normalized options array.
 	 *
 	 * @param array $input
 	 * @uses self::get_options
@@ -271,10 +506,24 @@ EOT;
 		if ( !is_array( $input ) )
 			$input = array();
 
-		if ( isset( $input['enabled'] ) && '1' == $input['enabled'] ) {
+		if (
+			! isset( $input['enabled'] )
+			|| isset( $input['show_date'] )
+			|| isset( $input['show_context'] )
+			|| isset( $input['layout'] )
+			|| isset( $input['headline'] )
+			) {
+			$input['enabled'] = '1';
+		}
+
+		if ( '1' == $input['enabled'] ) {
 			$current['enabled'] = true;
 			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] );
 			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
+			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
+			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
+			$current['layout'] = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
+			$current['headline'] = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
 			$current['enabled'] = false;
 		}
@@ -297,12 +546,19 @@ EOT;
 		$options = $this->get_options();
 
 		$ui_settings_template = <<<EOT
+<p class="description">%s</p>
 <ul id="settings-reading-relatedposts-customize">
 	<li>
 		<label><input name="jetpack_relatedposts[show_headline]" type="checkbox" value="1" %s /> %s</label>
 	</li>
 	<li>
 		<label><input name="jetpack_relatedposts[show_thumbnails]" type="checkbox" value="1" %s /> %s</label>
+	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_date]" type="checkbox" value="1" %s /> %s</label>
+	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_context]" type="checkbox" value="1" %s /> %s</label>
 	</li>
 </ul>
 <div id='settings-reading-relatedposts-preview'>
@@ -312,10 +568,15 @@ EOT;
 EOT;
 		$ui_settings = sprintf(
 			$ui_settings_template,
+			esc_html__( 'The following settings will impact all related posts on your site, except for those you created via the block editor:', 'jetpack' ),
 			checked( $options['show_headline'], true, false ),
-			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+			esc_html__( 'Highlight related content with a heading', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
-			esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+			esc_html__( 'Show a thumbnail image where available', 'jetpack' ),
+			checked( $options['show_date'], true, false ),
+			esc_html__( 'Show entry date', 'jetpack' ),
+			checked( $options['show_context'], true, false ),
+			esc_html__( 'Show context (category or tag)', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
@@ -379,7 +640,7 @@ EOT;
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2019/03/cat-blog.png" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Big iPhone/iPad Update Now Available</a>
@@ -389,7 +650,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2019/03/devices.jpg" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
@@ -399,7 +660,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
@@ -468,17 +729,26 @@ EOT;
 
 		var update_preview = function() {
 			var html = '';
-			if ( $( 'input[name="jetpack_relatedposts[show_headline]"]:checked' ).size() ) {
+			if ( $( 'input[name="jetpack_relatedposts[show_headline]"]:checked' ).length ) {
 				html += '$related_headline';
 			}
-			if ( $( 'input[name="jetpack_relatedposts[show_thumbnails]"]:checked' ).size() ) {
+			if ( $( 'input[name="jetpack_relatedposts[show_thumbnails]"]:checked' ).length ) {
 				html += '$related_with_images';
 			} else {
 				html += '$related_without_images';
 			}
-			$( '#settings-reading-relatedposts-preview .jp-relatedposts' )
-				.html( html )
-				.show();
+			$( '#settings-reading-relatedposts-preview .jp-relatedposts' ).html( html );
+			if ( $( 'input[name="jetpack_relatedposts[show_date]"]:checked' ).length ) {
+				$( '.jp-relatedposts-post-title' ).each( function() {
+					$( this ).after( $( '<span>August 8, 2005</span>' ) );
+				} );
+			}
+			if ( $( 'input[name="jetpack_relatedposts[show_context]"]:checked' ).length ) {
+				$( '.jp-relatedposts-post-context' ).show();
+			} else {
+				$( '.jp-relatedposts-post-context' ).hide();
+			}
+			$( '#settings-reading-relatedposts-preview .jp-relatedposts' ).show();
 		};
 
 		// Update on load
@@ -499,29 +769,35 @@ EOT;
 	/**
 	 * Gets an array of related posts that match the given post_id.
 	 *
-	 * @param int $post_id
-	 * @param array $args - params to use when building ElasticSearch filters to narrow down the search domain.
+	 * @param int   $post_id Post which we want to find related posts for.
+	 * @param array $args - params to use when building Elasticsearch filters to narrow down the search domain.
 	 * @uses self::get_options, get_post_type, wp_parse_args, apply_filters
 	 * @return array
 	 */
 	public function get_for_post_id( $post_id, array $args ) {
 		$options = $this->get_options();
 
-		if ( ! empty( $args['size'] ) )
+		if ( ! empty( $args['size'] ) ) {
 			$options['size'] = $args['size'];
+		}
 
-		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) )
+		if (
+			! $options['enabled']
+			|| 0 === (int) $post_id
+			|| empty( $options['size'] )
+		) {
 			return array();
+		}
 
 		$defaults = array(
-			'size' => (int)$options['size'],
-			'post_type' => get_post_type( $post_id ),
-			'post_formats' => array(),
-			'has_terms' => array(),
-			'date_range' => array(),
+			'size'             => (int) $options['size'],
+			'post_type'        => get_post_type( $post_id ),
+			'post_formats'     => array(),
+			'has_terms'        => array(),
+			'date_range'       => array(),
 			'exclude_post_ids' => array(),
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 		/**
 		 * Filter the arguments used to retrieve a list of Related Posts.
 		 *
@@ -536,26 +812,26 @@ EOT;
 
 		$filters = $this->_get_es_filters_from_args( $post_id, $args );
 		/**
-		 * Filter ElasticSearch options used to calculate Related Posts.
+		 * Filter Elasticsearch options used to calculate Related Posts.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param array $filters Array of ElasticSearch filters based on the post_id and args.
+		 * @param array $filters Array of Elasticsearch filters based on the post_id and args.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
 
 		$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
 		/**
-		 * Filter the array of related posts matched by ElasticSearch.
+		 * Filter the array of related posts matched by Elasticsearch.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param array $results Array of related posts matched by ElasticSearch.
+		 * @param array $results Array of related posts matched by Elasticsearch.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $results, $post_id );
@@ -568,7 +844,7 @@ EOT;
 	 */
 
 	/**
-	 * Creates an array of ElasticSearch filters based on the post_id and args.
+	 * Creates an array of Elasticsearch filters based on the post_id and args.
 	 *
 	 * @param int $post_id
 	 * @param array $args
@@ -688,12 +964,13 @@ EOT;
 		 */
 		$args['exclude_post_ids'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'], $post_id );
 		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
+			$excluded_post_ids = array();
 			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
 				$exclude_post_id = (int)$exclude_post_id;
-
 				if ( $exclude_post_id > 0 )
-					$filters[] = array( 'not' => array( 'term' => array( 'post_id' => $exclude_post_id ) ) );
+					$excluded_post_ids[] = $exclude_post_id;
 			}
+			$filters[] = array( 'not' => array( 'terms' => array( 'post_id' => $excluded_post_ids ) ) );
 		}
 
 		return $filters;
@@ -707,7 +984,7 @@ EOT;
 	 */
 	protected function _get_coalesced_range( array $date_range ) {
 		$now = time();
-		$coalesce_time = $this->_blog_id_wpcom % 86400;
+		$coalesce_time = $this->get_blog_id() % 86400;
 		$current_time = $now - strtotime( 'today', $now );
 
 		if ( $current_time < $coalesce_time && '01' == date( 'd', $now ) ) {
@@ -739,18 +1016,140 @@ EOT;
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id(
-			get_the_ID(),
-			array(
-				'exclude_post_ids' => $excludes,
-			)
-		);
-
 		$options = $this->get_options();
+
+		if ( isset( $_GET['jetpackrpcustomize'] ) ) {
+
+			// If we're in the customizer, add dummy content.
+			$date_now = current_time( get_option( 'date_format' ) );
+			$related_posts = array(
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'It is that time of the year when devices are shiny again.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+			);
+
+			for ( $total = 0; $total < $options['size'] - 3; $total++ ) {
+				$related_posts[] = $related_posts[ $total ];
+			}
+
+			$current_post = get_post();
+
+			// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
+			$excluded_posts = array_merge(
+				/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
+				apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', array() ),
+				array( $current_post->ID )
+			);
+
+			// Fetch posts with featured image.
+			$with_post_thumbnails = get_posts( array(
+				'posts_per_page'   => $options['size'],
+				'post__not_in'     => $excluded_posts,
+				'post_type'        => $current_post->post_type,
+				'meta_key'         => '_thumbnail_id',
+				'suppress_filters' => false,
+			) );
+
+			// If we don't have enough, fetch posts without featured image.
+			if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
+				$no_post_thumbnails = get_posts( array(
+					'posts_per_page'  => $more,
+					'post__not_in'    => $excluded_posts,
+					'post_type'       => $current_post->post_type,
+					'meta_query' => array(
+						array(
+							'key'     => '_thumbnail_id',
+							'compare' => 'NOT EXISTS',
+						),
+					),
+					'suppress_filters' => false,
+				) );
+			} else {
+				$no_post_thumbnails = array();
+			}
+
+			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
+				$related_posts[ $index ]['id']      = $real_post->ID;
+				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
+				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
+				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
+				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
+				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
+				$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
+			}
+		} else {
+			$related_posts = $this->get_for_post_id(
+				get_the_ID(),
+				array(
+					'exclude_post_ids' => $excludes,
+				)
+			);
+		}
 
 		$response = array(
 			'version' => self::VERSION,
 			'show_thumbnails' => (bool) $options['show_thumbnails'],
+			'show_date' => (bool) $options['show_date'],
+			'show_context' => (bool) $options['show_context'],
+			'layout' => (string) $options['layout'],
+			'headline' => (string) $options['headline'],
 			'items' => array(),
 		);
 
@@ -771,7 +1170,7 @@ EOT;
 	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
 	 * @return array
 	 */
-	protected function _get_related_post_data_for_post( $post_id, $position, $origin ) {
+	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 
 		return array(
@@ -876,14 +1275,11 @@ EOT;
 	protected function _generate_related_post_image_params( $post_id ) {
 		$options = $this->get_options();
 		$image_params = array(
-			'src' => '',
-			'width' => 0,
-			'height' => 0,
+			'alt_text' => '',
+			'src'      => '',
+			'width'    => 0,
+			'height'   => 0,
 		);
-
-		if ( ! $options['show_thumbnails'] ) {
-			return $image_params;
-		}
 
 		/**
 		 * Filter the size of the Related Posts images.
@@ -907,7 +1303,7 @@ EOT;
 
 		// Try to get post image
 		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$img_url = '';
+			$img_url    = '';
 			$post_image = Jetpack_PostImages::get_image(
 				$post_id,
 				$thumbnail_size
@@ -923,10 +1319,15 @@ EOT;
 				}
 			}
 
-			if ( !empty( $img_url ) ) {
-				$image_params['width'] = $thumbnail_size['width'];
+			if ( ! empty( $img_url ) ) {
+				if ( ! empty( $post_image['alt_text'] ) ) {
+					$image_params['alt_text'] = $post_image['alt_text'];
+				} else {
+					$image_params['alt_text'] = '';
+				}
+				$image_params['width']  = $thumbnail_size['width'];
 				$image_params['height'] = $thumbnail_size['height'];
-				$image_params['src'] = Jetpack_PostImages::fit_image_url(
+				$image_params['src']    = Jetpack_PostImages::fit_image_url(
 					$img_url,
 					$thumbnail_size['width'],
 					$thumbnail_size['height']
@@ -958,7 +1359,7 @@ EOT;
 	 */
 
 	/**
-	 * Workhorse method to return array of related posts matched by ElasticSearch.
+	 * Workhorse method to return array of related posts matched by Elasticsearch.
 	 *
 	 * @param int $post_id
 	 * @param int $size
@@ -976,26 +1377,26 @@ EOT;
 		);
 
 		/**
-		 * Filter the Related Posts matched by ElasticSearch.
+		 * Filter the Related Posts matched by Elasticsearch.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.9.0
 		 *
-		 * @param array $hits Array of Post IDs matched by ElasticSearch.
+		 * @param array $hits Array of Post IDs matched by Elasticsearch.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
 
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {
-			$related_posts[] = $this->_get_related_post_data_for_post( $hit['id'], $i, $post_id );
+			$related_posts[] = $this->get_related_post_data_for_post( $hit['id'], $i, $post_id );
 		}
 		return $related_posts;
 	}
 
 	/**
-	 * Get array of related posts matched by ElasticSearch.
+	 * Get array of related posts matched by Elasticsearch.
 	 *
 	 * @param int $post_id
 	 * @param int $size
@@ -1014,21 +1415,31 @@ EOT;
 		if ( !empty( $filters ) )
 			$body['filter'] = array( 'and' => $filters );
 
-		// Load all cached values
-		$cache = get_post_meta( $post_id, $cache_meta_key, true );
-		if ( empty( $cache ) )
-			$cache = array();
-
 		// Build cache key
 		$cache_key = md5( serialize( $body ) );
 
-		// Cache is valid! Return cached value.
-		if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
-			return $cache[ $cache_key ][ 'payload' ];
+		// Load all cached values
+		if ( wp_using_ext_object_cache() ) {
+			$transient_name = "{$cache_meta_key}_{$cache_key}_{$post_id}";
+			$cache = get_transient( $transient_name );
+			if ( false !== $cache ) {
+				return $cache;
+			}
+		} else {
+			$cache = get_post_meta( $post_id, $cache_meta_key, true );
+
+			if ( empty( $cache ) )
+				$cache = array();
+
+
+			// Cache is valid! Return cached value.
+			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
+				return $cache[ $cache_key ][ 'payload' ];
+			}
 		}
 
 		$response = wp_remote_post(
-			"https://public-api.wordpress.com/rest/v1/sites/{$this->_blog_id_wpcom}/posts/$post_id/related/",
+			"https://public-api.wordpress.com/rest/v1/sites/{$this->get_blog_id()}/posts/$post_id/related/",
 			array(
 				'timeout' => 10,
 				'user-agent' => 'jetpack_related_posts',
@@ -1055,24 +1466,35 @@ EOT;
 			}
 		}
 
-		// Copy all valid cache values
-		$new_cache = array();
-		foreach ( $cache as $k => $v ) {
-			if ( is_array( $v ) && $v[ 'expires' ] > $now_ts ) {
-				$new_cache[ $k ] = $v;
-			}
-		}
-
-		// Set new cache value if valid
-		if ( ! empty( $related_posts ) ) {
-			$new_cache[ $cache_key ] = array(
-				'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
-				'payload' => $related_posts,
-			);
+		// An empty array might indicate no related posts or that posts
+		// are not yet synced to WordPress.com, so we cache for only 1
+		// minute in this case
+		if ( empty( $related_posts ) ) {
+			$cache_ttl = 60;
+		} else {
+			$cache_ttl = 12 * HOUR_IN_SECONDS;
 		}
 
 		// Update cache
-		update_post_meta( $post_id, $cache_meta_key, $new_cache );
+		if ( wp_using_ext_object_cache() ) {
+			set_transient( $transient_name, $related_posts, $cache_ttl );
+		} else {
+			// Copy all valid cache values
+			$new_cache = array();
+			foreach ( $cache as $k => $v ) {
+				if ( is_array( $v ) && $v[ 'expires' ] > $now_ts ) {
+					$new_cache[ $k ] = $v;
+				}
+			}
+
+			// Set new cache value
+			$cache_expires = $cache_ttl + $now_ts;
+			$new_cache[ $cache_key ] = array(
+				'expires' => $cache_expires,
+				'payload' => $related_posts,
+			);
+			update_post_meta( $post_id, $cache_meta_key, $new_cache );
+		}
 
 		return $related_posts;
 	}
@@ -1113,7 +1535,7 @@ EOT;
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
 					$post_cat_context = sprintf(
-						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
+						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
 					/**
@@ -1181,24 +1603,13 @@ EOT;
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
-		// Default to enabled
-		$enabled = true;
-
-		// Must have feature enabled
-		$options = $this->get_options();
-		if ( ! $options['enabled'] ) {
-			$enabled = false;
-		}
-
-		// Only run for frontend pages
-		if ( is_admin() ) {
-			$enabled = false;
-		}
-
-		// Only run for standalone posts
-		if ( ! is_single() ) {
-			$enabled = false;
-		}
+		$enabled = is_single()
+			&&
+				! is_admin()
+			&&
+				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) )
+			&&
+				! Jetpack_AMP_Support::is_amp_request();
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
@@ -1232,8 +1643,17 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
+		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
-			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			wp_enqueue_script(
+				'jetpack_related-posts',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/related-posts/related-posts.min.js',
+					'modules/related-posts/related-posts.js'
+				),
+				$dependencies,
+				self::VERSION
+			);
 			$related_posts_js_options = array(
 				/**
 				 * Filter each Related Post Heading structure.
@@ -1247,11 +1667,8 @@ EOT;
 			wp_localize_script( 'jetpack_related-posts', 'related_posts_js_options', $related_posts_js_options );
 		}
 		if ( $style ){
-			if( is_rtl() ) {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/related-posts-rtl.css', __FILE__ ), array(), self::VERSION );
-			} else {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
-			}
+			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+			wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
 		}
 	}
 
@@ -1281,6 +1698,50 @@ EOT;
 			$this->_allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
 		}
 		return $this->_allow_feature_toggle;
+	}
+
+	/**
+	 * ===================================================
+	 * FUNCTIONS EXPOSING RELATED POSTS IN THE WP REST API
+	 * ===================================================
+	 */
+
+	/**
+	 * Add Related Posts to the REST API Post response.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @action rest_api_init
+	 * @uses register_rest_field, self::rest_get_related_posts
+	 * @return null
+	 */
+	public function rest_register_related_posts() {
+		register_rest_field( 'post',
+			'jetpack-related-posts',
+			array(
+				'get_callback' => array( $this, 'rest_get_related_posts' ),
+				'update_callback' => null,
+				'schema'          => null,
+			)
+		);
+	}
+
+	/**
+	 * Build an array of Related Posts.
+	 * By default returns cached results that are stored for up to 12 hours.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param array $object Details of current post.
+	 * @param string $field_name Name of field.
+	 * @param WP_REST_Request $request Current request
+	 *
+	 * @uses self::get_for_post_id
+	 *
+	 * @return array
+	 */
+	public function rest_get_related_posts( $object, $field_name, $request ) {
+		return $this->get_for_post_id( $object['id'], array( 'size' => 6 ) );
 	}
 }
 
@@ -1315,7 +1776,7 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Workhorse method to return array of related posts ids matched by ElasticSearch.
+	 * Workhorse method to return array of related posts ids matched by Elasticsearch.
 	 *
 	 * @param int $post_id
 	 * @param int $size

@@ -130,6 +130,31 @@
 	padding-bottom: 0;
 }
 
+/* Authors Widget */
+.widget_authors > ul > li > a {
+	margin-bottom: 1em;
+	display: inline-block;
+}
+
+.widget_authors ul {
+	list-style: none;
+	margin: 0;
+}
+
+.widget_authors li {
+	border-top: 1px solid #eaeaea;
+	border-top: 1px solid rgba(51, 51, 51, 0.1);
+	padding: 0.7667em 0;
+}
+
+.widget_authors li:first-child {
+	border-top: 0;
+	padding-top: 0;
+}
+
+.widget_authors li:last-child {
+	padding-bottom: 0;
+}
 
 /**
  * Shortcodes Embeds
@@ -163,13 +188,15 @@
 	margin-bottom: 0;
 }
 
-/* Polldaddy */
-.PDS_Poll {
+/* Crowdsignal */
+.PDS_Poll,
+.CSS_Poll {
 	display: block !important;
 	margin-bottom: 1.6em;
 }
 
-.PDS_Poll .pds-box {
+.PDS_Poll .pds-box,
+.CSS_Poll .css-box {
 	max-width: 100%;
 	width: auto;
 }
@@ -378,6 +405,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .fb_iframe_widget,
 	.hentry .googlemaps,
 	.hentry .PDS_Poll,
+	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
 	.site .hentry .slideshow-window,
@@ -388,6 +416,7 @@ iframe[id*="twitter-widget-"] {
 	.widget .fb_iframe_widget,
 	.widget .googlemaps,
 	.widget .PDS_Poll,
+	.widget .CSS_Poll,
 	.site .widget .presentation-wrapper,
 	.site .widget .jetpack-recipe,
 	.site .widget .slideshow-window,
@@ -479,6 +508,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .fb_iframe_widget,
 	.hentry .googlemaps,
 	.hentry .PDS_Poll,
+	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
 	.site .hentry .slideshow-window,
@@ -549,6 +579,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .fb_iframe_widget,
 	.hentry .googlemaps,
 	.hentry .PDS_Poll,
+	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
 	.site .hentry .slideshow-window,
@@ -622,6 +653,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .fb_iframe_widget,
 	.hentry .googlemaps,
 	.hentry .PDS_Poll,
+	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
 	.site .hentry .slideshow-window,
@@ -691,6 +723,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .fb_iframe_widget,
 	.hentry .googlemaps,
 	.hentry .PDS_Poll,
+	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
 	.site .hentry .slideshow-window,

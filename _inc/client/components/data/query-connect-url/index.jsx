@@ -1,18 +1,19 @@
 /**
  * External dependencies
  */
-import { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 /**
  * Internal dependencies
  */
-import { fetchConnectUrl } from 'state/connection';
+import { fetchConnectUrl, isFetchingConnectUrl, isDevMode } from 'state/connection';
 
-class QueryConnectUrl extends Component {
-	componentWillMount() {
-		this.props.fetchConnectUrl();
+export class QueryConnectUrl extends React.Component {
+	UNSAFE_componentWillMount() {
+		if ( ! ( this.props.isFetchingConnectUrl || this.props.isDevMode ) ) {
+			this.props.fetchConnectUrl();
+		}
 	}
 
 	render() {
@@ -20,17 +21,16 @@ class QueryConnectUrl extends Component {
 	}
 }
 
-QueryConnectUrl.defaultProps = {
-	fetchConnectUrl: () => {}
-};
-
-export default connect( () => {
-	return {
-		fetchConnectUrl: fetchConnectUrl()
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchConnectUrl
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			isFetchingConnectUrl: isFetchingConnectUrl( state ),
+			isDevMode: isDevMode( state ),
+		};
+	},
+	dispatch => {
+		return {
+			fetchConnectUrl: () => dispatch( fetchConnectUrl() ),
+		};
+	}
 )( QueryConnectUrl );

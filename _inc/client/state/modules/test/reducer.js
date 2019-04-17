@@ -3,9 +3,9 @@ import { expect } from 'chai';
 import {
 	items as itemsReducer,
 	requests as requestsReducer,
-	initialRequestsState
+	initialRequestsState,
+	getModuleOptionValidValues
 } from '../reducer';
-
 
 describe( 'items reducer', () => {
 	it( 'state should default to empty object', () => {
@@ -27,17 +27,47 @@ describe( 'items reducer', () => {
 				}
 			}
 		},
+		'module-c': {
+			module: 'module-c',
+			activated: true,
+			options: {
+				color: {
+					currentValue: 'black',
+					enum: [ 'black', 'red', 'fuchsia' ],
+					enum_labels: {
+						black: 'Make it black.',
+						red: 'Make it red.',
+						fuchsia: 'Make it fuchsia, whatever that is.'
+					}
+				}
+			}
+		},
 	};
 
-	describe( '#modulesFetch', () => {
-		it( 'should replace .items with the modules list', () => {
+	describe( 'upon module list receive', () => {
+		let stateOut, action;
+
+		before( () => {
 			const stateIn = {}
-			const action = {
+			action = {
 				type: 'JETPACK_MODULES_LIST_RECEIVE',
 				modules: modules
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.modules ).length );
+			stateOut = itemsReducer( stateIn, action );
+		} );
+
+		describe( '#modulesFetch', () => {
+			it( 'should replace .items with the modules list', () => {
+				expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.modules ).length );
+			} );
+		} );
+
+		describe( '#getModuleOptionValidValues', () => {
+			it( 'should report valid values from the result data', () => {
+				let state = { jetpack: { modules: { items: stateOut } } };
+				expect( getModuleOptionValidValues( state, 'module-c', 'color' ) )
+					.to.equal( modules['module-c'].options.color.enum_labels );
+			} );
 		} );
 	} );
 
@@ -67,14 +97,30 @@ describe( 'items reducer', () => {
 		it( 'should update a module\'s option', () => {
 			const stateIn = modules;
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION_SUCCESS',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS',
 				module: 'module-b',
-				optionName: 'c',
-				optionValue: 30
+				newOptionValues: {
+					c: 30
+				}
 			};
 			let stateOut = itemsReducer( stateIn, action );
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut[ action.module ].options[ key ].current_value ).to.equal( action.newOptionValues[ key ] );
+			} );
+		} );
+	} );
 
-			expect( stateOut[ action.module ].options[ action.optionName ].current_value ).to.equal( action.optionValue );
+	describe( '#initialState', () => {
+		it( 'should replace .items with the initial state\'s modules list', () => {
+			const stateIn = {}
+			const action = {
+				type: 'JETPACK_SET_INITIAL_STATE',
+				initialState: {
+					getModules: modules
+				}
+			};
+			let stateOut = itemsReducer( stateIn, action );
+			expect( stateOut ).to.eql( action.initialState.getModules );
 		} );
 	} );
 } );
@@ -112,7 +158,6 @@ describe( 'requests reducer', () => {
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingModulesList ).to.be.false;
 		} );
-
 	} );
 
 	describe( '#modulesActivation', () => {
@@ -151,34 +196,46 @@ describe( 'requests reducer', () => {
 		it( 'should set updatingOption[ module_slug ][ option_name ] to true when updating a module\'s option', () => {
 			const stateIn = {}
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS',
 				module: 'module_slug',
-				option_name: 'option_name'
+				newOptionValues: {
+					option_name: 'option_name'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.updatingOption[ action.module ][ action.option_name] ).to.be.true;
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut.updatingOption[ action.module ][ key] ).to.be.true;
+			} );
 		} );
 
 		it( 'should set updatingOption[ module_slug ][ option_name ] to false when a module\'s option has been updated', () => {
 			const stateIn = {}
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION_SUCCESS',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS',
 				module: 'module_slug',
-				option_name: 'option_name'
+				newOptionValues: {
+					option_name: 'option_value'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.updatingOption[ action.module ][ action.option_name] ).to.be.false;
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut.updatingOption[ action.module ][ key ] ).to.be.false;
+			} );
 		} );
 
 		it( 'should set updatingOption[ module_slug ][ option_name ] to false when updating a module\'s option fails', () => {
 			const stateIn = {}
 			const action = {
-				type: 'JETPACK_MODULE_UPDATE_OPTION_FAIL',
+				type: 'JETPACK_MODULE_UPDATE_OPTIONS_FAIL',
 				module: 'module_slug',
-				option_name: 'option_name'
+				newOptionValues: {
+					option_name: 'option_name'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.updatingOption[ action.module ][ action.option_name] ).to.be.false;
+			Object.keys( action.newOptionValues ).forEach( key => {
+				expect( stateOut.updatingOption[ action.module ][ key ] ).to.be.false;
+			} );
 		} );
 	} );
 } );

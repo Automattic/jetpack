@@ -1,6 +1,7 @@
 <?php
 /**
  * Sync architecture prototype
+ *
  * @author Dan Walmsley
  * To run tests: phpunit --testsuite sync --filter New_Sync
  */
@@ -11,23 +12,18 @@
  * required semantics for storing all the data that we sync
  */
 interface iJetpack_Sync_Replicastore {
-	// synced wp version
-	public function get_wp_version();
-
-	public function set_wp_version( $version );
-
 	// remove all data
 	public function reset();
 
 	// trigger setup for sync start/end
-	public function full_sync_start();
+	public function full_sync_start( $config );
 
 	public function full_sync_end( $checksum );
 
 	// posts
-	public function post_count( $status = null );
+	public function post_count( $status = null, $min_id = null, $max_id = null );
 
-	public function get_posts( $status = null );
+	public function get_posts( $status = null, $min_id = null, $max_id = null );
 
 	public function get_post( $id );
 
@@ -35,12 +31,13 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_post( $post_id );
 
-	public function posts_checksum();
+	public function posts_checksum( $min_id = null, $max_id = null );
+	public function post_meta_checksum( $min_id = null, $max_id = null );
 
 	// comments
-	public function comment_count( $status = null );
+	public function comment_count( $status = null, $min_id = null, $max_id = null );
 
-	public function get_comments( $status = null );
+	public function get_comments( $status = null, $min_id = null, $max_id = null );
 
 	public function get_comment( $id );
 
@@ -52,12 +49,17 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_comment( $comment_id );
 
-	public function comments_checksum();
+	public function trashed_post_comments( $post_id, $statuses );
+
+	public function untrashed_post_comments( $post_id );
+
+	public function comments_checksum( $min_id = null, $max_id = null );
+	public function comment_meta_checksum( $min_id = null, $max_id = null );
 
 	// options
 	public function update_option( $option, $value );
 
-	public function get_option( $option );
+	public function get_option( $option, $default = false );
 
 	public function delete_option( $option );
 
@@ -72,6 +74,8 @@ interface iJetpack_Sync_Replicastore {
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id );
 
 	public function delete_metadata( $type, $object_id, $meta_ids );
+
+	public function delete_batch_metadata( $type, $object_ids, $meta_key );
 
 	// constants
 	public function get_constant( $constant );
@@ -95,7 +99,7 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_site_option( $option );
 
-	// terms 
+	// terms
 	public function get_terms( $taxonomy );
 
 	public function get_term( $taxonomy, $term_id, $is_term_id = true );
@@ -119,6 +123,18 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_user( $user_id );
 
+	public function upsert_user_locale( $user_id, $locale );
+
+	public function delete_user_locale( $user_id );
+
+	public function get_user_locale( $user_id );
+
+	public function get_allowed_mime_types( $user_id );
+
+
 	// full checksum
 	public function checksum_all();
+
+	// histogram
+	public function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null );
 }

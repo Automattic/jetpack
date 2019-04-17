@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Markdown
- * Module Description: Write posts or pages in plain-text Markdown syntax.
+ * Module Description: Write posts or pages in plain-text Markdown syntax
  * Sort Order: 31
  * First Introduced: 2.8
  * Requires Connection: No
@@ -14,9 +14,11 @@
 
 include dirname( __FILE__ ) . '/markdown/easy-markdown.php';
 
-// If the module is active, let's make this active for posting, period.
-// Comments will still be optional.
-add_filter( 'pre_option_' . WPCom_Markdown::POST_OPTION, '__return_true' );
+/**
+ * Remove checkbox set in modules/markdown/easy-markdown.php.
+ * We don't just remove the register_setting call there because the checkbox is
+ * needed on WordPress.com, where the file is sync'ed verbatim.
+ */
 function jetpack_markdown_posting_always_on() {
 	// why oh why isn't there a remove_settings_field?
 	global $wp_settings_fields;

@@ -1,136 +1,142 @@
-.form-fieldset {
-	clear: both;
-	margin-bottom: 20px;
-}
-
-.form-legend {
-	font-size: 14px;
+.jp-form-legend,
+.jp-form-label-wide {
+	padding: rem( 16px ) 0 rem( 5px );
+	font-size: rem( 14px );
 	font-weight: 600;
-	margin-bottom: 5px;
 }
 
-.form-label {
+.jp-form-label {
 	display: block;
-	font-size: 14px;
-	font-weight: 600;
-	margin-bottom: 5px;
+	font-size: rem( 14px );
+	line-height: 1.5;
+	margin-bottom: rem( 5px );
 }
 
-.form-label input[type="checkbox"] + span,
-.form-label input[type="radio"] + span {
+.jp-form-label-wide {
+	padding: rem( 8px ) 0;
+	display: block;
+}
+
+.jp-form-label input[type="radio"] + span {
 	font-weight: normal;
+	margin-left: 8px;
 }
 
-.form-textarea {
-	display: block;
-	width: 100%;
-	height: 250px;
+.jp-form-button {
+	margin-top: rem( 16px );
+
+	@include breakpoint( ">480px" ) {
+		position: absolute;
+			right: rem( 16px );
+			bottom: rem( 16px );
+	}
 }
 
-.form-button {
-	float: right;
-	margin-left: 10px;
-}
-
-// ==========================================================================
-// Buttons
-// ==========================================================================
-
-// resets button styles
-button {
-	background: transparent;
-	border: none;
-	outline: 0;
-	padding: 0;
-	font-size: 14px;
-	-webkit-appearance: none;
-	appearance: none;
+.jp-form-toggle-explanation {
+	font-size: rem( 14px );
+	word-break: break-word;
 	vertical-align: baseline;
+
+	.jp-form-toggle-privacy-info {
+		margin-left: rem( 5px );
+		padding-left: rem( 5px );
+		border-left: 1px solid rgba( $gray, 0.5 );
+	}
 }
 
-.button {
-	background: $white;
-	border-color: lighten( $gray, 20% );
-	border-style: solid;
-	border-width: 1px 1px 2px;
-	color: $gray-dark;
-	cursor: pointer;
-	display: inline-block;
-	margin: 0;
-	outline: 0;
-	overflow: hidden;
-	font-weight: 500;
-	text-overflow: ellipsis;
-	text-decoration: none;
-	vertical-align: top;
-	box-sizing: border-box;
-	font-size: 14px;
-	line-height: 21px;
-	border-radius: 4px;
-	padding: 7px 14px 9px;
-	-webkit-appearance: none;
-	appearance: none;
+.jp-form-fieldset {
+	clear: both;
+	position: relative;
 
-	&:hover {
-		border-color: lighten( $gray, 10% );
-		color: $gray-dark;
+	.jp-form-legend + .jp-form-setting-explanation {
+		margin-top: 0;
+		margin-bottom: rem( 8px );
 	}
-	&:active {
-		border-width: 2px 1px 1px;
-	}
-	&:visited {
-		color: $gray-dark;
-	}
-	&[disabled],
-	&:disabled {
-		color: lighten( $gray, 30% );
-		background: $white;
-		border-color: lighten( $gray, 30% );
-		cursor: default;
+}
 
-		&:active {
-			border-width: 1px 1px 2px;
-		}
-	}
-	&:focus {
-		border-color: $blue-medium;
-		box-shadow: 0 0 0 2px $blue-light;
-	}
-	&.is-compact {
-		padding: 7px;
-		color: darken( $gray, 10% );
-		font-size: 11px;
-		line-height: 1;
-		text-transform: uppercase;
+.jp-form-input-with-prefix {
+	display: inline-flex;
+	width: 100%;
+	margin-bottom: rem( 24px );
 
-		&:disabled {
-			color: lighten( $gray, 30% );
-		}
-		.gridicon {
-			top: 4px;
-			margin-top: -8px;
-		}
-		// Make the left margin of the small plus icon visually less huge
-		.gridicons-plus-small {
-			margin-left: -4px;
-		}
-		// Reset the left margin if the button contains only the plus icon
-		.gridicons-plus-small:last-of-type {
-			margin-left: 0;
-		}
-		// Make plus icon nudged closer to adjacent icons for add-people and add-plugin type buttons
-		.gridicons-plus-small + .gridicon {
-			margin-left: -4px;
+	span:first-child {
+		min-width: rem( 60px );
+		text-align: center;
+		background: #f6f6f6;
+		border: 1px solid #c8d7e1;
+		color: #4f748e;
+		padding: rem( 8px ) rem( 14px );
+		white-space: nowrap;
+
+		@include breakpoint( '<660px' ) {
+			display: block;
+			text-align: left;
 		}
 	}
-	&.hidden {
-		display: none;
+
+	input[type="text"] {
+		width: 100%;
+		@include breakpoint( '>660px' ) {
+			border-left: 0;
+		}
+		@include breakpoint( '<660px' ) {
+			border-top: 0;
+		}
 	}
-	.gridicon {
-		position: relative;
-			top: 4px;
-		margin-top: -2px;
-		width: 18px;
-		height: 18px;
+
+	@include breakpoint( '<660px' ) {
+		display: block;
+		box-sizing: border-box;
 	}
+}
+
+.jp-form-input-suffix {
+	text-align: center;
+	background: #f6f6f6;
+	border: 1px solid #c8d7e1;
+	color: #4f748e;
+	padding: rem( 8px ) rem( 14px );
+	white-space: nowrap;
+	flex: 1 0 auto;
+	display: flex;
+}
+
+button.jp-form-input-suffix {
+	background: initial;
+	border-radius: 0;
+}
+
+.jp-form-has-child {
+	margin-bottom: rem( 24px );
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	& > .jp-form-fieldset,
+	& > .jp-form-setting-explanation {
+		margin-left: rem( 36px );
+	}
+
+	& > .jp-form-fieldset {
+		margin-bottom: rem( 16px );
+	}
+}
+
+.jp-form-block-fade {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	background: rgba( 255,255,255,.8 );
+	width: 100%;
+	height: 100%;
+}
+
+.jp-form-devmode-message.is-compact {
+	width: 100%;
+	padding: 0 1rem;
+	position: absolute;
+	top: -24px;
+	z-index: 1;
 }

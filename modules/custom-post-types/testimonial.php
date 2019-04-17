@@ -47,16 +47,15 @@ class Jetpack_Testimonial {
 		// Check on theme switch if theme supports CPT and setting is disabled
 		add_action( 'after_switch_theme', array( $this, 'activation_post_type_support' ) );
 
-		$setting = get_option( self::OPTION_NAME, '0' );
+		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
 
 		// Bail early if Testimonial option is not set and the theme doesn't declare support
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
 			return;
 		}
 
-		// Enable Omnisearch for CPT.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) ) {
-			new Jetpack_Omnisearch_Posts( self::CUSTOM_POST_TYPE );
+		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! Jetpack::is_module_active( 'custom-content-types' ) ) {
+			return;
 		}
 
 		// CPT magic
@@ -160,6 +159,7 @@ class Jetpack_Testimonial {
 		if ( $this->site_supports_custom_post_type() ) :
 			printf( '<p><label for="%1$s">%2$s</label></p>',
 				esc_attr( self::OPTION_READING_SETTING ),
+				/* translators: %1$s is replaced with an input field for numbers */
 				sprintf( __( 'Testimonial pages display at most %1$s testimonials', 'jetpack' ),
 					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
 						esc_attr( self::OPTION_READING_SETTING ),
@@ -314,6 +314,7 @@ class Jetpack_Testimonial {
 				'thumbnail',
 				'page-attributes',
 				'revisions',
+				'excerpt',
 			),
 			'rewrite' => array(
 				'slug'       => 'testimonial',
@@ -363,10 +364,9 @@ class Jetpack_Testimonial {
 	 * Change ‘Enter Title Here’ text for the Testimonial.
 	 */
 	function change_default_title( $title ) {
-		$screen = get_current_screen();
-
-		if ( self::CUSTOM_POST_TYPE == $screen->post_type )
+		if ( self::CUSTOM_POST_TYPE == get_post_type() ) {
 			$title = esc_html__( "Enter the customer's name here", 'jetpack' );
+		}
 
 		return $title;
 	}
@@ -470,7 +470,7 @@ class Jetpack_Testimonial {
 		) );
 		$wp_customize->add_control( 'jetpack_testimonials[page-title]', array(
 			'section' => 'jetpack_testimonials',
-			'label'   => esc_html__( 'Testimonial Page Title', 'jetpack' ),
+			'label'   => esc_html__( 'Testimonial Archive Title', 'jetpack' ),
 			'type'    => 'text',
 		) );
 
@@ -482,7 +482,7 @@ class Jetpack_Testimonial {
 		$wp_customize->add_control( new Jetpack_Testimonial_Textarea_Control( $wp_customize, 'jetpack_testimonials[page-content]', array(
 			'section'  => 'jetpack_testimonials',
 			'settings' => 'jetpack_testimonials[page-content]',
-			'label'    => esc_html__( 'Testimonial Page Content', 'jetpack' ),
+			'label'    => esc_html__( 'Testimonial Archive Content', 'jetpack' ),
 		) ) );
 
 		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
@@ -493,7 +493,7 @@ class Jetpack_Testimonial {
 		) );
 		$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
 			'section' => 'jetpack_testimonials',
-			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
+			'label'   => esc_html__( 'Testimonial Archive Featured Image', 'jetpack' ),
 		) ) );
 
 		// The featured image control doesn't display properly in the Customizer unless we coerce
@@ -531,7 +531,7 @@ class Jetpack_Testimonial {
 			'columns'         => 1,
 			'showposts'       => -1,
 			'order'           => 'asc',
-			'orderby'         => 'date',
+			'orderby'         => 'menu_order,date',
 		), $atts, 'testimonial' );
 
 		// A little sanitization
@@ -558,7 +558,7 @@ class Jetpack_Testimonial {
 		if ( $atts['orderby'] ) {
 			$atts['orderby'] = urldecode( $atts['orderby'] );
 			$atts['orderby'] = strtolower( $atts['orderby'] );
-			$allowed_keys = array('author', 'date', 'title', 'rand');
+			$allowed_keys = array( 'author', 'date', 'title', 'menu_order', 'rand' );
 
 			$parsed = array();
 			foreach ( explode( ',', $atts['orderby'] ) as $testimonial_index_number => $orderby ) {

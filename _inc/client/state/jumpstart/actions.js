@@ -1,4 +1,11 @@
 /**
+ * External dependencies
+ */
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
+
+/**
  * Internal dependencies
  */
 import {
@@ -7,44 +14,81 @@ import {
 	JUMPSTART_ACTIVATE_SUCCESS,
 	JUMPSTART_SKIP,
 	JUMPSTART_SKIP_SUCCESS,
-	JUMPSTART_SKIP_FAIL
+	JUMPSTART_SKIP_FAIL,
 } from 'state/action-types';
 import restApi from 'rest-api';
+import { fetchModules } from 'state/modules';
+import { fetchSettings } from 'state/settings';
 
 export const jumpStartActivate = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JUMPSTART_ACTIVATE
+			type: JUMPSTART_ACTIVATE,
 		} );
-		return restApi.jumpStart( 'activate' ).then( () => {
-			dispatch( {
-				type: JUMPSTART_ACTIVATE_SUCCESS,
-				jumpStart: true
+		dispatch( removeNotice( 'jumpstart-activate' ) );
+		dispatch(
+			createNotice( 'is-info', __( 'Activating recommended features…' ), {
+				id: 'jumpstart-activate',
+			} )
+		);
+		return restApi
+			.jumpStart( 'activate' )
+			.then( () => {
+				dispatch( {
+					type: JUMPSTART_ACTIVATE_SUCCESS,
+					jumpStart: true,
+				} );
+				analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_submit', {} );
+				dispatch( removeNotice( 'jumpstart-activate' ) );
+				dispatch(
+					createNotice( 'is-success', __( 'Recommended features active.' ), {
+						id: 'jumpstart-activate',
+						duration: 2000,
+					} )
+				);
+				dispatch( fetchModules() );
+				dispatch( fetchSettings() );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JUMPSTART_ACTIVATE_FAIL,
+					error: error,
+				} );
+				dispatch( removeNotice( 'jumpstart-activate' ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( 'Recommended features failed to activate. %(error)s', {
+							args: {
+								error: error,
+							},
+						} ),
+						{ id: 'jumpstart-activate' }
+					)
+				);
 			} );
-		} )['catch']( error => {
-			dispatch( {
-				type: JUMPSTART_ACTIVATE_FAIL,
-				error: error
-			} );
-		} );
-	}
-}
+	};
+};
 
 export const jumpStartSkip = () => {
-	return ( dispatch ) => {
+	return dispatch => {
 		dispatch( {
-			type: JUMPSTART_SKIP
+			type: JUMPSTART_SKIP,
 		} );
-		return restApi.jumpStart( 'deactivate' ).then( () => {
-			dispatch( {
-				type: JUMPSTART_SKIP_SUCCESS,
-				jumpStart: false
+		analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_skip', {} );
+		return restApi
+			.jumpStart( 'deactivate' )
+			.then( () => {
+				dispatch( {
+					type: JUMPSTART_SKIP_SUCCESS,
+					jumpStart: false,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JUMPSTART_SKIP_FAIL,
+					error: error,
+				} );
 			} );
-		} )['catch']( error => {
-			dispatch( {
-				type: JUMPSTART_SKIP_FAIL,
-				error: error
-			} );
-		} );
-	}
-}
+	};
+};

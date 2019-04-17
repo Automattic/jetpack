@@ -1,4 +1,42 @@
 <?php
+
+new WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint( array(
+	'description' => 'Create a post autosave.',
+	'group'       => '__do_not_document',
+	'stat'        => 'posts:autosave',
+	'min_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/autosave',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'request_format' => array(
+		'content' => '(HTML) The post content.',
+		'title'   => '(HTML) The post title.',
+		'excerpt' => '(HTML) The post excerpt.',
+	),
+	'response_format' => array(
+		'ID'          => '(int) autodraft post ID',
+		'post_ID'     => '(int) post ID',
+		'preview_URL' => '(string) preview URL for the post',
+		'modified'    => '(ISO 8601 datetime) modified time',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/1/autosave',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'    => 'Howdy',
+			'content'    => 'Hello. I am a test post. I was created by the API',
+		)
+	)
+) );
+
 class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	function __construct( $args ) {
 		parent::__construct( $args );
@@ -20,6 +58,11 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 			return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Make sure Custom Post Types, etc. get registered.
+			$this->load_theme_functions();
+		}
+
 		$post = get_post( $post_id );
 
 		if ( ! $post || is_wp_error( $post ) ) {
@@ -32,6 +75,7 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 
 		$post_data = array (
 			'post_ID'      => $post_id,
+			'post_type'    => $post->post_type,
 			'post_title'   => $input['title'],
 			'post_content' => $input['content'],
 			'post_excerpt' => $input['excerpt'],

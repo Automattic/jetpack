@@ -1,75 +1,100 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
-import Search from 'components/search';
-import i18n, { translate as __ } from 'i18n-calypso';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-injectTapEventPlugin();
+import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
-import QueryModules from 'components/data/query-modules';
+import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import {
+	userCanManageModules as _userCanManageModules,
+	userCanViewStats as _userCanViewStats,
+} from 'state/initial-state';
 
-const Navigation = React.createClass( {
-	demoSearch: function( keywords ) {
-		console.log( 'Section Nav Search (keywords):', keywords );
-	},
+export class Navigation extends React.Component {
+	trackNavClick = target => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'nav_item',
+			path: target,
+		} );
+	};
 
-	render: function() {
+	trackDashboardClick = () => {
+		this.trackNavClick( 'dashboard' );
+	};
+
+	trackMyPlanClick = () => {
+		this.trackNavClick( 'my-plan' );
+	};
+
+	trackPlansClick = () => {
+		this.trackNavClick( 'plans' );
+	};
+
+	render() {
+		let navTabs;
+		if ( this.props.userCanManageModules ) {
+			navTabs = (
+				<NavTabs selectedText={ this.props.route.name }>
+					<NavItem
+						path="#/dashboard"
+						onClick={ this.trackDashboardClick }
+						selected={ this.props.route.path === '/dashboard' || this.props.route.path === '/' }
+					>
+						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#/my-plan"
+						onClick={ this.trackMyPlanClick }
+						selected={ this.props.route.path === '/my-plan' }
+					>
+						{ __( 'My Plan', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#/plans"
+						onClick={ this.trackPlansClick }
+						selected={ this.props.route.path === '/plans' }
+					>
+						{ __( 'Plans', { context: 'Navigation item.' } ) }
+					</NavItem>
+				</NavTabs>
+			);
+		} else {
+			navTabs = (
+				<NavTabs selectedText={ this.props.route.name }>
+					<NavItem
+						path="#/dashboard"
+						selected={ this.props.route.path === '/dashboard' || this.props.route.path === '/' }
+					>
+						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
+					</NavItem>
+				</NavTabs>
+			);
+		}
 		return (
-			<div className='dops-navigation'>
-				<QueryModules />
-				<SectionNav>
-					<NavTabs>
-						<NavItem
-							path="#dashboard"
-							selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
-							{ __( 'At a Glance', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#engagement"
-							selected={ this.props.route.path === '/engagement' }>
-							{ __( 'Engagement', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#security"
-							selected={ this.props.route.path === '/security' }>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#health"
-							selected={ this.props.route.path === '/health' }>Site
-							{ __( 'Health', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#more"
-							selected={ this.props.route.path === '/more' }>
-							{ __( 'More', { context: 'Navigation item.' } ) }
-						</NavItem>
-						<NavItem
-							path="#general"
-							selected={ this.props.route.path === '/general' }>
-							{ __( 'General', { context: 'Navigation item.' } ) }
-						</NavItem>
-					</NavTabs>
-
-					<Search
-						pinned={ true }
-						placeholder="Search doesn't work yet, but you can still write stuff to the console. "
-						analyticsGroup="Pages"
-						delaySearch={ true }
-						onSearch={ this.demoSearch }
-					/>
-				</SectionNav>
+			<div id="jp-navigation" className="dops-navigation">
+				<SectionNav selectedText={ this.props.route.name }>{ navTabs }</SectionNav>
 			</div>
-		)
+		);
 	}
-} );
+}
 
-export default Navigation;
+Navigation.propTypes = {
+	route: PropTypes.object.isRequired,
+};
+
+export default connect( state => {
+	return {
+		userCanManageModules: _userCanManageModules( state ),
+		userCanViewStats: _userCanViewStats( state ),
+		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
+	};
+} )( Navigation );

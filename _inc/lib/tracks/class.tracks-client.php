@@ -41,7 +41,7 @@
 require_once( dirname(__FILE__).'/class.tracks-client.php' );
 
 class Jetpack_Tracks_Client {
-	const PIXEL = 'http://pixel.wp.com/t.gif';
+	const PIXEL = 'https://pixel.wp.com/t.gif';
 	const BROWSER_TYPE = 'php-agent';
 	const USER_AGENT_SLUG = 'tracks-client';
 	const VERSION = '0.3';
@@ -53,6 +53,10 @@ class Jetpack_Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	static function record_event( $event ) {
+		if ( ! Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
+			return false;
+		}
+		
 		if ( ! $event instanceof Jetpack_Tracks_Event ) {
 			$event = new Jetpack_Tracks_Event( $event );
 		}
@@ -157,12 +161,31 @@ class Jetpack_Tracks_Client {
 
 				$anon_id = 'jetpack:' . base64_encode( $binary );
 
-				if ( ! headers_sent() ) {
+				if ( ! headers_sent()
+					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+					&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+				) {
 					setcookie( 'tk_ai', $anon_id );
 				}
 			}
 		}
 
 		return $anon_id;
+	}
+
+	/**
+	 * Gets the WordPress.com user's Tracks identity, if connected.
+	 *
+	 * @return array|bool
+	 */
+	static function get_connected_user_tracks_identity() {
+		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
+			return false;
+		}
+
+		return array(
+			'userid' => $user_data['ID'],
+			'username' => $user_data['login'],
+		);
 	}
 }

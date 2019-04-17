@@ -1,38 +1,66 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import PropTypes from 'prop-types';
+import { Component } from 'react';
 import { connect } from 'react-redux';
+import { isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import {
+	fetchAvailablePlans,
 	fetchSiteData,
+	fetchSiteFeatures,
 	isFetchingSiteData,
-	getSitePlan
+	getSitePlan,
 } from 'state/site';
+import { isDevMode } from 'state/connection';
 
-export const QuerySite = React.createClass( {
-	componentDidMount() {
-		this.props.fetchSiteData();
-	},
+class QuerySite extends Component {
+	static propTypes = {
+		isFetchingSiteData: PropTypes.bool,
+		isDevMode: PropTypes.bool,
+		sitePlan: PropTypes.object,
+	};
+
+	static defaultProps = {
+		isFetchingSiteData: false,
+		isDevMode: false,
+		sitePlan: {},
+	};
+
+	UNSAFE_componentWillMount() {
+		if (
+			! this.props.isFetchingSiteData &&
+			! this.props.isDevMode &&
+			isEmpty( this.props.sitePlan )
+		) {
+			this.props.fetchSiteData();
+			this.props.fetchSiteFeatures();
+			this.props.fetchAvailablePlans();
+		}
+	}
 
 	render() {
 		return null;
 	}
-} );
+}
 
 export default connect(
-	( state ) => {
+	state => {
 		return {
 			isFetchingSiteData: isFetchingSiteData( state ),
-			siteData: fetchSiteData()
+			isDevMode: isDevMode( state ),
+			sitePlan: getSitePlan( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
-			fetchSiteData: () => dispatch( fetchSiteData() )
-		}
+			fetchSiteData: () => dispatch( fetchSiteData() ),
+			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() ),
+			fetchAvailablePlans: () => dispatch( fetchAvailablePlans() ),
+		};
 	}
 )( QuerySite );

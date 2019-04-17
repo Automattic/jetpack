@@ -1,18 +1,19 @@
 /**
  * External dependencies
  */
-import { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 /**
  * Internal dependencies
  */
-import { fetchUserConnectionData } from 'state/connection';
+import { fetchUserConnectionData, isFetchingUserData, isDevMode } from 'state/connection';
 
-class QueryUserConnectionData extends Component {
-	componentWillMount() {
-		this.props.fetchUserConnectionData();
+export class QueryUserConnectionData extends React.Component {
+	UNSAFE_componentWillMount() {
+		if ( ! ( this.props.isFetchingUserData || this.props.isDevMode ) ) {
+			this.props.fetchUserConnectionData();
+		}
 	}
 
 	render() {
@@ -20,17 +21,16 @@ class QueryUserConnectionData extends Component {
 	}
 }
 
-QueryUserConnectionData.defaultProps = {
-	fetchSiteConnectionStatus: () => {}
-};
-
-export default connect( () => {
-	return {
-		fetchUserConnectionData: fetchUserConnectionData()
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchUserConnectionData
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			isFetchingUserData: isFetchingUserData( state ),
+			isDevMode: isDevMode( state ),
+		};
+	},
+	dispatch => {
+		return {
+			fetchUserConnectionData: () => dispatch( fetchUserConnectionData() ),
+		};
+	}
 )( QueryUserConnectionData );

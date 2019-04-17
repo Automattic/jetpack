@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -17,108 +19,181 @@ import {
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
-	isUnlinkingUser as _isUnlinkingUser
+	isUnlinkingUser as _isUnlinkingUser,
 } from 'state/connection';
-import QueryConnectUrl from 'components/data/query-connect-url';
+import { getSiteRawUrl } from 'state/initial-state';
+import onKeyDownCallback from 'utils/onkeydown-callback';
+import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
+import './style.scss';
 
-const ConnectButton = React.createClass( {
-	displayName: 'ConnectButton',
+export class ConnectButton extends React.Component {
+	static displayName = 'ConnectButton';
 
-	propTypes: {
-		type: React.PropTypes.bool
-	},
+	static propTypes = {
+		connectUser: PropTypes.bool,
+		from: PropTypes.string,
+		asLink: PropTypes.bool,
+	};
 
-	getDefaultProps() {
-		return {
-			connectUser: false
-		};
-	},
+	static defaultProps = {
+		connectUser: false,
+		from: '',
+		asLink: false,
+	};
 
-	renderUserButton: function() {
-		const fetchingUrl = this.props.fetchingConnectUrl( this.props );
-		const isUnlinking = this.props.isUnlinking( this.props );
+	state = {
+		showModal: false,
+	};
 
+	handleOpenModal = e => {
+		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
+		e.preventDefault();
+		this.toggleVisibility();
+	};
+
+	disconnectSite = () => {
+		this.toggleVisibility();
+		this.props.disconnectSite();
+	};
+
+	toggleVisibility = () => {
+		this.setState( { showModal: ! this.state.showModal } );
+	};
+
+	renderUserButton = () => {
 		// Already linked
-		if ( this.props.isLinked( this.props ) ) {
-			return(
+		if ( this.props.isLinked ) {
+			return (
 				<div>
-					<Button
+					<a
+						role="button"
+						tabIndex="0"
+						className="jp-jetpack-unlink__button"
+						onKeyDown={ onKeyDownCallback( this.props.unlinkUser ) }
 						onClick={ this.props.unlinkUser }
-						disabled={ isUnlinking } >
+						disabled={ this.props.isUnlinking }
+					>
 						{ __( 'Unlink me from WordPress.com' ) }
-					</Button>
+					</a>
 				</div>
 			);
 		}
 
-		return(
-			<Button
-				className="is-primary jp-jetpack-connect__button"
-				href={ this.props.connectUrl( this.props ) }
-				disabled={ fetchingUrl } >
-				{ __( 'Link to WordPress.com' ) }
-			</Button>
+		let connectUrl = this.props.connectUrl;
+		if ( this.props.from ) {
+			connectUrl += `&from=${ this.props.from }`;
+			connectUrl += '&additional-user';
+		}
+
+		const buttonProps = {
+				className: 'is-primary jp-jetpack-connect__button',
+				href: connectUrl,
+				disabled: this.props.fetchingConnectUrl,
+			},
+			connectLegend = __( 'Link to WordPress.com' );
+
+		return this.props.asLink ? (
+			<a { ...buttonProps }>{ connectLegend }</a>
+		) : (
+			<Button { ...buttonProps }>{ connectLegend }</Button>
 		);
-	},
+	};
 
-	renderContent: function() {
-		const fetchingUrl = this.props.fetchingConnectUrl( this.props );
-		const disconnecting = this.props.isDisconnecting( this.props );
-
+	renderContent = () => {
 		if ( this.props.connectUser ) {
 			return this.renderUserButton();
 		}
 
-		if ( this.props.isSiteConnected( this.props ) ) {
-			return(
-				<Button
-					onClick={ this.props.disconnectSite }
-					disabled={ disconnecting }>
-					{ __( 'Disconnect site from WordPress.com ') }
-				</Button>
+		if ( this.props.isSiteConnected ) {
+			return (
+				<a
+					role="button"
+					tabIndex="0"
+					onKeyDown={ onKeyDownCallback( this.handleOpenModal ) }
+					onClick={ this.handleOpenModal }
+					disabled={ this.props.isDisconnecting }
+				>
+					{ __( 'Manage site connection' ) }
+				</a>
 			);
 		}
 
-		return(
-			<Button
-				className="is-primary jp-jetpack-connect__button"
-				href={ this.props.connectUrl( this.props ) }
-				disabled={ fetchingUrl }>
-				{ __( 'Connect to WordPress.com' ) }
-			</Button>
+		let connectUrl = this.props.connectUrl;
+		if ( this.props.from ) {
+			connectUrl += `&from=${ this.props.from }`;
+		}
+
+		const buttonProps = {
+				className: 'jp-jetpack-connect__button',
+				href: connectUrl,
+				disabled: this.props.fetchingConnectUrl,
+			},
+			connectLegend = __( 'Set up Jetpack' );
+
+		return this.props.asLink ? (
+			<a { ...buttonProps }>{ connectLegend }</a>
+		) : (
+			<Button { ...buttonProps }>{ connectLegend }</Button>
 		);
-	},
+	};
 
 	render() {
 		return (
 			<div>
-				<QueryConnectUrl />
+				{ ! this.props.isSiteConnected && (
+					<p className="jp-banner__tos-blurb">
+						{ __(
+							'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
+							{
+								components: {
+									tosLink: (
+										<a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />
+									),
+									shareDetailsLink: (
+										<a
+											href="https://jetpack.com/support/what-data-does-jetpack-sync"
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								},
+							}
+						) }
+					</p>
+				) }
 				{ this.renderContent() }
+				{ this.props.children }
+				<JetpackDisconnectDialog
+					show={ this.state.showModal }
+					toggleModal={ this.toggleVisibility }
+					disconnectSite={ this.disconnectSite }
+				/>
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {
 		return {
-			isSiteConnected: () => _getSiteConnectionStatus( state ),
-			isDisconnecting: () => _isDisconnectingSite( state ),
-			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
-			connectUrl: () => _getConnectUrl( state ),
-			isLinked: () => _isCurrentUserLinked( state ),
-			isUnlinking: () => _isUnlinkingUser( state )
+			siteRawUrl: getSiteRawUrl( state ),
+			isSiteConnected: _getSiteConnectionStatus( state ),
+			isDisconnecting: _isDisconnectingSite( state ),
+			fetchingConnectUrl: _isFetchingConnectUrl( state ),
+			connectUrl: _getConnectUrl( state ),
+			isLinked: _isCurrentUserLinked( state ),
+			isUnlinking: _isUnlinkingUser( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
 			disconnectSite: () => {
 				return dispatch( disconnectSite() );
 			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
-			}
+			},
 		};
 	}
 )( ConnectButton );

@@ -1000,6 +1000,7 @@ class lessc {
 			if($fsize/1024 < 32) {
 				if(is_null($mime)) {
 					if(class_exists('finfo')) { // php 5.3+
+						// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
 						$finfo = new finfo(FILEINFO_MIME);
 						$mime = explode('; ', $finfo->file($fullpath));
 						$mime = $mime[0];

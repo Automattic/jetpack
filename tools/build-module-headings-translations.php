@@ -42,25 +42,26 @@ foreach ( $files as $file ) {
 	foreach ( $all_headers as $field => $regex ) {
 		if ( preg_match( '/^[ \t\/*#@]*' . preg_quote( $regex, '/' ) . ':(.*)$/mi', $file_data, $match ) && $match[1] ) {
 			$string = trim( preg_replace( "/\s*(?:\*\/|\?>).*/", '', $match[1] ) );
+			$string = addcslashes( $string, "''" );
 			if ( 'Module Tags' === $regex ) {
 				$module_tags = array_map( 'trim', explode( ',', $string ) );
 				foreach ( $module_tags as $tag ) {
 					$tags[ $tag ][] = $relative_path;
 				}
 			} else {
-				$_file_contents .= "\t\t\t\t'{$field}' => _x( '{$string}', '{$regex}', 'jetpack' ),\r\n";
+				$_file_contents .= "\t\t\t\t'{$field}' => _x( '{$string}', '{$regex}', 'jetpack' ),\n";
 			}
 		}
 	}
 
 	if ( $_file_contents ) {
-		$file_contents .= "\r\n\t\t\t'" . str_replace( '.php', '', basename( $absolute_path ) ) . "' => array(\r\n$_file_contents\t\t\t),\r\n";
+		$file_contents .= "\n\t\t\t'" . str_replace( '.php', '', basename( $absolute_path ) ) . "' => array(\n$_file_contents\t\t\t),\n";
 	}
 
 }
 $file_contents .= "\t\t);
 \t}";
-$file_contents .= "\r\n\treturn \$modules[ \$key ];
+$file_contents .= "\n\treturn \$modules[ \$key ];
 }";
 
 $file_contents .= "
@@ -71,20 +72,20 @@ $file_contents .= "
  *
  * @return string
  */";
-$file_contents .= "\r\nfunction jetpack_get_module_i18n_tag( \$key ) {
+$file_contents .= "\nfunction jetpack_get_module_i18n_tag( \$key ) {
 \tstatic \$module_tags;
 \tif ( ! isset( \$module_tags ) ) {";
-$file_contents .= "\r\n\t\t\$module_tags = array(";
+$file_contents .= "\n\t\t\$module_tags = array(";
 foreach ( $tags as $tag => $files ) {
-	$file_contents .= "\r\n\t\t\t// Modules with `{$tag}` tag:\r\n";
+	$file_contents .= "\n\t\t\t// Modules with `{$tag}` tag:\n";
 	foreach ( $files as $file ) {
-		$file_contents .= "\t\t\t//  - {$file}\r\n";
+		$file_contents .= "\t\t\t//  - {$file}\n";
 	}
-	$file_contents .= "\t\t\t'{$tag}' =>_x( '{$tag}', 'Module Tag', 'jetpack' ),\r\n";
+	$file_contents .= "\t\t\t'{$tag}' =>_x( '{$tag}', 'Module Tag', 'jetpack' ),\n";
 }
 $file_contents .= "\t\t);
 \t}";
-$file_contents .= "\r\n\treturn \$module_tags[ \$key ];
-}";
+$file_contents .= "\n\treturn ! empty( \$module_tags[ \$key ] ) ? \$module_tags[ \$key ] : '';
+}\n";
 
 file_put_contents( "{$jp_dir}modules/module-headings.php", $file_contents );

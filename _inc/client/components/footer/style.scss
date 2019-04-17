@@ -1,9 +1,9 @@
 .jp-footer {
 	text-align: center;
-	margin: rem( 16px ) 0 rem( 64px );
+	margin: rem( 16px ) 0 rem( 32px );
 
 	@include breakpoint( "<1040px" ) {
-		margin: rem( 32px ) 0 rem( 48px );
+		margin: rem( 32px ) 0 rem( 24px );
 	}
 	@include breakpoint( "<660px" ) {
 		margin: rem( 24px ) 0 rem( 16px );
@@ -34,6 +34,15 @@
 .jp-footer__link-item {
 	display: inline-block;
 	margin-bottom: 0;
+
+	@include breakpoint( ">660px" ) {
+		display: inline-block;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: block;
+		border-bottom: 1px lighten( $gray, 25% ) solid;
+	}
 }
 
 .jp-footer__link {

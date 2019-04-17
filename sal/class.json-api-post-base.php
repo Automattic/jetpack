@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * This class wraps a WP_Post and proxies any undefined attributes
  * and methods to the wrapped class. We need to do this because at present
@@ -52,7 +52,7 @@ abstract class SAL_Post {
 	abstract public function is_following();
 	abstract public function get_global_id();
 	abstract public function get_geo();
-	
+
 	public function get_menu_order() {
 		return (int) $this->post->menu_order;
 	}
@@ -63,6 +63,28 @@ abstract class SAL_Post {
 
 	public function get_type() {
 		return (string) $this->post->post_type;
+	}
+
+	public function get_terms() {
+		$taxonomies = get_object_taxonomies( $this->post, 'objects' );
+		$terms = array();
+		foreach ( $taxonomies as $taxonomy ) {
+			if ( ! $taxonomy->public && ! current_user_can( $taxonomy->cap->assign_terms ) ) {
+				continue;
+			}
+
+			$terms[ $taxonomy->name ] = array();
+
+			$taxonomy_terms = wp_get_object_terms( $this->post->ID, $taxonomy->name, array( 'fields' => 'all' ) );
+			foreach ( $taxonomy_terms as $term ) {
+				$formatted_term = $this->format_taxonomy( $term, $taxonomy->name, 'display' );
+				$terms[ $taxonomy->name ][ $term->name ] = $formatted_term;
+			}
+
+			$terms[ $taxonomy->name ] = (object) $terms[ $taxonomy->name ];
+		}
+
+		return (object) $terms;
 	}
 
 	public function get_tags() {
@@ -101,15 +123,20 @@ abstract class SAL_Post {
 		foreach ( (array) has_meta( $this->post->ID ) as $meta ) {
 			// Don't expose protected fields.
 			$meta_key = $meta['meta_key'];
-			
+
 			$show = !( WPCOM_JSON_API_Metadata::is_internal_only( $meta_key ) )
 				&&
-					( 
-						WPCOM_JSON_API_Metadata::is_public( $meta_key ) 
-					|| 
+					(
+						WPCOM_JSON_API_Metadata::is_public( $meta_key )
+					||
 						current_user_can( 'edit_post_meta', $this->post->ID , $meta_key )
 					);
-			
+
+			// Only business plan subscribers can view custom meta description
+			if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta_key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+				$show = false;
+			}
+
 			if ( $show ) {
 				$metadata[] = array(
 					'id'    => $meta['meta_id'],
@@ -136,6 +163,12 @@ abstract class SAL_Post {
 				'likes'   => (string) $this->get_post_link( 'likes/' ),
 			),
 		);
+
+		$amp_permalink = get_post_meta( $this->post->ID, '_jetpack_amp_permalink', true );
+
+		if ( ! empty( $amp_permalink ) ) {
+			$meta->links->amp = (string) $amp_permalink;
+		}
 
 		// add autosave link if a more recent autosave exists
 		if ( 'edit' === $this->context ) {
@@ -181,11 +214,11 @@ abstract class SAL_Post {
 	}
 
 	protected function get_site_link() {
-		return $this->links->get_site_link( $this->site->blog_id );
+		return $this->links->get_site_link( $this->site->get_id() );
 	}
 
 	protected function get_post_link( $path = null ) {
-		return $this->links->get_post_link( $this->site->blog_id, $this->post->ID, $path );
+		return $this->links->get_post_link( $this->site->get_id(), $this->post->ID, $path );
 	}
 
 	public function get_publicize_urls() {
@@ -255,18 +288,19 @@ abstract class SAL_Post {
 		$metadata = wp_get_attachment_metadata( $attachment->ID );
 
 		$result = array(
-			'ID'		=> (int) $attachment->ID,
-			'URL'           => (string) wp_get_attachment_url( $attachment->ID ),
-			'guid'		=> (string) $attachment->guid,
-			'mime_type'	=> (string) $attachment->post_mime_type,
-			'width'		=> (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
-			'height'	=> (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+			'ID'        => (int) $attachment->ID,
+			'URL'       => (string) wp_get_attachment_url( $attachment->ID ),
+			'guid'      => (string) $attachment->guid,
+			'mime_type' => (string) $attachment->post_mime_type,
+			'width'     => (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
 		if ( isset( $metadata['duration'] ) ) {
 			$result['duration'] = (int) $metadata['duration'];
 		}
 
+		/** This filter is documented in class.jetpack-sync.php */
 		return (object) apply_filters( 'get_attachment', $result );
 	}
 
@@ -354,7 +388,7 @@ abstract class SAL_Post {
 			return (object) array(
 				'ID'   => (int) $parent->ID,
 				'type' => (string) $parent->post_type,
-				'link' => (string) $this->links->get_post_link( $this->site->blog_id, $parent->ID ),
+				'link' => (string) $this->links->get_post_link( $this->site->get_id(), $parent->ID ),
 				'title' => $parent_title,
 			);
 		} else {
@@ -379,12 +413,9 @@ abstract class SAL_Post {
 	public function is_likes_enabled() {
 		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-		$post_likes_switched    = (bool) get_post_meta( $this->post->ID, 'switch_like_status', true );
-		$post_likes_enabled = $sitewide_likes_enabled;
-		if ( $post_likes_switched ) {
-			$post_likes_enabled = ! $post_likes_enabled;
-		}
-		return (bool) $post_likes_enabled;
+		$post_likes_switched    = get_post_meta( $this->post->ID, 'switch_like_status', true );
+
+		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
 	}
 
 	public function is_sharing_enabled() {
@@ -469,7 +500,7 @@ abstract class SAL_Post {
 
 	protected function get_avatar_url( $email, $avatar_size = 96 ) {
 		$avatar_url = wpcom_get_avatar_url( $email, $avatar_size, '', true );
-		if ( !$avatar_url || is_wp_error( $avatar_url ) ) {
+		if ( ! $avatar_url || is_wp_error( $avatar_url ) ) {
 			return '';
 		}
 
@@ -510,14 +541,15 @@ abstract class SAL_Post {
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
-		if ( 'category' === $taxonomy_type )
+		if ( is_taxonomy_hierarchical( $taxonomy_type ) ) {
 			$response['parent'] = (int) $taxonomy->parent;
+		}
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_taxonomy_link( $this->site->blog_id, $taxonomy->slug, $taxonomy_type ),
-				'help' => (string) $this->links->get_taxonomy_link( $this->site->blog_id, $taxonomy->slug, $taxonomy_type, 'help' ),
-				'site' => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'self' => (string) $this->links->get_taxonomy_link( $this->site->get_id(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->links->get_taxonomy_link( $this->site->get_id(), $taxonomy->slug, $taxonomy_type, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->site->get_id() ),
 			),
 		);
 
@@ -602,7 +634,7 @@ abstract class SAL_Post {
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
-				$info = video_get_info_by_blogpostid( $this->site->blog_id, $media_id );
+				$info = video_get_info_by_blogpostid( $this->site->get_id(), $media_id );
 
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
@@ -628,9 +660,9 @@ abstract class SAL_Post {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_media_link( $this->site->blog_id, $media_id ),
-				'help' => (string) $this->links->get_media_link( $this->site->blog_id, $media_id, 'help' ),
-				'site' => (string) $this->links->get_site_link( $this->site->blog_id ),
+				'self' => (string) $this->links->get_media_link( $this->site->get_id(), $media_id ),
+				'help' => (string) $this->links->get_media_link( $this->site->get_id(), $media_id, 'help' ),
+				'site' => (string) $this->links->get_site_link( $this->site->get_id() ),
 			),
 		);
 
@@ -642,7 +674,7 @@ abstract class SAL_Post {
 		}
 
 		if ( $media_item->post_parent > 0 ) {
-			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->site->blog_id, $media_item->post_parent );
+			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->site->get_id(), $media_item->post_parent );
 		}
 
 		return (object) $response;

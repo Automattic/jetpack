@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Module Name: Post by Email
- * Module Description: Publish posts by sending an email.
+ * Module Name: Post by email
+ * Module Description: Publish posts by sending an email
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
@@ -15,7 +15,6 @@
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
-Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
 
 class Jetpack_Post_By_Email {
 	public static function init() {
@@ -30,11 +29,6 @@ class Jetpack_Post_By_Email {
 
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
-	}
-
-	static function configuration_redirect() {
-		wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#post-by-email' );
-		exit;
 	}
 
 	function action_init() {
@@ -123,7 +117,7 @@ class Jetpack_Post_By_Email {
 						<?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?>
 					</p>
 					<p>
-						<a href="<?php echo $jetpack->build_connect_url( false, get_edit_profile_url( get_current_user_id() ) . '#post-by-email' ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
+						<a href="<?php echo $jetpack->build_connect_url( false, get_edit_profile_url( get_current_user_id() ) . '#post-by-email', 'unlinked-user-pbe' ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</p>
 					<?php
 				} ?>
@@ -173,12 +167,12 @@ class Jetpack_Post_By_Email {
 	}
 
 	/**
-	 * Backend function to abstract the xmlrpc function calls to wpcom.
+	 * Back end function to abstract the xmlrpc function calls to wpcom.
 	 *
 	 * @param $endpoint
 	 * @param $error_message
 	 */
-	function __process_ajax_proxy_request( $endpoint, $error_message ) {
+	function __process_ajax_proxy_request( $endpoint, $error_message ) { // phpcs:ignore
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( $error_message );
 		}
@@ -200,9 +194,9 @@ class Jetpack_Post_By_Email {
 			wp_send_json_error( $error_message );
 		}
 
-		wp_send_json_success( $response );
-
 		// Will be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'post_by_email_address', $response );
+		update_option( 'post_by_email_address' . get_current_user_id(), $response );
+
+		wp_send_json_success( $response );
 	}
 }

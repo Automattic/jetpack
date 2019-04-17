@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-require( 'babel-core/register' );
+
+require( '@babel/register' );
 
 const program = require( 'commander' ),
+	glob = require( 'glob' ),
 	Mocha = require( 'mocha' ),
-	path = require( 'path' ),
 	boot = require( './boot-test' );
 
 program
@@ -17,7 +18,7 @@ program.parse( process.argv );
 
 const mocha = new Mocha( {
 	ui: 'bdd',
-	reporter: program.reporter
+	reporter: program.reporter,
 } );
 
 if ( program.grep ) {
@@ -27,13 +28,44 @@ if ( program.grep ) {
 mocha.suite.beforeAll( boot.before );
 mocha.suite.afterAll( boot.after );
 
-// we could also discover all the tests using a glob?
 if ( program.args.length ) {
-	program.args.forEach( function( file ) {
+	// Test interface components
+	if ( 1 === program.args.length ) {
+		// Don't load styles for testing
+		require.extensions[ '.scss' ] = () => false;
+		require.extensions[ '.css' ] = require.extensions[ '.scss' ];
+
+		// Define a dom so we can have window and all else
+		require( 'jsdom-global' )();
+
+		window.Initial_State = {
+			userData: {},
+			dismissedNotices: {},
+		};
+
+		switch ( program.args[ 0 ] ) {
+			case 'gui':
+				mocha.addFile( '_inc/client/test/main.js' );
+
+				glob.sync( '_inc/client/**/test/component.js' ).forEach( file => {
+					mocha.addFile( file );
+				} );
+				break;
+			case 'modules':
+				glob.sync( 'modules/**/test-*.js' ).forEach( file => {
+					mocha.addFile( file );
+				} );
+				break;
+		}
+	} else {
+		program.args.forEach( function( file ) {
+			mocha.addFile( file );
+		} );
+	}
+} else {
+	glob.sync( '_inc/client/state/**/test/*.js' ).forEach( file => {
 		mocha.addFile( file );
 	} );
-} else {
-	mocha.addFile( path.join( __dirname, 'load-suite.js' ) );
 }
 
 mocha.run( function( failures ) {
