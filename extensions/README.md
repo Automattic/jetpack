@@ -93,16 +93,6 @@ rsync -az --delete _inc/blocks/ \
 
 To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
-## The Build
-
-- Compiled extensions are output to `_inc/blocks`
-- You can view the various build commands in `package.json`
-- You can see the build configuration in `webpack.config.extensions.js`
-
-If you need to modify the build process, bear in mind that config files are also
-synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
-you test the new build in both environments.
-
 ## Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
@@ -141,6 +131,16 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 `wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"`
 
 ## Good to know when developing Gutenberg extensions
+
+## The Build
+
+- Compiled extensions are output to `_inc/blocks`
+- You can view the various build commands in `package.json`
+- You can see the build configuration in `webpack.config.extensions.js`
+
+If you need to modify the build process, bear in mind that config files are also
+synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
+you test the new build in both environments.
 
 ## Debugging
 
