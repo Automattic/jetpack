@@ -17,6 +17,7 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 			. 'grep -v "./vendor/" | '
 			. 'grep -v "jetpack-cli.php" | '
 			. 'grep -v "./_inc/class.jetpack-provision.php" | '
+			. 'grep -v "./_inc/lib/debugger/debug-functions-for-php53.php" | '
 			. 'grep -v -e \'^$\'; '
 			. 'done';
 
