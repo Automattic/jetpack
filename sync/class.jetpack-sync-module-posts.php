@@ -181,6 +181,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$non_existant_post->post_modified     = $post->post_modified;
 			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
 			$non_existant_post->post_status       = 'jetpack_sync_non_registered_post_type';
+			$non_existant_post->post_type         = $post->post_type;
 
 			return $non_existant_post;
 		}
@@ -205,6 +206,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$blocked_post->post_modified     = $post->post_modified;
 			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
 			$blocked_post->post_status       = 'jetpack_sync_blocked';
+			$blocked_post->post_type         = $post->post_type;
 
 			return $blocked_post;
 		}
