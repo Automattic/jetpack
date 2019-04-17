@@ -182,6 +182,7 @@ The sidebar won't show up at all if nothing isn't rendering in the sidebar's "sl
 Remember to be mindful of posts, pages, custom post types and re-usable block post type. See Publicize and Shortlinks for examples how to limit functionality only to some specific post types or posts.
 
 ### i18n
+
 As of 04/2019, `wp.i18n` [doesn't support React elements in strings](https://github.com/WordPress/gutenberg/issues/9846). You will have to structure your copy so that links and other HTML can be translated separately.
 
 Not possible:
@@ -199,4 +200,4 @@ Possible:
 
 ### Icons
 
-Please use [Material icons](https://material.io/tools/icons/?style=outline) and don't rely on icons used in core to avoid visual mixing up.
+Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay inline with Muriel guidelines. Don't rely on icons used in core to avoid visual mixing up with core blocks.
