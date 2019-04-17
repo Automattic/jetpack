@@ -119,7 +119,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		$do_action_pos = -1;
 		$backtrace_len = count( $backtrace );
 		for ( $i = 0; $i < $backtrace_len; $i++ ) {
-			// Find the location in the stack of the calling action
+			// Find the location in the stack of the calling action.
 			if ( preg_match( "/^do_action\s*\\(\s*\'([^\']+\s*)/", $backtrace[ $i ], $matches ) ) {
 				if ( $matches[1] === $action ) {
 					$do_action_pos = $i;
