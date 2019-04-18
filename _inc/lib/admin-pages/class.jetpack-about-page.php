@@ -490,67 +490,47 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 
 	}
 
+	/**
+	 * Fetch Gravatar hashes for public A12s from wpcom and display them as a list.
+	 */
 	function display_gravatars() {
-		$output = '';
-
-		// just placeholders for now, ideally we nab these from a8c servers
-		$gravatars = array(
-			'https://2.gravatar.com/avatar/5ef318426c941cbef6db5342c1356231',
-			'https://0.gravatar.com/avatar/07adca4279691873f594d48dd7c657e1',
-			'https://2.gravatar.com/avatar/b0b357b291ac72bc7da81b4d74430fe6',
-			'https://1.gravatar.com/avatar/ab1f64abf81653d5a60d78a86a26bec1',
-			'https://2.gravatar.com/avatar/eecc887dff6e1e42103590c76f215d87',
-			'https://0.gravatar.com/avatar/987da1e668e6eb5cde64b52a477764ec',
-			'https://1.gravatar.com/avatar/4ac90c7bc18ab89a243e6ca93bda983a',
-			'https://1.gravatar.com/avatar/4d346581a3340e32cf93703c9ce46bd4',
-			'https://1.gravatar.com/avatar/78c17142720e599ad7919c541124749e',
-			'https://0.gravatar.com/avatar/9f376366854d750124dffe057dda99c9',
-			'https://1.gravatar.com/avatar/1a33e7a69df4f675fcd799edca088ac2',
-			'https://0.gravatar.com/avatar/30cf08c478da339285e39b5e8feb6a3f',
-			'https://1.gravatar.com/avatar/d212b7b6c54f0ccb2c848d23440b33ba',
-			'https://0.gravatar.com/avatar/c0ccdd53794779bcc07fcae7b79c4d80',
-			'https://2.gravatar.com/avatar/8e6e7e85e416fd569d0f821f6fbc4c2f',
-			'https://2.gravatar.com/avatar/ebdbd8f65be345e43b11e4487e9fc445',
-			'https://2.gravatar.com/avatar/22bd03ace6f176bfe0c593650bcf45d8',
-			'https://0.gravatar.com/avatar/00542b20e199a94a9c5da3b773996296',
-			'https://0.gravatar.com/avatar/3cc1bb1db348a73c6db9aa806df16c36',
-			'https://0.gravatar.com/avatar/fe9a6432e7e9d541ce8fe9574b1637ca',
-			'https://2.gravatar.com/avatar/b7359fc511ec1e733b749cf93a1108a8',
-			'https://1.gravatar.com/avatar/19045a8e6cd135276b62fdd7c5a8e6c2',
-			'https://2.gravatar.com/avatar/82879e72da41bc26a7724a276cf14fe0',
-			'https://1.gravatar.com/avatar/76701f9a6394b36ce9236beb22b87beb',
-			'https://2.gravatar.com/avatar/5915fd742d0c26f6a584f9d21f991b9c',
-			'https://1.gravatar.com/avatar/198723e26f9350d9bbe8d4f35a8b0bb7',
-			'https://1.gravatar.com/avatar/709977fc8f4496966d454a01eab615f6',
-			'https://0.gravatar.com/avatar/6cf147a5459184fdd93a2328d03ebcb4',
-			'https://1.gravatar.com/avatar/40266b37e9174a660f33bb21b809d751',
-			'https://0.gravatar.com/avatar/f1568367297d076f566ef695d5304300',
-			'https://0.gravatar.com/avatar/970fe9a9c489b4c343b186b0c6b017ad',
-			'https://2.gravatar.com/avatar/e6389004daf6cd236a6fd5a82069b426',
-			'https://1.gravatar.com/avatar/a12ebf4391c6b20fe4cab62e60a8db0d',
-			'https://2.gravatar.com/avatar/b0be4235dbf38547a7c26ef8ec94934b',
-			'https://1.gravatar.com/avatar/190cf13c9cd358521085af13615382d5',
-			'https://0.gravatar.com/avatar/f2ad3d5d58caa9fdf62303e6bc56d09b',
-			'https://0.gravatar.com/avatar/caaa4d366031d73ddbd0ea5e4c725ad5',
-			'https://0.gravatar.com/avatar/00e1dd94340133b9daf6e291fb766266',
-			'https://1.gravatar.com/avatar/d9f75324595bf8eb19a6b7b13eb9db0b',
-			'https://0.gravatar.com/avatar/664e5a9a9a4e9f17390932951c4085f1',
-			'https://2.gravatar.com/avatar/e813016d247963553f447125e406851b',
-			'https://2.gravatar.com/avatar/2c5af1e485742ba78010f073d5933750',
-			'https://1.gravatar.com/avatar/1747354c1a3d3b4edb2a7f247d94cfb0',
-			'https://2.gravatar.com/avatar/84403426e6221e7ae534afcecc30f576',
-			'https://0.gravatar.com/avatar/ca021af91df7c161d5586fdd6a46834d',
-			'https://1.gravatar.com/avatar/a4d9571e63c4acfb7cf9f3656e3ab1e8',
-			'https://2.gravatar.com/avatar/ef0040d706cbc048d83e41b9e34a56b8',
-			'https://0.gravatar.com/avatar/39d69f56617c472f02a9b3b16067d390',
-		);
-
-		$random = array_rand( $gravatars, 16 );
-
-		foreach ( $random as $key ) {
-			$output .= '<li><img src="' . $gravatars[$key] . '?s=150"></li>' . "\n";
+		if ( false === ( $hashes = get_transient( 'a12s_hashes' ) ) ) {
+			$response = json_decode( wp_remote_retrieve_body(
+					wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/a11n-gravatar-hashes' )
+			) );
+			if ( ! empty( $response ) && is_array( $response ) ) {
+				$hashes = array();
+				foreach ( $response as $hash ) {
+					$hashes[] = "https://2.gravatar.com/avatar/$hash";
+				}
+				if ( ! empty( $hashes ) ) {
+					set_transient( 'a12s_hashes', $hashes, DAY_IN_SECONDS );
+				} else {
+					$hashes = array(
+						'https://2.gravatar.com/avatar/5ef318426c941cbef6db5342c1356231',
+						'https://0.gravatar.com/avatar/07adca4279691873f594d48dd7c657e1',
+						'https://2.gravatar.com/avatar/b0b357b291ac72bc7da81b4d74430fe6',
+						'https://1.gravatar.com/avatar/ab1f64abf81653d5a60d78a86a26bec1',
+						'https://2.gravatar.com/avatar/eecc887dff6e1e42103590c76f215d87',
+						'https://0.gravatar.com/avatar/987da1e668e6eb5cde64b52a477764ec',
+						'https://1.gravatar.com/avatar/4ac90c7bc18ab89a243e6ca93bda983a',
+						'https://1.gravatar.com/avatar/4d346581a3340e32cf93703c9ce46bd4',
+						'https://1.gravatar.com/avatar/78c17142720e599ad7919c541124749e',
+						'https://0.gravatar.com/avatar/9f376366854d750124dffe057dda99c9',
+						'https://1.gravatar.com/avatar/1a33e7a69df4f675fcd799edca088ac2',
+						'https://0.gravatar.com/avatar/30cf08c478da339285e39b5e8feb6a3f',
+						'https://1.gravatar.com/avatar/d212b7b6c54f0ccb2c848d23440b33ba',
+						'https://0.gravatar.com/avatar/c0ccdd53794779bcc07fcae7b79c4d80',
+						'https://2.gravatar.com/avatar/8e6e7e85e416fd569d0f821f6fbc4c2f',
+						'https://2.gravatar.com/avatar/ebdbd8f65be345e43b11e4487e9fc445',
+					);
+				}
+			}
 		}
-
+		$output = '';
+		foreach ( $hashes as $hash ) {
+			$output .= '<li><img src="' . $hash . '?s=150"></li>' . "\n";
+		}
 		echo $output;
 	}
 
