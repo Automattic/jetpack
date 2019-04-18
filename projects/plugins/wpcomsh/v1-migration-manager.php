@@ -36,6 +36,8 @@ class V1_Migration_Manager {
 			add_action( 'admin_notices', [ $this, 'display_migration_notice' ] );
 			add_action( 'admin_notices', [ $this, 'display_upcoming_migration_notice' ] );
 		}
+
+		$this->handle_checksum_request();
 	}
 
 	/**
@@ -200,6 +202,24 @@ class V1_Migration_Manager {
 			</p>
 		</div>
 	<?php
+	}
+
+	/**
+	 * Returns a checksum of posts data on /wp-json/wp/v2/posts-checksum requests 
+	 */
+	public function handle_checksum_request() {
+		global $wpdb;
+		if ( !empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_CHECKSUM' ] ) ) {
+			switch( $_SERVER[ 'REQUEST_URI' ] ) {
+				case '/wp-json/wp/v2/posts-checksum':
+					nocache_headers();
+					header( 'Content-Type: text/plain' );
+					echo sha1( implode( ',', $wpdb->get_col(
+							"SELECT MD5( CONCAT_WS( ',', `ID`, `post_title`, `guid`, `post_content` ) ) as `checksum` FROM $wpdb->posts ORDER BY `ID` DESC"
+					) ) );
+					die();
+			}
+		}
 	}
 
 	/**
