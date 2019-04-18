@@ -50,7 +50,7 @@ class DashActivity extends Component {
 
 		// @todo: update this to use rewind text/CTA when available
 		const activityLogOnlyText = __(
-			'Jetpack keeps a complete record of everything that happens on your site taking the guesswork out of site management, debugging, and repair.'
+			'Jetpack keeps a complete record of everything that happens on your site, taking the guesswork out of site management, debugging, and repair.'
 		);
 
 		return (
