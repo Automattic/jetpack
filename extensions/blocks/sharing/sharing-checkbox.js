@@ -13,7 +13,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import JetpackLikesAndSharingPanel from '../../shared/jetpack-likes-and-sharing-panel';
 
 const SharingCheckbox = ( { isSharingEnabled, editPost } ) => (
-	<PostTypeSupportCheck supportKeys="sharing">
+	<PostTypeSupportCheck supportKeys="jetpack-sharing-buttons">
 		<JetpackLikesAndSharingPanel>
 			<CheckboxControl
 				label={ __( 'Show sharing buttons.', 'jetpack' ) }
