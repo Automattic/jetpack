@@ -18,6 +18,7 @@ import { SEO } from './seo';
 import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
+import Shortlinks from './shortlinks';
 import { RelatedPosts } from './related-posts';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
@@ -39,6 +40,7 @@ export class Traffic extends React.Component {
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
 			foundAds = this.props.isModuleFound( 'wordads' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
+			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
@@ -52,6 +54,7 @@ export class Traffic extends React.Component {
 			! foundSeo &&
 			! foundAds &&
 			! foundStats &&
+			! foundShortlinks &&
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
@@ -107,6 +110,7 @@ export class Traffic extends React.Component {
 					/>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
+				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }
 			</div>
