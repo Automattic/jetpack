@@ -79,6 +79,10 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 		$store = new Jetpack_Sync_WP_Replicastore();
 
+		if( ! isset( $args['strip_non_ascii'] ) ) {
+			$args['strip_non_ascii'] = true;
+		}
+
 		return $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'] );
 	}
 }
