@@ -43,7 +43,7 @@ function jetpack_framing_allowed() {
 	}
 
 	$verified = jetpack_verify_frame_nonce(
-		wp_slash( $_GET['frame-nonce'] ),  // phpcs:ignore WordPress.Security.NonceVerification
+		$_GET['frame-nonce'],  // phpcs:ignore WordPress.Security.NonceVerification
 		'frame-' . Jetpack_Options::get_option( 'id' )
 	);
 
@@ -65,7 +65,7 @@ function jetpack_framing_allowed() {
  * @return false|int False if the nonce is invalid, 1 if the nonce is valid and generated between
  *                   0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
  */
-function jetpack_verify_frame_nonce( $nonce, $action = -1 ) {
+function jetpack_verify_frame_nonce( $nonce, $action ) {
 	$nonce = (string) $nonce;
 	if ( empty( $nonce ) ) {
 		return false;
@@ -84,17 +84,17 @@ function jetpack_verify_frame_nonce( $nonce, $action = -1 ) {
 	}
 
 	$i = wp_nonce_tick();
-	add_filter( 'salt', 'jetpack_filter_salt' );
+	add_filter( 'salt', 'jetpack_filter_salt', 10, 2 );
 
 	// Nonce generated 0-12 hours ago.
-	$expected = substr( wp_hash( $i . $action . $user_id, 'nonce' ), -12, 10 );
+	$expected = substr( wp_hash( $i . $action . $user_id, 'jetpack_frame_nonce' ), -12, 10 );
 	if ( hash_equals( $expected, $nonce ) ) {
 		remove_filter( 'salt', 'jetpack_filter_salt' );
 		return 1;
 	}
 
 	// Nonce generated 12-24 hours ago.
-	$expected = substr( wp_hash( ( $i - 1 ) . $action . $user_id, 'nonce' ), -12, 10 );
+	$expected = substr( wp_hash( ( $i - 1 ) . $action . $user_id, 'jetpack_frame_nonce' ), -12, 10 );
 	if ( hash_equals( $expected, $nonce ) ) {
 		remove_filter( 'salt', 'jetpack_filter_salt' );
 		return 2;
@@ -102,19 +102,25 @@ function jetpack_verify_frame_nonce( $nonce, $action = -1 ) {
 
 	remove_filter( 'salt', 'jetpack_filter_salt' );
 
-	/** This filter is documented in wp-includes/pluggable.php */
-	do_action( 'wp_verify_nonce_failed', $nonce, $action, $user, '' );
-
 	// Invalid nonce.
 	return false;
 }
 
 /**
- * Filters `wp_salt()` to use the user token secret.
+ * Filters the WordPress salt.
  *
+ * @param string $salt   Salt for the given scheme.
+ * @param string $scheme Authentication scheme.
  * @return string
  */
-function jetpack_filter_salt() {
-	$token = Jetpack_Data::get_access_token( get_current_user_id() );
-	return $token->secret;
+function jetpack_filter_salt( $salt, $scheme ) {
+	if ( 'jetpack_frame_nonce' === $scheme ) {
+		$token = Jetpack_Data::get_access_token( get_current_user_id() );
+
+		if ( $token ) {
+			$salt = $token->secret;
+		}
+	}
+
+	return $salt;
 }
