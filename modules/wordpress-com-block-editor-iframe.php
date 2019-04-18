@@ -60,8 +60,8 @@ function jetpack_framing_allowed() {
  * The user is given an amount of time to use the token, so therefore, since the
  * UID and $action remain the same, the independent variable is the time.
  *
- * @param string     $nonce  Nonce that was used in the form to verify.
- * @param string|int $action Should give context to what is taking place and be the same when nonce was created.
+ * @param string $nonce  Nonce that was used in the form to verify.
+ * @param string $action Should give context to what is taking place and be the same when nonce was created.
  * @return false|int False if the nonce is invalid, 1 if the nonce is valid and generated between
  *                   0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
  */
@@ -71,16 +71,9 @@ function jetpack_verify_frame_nonce( $nonce, $action ) {
 		return false;
 	}
 
-	$user    = wp_get_current_user();
-	$user_id = (int) get_user_meta( $user->ID, 'wpcom_user_id', true );
+	$user_id = get_current_user_id();
 	if ( ! $user_id ) {
-		$user_data = Jetpack::get_connected_user_data( $user->ID );
-		if ( ! $user_data ) {
-			return false;
-		}
-
-		$user_id = $user_data['ID'];
-		update_user_meta( $user->ID, 'wpcom_user_id', $user_id );
+		return false;
 	}
 
 	$i = wp_nonce_tick();
