@@ -236,6 +236,11 @@ function jetpack_get_module_i18n( $key ) {
 				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Earn income by allowing Jetpack to display high quality ads.', 'Module Description', 'jetpack' ),
 			),
+
+			'wordpress-com-block-editor-iframe' => array(
+				'name' => _x( 'WordPress.com Block Editor Iframe', 'Module Name', 'jetpack' ),
+				'description' => 'Allows for new block editor posts to be composed on WordPress.com.',
+			),
 		);
 	}
 	return $modules[ $key ];
