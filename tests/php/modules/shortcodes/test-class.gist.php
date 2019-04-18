@@ -57,6 +57,26 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify that calling the shortcode with an invalid character returns the error string.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_invalid_id() {
+		$content = '[gist !^#*@$]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+	}
+
+	/**
 	 * Verify that a shortcode with only an ID returns the expected embed code.
 	 *
 	 * @covers ::github_gist_shortcode
@@ -78,6 +98,95 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
 			$shortcode_content
 		);
+	}
+
+	/**
+	 * Verify that a shortcode with a username and a public embed ID returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_public_id_with_username() {
+		$gist_id = 'mjangda/2978185';
+		$content = '[gist ' . $gist_id . ']';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with a username and a private embed ID returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_private_id_with_username() {
+		$gist_id = 'xknown/fc5891af153e2cf365c9';
+		$content = '[gist ' . $gist_id . ']';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with an invalid ID raw gist returns the "invalid" message.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_invalid_raw_gist() {
+		$gist_id = 'xknown/fc5891af153e2cf365c9/raw?';
+		$content = '[gist ' . $gist_id . ']';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+	}
+
+	/**
+	 * Verify that a shortcode with a non-gist URL returns the "invalid" message.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_invalid_url() {
+		$content = '[gist http://wordpress.com/]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals( '<!-- Invalid Gist ID -->', $shortcode_content );
 	}
 
 	/**
