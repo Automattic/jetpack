@@ -1,15 +1,8 @@
 <?php
 /**
- * Module Name: WordPress.com Block Editor Iframe
- * Module Description: Allow new block editor posts to be composed on WordPress.com.
- * Jumpstart Description: Allow new block editor posts to be composed on WordPress.com.
- * Sort Order: 15
- * First Introduced: 7.3
- * Requires Connection: Yes
- * Auto Activate: Yes
- * Module Tags: Writing
- * Feature: Writing
- * Additional Search Queries: iframes, allow, compose, WordPress.com, block, editor, post
+ * WordPress.com Block Editor Iframe
+ * Allow new block editor posts to be composed on WordPress.com.
+ * This is auto-loaded as of Jetpack v7.4 for sites connected to WordPress.com only.
  *
  * @package Jetpack
  */
