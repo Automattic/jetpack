@@ -1,18 +1,11 @@
 <?php
 
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
-
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
 	public function __construct() {
 	}
 }
 
-/**
- * Class WP_Test_Jetpack
- *
- * @coversDefaultClass Jetpack
- */
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $activated_modules = array();
@@ -788,74 +781,6 @@ EXPECTED;
 				'non_min_path'
 			),
 		);
-	}
-
-	/**
-	 * Tests verify_xml_rpc_signature();
-	 *
-	 * @author obenland
-	 * @covers ::verify_xml_rpc_signature
-	 */
-	function test_verify_xml_rpc_signature() {
-		$jetpack = MockJetpack::init();
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-
-		$nonce     = wp_create_nonce();
-		$timestamp = time();
-		$token     = sprintf( 'token:%d:%d', JETPACK__API_VERSION, $user_id );
-
-		$_SERVER['REQUEST_URI'] = '/endpoint';
-		$jetpack_signature = new Jetpack_Signature( 'token.1', (int) Jetpack_Options::get_option( 'time_diff' ) );
-		$signature         = $jetpack_signature->sign_current_request( array(
-			'nonce'     => $nonce,
-			'timestamp' => $timestamp,
-			'token'     => $token,
-		) );
-
-		// No signature.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature(), 'Expected that token and signature are missing.' );
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( null, null, $timestamp, $nonce ), 'Expected that token and signature are missing.' );
-
-		// Empty token_key.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( '::1', $signature, $timestamp, $nonce ), 'Expected empty token key.' );
-		// Wrong version.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( 'token::1', $signature, $timestamp, $nonce ), 'Expected wrong version.' );
-		// Empty user.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:', JETPACK__API_VERSION ), $signature, $timestamp, $nonce ), 'Expected empty user.' );
-		// User doesn't exist.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( sprintf( 'token:%d:12', JETPACK__API_VERSION ), $signature, $timestamp, $nonce ), 'Expected that user does not exist.' );
-		// No token.
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature( $token,$signature, $timestamp, $nonce ), 'Expected that there was no user token.' );
-
-		// Set user token.
-		Jetpack_Options::update_option( 'user_tokens', array( $user_id => sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $user_id ) ) );
-
-		// Success with function parameters.
-		$verified = $jetpack->verify_xml_rpc_signature( $token, $signature, $timestamp, $nonce );
-		$this->assertInternalType( 'array', $verified, 'Expected that response was an array.' );
-		$this->assertSame( 'user', $verified['type'], 'Expected a user token.' );
-		$this->assertSame( $user_id, $verified['user_id'], 'Expected user id to match with supplied user id.' );
-
-		// Clear cached verification.
-		$jetpack->reset_saved_auth_state();
-
-		$_GET['nonce']     = $nonce;
-		$_GET['timestamp'] = $timestamp;
-		$this->assertFalse( $jetpack->verify_xml_rpc_signature() );
-
-		$_GET['token']     = $token;
-		$_GET['signature'] = $signature;
-
-		// Success with request parameters.
-		$verified = $jetpack->verify_xml_rpc_signature();
-		$this->assertInternalType( 'array', $verified, 'Expected that response was an array.' );
-		$this->assertSame( 'user', $verified['type'], 'Expected a user token.' );
-		$this->assertSame( $user_id, $verified['user_id'], 'Expected user id to match with supplied user id.' );
-
-		// Cleanup.
-		Jetpack_Options::delete_option( 'user_tokens' );
-		unset( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], $_GET['signature'] );
-		$jetpack->reset_saved_auth_state();
 	}
 
 	static function __cyrillic_salt( $password ) {
