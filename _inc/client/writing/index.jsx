@@ -44,6 +44,7 @@ export class Writing extends React.Component {
 		const found = [
 			'carousel',
 			'copy-post',
+			'custom-css',
 			'masterbar',
 			'markdown',
 			'shortcodes',
