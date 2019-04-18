@@ -166,9 +166,11 @@ The build takes care of core dependencies for both editor and view -scripts. Rea
 
 Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md#polyfill-scripts) enqueued so you can safely use methods not supported by older browsers such as IE11.
 
-### Jetpack sidebar
+### Jetpack plugin sidebar
 
-Jetpack sidebar is always registered in the editor and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
+Jetpack adds its own [plugin sidebar](https://wordpress.org/gutenberg/handbook/designers-developers/developers/tutorials/plugin-sidebar-0/plugin-sidebar-1-up-and-running/) to the block editor. You can find it by choosing "Jetpack" from block editor's ellipsis menu or by pressing Jetpack icon in the "pinned plugins" toolbar.
+
+The sidebar itself is always registered in the editor and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
 
 Just render with `JetpackPluginSidebar` component from anywhere in your plugin's code:
 
