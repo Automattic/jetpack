@@ -52,6 +52,7 @@ export class Writing extends React.Component {
 			'infinite-scroll',
 			'minileven',
 			'widgets',
+			'widget-visibility',
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -91,7 +92,7 @@ export class Writing extends React.Component {
 					<CustomContentTypes { ...commonProps } />
 				) }
 				<ThemeEnhancements { ...commonProps } />
-				{ this.props.isModuleFound( 'widgets' ) && <Widgets { ...commonProps } /> }
+				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
 					<PostByEmail
 						{ ...commonProps }

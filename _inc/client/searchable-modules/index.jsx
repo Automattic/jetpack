@@ -48,8 +48,6 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				'notes',
 				'shortcodes',
 				'shortlinks',
-				'widget-visibility',
-				'widgets',
 			];
 
 			const allModules = this.props.modules,
