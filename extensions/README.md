@@ -34,23 +34,23 @@ If your block depends on another block, place them all in extensions folder:
 
 ## Developing block editor extensions in Jetpack
 
-### High level overview of the development flow
+### High-level overview of the development flow
 
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 1. Start a new branch.
 1. Add your new extension's source files to the extensions/blocks directory.
-And add your extensions's slug the beta array in `extensions/index.json`.
-By keeping your extension in beta array, it's safe to do small PRs and merge frequently.
+And add your extensions' slug the beta array in `extensions/index.json`.
+By keeping your extension in the beta array, it's safe to do small PRs and merge frequently.
 1. Or modify existing extensions in the same folder.
 1. Run `yarn build-extensions [--watch]` to compile your changes.
 1. Now test your changes in your Docker environment's wp-admin.
 1. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
 1. Test the WordPress.com diff
 1. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
-1. When your block is ready to be shipped, move your extensions's slug from beta to production array in `extensions/index.json`
+1. When your block is ready to be shipped, move your extensions' slug from beta to production array in `extensions/index.json`
 
 ### Beta Extensions
-Generally, all new extensions should start out as beta.
+Generally, all new extensions should start out as a beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
 - In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
@@ -106,7 +106,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 - **title**: Block name, also used to create the slug. This parameter is required. If it's something like _Logo gallery_, the slug will be `logo-gallery`. It's also used to generate the class name when an external edit component is requested. Following this example, it would be `LogoGalleryEdit`.
 - **--slug**: Specific slug to identify the block that overrides the one generated base don the title.
 - **--description**: Allows to provide a text description of the block.
-- **--keywords**: Provide up to three keywords separated by comma so users  when they search for a block in the editor.
+- **--keywords**: Provide up to three keywords separated by a comma so users when they search for a block in the editor.
 
 ### Files
 
@@ -157,7 +157,7 @@ You could add these to `docker/wordpress/wp-config.php` in your Docker environme
 
 ### Don't worry about dependencies
 
-The build takes care of core dependencies for both editor and view -scripts. React, lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md) are externalised and automatically enqueued in PHP for your extension.
+The build takes care of core dependencies for both editor and view -scripts. React, lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md) are externalized and automatically enqueued in PHP for your extension.
 
 Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md#polyfill-scripts) enqueued so you can safely use methods not supported by older browsers such as IE11.
 
@@ -179,9 +179,9 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 
 The sidebar won't show up at all if nothing isn't rendering in the sidebar's "slot".
 
-Remember to be mindful of posts, pages, custom post types and re-usable block post type.
+Remember to be mindful of posts, pages, custom post types, and re-usable block post type.
 
-See Publicize and Shortlinks for examples how to limit functionality only to some specific post types or posts. Likes & Shares extensions are great example of how to output content from several extensions to one sidebar section using "slots".
+See Publicize and Shortlinks for examples how to limit functionality only to some specific post types or posts. Likes & Shares extensions are a great example of how to output content from several extensions to one sidebar section using "slots".
 
 ### i18n
 
@@ -195,11 +195,11 @@ Possible:
 
 > Still confused? <a>Check out documentation for more!</a>
 
-### Colours
+### Colors
 
-- To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals]. Use Gutenberg colour variables where possible.
-- The build also supports [Muriel colours](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`). Prefer CSS custom properties if possible.
+- To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals]. Use Gutenberg color variables where possible.
+- The build also supports [Muriel colors](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`). Prefer CSS custom properties if possible.
 
 ### Icons
 
-Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay inline with Muriel guidelines. Don't rely on icons used in core to avoid visual mixing up with core blocks.
+Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Muriel guidelines. Don't rely on icons used in the core to avoid visual mixing up with core blocks.
