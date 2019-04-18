@@ -48,11 +48,15 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	$id = ( ! empty( $content ) ) ? $content : $atts[0];
 
 	// Parse a URL.
-	if ( ! is_numeric( $id ) ) {
-		$id = preg_replace( '#https?://gist.github.com/([a-zA-Z0-9]+)#', '$1', $id );
-	}
-
-	if ( ! $id ) {
+	if ( ctype_alnum( $id ) ) {
+		// Simple shortcode, with just an ID. Proceed as normal.
+		$id = $id;
+	} elseif ( preg_match( '#^/?(([a-z0-9-_]+/)?([a-z0-9]+))$#i', $id, $matches ) ) {
+		// Matches one of "username/id", "/username/id", "id". Proceed as normal.
+		$id = $id;
+	} elseif ( wp_parse_url( $id ) && preg_match( '#^https?://gist.github.com/(([a-z0-9-_]+/)?([a-z0-9]+))$#i', $id, $matches ) ) {
+		$id = $matches[1];
+	} else {
 		return '<!-- Invalid Gist ID -->';
 	}
 
