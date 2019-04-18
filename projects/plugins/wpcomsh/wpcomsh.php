@@ -100,6 +100,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wpmu-database-reset/wpmu-database-reset.php' => '"wpmu-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wps-hide-login/wps-hide-login.php' => '"wps-hide-login" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'z-inventory-manager/z-inventory-manager.php' => '"z-inventory-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-uninstaller-by-azed/wp-uninstaller-by-azed.php' => '"wp-uninstaller-by-azed" is not supported on WordPress.com.',
 
 		// backup
 		'backup-wd/backup-wd.php' => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
@@ -119,6 +120,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-rocket/wp-rocket.php' => '"wp-rocket" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-speed-of-light/wp-speed-of-light.php' => '"wp-speed-of-light" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-super-cache/wp-cache.php' => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'sg-cachepress/sg-cachepress.php' => '"sg-cachepress" has been deactivated, WordPress.com automatically handles caching for your site.',
 
 		// sql heavy
 		'another-wordpress-classifieds-plugin/awpcp.php' => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
@@ -175,6 +177,10 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
+		'propellerads-official/propeller-ads.php' => '"propellerads-official" is not supported on WordPress.com.',
+		'p3/p3.php' => '"p3" is not supported on WordPress.com.',
+		'yellow-pencil-visual-theme-customizer/yellow-pencil.php' => '"yellow-pencil-visual-theme-customizer" is not supported on WordPress.com.',
+		'yuzo-related-post/yuzo_related_post.php' => '"yuzo-related-post" is not supported on WordPress.com.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
