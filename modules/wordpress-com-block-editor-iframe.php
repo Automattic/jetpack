@@ -74,7 +74,13 @@ function jetpack_verify_frame_nonce( $nonce, $action = -1 ) {
 	$user    = wp_get_current_user();
 	$user_id = (int) get_user_meta( $user->ID, 'wpcom_user_id', true );
 	if ( ! $user_id ) {
-		return false;
+		$user_data = Jetpack::get_connected_user_data( $user->ID );
+		if ( ! $user_data ) {
+			return false;
+		}
+
+		$user_id = $user_data['ID'];
+		update_user_meta( $user->ID, 'wpcom_user_id', $user_id );
 	}
 
 	$i = wp_nonce_tick();
