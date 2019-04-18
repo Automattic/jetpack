@@ -56,7 +56,9 @@ class Widgets extends Component {
 					<SettingsGroup
 						module={ { module: 'widget-visibility' } }
 						support={ {
-							text: __( 'Configure widgets to appear only on certain posts or pages.' ),
+							text: __(
+								'Widget visibility lets you decide which widgets appear on which pages, so you can finely tailor widget content.'
+							),
 							link: 'https://jetpack.com/support/widget-visibility/',
 						} }
 					>
@@ -67,7 +69,9 @@ class Widgets extends Component {
 							toggling={ this.props.isSavingAnyOption( 'widget-visibility' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Control where widgets appear on your site with visibility settings' ) }
+							{ __(
+								'Enable widget visibility controls to display widgets only on particular posts or pages'
+							) }
 						</ModuleToggle>
 					</SettingsGroup>
 				) }
