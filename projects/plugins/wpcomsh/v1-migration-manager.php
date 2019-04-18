@@ -211,14 +211,14 @@ class V1_Migration_Manager {
 		global $wpdb;
 		if ( !empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_CHECKSUM' ] ) ) {
 			switch( $_SERVER[ 'REQUEST_URI' ] ) {
-					case '/wp-json/wp/v2/posts-checksum':
-							nocache_headers();
-							header( 'Content-Type: text/plain' );
-							echo sha1( implode( ',', $wpdb->get_col(
-									"SELECT MD5( CONCAT_WS( ',', `ID`, `post_title`, `guid`, `post_content` ) ) as `checksum` FROM $wpdb->posts ORDER BY `ID` DESC"
-							) ) );
-							die();
-					}
+				case '/wp-json/wp/v2/posts-checksum':
+					nocache_headers();
+					header( 'Content-Type: text/plain' );
+					echo sha1( implode( ',', $wpdb->get_col(
+							"SELECT MD5( CONCAT_WS( ',', `ID`, `post_title`, `guid`, `post_content` ) ) as `checksum` FROM $wpdb->posts ORDER BY `ID` DESC"
+					) ) );
+					die();
+			}
 		}
 	}
 
