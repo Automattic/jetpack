@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
+import { PostTypeSupportCheck } from '@wordpress/editor';
 import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
@@ -12,15 +13,17 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import JetpackLikesAndSharingPanel from '../../shared/jetpack-likes-and-sharing-panel';
 
 const SharingCheckbox = ( { isSharingEnabled, editPost } ) => (
-	<JetpackLikesAndSharingPanel>
-		<CheckboxControl
-			label={ __( 'Show sharing buttons.', 'jetpack' ) }
-			checked={ isSharingEnabled }
-			onChange={ value => {
-				editPost( { jetpack_sharing_enabled: value } );
-			} }
-		/>
-	</JetpackLikesAndSharingPanel>
+	<PostTypeSupportCheck supportKeys="sharing">
+		<JetpackLikesAndSharingPanel>
+			<CheckboxControl
+				label={ __( 'Show sharing buttons.', 'jetpack' ) }
+				checked={ isSharingEnabled }
+				onChange={ value => {
+					editPost( { jetpack_sharing_enabled: value } );
+				} }
+			/>
+		</JetpackLikesAndSharingPanel>
+	</PostTypeSupportCheck>
 );
 
 // Fetch the post meta.

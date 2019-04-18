@@ -626,6 +626,12 @@ function jetpack_post_likes_register_rest_field() {
 				),
 			)
 		);
+
+		/**
+		 * Ensures all public internal post-types support `likes`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'likes' );
 	}
 }
 
