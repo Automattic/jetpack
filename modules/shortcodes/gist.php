@@ -4,6 +4,8 @@
  * returns raw HTML (no styling) and the first little bit of the code.
  *
  * Their JavaScript-based embed method is a lot better, so that's what we're using.
+ *
+ * @package Jetpack
  */
 
 wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9/]+)(\#file\-[a-zA-Z0-9\_\-]+)?#', 'github_gist_embed_handler' );
@@ -22,8 +24,8 @@ add_shortcode( 'gist', 'github_gist_shortcode' );
  * @param array  $rawattr The original unmodified attributes.
  * @return string The embed HTML.
  */
-function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) {
-	// Let the shortcode callback do all the work
+function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	// Let the shortcode callback do all the work.
 	return github_gist_shortcode( $matches, $url );
 }
 
@@ -45,7 +47,7 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	$id = ( ! empty( $content ) ) ? $content : $atts[0];
 
-	// Parse a URL
+	// Parse a URL.
 	if ( ! is_numeric( $id ) ) {
 		$id = preg_replace( '#https?://gist.github.com/([a-zA-Z0-9]+)#', '$1', $id );
 	}
@@ -54,7 +56,10 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		return '<!-- Invalid Gist ID -->';
 	}
 
-	if ( Jetpack_AMP_Support::is_amp_request() ) {
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
 		/*
 		 * According to <https://www.ampproject.org/docs/reference/components/amp-gist#height-(required)>:
 		 *
@@ -101,25 +106,32 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		'jetpack-gist-embed',
 		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
 		array( 'jquery' ),
-		false,
+		JETPACK__VERSION,
 		true
 	);
 
 	if ( false !== strpos( $id, '#file-' ) ) {
-		// URL points to a specific file in the gist
+		// URL points to a specific file in the gist.
 		$id = str_replace( '#file-', '.json?file=', $id );
 		$id = preg_replace( '/\-(?!.*\-)/', '.', $id );
 	} else {
-		$file = ( ! empty( $atts['file'] ) ) ? '?file=' . urlencode( $atts['file'] ) : '';
-		// URL points to the entire gist
+		$file = ( ! empty( $atts['file'] ) ) ? '?file=' . rawurlencode( $atts['file'] ) : '';
+		// URL points to the entire gist.
 		$id .= ".json$file";
 	}
 
-	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables
+	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables.
 	$return = '<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="' . esc_attr( $id ) . '"></div>';
 
-	if ( isset( $_POST['type'] ) && 'embed' === $_POST['type'] &&
-		 isset( $_POST['action'] ) && 'parse-embed' === $_POST['action'] ) {
+	if (
+		// No need to check for a nonce here, that's already handled by Core further up.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
+		isset( $_POST['type'] )
+		&& 'embed' === $_POST['type']
+		&& isset( $_POST['action'] )
+		&& 'parse-embed' === $_POST['action']
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+	) {
 		return github_gist_simple_embed( $id );
 	}
 
@@ -128,14 +140,13 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 /**
  * Use script tag to load shortcode in editor.
+ * Can't use wp_enqueue_script here.
  *
  * @since 3.9.0
  *
  * @param string $id The ID of the gist.
- *
- * @return string
  */
 function github_gist_simple_embed( $id ) {
 	$id = str_replace( 'json', 'js', $id );
-	return '<script type="text/javascript" src="https://gist.github.com/' . $id . '"></script>';
+	return '<script type="text/javascript" src="https://gist.github.com/' . $id . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 }
