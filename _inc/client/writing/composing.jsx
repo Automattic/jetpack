@@ -200,9 +200,10 @@ export class Composing extends React.Component {
 		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
 			foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
 			foundLatex = this.props.isModuleFound( 'latex' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' );
+			foundMarkdown = this.props.isModuleFound( 'markdown' ),
+			foundShortcodes = this.props.isModuleFound( 'shortcodes' );
 
-		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD ) {
+		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD && ! foundShortcodes ) {
 			return null;
 		}
 
@@ -210,6 +211,7 @@ export class Composing extends React.Component {
 			latex = this.props.module( 'latex' ),
 			atd = this.props.module( 'after-the-deadline' ),
 			copyPost = this.props.module( 'copy-post' ),
+			shortcodes = this.props.module( 'shortcodes' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
 			copyPostSettings = (
 				<SettingsGroup
@@ -289,6 +291,29 @@ export class Composing extends React.Component {
 					</FormFieldset>
 				</SettingsGroup>
 			),
+			shortcodeSettings = (
+				<SettingsGroup
+					module={ shortcodes }
+					support={ {
+						text: shortcodes.description,
+						link: 'https://jetpack.com/support/shortcode-embeds/',
+					} }
+				>
+					<FormFieldset>
+						<ModuleToggle
+							slug="shortcodes"
+							activated={ !! this.props.getOptionValue( 'shortcodes' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Compose using shortcodes to embed media from popular sites' ) }
+							</span>
+						</ModuleToggle>
+					</FormFieldset>
+				</SettingsGroup>
+			),
 			atdSettings = (
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
@@ -327,6 +352,7 @@ export class Composing extends React.Component {
 				{ foundCopyPost && copyPostSettings }
 				{ foundMarkdown && markdownSettings }
 				{ foundLatex && latexSettings }
+				{ foundShortcodes && shortcodeSettings }
 				{ foundAtD && atdSettings }
 			</SettingsCard>
 		);
