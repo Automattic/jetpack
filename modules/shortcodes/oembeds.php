@@ -16,7 +16,15 @@ wp_oembed_add_provider( '#^https?://(www.)?audiomack.com/([^/]+)/([^/]+)/([^/]+)
  * Example: http://osm2.carto.com/viz/08aef918-94da-11e4-ad83-0e0c41326911/public_map
  */
 wp_oembed_add_provider( '#https?://(?:www\.)?[^/^\.]+\.carto(db)?\.com/\S+#i', 'https://services.carto.com/oembed', true );
+
 wp_oembed_add_provider( 'https://cloudup.com/*', 'https://cloudup.com/oembed' );
+
+/*
+ * Codepen
+ * Example: http://codepen.io/css-tricks/pen/wFeaG
+ */
+wp_oembed_add_provider( '#https?://codepen.io/([^/]+)/pen/([^/]+)/?#', 'https://codepen.io/api/oembed', true );
+
 wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
 wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
 wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
