@@ -17,8 +17,6 @@ wp_oembed_add_provider( '#^https?://(www.)?audiomack.com/([^/]+)/([^/]+)/([^/]+)
  */
 wp_oembed_add_provider( '#https?://(?:www\.)?[^/^\.]+\.carto(db)?\.com/\S+#i', 'https://services.carto.com/oembed', true );
 
-wp_oembed_add_provider( 'https://cloudup.com/*', 'https://cloudup.com/oembed' );
-
 /*
  * Codepen
  * Example: http://codepen.io/css-tricks/pen/wFeaG
