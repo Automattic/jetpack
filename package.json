@@ -70,6 +70,7 @@
 		"@automattic/custom-colors-loader": "automattic/custom-colors-loader",
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@wordpress/browserslist-config": "2.3.0",
+		"@wordpress/element": "2.3.0",
 		"bounding-client-rect": "1.0.5",
 		"classnames": "2.2.6",
 		"click-outside": "2.0.2",
