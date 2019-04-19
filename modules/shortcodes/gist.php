@@ -209,5 +209,5 @@ function github_gist_shortcode( $atts, $content = '' ) {
  */
 function github_gist_simple_embed( $id ) {
 	$id = str_replace( 'json', 'js', $id );
-	return '<script type="text/javascript" src="https://gist.github.com/' . $id . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	return '<script src="https://gist.github.com/' . $id . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 }
