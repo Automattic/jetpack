@@ -83,9 +83,81 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 *
 	 * @since 6.6.0
 	 */
-	public function test_shortcodes_gist_id() {
+	public function test_shortcodes_gist_public_id_in_content() {
 		$gist_id = '57cc50246aab776e110060926a2face2';
 		$content = '[gist]' . $gist_id . '[/gist]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with only an ID returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_public_id() {
+		$gist_id = '57cc50246aab776e110060926a2face2';
+		$content = '[gist ' . $gist_id . ']';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with only a private ID in the content returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_private_id_in_content() {
+		$gist_id = 'fc5891af153e2cf365c9';
+		$content = '[gist]' . $gist_id . '[/gist]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with only a private ID returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_private_id() {
+		$gist_id = 'fc5891af153e2cf365c9';
+		$content = '[gist ' . $gist_id . ']';
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
@@ -263,19 +335,91 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that a shortcode with a URL returns the expected embed code.
+	 * Verify that a shortcode with a public URL returns the expected embed code.
 	 *
 	 * @covers ::github_gist_shortcode
 	 *
 	 * @since 6.6.0
 	 */
-	public function test_shortcodes_gist_full_url() {
+	public function test_shortcodes_gist_public_full_url() {
 		$gist_id = '57cc50246aab776e110060926a2face2';
 		$content = '[gist https://gist.github.com/' . $gist_id . ' /]';
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
 		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with a public URL in content returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_public_full_url_in_content() {
+		$gist_id = '57cc50246aab776e110060926a2face2';
+		$content = '[gist]https://gist.github.com/' . $gist_id . '[/gist]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with a private URL returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_private_full_url() {
+		$gist_id = 'xknown/fc5891af153e2cf365c9';
+		$content = '[gist https://gist.github.com/' . $gist_id . ' /]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json"></div>', $shortcode_content );
+
+		// Test AMP version.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf( '<amp-gist layout="fixed-height" data-gistid="%s" height="240"></amp-gist>', basename( $gist_id ) ),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Verify that a shortcode with a private URL in content returns the expected embed code.
+	 *
+	 * @covers ::github_gist_shortcode
+	 *
+	 * @since 7.3.0
+	 */
+	public function test_shortcodes_gist_private_full_url_in_content() {
+		$gist_id = 'xknown/fc5891af153e2cf365c9';
+		$content = '[gist]https://gist.github.com/' . $gist_id . '[/gist]';
+
+		// Test HTML version.
+		$shortcode_content = do_shortcode( $content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
