@@ -204,7 +204,7 @@ Possible:
 
 ### Colors
 
-- To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals]. Use Gutenberg color variables where possible.
+- To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/). Use Gutenberg color variables where possible.
 - The build also supports [Muriel colors](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`). Prefer CSS custom properties if possible.
 
 ### Icons
