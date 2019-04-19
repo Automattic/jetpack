@@ -5,6 +5,16 @@
  *
  * Their JavaScript-based embed method is a lot better, so that's what we're using.
  *
+ * Supported formats:
+ * Full URL: https://gist.github.com/57cc50246aab776e110060926a2face2
+ * Full URL with username: https://gist.github.com/jeherve/57cc50246aab776e110060926a2face2
+ * Full URL linking to specific file: https://gist.github.com/jeherve/57cc50246aab776e110060926a2face2#file-wp-config-php
+ * Full URL, no username, linking to specific file: https://gist.github.com/57cc50246aab776e110060926a2face2#file-wp-config-php
+ * Gist ID: [gist]57cc50246aab776e110060926a2face2[/gist]
+ * Gist ID within tag: [gist 57cc50246aab776e110060926a2face2]
+ * Gist ID with username: [gist jeherve/57cc50246aab776e110060926a2face2]
+ * Gist private ID with username: [gist xknown/fc5891af153e2cf365c9]
+ *
  * @package Jetpack
  */
 
