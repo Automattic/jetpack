@@ -30,6 +30,68 @@ function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) { // phpcs
 }
 
 /**
+ * Extract an ID from a Gist shortcode or a full Gist URL.
+ *
+ * @since 7.3.0
+ *
+ * @param string $gist Gist shortcode or full Gist URL.
+ *
+ * @return array $gist_info {
+ * Array of information about our gist.
+ *     @type string $id   Unique identifier for the gist.
+ *     @type string $file File name if the gist links to a specific file.
+ * }
+ */
+function jetpack_gist_get_shortcode_id( $gist = '' ) {
+	$gist_info = array(
+		'id'   => '',
+		'file' => '',
+	);
+	// Simple shortcode, with just an ID.
+	if ( ctype_alnum( $gist ) ) {
+		$gist_info['id'] = $gist;
+	}
+
+	// Full URL? Only keep the relevant parts.
+	$parsed_url = wp_parse_url( $gist );
+	if (
+		! empty( $parsed_url )
+		&& is_array( $parsed_url )
+		&& isset( $parsed_url['scheme'], $parsed_url['host'], $parsed_url['path'] )
+	) {
+		// Not a Gist URL? Bail.
+		if ( 'gist.github.com' !== $parsed_url['host'] ) {
+			return array(
+				'id'   => '',
+				'file' => '',
+			);
+		}
+
+		// Keep the file name if there was one.
+		if ( ! empty( $parsed_url['fragment'] ) ) {
+			$gist_info['file'] = preg_replace( '/(?:file-)(.+)/', '$1', $parsed_url['fragment'] );
+		}
+
+		// Keep the unique identifier without any leading or trailing slashes.
+		if ( ! empty( $parsed_url['path'] ) ) {
+			$gist_info['id'] = preg_replace( '/(?:\/)([^\.]+)\./', '$1', $parsed_url['path'] );
+			// Overwrite $gist with our identifier to clean it up below.
+			$gist = $gist_info['id'];
+		}
+	}
+
+	// Not a URL nor an ID? Only keep one of "username/id", "/username/id", "id".
+	if ( preg_match( '#^/?(([a-z0-9-_]+/)?([a-z0-9]+))$#i', $gist, $matches ) ) {
+		$gist_info['id'] = $matches[1];
+
+		// If there is one, strip the GitHub username and only keep the ID.
+		$gist_info['id'] = preg_replace( '#^.*/(?=[a-z0-9]+)#', '', $gist_info['id'] );
+	}
+
+	return $gist_info;
+}
+
+/**
  * Callback for gist shortcode.
  *
  * @since 2.8.0
@@ -47,17 +109,28 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	$id = ( ! empty( $content ) ) ? $content : $atts[0];
 
-	// Parse a URL.
-	if ( ctype_alnum( $id ) ) {
-		// Simple shortcode, with just an ID. Proceed as normal.
-		$id = $id;
-	} elseif ( preg_match( '#^/?(([a-z0-9-_]+/)?([a-z0-9]+))$#i', $id, $matches ) ) {
-		// Matches one of "username/id", "/username/id", "id". Proceed as normal.
-		$id = $id;
-	} elseif ( wp_parse_url( $id ) && preg_match( '#^https?://gist.github.com/(([a-z0-9-_]+/)?([a-z0-9]+))$#i', $id, $matches ) ) {
-		$id = $matches[1];
-	} else {
+	// Parse a URL to get an ID we can use.
+	$gist_info = jetpack_gist_get_shortcode_id( $id );
+	if ( empty( $gist_info['id'] ) ) {
 		return '<!-- Invalid Gist ID -->';
+	} else {
+		// Add trailing .json to all unique gist identifiers.
+		$id = $gist_info['id'] . '.json';
+	}
+
+	// The file name can come from the URL passed, or from a shortcode attribute.
+	if ( ! empty( $gist_info['file'] ) ) {
+		$file = $gist_info['file'];
+	} elseif ( ! empty( $atts['file'] ) ) {
+		$file = $atts['file'];
+	} else {
+		$file = '';
+	}
+
+	// Replace - by . to get a real file name from slug.
+	if ( ! empty( $file ) ) {
+		$file = preg_replace( '/\-(?!.*\-)/', '.', $file );
+		$file = rawurlencode( $file );
 	}
 
 	if (
@@ -75,25 +148,6 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		 */
 		$height = 240;
 
-		$parsed_url = wp_parse_url( $id );
-
-		// Strip Github user name.
-		$id = preg_replace( '#^.*/(?=[a-z0-9]+)#', '', $parsed_url['path'] );
-
-		$file = null;
-		if ( ! empty( $parsed_url['query'] ) ) {
-			$query_args = wp_parse_args( $parsed_url['query'] );
-			if ( isset( $query_args['file'] ) ) {
-				$file = $query_args['file'];
-			}
-		}
-		if ( ! $file && ! empty( $parsed_url['fragment'] ) && preg_match( '#^file-(.+)#', $parsed_url['fragment'], $matches ) ) {
-			$file = $matches[1];
-
-			// Make best guess of file for fragment that was slugified.
-			$file = preg_replace( '/-(\w+)/', '.$1', $file );
-		}
-
 		$amp_tag = sprintf(
 			'<amp-gist layout="fixed-height" data-gistid="%s" height="%s"',
 			esc_attr( basename( $id, '.json' ) ),
@@ -106,6 +160,9 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		return $amp_tag;
 	}
 
+	// URL points to the entire gist, including the file name if there was one.
+	$id = ( ! empty( $file ) ? $id . '?file=' . $file : $id );
+
 	wp_enqueue_script(
 		'jetpack-gist-embed',
 		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
@@ -113,16 +170,6 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		JETPACK__VERSION,
 		true
 	);
-
-	if ( false !== strpos( $id, '#file-' ) ) {
-		// URL points to a specific file in the gist.
-		$id = str_replace( '#file-', '.json?file=', $id );
-		$id = preg_replace( '/\-(?!.*\-)/', '.', $id );
-	} else {
-		$file = ( ! empty( $atts['file'] ) ) ? '?file=' . rawurlencode( $atts['file'] ) : '';
-		// URL points to the entire gist.
-		$id .= ".json$file";
-	}
 
 	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables.
 	$return = '<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="' . esc_attr( $id ) . '"></div>';
