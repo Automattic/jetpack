@@ -184,7 +184,7 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 </JetpackPluginSidebar>
 ```
 
-The sidebar won't show up at all if nothing isn't rendering in the sidebar's "slot".
+The sidebar won't show up at all if nothing is being rendered in the sidebar's "slot".
 
 Remember to be mindful of what post types you want to enable your sidebar section for: e.g. posts, pages, custom post types, and re-usable block post type (`/wp-admin/edit.php?post_type=wp_block`).
 
