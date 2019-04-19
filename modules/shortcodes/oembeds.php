@@ -25,6 +25,13 @@ wp_oembed_add_provider( 'https://cloudup.com/*', 'https://cloudup.com/oembed' );
  */
 wp_oembed_add_provider( '#https?://codepen.io/([^/]+)/pen/([^/]+)/?#', 'https://codepen.io/api/oembed', true );
 
+/*
+ * Flat.io
+ * Example URL: https://flat.io/score/5a5268ed41396318cbd7772c-string-quartet-for-rainy-days
+ */
+wp_oembed_add_provider( 'https://flat.io/score/*', 'https://flat.io/services/oembed', false );
+wp_oembed_add_provider( 'https://*.flat.io/score/*', 'https://flat.io/services/oembed', false );
+
 wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
 wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
 wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
