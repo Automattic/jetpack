@@ -321,7 +321,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * The option can be of 4 things, and will be stored as such:
  * new_connection      : Brand new connection - Show
  * jumpstart_activated : Jump Start has been activated - dismiss
- * jetpack_action_taken: Manual activation of a module already happened - dismiss
  * jumpstart_dismissed : Manual dismissal of Jump Start - dismiss
  *
  * @todo move to functions.global.php when available
@@ -336,7 +335,6 @@ function jetpack_show_jumpstart() {
 
 	$hide_options = array(
 		'jumpstart_activated',
-		'jetpack_action_taken',
 		'jumpstart_dismissed'
 	);
 

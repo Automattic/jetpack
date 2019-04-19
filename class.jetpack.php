@@ -2985,16 +2985,6 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
-		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
-		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
-
-			//Jump start is being dismissed send data to MC Stats
-			$jetpack->stat( 'jumpstart', 'manual,'.$module );
-
-			$jetpack->do_stats( 'server_side' );
-		}
-
 		if ( $redirect ) {
 			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 		}
@@ -3022,16 +3012,6 @@ class Jetpack {
 
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
-
-		// A flag for Jump Start so it's not shown again.
-		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
-
-			//Jump start is being dismissed send data to MC Stats
-			$jetpack->stat( 'jumpstart', 'manual,deactivated-'.$module );
-
-			$jetpack->do_stats( 'server_side' );
-		}
 
 		return self::update_active_modules( $new );
 	}
