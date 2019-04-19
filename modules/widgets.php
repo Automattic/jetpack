@@ -5,7 +5,7 @@
  * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
