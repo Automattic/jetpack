@@ -5,7 +5,17 @@
  * @package Jetpack
  */
 
+/*
+ * Audiomack
+ * Example: https://audiomack.com/album/shy-glizzy/covered-n-blood
+ */
 wp_oembed_add_provider( '#^https?://(www.)?audiomack.com/([^/]+)/([^/]+)/([^/]+)[/]{0,1}#', 'https://www.audiomack.com/oembed', true );
+
+/*
+ * Carto (formerly CartoDB)
+ * Example: http://osm2.carto.com/viz/08aef918-94da-11e4-ad83-0e0c41326911/public_map
+ */
+wp_oembed_add_provider( '#https?://(?:www\.)?[^/^\.]+\.carto(db)?\.com/\S+#i', 'https://services.carto.com/oembed', true );
 wp_oembed_add_provider( 'https://cloudup.com/*', 'https://cloudup.com/oembed' );
 wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
 wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
