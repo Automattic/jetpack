@@ -39,7 +39,7 @@ If your block depends on another block, place them all in extensions folder:
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 1. Start a new branch.
 1. Add your new extension's source files to the extensions/blocks directory.
-And add your extensions' slug the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
+And add your extensions' slug to the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
 By keeping your extension in the beta array, it's safe to do small PRs and merge frequently.
 1. Or modify existing extensions in the same folder.
 1. Run `yarn build-extensions [--watch]` to compile your changes.
@@ -162,7 +162,7 @@ You could modify `SCRIPT_DEBUG` from `docker/wordpress/wp-config.php` in your Do
 
 ### Don't worry about dependencies
 
-The build takes care of core dependencies for both editor and view -scripts. React, lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md) are externalized and automatically enqueued in PHP for your extension.
+The build takes care of core dependencies for both editor and view scripts. React, Lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md) are externalized and automatically enqueued in PHP for your extension.
 
 Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md#polyfill-scripts) enqueued so you can safely use methods not supported by older browsers such as IE11.
 
@@ -209,4 +209,4 @@ Possible:
 
 ### Icons
 
-Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Muriel guidelines. Don't rely on icons used in the core to avoid visual mixing up with core blocks.
+Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Muriel guidelines. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
