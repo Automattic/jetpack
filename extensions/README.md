@@ -170,7 +170,7 @@ Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPr
 
 Jetpack adds its own [plugin sidebar](https://wordpress.org/gutenberg/handbook/designers-developers/developers/tutorials/plugin-sidebar-0/plugin-sidebar-1-up-and-running/) to the block editor. You can find it by choosing "Jetpack" from block editor's ellipsis menu or by pressing Jetpack icon in the "pinned plugins" toolbar.
 
-The sidebar itself is always registered in the editor and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
+The sidebar itself is always registered in the editor and populated using the [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
 
 Use the `JetpackPluginSidebar` component to render from anywhere in your plugin's code:
 
