@@ -630,9 +630,6 @@ class Jetpack {
 		// returns HTTPS support status
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
-		// If any module option is updated before Jump Start is dismissed, hide Jump Start.
-		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
-
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
@@ -6657,38 +6654,6 @@ p {
 	 */
 	public static function get_jetpack_options_for_reset() {
 		return Jetpack_Options::get_options_for_reset();
-	}
-
-	/**
-	 * Check if an option of a Jetpack module has been updated.
-	 *
-	 * If any module option has been updated before Jump Start has been dismissed,
-	 * update the 'jumpstart' option so we can hide Jump Start.
-	 *
-	 * @param string $option_name
-	 *
-	 * @return bool
-	 */
-	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
-		// Bail if Jump Start has already been dismissed
-		if ( 'new_connection' !== Jetpack_Options::get_option( 'jumpstart' ) ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		// Manual build of module options
-		$option_names = self::get_jetpack_options_for_reset();
-
-		if ( in_array( $option_name, $option_names['wp_options'] ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
-
-			//Jump start is being dismissed send data to MC Stats
-			$jetpack->stat( 'jumpstart', 'manual,'.$option_name );
-
-			$jetpack->do_stats( 'server_side' );
-		}
-
 	}
 
 	/*
