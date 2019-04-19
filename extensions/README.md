@@ -188,7 +188,7 @@ The sidebar won't show up at all if nothing isn't rendering in the sidebar's "sl
 
 Remember to be mindful of what post types you want to enable your sidebar section for: e.g. posts, pages, custom post types, and re-usable block post type (`/wp-admin/edit.php?post_type=wp_block`).
 
-See Publicize and Shortlinks for examples how to limit functionality only to some specific post types or posts. Likes & Shares extensions are a great example of how to output content from several extensions to one sidebar section using "slots".
+See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/index.js) for examples how to limit functionality only to some specific post types or posts. The [Likes](blocks/likes/likes-checkbox.js) & [Sharing](blocks/sharing/sharing-checkbox.js) extensions are a great example of how to [output](shared/jetpack-likes-and-sharing-panel.js) content from several extensions to one sidebar section using "slots".
 
 ### i18n
 
