@@ -172,7 +172,7 @@ Jetpack adds its own [plugin sidebar](https://wordpress.org/gutenberg/handbook/d
 
 The sidebar itself is always registered in the editor and filled using [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
 
-Just render with `JetpackPluginSidebar` component from anywhere in your plugin's code:
+Use the `JetpackPluginSidebar` component to render from anywhere in your plugin's code:
 
 ```jsx
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
