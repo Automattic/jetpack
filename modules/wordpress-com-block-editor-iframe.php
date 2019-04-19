@@ -62,12 +62,15 @@ function jetpack_framing_allowed() {
  *
  * @param string $nonce  Nonce that was used in the form to verify.
  * @param string $action Should give context to what is taking place and be the same when nonce was created.
- * @return false|int False if the nonce is invalid, 1 if the nonce is valid and generated between
- *                   0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
+ * @return boolean Whether the nonce is valid.
  */
 function jetpack_verify_frame_nonce( $nonce, $action ) {
-	$nonce = (string) $nonce;
 	if ( empty( $nonce ) ) {
+		return false;
+	}
+
+	list( $expiration, $hash ) = explode( ':', $nonce, 2 );
+	if ( time() > $expiration ) {
 		return false;
 	}
 
@@ -76,21 +79,12 @@ function jetpack_verify_frame_nonce( $nonce, $action ) {
 		return false;
 	}
 
-	$i = wp_nonce_tick();
 	add_filter( 'salt', 'jetpack_filter_salt', 10, 2 );
 
-	// Nonce generated 0-12 hours ago.
-	$expected = substr( wp_hash( $i . $action . $user_id, 'jetpack_frame_nonce' ), -12, 10 );
-	if ( hash_equals( $expected, $nonce ) ) {
+	$expected_hash = wp_hash( "$expiration|$action|$user_id", 'jetpack_frame_nonce' );
+	if ( hash_equals( $hash, $expected_hash ) ) {
 		remove_filter( 'salt', 'jetpack_filter_salt' );
-		return 1;
-	}
-
-	// Nonce generated 12-24 hours ago.
-	$expected = substr( wp_hash( ( $i - 1 ) . $action . $user_id, 'jetpack_frame_nonce' ), -12, 10 );
-	if ( hash_equals( $expected, $nonce ) ) {
-		remove_filter( 'salt', 'jetpack_filter_salt' );
-		return 2;
+		return true;
 	}
 
 	remove_filter( 'salt', 'jetpack_filter_salt' );
