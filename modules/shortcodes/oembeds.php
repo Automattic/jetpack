@@ -36,4 +36,13 @@ wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfyca
 wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
 wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
 wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
+
+/**
+ * ThingLink image example url: https://www.thinglink.com/scene/554766125892632576
+ * ThingLink video example url: http://www.thinglink.com/video/568397707501109249
+ *
+ * OEmbed Docs: https://www.thinglink.com/help/Thinglink%20API
+ */
+wp_oembed_add_provider( '#https?://www\.thinglink.com/(scene|video)/\d+/?#i', 'https://www.thinglink.com/api/oembed', true );
+
 wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
