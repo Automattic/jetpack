@@ -126,8 +126,6 @@
 		"photon": "2.0.1",
 		"plugin-error": "1.0.1",
 		"prop-types": "15.7.2",
-		"react": "16.8.6",
-		"react-dom": "16.8.6",
 		"react-pure-render": "1.0.2",
 		"react-redux": "6.0.1",
 		"react-router": "3.2.1",
@@ -143,6 +141,10 @@
 		"uglify-save-license": "0.4.1",
 		"url-loader": "1.1.2",
 		"webpack": "4.29.6"
+	},
+	"optionalDependencies": {
+		"react": "16.8.6",
+		"react-dom": "16.8.6"
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "1.0.0-beta.5",
