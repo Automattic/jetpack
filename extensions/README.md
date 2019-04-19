@@ -156,7 +156,7 @@ define( 'SCRIPT_DEBUG', true );
 define( 'GUTENBERG_DEVELOPMENT_MODE', true );
 ```
 
-You could add these to `docker/wordpress/wp-config.php` in your Docker environment.
+You could modify `SCRIPT_DEBUG` from `docker/wordpress/wp-config.php` in your Docker environment and add `GUTENBERG_DEVELOPMENT_MODE` there as well, or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`).
 
 [G Debugger](https://wordpress.org/plugins/g-debugger/) plugin might come handy, too.
 
