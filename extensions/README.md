@@ -186,7 +186,7 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 
 The sidebar won't show up at all if nothing isn't rendering in the sidebar's "slot".
 
-Remember to be mindful of posts, pages, custom post types, and re-usable block post type.
+Remember to be mindful of what post types you want to enable your sidebar section for: e.g. posts, pages, custom post types, and re-usable block post type.
 
 See Publicize and Shortlinks for examples how to limit functionality only to some specific post types or posts. Likes & Shares extensions are a great example of how to output content from several extensions to one sidebar section using "slots".
 
