@@ -110,6 +110,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-edit-media-v1-2-endpoi
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-3-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-2-endpoint.php' );
 
 // Jetpack Only Endpoints
