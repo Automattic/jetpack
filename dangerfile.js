@@ -3,9 +3,11 @@
  */
 import { danger, warn, markdown, results, schedule } from 'danger';
 const moment = require( 'moment' );
+const phpWhitelist = require( './bin/phpcs-whitelist' );
 
 const github = danger.github;
 const pr = github.pr;
+const newFiles = danger.git.created_files;
 
 // No PR is too small to include a description of why you made a change
 if ( pr.body.length < 10 ) {
@@ -31,6 +33,31 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 		'"Proposed changelog entry" is missing for this PR. Please include any meaningful changes'
 	);
 }
+
+// Check if newly added .php files were added to phpcs linter whitelist
+if ( newFiles.length > 0 ) {
+	const newPHPFiles = danger.git.created_files.filter(
+		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
+	);
+
+	const notWhitelistedFiles = [];
+
+	newPHPFiles.forEach( file => {
+		const whitelistedPath = phpWhitelist.find( path => file.includes( path ) );
+		if ( ! whitelistedPath ) {
+			notWhitelistedFiles.push( file );
+		}
+	} );
+
+	if ( notWhitelistedFiles.length > 0 ) {
+		const stringifiedFilesList = '\n' + notWhitelistedFiles.join( '\n' );
+		warn(
+			'Consider adding new PHP files to PHPCS whitelist for automatic linting:' +
+				stringifiedFilesList
+		);
+	}
+}
+
 // skip if there are no warnings.
 if ( results.warnings.length > 0 || results.fails.length > 0 ) {
 	markdown(

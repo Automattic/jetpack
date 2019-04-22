@@ -56,7 +56,6 @@ abstract class Jetpack_Admin_Page {
 		add_action( "load-$hook", array( $this, 'admin_help' ) );
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook", array( $this, 'admin_head' ) );
-
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
 
@@ -83,22 +82,6 @@ abstract class Jetpack_Admin_Page {
 		$this->add_page_actions( $hook );
 	}
 
-	function admin_head() {
-		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
-			/**
-			 * Fires in the <head> of a particular Jetpack configuration page.
-			 *
-			 * The dynamic portion of the hook name, `$_GET['configure']`,
-			 * refers to the slug of module, such as 'stats', 'sso', etc.
-			 * A complete hook for the latter would be
-			 * 'jetpack_module_configuration_head_sso'.
-			 *
-			 * @since 3.0.0
-			 */
-			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
-		}
-	}
-
 	// Render the page with a common top and bottom part, and page specific content
 	function render() {
 		// We're in an IDC: we need a decision made before we show the UI again.
@@ -107,11 +90,7 @@ abstract class Jetpack_Admin_Page {
 		}
 
 		// Check if we are looking at the main dashboard
-		if (
-			isset( $_GET['page'] ) &&
-			'jetpack' === $_GET['page'] &&
-			 empty( $_GET['configure'] )
-		) {
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			$this->page_render();
 			return;
 		}

@@ -422,6 +422,10 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin: 0 !important;
 }
 
+.linkedin_button>span, .pinterest_button a {
+	display: block !important;
+}
+
 .sd-social-official .sd-content .share-skype {
 	width: 55px;
 }

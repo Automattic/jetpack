@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { Path, SVG } from '@wordpress/components';
-import { __ } from '../../utils/i18n';
 
 /**
  * Internal dependencies
@@ -30,6 +30,10 @@ const attributes = {
 	delay: {
 		type: 'number',
 		default: 3,
+	},
+	ids: {
+		default: [],
+		type: 'array',
 	},
 	images: {
 		type: 'array',
@@ -69,10 +73,14 @@ const attributes = {
 export const name = 'slideshow';
 
 export const settings = {
-	title: __( 'Slideshow' ),
+	title: __( 'Slideshow', 'jetpack' ),
 	category: 'jetpack',
-	keywords: [ __( 'image' ), __( 'gallery' ), __( 'slider' ) ],
-	description: __( 'Add an interactive slideshow.' ),
+	keywords: [
+		_x( 'image', 'block search term', 'jetpack' ),
+		_x( 'gallery', 'block search term', 'jetpack' ),
+		_x( 'slider', 'block search term', 'jetpack' ),
+	],
+	description: __( 'Add an interactive slideshow.', 'jetpack' ),
 	attributes,
 	supports: {
 		align: [ 'center', 'wide', 'full' ],

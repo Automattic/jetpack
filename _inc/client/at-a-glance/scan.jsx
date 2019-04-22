@@ -18,8 +18,7 @@ import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
-import isArray from 'lodash/isArray';
-import get from 'lodash/get';
+import { get, isArray } from 'lodash';
 import { showBackups } from 'state/initial-state';
 
 /**
@@ -53,6 +52,7 @@ const renderCard = props => (
 class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
+		rewindStatus: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -71,6 +71,7 @@ class DashScan extends Component {
 		isDevMode: false,
 		isPluginInstalled: false,
 		fetchingSiteData: false,
+		rewindStatus: '',
 	};
 
 	getVPContent() {
@@ -169,6 +170,61 @@ class DashScan extends Component {
 		} );
 	}
 
+	getRewindContent() {
+		const { rewindStatus, siteRawUrl } = this.props;
+		const buildAction = ( url, message ) => (
+			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
+				{ message }
+			</Card>
+		);
+		const buildCard = message =>
+			renderCard( {
+				className: 'jp-dash-item__is-active',
+				status: 'is-working',
+				feature: 'rewind',
+				content: message,
+			} );
+
+		switch ( rewindStatus ) {
+			case 'provisioning':
+				return (
+					<React.Fragment>
+						{ buildCard( __( 'We are configuring your site protection.' ) ) }
+					</React.Fragment>
+				);
+			case 'awaiting_credentials':
+				return (
+					<React.Fragment>
+						{ buildCard(
+							__( "You need to enter your server's credentials to finish the setup." )
+						) }
+						{ buildAction(
+							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							__( 'Enter credentials' )
+						) }
+					</React.Fragment>
+				);
+			case 'active':
+				return (
+					<React.Fragment>
+						{ buildCard(
+							__(
+								'We are making sure your site stays free of security threats.' +
+									' ' +
+									'You will be notified if we find one.'
+							)
+						) }
+						{ buildAction(
+							`https://wordpress.com/activity-log/${ siteRawUrl }`,
+							__( 'View security scan details' )
+						) }
+					</React.Fragment>
+				);
+		}
+
+		return false;
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -181,37 +237,13 @@ class DashScan extends Component {
 			} );
 		}
 
-		const data = get( this.props.vaultPressData, 'data', '' );
-		const siteId = data && data.site_id;
-
 		return (
 			<div>
 				<QueryVaultPressData />
-				{ this.props.isRewindActive ? (
-					<div className="jp-dash-item">
-						{ renderCard( {
-							className: 'jp-dash-item__is-active',
-							status: 'is-working',
-							content: __(
-								'We are making sure your site stays free of security threats.' +
-									' ' +
-									'You will be notified if we find one.'
-							),
-							feature: 'rewind',
-						} ) }
-						{
-							<Card
-								key="security-scanning"
-								className="jp-dash-item__manage-in-wpcom"
-								compact
-								href={ `https://dashboard.vaultpress.com/${ siteId }/security/` }
-							>
-								{ __( 'View security scan details' ) }
-							</Card>
-						}
-					</div>
-				) : (
+				{ 'unavailable' === this.props.rewindStatus ? (
 					this.getVPContent()
+				) : (
+					<div className="jp-dash-item">{ this.getRewindContent() }</div>
 				) }
 			</div>
 		);

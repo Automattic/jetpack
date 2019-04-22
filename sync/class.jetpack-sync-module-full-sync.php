@@ -22,8 +22,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
-		add_action( 'jetpack_full_sync_start', $callable );
-		add_action( 'jetpack_full_sync_end', $callable );
+		add_action( 'jetpack_full_sync_start', $callable, 10, 2 );
+		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
@@ -92,13 +92,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_config( $full_sync_config );
 		$this->set_enqueue_status( $enqueue_status );
 
+		$range = $this->get_content_range( $full_sync_config );
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
 		 *
 		 * @since 4.2.0
+		 * @since 7.3.0 Added $range arg.
+		 *
+		 * @param $full_sync_config - array
+		 * @param $range array
 		 */
-		do_action( 'jetpack_full_sync_start', $full_sync_config );
+		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
 
 		$this->continue_enqueuing( $full_sync_config, $enqueue_status );
 
@@ -166,13 +171,59 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// setting autoload to true means that it's faster to check whether we should continue enqueuing
 		$this->update_status_option( 'queue_finished', time(), true );
 
+		$range = $this->get_content_range( $configs );
+
 		/**
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
 		 *
 		 * @since 4.2.0
+		 * @since 7.3.0 Added $range arg.
+		 *
+		 * @param args ''
+		 * @param $range array 
 		 */
-		do_action( 'jetpack_full_sync_end', '' );
+		do_action( 'jetpack_full_sync_end', '', $range );
+	}
+
+	function get_range( $type ) {
+		global $wpdb;
+		if ( ! in_array( $type, array( 'comments', 'posts' ) ) ) {
+			return array();
+		}
+
+		switch ( $type ) {
+			case 'posts':
+				$table     = $wpdb->posts;
+				$id        = 'ID';
+				$where_sql = Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+
+				break;
+			case 'comments':
+				$table     = $wpdb->comments;
+				$id        = 'comment_ID';
+				$where_sql = Jetpack_Sync_Settings::get_comments_filter_sql();
+				break;
+		}
+		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE {$where_sql}" );
+		if ( isset( $results[0] ) ) {
+			return $results[0];
+		}
+
+		return array();
+	}
+
+	private function get_content_range( $config ) {
+		$range = array();
+		// Only when we are sending the whole range do we want to send also the range
+		if ( isset( $config['posts'] ) && $config['posts'] === true ) {
+			$range['posts'] = $this->get_range( 'posts' );
+		}
+
+		if ( isset( $config['comments'] ) && $config['comments'] === true ) {
+			$range['comments'] = $this->get_range( 'comments' );
+		}
+		return $range;
 	}
 
 	function update_sent_progress_action( $actions ) {

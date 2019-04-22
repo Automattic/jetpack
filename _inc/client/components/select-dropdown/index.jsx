@@ -6,12 +6,8 @@
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
-import find from 'lodash/find';
-import filter from 'lodash/filter';
-import findIndex from 'lodash/findIndex';
-import map from 'lodash/map';
-import result from 'lodash/result';
 import classNames from 'classnames';
+import { filter, find, findIndex, map, result } from 'lodash';
 
 /**
  * Internal dependencies

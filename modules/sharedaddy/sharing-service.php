@@ -748,8 +748,25 @@ function sharing_display( $text = '', $echo = false ) {
 		$show = false;
 	}
 
-	// Allow to be used on P2 ajax requests for latest posts.
-	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && 'get_latest_posts' == $_REQUEST['action'] ) {
+	/**
+	 * Filter the Sharing buttons' Ajax action name Jetpack checks for.
+	 * This allows the use of the buttons with your own Ajax implementation.
+	 *
+	 * @module sharedaddy
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param string $sharing_ajax_action_name Name of the Sharing buttons' Ajax action.
+	 */
+	$ajax_action = apply_filters( 'sharing_ajax_action', 'get_latest_posts' );
+
+	// Allow to be used in ajax requests for latest posts.
+	if (
+		defined( 'DOING_AJAX' )
+		&& DOING_AJAX
+		&& isset( $_REQUEST['action'] )
+		&& $ajax_action === $_REQUEST['action']
+	) {
 		$show = true;
 	}
 

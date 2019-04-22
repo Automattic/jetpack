@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
 import { translate as __ } from 'i18n-calypso';
@@ -49,6 +49,8 @@ import restApi from 'rest-api';
 import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
+
+const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
 
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
@@ -225,14 +227,12 @@ class Main extends React.Component {
 				);
 				break;
 			case '/settings':
-			case '/general':
-			case '/engagement':
 			case '/security':
-			case '/traffic':
-			case '/discussion':
 			case '/performance':
 			case '/writing':
 			case '/sharing':
+			case '/discussion':
+			case '/traffic':
 			case '/privacy':
 				navComponent = settingsNav;
 				pageComponent = (
@@ -275,6 +275,18 @@ class Main extends React.Component {
 		);
 	};
 
+	shouldShowAppsCard() {
+		// Do not show in settings page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+	}
+
+	shouldShowSupportCard() {
+		// Do not show in settings page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+	}
+
 	render() {
 		return (
 			<div>
@@ -284,8 +296,8 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
-					{ this.props.isSiteConnected && <SupportCard path={ this.props.route.path } /> }
-					{ this.props.isSiteConnected && <AppsCard /> }
+					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
+					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
@@ -330,17 +342,15 @@ export default connect(
 window.wpNavMenuClassChange = function() {
 	let hash = window.location.hash;
 	const settingRoutes = [
-			'#/settings',
-			'#/general',
-			'#/discussion',
-			'#/security',
-			'#/performance',
-			'#/traffic',
-			'#/writing',
-			'#/sharing',
-			'#/privacy',
-		],
-		dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+		'#/settings',
+		'#/security',
+		'#/performance',
+		'#/writing',
+		'#/sharing',
+		'#/discussion',
+		'#/traffic',
+		'#/privacy',
+	];
 
 	// Clear currents
 	jQuery( '.current' ).each( function( i, obj ) {

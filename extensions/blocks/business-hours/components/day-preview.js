@@ -1,15 +1,10 @@
 /**
  * External dependencies
  */
+import { _x, sprintf } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { date } from '@wordpress/date';
 import { isEmpty } from 'lodash';
-import { sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { _x } from '../../../utils/i18n';
 
 class DayPreview extends Component {
 	formatTime( time ) {
@@ -28,7 +23,7 @@ class DayPreview extends Component {
 		return (
 			<dd key={ key }>
 				{ sprintf(
-					_x( 'From %s to %s', 'from business opening hour to closing hour' ),
+					_x( 'From %s to %s', 'from business opening hour to closing hour', 'jetpack' ),
 					this.formatTime( interval.opening ),
 					this.formatTime( interval.closing )
 				) }
@@ -46,7 +41,7 @@ class DayPreview extends Component {
 			<Fragment>
 				<dt className={ day.name }>{ localization.days[ day.name ] }</dt>
 				{ isEmpty( hours ) ? (
-					<dd>{ _x( 'Closed', 'business is closed on a full day' ) }</dd>
+					<dd>{ _x( 'Closed', 'business is closed on a full day', 'jetpack' ) }</dd>
 				) : (
 					hours.map( this.renderInterval )
 				) }

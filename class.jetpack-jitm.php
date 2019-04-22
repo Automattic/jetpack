@@ -260,6 +260,7 @@ class Jetpack_JITM {
 			'external_user_id' => urlencode_deep( $user->ID ),
 			'query_string'     => urlencode_deep( $query ),
 			'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
+			'_locale'          => get_user_locale(),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache

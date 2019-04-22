@@ -21,7 +21,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 
-		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] || ! empty( $_GET['configure'] ) ) {
+		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) {
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page
 		}
 
@@ -33,9 +33,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
-
-		// Adding a redirect tag wrapped in browser conditional comments
-		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
 	}
 
 	/**
@@ -76,17 +73,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		echo '</noscript>';
 	}
 
-	function add_legacy_browsers_head_script() {
-		echo
-			"<script type=\"text/javascript\">\n"
-			. "/*@cc_on\n"
-			. "if ( @_jscript_version <= 10) {\n"
-			. "window.location.href = '?page=jetpack_modules';\n"
-			. "}\n"
-			. "@*/\n"
-			. "</script>";
-	}
-
 	function jetpack_menu_order( $menu_order ) {
 		$jp_menu_order = array();
 
@@ -101,29 +87,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $jp_menu_order;
 	}
 
-	// Render the configuration page for the module if it exists and an error
-	// screen if the module is not configurable
-	// @todo remove when real settings are in place
-	function render_nojs_configurable( $module_name ) {
-		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
-
-		echo '<div class="wrap configure-module">';
-
-		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
-			Jetpack::admin_screen_configure_module( $module_name );
-		} else {
-			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
-		}
-
-		echo '</div><!-- /wrap -->';
-	}
-
 	function page_render() {
-		// Handle redirects to configuration pages
-		if ( ! empty( $_GET['configure'] ) ) {
-			return $this->render_nojs_configurable( $_GET['configure'] );
-		}
-
 		/** This action is already documented in views/admin/admin-page.php */
 		do_action( 'jetpack_notices' );
 
@@ -168,19 +132,23 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
-		if ( $this->is_redirecting || isset( $_GET['configure'] ) ) {
-			return; // No need for scripts on a fallback page.
+		if ( $this->is_redirecting ) {
+			return; // No need for scripts on a fallback page
 		}
+
+		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.deps.json';
+		$script_dependencies = file_exists( $script_deps_path )
+			? json_decode( file_get_contents( $script_deps_path ) )
+			: array();
+		$script_dependencies[] = 'wp-polyfill';
 
 		wp_enqueue_script(
 			'react-plugin',
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			array( 'wp-i18n' ),
+			$script_dependencies,
 			JETPACK__VERSION,
 			true
 		);
-
-		wp_set_script_translations( 'react-plugin', 'jetpack', JETPACK__PLUGIN_DIR . 'languages/json' );
 
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
 			// Required for Analytics.

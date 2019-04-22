@@ -6,6 +6,7 @@
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
+const whitelist = require( './phpcs-whitelist' );
 let exitCode = 0;
 
 /**
@@ -27,18 +28,6 @@ function parseGitDiffToPathArray( command ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function phpcsFilesToFilter( file ) {
-	// If the file path starts with anything like in the array below, it should be linted.
-	const whitelist = [
-		'_inc/lib/debugger/',
-		'_inc/lib/class.jetpack-password-checker.php',
-		'extensions/',
-		'sync/class.jetpack-sync-module-auth.php',
-		'class.jetpack-gutenberg.php',
-		'class.jetpack-plan.php',
-		'modules/module-info.php',
-		'functions.opengraph.php',
-	];
-
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
 		return true;
 	}

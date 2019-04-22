@@ -199,15 +199,19 @@ export class Composing extends React.Component {
 	render() {
 		const foundCopyPost = this.props.isModuleFound( 'copy-post' ),
 			foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' );
+			foundLatex = this.props.isModuleFound( 'latex' ),
+			foundMarkdown = this.props.isModuleFound( 'markdown' ),
+			foundShortcodes = this.props.isModuleFound( 'shortcodes' );
 
-		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD ) {
+		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD && ! foundShortcodes ) {
 			return null;
 		}
 
 		const markdown = this.props.module( 'markdown' ),
+			latex = this.props.module( 'latex' ),
 			atd = this.props.module( 'after-the-deadline' ),
 			copyPost = this.props.module( 'copy-post' ),
+			shortcodes = this.props.module( 'shortcodes' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
 			copyPostSettings = (
 				<SettingsGroup
@@ -264,6 +268,52 @@ export class Composing extends React.Component {
 					</FormFieldset>
 				</SettingsGroup>
 			),
+			latexSettings = (
+				<SettingsGroup
+					module={ latex }
+					support={ {
+						text: __(
+							'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.'
+						),
+						link: 'https://jetpack.com/support/beautiful-math-with-latex/',
+					} }
+				>
+					<FormFieldset>
+						<ModuleToggle
+							slug="latex"
+							activated={ !! this.props.getOptionValue( 'latex' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'latex' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'latex' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">{ latex.description }</span>
+						</ModuleToggle>
+					</FormFieldset>
+				</SettingsGroup>
+			),
+			shortcodeSettings = (
+				<SettingsGroup
+					module={ shortcodes }
+					support={ {
+						text: shortcodes.description,
+						link: 'https://jetpack.com/support/shortcode-embeds/',
+					} }
+				>
+					<FormFieldset>
+						<ModuleToggle
+							slug="shortcodes"
+							activated={ !! this.props.getOptionValue( 'shortcodes' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Compose using shortcodes to embed media from popular sites' ) }
+							</span>
+						</ModuleToggle>
+					</FormFieldset>
+				</SettingsGroup>
+			),
 			atdSettings = (
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
@@ -301,6 +351,8 @@ export class Composing extends React.Component {
 			>
 				{ foundCopyPost && copyPostSettings }
 				{ foundMarkdown && markdownSettings }
+				{ foundLatex && latexSettings }
+				{ foundShortcodes && shortcodeSettings }
 				{ foundAtD && atdSettings }
 			</SettingsCard>
 		);

@@ -668,20 +668,26 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * status : Print the current sync status
-	 * start  : Start a full sync from this site to WordPress.com
+	 * status   : Print the current sync status
+	 * settings : Prints the current sync settings
+	 * start    : Start a full sync from this site to WordPress.com
+	 * enable   : Enables sync on the site
+	 * disable  : Disable sync on a site
+	 * reset    : Disables sync and Resets the sync queues on a site
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack sync status
+	 * wp jetpack sync settings
 	 * wp jetpack sync start --modules=functions --sync_wait_time=5
+	 * wp jetpack sync enable
+	 * wp jetpack sync disable
+	 * wp jetpack sync reset
+	 * wp jetpack sync reset --queue=full or regular
 	 *
 	 * @synopsis <status|start> [--<field>=<value>]
 	 */
 	public function sync( $args, $assoc_args ) {
-		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
-			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
-		}
 
 		$action = isset( $args[0] ) ? $args[0] : 'status';
 
@@ -695,10 +701,79 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'value' => is_scalar( $item ) ? $item : json_encode( $item )
 					);
 				}
-
+				WP_CLI::log( __( 'Sync Status:', 'jetpack' ) );
 				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
 				break;
+			case 'settings':
+				WP_CLI::log( __( 'Sync Settings:', 'jetpack' ) );
+				foreach( Jetpack_Sync_Settings::get_settings() as $setting => $item ) {
+					$settings[]  = array(
+						'setting' => $setting,
+						'value' => is_scalar( $item ) ? $item : json_encode( $item )
+					);
+				}
+				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
+
+			case 'disable':
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				update_option( 'jetpack_sync_settings_disable', 1 );
+				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
+				break;
+			case 'enable':
+				Jetpack_Sync_Settings::update_settings( array( 'disable' => 0 ) );
+				WP_CLI::log( sprintf( __( 'Sync Enabled on %s', 'jetpack' ), get_site_url() ) );
+				break;
+			case 'reset':
+				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				update_option( 'jetpack_sync_settings_disable', 1 );
+
+				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
+				require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-listener.php';
+				$listener = Jetpack_Sync_Listener::get_instance();
+				if ( empty( $assoc_args['queue'] ) ) {
+					$listener->get_sync_queue()->reset();
+					$listener->get_full_sync_queue()->reset();
+					WP_CLI::log( sprintf( __( 'Reset Full Sync and Regular Queues Queue on %s', 'jetpack' ), get_site_url() ) );
+					break;
+				}
+
+				if ( ! empty( $assoc_args['queue'] ) ) {
+					switch ( $assoc_args['queue'] ) {
+						case 'regular':
+							$listener->get_sync_queue()->reset();
+							WP_CLI::log( sprintf( __( 'Reset Regular Sync Queue on %s', 'jetpack' ), get_site_url() ) );
+							break;
+						case 'full':
+							$listener->get_full_sync_queue()->reset();
+							WP_CLI::log( sprintf( __( 'Reset Full Sync Queue on %s', 'jetpack' ), get_site_url() ) );
+							break;
+						default:
+							WP_CLI::error( __( 'Please specify what type of queue do you want to reset: `full` or `regular`.', 'jetpack' ) );
+							break;
+					}
+				}
+
+				break;
 			case 'start':
+				if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+					if( ! Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
+						return;
+					}
+					if ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
+						return;
+					}
+					if ( Jetpack::is_development_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
+						return;
+					}
+					if (  Jetpack::is_staging_site() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+						return;
+					}
+
+				}
 				// Get the original settings so that we can restore them later
 				$original_settings = Jetpack_Sync_Settings::get_settings();
 
@@ -1115,7 +1190,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$other_args = array_diff_key( $named_args, array_flip( $consumed_args ) );
 
 		$decoded_body = ! empty( $named_args['body'] )
-			? json_decode( $named_args['body'] )
+			? json_decode( $named_args['body'], true )
 			: false;
 
 		$resource_url = ( false === strpos( $named_args['resource'], '%d' ) )
@@ -1127,7 +1202,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			empty( $named_args['api_version'] ) ? Jetpack_Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
 			$other_args,
 			empty( $decoded_body ) ? null : $decoded_body,
-			$named_args['base_api_path']
+			empty( $named_args['base_api_path'] ) ? 'rest' : $named_args['base_api_path']
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1163,6 +1238,88 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		WP_CLI::success( $output );
+	}
+
+	/**
+	 * Allows uploading SSH Credentials to the current site for backups, restores, and security scanning.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--host=<host>]
+	 * : The SSH server's address.
+	 *
+	 * [--ssh-user=<user>]
+	 * : The username to use to log in to the SSH server.
+	 *
+	 * [--pass=<pass>]
+	 * : The password used to log in, if using a password. (optional)
+	 *
+	 * [--kpri=<kpri>]
+	 * : The private key used to log in, if using a private key. (optional)
+	 *
+	 * [--pretty]
+	 * : Will pretty print the results of a successful API call. (optional)
+	 *
+	 * [--strip-success]
+	 * : Will remove the green success label from successful API calls. (optional)
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack upload_ssh_creds --host=example.com --ssh-user=example --pass=password
+	 * wp jetpack updload_ssh_creds --host=example.com --ssh-user=example --kpri=key
+	 */
+	public function upload_ssh_creds( $args, $named_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+
+		$required_args = array(
+			'host',
+			'ssh-user',
+		);
+
+		foreach ( $required_args as $arg ) {
+			if ( empty( $named_args[ $arg ] ) ) {
+				WP_CLI::error(
+					sprintf(
+						/* translators: %s is a slug, such as 'host'. */
+						__( '`%s` cannot be empty.', 'jetpack' ),
+						$arg
+					)
+				);
+			}
+		}
+
+		if ( empty( $named_args['pass'] ) && empty( $named_args['kpri'] ) ) {
+			WP_CLI::error( __( 'Both `pass` and `kpri` fields cannot be blank.', 'jetpack' ) );
+		}
+
+		$values = array(
+			'credentials' => array(
+				'site_url' => get_site_url(),
+				'abspath'  => ABSPATH,
+				'protocol' => 'ssh',
+				'port'     => 22,
+				'role'     => 'main',
+				'host'     => $named_args['host'],
+				'user'     => $named_args['ssh-user'],
+				'pass'     => empty( $named_args['pass'] ) ? '' : $named_args['pass'],
+				'kpri'     => empty( $named_args['kpri'] ) ? '' : $named_args['kpri'],
+			),
+		);
+
+		$named_args = wp_parse_args(
+			array(
+				'resource'    => '/activity-log/%d/update-credentials',
+				'method'      => 'POST',
+				'api_version' => '1.1',
+				'body'        => wp_json_encode( $values ),
+				'timeout'     => 30,
+			),
+			$named_args
+		);
+
+		self::call_api( $args, $named_args );
 	}
 
 	/**
@@ -1475,6 +1632,177 @@ class Jetpack_CLI extends WP_CLI_Command {
 			'error_message' => $error->get_error_message()
 		) ) );
 		exit( 1 );
+	}
+
+	/**
+	 * Creates the essential files in Jetpack to start building a Gutenberg block or plugin.
+	 *
+	 * ## TYPES
+	 *
+	 * block: it creates a Jetpack block. All files will be created in a directory under extensions/blocks named based on the block title or a specific given slug.
+	 *
+	 * ## BLOCK TYPE OPTIONS
+	 *
+	 * The first parameter is the block title and it's not associative. Add it wrapped in quotes.
+	 * The title is also used to create the slug and the edit PHP class name. If it's something like "Logo gallery", the slug will be 'logo-gallery' and the class name will be LogoGalleryEdit.
+	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
+	 * --description: Allows to provide a text description of the block.
+	 * --keywords: Provide up to three keywords separated by comma so users can find this block when they search in Gutenberg's inserter.
+	 *
+	 * ## BLOCK TYPE EXAMPLES
+	 *
+	 * wp jetpack scaffold block "Cool Block"
+	 * wp jetpack scaffold block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"
+	 * wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"
+	 *
+	 * @subcommand scaffold block
+	 * @synopsis <type> <title> [--slug] [--description] [--keywords]
+	 *
+	 * @param array $args       Positional parameters, when strings are passed, wrap them in quotes.
+	 * @param array $assoc_args Associative parameters like --slug="nice-block".
+	 */
+	public function scaffold( $args, $assoc_args ) {
+		// It's ok not to check if it's set, because otherwise WPCLI exits earlier.
+		switch ( $args[0] ) {
+			case 'block':
+				$this->block( $args, $assoc_args );
+				break;
+			default:
+				WP_CLI::error( sprintf( esc_html__( 'Invalid subcommand %s.', 'jetpack' ), $args[0] ) . ' 👻' );
+				exit( 1 );
+		}
+	}
+
+	/**
+	 * Creates the essential files in Jetpack to build a Gutenberg block.
+	 *
+	 * @param array $args       Positional parameters. Only one is used, that corresponds to the block title.
+	 * @param array $assoc_args Associative parameters defined in the scaffold() method.
+	 */
+	public function block( $args, $assoc_args ) {
+		if ( isset( $args[1] ) ) {
+			$title = ucwords( $args[1] );
+		} else {
+			WP_CLI::error( esc_html__( 'The title parameter is required.', 'jetpack' ) . ' 👻' );
+			exit( 1 );
+		}
+
+		$slug = isset( $assoc_args['slug'] )
+			? $assoc_args['slug']
+			: sanitize_title( $title );
+
+		if ( preg_match( '#^jetpack/#', $slug ) ) {
+			$slug = preg_replace( '#^jetpack/#', '', $slug );
+		}
+
+		if ( ! preg_match( '/^[a-z][a-z0-9\-]*$/', $slug ) ) {
+			WP_CLI::error( esc_html__( 'Invalid block slug. They can contain only lowercase alphanumeric characters or dashes, and start with a letter', 'jetpack' ) . ' 👻' );
+		}
+
+		global $wp_filesystem;
+		if ( ! WP_Filesystem() ) {
+			WP_CLI::error( esc_html__( "Can't write files", 'jetpack' ) . ' 😱' );
+		}
+
+		$path = JETPACK__PLUGIN_DIR . "extensions/blocks/$slug";
+
+		if ( $wp_filesystem->exists( $path ) && $wp_filesystem->is_dir( $path ) ) {
+			WP_CLI::error( sprintf( esc_html__( 'Name conflicts with the existing block %s', 'jetpack' ), $path ) . ' ⛔️' );
+			exit( 1 );
+		}
+
+		$wp_filesystem->mkdir( $path );
+
+		$hasKeywords = isset( $assoc_args['keywords'] );
+
+		$files = array(
+			"$path/$slug.php" => $this->render_block_file( 'block-register-php', array(
+				'slug' => $slug,
+				'title' => $title,
+				'underscoredSlug' => str_replace( '-', '_', $slug ),
+			) ),
+			"$path/index.js" => $this->render_block_file( 'block-index-js', array(
+				'slug' => $slug,
+				'title' => $title,
+				'description' => isset( $assoc_args['description'] )
+					? $assoc_args['description']
+					: $title,
+				'keywords' => $hasKeywords
+					? array_map( function( $keyword ) {
+						// Construction necessary for Mustache lists
+						return array( 'keyword' => trim( $keyword ) );
+					}, explode( ',', $assoc_args['keywords'], 3 ) )
+					: '',
+				'hasKeywords' => $hasKeywords
+			) ),
+			"$path/editor.js" => $this->render_block_file( 'block-editor-js' ),
+			"$path/editor.scss" => $this->render_block_file( 'block-editor-scss', array(
+				'slug' => $slug,
+				'title' => $title,
+			) ),
+			"$path/edit.js" => $this->render_block_file( 'block-edit-js', array(
+				'title' => $title,
+				'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
+			) )
+		);
+
+		$files_written = array();
+
+		foreach ( $files as $filename => $contents ) {
+			if ( $wp_filesystem->put_contents( $filename, $contents ) ) {
+				$files_written[] = $filename;
+			} else {
+				WP_CLI::error( sprintf( esc_html__( 'Error creating %s', 'jetpack' ), $filename ) );
+			}
+		}
+
+		if ( empty( $files_written ) ) {
+			WP_CLI::log( esc_html__( 'No files were created', 'jetpack' ) );
+		} else {
+			// Load index.json and insert the slug of the new block in the production array
+			$block_list_path = JETPACK__PLUGIN_DIR . 'extensions/index.json';
+			$block_list = $wp_filesystem->get_contents( $block_list_path );
+			if ( empty( $block_list ) ) {
+				WP_CLI::error( sprintf( esc_html__( 'Error fetching contents of %s', 'jetpack' ), $block_list_path ) );
+			} else if ( false === stripos( $block_list, $slug ) ) {
+				$new_block_list = json_decode( $block_list );
+				$new_block_list->beta[] = $slug;
+				if ( ! $wp_filesystem->put_contents( $block_list_path, wp_json_encode( $new_block_list ) ) ) {
+					WP_CLI::error( sprintf( esc_html__( 'Error writing new %s', 'jetpack' ), $block_list_path ) );
+				}
+			}
+
+			WP_CLI::success( sprintf(
+				/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
+				esc_html__( 'Successfully created block %s with slug %s', 'jetpack' ) . ' 🎉' . "\n" .
+				"--------------------------------------------------------------------------------------------------------------------\n" .
+				/* translators: the placeholder is a directory path */
+				esc_html__( 'The files were created at %s', 'jetpack' ) . "\n" .
+				esc_html__( 'To start using the block, build the blocks with yarn run build-extensions', 'jetpack' ) . "\n" .
+				/* translators: the placeholder is a file path */
+				esc_html__( 'The block slug has been added to the beta list at %s', 'jetpack' ) . "\n" .
+				esc_html__( 'To load the block, add the constant JETPACK_BETA_BLOCKS as true to your wp-config.php file', 'jetpack' ) . "\n" .
+				/* translators: the placeholder is a URL */
+				"\n" . esc_html__( 'Read more at %s', 'jetpack' ) . "\n",
+				$title,
+				$slug,
+				$path,
+				$block_list_path,
+				'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
+			) . '--------------------------------------------------------------------------------------------------------------------' );
+		}
+	}
+
+	/**
+	 * Built the file replacing the placeholders in the template with the data supplied.
+	 *
+	 * @param string $template
+	 * @param array $data
+	 *
+	 * @return string mixed
+	 */
+	private static function render_block_file( $template, $data = array() ) {
+		return \WP_CLI\Utils\mustache_render( JETPACK__PLUGIN_DIR . "wp-cli-templates/$template.mustache", $data );
 	}
 }
 

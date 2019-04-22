@@ -16,8 +16,12 @@ function require_jetpack_file( $jetpack_file_path ) {
  */
 function wp_rest_request( $method, $path ) {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$namespace = substr( $path, 0, 10 ); // e.g. `/wpcom/v2/`
-		$endpoint = substr( $path, 9 ); // e.g. `/service-api-keys/mapbox`
+		if ( strstr( $path, '/wpcom/v2/' ) ) {
+			$namespace = '/wpcom/v2/';
+		} else if ( strstr( $path, '/wp/v2/' ) ) {
+			$namespace = '/wp/v2/';
+		}
+		$endpoint = substr( $path, strlen( $namespace ) - 1 ); // e.g. `/service-api-keys/mapbox`
 		$path = $namespace . 'sites/'  . get_current_blog_id() . $endpoint;
 	}
 

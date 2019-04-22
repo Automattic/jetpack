@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
+import classNames from 'classnames';
+import { __ } from '@wordpress/i18n';
+import { __experimentalGetSettings } from '@wordpress/date';
 import { BlockIcon } from '@wordpress/editor';
 import { Component } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
-import classNames from 'classnames';
-import { __experimentalGetSettings } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -14,17 +15,16 @@ import { __experimentalGetSettings } from '@wordpress/date';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 import { icon } from '.';
-import { __ } from '../../utils/i18n';
 
 const defaultLocalization = {
 	days: {
-		Sun: __( 'Sunday' ),
-		Mon: __( 'Monday' ),
-		Tue: __( 'Tuesday' ),
-		Wed: __( 'Wednesday' ),
-		Thu: __( 'Thursday' ),
-		Fri: __( 'Friday' ),
-		Sat: __( 'Saturday' ),
+		Sun: __( 'Sunday', 'jetpack' ),
+		Mon: __( 'Monday', 'jetpack' ),
+		Tue: __( 'Tuesday', 'jetpack' ),
+		Wed: __( 'Wednesday', 'jetpack' ),
+		Thu: __( 'Thursday', 'jetpack' ),
+		Fri: __( 'Friday', 'jetpack' ),
+		Sat: __( 'Saturday', 'jetpack' ),
 	},
 	startOfWeek: 0,
 };
@@ -63,7 +63,7 @@ class BusinessHours extends Component {
 			return (
 				<Placeholder
 					icon={ <BlockIcon icon={ icon } /> }
-					label={ __( 'Loading business hours' ) }
+					label={ __( 'Loading business hours', 'jetpack' ) }
 				/>
 			);
 		}

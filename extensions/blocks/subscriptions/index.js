@@ -1,22 +1,27 @@
 /**
+ * External dependencies
+ */
+import { __, _x } from '@wordpress/i18n';
+import { isEmpty } from 'lodash';
+import { Path } from '@wordpress/components';
+import { RawHTML } from '@wordpress/element';
+
+/**
  * Internal dependencies
  */
 import edit from './edit';
 import save from './save';
-import { __ } from '../../utils/i18n';
-import renderMaterialIcon from '../../utils/render-material-icon';
-import { Path } from '@wordpress/components';
-import { isEmpty } from 'lodash';
-import { RawHTML } from '@wordpress/element';
+import renderMaterialIcon from '../../shared/render-material-icon';
 
 export const name = 'subscriptions';
 export const settings = {
-	title: __( 'Subscription Form' ),
+	title: __( 'Subscription Form', 'jetpack' ),
 
 	description: (
 		<p>
 			{ __(
-				'A form enabling readers to get notifications when new posts are published from this site.'
+				'A form enabling readers to get notifications when new posts are published from this site.',
+				'jetpack'
 			) }
 		</p>
 	),
@@ -25,15 +30,19 @@ export const settings = {
 	),
 	category: 'jetpack',
 
-	keywords: [ __( 'subscribe' ), __( 'join' ), __( 'follow' ) ],
+	keywords: [
+		_x( 'subscribe', 'block search term', 'jetpack' ),
+		_x( 'join', 'block search term', 'jetpack' ),
+		_x( 'follow', 'block search term', 'jetpack' ),
+	],
 
 	attributes: {
-		subscribePlaceholder: { type: 'string', default: __( 'Email Address' ) },
-		subscribeButton: { type: 'string', default: __( 'Subscribe' ) },
+		subscribePlaceholder: { type: 'string', default: __( 'Email Address', 'jetpack' ) },
+		subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
 		showSubscribersTotal: { type: 'boolean', default: false },
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Subscribe' ),
+			default: __( 'Subscribe', 'jetpack' ),
 		},
 		customBackgroundButtonColor: { type: 'string' },
 		customTextButtonColor: { type: 'string' },
@@ -44,7 +53,7 @@ export const settings = {
 	deprecated: [
 		{
 			attributes: {
-				subscribeButton: { type: 'string', default: __( 'Subscribe' ) },
+				subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
 				showSubscribersTotal: { type: 'boolean', default: false },
 			},
 			migrate: attr => {

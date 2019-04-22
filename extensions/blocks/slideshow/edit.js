@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
-import { __, _x } from '../../utils/i18n';
-import { isBlobURL } from '@wordpress/blob';
-import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { __, _x } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
+import { filter, pick } from 'lodash';
+import { isBlobURL } from '@wordpress/blob';
+import { withDispatch } from '@wordpress/data';
 import {
 	BlockControls,
-	MediaUpload,
-	MediaPlaceholder,
 	InspectorControls,
+	MediaPlaceholder,
+	MediaUpload,
 	mediaUpload,
 } from '@wordpress/editor';
-
 import {
 	DropZone,
 	FormFileUpload,
@@ -25,7 +25,6 @@ import {
 	Toolbar,
 	withNotices,
 } from '@wordpress/components';
-import { filter, pick } from 'lodash';
 
 /**
  * Internal dependencies
@@ -36,8 +35,8 @@ import './editor.scss';
 const ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 const effectOptions = [
-	{ label: _x( 'Slide', 'Slideshow transition effect' ), value: 'slide' },
-	{ label: _x( 'Fade', 'Slideshow transition effect' ), value: 'fade' },
+	{ label: _x( 'Slide', 'Slideshow transition effect', 'jetpack' ), value: 'slide' },
+	{ label: _x( 'Fade', 'Slideshow transition effect', 'jetpack' ), value: 'fade' },
 ];
 
 export const pickRelevantMediaFiles = image =>
@@ -50,10 +49,25 @@ class SlideshowEdit extends Component {
 			selectedImage: null,
 		};
 	}
+	setAttributes( attributes ) {
+		if ( attributes.ids ) {
+			throw new Error(
+				'The "ids" attribute should not be changed directly. It is managed automatically when "images" attribute changes'
+			);
+		}
+
+		if ( attributes.images ) {
+			attributes = {
+				...attributes,
+				ids: attributes.images.map( ( { id } ) => parseInt( id, 10 ) ),
+			};
+		}
+
+		this.props.setAttributes( attributes );
+	}
 	onSelectImages = images => {
-		const { setAttributes } = this.props;
 		const mapped = images.map( image => pickRelevantMediaFiles( image ) );
-		setAttributes( {
+		this.setAttributes( {
 			images: mapped,
 		} );
 	};
@@ -61,12 +75,12 @@ class SlideshowEdit extends Component {
 		return () => {
 			const images = filter( this.props.attributes.images, ( img, i ) => index !== i );
 			this.setState( { selectedImage: null } );
-			this.props.setAttributes( { images } );
+			this.setAttributes( { images } );
 		};
 	};
 	addFiles = files => {
 		const currentImages = this.props.attributes.images || [];
-		const { lockPostSaving, unlockPostSaving, noticeOperations, setAttributes } = this.props;
+		const { lockPostSaving, unlockPostSaving, noticeOperations } = this.props;
 		const lockName = 'slideshowBlockLock';
 		lockPostSaving( lockName );
 		mediaUpload( {
@@ -74,7 +88,7 @@ class SlideshowEdit extends Component {
 			filesList: files,
 			onFileChange: images => {
 				const imagesNormalized = images.map( image => pickRelevantMediaFiles( image ) );
-				setAttributes( {
+				this.setAttributes( {
 					images: [ ...currentImages, ...imagesNormalized ],
 				} );
 				if ( ! imagesNormalized.every( image => isBlobURL( image.url ) ) ) {
@@ -101,10 +115,10 @@ class SlideshowEdit extends Component {
 		const controls = (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Autoplay' ) }>
+					<PanelBody title={ __( 'Autoplay', 'jetpack' ) }>
 						<ToggleControl
-							label={ __( 'Autoplay' ) }
-							help={ __( 'Autoplay between slides' ) }
+							label={ __( 'Autoplay', 'jetpack' ) }
+							help={ __( 'Autoplay between slides', 'jetpack' ) }
 							checked={ autoplay }
 							onChange={ value => {
 								setAttributes( { autoplay: value } );
@@ -112,7 +126,7 @@ class SlideshowEdit extends Component {
 						/>
 						{ autoplay && (
 							<RangeControl
-								label={ __( 'Delay between transitions (in seconds)' ) }
+								label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
 								value={ delay }
 								onChange={ value => {
 									setAttributes( { delay: value } );
@@ -124,14 +138,15 @@ class SlideshowEdit extends Component {
 						{ autoplay && prefersReducedMotion && (
 							<span>
 								{ __(
-									'The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser.'
+									'The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser.',
+									'jetpack'
 								) }
 							</span>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Effects' ) }>
+					<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 						<SelectControl
-							label={ __( 'Transition effect' ) }
+							label={ __( 'Transition effect', 'jetpack' ) }
 							value={ effect }
 							onChange={ value => {
 								setAttributes( { effect: value } );
@@ -152,7 +167,7 @@ class SlideshowEdit extends Component {
 								render={ ( { open } ) => (
 									<IconButton
 										className="components-toolbar__control"
-										label={ __( 'Edit Slideshow' ) }
+										label={ __( 'Edit Slideshow', 'jetpack' ) }
 										icon="edit"
 										onClick={ open }
 									/>
@@ -172,8 +187,11 @@ class SlideshowEdit extends Component {
 						icon="format-gallery"
 						className={ className }
 						labels={ {
-							title: __( 'Slideshow' ),
-							instructions: __( 'Drag images, upload new ones or select files from your library.' ),
+							title: __( 'Slideshow', 'jetpack' ),
+							instructions: __(
+								'Drag images, upload new ones or select files from your library.',
+								'jetpack'
+							),
 						} }
 						onSelect={ this.onSelectImages }
 						accept="image/*"
@@ -209,7 +227,7 @@ class SlideshowEdit extends Component {
 							accept="image/*"
 							icon="insert"
 						>
-							{ __( 'Upload an image' ) }
+							{ __( 'Upload an image', 'jetpack' ) }
 						</FormFileUpload>
 					</div>
 				) }

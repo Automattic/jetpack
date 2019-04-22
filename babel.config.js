@@ -1,22 +1,17 @@
 const config = {
-	presets: [
-		[
-			'@babel/env',
-			{
-				corejs: 2,
-				modules: 'commonjs',
-				useBuiltIns: 'entry',
-			},
-		],
-		'@babel/react',
+	extends: require.resolve( '@automattic/calypso-build/babel.config.js' ),
+	overrides: [
+		{
+			test: './extensions/',
+			presets: [ require( '@automattic/calypso-build/babel/wordpress-element' ) ],
+		},
 	],
-	plugins: [
-		'@babel/proposal-class-properties',
-		'@babel/transform-runtime',
-		'@babel/transform-member-expression-literals',
-		'@babel/transform-property-literals',
-		'@babel/transform-reserved-words',
-	],
+	env: {
+		test: {
+			presets: [ [ '@babel/env', { targets: { node: 'current' } } ] ],
+			// plugins: [ 'add-module-exports', 'babel-plugin-dynamic-import-node' ],
+		},
+	},
 };
 
 module.exports = config;

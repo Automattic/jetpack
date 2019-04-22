@@ -21,9 +21,8 @@ class Jetpack_Publicize {
 
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 
-		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
+		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( $this, 'jetpack_configuration_load' ) );
 		}
 
 		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
@@ -47,11 +46,6 @@ class Jetpack_Publicize {
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
 			}
 		}
-	}
-
-	function jetpack_configuration_load() {
-		wp_safe_redirect( menu_page_url( 'sharing', false ) );
-		exit;
 	}
 }
 

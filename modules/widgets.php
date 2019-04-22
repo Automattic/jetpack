@@ -1,11 +1,11 @@
 <?php
 /**
  * Module Name: Extra Sidebar Widgets
- * Module Description: Add images, Twitter streams, and more to your sidebar.
+ * Module Description: Provides additional widgets for use on your site.
  * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Appearance
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
@@ -40,13 +40,7 @@ add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
 
 function jetpack_widgets_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'jetpack_widgets_configuration_load' );
 	add_filter( 'jetpack_module_configuration_url_widgets', 'jetpack_widgets_configuration_url' );
-}
-
-function jetpack_widgets_configuration_load() {
-	wp_safe_redirect( admin_url( 'widgets.php' ) );
-	exit;
 }
 
 /**

@@ -230,7 +230,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		}
 
 		$callable_checksums = (array) Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
-
+		$has_changed = false;
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
@@ -246,11 +246,15 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 				 */
 				do_action( 'jetpack_sync_callable', $name, $value );
 				$callable_checksums[ $name ] = $checksum;
+				$has_changed = true;
 			} else {
 				$callable_checksums[ $name ] = $checksum;
 			}
 		}
-		Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+		if ( $has_changed ) {
+			Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+		}
+
 	}
 
 	public function expand_callables( $args ) {

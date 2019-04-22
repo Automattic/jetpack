@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -10,7 +11,6 @@ import { Fragment } from '@wordpress/element';
 import edit from './edit';
 import save from './save';
 import { DEFAULT_CURRENCY } from './constants';
-import { __, _x } from '../../utils/i18n';
 
 /**
  * Styles
@@ -20,17 +20,18 @@ import './editor.scss';
 export const name = 'simple-payments';
 
 export const settings = {
-	title: __( 'Simple Payments button' ),
+	title: __( 'Simple Payments button', 'jetpack' ),
 
 	description: (
 		<Fragment>
 			<p>
 				{ __(
-					'Lets you create and embed credit and debit card payment buttons with minimal setup.'
+					'Lets you create and embed credit and debit card payment buttons with minimal setup.',
+					'jetpack'
 				) }
 			</p>
 			<ExternalLink href="https://support.wordpress.com/simple-payments/">
-				{ __( 'Support reference' ) }
+				{ __( 'Support reference', 'jetpack' ) }
 			</ExternalLink>
 		</Fragment>
 	),
@@ -44,7 +45,11 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ _x( 'shop', 'block search term' ), _x( 'sell', 'block search term' ), 'PayPal' ],
+	keywords: [
+		_x( 'shop', 'block search term', 'jetpack' ),
+		_x( 'sell', 'block search term', 'jetpack' ),
+		'PayPal',
+	],
 
 	attributes: {
 		currency: {
@@ -119,6 +124,8 @@ export const settings = {
 		className: false,
 		customClassName: false,
 		html: false,
+		// Disabled due several problems because the block uses custom post type to store information
+		// https://github.com/Automattic/jetpack/issues/11789
 		reusable: false,
 	},
 };

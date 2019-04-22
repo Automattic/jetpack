@@ -6,9 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import noop from 'lodash/noop';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
+import { get, isEmpty, noop } from 'lodash';
 
 /**
  * Internal dependencies
@@ -50,7 +48,7 @@ class DashBackups extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		getOptionValue: PropTypes.func.isRequired,
-		isRewindActive: PropTypes.bool.isRequired,
+		rewindStatus: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -62,11 +60,11 @@ class DashBackups extends Component {
 	static defaultProps = {
 		siteRawUrl: '',
 		getOptionValue: noop,
-		isRewindActive: false,
 		vaultPressData: '',
 		sitePlan: '',
 		isDevMode: false,
 		isVaultPressInstalled: false,
+		rewindStatus: '',
 	};
 
 	getVPContent() {
@@ -146,6 +144,55 @@ class DashBackups extends Component {
 		} );
 	}
 
+	getRewindContent() {
+		const { rewindStatus, siteRawUrl } = this.props;
+		const buildAction = ( url, message ) => (
+			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
+				{ message }
+			</Card>
+		);
+		const buildCard = message =>
+			renderCard( {
+				className: 'jp-dash-item__is-active',
+				status: 'is-working',
+				feature: 'rewind',
+				content: message,
+			} );
+
+		switch ( rewindStatus ) {
+			case 'provisioning':
+				return (
+					<React.Fragment>
+						{ buildCard( __( "We are configuring your site's backups." ) ) }
+					</React.Fragment>
+				);
+			case 'awaiting_credentials':
+				return (
+					<React.Fragment>
+						{ buildCard(
+							__( "You need to enter your server's credentials to finish the setup." )
+						) }
+						{ buildAction(
+							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							__( 'Enter credentials' )
+						) }
+					</React.Fragment>
+				);
+			case 'active':
+				return (
+					<React.Fragment>
+						{ buildCard( __( 'We are backing up your site in real-time.' ) ) }
+						{ buildAction(
+							`https://wordpress.com/activity-log/${ siteRawUrl }?group=rewind`,
+							__( "View your site's backups" )
+						) }
+					</React.Fragment>
+				);
+		}
+
+		return false;
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -163,33 +210,13 @@ class DashBackups extends Component {
 			);
 		}
 
-		const data = get( this.props.vaultPressData, 'data', '' );
-		const siteId = data && data.site_id;
-
 		return (
 			<div>
 				<QueryVaultPressData />
-				{ this.props.isRewindActive ? (
-					<div className="jp-dash-item">
-						{ renderCard( {
-							className: 'jp-dash-item__is-active',
-							status: 'is-working',
-							content: __( 'Your site is being backed up in real-time.' ),
-							feature: 'rewind',
-						} ) }
-						{
-							<Card
-								key="manage-backups"
-								className="jp-dash-item__manage-in-wpcom"
-								compact
-								href={ `https://dashboard.vaultpress.com/${ siteId }/backups/` }
-							>
-								{ __( 'View backup history' ) }
-							</Card>
-						}
-					</div>
-				) : (
+				{ 'unavailable' === this.props.rewindStatus ? (
 					this.getVPContent()
+				) : (
+					<div className="jp-dash-item">{ this.getRewindContent() }</div>
 				) }
 			</div>
 		);

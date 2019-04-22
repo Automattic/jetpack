@@ -3371,6 +3371,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
+
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
 		$wrap_classes = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
@@ -3389,6 +3390,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ) );
 
 		$field = "\n<div {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		// If they are logged in, and this is their site, don't pre-populate fields
+		if ( current_user_can( 'manage_options' ) ) {
+			$value = '';
+		}
 		switch ( $type ) {
 			case 'email':
 				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );

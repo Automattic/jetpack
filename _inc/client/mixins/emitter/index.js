@@ -10,7 +10,7 @@
 /**
  * External Dependencies
  */
-import assign from 'lodash/assign';
+import { assign } from 'lodash';
 import { EventEmitter } from 'events';
 
 export default function( prototype ) {

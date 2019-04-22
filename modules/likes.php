@@ -48,9 +48,7 @@ class Jetpack_Likes {
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
 			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
@@ -117,13 +115,6 @@ class Jetpack_Likes {
 		delete_option( 'social_notifications_like' );
 	}
 
-	/**
-	 * Redirects to the likes section of the sharing page.
-	 */
-	function configuration_redirect() {
-		wp_safe_redirect( admin_url( 'options-general.php?page=sharing#likes' ) );
-		die();
-	}
 
 	/**
 	 * Overrides default configuration url
@@ -635,10 +626,29 @@ function jetpack_post_likes_register_rest_field() {
 				),
 			)
 		);
+
+		/**
+		 * Ensures all public internal post-types support `likes`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'jetpack-post-likes' );
 	}
 }
 
 // Add Likes post_meta to the REST API Post response.
 add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
+
+// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
+// restapi_theme_init because they depend on theme support, so let's also hook to that
+add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+
+/**
+ * Set the Likes and Sharing Gutenberg extension availability
+ */
+function jetpack_post_likes_set_extension_availability() {
+	Jetpack_Gutenberg::set_extension_available( 'likes' );
+}
+
+add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_post_likes_set_extension_availability' );
 
 Jetpack_Likes::init();

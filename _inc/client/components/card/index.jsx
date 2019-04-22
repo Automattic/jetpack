@@ -2,11 +2,9 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import classnames from 'classnames';
-import assign from 'lodash/assign';
-import omit from 'lodash/omit';
+import { assign, omit } from 'lodash';
 
 /**
  * Internal dependencies

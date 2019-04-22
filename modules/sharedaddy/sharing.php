@@ -604,16 +604,35 @@ function jetpack_post_sharing_register_rest_field() {
 				),
 			)
 		);
+
+		/**
+		 * Ensures all public internal post-types support `sharing`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
 	}
 }
 
 // Add Sharing post_meta to the REST API Post response.
 add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
 
+// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
+// restapi_theme_init because they depend on theme support, so let's also hook to that
+add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+
 function sharing_admin_init() {
 	global $sharing_admin;
 
 	$sharing_admin = new Sharing_Admin();
 }
+
+/**
+ * Set the Likes and Sharing Gutenberg extension as available
+ */
+function jetpack_sharing_set_extension_availability() {
+	Jetpack_Gutenberg::set_extension_available( 'sharing' );
+}
+
+add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_sharing_set_extension_availability' );
 
 add_action( 'init', 'sharing_admin_init' );

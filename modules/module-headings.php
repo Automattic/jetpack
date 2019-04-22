@@ -80,7 +80,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'latex' => array(
 				'name' => _x( 'Beautiful Math', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Use LaTeX markup for complex equations and other geekery.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas.', 'Module Description', 'jetpack' ),
 			),
 
 			'lazy-images' => array(
@@ -92,12 +92,6 @@ function jetpack_get_module_i18n( $key ) {
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
-			),
-
-			'manage' => array(
-				'name' => _x( 'Manage', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Manage all of your sites from a centralized dashboard.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'markdown' => array(
@@ -235,7 +229,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'widgets' => array(
 				'name' => _x( 'Extra Sidebar Widgets', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add images, Twitter streams, and more to your sidebar.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Provides additional widgets for use on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'wordads' => array(
@@ -320,7 +314,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Recommended` tag:
 			//  - modules/lazy-images.php
-			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
 			//  - modules/photon-cdn.php
@@ -332,10 +325,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Centralized Management` tag:
-			//  - modules/manage.php
-			'Centralized Management' =>_x( 'Centralized Management', 'Module Tag', 'jetpack' ),
 
 			// Modules with `General` tag:
 			//  - modules/masterbar.php
@@ -355,5 +344,5 @@ function jetpack_get_module_i18n_tag( $key ) {
 			'Site Stats' =>_x( 'Site Stats', 'Module Tag', 'jetpack' ),
 		);
 	}
-	return $module_tags[ $key ];
+	return ! empty( $module_tags[ $key ] ) ? $module_tags[ $key ] : '';
 }

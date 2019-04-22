@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-require( 'es6-promise' ).polyfill();
-import 'whatwg-fetch';
-import assign from 'lodash/assign';
+import { assign } from 'lodash';
 
 /**
  * Helps create new custom error classes to better notify upper layers.

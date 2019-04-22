@@ -130,6 +130,7 @@ class Jetpack_Plan {
 			'jetpack_personal',
 			'jetpack_personal_monthly',
 			'personal-bundle',
+			'personal-bundle-monthly',
 			'personal-bundle-2y',
 		);
 
@@ -144,6 +145,7 @@ class Jetpack_Plan {
 			'jetpack_premium',
 			'jetpack_premium_monthly',
 			'value_bundle',
+			'value_bundle-monthly',
 			'value_bundle-2y',
 		);
 
@@ -160,8 +162,10 @@ class Jetpack_Plan {
 			'jetpack_business',
 			'jetpack_business_monthly',
 			'business-bundle',
+			'business-bundle-monthly',
 			'business-bundle-2y',
 			'ecommerce-bundle',
+			'ecommerce-bundle-monthly',
 			'ecommerce-bundle-2y',
 			'vip',
 		);

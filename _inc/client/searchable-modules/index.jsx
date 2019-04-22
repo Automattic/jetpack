@@ -4,8 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import forEach from 'lodash/forEach';
-import includes from 'lodash/includes';
+import { includes, forEach } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 import Banner from 'components/banner';
 
@@ -46,10 +45,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				'json-api',
 				'latex',
 				'notes',
-				'shortcodes',
 				'shortlinks',
-				'widget-visibility',
-				'widgets',
 			];
 
 			const allModules = this.props.modules,

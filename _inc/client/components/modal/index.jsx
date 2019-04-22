@@ -10,8 +10,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
-import assign from 'lodash/assign';
-import omit from 'lodash/omit';
+import { assign, omit } from 'lodash';
 import focusTrap from 'focus-trap';
 
 // this flag will prevent ANY modals from closing.

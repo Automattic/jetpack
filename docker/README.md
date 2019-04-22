@@ -17,7 +17,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 ### Prerequisites
 
-* [Docker](https://www.docker.com/community-edition)
+* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
 * [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
@@ -149,6 +149,11 @@ This will run unit tests for Jetpack. You can pass arguments to `phpunit` like s
 yarn docker:phpunit --filter=Protect
 ```
 
+This command runs the tests as a multi site install
+```sh
+yarn docker:phpunit:multisite --filter=Protect
+```
+
 ### Starting over
 
 To remove all docker images, all mysql data, and all docker-related files from your local machine run:
@@ -212,7 +217,7 @@ You can access WordPress and Jetpack files via SFTP server container.
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 ## Must Use Plugins directory
 
@@ -311,9 +316,9 @@ ngrok start jetpack jetpack-sftp
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
 
-### Configuring Jetpack Rewind with Ngrok tunnel
+### Configuring Jetpack Backup & Scan with Ngrok tunnel
 
-You should now be able to configure [Jetpack Rewind](https://jetpack.com/support/backups/) credentials point to your Docker container:
+You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/support/backups/) credentials point to your Docker container:
 
 - Credential Type: `SSH/SFTP`
 - Server Address: `0.tcp.ngrok.io`

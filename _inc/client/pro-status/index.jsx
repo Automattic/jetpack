@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import analytics from 'lib/analytics';
-import get from 'lodash/get';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -28,6 +28,7 @@ import {
 	isFetchingAkismetData,
 } from 'state/at-a-glance';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getRewindStatus } from 'state/rewind';
 
 /**
  * Track click on Pro status badge.
@@ -58,12 +59,37 @@ class ProStatus extends React.Component {
 	static propTypes = {
 		isCompact: PropTypes.bool,
 		proFeature: PropTypes.string,
+
+		// Connected
+		rewindStatus: PropTypes.object.isRequired,
 	};
 
 	static defaultProps = {
 		isCompact: true,
 		proFeature: '',
 	};
+
+	getRewindMessage() {
+		switch ( this.props.rewindStatus.state ) {
+			case 'provisioning':
+				return {
+					status: 'is-info',
+					text: __( 'Setting up' ),
+				};
+			case 'awaiting_credentials':
+				return {
+					status: 'is-warning',
+					text: __( 'Action needed' ),
+				};
+			case 'active':
+				return {
+					status: 'is-success',
+					text: __( 'Connected' ),
+				};
+			default:
+				return { status: '', text: '' };
+		}
+	}
 
 	getProActions = ( type, feature ) => {
 		let status = '',
@@ -117,9 +143,10 @@ class ProStatus extends React.Component {
 				actionUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
 				break;
 			case 'rewind_connected':
+				const rewindMessage = this.getRewindMessage();
 				return (
-					<SimpleNotice showDismiss={ false } status="is-success" isCompact>
-						{ __( 'Connected' ) }
+					<SimpleNotice showDismiss={ false } status={ rewindMessage.status } isCompact>
+						{ rewindMessage.text }
 					</SimpleNotice>
 				);
 			case 'active':
@@ -284,5 +311,6 @@ export default connect( state => {
 		fetchingAkismetData: isFetchingAkismetData( state ),
 		paidFeatureUpgradeUrl: getUpgradeUrl( state, 'upgrade' ),
 		planProUpgradeUrl: getUpgradeUrl( state, 'plans-business' ),
+		rewindStatus: getRewindStatus( state ),
 	};
 } )( ProStatus );

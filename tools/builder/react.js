@@ -171,6 +171,10 @@ function buildStatic( done ) {
 	global.window = window;
 	global.document = document;
 	global.navigator = window.navigator;
+	global.React = require( 'react' );
+	global.ReactDOM = require( 'react-dom' );
+	global.lodash = require( 'lodash' );
+	global.moment = require( 'moment' );
 
 	window.Initial_State = {
 		dismissedNotices: [],
@@ -213,7 +217,6 @@ function buildStatic( done ) {
 					__dirname + '/../../_inc/build/static-version-notice.html',
 					window.versionNotice
 				);
-				fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
 
 				done();
 			} );

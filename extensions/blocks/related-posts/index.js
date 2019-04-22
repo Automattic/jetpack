@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, SVG } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import './style.scss';
 import edit from './edit';
-import { __, _x } from '../../utils/i18n';
+import './style.scss';
 
 export const name = 'related-posts';
 
 export const settings = {
-	title: __( 'Related Posts' ),
+	title: __( 'Related Posts', 'jetpack' ),
 
 	icon: (
 		<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -26,9 +26,9 @@ export const settings = {
 	category: 'jetpack',
 
 	keywords: [
-		_x( 'Similar content', 'block search term' ),
-		_x( 'Linked', 'block search term' ),
-		_x( 'Connected', 'block search term' ),
+		_x( 'Similar content', 'block search term', 'jetpack' ),
+		_x( 'Linked', 'block search term', 'jetpack' ),
+		_x( 'Connected', 'block search term', 'jetpack' ),
 	],
 
 	attributes: {

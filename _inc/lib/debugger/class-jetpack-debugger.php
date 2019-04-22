@@ -1,14 +1,17 @@
 <?php
 /**
- * Jetpack Debugger functionality allowing for self-service diagnostic information.
+ * Jetpack Debugger functionality allowing for self-service diagnostic information via the legacy jetpack debugger.
  *
  * @package jetpack
  */
 
+/** Ensure the Jetpack_Debug_Data class is available. It should be via the library loaded, but defense is good. */
+require_once 'class-jetpack-debug-data.php';
+
 /**
  * Class Jetpack_Debugger
  *
- * A namespacing class for functionality related to the in-plugin diagnostic tooling.
+ * A namespacing class for functionality related to the legacy in-plugin diagnostic tooling.
  */
 class Jetpack_Debugger {
 
@@ -18,9 +21,8 @@ class Jetpack_Debugger {
 	 * @return string The plan slug prepended with "JetpackPlan"
 	 */
 	private static function what_jetpack_plan() {
-		$plan = Jetpack_Plan::get();
-		$plan = ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
-		return 'JetpackPlan' . $plan;
+		// Specifically not deprecating this function since it modifies the output of the Jetpack_Debug_Data::what_jetpack_plan return.
+		return 'JetpackPlan' . Jetpack_Debug_Data::what_jetpack_plan();
 	}
 
 	/**
@@ -28,33 +30,15 @@ class Jetpack_Debugger {
 	 *
 	 * A dedication function instead of using Core functionality to allow for output in seconds.
 	 *
+	 * @deprecated 7.3.0
+	 *
 	 * @param int $seconds Number of seconds to convert to human time.
 	 *
 	 * @return string Human readable time.
 	 */
 	public static function seconds_to_time( $seconds ) {
-		$seconds = intval( $seconds );
-		$units   = array(
-			'week'   => WEEK_IN_SECONDS,
-			'day'    => DAY_IN_SECONDS,
-			'hour'   => HOUR_IN_SECONDS,
-			'minute' => MINUTE_IN_SECONDS,
-			'second' => 1,
-		);
-		// specifically handle zero.
-		if ( 0 === $seconds ) {
-			return '0 seconds';
-		}
-		$human_readable = '';
-		foreach ( $units as $name => $divisor ) {
-			$quot = intval( $seconds / $divisor );
-			if ( $quot ) {
-				$human_readable .= "$quot $name";
-				$human_readable .= ( abs( $quot ) > 1 ? 's' : '' ) . ', ';
-				$seconds        -= $quot * $divisor;
-			}
-		}
-		return substr( $human_readable, 0, -2 );
+		_deprecated_function( 'Jetpack_Debugger::seconds_to_time', 'Jetpack 7.3.0', 'Jeptack_Debug_Data::seconds_to_time' );
+		return Jetpack_Debug_Data::seconds_to_time( $seconds );
 	}
 
 	/**
@@ -90,120 +74,21 @@ class Jetpack_Debugger {
 	 * Handles output to the browser for the in-plugin debugger.
 	 */
 	public static function jetpack_debug_display_handler() {
+		global $wp_version;
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jetpack' ) );
 		}
 
-		$user_id     = get_current_user_id();
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
-		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
-			$user_token = $user_tokens[ $user_id ];
-		} else {
-			$user_token = '[this user has no token]';
-		}
-		unset( $user_tokens );
-
-		$debug_info = "\r\n";
-		foreach ( array(
-			'CLIENT_ID'   => 'id',
-			'BLOG_TOKEN'  => 'blog_token',
-			'MASTER_USER' => 'master_user',
-			'CERT'        => 'fallback_no_verify_ssl_certs',
-			'TIME_DIFF'   => 'time_diff',
-			'VERSION'     => 'version',
-			'OLD_VERSION' => 'old_version',
-			'PUBLIC'      => 'public',
-		) as $label => $option_name ) {
-			$debug_info .= "\r\n" . esc_html( $label . ': ' . Jetpack_Options::get_option( $option_name ) );
+		$data       = Jetpack_Debug_Data::debug_data();
+		$debug_info = '';
+		foreach ( $data as $datum ) {
+			$debug_info .= $datum['label'] . ': ' . $datum['value'] . "\r\n";
 		}
 
-		$debug_info .= "\r\n" . esc_html( 'USER_ID: ' . $user_id );
-		$debug_info .= "\r\n" . esc_html( 'USER_TOKEN: ' . $user_token );
 		$debug_info .= "\r\n" . esc_html( 'PHP_VERSION: ' . PHP_VERSION );
 		$debug_info .= "\r\n" . esc_html( 'WORDPRESS_VERSION: ' . $GLOBALS['wp_version'] );
-		$debug_info .= "\r\n" . esc_html( 'JETPACK__VERSION: ' . JETPACK__VERSION );
-		$debug_info .= "\r\n" . esc_html( 'JETPACK__PLUGIN_DIR: ' . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( 'SITE_URL: ' . site_url() );
 		$debug_info .= "\r\n" . esc_html( 'HOME_URL: ' . home_url() );
-		$debug_info .= "\r\n" . esc_html( 'PLAN: ' . self::what_jetpack_plan() );
-
-		$debug_info .= "\r\n";
-
-		$debug_info .= "\r\n" . '-- SYNC Status -- ';
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-		if ( $sync_module ) {
-			$sync_statuses              = $sync_module->get_status();
-			$human_readable_sync_status = array();
-			foreach ( $sync_statuses  as $sync_status => $sync_status_value ) {
-				$human_readable_sync_status[ $sync_status ] =
-					in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ), true )
-						? date( 'r', $sync_status_value ) : $sync_status_value;
-			}
-			/* translators: A string reporting status. Example: "started" */
-			$debug_info .= "\r\n" . sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-		}
-
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-
-		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
-
-		/* translators: The number of items waiting to be synced. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue size: %1$s', 'jetpack' ), $queue->size() );
-		/* translators: Human-readable time since the oldest item in the sync queue. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $queue->lag() ) );
-
-		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
-
-		/* translators: The number of items waiting to be synced. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue size: %1$s', 'jetpack' ), $full_sync_queue->size() );
-		/* translators: Human-readable time since the oldest item in the sync queue. */
-		$debug_info .= "\r\n" . sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $full_sync_queue->lag() ) );
-
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-		$idc_urls = array(
-			'home'       => Jetpack_Sync_Functions::home_url(),
-			'siteurl'    => Jetpack_Sync_Functions::site_url(),
-			'WP_HOME'    => Jetpack_Constants::is_defined( 'WP_HOME' ) ? Jetpack_Constants::get_constant( 'WP_HOME' ) : '',
-			'WP_SITEURL' => Jetpack_Constants::is_defined( 'WP_SITEURL' ) ? Jetpack_Constants::get_constant( 'WP_SITEURL' ) : '',
-		);
-		/* translators: List of URLs. */
-		$debug_info .= "\r\n" . esc_html( sprintf( 'Sync IDC URLs: %s', wp_json_encode( $idc_urls ) ) );
-		/* translators: String of a current option. */
-		$debug_info .= "\r\n" . esc_html( sprintf( 'Sync error IDC option: %s', wp_json_encode( Jetpack_Options::get_option( 'sync_error_idc' ) ) ) );
-		/* translators: String of a current option. */
-		$debug_info .= "\r\n" . esc_html( sprintf( 'Sync IDC Optin: %s', (string) Jetpack::sync_idc_optin() ) );
-
-		$debug_info .= "\r\n";
-
-		foreach ( array(
-			'HTTP_HOST',
-			'SERVER_PORT',
-			'HTTPS',
-			'GD_PHP_HANDLER',
-			'HTTP_AKAMAI_ORIGIN_HOP',
-			'HTTP_CF_CONNECTING_IP',
-			'HTTP_CLIENT_IP',
-			'HTTP_FASTLY_CLIENT_IP',
-			'HTTP_FORWARDED',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_INCAP_CLIENT_IP',
-			'HTTP_TRUE_CLIENT_IP',
-			'HTTP_X_CLIENTIP',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_IP_TRAIL',
-			'HTTP_X_REAL_IP',
-			'HTTP_X_VARNISH',
-			'REMOTE_ADDR',
-		) as $header ) {
-			if ( isset( $_SERVER[ $header ] ) ) {
-				$debug_info .= "\r\n" . esc_html( $header . ': ' . $_SERVER[ $header ] );
-			}
-		}
-
-		$debug_info .= "\r\n" . esc_html( 'PROTECT_TRUSTED_HEADER: ' . wp_json_encode( get_site_option( 'trusted_ip_header' ) ) );
 
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 
@@ -328,14 +213,33 @@ class Jetpack_Debugger {
 				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
 				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
 				<?php
-				echo sprintf(
-					wp_kses(
-						/* translators: URL for Jetpack support. */
-						__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
-						array( 'a' => array( 'href' => array() ) )
-					),
-					'https://jetpack.com/contact-support/'
-				);
+				/**
+				 * Offload to new WordPress debug data in WP 5.2+
+				 *
+				 * @todo remove fallback when 5.2 is the minimum supported.
+				 */
+				if ( version_compare( $wp_version, '5.2-alpha', '>=' ) ) {
+					echo sprintf(
+						wp_kses(
+							/* translators: URL for Jetpack support. URL for WordPress's Site Health */
+							__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),
+							array( 'a' => array( 'href' => array() ) )
+						),
+						'https://jetpack.com/contact-support/',
+						esc_url( admin_url() . 'site-health.php?tab=debug' )
+					);
+					$hide_debug = true;
+				} else { // Versions before 5.2, fallback.
+					echo sprintf(
+						wp_kses(
+							/* translators: URL for Jetpack support. */
+							__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
+							array( 'a' => array( 'href' => array() ) )
+						),
+						'https://jetpack.com/contact-support/'
+					);
+					$hide_debug = false;
+				}
 				?>
 						</p>
 				<hr />
@@ -391,11 +295,17 @@ class Jetpack_Debugger {
 				?>
 			</div>
 		<hr />
-		<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
+			<?php
+			if ( ! $hide_debug ) {
+				?>
+			<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
 			<div id="debug_info_div">
-			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
-			<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
-		</div>
+				<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
+				<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
+			</div>
+				<?php
+			}
+			?>
 		</div>
 		<?php
 	}

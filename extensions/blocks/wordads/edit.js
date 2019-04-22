@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
+import { __ } from '@wordpress/i18n';
 import { BlockControls } from '@wordpress/editor';
 import { Component, Fragment } from '@wordpress/element';
 import { Placeholder, ToggleControl } from '@wordpress/components';
@@ -44,7 +44,7 @@ class WordAdsEdit extends Component {
 						<Placeholder icon={ icon } label={ title } />
 						<ToggleControl
 							checked={ Boolean( hideMobile ) }
-							label={ __( 'Hide ad on mobile views' ) }
+							label={ __( 'Hide ad on mobile views', 'jetpack' ) }
 							onChange={ this.handleHideMobileChange }
 						/>
 					</div>

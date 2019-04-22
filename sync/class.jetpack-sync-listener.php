@@ -86,7 +86,7 @@ class Jetpack_Sync_Listener {
 	// prevent adding items to the queue if it hasn't sent an item for 15 mins
 	// AND the queue is over 1000 items long (by default)
 	function can_add_to_queue( $queue ) {
-		if ( Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
 
@@ -117,6 +117,13 @@ class Jetpack_Sync_Listener {
 	}
 
 	// add many actions to the queue directly, without invoking them
+
+	/**
+	 * Bulk add action to the queue.
+	 *
+	 * @param $action_name String the name the full sync action.
+	 * @param $args_array Array of chunked arguments
+	 */
 	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
 		$queue = $this->get_full_sync_queue();
 
@@ -138,6 +145,9 @@ class Jetpack_Sync_Listener {
 		$is_importing    = Jetpack_Sync_Settings::is_importing();
 
 		foreach ( $args_array as $args ) {
+			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
+			$args = isset( $args['ids'] ) ? $args['ids'] : $args;
+
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
@@ -149,7 +159,10 @@ class Jetpack_Sync_Listener {
 			 * @param array The action parameters
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
-
+			$action_data = array( $args );
+			if ( ! is_null( $previous_end ) ) {
+				$action_data[] = $previous_end;
+			}
 			// allow listeners to abort
 			if ( $args === false ) {
 				continue;
@@ -157,7 +170,7 @@ class Jetpack_Sync_Listener {
 
 			$data_to_enqueue[] = array(
 				$action_name,
-				array( $args ),
+				$action_data,
 				$user_id,
 				$currtime,
 				$is_importing,

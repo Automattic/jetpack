@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import FoldableCard from 'components/foldable-card';
 import classNames from 'classnames';
 import analytics from 'lib/analytics';

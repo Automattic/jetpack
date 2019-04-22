@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '../../utils/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -56,7 +56,7 @@ export default ( {
 					) }
 					<div className="jetpack-simple-payments-button">
 						<img
-							alt={ __( 'Pay with PayPal' ) }
+							alt={ __( 'Pay with PayPal', 'jetpack' ) }
 							src={ paypalImage }
 							srcSet={ `${ paypalImage2x } 2x` }
 						/>

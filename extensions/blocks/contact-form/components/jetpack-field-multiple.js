@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import { BaseControl, IconButton, TextControl, PanelBody } from '@wordpress/components';
-import { withInstanceId } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
+import { BaseControl, IconButton, PanelBody, TextControl } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/editor';
+import { withInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
-import { __ } from '../../../utils/i18n';
 
 class JetpackFieldMultiple extends Component {
 	constructor( ...args ) {
@@ -97,18 +97,18 @@ class JetpackFieldMultiple extends Component {
 						<IconButton
 							className="jetpack-field-multiple__add-option"
 							icon="insert"
-							label={ __( 'Insert option' ) }
+							label={ __( 'Insert option', 'jetpack' ) }
 							onClick={ this.addNewOption }
 						>
-							{ __( 'Add option' ) }
+							{ __( 'Add option', 'jetpack' ) }
 						</IconButton>
 					) }
 				</BaseControl>
 
 				<InspectorControls>
-					<PanelBody title={ __( 'Field Settings' ) }>
+					<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 						<TextControl
-							label={ __( 'ID' ) }
+							label={ __( 'ID', 'jetpack' ) }
 							value={ id }
 							onChange={ value => setAttributes( { id: value } ) }
 						/>

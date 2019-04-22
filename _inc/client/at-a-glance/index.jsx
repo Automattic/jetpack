@@ -5,8 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import chunk from 'lodash/chunk';
-import get from 'lodash/get';
+import { chunk, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -74,17 +73,18 @@ class AtAGlance extends Component {
 				<DashConnections />
 			</div>
 		);
-		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
+		// Status can be unavailable, active, provisioning, awaiting_credentials
+		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const securityCards = [
 			<DashScan
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
-				isRewindActive={ isRewindActive }
+				rewindStatus={ rewindStatus }
 			/>,
 			<DashBackups
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
-				isRewindActive={ isRewindActive }
+				rewindStatus={ rewindStatus }
 			/>,
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />,
@@ -98,7 +98,7 @@ class AtAGlance extends Component {
 		}
 
 		// Maybe add the rewind card
-		isRewindActive &&
+		'active' === rewindStatus &&
 			securityCards.unshift(
 				<DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 			);

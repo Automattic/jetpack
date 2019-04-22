@@ -360,34 +360,7 @@ class Jetpack_Gutenberg {
 			}
 		}
 
-		$unwhitelisted_blocks  = array();
-		$all_registered_blocks = WP_Block_Type_Registry::get_instance()->get_all_registered();
-		foreach ( $all_registered_blocks as $block_name => $block_type ) {
-			if ( ! wp_startswith( $block_name, 'jetpack/' ) || isset( $block_type->parent ) ) {
-				continue;
-			}
-
-			$unprefixed_block_name = self::remove_extension_prefix( $block_name );
-
-			if ( in_array( $unprefixed_block_name, self::$extensions, true ) ) {
-				continue;
-			}
-
-			$unwhitelisted_blocks[ $unprefixed_block_name ] = array(
-				'available'          => false,
-				'unavailable_reason' => 'not_whitelisted',
-			);
-		}
-
-		// Finally: Unwhitelisted non-block extensions. These are in $availability.
-		$unwhitelisted_extensions = array_fill_keys(
-			array_diff( array_keys( self::$availability ), self::$extensions ),
-			array(
-				'available'          => false,
-				'unavailable_reason' => 'not_whitelisted',
-			)
-		);
-		return array_merge( $available_extensions, $unwhitelisted_blocks, $unwhitelisted_extensions );
+		return $available_extensions;
 	}
 
 	/**
@@ -443,7 +416,8 @@ class Jetpack_Gutenberg {
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
+	 *                                    detected script dependencies from the webpack build.
 	 *
 	 * @return void
 	 */
@@ -482,17 +456,19 @@ class Jetpack_Gutenberg {
 		}
 
 	}
+
 	/**
 	 * Only enqueue block scripts when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 * @param array  $dependencies Script dependencies. Will be merged with automatically
+	 *                             detected script dependencies from the webpack build.
 	 *
 	 * @since 7.2.0
 	 *
 	 * @return void
 	 */
-	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
+	public static function load_scripts_as_required( $type, $dependencies = array() ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -500,6 +476,13 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
+		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
+
+		$script_dependencies = file_exists( $script_deps_path )
+			? json_decode( file_get_contents( $script_deps_path ) )
+			: array();
+		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
+
 		if ( self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
@@ -556,6 +539,12 @@ class Jetpack_Gutenberg {
 		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
 		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.deps.json";
+		$editor_deps      = file_exists( $editor_deps_path )
+			? json_decode( file_get_contents( $editor_deps_path ) )
+			: array();
+		$editor_deps[]    = 'wp-polyfill';
+
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			: JETPACK__VERSION;
@@ -571,28 +560,7 @@ class Jetpack_Gutenberg {
 		wp_enqueue_script(
 			'jetpack-blocks-editor',
 			$editor_script,
-			array(
-				'lodash',
-				'wp-api-fetch',
-				'wp-blob',
-				'wp-blocks',
-				'wp-components',
-				'wp-compose',
-				'wp-data',
-				'wp-date',
-				'wp-edit-post',
-				'wp-editor',
-				'wp-element',
-				'wp-escape-html',
-				'wp-hooks',
-				'wp-i18n',
-				'wp-keycodes',
-				'wp-plugins',
-				'wp-polyfill',
-				'wp-rich-text',
-				'wp-token-list',
-				'wp-url',
-			),
+			$editor_deps,
 			$version,
 			false
 		);

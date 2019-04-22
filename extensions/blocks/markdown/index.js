@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -10,18 +11,22 @@ import { Fragment } from '@wordpress/element';
 import './editor.scss';
 import edit from './edit';
 import save from './save';
-import { __ } from '../../utils/i18n';
 
 export const name = 'markdown';
 
 export const settings = {
-	title: __( 'Markdown' ),
+	title: __( 'Markdown', 'jetpack' ),
 
 	description: (
 		<Fragment>
-			<p>{ __( 'Use regular characters and punctuation to style text, links, and lists.' ) }</p>
+			<p>
+				{ __(
+					'Use regular characters and punctuation to style text, links, and lists.',
+					'jetpack'
+				) }
+			</p>
 			<ExternalLink href="https://en.support.wordpress.com/markdown-quick-reference/">
-				{ __( 'Support reference' ) }
+				{ __( 'Support reference', 'jetpack' ) }
 			</ExternalLink>
 		</Fragment>
 	),
@@ -44,7 +49,11 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ __( 'formatting' ), __( 'syntax' ), __( 'markup' ) ],
+	keywords: [
+		_x( 'formatting', 'block search term', 'jetpack' ),
+		_x( 'syntax', 'block search term', 'jetpack' ),
+		_x( 'markup', 'block search term', 'jetpack' ),
+	],
 
 	attributes: {
 		//The Markdown source is saved in the block content comments delimiter

@@ -17,6 +17,7 @@ class Jetpack_Sync_Settings {
 		'queue_max_writes_sec'     => true,
 		'post_types_blacklist'     => true,
 		'disable'                  => true,
+		'network_disable'          => true,
 		'render_filtered_content'  => true,
 		'post_meta_whitelist'      => true,
 		'comment_meta_whitelist'   => true,
@@ -53,12 +54,27 @@ class Jetpack_Sync_Settings {
 			return self::$settings_cache[ $setting ];
 		}
 
-		$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
+		if ( self::is_network_setting( $setting ) ) {
+			if ( is_multisite() ) {
+				$value = get_site_option( self::SETTINGS_OPTION_PREFIX . $setting );
+			} else {
+				// On single sites just return the default setting
+				$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+				self::$settings_cache[ $setting ] = $value;
+				return $value;
+			}
+		} else {
+			$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
+		}
 
-		if ( false === $value ) {
-			$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-			$value        = Jetpack_Sync_Defaults::$$default_name;
-			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+		if ( false === $value ) { // no default value is set.
+			$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+			if ( self::is_network_setting( $setting ) ) {
+				update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+			} else {
+				// We set one so that it gets autoloaded
+				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+			}
 		}
 
 		if ( is_numeric( $value ) ) {
@@ -93,17 +109,29 @@ class Jetpack_Sync_Settings {
 	static function update_settings( $new_settings ) {
 		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
 		foreach ( $validated_settings as $setting => $value ) {
-			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+
+			if ( self::is_network_setting( $setting ) ) {
+				if ( is_multisite() && is_main_site() ) {
+					update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+				}
+			} else {
+				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+			}
+
 			unset( self::$settings_cache[ $setting ] );
 
 			// if we set the disabled option to true, clear the queues
-			if ( 'disable' === $setting && ! ! $value ) {
+			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
 				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
 			}
 		}
+	}
+
+	static function is_network_setting( $setting ) {
+		return strpos( $setting, 'network_' ) === 0;
 	}
 
 	// returns escapted SQL that can be injected into a WHERE clause
@@ -146,6 +174,10 @@ class Jetpack_Sync_Settings {
 		}
 
 		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
+	}
+
+	static function is_sync_enabled() {
+		return ! ( self::get_setting( 'disable' ) || self::get_setting( 'network_disable' ) );
 	}
 
 	static function set_doing_cron( $is_doing_cron ) {

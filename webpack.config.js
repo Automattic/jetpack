@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const devMode = process.env.NODE_ENV !== 'production';
@@ -48,9 +49,6 @@ const webpackConfig = {
 	},
 	resolve: {
 		extensions: [ '.js', '.jsx' ],
-		alias: {
-			react: path.join( __dirname, '/node_modules/react' ),
-		},
 		modules: [
 			path.resolve( __dirname, 'node_modules' ),
 			path.resolve( __dirname, '_inc/client' ),
@@ -74,24 +72,9 @@ const webpackConfig = {
 			// both options are optional
 			filename: '[name].dops-style.css',
 		} ),
+		new WordPressExternalDependenciesPlugin(),
 	],
-	externals: {
-		'react/addons': true,
-		'react/lib/ExecutionEnvironment': true,
-		'react/lib/ReactContext': true,
-		jsdom: 'window',
-	},
 	devtool: devMode ? 'source-map' : false,
 };
-
-if ( ! devMode ) {
-	// Create global process.env.NODE_ENV constant available at the browser window
-	// eslint-disable-next-line no-new
-	new webpack.DefinePlugin( {
-		// This has effect on the react lib size
-		// TODO switch depending on actual environment
-		'process.env.NODE_ENV': JSON.stringify( process.env.NODE_ENV ),
-	} );
-}
 
 module.exports = webpackConfig;

@@ -526,17 +526,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'goodreads.com',
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
-			),
-			array(
-				'url'   => 'google.com/+',
-				'icon'  => 'google-plus',
-				'label' => 'Google +',
-			),
-			array(
-				'url'   => 'plus.google.com',
-				'icon'  => 'google-plus',
-				'label' => 'Google +',
-			),
+			),			
 			array(
 				'url'   => 'google.com',
 				'icon'  => 'google',
@@ -616,6 +606,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'spotify.com',
 				'icon'  => 'spotify',
 				'label' => 'Spotify',
+			),
+			array(
+				'url'   => 'stackoverflow.com',
+				'icon'  => 'stackoverflow',
+				'label' => 'Stack Overflow',
 			),
 			array(
 				'url'   => 'stumbleupon.com',
