@@ -2376,15 +2376,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			// Show welcome for newly purchased plan
-			'show_welcome_for_new_plan' => array(
-				'description'       => '',
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'settings',
-			),
-
 		);
 
 		// Add modules to list so they can be toggled
