@@ -17,7 +17,7 @@ $ composer install # installs the composer dependencies
 $ cd ..
 $ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
-# define 'IS_PRESSABLE' (v1) or `IS_ATOMIC' (v2) as true so the loader will require wpcomsh
+# define 'IS_PRESSABLE' (v1) or 'IS_ATOMIC' (v2) as true so the loader will require wpcomsh
 ```
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.
