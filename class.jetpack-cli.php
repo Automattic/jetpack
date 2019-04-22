@@ -247,9 +247,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * wp jetpack reset options
 	 * wp jetpack reset modules
-	 * wp jetpack reset sync-checksum
+	 * wp jetpack reset sync-checksum --dry-run
 	 *
-	 * @synopsis <modules|options>
+	 * @synopsis <modules|options|sync-checksum> [--dry-run]
+	 *
 	 */
 	public function reset( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
@@ -261,10 +262,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// Are you sure?
 		jetpack_cli_are_you_sure();
 
+		$is_dry_run  = ! empty( $assoc_args['dry-run'] );
+
 		switch ( $action ) {
 			case 'options':
 				$options_to_reset = Jetpack_Options::get_options_for_reset();
-
+				if ( $is_dry_run ) {
+					WP_CLI::success( __( 'This is a `Dry Run` and no options will be reset or set!', 'jetpack' ) );
+				}
 				// Reset the Jetpack options
 				WP_CLI::line( sprintf(
 					__( "Resetting Jetpack Options for %s...\n", "jetpack" ),
@@ -272,8 +277,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 				) );
 				sleep(1); // Take a breath
 				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
-					Jetpack_Options::delete_option( $option_to_reset );
-					usleep( 100000 );
+					if ( ! $is_dry_run ) {
+						Jetpack_Options::delete_option( $option_to_reset );
+						usleep( 100000 );
+					}
+
 					/* translators: This is the result of an action. The option named %s was reset */
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
@@ -282,8 +290,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::line( __( "Resetting the jetpack options stored in wp_options...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
-					delete_option( $option_to_reset );
-					usleep( 100000 );
+					if ( ! $is_dry_run ) {
+						delete_option( $option_to_reset );
+						usleep( 100000 );
+					}
 					/* translators: This is the result of an action. The option named %s was reset */
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
@@ -292,16 +302,25 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::line( __( "Resetting default modules...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				$default_modules = Jetpack::get_default_modules();
-				Jetpack::update_active_modules( $default_modules );
+				if ( ! $is_dry_run ) {
+					Jetpack::update_active_modules( $default_modules );
+				}
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 
 				// Jumpstart option is special
-				Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+				if ( ! $is_dry_run ) {
+					Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+				}
 				WP_CLI::success( __( 'jumpstart option reset', 'jetpack' ) );
 				break;
 			case 'modules':
-				$default_modules = Jetpack::get_default_modules();
-				Jetpack::update_active_modules( $default_modules );
+				if ( ! $is_dry_run ) {
+					$default_modules = Jetpack::get_default_modules();
+					Jetpack::update_active_modules( $default_modules );
+				} else {
+					WP_CLI::success( __( 'This is a `Dry Run` and module activation will be reset', 'jetpack' ) );
+				}
+
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 				break;
 			case 'prompt':
@@ -310,17 +329,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'sync-checksum':
 				global $wpdb;
 				$option = 'jetpack_callables_sync_checksum';
+
+				if ( $is_dry_run ) {
+					WP_CLI::success( __( 'This is a `Dry Run` and no options will be deleted', 'jetpack' ) );
+				}
+
 				if ( is_multisite() && function_exists( 'get_sites' ) ) {
 					$sites  = get_sites( array( 'number' => 1000 ) );
 					$count_fixes  = 0;
 					foreach ( $sites as $site ) {
 						switch_to_blog( $site->blog_id );
-						$count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option ) );
+						$count = self::count_option( $option );
 						if ( $count > 1 ) {
-							delete_option( $option );
-							WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
+							if ( $is_dry_run ) {
+								WP_CLI::line( sprintf( __( 'DRY RUN: Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
+							} else {
+								delete_option( $option );
+								WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
+							}
+
 							$count_fixes++;
-							sleep( 20 ); // Allow some time for replication to catch up.
+							$sleep_duration = ( $is_dry_run ? 1 : 20 );
+							sleep( $sleep_duration ); // Allow some time for replication to catch up.
 						}
 
 						restore_current_blog();
@@ -330,12 +360,21 @@ class Jetpack_CLI extends WP_CLI_Command {
 					} else {
 						WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
 					}
+					if ( $is_dry_run ) {
+						WP_CLI::line( "\n" . __( "This was a DRY RUN!", 'jetpack' ) );
+					}
 					return;
 				}
-				$count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option ) );
+
+				$count = self::count_option( $option );
 				if ( $count > 1 ) {
-					delete_option( $option );
-					WP_CLI::success( sprintf( __( 'Deleted %s %s options', 'jetpack' ), $count, $option ) );
+					if ( $is_dry_run ) {
+						WP_CLI::success( sprintf( __( 'DRY RUN: Deleted %s %s options', 'jetpack' ), $count, $option ) );
+					} else {
+						delete_option( $option );
+						WP_CLI::success( sprintf( __( 'Deleted %s %s options', 'jetpack' ), $count, $option ) );
+					}
+
 					return;
 				}
 
@@ -343,6 +382,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 
 		}
+		if ( $is_dry_run ) {
+			WP_CLI::line( "\n" . __( "This was a DRY RUN!", 'jetpack' ) );
+		}
+	}
+
+	static function count_option( $option ) {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option ) );
+
 	}
 
 	/**
