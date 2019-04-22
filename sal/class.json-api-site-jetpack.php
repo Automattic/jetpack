@@ -108,6 +108,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return false;
 	}
 
+	function get_frame_nonce_site_only() {
+		return false;
+	}
+
 	function is_headstart_fresh() {
 		return false;
 	}
