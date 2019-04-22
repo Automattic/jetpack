@@ -1,17 +1,29 @@
 <?php
 /**
+ * Class for the Jetpack About Page within the wp-admin.
+ *
+ * @package Jetpack
+ */
+
+/**
  * Disable direct access and execution.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-include_once( 'class.jetpack-admin-page.php' );
+require_once 'class.jetpack-admin-page.php';
 
-// Builds the landing page and its menu
+/**
+ * Builds the landing page and its menu.
+ */
 class Jetpack_About_Page extends Jetpack_Admin_Page {
 
-	// Show the settings page only when Jetpack is connected or in dev mode
+	/**
+	 * Show the settings page only when Jetpack is connected or in dev mode.
+	 *
+	 * @var bool If the page should be shown.
+	 */
 	protected $dont_show_if_not_active = true;
 
 	/**
@@ -19,8 +31,8 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 *
 	 * @return string
 	 */
-	function get_page_hook() {
-		// Add the main admin Jetpack menu
+	public function get_page_hook() {
+		// Add the main admin Jetpack menu.
 		return add_submenu_page(
 			'jetpack',
 			esc_html__( 'About Jetpack', 'jetpack' ),
@@ -31,18 +43,26 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		);
 	}
 
-	function add_page_actions( $hook ) {
-		// Place the Jetpack menu item on top and others in the order they appear
+	/**
+	 * Add page action
+	 *
+	 * @param string $hook Hook of current page, unused.
+	 */
+	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Place the Jetpack menu item on top and others in the order they appear.
 		add_filter( 'custom_menu_order', '__return_true' );
-		add_filter( 'menu_order',        array( $this, 'submenu_order' ) );
+		add_filter( 'menu_order', array( $this, 'submenu_order' ) );
 	}
 
-	function page_admin_scripts() {
+	/**
+	 * Enqueues scripts and styles for the admin page.
+	 */
+	public function page_admin_scripts() {
 		wp_enqueue_style( 'plugin-install' );
 		wp_enqueue_script( 'plugin-install' );
-		// required for plugin modal action button functionality
+		// required for plugin modal action button functionality.
 		wp_enqueue_script( 'updates' );
-		// required for modal popup JS and styling
+		// required for modal popup JS and styling.
 		wp_enqueue_style( 'thickbox' );
 		wp_enqueue_script( 'thickbox' );
 	}
@@ -50,14 +70,14 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Load styles for static page.
 	 */
-	function additional_styles() {
+	public function additional_styles() {
 		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	/**
 	 * Render the page with a common top and bottom part, and page specific content
 	 */
-	function render() {
+	public function render() {
 		Jetpack_Admin_Page::wrap_ui( array( $this, 'page_render' ), array( 'show-nav' => false ) );
 	}
 
@@ -68,25 +88,25 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 *
 	 * @return array
 	 */
-	function submenu_order( $menu_order ) {
+	public function submenu_order( $menu_order ) {
 		global $submenu;
 
 		$stats_key = null;
 		$about_key = null;
 
 		foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-			if ( false !== array_search( 'stats', $menu_item ) ) {
+			if ( false !== array_search( 'stats', $menu_item, true ) ) {
 				$stats_key = $index;
 			}
-			if ( false !== array_search( 'jetpack_about', $menu_item ) ) {
+			if ( false !== array_search( 'jetpack_about', $menu_item, true ) ) {
 				$about_key = $index;
 			}
 		}
 
 		if ( $stats_key && $about_key ) {
-			$temp = $submenu['jetpack'][ $stats_key ];
-			$submenu['jetpack'][ $stats_key ] = $submenu['jetpack'][ $about_key ];
-			$submenu['jetpack'][ $about_key ] = $temp;
+			$temp                             = $submenu['jetpack'][ $stats_key ];
+			$submenu['jetpack'][ $stats_key ] = $submenu['jetpack'][ $about_key ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu['jetpack'][ $about_key ] = $temp; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 
 		return $menu_order;
@@ -95,7 +115,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Render the page content
 	 */
-	function page_render() {
+	public function page_render() {
 		?>
 		<div class="jp-lower">
 			<div class="jetpack-about__link-back">
@@ -106,8 +126,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			</div>
 			<div class="jetpack-about__main">
 				<div class="jetpack-about__logo">
-					<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-						 viewBox="0 0 800 96" style="enable-background:new 0 0 800 96;" xml:space="preserve">
+					<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 800 96" style="enable-background:new 0 0 800 96;" xml:space="preserve">
 					<g>
 						<path style="fill: #39c;" d="M292.922,78c-19.777,0-32.598-14.245-32.598-29.078V47.08c0-15.086,12.821-29.08,32.598-29.08
 							c19.861,0,32.682,13.994,32.682,29.08v1.843C325.604,63.755,312.783,78,292.922,78z M315.044,47.245
@@ -159,8 +178,19 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						</p>
 						<p>
 							<?php
-								// Maybe use printf() because we'll want to escape the string but still allow for the link, so we can't use esc_html_e()
-								echo wp_kses( __( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed">Automattic Creed</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'class' => array(), 'target' => array(), 'data-jptracks-name' => array() ) ) ); ?>
+								// Maybe use printf() because we'll want to escape the string but still allow for the link, so we can't use esc_html_e().
+								echo wp_kses(
+									__( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed">Automattic Creed</a>.', 'jetpack' ),
+									array(
+										'a' => array(
+											'href'   => array(),
+											'class'  => array(),
+											'target' => array(),
+											'data-jptracks-name' => array(),
+										),
+									)
+								);
+							?>
 						</p>
 						<p>
 							<a href="https://automattic.com/jobs" target="_blank"  class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
@@ -177,13 +207,30 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				<?php $this->display_plugins(); ?>
 				</ul>
 
-				<p class="jetpack-about__services-more"><?php echo wp_kses( __( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ), array( 'a' => array( 'href' => array(), 'target' => array(), 'class' => array(), 'data-jptracks-name' => array() ) ) ); ?></p>
+				<p class="jetpack-about__services-more">
+				<?php
+				echo wp_kses(
+					__( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href'               => array(),
+							'target'             => array(),
+							'class'              => array(),
+							'data-jptracks-name' => array(),
+						),
+					)
+				);
+				?>
+														</p>
 			</div>
 		</div>
 		<?php
 	}
 
-	function display_plugins() {
+	/**
+	 * Add information cards for a8c plugins.
+	 */
+	public function display_plugins() {
 		$plugins_allowedtags = array(
 			'a'       => array(
 				'href'   => array(),
@@ -203,7 +250,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			'br'      => array(),
 		);
 
-		// slugs for plugins we want to display
+		// slugs for plugins we want to display.
 		$a8c_plugins = array(
 			'akismet',
 			'wp-super-cache',
@@ -211,44 +258,45 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			'polldaddy',
 		);
 
-		// need this to access the plugins_api() function
-		include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' );
+		// need this to access the plugins_api() function.
+		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		foreach ( $a8c_plugins as $slug ){
+		$plugins = array();
+		foreach ( $a8c_plugins as $slug ) {
 			$args = array(
-				'slug'	=> $slug,
-				'fields'	=> array(
-					'added'						=> false,
-					'author'						=> false,
-					'author_profile'				=> false,
-					'banners'					=> false,
-					'contributors'				=> false,
-					'donate_link'				=> false,
-					'homepage'					=> false,
-					'reviews'					=> false,
-					'screenshots'				=> false,
-					'support_threads'			=> false,
-					'support_threads_resolved'	=> false,
-					'sections'					=> false,
-					'tags'						=> false,
-					'versions'					=> false,
+				'slug'   => $slug,
+				'fields' => array(
+					'added'                    => false,
+					'author'                   => false,
+					'author_profile'           => false,
+					'banners'                  => false,
+					'contributors'             => false,
+					'donate_link'              => false,
+					'homepage'                 => false,
+					'reviews'                  => false,
+					'screenshots'              => false,
+					'support_threads'          => false,
+					'support_threads_resolved' => false,
+					'sections'                 => false,
+					'tags'                     => false,
+					'versions'                 => false,
 
-					'compatibility'				=> true,
-					'downloaded'					=> true,
-					'downloadlink'				=> true,
-					'icons'						=> true,
-					'last_updated'				=> true,
-					'num_ratings'				=> true,
-					'rating'						=> true,
-					'requires'					=> true,
-					'requires_php'				=> true,
-					'short_description'			=> true,
-					'tested'						=> true,
+					'compatibility'            => true,
+					'downloaded'               => true,
+					'downloadlink'             => true,
+					'icons'                    => true,
+					'last_updated'             => true,
+					'num_ratings'              => true,
+					'rating'                   => true,
+					'requires'                 => true,
+					'requires_php'             => true,
+					'short_description'        => true,
+					'tested'                   => true,
 				),
 			);
 
-			// should probably add some error checking here too
-			$api = plugins_api( 'plugin_information', $args );
+			// should probably add some error checking here too.
+			$api       = plugins_api( 'plugin_information', $args );
 			$plugins[] = $api;
 		}
 
@@ -257,23 +305,22 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				$plugin = (array) $plugin;
 			}
 
-			$title = wp_kses( $plugin['name'], $plugins_allowedtags );
-			$version     = wp_kses( $plugin['version'], $plugins_allowedtags );
+			$title   = wp_kses( $plugin['name'], $plugins_allowedtags );
+			$version = wp_kses( $plugin['version'], $plugins_allowedtags );
 
-			$name = strip_tags( $title . ' ' . $version );
+			$name = wp_strip_all_tags( $title . ' ' . $version );
 
 			// Remove any HTML from the description.
-			$description = strip_tags( $plugin['short_description'] );
+			$description = wp_strip_all_tags( $plugin['short_description'] );
 
 			$wp_version = get_bloginfo( 'version' );
 
 			$compatible_php = ( empty( $plugin['requires_php'] ) || version_compare( phpversion(), $plugin['requires_php'], '>=' ) );
-			$tested_wp      = ( empty( $plugin['tested'] ) || version_compare( $wp_version, $plugin['tested'], '<=' ) );
 			$compatible_wp  = ( empty( $plugin['requires'] ) || version_compare( $wp_version, $plugin['requires'], '>=' ) );
 
 			$action_links = array();
 
-			// install button
+			// install button.
 			if ( current_user_can( 'install_plugins' ) || current_user_can( 'update_plugins' ) ) {
 				$status = install_plugin_install_status( $plugin );
 				switch ( $status['status'] ) {
@@ -373,7 +420,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			} else {
 				$plugin_icon_url = $plugin['icons']['default'];
 			}
-?>
+			?>
 
 		<li class="jetpack-about__plugin plugin-card-<?php echo sanitize_html_class( $plugin['slug'] ); ?>">
 			<?php
@@ -462,14 +509,16 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						if ( $plugin['active_installs'] >= 1000000 ) {
 							$active_installs_millions = floor( $plugin['active_installs'] / 1000000 );
 							$active_installs_text     = sprintf(
+								/* translators: number of millions of installs. */
 								_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations' ),
 								number_format_i18n( $active_installs_millions )
 							);
-						} elseif ( 0 == $plugin['active_installs'] ) {
+						} elseif ( 0 === $plugin['active_installs'] ) {
 							$active_installs_text = _x( 'Less Than 10', 'Active plugin installations' );
 						} else {
 							$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';
 						}
+						/* translators: number of active installs */
 						printf( __( '%s Active Installations' ), $active_installs_text );
 						?>
 					</div>
@@ -493,11 +542,14 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Fetch Gravatar hashes for public A12s from wpcom and display them as a list.
 	 */
-	function display_gravatars() {
-		if ( false === ( $hashes = get_transient( 'a12s_hashes' ) ) ) {
-			$response = json_decode( wp_remote_retrieve_body(
+	public function display_gravatars() {
+		$hashes = get_transient( 'a12s_hashes' );
+		if ( false === $hashes ) {
+			$response = json_decode(
+				wp_remote_retrieve_body(
 					wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/a11n-gravatar-hashes' )
-			) );
+				)
+			);
 			if ( ! empty( $response ) && is_array( $response ) ) {
 				$hashes = array();
 				foreach ( $response as $hash ) {

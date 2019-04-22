@@ -39,7 +39,7 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
 		$this->fallback_page = new Jetpack_Settings_Page;
 
-		jetpack_require_lib( 'admin-pages/class.jetpack-about-page' );
+		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page;
 
 		add_action( 'admin_menu',                    array( $this->jetpack_react, 'add_actions' ), 998 );
