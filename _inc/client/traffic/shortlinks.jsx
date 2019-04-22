@@ -15,7 +15,7 @@ import { ModuleToggle } from 'components/module-toggle';
 
 class Shortlinks extends Component {
 	render() {
-		const isLinked = this.props.isLinked;
+		const { isSiteConnected } = this.props;
 
 		return (
 			<SettingsCard
@@ -30,10 +30,11 @@ class Shortlinks extends Component {
 						text: this.props.shortlinksModule.description,
 						link: 'https://jetpack.com/support/shortlinks/',
 					} }
+					disableInDevMode
 				>
 					<ModuleToggle
 						slug="shortlinks"
-						disabled={ ! isLinked }
+						disabled={ ! isSiteConnected }
 						activated={ this.props.shortlinksActive }
 						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }

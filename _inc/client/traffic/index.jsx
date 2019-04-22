@@ -11,7 +11,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isSiteConnected, isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
@@ -32,6 +32,7 @@ export class Traffic extends React.Component {
 			settings: this.props.settings,
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
+			isSiteConnected: this.props.isSiteConnected,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
 			getModuleOverride: this.props.getModuleOverride,
@@ -125,6 +126,7 @@ export default connect( state => {
 		isDevMode: isDevMode( state ),
 		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	};
