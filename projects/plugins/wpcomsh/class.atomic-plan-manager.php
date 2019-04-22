@@ -63,11 +63,12 @@ class Atomic_Plan_Manager {
 	 */ 
 	public static function current_plan_slug() {
 		$at_options = get_option( 'at_options', array() );
-		if ( ! isset( $at_options['plan_slug'] ) ) {
+		if ( ! is_array( $at_options ) ) {
+			$at_options = array( 'plan_slug' => self::BUSINESS_PLAN_SLUG );
+		} else if ( ! isset( $at_options[ 'plan_slug' ] ) ) {
 			$at_options[ 'plan_slug' ] = self::BUSINESS_PLAN_SLUG;
 		}
-
-		return $at_options['plan_slug'];
+		return $at_options[ 'plan_slug' ];
 	}
 
 	/**
