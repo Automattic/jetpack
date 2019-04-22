@@ -130,4 +130,18 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertFalse( $availability['tomato']['available'], 'Availability is not false exists' );
 		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
 	}
+
+	function test_get_available_extensions() {
+		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$this->assertInternalType( 'array', $extensions );
+		$this->assertNotEmpty( $extensions );
+		$this->assertContains( 'mailchimp', $extensions );
+
+		update_option( 'jetpack_extensions_exclusions', array( 'mailchimp' ) );
+
+		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$this->assertInternalType( 'array', $extensions );
+		$this->assertNotEmpty( $extensions );
+		$this->assertNotContains( 'mailchimp', $extensions );
+	}
 }
