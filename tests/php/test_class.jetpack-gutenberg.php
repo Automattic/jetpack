@@ -22,6 +22,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'user_tokens', array( $this->master_user_id => "honey.badger.$this->master_user_id" ) );
 
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
+		delete_option( 'jetpack_extensions_exclusions' );
 		Jetpack_Gutenberg::init();
 	}
 

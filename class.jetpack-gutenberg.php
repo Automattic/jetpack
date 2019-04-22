@@ -230,7 +230,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_jetpack_gutenberg_extensions_whitelist() );
+		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
 
 		/**
 		 * Filter the whitelist of block editor plugins that are available through Jetpack.
@@ -324,6 +324,20 @@ class Jetpack_Gutenberg {
 		}
 
 		return $preset_extensions;
+	}
+
+	/**
+	 * Returns a diff from a combined list of whitelisted extensions and extensions determined to be excluded
+	 *
+	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
+	 */
+	public static function get_available_extensions() {
+		$exclusions             = get_option( 'jetpack_extensions_exclusions', array() );
+		$whitelisted_extensions = self::get_jetpack_gutenberg_extensions_whitelist();
+
+		$combined_extension_list = array_diff( $whitelisted_extensions, $exclusions );
+
+		return $combined_extension_list;
 	}
 
 	/**
