@@ -132,14 +132,14 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_get_available_extensions() {
-		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$extensions = Jetpack_Gutenberg::set_extension_available( 'jetpack/parsnip' );
 		$this->assertInternalType( 'array', $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertContains( 'mailchimp', $extensions );
 
 		update_option( 'jetpack_extensions_exclusions', array( 'mailchimp' ) );
 
-		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$extensions = Jetpack_Gutenberg::set_extension_available( 'jetpack/parsnip' );
 		$this->assertInternalType( 'array', $extensions );
 		$this->assertNotEmpty( $extensions );
 		$this->assertNotContains( 'mailchimp', $extensions );
