@@ -202,7 +202,7 @@ class ThemeEnhancements extends React.Component {
 				) }
 				{ foundCustomCSS && (
 					<SettingsGroup
-						module="custom-css"
+						module={ { module: customCSS.module } }
 						support={ {
 							text: customCSS.description,
 							link: 'https://jetpack.com/support/custom-css/',
