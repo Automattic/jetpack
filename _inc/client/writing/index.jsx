@@ -46,6 +46,7 @@ export class Writing extends React.Component {
 			'copy-post',
 			'masterbar',
 			'markdown',
+			'shortcodes',
 			'after-the-deadline',
 			'custom-content-types',
 			'post-by-email',

@@ -45,7 +45,6 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				'json-api',
 				'latex',
 				'notes',
-				'shortcodes',
 				'shortlinks',
 			];
 
