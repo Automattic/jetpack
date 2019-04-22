@@ -1188,8 +1188,8 @@ class Jetpack_Photon {
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),
-			array( 'jquery' ),
-			20130122,
+			array(),
+			20190201,
 			true
 		);
 	}
