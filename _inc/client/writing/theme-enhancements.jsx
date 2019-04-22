@@ -120,14 +120,16 @@ class ThemeEnhancements extends React.Component {
 
 	render() {
 		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
+			foundCustomCSS = this.props.isModuleFound( 'custom-css' ),
 			foundMinileven = this.props.isModuleFound( 'minileven' );
 
-		if ( ! foundInfiniteScroll && ! foundMinileven ) {
+		if ( ! foundInfiniteScroll && ! foundMinileven && ! foundCustomCSS ) {
 			return null;
 		}
 
 		const infScr = this.props.getModule( 'infinite-scroll' );
 		const minileven = this.props.getModule( 'minileven' );
+		const customCSS = this.props.getModule( 'custom-css' );
 		const isMinilevenActive = this.props.getOptionValue( minileven.module );
 
 		const infiniteScrollDisabledByOverride =
@@ -196,6 +198,27 @@ class ThemeEnhancements extends React.Component {
 								</a>
 							</span>
 						) }
+					</SettingsGroup>
+				) }
+				{ foundCustomCSS && (
+					<SettingsGroup
+						module={ { module: customCSS.module } }
+						support={ {
+							text: customCSS.description,
+							link: 'https://jetpack.com/support/custom-css/',
+						} }
+					>
+						<ModuleToggle
+							slug="custom-css"
+							activated={ !! this.props.getOptionValue( 'custom-css' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enhance CSS customization panel' ) }
+							</span>
+						</ModuleToggle>
 					</SettingsGroup>
 				) }
 				{ foundMinileven && (
