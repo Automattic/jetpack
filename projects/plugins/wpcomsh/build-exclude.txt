@@ -11,3 +11,4 @@ Makefile
 *.mdown
 composer.json
 composer.lock
+error_log
