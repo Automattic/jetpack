@@ -437,7 +437,7 @@ class Jetpack_XMLRPC_Server {
 			JetpackTracking::record_user_event( 'jpc_verify_authorize_begin', array(), $user );
 		}
 		if ( 'register' === $action ) {
-			$tracks_failure_event_name 'jpc_verify_register_fail';
+			$tracks_failure_event_name = 'jpc_verify_register_fail';
 			JetpackTracking::record_user_event( 'jpc_verify_register_begin', array(), $user );
 		}
 
