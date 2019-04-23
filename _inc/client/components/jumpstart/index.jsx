@@ -65,17 +65,16 @@ class JumpStart extends Component {
 						</p>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								"Next, activate Jetpack's recommended features to maximize your site's security and performance. The " +
+								"Next, activate Jetpack's recommended features. We've picked the features most useful for maximizing your site's security and performance, like " +
 									'{{a1}}secure authentication{{/a1}}' +
-									' and ' +
-									'{{a2}}downtime monitoring{{/a2}}' +
-									' features will immediately help secure your website and inform you if your site goes down. ' +
-									'{{a3}}Image hosting{{/a3}}' +
 									', ' +
-									'{{a4}}static file hosting{{/a4}}' +
+									'{{a2}}downtime monitoring{{/a2}}' +
+									', ' +
+									'{{a3}}Image hosting{{/a3}}' +
 									', and ' +
-									'{{a5}}lazy loading images{{/a5}}' +
-									' are all features that will speed up the loading of your site.',
+									'{{a4}}lazy loading images{{/a4}}' +
+									". Activate them all with a click, and they'll make sure your site is safe and speedy. " +
+									'{{a5}}Learn more about our recommended features.{{/a5}}',
 								{
 									components: {
 										a1: (
@@ -101,14 +100,14 @@ class JumpStart extends Component {
 										),
 										a4: (
 											<a
-												href="https://jetpack.com/features/design/content-delivery-network/"
+												href="https://jetpack.com/features/design/lazy-loading-images-for-wordpress/"
 												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
 										a5: (
 											<a
-												href="https://jetpack.com/features/design/lazy-loading-images-for-wordpress/"
+												href="https://jetpack.com/support/quick-start-guide/#jumpstart"
 												target="_blank"
 												rel="noopener noreferrer"
 											/>
