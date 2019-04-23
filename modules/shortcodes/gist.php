@@ -111,7 +111,11 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 function github_gist_shortcode( $atts, $content = '' ) {
 
 	if ( empty( $atts[0] ) && empty( $content ) ) {
-		return '<!-- Missing Gist ID -->';
+		if ( current_user_can( 'edit_posts' ) ) {
+			return esc_html__( 'Please specify a Gist URL or ID.', 'jetpack' );
+		} else {
+			return '<!-- Missing Gist ID -->';
+		}
 	}
 
 	$id = ( ! empty( $content ) ) ? $content : $atts[0];
@@ -119,7 +123,11 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	// Parse a URL to get an ID we can use.
 	$gist_info = jetpack_gist_get_shortcode_id( $id );
 	if ( empty( $gist_info['id'] ) ) {
-		return '<!-- Invalid Gist ID -->';
+		if ( current_user_can( 'edit_posts' ) ) {
+			return esc_html__( 'The Gist ID you provided is not valid. Please try a different one.', 'jetpack' );
+		} else {
+			return '<!-- Invalid Gist ID -->';
+		}
 	} else {
 		// Add trailing .json to all unique gist identifiers.
 		$id = $gist_info['id'] . '.json';
