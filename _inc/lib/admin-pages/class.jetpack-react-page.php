@@ -322,6 +322,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * new_connection      : Brand new connection - Show
  * jumpstart_activated : Jump Start has been activated - dismiss
  * jumpstart_dismissed : Manual dismissal of Jump Start - dismiss
+ * jetpack_action_taken: Deprecated since 7.3 But still listed here to respect behaviour for old versions.
+ *                       Manual activation of a module already happened - dismiss.
  *
  * @todo move to functions.global.php when available
  * @since 3.6
@@ -335,6 +337,7 @@ function jetpack_show_jumpstart() {
 
 	$hide_options = array(
 		'jumpstart_activated',
+		'jetpack_action_taken',
 		'jumpstart_dismissed'
 	);
 
