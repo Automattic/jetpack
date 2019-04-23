@@ -80,13 +80,10 @@ function jetpack_verify_frame_nonce( $nonce, $action ) {
 	}
 
 	add_filter( 'salt', 'jetpack_filter_salt', 10, 2 );
-
 	$expected_hash = wp_hash( "$expiration|$action|$user_id", 'jetpack_frame_nonce' );
-	$is_hash_ok    = hash_equals( $hash, $expected_hash );
-
 	remove_filter( 'salt', 'jetpack_filter_salt' );
 
-	return $is_hash_ok;
+	return hash_equals( $hash, $expected_hash );
 }
 
 /**
