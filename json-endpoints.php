@@ -117,13 +117,13 @@ $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
 
 // This files instantiates the endpoints
 require_once( $json_jetpack_endpoints_dir . 'json-api-jetpack-endpoints.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-3-endpoint.php' );
 
 // **********
 // v1.3
 // **********
 
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-3-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-3-endpoint.php' );
 
 // **********
 // v1.4
