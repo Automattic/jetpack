@@ -10,7 +10,7 @@ class Jetpack_Data {
 	 */
 	public static function get_access_token( $user_id = false, $token_key = false ) {
 		if ( $user_id ) {
-			if ( !$tokens = Jetpack_Options::get_option( 'user_tokens' ) ) {
+			if ( !$user_tokens = Jetpack_Options::get_option( 'user_tokens' ) ) {
 				return false;
 			}
 			if ( $user_id === JETPACK_MASTER_USER ) {
@@ -18,7 +18,7 @@ class Jetpack_Data {
 					return false;
 				}
 			}
-			if ( !isset( $tokens[$user_id] ) || !$token = $tokens[$user_id] ) {
+			if ( !isset( $user_tokens[$user_id] ) || !$token = $user_tokens[$user_id] ) {
 				return false;
 			}
 			$token_chunks = explode( '.', $token );
@@ -28,23 +28,38 @@ class Jetpack_Data {
 			if ( $user_id != $token_chunks[2] ) {
 				return false;
 			}
-			$token = "{$token_chunks[0]}.{$token_chunks[1]}";
+			$tokens = array( "{$token_chunks[0]}.{$token_chunks[1]}" );
 		} else {
+			$tokens = defined( 'JETPACK__BLOG_TOKEN' ) ? array( JETPACK__BLOG_TOKEN ) : array();
+
 			$token = Jetpack_Options::get_option( 'blog_token' );
-			if ( empty( $token ) ) {
+			if ( empty( $token ) && empty( $tokens ) ) {
 				return false;
 			}
+
+			$tokens[] = $token;
 		}
 
+		// Return the token matching $token_key or false if none.
 		if ( false !== $token_key ) {
 			$token_check = rtrim( $token_key, '.' ) . '.';
-			if ( ! hash_equals( substr( $token, 0, strlen( $token_check ) ), $token_check ) ) {
-				return false;
+
+			$valid_token = false;
+			foreach ( $tokens as $token ) {
+				if ( hash_equals( substr( $token, 0, strlen( $token_check ) ), $token_check ) ) {
+					$valid_token = $token;
+				}
 			}
+
+			return $valid_token ? (object) array(
+				'secret' => $valid_token,
+				'external_user_id' => (int) $user_id,
+			) : false;
 		}
 
+		// Return the first token.
 		return (object) array(
-			'secret' => $token,
+			'secret' => $tokens[0],
 			'external_user_id' => (int) $user_id,
 		);
 	}
