@@ -227,9 +227,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	function update_sent_progress_action( $actions ) {
-
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_filter( array_map( array( $this, 'get_action_name' ), $actions ) ) );
+
+		// Total item counts for each action.
+		$actions_with_total_counts = $this->get_actions_totals( $actions );
 
 		if ( ! $this->is_started() || $this->is_finished() ) {
 			return;
@@ -242,16 +244,26 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_actions     = $module->get_full_sync_actions();
 			$status_option_name = "{$module->name()}_sent";
+			$total_option_name  = "{$status_option_name}_total";
 			$items_sent         = $this->get_status_option( $status_option_name, 0 );
+			$items_sent_total   = $this->get_status_option( $total_option_name, 0 );
 
 			foreach ( $module_actions as $module_action ) {
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
 					$items_sent += $actions_with_counts[ $module_action ];
 				}
+
+				if ( ! empty( $actions_with_total_counts[ $module_action ] ) ) {
+					$items_sent_total += $actions_with_total_counts[ $module_action ];
+				}
 			}
 
 			if ( $items_sent > 0 ) {
 				$this->update_status_option( $status_option_name, $items_sent );
+			}
+
+			if ( $items_sent_total !== 0 ) {
+				$this->update_status_option( $total_option_name, $items_sent_total );
 			}
 		}
 
@@ -265,6 +277,33 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			return $queue_item[0];
 		}
 		return false;
+	}
+
+	public function get_action_totals( $queue_item ) {
+		if ( is_array( $queue_item ) && isset( $queue_item[1] ) && isset( $queue_item[1][0] ) ) {
+			if ( is_array( $queue_item[1][0] ) ) {
+				// Let's count the items we sync in this action.
+				return count( $queue_item[1][0] );
+			}
+			// -1 indicates that this action syncs all items by design.
+			return -1;
+		}
+		return 0;
+	}
+
+	public function get_actions_totals( $actions ) {
+		$totals = array();
+
+		foreach ( $actions as $action ) {
+			$name = $this->get_action_name( $action );
+			$action_totals = $this->get_action_totals( $action );
+			if ( ! isset( $totals[ $name ] ) ) {
+				$totals[ $name ] = 0;
+			}
+			$totals[ $name ] += $action_totals;
+		}
+
+		return $totals;
 	}
 
 	public function is_started() {
@@ -282,6 +321,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'send_started'   => $this->get_status_option( 'send_started' ),
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
+			'sent_total'     => array(),
 			'queue'          => array(),
 			'config'         => $this->get_status_option( 'params' ),
 			'total'          => array(),
@@ -309,6 +349,10 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
 				$status['sent'][ $name ] = $sent;
 			}
+
+			if ( $sent_total = $this->get_status_option( "{$name}_sent_total" ) ) {
+				$status['sent_total'][ $name ] = $sent_total;
+			}
 		}
 
 		return $status;
@@ -326,6 +370,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
+			Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent_total" );
 		}
 	}
 
