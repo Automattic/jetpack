@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Crowosignal (ne PollDaddy) shortcode.
+ * Crowdsignal (PollDaddy) shortcode.
  *
  * Formats:
  * [polldaddy type="iframe" survey="EB151947E5950FCF" height="auto" domain="jeherve" id="a-survey-with-branches"]
