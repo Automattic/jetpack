@@ -84,7 +84,7 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 
 		// Keep the unique identifier without any leading or trailing slashes.
 		if ( ! empty( $parsed_url['path'] ) ) {
-			$gist_info['id'] = preg_replace( '/(?:\/)([^\.]+)\./', '$1', $parsed_url['path'] );
+			$gist_info['id'] = preg_replace( '/^\/([^\.]+)\./', '$1', $parsed_url['path'] );
 			// Overwrite $gist with our identifier to clean it up below.
 			$gist = $gist_info['id'];
 		}
