@@ -56,9 +56,6 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
-
-			// Deprecated
-			'google-plus-1'    => 'Share_GooglePlus1',
 		);
 
 		/**
