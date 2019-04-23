@@ -421,6 +421,8 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * The 'authorize' and 'register' actions have additional error codes
 	 *
+	 * Possible values for action are `authorize`, `publicize` and `register`.
+	 *
 	 * state_missing: a state ( user id ) was not supplied
 	 * state_malformed: state is not the correct data type
 	 * invalid_state: supplied state does not match the stored state
@@ -435,6 +437,11 @@ class Jetpack_XMLRPC_Server {
 		if ( 'authorize' === $action ) {
 			$tracks_failure_event_name = 'jpc_verify_authorize_fail';
 			JetpackTracking::record_user_event( 'jpc_verify_authorize_begin', array(), $user );
+		}
+		if ( 'publicize' === $action ) {
+			// This action is used on a response from a direct XML-RPC done from WordPress.com
+			$tracks_failure_event_name = 'jpc_verify_publicize_fail';
+			JetpackTracking::record_user_event( 'jpc_verify_publicize_begin', array(), $user );
 		}
 		if ( 'register' === $action ) {
 			$tracks_failure_event_name = 'jpc_verify_register_fail';
@@ -477,6 +484,9 @@ class Jetpack_XMLRPC_Server {
 
 		if ( 'authorize' === $action ) {
 			JetpackTracking::record_user_event( 'jpc_verify_authorize_success', array(), $user );
+		}
+		if ( 'publicize' === $action ) {
+			JetpackTracking::record_user_event( 'jpc_verify_publicize_success', array(), $user );
 		}
 		if ( 'register' === $action ) {
 			JetpackTracking::record_user_event( 'jpc_verify_register_success', array(), $user );
