@@ -82,15 +82,11 @@ function jetpack_verify_frame_nonce( $nonce, $action ) {
 	add_filter( 'salt', 'jetpack_filter_salt', 10, 2 );
 
 	$expected_hash = wp_hash( "$expiration|$action|$user_id", 'jetpack_frame_nonce' );
-	if ( hash_equals( $hash, $expected_hash ) ) {
-		remove_filter( 'salt', 'jetpack_filter_salt' );
-		return true;
-	}
+	$is_hash_ok    = hash_equals( $hash, $expected_hash );
 
 	remove_filter( 'salt', 'jetpack_filter_salt' );
 
-	// Invalid nonce.
-	return false;
+	return $is_hash_ok;
 }
 
 /**
