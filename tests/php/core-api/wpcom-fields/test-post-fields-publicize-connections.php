@@ -99,7 +99,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
   }
 
   public function setUp() {
-    $this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+    $this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft', 'post_author' => self::$user_id ) );
 
     $this->maybe_setup_fields();
 
