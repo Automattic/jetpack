@@ -12,13 +12,14 @@ import store from 'state/redux-store';
 import StaticMain from 'static-main';
 import StaticWarning from 'components/jetpack-notices/static-warning';
 
-window.staticHtml = renderToStaticMarkup(
-	<div>
-		<Provider store={ store }>
-			<StaticMain />
-		</Provider>
-	</div>
-);
+export default () =>
+	renderToStaticMarkup(
+		<div>
+			<Provider store={ store }>
+				<StaticMain />
+			</Provider>
+		</div>
+	);
 
 window.noscriptNotice = renderToStaticMarkup(
 	<Provider store={ store }>

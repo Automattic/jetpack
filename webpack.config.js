@@ -1,5 +1,6 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
+const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
@@ -13,7 +14,7 @@ const webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: path.join( __dirname, './_inc/client/admin.js' ),
-		static: path.join( __dirname, './_inc/client/static.jsx' ),
+		//static: path.join( __dirname, './_inc/client/static.jsx' ),
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
@@ -73,6 +74,14 @@ const webpackConfig = {
 			filename: '[name].dops-style.css',
 		} ),
 		new WordPressExternalDependenciesPlugin(),
+		new HtmlWebpackPlugin( {
+			template: '!prerender-loader?string!_inc/client/static.jsx',
+			filename: 'prerendered-static.html',
+
+			// any other options you'd normally set are still supported:
+			compile: false,
+			inject: true,
+		} ),
 	],
 	devtool: devMode ? 'source-map' : false,
 };
