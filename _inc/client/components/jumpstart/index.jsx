@@ -37,13 +37,13 @@ class JumpStart extends Component {
 	};
 
 	dismissLink = () =>
-		__( '{{a}}Skip{{/a}}', {
+		__( '{{a}}Skip, and explore features individually.{{/a}}', {
 			components: {
 				a: (
 					<a
 						href={ '#/settings' }
 						onClick={ this.props.jumpStartSkip }
-						className="jp-jumpstart__skip-link dops-button is-borderless"
+						className="jp-jumpstart__skip-link"
 					/>
 				),
 			},
@@ -116,10 +116,8 @@ class JumpStart extends Component {
 								}
 							) }
 						</p>
-						<p>
-							{ this.dismissLink() }
-							{ this.activateButton() }
-						</p>
+						<p>{ this.activateButton() }</p>
+						<p>{ this.dismissLink() }</p>
 					</div>
 				</Card>
 			</div>
