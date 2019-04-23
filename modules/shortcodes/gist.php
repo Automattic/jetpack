@@ -136,7 +136,13 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	// Replace - by . to get a real file name from slug.
 	if ( ! empty( $file ) ) {
-		$file = preg_replace( '/\-(?!.*\-)/', '.', $file );
+		// Find the last -.
+		$dash_position = strrpos( $file, '-' );
+		if ( false !== $dash_position ) {
+			// Replace the - by a period.
+			$file = substr_replace( $file, '.', $dash_position, 1 );
+		}
+
 		$file = rawurlencode( $file );
 	}
 
