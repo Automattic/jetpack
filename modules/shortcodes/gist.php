@@ -91,7 +91,7 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 	}
 
 	// Not a URL nor an ID? Only keep one of "username/id", "/username/id", "id".
-	if ( preg_match( '#^/?(([a-z0-9-_]+/)?([a-z0-9]+))$#i', $gist, $matches ) ) {
+	if ( preg_match( '#^/?(([a-z0-9_-]+/)?([a-z0-9]+))$#i', $gist, $matches ) ) {
 		$gist_info['id'] = $matches[1];
 
 		// If there is one, strip the GitHub username and only keep the ID.
