@@ -69,13 +69,13 @@ function jetpack_verify_frame_nonce( $nonce, $action ) {
 		return false;
 	}
 
-	list( $expiration, $hash ) = explode( ':', $nonce, 2 );
+	list( $expiration, $user_id, $hash ) = explode( ':', $nonce, 3 );
 	if ( time() > $expiration ) {
 		return false;
 	}
 
-	$user_id = get_current_user_id();
-	if ( ! $user_id ) {
+	$current_user_id = get_current_user_id();
+	if ( ! $current_user_id || $current_user_id != $user_id ) {
 		return false;
 	}
 
