@@ -252,10 +252,10 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 
 		// slugs for plugins we want to display.
 		$a8c_plugins = array(
-			'akismet',
+			'woocommerce',
 			'wp-super-cache',
-			'vaultpress',
-			'polldaddy',
+			'wp-job-manager',
+			'co-authors-plus',
 		);
 
 		// need this to access the plugins_api() function.
