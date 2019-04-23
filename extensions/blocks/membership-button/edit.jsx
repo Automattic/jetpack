@@ -3,7 +3,7 @@
  */
 
 import classnames from 'classnames';
-import SubmitButton from '../../utils/submit-button';
+import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { trimEnd } from 'lodash';
