@@ -494,7 +494,7 @@ HTML;
 
 		$loc_id = 100;
 		if ( ! empty( self::$ad_location_ids[ $location ] ) ) {
-			$loc_id = self::$ad_location_ids[$location];
+			$loc_id = self::$ad_location_ids[ $location ];
 		}
 
 		return <<<HTML
