@@ -891,6 +891,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'finished'       => null,
 				'total'          => array(),
 				'sent'           => array(),
+				'sent_total'     => array(),
 				'queue'          => array(),
 				'config'         => null,
 			)
