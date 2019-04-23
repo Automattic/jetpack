@@ -552,6 +552,7 @@ class Jetpack_Options {
 			'jpo_site_type',
 			'jpo_homepage_format',
 			'jpo_contact_page',
+			'get_all_wp_options',
 		);
 	}
 

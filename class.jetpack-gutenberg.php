@@ -337,9 +337,7 @@ class Jetpack_Gutenberg {
 		$exclusions             = get_option( 'jetpack_extensions_exclusions', array() );
 		$whitelisted_extensions = is_null( $whitelisted_extensions ) ? self::get_jetpack_gutenberg_extensions_whitelist() : $whitelisted_extensions;
 
-		$combined_extension_list = array_diff( $whitelisted_extensions, $exclusions );
-
-		return $combined_extension_list;
+		return array_diff( $whitelisted_extensions, $exclusions );
 	}
 
 	/**
