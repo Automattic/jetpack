@@ -4,22 +4,8 @@
 import classnames from 'classnames';
 import { isBlobURL } from '@wordpress/blob';
 
-/* @TODO Caption has been commented out */
-// import { RichText } from '@wordpress/editor';
-
 export default function GalleryImageSave( props ) {
-	const {
-		alt,
-		// caption,
-		imageFilter,
-		height,
-		id,
-		link,
-		linkTo,
-		origUrl,
-		url,
-		width,
-	} = props;
+	const { alt, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
 
 	if ( isBlobURL( origUrl ) ) {
 		return null;
@@ -55,9 +41,6 @@ export default function GalleryImageSave( props ) {
 			} ) }
 		>
 			{ href ? <a href={ href }>{ img }</a> : img }
-			{ /* ! RichText.isEmpty( caption ) && (
-				<RichText.Content tagName="figcaption" value={ caption } />
-			) */ }
 		</figure>
 	);
 }
