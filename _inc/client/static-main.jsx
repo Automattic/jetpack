@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 /**
  * Internal dependencies
@@ -31,8 +30,6 @@ class StaticMain extends React.Component {
 }
 
 export default connect(
-	state => {
-		return state;
-	},
-	dispatch => bindActionCreators( { setInitialState }, dispatch )
+	null,
+	{ setInitialState }
 )( StaticMain );
