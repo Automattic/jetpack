@@ -48,7 +48,7 @@ class Jetpack_Provision { //phpcs:ignore
 		}
 
 		$blog_id    = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Options::get_option( 'blog_token' );
+		$blog_token = Jetpack_Data::get_access_token();
 
 		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
@@ -61,7 +61,7 @@ class Jetpack_Provision { //phpcs:ignore
 			}
 
 			$blog_id    = Jetpack_Options::get_option( 'id' );
-			$blog_token = Jetpack_Options::get_option( 'blog_token' );
+			$blog_token = Jetpack_Data::get_access_token();
 		}
 
 		// If the user isn't specified, but we have a current master user, then set that to current user.

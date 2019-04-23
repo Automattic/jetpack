@@ -276,7 +276,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
+		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Data::get_access_token()->secret );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
