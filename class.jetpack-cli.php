@@ -335,7 +335,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				if ( is_multisite() && function_exists( 'get_sites' ) ) {
-					$sites  = get_sites( array( 'number' => 1000 ) );
+					$sites        = get_sites( array( 'number' => 1000 ) );
 					$count_fixes  = 0;
 					foreach ( $sites as $site ) {
 						switch_to_blog( $site->blog_id );
