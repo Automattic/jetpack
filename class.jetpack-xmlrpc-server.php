@@ -430,8 +430,16 @@ class Jetpack_XMLRPC_Server {
 		$verify_secret = $params[1];
 		$state = isset( $params[2] ) ? $params[2] : '';
 		$user = get_user_by( 'id', $state );
-		JetpackTracking::record_user_event( 'jpc_verify_' . $action . '_begin', array(), $user );
-		$tracks_failure_event_name = 'jpc_verify_' . $action . '_fail';
+		$tracks_failure_event_name = '';
+
+		if ( 'authorize' === $action ) {
+			$tracks_failure_event_name = 'jpc_verify_authorize_fail';
+			JetpackTracking::record_user_event( 'jpc_verify_authorize_begin', array(), $user );
+		}
+		if ( 'register' === $action ) {
+			$tracks_failure_event_name 'jpc_verify_register_fail';
+			JetpackTracking::record_user_event( 'jpc_verify_register_begin', array(), $user );
+		}
 
 		if ( empty( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ), $tracks_failure_event_name, $user );
@@ -467,7 +475,12 @@ class Jetpack_XMLRPC_Server {
 
 		Jetpack::delete_secrets( $action, $state );
 
-		JetpackTracking::record_user_event( 'jpc_verify_' . $action . '_success', array(), $user );
+		if ( 'authorize' === $action ) {
+			JetpackTracking::record_user_event( 'jpc_verify_authorize_success', array(), $user );
+		}
+		if ( 'register' === $action ) {
+			JetpackTracking::record_user_event( 'jpc_verify_register_success', array(), $user );
+		}
 
 		return $secrets['secret_2'];
 	}
