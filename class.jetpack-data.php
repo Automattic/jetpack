@@ -4,9 +4,11 @@ class Jetpack_Data {
 	/**
 	 * Gets locally stored token
 	 *
+	 * @param int|false $user_id false: Return the Blog Token. int: Return that user's User Token.
+	 * @param string|false $token_key: If provided, check that the stored token matches the provided $token_key.
 	 * @return object|false
 	 */
-	public static function get_access_token( $user_id = false ) {
+	public static function get_access_token( $user_id = false, $token_key = false ) {
 		if ( $user_id ) {
 			if ( !$tokens = Jetpack_Options::get_option( 'user_tokens' ) ) {
 				return false;
@@ -30,6 +32,13 @@ class Jetpack_Data {
 		} else {
 			$token = Jetpack_Options::get_option( 'blog_token' );
 			if ( empty( $token ) ) {
+				return false;
+			}
+		}
+
+		if ( false !== $token_key ) {
+			$token_check = rtrim( $token_key, '.' ) . '.';
+			if ( ! hash_equals( substr( $token, 0, strlen( $token_check ) ), $token_check ) ) {
 				return false;
 			}
 		}

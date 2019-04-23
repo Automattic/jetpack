@@ -5195,13 +5195,8 @@ p {
 			}
 		}
 
-		$token = Jetpack_Data::get_access_token( $user_id );
+		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
 		if ( ! $token ) {
-			return false;
-		}
-
-		$token_check = "$token_key.";
-		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
 			return false;
 		}
 
@@ -5284,8 +5279,9 @@ p {
 		}
 
 		$this->xmlrpc_verification = array(
-			'type'    => $token_type,
-			'user_id' => $token->external_user_id,
+			'type'      => $token_type,
+			'token_key' => $token_key,
+			'user_id'   => $token->external_user_id,
 		);
 
 		return $this->xmlrpc_verification;
@@ -5822,7 +5818,7 @@ p {
 			: $environment;
 
 		list( $envToken, $envVersion, $envUserId ) = explode( ':', $environment['token'] );
-		$token = Jetpack_Data::get_access_token( $envUserId );
+		$token = Jetpack_Data::get_access_token( $envUserId, $envToken );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.' , 'jetpack' ) );
 		}

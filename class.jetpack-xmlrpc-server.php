@@ -759,7 +759,13 @@ class Jetpack_XMLRPC_Server {
 		$old_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
-		$token = Jetpack_Data::get_access_token( get_current_user_id() );
+		if ( $user_id ) {
+			$token_key = false;
+		} else {
+			$token_key = Jetpack::init()->xmlrpc_verification['token_key'];
+		}
+
+		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
 		if ( !$token || is_wp_error( $token ) ) {
 			return false;
 		}
