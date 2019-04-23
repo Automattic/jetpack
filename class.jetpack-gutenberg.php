@@ -329,11 +329,13 @@ class Jetpack_Gutenberg {
 	/**
 	 * Returns a diff from a combined list of whitelisted extensions and extensions determined to be excluded
 	 *
+	 * @param  array $whitelisted_extensions An array of whitelisted extensions.
+	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
-	public static function get_available_extensions() {
+	public static function get_available_extensions( $whitelisted_extensions = null ) {
 		$exclusions             = get_option( 'jetpack_extensions_exclusions', array() );
-		$whitelisted_extensions = self::get_jetpack_gutenberg_extensions_whitelist();
+		$whitelisted_extensions = is_null( $whitelisted_extensions ) ? self::get_jetpack_gutenberg_extensions_whitelist() : $whitelisted_extensions;
 
 		$combined_extension_list = array_diff( $whitelisted_extensions, $exclusions );
 

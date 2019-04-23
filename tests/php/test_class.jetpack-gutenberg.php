@@ -132,16 +132,16 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_get_available_extensions() {
-		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
 		$this->assertInternalType( 'array', $extensions );
 		$this->assertNotEmpty( $extensions );
-		$this->assertContains( 'mailchimp', $extensions );
+		$this->assertContains( 'onion', $extensions );
 
-		update_option( 'jetpack_extensions_exclusions', array( 'mailchimp' ) );
+		update_option( 'jetpack_extensions_exclusions', array( 'onion' ) );
 
-		$extensions = Jetpack_Gutenberg::get_available_extensions();
+		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
 		$this->assertInternalType( 'array', $extensions );
 		$this->assertNotEmpty( $extensions );
-		$this->assertNotContains( 'mailchimp', $extensions );
+		$this->assertNotContains( 'onion', $extensions );
 	}
 }
