@@ -262,7 +262,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// Are you sure?
 		jetpack_cli_are_you_sure();
 
-		$is_dry_run  = ! empty( $assoc_args['dry-run'] );
+		$is_dry_run = ! empty( $assoc_args['dry-run'] );
 
 		switch ( $action ) {
 			case 'options':
