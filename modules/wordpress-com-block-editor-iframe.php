@@ -70,20 +70,30 @@ function jetpack_verify_frame_nonce( $nonce, $action ) {
 	}
 
 	list( $expiration, $user_id, $hash ) = explode( ':', $nonce, 3 );
-	if ( time() > $expiration ) {
-		return false;
-	}
 
-	$current_user_id = get_current_user_id();
-	if ( ! $current_user_id || $current_user_id != $user_id ) {
+	$token = Jetpack_Data::get_access_token( $user_id );
+	if ( ! $token ) {
 		return false;
 	}
 
 	add_filter( 'salt', 'jetpack_filter_salt', 10, 2 );
-	$expected_hash = wp_hash( "$expiration|$action|$user_id", 'jetpack_frame_nonce' );
+	$expected_hash = wp_hash( "$expiration|$action|{$token->external_user_id}", 'jetpack_frame_nonce' );
 	remove_filter( 'salt', 'jetpack_filter_salt' );
 
-	return hash_equals( $hash, $expected_hash );
+	if ( ! hash_equals( $hash, $expected_hash ) ) {
+		return false;
+	}
+
+	if ( time() > $expiration ) {
+		wp_die( 'Expired nonce.' );
+	}
+
+	$current_user_id = get_current_user_id();
+	if ( ! $current_user_id || $current_user_id !== (int) $user_id ) {
+		wp_die( 'User ID mismatch.' );
+	}
+
+	return true;
 }
 
 /**
