@@ -667,16 +667,13 @@ body,
 		border-left: 4px solid $color-primary;
 	}
 
-	.plugins .active {
-		th,
-		td,
-		th.check-column {
-			background-color: $muriel-blue-0;
-		}
+	.plugins .active th,
+	.plugins .active td,
+	.plugins .active th.check-column,
+	.plugin-update-tr.active td {
+		background-color: $muriel-blue-0;
 	}
-
 }
-
 
 .wrap {
 	.wp-heading-inline + .page-title-action,
