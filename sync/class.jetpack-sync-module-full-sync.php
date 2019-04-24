@@ -295,7 +295,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$totals = array();
 
 		foreach ( $actions as $action ) {
-			$name = $this->get_action_name( $action );
+			$name          = $this->get_action_name( $action );
 			$action_totals = $this->get_action_totals( $action );
 			if ( ! isset( $totals[ $name ] ) ) {
 				$totals[ $name ] = 0;
