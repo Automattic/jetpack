@@ -12,9 +12,23 @@ import LoadingPlaceholder from 'components/loading-placeholder';
 import { setInitialState } from 'state/initial-state';
 import Footer from 'components/footer';
 
+const initialState = {
+	dismissedNotices: [],
+	connectionStatus: {
+		devMode: {
+			isActive: false,
+		},
+	},
+	userData: {
+		currentUser: {
+			permissions: {},
+		},
+	},
+};
+
 class StaticMain extends React.Component {
 	UNSAFE_componentWillMount() {
-		this.props.setInitialState( window.Initial_State );
+		this.props.setInitialState( initialState );
 	}
 
 	render() {
