@@ -68,7 +68,7 @@ class Jetpack_WPCOM_Block_Editor {
 		if ( ! get_current_user_id() ) {
 			$login_url = wp_login_url();
 			/* translators: %s: Login URL */
-			wp_die( sprintf( __( 'In order to use the block editor of this Jetpack site in WordPress.com, you need to <a href="%s" target="_blank">log into</a> the Jetpack site.', 'jetpack' ), $login_url ) ); // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			wp_die( sprintf( __( 'In order to use the block editor of this Jetpack site in WordPress.com, you need to <a href="%s" target="_blank" rel="noopener noreferrer">log into</a> the Jetpack site.', 'jetpack' ), $login_url ) ); // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 	}
 
