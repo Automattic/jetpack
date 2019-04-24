@@ -36,6 +36,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	private function __construct() {
 		if ( $this->is_iframed_block_editor() ) {
+			add_action( 'init', array( $this, 'show_error_if_logged_out' ) );
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
@@ -56,6 +57,22 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
+	 * Shows a custom message if the user is logged out.
+	 *
+	 * The iframed block editor can be only embedded in WordPress.com if the user is logged
+	 * into the Jetpack site. So we abort the default redirection to the login page (which
+	 * cannot be embedded in a iframe) and instead we explain that we need the user to log
+	 * into Jetpack.
+	 */
+	public function show_error_if_logged_out() {
+		if ( ! get_current_user_id() ) {
+			$login_url = wp_login_url();
+			/* translators: %s: Login URL */
+			wp_die( sprintf( __( 'In order to use the block editor of this Jetpack site in WordPress.com, you need to <a href="%s" target="_blank">log into</a> the Jetpack site.', 'jetpack' ), $login_url ) ); // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+	}
+
+	/**
 	 * Prevents frame options header from firing if this is a whitelisted iframe request.
 	 */
 	public function disable_send_frame_options_header() {
@@ -68,6 +85,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Adds custom admin body class if this is a whitelisted iframe request.
 	 *
 	 * @param string $classes Admin body classes.
+	 *
 	 * @return string
 	 */
 	public function add_iframed_body_class( $classes ) {
@@ -84,10 +102,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @return bool
 	 */
 	public function framing_allowed() {
-		if ( empty( $_GET['frame-nonce'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			return false;
-		}
-
 		$verified = $this->verify_frame_nonce(
 			$_GET['frame-nonce'], // phpcs:ignore WordPress.Security.NonceVerification
 			'frame-' . Jetpack_Options::get_option( 'id' )
@@ -110,8 +124,9 @@ class Jetpack_WPCOM_Block_Editor {
 	 * The user is given an amount of time to use the token, so therefore, since the
 	 * UID and $action remain the same, the independent variable is the time.
 	 *
-	 * @param string $nonce  Nonce that was used in the form to verify.
+	 * @param string $nonce Nonce that was used in the form to verify.
 	 * @param string $action Should give context to what is taking place and be the same when nonce was created.
+	 *
 	 * @return boolean|WP_Error Whether the nonce is valid.
 	 */
 	public function verify_frame_nonce( $nonce, $action ) {
@@ -163,8 +178,9 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Filters the WordPress salt.
 	 *
-	 * @param string $salt   Salt for the given scheme.
+	 * @param string $salt Salt for the given scheme.
 	 * @param string $scheme Authentication scheme.
+	 *
 	 * @return string
 	 */
 	public function filter_salt( $salt, $scheme ) {
