@@ -773,8 +773,8 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			}
 		}
 
-		$query  = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CRC32(CONCAT({$columns_sql}))), 10, 16)
+		$query = <<<ENDSQL
+			SELECT CONV(BIT_XOR(CRC32(CONCAT({$columns_sql}))) + COUNT({$id_column}), 10, 16)
 				FROM $table
 				WHERE $where_sql
 ENDSQL;
