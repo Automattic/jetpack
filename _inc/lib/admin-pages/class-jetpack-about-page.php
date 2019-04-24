@@ -564,22 +564,22 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					set_transient( 'a12s_hashes', $hashes, DAY_IN_SECONDS );
 				} else {
 					$hashes = array(
-						'https://2.gravatar.com/avatar/5ef318426c941cbef6db5342c1356231',
-						'https://0.gravatar.com/avatar/07adca4279691873f594d48dd7c657e1',
+						'https://1.gravatar.com/avatar/d2ab03dbab0c97740be75f290a2e3190',
 						'https://2.gravatar.com/avatar/b0b357b291ac72bc7da81b4d74430fe6',
-						'https://1.gravatar.com/avatar/ab1f64abf81653d5a60d78a86a26bec1',
-						'https://2.gravatar.com/avatar/eecc887dff6e1e42103590c76f215d87',
-						'https://0.gravatar.com/avatar/987da1e668e6eb5cde64b52a477764ec',
-						'https://1.gravatar.com/avatar/4ac90c7bc18ab89a243e6ca93bda983a',
+						'https://2.gravatar.com/avatar/9e149207a0e0818abed0edbb1fb2d0bf',
+						'https://2.gravatar.com/avatar/9f376366854d750124dffe057dda99c9',
+						'https://1.gravatar.com/avatar/1c75d26ad0d38624f02b15accc1f20cd',
+						'https://1.gravatar.com/avatar/c510e69d83c7d10be4df64feeff4e46a',
+						'https://0.gravatar.com/avatar/88ec0dcadea38adf5f30a17e54e9b248',
+						'https://1.gravatar.com/avatar/bc45834430c5b0936d76e3f468f9ca57',
+						'https://0.gravatar.com/avatar/032677e4115f3a38dc7785529e8cc4d9',
+						'https://0.gravatar.com/avatar/72a638c2520ea177976e8eafb201a82f',
+						'https://0.gravatar.com/avatar/b3618d70c63bbc5cc7caee0beded5ff0',
 						'https://1.gravatar.com/avatar/4d346581a3340e32cf93703c9ce46bd4',
-						'https://1.gravatar.com/avatar/78c17142720e599ad7919c541124749e',
-						'https://0.gravatar.com/avatar/9f376366854d750124dffe057dda99c9',
+						'https://2.gravatar.com/avatar/9c2f6b95a00dfccfadc6a912a2b859ba',
 						'https://1.gravatar.com/avatar/1a33e7a69df4f675fcd799edca088ac2',
-						'https://0.gravatar.com/avatar/30cf08c478da339285e39b5e8feb6a3f',
-						'https://1.gravatar.com/avatar/d212b7b6c54f0ccb2c848d23440b33ba',
+						'https://2.gravatar.com/avatar/d5dc443845c134f365519568d5d80e62',
 						'https://0.gravatar.com/avatar/c0ccdd53794779bcc07fcae7b79c4d80',
-						'https://2.gravatar.com/avatar/8e6e7e85e416fd569d0f821f6fbc4c2f',
-						'https://2.gravatar.com/avatar/ebdbd8f65be345e43b11e4487e9fc445',
 					);
 				}
 			}
