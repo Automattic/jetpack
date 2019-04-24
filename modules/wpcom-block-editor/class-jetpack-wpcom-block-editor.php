@@ -16,7 +16,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 *
 	 * @var int
 	 */
-	private $user_id_nonce;
+	private $nonce_user_id;
 
 	/**
 	 * Singleton
@@ -78,7 +78,7 @@ class Jetpack_WPCOM_Block_Editor {
 		);
 
 		if ( is_wp_error( $verified ) ) {
-			wp_die( $verified );
+			wp_die( esc_html( $verified ) );
 		}
 
 		if ( $verified && ! defined( 'IFRAME_REQUEST' ) ) {
@@ -105,18 +105,18 @@ class Jetpack_WPCOM_Block_Editor {
 
 		list( $expiration, $user_id, $hash ) = explode( ':', $nonce, 3 );
 
-		$this->user_id_nonce = (int) $user_id;
-		if ( ! $this->user_id_nonce ) {
+		$this->nonce_user_id = (int) $user_id;
+		if ( ! $this->nonce_user_id ) {
 			return false;
 		}
 
-		$token = Jetpack_Data::get_access_token( $this->user_id_nonce );
+		$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
 		if ( ! $token ) {
 			return false;
 		}
 
 		add_filter( 'salt', array( $this, 'filter_salt' ), 10, 2 );
-		$expected_hash = wp_hash( "$expiration|$action|{$token->external_user_id}", 'jetpack_frame_nonce' );
+		$expected_hash = wp_hash( "$expiration|$action|{$this->nonce_user_id}", 'jetpack_frame_nonce' );
 		remove_filter( 'salt', array( $this, 'filter_salt' ) );
 
 		if ( ! hash_equals( $hash, $expected_hash ) ) {
@@ -127,8 +127,7 @@ class Jetpack_WPCOM_Block_Editor {
 			return new WP_Error( 'nonce_invalid_expired', 'Expired nonce.' );
 		}
 
-		$current_user_id = get_current_user_id();
-		if ( ! $current_user_id || $current_user_id !== $this->user_id_nonce ) {
+		if ( get_current_user_id() !== $this->nonce_user_id ) {
 			return new WP_Error( 'nonce_invalid_user_mismatch', 'User ID mismatch.' );
 		}
 
@@ -144,7 +143,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->user_id_nonce );
+			$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;
