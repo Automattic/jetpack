@@ -112,8 +112,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
     // phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
     // but fails when:
     // phpunit --group=rest-api
-    $publicize = publicize_init();
-    $publicize->register_post_meta();
+    $this->publicize = publicize_init();
+    $this->publicize->register_post_meta();
   }
 
   function maybe_setup_fields() {
@@ -182,6 +182,15 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
     } else {
       $GLOBALS['wp_rest_additional_fields'] = $this->_backup_wp_rest_additional_fields;
     }
+
+	// Clean up custom meta from publicizeable post types
+	foreach ( get_post_types() as $post_type ) {
+		if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
+			continue;
+		}
+
+		unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
+	}
   }
 
   public function test_register_fields_posts() {
