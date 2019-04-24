@@ -712,6 +712,11 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				ARRAY_N
 			);
 
+			if ( $first_id === null || $last_id === null ) {
+				// Nothing to checksum here...
+				break;
+			}
+
 			// get the checksum value
 			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii );
 
