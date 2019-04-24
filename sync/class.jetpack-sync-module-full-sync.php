@@ -279,6 +279,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return false;
 	}
 
+	/**
+	 * Retrieve the total number of items we're syncing in a particular queue item (action).
+	 * `$queue_item[1]` is expected to contain chunks of items, and `$queue_item[1][0]`
+	 * represents the first (and only) chunk of items to sync in that action.
+	 *
+	 * @param array $queue_item Item of the sync queue that corresponds to a particular action.
+	 * @return int Total number of items in the action.
+	 */
 	public function get_action_totals( $queue_item ) {
 		if ( is_array( $queue_item ) && isset( $queue_item[1][0] ) ) {
 			if ( is_array( $queue_item[1][0] ) ) {
@@ -291,6 +299,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return 0;
 	}
 
+	/**
+	 * Retrieve the total number of items for a set of actions, grouped by action name.
+	 *
+	 * @param array $actions An array of actions.
+	 * @return array An array, representing the total number of items, grouped per action.
+	 */
 	public function get_actions_totals( $actions ) {
 		$totals = array();
 
