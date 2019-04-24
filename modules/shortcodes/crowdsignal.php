@@ -246,7 +246,10 @@ if (
 
 				$item_id = esc_js( $item_id );
 
-				if ( Jetpack_AMP_Support::is_amp_request() ) {
+				if (
+					class_exists( 'Jetpack_AMP_Support' )
+					&& Jetpack_AMP_Support::is_amp_request()
+				) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
 						esc_url( $attributes['permalink'] ),
@@ -314,7 +317,10 @@ if (
 					esc_html( $attributes['title'] )
 				);
 
-				if ( $no_script || Jetpack_AMP_Support::is_amp_request() ) {
+				if (
+					$no_script
+					|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
+				) {
 					return $poll_link;
 				} else {
 					if (
@@ -455,7 +461,12 @@ if (
 					$settings = array();
 
 					// Do we want a full embed code or a link?
-					if ( $no_script || $inline || $infinite_scroll || Jetpack_AMP_Support::is_amp_request() ) {
+					if (
+						$no_script
+						|| $inline
+						|| $infinite_scroll
+						|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
+					) {
 						return $survey_link;
 					}
 
@@ -663,7 +674,10 @@ if (
 		 * @param string $content Post content.
 		 */
 		function crowdsignal_link( $content ) {
-			if ( Jetpack_AMP_Support::is_amp_request() ) {
+			if (
+				class_exists( 'Jetpack_AMP_Support' )
+				&& Jetpack_AMP_Support::is_amp_request()
+			) {
 				return $content;
 			}
 
