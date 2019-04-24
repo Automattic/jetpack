@@ -350,7 +350,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				$status['sent'][ $name ] = $sent;
 			}
 
-			if ( $sent_total = $this->get_status_option( "{$name}_sent_total" ) ) {
+			$sent_total = $this->get_status_option( "{$name}_sent_total" );
+			if ( $sent_total ) {
 				$status['sent_total'][ $name ] = $sent_total;
 			}
 		}
