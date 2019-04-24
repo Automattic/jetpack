@@ -11,7 +11,7 @@ import Button from 'components/button';
 import analytics from 'lib/analytics';
 
 export default class TopButton extends React.Component {
-	clickHandler() {
+	clickHandler = () => {
 		const { planType, isActivePlan, productSlug } = this.props;
 
 		if ( ! isActivePlan ) {
@@ -23,7 +23,7 @@ export default class TopButton extends React.Component {
 			plan: productSlug,
 			page: 'Plans',
 		} );
-	}
+	};
 
 	render() {
 		const {
