@@ -330,14 +330,13 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						if ( $status['url'] ) {
 							if ( $compatible_php && $compatible_wp ) {
 								$action_links[] = sprintf(
-									'<a class="install-now button jptracks" data-slug="%s" href="%s" aria-label="%s" data-name="%s" data-jptracks-name="jetpack_about_install_button" data-jptracks-prop="%s">%s</a>',
+									'<a class="install-now button jptracks" data-slug="%1$s" href="%2$s" aria-label="%3$s" data-name="%4$s" data-jptracks-name="jetpack_about_install_button" data-jptracks-prop="%4$s">%5$s</a>',
 									esc_attr( $plugin['slug'] ),
 									esc_url( $status['url'] ),
 									/* translators: %s: plugin name and version */
 									esc_attr( sprintf( __( 'Install %s now', 'jetpack' ), $name ) ),
 									esc_attr( $name ),
-									esc_attr( $name ),
-									__( 'Install Now', 'jetpack' )
+									esc_html__( 'Install Now', 'jetpack' )
 								);
 							} else {
 								$action_links[] = sprintf(
