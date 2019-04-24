@@ -78,7 +78,7 @@ class Jetpack_WPCOM_Block_Editor {
 		);
 
 		if ( is_wp_error( $verified ) ) {
-			wp_die( esc_html( $verified ) );
+			wp_die( $verified );
 		}
 
 		if ( $verified && ! defined( 'IFRAME_REQUEST' ) ) {
@@ -115,6 +115,11 @@ class Jetpack_WPCOM_Block_Editor {
 			return false;
 		}
 
+		/*
+		 * Failures must return `false` (blocking the iframe) prior to the
+		 * signature verification.
+		 */
+
 		add_filter( 'salt', array( $this, 'filter_salt' ), 10, 2 );
 		$expected_hash = wp_hash( "$expiration|$action|{$this->nonce_user_id}", 'jetpack_frame_nonce' );
 		remove_filter( 'salt', array( $this, 'filter_salt' ) );
@@ -123,12 +128,17 @@ class Jetpack_WPCOM_Block_Editor {
 			return false;
 		}
 
+		/*
+		 * Failures may return `WP_Error` (showing an error in the iframe) after the
+		 * signature verification passes.
+		 */
+
 		if ( time() > $expiration ) {
-			return new WP_Error( 'nonce_invalid_expired', 'Expired nonce.' );
+			return new WP_Error( 'nonce_invalid_expired', 'Expired nonce.', array( 'status' => 401 ) );
 		}
 
 		if ( get_current_user_id() !== $this->nonce_user_id ) {
-			return new WP_Error( 'nonce_invalid_user_mismatch', 'User ID mismatch.' );
+			return new WP_Error( 'nonce_invalid_user_mismatch', 'User ID mismatch.', array( 'status' => 401 ) );
 		}
 
 		return true;
