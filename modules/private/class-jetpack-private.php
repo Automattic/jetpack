@@ -201,7 +201,7 @@ class Jetpack_Private {
 		}
 
 		if ( ! self::is_private_blog_user( get_current_blog_id() ) ) {
-			wp_die( '', 403 );
+			wp_die( esc_html__( 'This site is private.', 'jetpack' ), 403 );
 		}
 	}
 
@@ -229,7 +229,7 @@ class Jetpack_Private {
 		}
 
 		if ( ! self::is_private_blog_user( get_current_blog_id() ) ) {
-			wp_die( '', 403 );
+			wp_die( esc_html__( 'This site is private.', 'jetpack' ), 403 );
 		}
 	}
 
@@ -308,6 +308,6 @@ class Jetpack_Private {
 			return;
 		}
 
-		wp_die( '', 403 );
+		wp_die( esc_html__( 'This site is private.', 'jetpack' ), 403 );
 	}
 }
