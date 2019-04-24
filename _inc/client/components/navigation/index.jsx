@@ -18,7 +18,7 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 } from 'state/initial-state';
-import { getSiteDevMode } from 'state/connection';
+import { isDevMode } from 'state/connection';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -40,10 +40,6 @@ export class Navigation extends React.Component {
 		this.trackNavClick( 'plans' );
 	};
 
-	noRenderNavInDevMode = () => {
-		return ! this.props.siteDevMode.isActive;
-	};
-
 	render() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
@@ -56,7 +52,7 @@ export class Navigation extends React.Component {
 					>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
-					{ this.noRenderNavInDevMode() && (
+					{ ! this.props.isDevMode && (
 						<NavItem
 							path="#/my-plan"
 							onClick={ this.trackMyPlanClick }
@@ -65,7 +61,7 @@ export class Navigation extends React.Component {
 							{ __( 'My Plan', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ this.noRenderNavInDevMode() && (
+					{ ! this.props.isDevMode && (
 						<NavItem
 							path="#/plans"
 							onClick={ this.trackPlansClick }
@@ -98,7 +94,7 @@ export class Navigation extends React.Component {
 
 Navigation.propTypes = {
 	route: PropTypes.object.isRequired,
-	siteDevMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
+	isDevMode: PropTypes.bool.isRequired,
 };
 
 export default connect( state => {
@@ -106,6 +102,6 @@ export default connect( state => {
 		userCanManageModules: _userCanManageModules( state ),
 		userCanViewStats: _userCanViewStats( state ),
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
-		siteDevMode: getSiteDevMode( state ),
+		isDevMode: isDevMode( state ),
 	};
 } )( Navigation );
