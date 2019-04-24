@@ -14,7 +14,6 @@ const webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: path.join( __dirname, './_inc/client/admin.js' ),
-		//static: path.join( __dirname, './_inc/client/static.jsx' ),
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
@@ -76,11 +75,15 @@ const webpackConfig = {
 		new WordPressExternalDependenciesPlugin(),
 		new HtmlWebpackPlugin( {
 			template: '!prerender-loader?string!_inc/client/static.jsx',
-			filename: 'prerendered-static.html',
-
-			// any other options you'd normally set are still supported:
-			compile: false,
-			inject: true,
+			filename: 'static.html',
+		} ),
+		new HtmlWebpackPlugin( {
+			template: '!prerender-loader?string!_inc/client/static-noscript-notice.jsx',
+			filename: 'static-noscript-notice.html',
+		} ),
+		new HtmlWebpackPlugin( {
+			template: '!prerender-loader?string!_inc/client/static-version-notice.jsx',
+			filename: 'static-version-notice.html',
 		} ),
 	],
 	devtool: devMode ? 'source-map' : false,

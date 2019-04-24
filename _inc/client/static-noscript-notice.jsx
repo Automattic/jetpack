@@ -9,13 +9,13 @@ import { Provider } from 'react-redux';
  * Internal dependencies
  */
 import store from 'state/redux-store';
-import StaticMain from 'static-main';
+import StaticWarning from 'components/jetpack-notices/static-warning';
 
 export default () =>
 	renderToStaticMarkup(
-		<div>
-			<Provider store={ store }>
-				<StaticMain />
-			</Provider>
-		</div>
+		<Provider store={ store }>
+			<noscript>
+				<StaticWarning />
+			</noscript>
+		</Provider>
 	);
