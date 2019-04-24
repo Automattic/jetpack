@@ -65,47 +65,11 @@ class JumpStart extends Component {
 						</p>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								"Next, activate Jetpack's recommended features. We've picked the features most useful for maximizing your site's security and performance, like " +
-									'{{a1}}secure authentication{{/a1}}' +
-									', ' +
-									'{{a2}}downtime monitoring{{/a2}}' +
-									', ' +
-									'{{a3}}Image hosting{{/a3}}' +
-									', and ' +
-									'{{a4}}lazy loading images{{/a4}}' +
-									". Activate them all with a click, and they'll make sure your site is safe and speedy. " +
-									'{{a5}}Learn more about our recommended features.{{/a5}}',
+								"Next, activate Jetpack's recommended features. We've picked the features most useful for maximizing your site's security and performance, like secure authentication, downtime monitoring, image hosting, and lazy loading images. Activate them all with a click, and they'll make sure your site is safe and speedy. " +
+									'{{a}}Learn more about our recommended features.{{/a}}',
 								{
 									components: {
-										a1: (
-											<a
-												href="https://jetpack.com/features/security/secure-authentication/"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-										a2: (
-											<a
-												href="https://jetpack.com/features/security/downtime-monitoring/"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-										a3: (
-											<a
-												href="https://jetpack.com/features/design/content-delivery-network/"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-										a4: (
-											<a
-												href="https://jetpack.com/features/design/lazy-loading-images-for-wordpress/"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-										a5: (
+										a: (
 											<a
 												href="https://jetpack.com/support/quick-start-guide/#jumpstart"
 												target="_blank"
