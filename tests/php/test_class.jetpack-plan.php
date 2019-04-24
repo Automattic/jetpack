@@ -8,7 +8,6 @@
 class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 	public function setUp() {
 		delete_option( 'jetpack_active_plan' );
-		delete_option( 'show_welcome_for_new_plan' );
 	}
 
 	public function test_update_from_sites_response_failure_to_update() {
