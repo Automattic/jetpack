@@ -657,6 +657,7 @@ class Jetpack {
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
+		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
@@ -7066,5 +7067,30 @@ p {
 	}
 	function can_display_jetpack_manage_notice() {
 		_deprecated_function( __METHOD__, 'jetpack-7.3' );
+	}
+
+	/**
+	 * Clean leftoveruser meta.
+	 *
+	 * Delete Jetpack-related user meta when it is no longer needed.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param int $user_id User ID being updated.
+	 */
+	public static function user_meta_cleanup( $user_id ) {
+		$meta_keys = array(
+			// AtD removed from Jetpack 7.3
+			'AtD_options',
+			'AtD_check_when',
+			'AtD_guess_lang',
+			'AtD_ignored_phrases',
+		);
+
+		foreach ( $meta_keys as $meta_key ) {
+			if ( get_user_meta( $user_id, $meta_key ) ) {
+				delete_user_meta( $user_id, $meta_key );
+			}
+		}
 	}
 }
