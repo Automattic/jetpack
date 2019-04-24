@@ -196,11 +196,15 @@ As of 04/2019, `wp.i18n` [doesn't support React elements in strings](https://git
 
 Not possible:
 
-> Still confused? Check out <a>documentation</a> for more!
+```js
+__( 'Still confused? Check out <a>documentation</a> for more!' )
+```
 
 Possible:
 
-> Still confused? <a>Check out documentation for more!</a>
+```jsx
+{ __( 'Still confused?' ) } <a>{ __( 'Check out documentation for more!' ) }</a>
+```
 
 ### Colors
 
