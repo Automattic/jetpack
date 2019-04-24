@@ -1349,6 +1349,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 				return $this->get_protect_data();
 			case 'stats':
 				return $this->get_stats_data( $request );
+			case 'woocommerce-analytics':
+				return $this->get_store_stats_data( $request );
 			case 'akismet':
 				return $this->get_akismet_data();
 			case 'monitor':
@@ -1541,6 +1543,64 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'month':
 				return rest_ensure_response( array(
 					'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+				) );
+		}
+	}
+
+	/**
+	 * Get stats data for this site
+	 *
+	 * @since 4.1.0
+	 *
+	 * @param WP_REST_Request $request {
+	 *     Array of parameters received by request.
+	 *
+	 *     @type string $date Date range to restrict results to.
+	 * }
+	 *
+	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
+	 */
+	public function get_store_stats_data( WP_REST_Request $request ) {
+		// Get parameters to fetch Stats data.
+		$range = $request->get_param( 'range' );
+
+		// If no parameters were passed.
+		if (
+			empty ( $range )
+			|| ! in_array( $range, array( 'day', 'week', 'month' ), true )
+		) {
+			$range = 'day';
+		}
+
+		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
+			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+		}
+
+		$stat = $request->get_param( 'stat' );
+
+		// Get the stat we want to request.
+		if (
+			empty ( $stat )
+			|| ! in_array( $stat, array( 'events-by-product', 'events-by-referrer' ), true )
+		) {
+			$stat = 'events-by-product';
+		}
+
+		switch ( $range ) {
+			case 'day':
+				$date = date( 'Y-m-d', time() );
+				return rest_ensure_response( array(
+					'day' => stats_get_from_wpcom_v2_restapi( array(), $stat . '?unit=day&quantity=30&date=' . $date ),
+				) );
+			case 'week':
+				$date = date( 'Y-\WW', time() );
+				return rest_ensure_response( array(
+					'week' => stats_get_from_wpcom_v2_restapi( array(), $stat . '?unit=week&quantity=14&date=' . $date ),
+				) );
+			case 'month':
+				$date = date( 'Y-m', time() );
+				return rest_ensure_response( array(
+					'month' => stats_get_from_wpcom_v2_restapi( array(), $stat . '?unit=month&quantity=12&date=' . $date ),
 				) );
 		}
 	}
