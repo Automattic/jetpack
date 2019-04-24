@@ -175,9 +175,9 @@ class MembershipsButtonEdit extends Component {
 				</div>
 				<TextControl
 					className="membership-button__field"
-					label={ __( 'Describe your item in a few words', 'jetpack' ) }
+					label={ __( 'Describe your subscription in a few words', 'jetpack' ) }
 					onChange={ this.handleTitleChange }
-					placeholder={ __( 'Describe your item in a few words', 'jetpack' ) }
+					placeholder={ __( 'Subscription description', 'jetpack' ) }
 					value={ this.state.editedProductTitle }
 				/>
 				<SelectControl
