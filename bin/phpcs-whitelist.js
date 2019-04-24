@@ -9,6 +9,7 @@ module.exports = [
 	'functions.opengraph.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/class.jetpack-password-checker.php',
+	'_inc/lib/admin-pages/class-jetpack-about-page.php',
 	'modules/masterbar/',
 	'modules/module-extras.php',
 	'modules/module-info.php',

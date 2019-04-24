@@ -390,7 +390,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							}
 
 							$action_links[] = sprintf(
-								'<a href="%1$s" class="button activate-now" aria-label="%2$s"  data-jptracks-name="jetpack_about_activate_button" data-jptracks-prop="%3$s">%4$s</a>',
+								'<a href="%1$s" class="button activate-now" aria-label="%2$s" data-jptracks-name="jetpack_about_activate_button" data-jptracks-prop="%3$s">%4$s</a>',
 								esc_url( $activate_url ),
 								esc_attr( sprintf( $button_label, $plugin['name'] ) ),
 								esc_attr( $plugin['name'] ),
@@ -431,7 +431,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 						printf(
 							/* translators: 1: "Update WordPress" screen URL, 2: "Update PHP" page URL */
-							' ' . __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.', 'jetpack' ),
+							' ' . wp_kses( __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
 							esc_url( self_admin_url( 'update-core.php' ) ),
 							esc_url( wp_get_update_php_url() )
 						);
@@ -439,32 +439,32 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					} elseif ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update WordPress" screen URL */
-							' ' . __( '<a href="%s">Please update WordPress</a>.', 'jetpack' ),
+							' ' . wp_kses( __( '<a href="%s">Please update WordPress</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
 							esc_url( self_admin_url( 'update-core.php' ) )
 						);
 					} elseif ( current_user_can( 'update_php' ) ) {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
-							' ' . __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ),
+							' ' . wp_kses( __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
 							esc_url( wp_get_update_php_url() )
 						);
 						wp_update_php_annotation();
 					}
 				} elseif ( ! $compatible_wp ) {
-					_e( 'This plugin doesn&#8217;t work with your version of WordPress.', 'jetpack' );
+					esc_html_e( 'This plugin doesn&#8217;t work with your version of WordPress.', 'jetpack' );
 					if ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update WordPress" screen URL */
-							' ' . __( '<a href="%s">Please update WordPress</a>.', 'jetpack'  ),
-							self_admin_url( 'update-core.php' )
+							' ' . wp_kses( __( '<a href="%s">Please update WordPress</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
+							esc_url( self_admin_url( 'update-core.php' ) )
 						);
 					}
 				} elseif ( ! $compatible_php ) {
-					_e( 'This plugin doesn&#8217;t work with your version of PHP.', 'jetpack' );
+					esc_html_e( 'This plugin doesn&#8217;t work with your version of PHP.', 'jetpack' );
 					if ( current_user_can( 'update_php' ) ) {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
-							' ' . __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ),
+							' ' . wp_kses( __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
 							esc_url( wp_get_update_php_url() )
 						);
 						wp_update_php_annotation();
@@ -488,7 +488,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				</div>
 
 				<div class="details-link">
-					<a class="jptracks thickbox open-plugin-details-modal" href="<?php echo esc_url( $details_link ); ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
+					<a class="jptracks thickbox open-plugin-details-modal" href="<?php echo esc_url( $details_link ); ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php esc_html_e( 'More Details', 'jetpack' ); ?></a>
 				</div>
 			</div>
 
@@ -519,7 +519,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';
 						}
 						/* translators: number of active installs */
-						printf( esc_html__( '%s Active Installations', 'jetpack' ), $active_installs_text );
+						printf( esc_html__( '%s Active Installations', 'jetpack' ), esc_html( $active_installs_text ) );
 						?>
 					</div>
 				</div>
@@ -527,6 +527,8 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				<div class="action-links">
 					<?php
 					if ( $action_links ) {
+						// The var simply collects strings that have already been sanitized.
+						// phpcs:ignore WordPress.Security.EscapeOutput
 						echo '<ul class="action-buttons"><li>' . implode( '</li><li>', $action_links ) . '</li></ul>';
 					}
 					?>
@@ -583,7 +585,15 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		foreach ( $hashes as $hash ) {
 			$output .= '<li><img src="' . esc_url( $hash ) . '?s=150"></li>' . "\n";
 		}
-		echo $output; // WPCS: XSS ok.
+		echo wp_kses(
+			$output,
+			array(
+				'li'  => true,
+				'img' => array(
+					'src' => true,
+				),
+			)
+		);
 	}
 
 }
