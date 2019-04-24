@@ -159,14 +159,14 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<?php $this->display_gravatars(); ?>
 						</ul>
 						<p class="meet-the-team">
-							<a href="https://automattic.com/about/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_meet_the_team"><?php esc_html_e( 'Meet the Automattic team', 'jetpack' ); ?></a>
+							<a href="https://automattic.com/about/" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_meet_the_team"><?php esc_html_e( 'Meet the Automattic team', 'jetpack' ); ?></a>
 						</p>
 					</div>
 
 					<div class="jetpack-about__text">
 						<p>
 							<?php esc_html_e( 'We are the people behind WordPress.com, WooCommerce, Jetpack, Simplenote, Longreads, VaultPress, Akismet, Gravatar, Crowdsignal, Cloudup, and more. We believe in making the web a better place.', 'jetpack' ); ?>
-							<a href="https://automattic.com/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_learn_more">
+							<a href="https://automattic.com/" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_learn_more">
 								<?php esc_html_e( 'Learn more about us.', 'jetpack' ); ?>
 							</a>
 						</p>
@@ -180,12 +180,13 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<?php
 								// Maybe use printf() because we'll want to escape the string but still allow for the link, so we can't use esc_html_e().
 								echo wp_kses(
-									__( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed">Automattic Creed</a>.', 'jetpack' ),
+									__( 'We strive to live by the <a href="https://automattic.com/creed/" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_creed" rel="noopener noreferrer">Automattic Creed</a>.', 'jetpack' ),
 									array(
 										'a' => array(
 											'href'   => array(),
 											'class'  => array(),
 											'target' => array(),
+											'rel'    => array(),
 											'data-jptracks-name' => array(),
 										),
 									)
@@ -193,7 +194,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							?>
 						</p>
 						<p>
-							<a href="https://automattic.com/jobs" target="_blank"  class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
+							<a href="https://automattic.com/jobs" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
 								<?php esc_html_e( 'Come work with us', 'jetpack' ); ?>
 							</a>
 						</p>
@@ -210,11 +211,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				<p class="jetpack-about__services-more">
 				<?php
 				echo wp_kses(
-					__( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ),
+					__( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ),
 					array(
 						'a' => array(
 							'href'               => array(),
 							'target'             => array(),
+							'rel'                => array(),
 							'class'              => array(),
 							'data-jptracks-name' => array(),
 						),
