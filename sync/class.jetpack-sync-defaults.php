@@ -142,7 +142,7 @@ class Jetpack_Sync_Defaults {
 		'site_segment',
 		'site_user_type',
 		'site_vertical',
-		'jetpack_extensions_exclusions',
+		'jetpack_excluded_extensions',
 	);
 
 	public static function get_options_whitelist() {

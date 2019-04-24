@@ -552,7 +552,7 @@ class Jetpack_Options {
 			'jpo_site_type',
 			'jpo_homepage_format',
 			'jpo_contact_page',
-			'jetpack_extensions_exclusions',
+			'jetpack_excluded_extensions',
 		);
 	}
 

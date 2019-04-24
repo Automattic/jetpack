@@ -334,7 +334,7 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
 	 */
 	public static function get_available_extensions( $whitelisted_extensions = null ) {
-		$exclusions             = get_option( 'jetpack_extensions_exclusions', array() );
+		$exclusions             = get_option( 'jetpack_excluded_extensions', array() );
 		$whitelisted_extensions = is_null( $whitelisted_extensions ) ? self::get_jetpack_gutenberg_extensions_whitelist() : $whitelisted_extensions;
 
 		return array_diff( $whitelisted_extensions, $exclusions );
