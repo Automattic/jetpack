@@ -104,10 +104,18 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return Jetpack::is_module_active( 'wordads' );
 	}
 
+	/**
+	 * Creates a nonce to be used with iframed block editor requests to a Jetpack site.
+	 * Disabled on the Jetpack side.
+	 */
 	function get_frame_nonce() {
 		return false;
 	}
 
+	/**
+	 * Creates a post preview nonce for logged out users.
+	 * Disabled on the Jetpack side.
+	 */
 	function get_frame_nonce_site_only() {
 		return false;
 	}
