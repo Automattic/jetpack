@@ -203,7 +203,7 @@ export class Composing extends React.Component {
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundShortcodes = this.props.isModuleFound( 'shortcodes' );
 
-		if ( ! foundCopyPost && ! foundMarkdown && ! foundAtD && ! foundShortcodes ) {
+		if ( ! foundCopyPost && ! foundLatex && ! foundMarkdown && ! foundAtD && ! foundShortcodes ) {
 			return null;
 		}
 

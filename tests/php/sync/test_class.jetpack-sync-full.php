@@ -11,6 +11,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
+	private $test_posts_count    = 20;
+	private $test_comments_count = 11;
+
 	public function setUp() {
 		parent::setUp();
 		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
@@ -868,11 +871,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function create_dummy_data_and_empty_the_queue() {
 		// lets create a bunch of posts
-		for ( $i = 0; $i < 20; $i += 1 ) {
+		for ( $i = 0; $i < $this->test_posts_count; $i += 1 ) {
 			$post = $this->factory->post->create();
 		}
 		// lets create a bunch of comments
-		$this->factory->comment->create_post_comments( $post, 11 );
+		$this->factory->comment->create_post_comments( $post, $this->test_comments_count );
 
 		// reset the data before the full sync
 		$this->sender->reset_data();
@@ -891,6 +894,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'finished'       => null,
 				'total'          => array(),
 				'sent'           => array(),
+				'sent_total'     => array(),
 				'queue'          => array(),
 				'config'         => null,
 			)
@@ -929,6 +933,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $full_sync_status['send_started'] );
 		$this->assertNull( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['sent'] );
+		$this->assertInternalType( 'array', $full_sync_status['sent_total'] );
 	}
 
 	function test_full_sync_status_after_end() {
@@ -951,6 +956,17 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'     => 1,
 				'terms'     => 1
 			),
+			'sent_total'  => array(
+				'constants' => -1,
+				'functions' => -1,
+				'options'   => -1,
+				'themes'    => -1,
+				'updates'   => -1,
+				'posts'     => $this->test_posts_count,
+				'comments'  => $this->test_comments_count,
+				'users'     => 1,
+				'terms'     => 1
+			),
 			'queue' => array(
 				'constants' => 1,
 				'functions' => 1,
@@ -964,12 +980,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 		if ( is_multisite() ) {
-			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['sent']['network_options']  = 1;
+			$should_be_status['queue']['network_options']       = 1;
+			$should_be_status['sent']['network_options']        = 1;
+			$should_be_status['sent_total']['network_options']  = -1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
+		$this->assertEquals( $full_sync_status['sent_total'], $should_be_status['sent_total'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertInternalType( 'int', $full_sync_status['send_started'] );

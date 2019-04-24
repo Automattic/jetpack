@@ -51,11 +51,6 @@ class Jetpack_Plan {
 			return false;
 		}
 
-		// Set flag for newly purchased plan.
-		if ( 'jetpack_free' !== $results['plan']['product_slug'] ) {
-			update_option( 'show_welcome_for_new_plan', true );
-		}
-
 		// Store the new plan in an option and return true if updated.
 		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		if ( ! $result ) {

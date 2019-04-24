@@ -28,11 +28,7 @@ import {
 	userCanConnectSite,
 	getTracksUserData,
 } from 'state/initial-state';
-import {
-	areThereUnsavedSettings,
-	clearUnsavedSettingsFlag,
-	showWelcomeForNewPlan,
-} from 'state/settings';
+import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
@@ -46,7 +42,6 @@ import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
-import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
@@ -135,7 +130,6 @@ class Main extends React.Component {
 			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
 			nextProps.searchTerm !== this.props.searchTerm ||
-			nextProps.newPlanActivated !== this.props.newPlanActivated ||
 			nextProps.rewindStatus !== this.props.rewindStatus
 		);
 	}
@@ -266,11 +260,6 @@ class Main extends React.Component {
 				{ navComponent }
 				{ this.renderJumpstart() }
 				{ pageComponent }
-				<WelcomeNewPlan
-					siteRawUrl={ this.props.siteRawUrl }
-					newPlanActivated={ this.props.newPlanActivated }
-					userCanManageModules={ this.props.userCanManageModules }
-				/>
 			</div>
 		);
 	};
@@ -322,7 +311,6 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
-			newPlanActivated: showWelcomeForNewPlan( state ),
 			rewindStatus: getRewindStatus( state ),
 		};
 	},
