@@ -194,7 +194,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							?>
 						</p>
 						<p>
-							<a href="https://automattic.com/jobs" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
+							<a href="https://automattic.com/work-with-us" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_work_with_us">
 								<?php esc_html_e( 'Come work with us', 'jetpack' ); ?>
 							</a>
 						</p>
