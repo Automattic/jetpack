@@ -65,7 +65,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/subscriptions</directory>
 		</testsuite>
 		<testsuite name="contact-form">
-			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/contact-form</directory>
 		</testsuite>
 		<testsuite name="verification-tools">
 			<directory prefix="test_" suffix=".php">tests/php/modules/verification-tools</directory>
