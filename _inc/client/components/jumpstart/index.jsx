@@ -81,7 +81,7 @@ class JumpStart extends Component {
 							) }
 						</p>
 						<p>{ this.activateButton() }</p>
-						<p>{ this.dismissLink() }</p>
+						{ this.dismissLink() }
 					</div>
 				</Card>
 			</div>
