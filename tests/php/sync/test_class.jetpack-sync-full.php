@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
-	private $test_posts_count = 20;
+	private $test_posts_count    = 20;
 	private $test_comments_count = 11;
 
 	public function setUp() {
@@ -980,8 +980,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 		if ( is_multisite() ) {
-			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['sent']['network_options']  = 1;
+			$should_be_status['queue']['network_options']       = 1;
+			$should_be_status['sent']['network_options']        = 1;
 			$should_be_status['sent_total']['network_options']  = -1;
 		}
 
