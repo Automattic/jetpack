@@ -14,7 +14,7 @@ import Footer from 'components/footer';
 
 class StaticMain extends React.Component {
 	UNSAFE_componentWillMount() {
-		this.props.setInitialState();
+		this.props.setInitialState( window.Initial_State );
 	}
 
 	render() {

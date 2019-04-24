@@ -49,7 +49,7 @@ const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
 
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
-		this.props.setInitialState();
+		this.props.setInitialState( window.Initial_State );
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
 		this.initializeAnalyitics();

@@ -1,4 +1,3 @@
-
 ## Jetpack React Admin UI
 
 The **Jetpack Admin Page** is a Javascript app built on **React**, [redux](https://github.com/reactjs/redux) and the fetch API.
@@ -7,7 +6,7 @@ It's rendered on page load when visiting Jetpack's Admin Pages and fetches data 
 
 ### Data approach on the Admin Page
 
-The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux)  for state handling trying to ressemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/master/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---present).
+The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux) for state handling trying to ressemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/master/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---present).
 
 #### State related code
 
@@ -69,7 +68,6 @@ import { translate as __ } from 'i18n-calypso';
 
 ### Browser compatibility of the Admin Page
 
-
 #### Suport for non-javascript environments
 
 Some static HTML is generated from the JSX files and rendered on build time before a release to provide a non-javascript UI with basic functionality if the browser does not report javascript capabilities.
@@ -82,74 +80,74 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 
 ### Available state selectors
 
-* **getActiveStatsTab( state )**
-* **getAdminEmailAddress( state )**
-* **getAkismetData( state )**
-* **getApiNonce( state )**
-* **getApiRootUrl( state )**
-* **getConnectUrl( state )**
-* **getCurrentVersion( state )**
-* **getInitialStateStatsData( state )**
-* **getJetpackNotices( state )**
-* **getJetpackStateNoticesErrorCode( state )**
-* **getJetpackStateNoticesErrorDescription( state )**
-* **getJetpackStateNoticesMessageCode( state )**
-* **getJumpStartStatus( state )**
-* **getLastDownTime( state )**
-* **getModule( state, name )**
-* **getModuleOption( state, module_slug, option_name )** {
-* **getModuleOptionValidValues( state, module_slug, option_name )**
-* **getModules( state )**
-* **getModulesByFeature( state,**eature ) {
-* **getModulesThatRequireConnection( state )**
-* **getPluginUpdates( state )**
-* **getProtectCount( state )**
-* **getSearchTerm( state )**
-* **getSettings( state )**
-* **getSiteAdminUrl( state )**
-* **getSiteConnectionStatus( state )**
-* **getSiteDevMode( state )**
-* **getSitePlan( state )**
-* **getSiteRawUrl( state )**
-* **getSiteRoles( state )**
-* **getStatsData( state )**
-* **getTracksUserData( state )**
-* **getUserWpComAvatar( state )**
-* **getUserWpComEmail( state )**
-* **getUserWpComLogin( state )**
-* **getUsername( state )**
-* **isGutenbergAvailable( state )**
+- **getActiveStatsTab( state )**
+- **getAdminEmailAddress( state )**
+- **getAkismetData( state )**
+- **getApiNonce( state )**
+- **getApiRootUrl( state )**
+- **getConnectUrl( state )**
+- **getCurrentVersion( state )**
+- **getInitialStateStatsData( state )**
+- **getJetpackNotices( state )**
+- **getJetpackStateNoticesErrorCode( state )**
+- **getJetpackStateNoticesErrorDescription( state )**
+- **getJetpackStateNoticesMessageCode( state )**
+- **getJumpStartStatus( state )**
+- **getLastDownTime( state )**
+- **getModule( state, name )**
+- **getModuleOption( state, module_slug, option_name )** {
+- **getModuleOptionValidValues( state, module_slug, option_name )**
+- **getModules( state )**
+- **getModulesByFeature( state,**eature ) {
+- **getModulesThatRequireConnection( state )**
+- **getPluginUpdates( state )**
+- **getProtectCount( state )**
+- **getSearchTerm( state )**
+- **getSettings( state )**
+- **getSiteAdminUrl( state )**
+- **getSiteConnectionStatus( state )**
+- **getSiteDevMode( state )**
+- **getSitePlan( state )**
+- **getSiteRawUrl( state )**
+- **getSiteRoles( state )**
+- **getStatsData( state )**
+- **getTracksUserData( state )**
+- **getUserWpComAvatar( state )**
+- **getUserWpComEmail( state )**
+- **getUserWpComLogin( state )**
+- **getUsername( state )**
+- **isGutenbergAvailable( state )**
 
 ### Available action creators (thunks)
 
-* **activateModule( slug )**
-* **deactivateModule( slug )**
-* **disconnectSite()**
-* **dismissJetpackActionNotice( notice )**
-* **dismissJetpackNotice( notice )**
-* **fetchAkismetData()**
-* **fetchConnectUrl()**
-* **fetchLastDownTime()**
-* **fetchModule()**
-* **fetchModules()**
-* **fetchPluginUpdates()**
-* **fetchPluginsData()**
-* **fetchProtectCount()**
-* **fetchSettings()**
-* **fetchSiteConnectionStatus()**
-* **fetchSiteData()**
-* **fetchStatsData( range )**
-* **fetchUserConnectionData()**
-* **filterSearch( term )**
-* **jumpStartActivate()**
-* **jumpStartSkip()**
-* **regeneratePostByEmailAddress()**
-* **resetOptions( options )**
-* **setInitialState()**
-* **statsSwitchTab( tab )**
-* **unlinkUser()**
-* **updateModuleOptions( slug, newOptionValues )**
-* **updateSetting( updatedOption )**
+- **activateModule( slug )**
+- **deactivateModule( slug )**
+- **disconnectSite()**
+- **dismissJetpackActionNotice( notice )**
+- **dismissJetpackNotice( notice )**
+- **fetchAkismetData()**
+- **fetchConnectUrl()**
+- **fetchLastDownTime()**
+- **fetchModule()**
+- **fetchModules()**
+- **fetchPluginUpdates()**
+- **fetchPluginsData()**
+- **fetchProtectCount()**
+- **fetchSettings()**
+- **fetchSiteConnectionStatus()**
+- **fetchSiteData()**
+- **fetchStatsData( range )**
+- **fetchUserConnectionData()**
+- **filterSearch( term )**
+- **jumpStartActivate()**
+- **jumpStartSkip()**
+- **regeneratePostByEmailAddress()**
+- **resetOptions( options )**
+- **setInitialState( initialState )**
+- **statsSwitchTab( tab )**
+- **unlinkUser()**
+- **updateModuleOptions( slug, newOptionValues )**
+- **updateSetting( updatedOption )**
 
 #### How to use selectors and actions creators from a component file
 
