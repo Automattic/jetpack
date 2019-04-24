@@ -297,7 +297,7 @@ class Jetpack_Private {
 	 * @param string $content Content of At A Glance wp-admin dashboard widget.
 	 */
 	public static function add_private_dashboard_glance_items( $content ) {
-		return $content . '<br><br>' . __( 'This site is currently Private', 'jetpack' );
+		return $content . '<br><br>' . __( 'This site is currently private', 'jetpack' );
 	}
 
 	/**
