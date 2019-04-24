@@ -435,9 +435,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							/* translators: 1: "Update WordPress" screen URL, 2: "Update PHP" page URL */
 							' ' . wp_kses( __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
 							esc_url( self_admin_url( 'update-core.php' ) ),
-							esc_url( wp_get_update_php_url() )
+							esc_url( $this->jp_get_update_php_url() )
 						);
-						wp_update_php_annotation();
+						$this->jp_update_php_annotation();
 					} elseif ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update WordPress" screen URL */
@@ -448,9 +448,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
 							' ' . wp_kses( __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
-							esc_url( wp_get_update_php_url() )
+							esc_url( $this->jp_get_update_php_url() )
 						);
-						wp_update_php_annotation();
+						$this->jp_update_php_annotation();
 					}
 				} elseif ( ! $compatible_wp ) {
 					esc_html_e( 'This plugin doesn&#8217;t work with your version of WordPress.', 'jetpack' );
@@ -467,9 +467,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
 							' ' . wp_kses( __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
-							esc_url( wp_get_update_php_url() )
+							esc_url( $this->jp_get_update_php_url() )
 						);
-						wp_update_php_annotation();
+						$this->jp_update_php_annotation();
 					}
 				}
 				echo '</p></div>';
@@ -545,6 +545,8 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 
 	/**
 	 * Fetch Gravatar hashes for public A12s from wpcom and display them as a list.
+	 *
+	 * @since 7.3
 	 */
 	public function display_gravatars() {
 		$hashes = get_transient( 'a12s_hashes' );
@@ -596,6 +598,99 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				),
 			)
 		);
+	}
+
+	// The following methods jp_get_update_php_url, jp_get_default_update_php_url, and jp_update_php_annotation,
+	// are copies of functions introduced in WP 5.1
+	// At the time of releasing this, we're still supporting WP 5.0, so we needed
+	// to have them here to avoid fatal errors in old installations.
+
+	/**
+	 * Gets the URL to learn more about updating the PHP version the site is running on.
+	 *
+	 * This URL can be overridden by specifying an environment variable `WP_UPDATE_PHP_URL` or by using the
+	 * {@see 'wp_update_php_url'} filter. Providing an empty string is not allowed and will result in the
+	 * default URL being used. Furthermore the page the URL links to should preferably be localized in the
+	 * site language.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return string URL to learn more about updating PHP.
+	 */
+	private function jp_get_update_php_url() {
+		$default_url = $this->jp_get_default_update_php_url();
+
+		$update_url = $default_url;
+		if ( false !== getenv( 'WP_UPDATE_PHP_URL' ) ) {
+			$update_url = getenv( 'WP_UPDATE_PHP_URL' );
+		}
+
+		/**
+		 * Filters the URL to learn more about updating the PHP version the site is running on.
+		 *
+		 * Providing an empty string is not allowed and will result in the default URL being used. Furthermore
+		 * the page the URL links to should preferably be localized in the site language.
+		 *
+		 * @since 5.1.0
+		 *
+		 * @param string $update_url URL to learn more about updating PHP.
+		 */
+		$update_url = apply_filters( 'wp_update_php_url', $update_url );
+
+		if ( empty( $update_url ) ) {
+			$update_url = $default_url;
+		}
+
+		return $update_url;
+	}
+
+	/**
+	 * Gets the default URL to learn more about updating the PHP version the site is running on.
+	 *
+	 * Do not use this function to retrieve this URL. Instead, use {@see wp_get_update_php_url()} when relying on the URL.
+	 * This function does not allow modifying the returned URL, and is only used to compare the actually used URL with the
+	 * default one.
+	 *
+	 * @since 5.1.0
+	 * @access private
+	 *
+	 * @return string Default URL to learn more about updating PHP.
+	 */
+	private function jp_get_default_update_php_url() {
+		return _x( 'https://wordpress.org/support/update-php/', 'localized PHP upgrade information page', 'jetpack' );
+	}
+
+	/**
+	 * Prints the default annotation for the web host altering the "Update PHP" page URL.
+	 *
+	 * This function is to be used after {@see wp_get_update_php_url()} to display a consistent
+	 * annotation if the web host has altered the default "Update PHP" page URL.
+	 *
+	 * @since 5.1.0
+	 */
+	private function jp_update_php_annotation() {
+		$update_url  = $this->jp_get_update_php_url();
+		$default_url = $this->jp_get_default_update_php_url();
+
+		if ( $update_url === $default_url ) {
+			return;
+		}
+
+		echo '<p class="description">';
+		printf(
+			wp_kses(
+				/* translators: %s: default Update PHP page URL */
+				__( 'This resource is provided by your web host, and is specific to your site. For more information, <a href="%s" target="_blank" rel="noopener noreferrer">see the official WordPress documentation</a>.', 'jetpack' ),
+				array(
+					'a' => array(
+						'href' => true,
+						'rel'  => true,
+					),
+				)
+			),
+			esc_url( $default_url )
+		);
+		echo '</p>';
 	}
 
 }
