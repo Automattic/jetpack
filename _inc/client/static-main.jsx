@@ -27,7 +27,8 @@ const initialState = {
 };
 
 class StaticMain extends React.Component {
-	UNSAFE_componentWillMount() {
+	constructor( props ) {
+		super( props );
 		this.props.setInitialState( initialState );
 	}
 
