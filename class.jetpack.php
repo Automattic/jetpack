@@ -6379,6 +6379,11 @@ p {
 			'jetpack_enable_site_verification'                       => null,
 			'can_display_jetpack_manage_notice'                      => null,
 			'can_display_jetpack_manage_notice'                      => 'jetpack_json_manage_api_enabled',
+			// Removed in Jetpack 7.3.0
+			'atd_load_scripts'                                       => null,
+			'atd_http_post_timeout'                                  => null,
+			'atd_http_post_error'                                    => null,
+			'atd_service_domain'                                     => null,
 		);
 
 		// This is a silly loop depth. Better way?
