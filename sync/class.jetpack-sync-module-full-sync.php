@@ -262,7 +262,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				$this->update_status_option( $status_option_name, $items_sent );
 			}
 
-			if ( $items_sent_total !== 0 ) {
+			if ( 0 !== $items_sent_total ) {
 				$this->update_status_option( $total_option_name, $items_sent_total );
 			}
 		}
