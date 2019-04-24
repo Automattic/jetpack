@@ -280,7 +280,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	public function get_action_totals( $queue_item ) {
-		if ( is_array( $queue_item ) && isset( $queue_item[1] ) && isset( $queue_item[1][0] ) ) {
+		if ( is_array( $queue_item ) && isset( $queue_item[1][0] ) ) {
 			if ( is_array( $queue_item[1][0] ) ) {
 				// Let's count the items we sync in this action.
 				return count( $queue_item[1][0] );
