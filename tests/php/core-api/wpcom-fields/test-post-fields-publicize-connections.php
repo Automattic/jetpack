@@ -163,9 +163,9 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
   public function tearDown() {
 		global $wpcom_rest_api_v2_plugins;
 
-		wp_delete_post( $this->draft_id, true );
-
     parent::tearDown();
+
+    wp_delete_post( $this->draft_id, true );
 
     if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
       // WPCOM_REST_API_V2_Post_Publicize_Connections_Field is already active
