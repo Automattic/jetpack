@@ -343,7 +343,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			$iframe_html = sprintf( '<iframe width="600" %s></iframe>', $iframe_attributes );
 
-			if ( ! Jetpack_AMP_Support::is_amp_request() ) {
+			if (
+				! class_exists( 'Jetpack_AMP_Support' )
+				|| ! Jetpack_AMP_Support::is_amp_request()
+			) {
 				return $iframe_html;
 			}
 
