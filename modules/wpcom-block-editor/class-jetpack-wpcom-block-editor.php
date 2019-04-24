@@ -37,6 +37,8 @@ class Jetpack_WPCOM_Block_Editor {
 	private function __construct() {
 		add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 		add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ) );
+		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 	}
 
 	/**
@@ -73,12 +75,12 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 
 		$verified = $this->verify_frame_nonce(
-			$_GET['frame-nonce'],  // phpcs:ignore WordPress.Security.NonceVerification
+			$_GET['frame-nonce'], // phpcs:ignore WordPress.Security.NonceVerification
 			'frame-' . Jetpack_Options::get_option( 'id' )
 		);
 
 		if ( is_wp_error( $verified ) ) {
-			wp_die( $verified );
+			wp_die( $verified ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		if ( $verified && ! defined( 'IFRAME_REQUEST' ) ) {
@@ -161,6 +163,75 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 
 		return $salt;
+	}
+
+	/**
+	 * Enqueue the scripts for the WordPress.com block editor integration.
+	 */
+	public function enqueue_scripts() {
+		$debug         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$version       = gmdate( 'YW' );
+		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+
+		$src_common = $debug
+			? '//widgets.wp.com/wpcom-block-editor/common.js?minify=false'
+			: '//widgets.wp.com/wpcom-block-editor/common.min.js';
+		wp_enqueue_script(
+			'wpcom-block-editor-common',
+			$src_common,
+			array( 'lodash', 'wp-compose', 'wp-data', 'wp-editor', 'wp-rich-text' ),
+			$version,
+			true
+		);
+		wp_localize_script(
+			'wpcom-block-editor-common',
+			'wpcomGutenberg',
+			array(
+				'switchToClassic' => array(
+					'isVisible' => false,
+				),
+				'isCalypsoify'    => $is_calypsoify,
+				'richTextToolbar' => array(
+					'justify'   => __( 'Justify', 'jetpack' ),
+					'underline' => __( 'Underline', 'jetpack' ),
+				),
+			)
+		);
+		if ( $is_calypsoify ) {
+			$src_calypso_iframe_bridge = $debug
+				? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.min.js';
+			wp_enqueue_script(
+				'wpcom-block-editor-calypso-iframe-bridge',
+				$src_calypso_iframe_bridge,
+				array( 'calypsoify_wpadminmods_js', 'jquery', 'lodash', 'react', 'wp-blocks', 'wp-data', 'wp-hooks', 'wp-tinymce', 'wp-url' ),
+				$version,
+				true
+			);
+		}
+	}
+
+	/**
+	 * Register the Tiny MCE plugins for the WordPress.com block editor integration.
+	 *
+	 * @param array $plugin_array An array of external Tiny MCE plugins.
+	 *
+	 * @return array External TinyMCE plugins.
+	 */
+	public function add_tinymce_plugins( $plugin_array ) {
+		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+		if ( $is_calypsoify ) {
+			$debug               = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+			$src_calypso_tinymce = $debug
+				? '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.js?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.min.js';
+			$plugin_array['gutenberg-wpcom-iframe-media-modal'] = add_query_arg(
+				'v',
+				gmdate( 'YW' ),
+				$src_calypso_tinymce
+			);
+		}
+		return $plugin_array;
 	}
 }
 
