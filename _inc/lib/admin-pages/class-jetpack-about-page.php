@@ -332,15 +332,15 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 									esc_attr( $plugin['slug'] ),
 									esc_url( $status['url'] ),
 									/* translators: %s: plugin name and version */
-									esc_attr( sprintf( __( 'Install %s now' ), $name ) ),
+									esc_attr( sprintf( __( 'Install %s now', 'jetpack' ), $name ) ),
 									esc_attr( $name ),
 									esc_attr( $name ),
-									__( 'Install Now' )
+									__( 'Install Now', 'jetpack' )
 								);
 							} else {
 								$action_links[] = sprintf(
 									'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
-									_x( 'Cannot Install', 'plugin' )
+									_x( 'Cannot Install', 'plugin', 'jetpack' )
 								);
 							}
 						}
@@ -354,10 +354,10 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 								esc_attr( $plugin['slug'] ),
 								esc_url( $status['url'] ),
 								/* translators: %s: plugin name and version */
-								esc_attr( sprintf( __( 'Update %s now' ), $name ) ),
+								esc_attr( sprintf( __( 'Update %s now', 'jetpack' ), $name ) ),
 								esc_attr( $name ),
 								esc_attr( $name ),
-								__( 'Update Now' )
+								__( 'Update Now', 'jetpack' )
 							);
 						}
 						break;
@@ -367,12 +367,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						if ( is_plugin_active( $status['file'] ) ) {
 							$action_links[] = sprintf(
 								'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
-								_x( 'Active', 'plugin' )
+								_x( 'Active', 'plugin', 'jetpack' )
 							);
 						} elseif ( current_user_can( 'activate_plugin', $status['file'] ) ) {
-							$button_text = __( 'Activate' );
+							$button_text = __( 'Activate', 'jetpack' );
 							/* translators: %s: plugin name */
-							$button_label = _x( 'Activate %s', 'plugin' );
+							$button_label = _x( 'Activate %s', 'plugin', 'jetpack' );
 							$activate_url = add_query_arg(
 								array(
 									'_wpnonce' => wp_create_nonce( 'activate-plugin_' . $status['file'] ),
@@ -383,9 +383,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							);
 
 							if ( is_network_admin() ) {
-								$button_text = __( 'Network Activate' );
+								$button_text = __( 'Network Activate', 'jetpack' );
 								/* translators: %s: plugin name */
-								$button_label = _x( 'Network Activate %s', 'plugin' );
+								$button_label = _x( 'Network Activate %s', 'plugin', 'jetpack' );
 								$activate_url = add_query_arg( array( 'networkwide' => 1 ), $activate_url );
 							}
 
@@ -399,7 +399,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						} else {
 							$action_links[] = sprintf(
 								'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
-								_x( 'Installed', 'plugin' )
+								_x( 'Installed', 'plugin', 'jetpack' )
 							);
 						}
 						break;
@@ -427,44 +427,44 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			if ( ! $compatible_php || ! $compatible_wp ) {
 				echo '<div class="notice inline notice-error notice-alt"><p>';
 				if ( ! $compatible_php && ! $compatible_wp ) {
-					_e( 'This plugin doesn&#8217;t work with your versions of WordPress and PHP.' );
+					esc_html_e( 'This plugin doesn&#8217;t work with your versions of WordPress and PHP.', 'jetpack' );
 					if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 						printf(
 							/* translators: 1: "Update WordPress" screen URL, 2: "Update PHP" page URL */
-							' ' . __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.' ),
-							self_admin_url( 'update-core.php' ),
+							' ' . __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.', 'jetpack' ),
+							esc_url( self_admin_url( 'update-core.php' ) ),
 							esc_url( wp_get_update_php_url() )
 						);
 						wp_update_php_annotation();
 					} elseif ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update WordPress" screen URL */
-							' ' . __( '<a href="%s">Please update WordPress</a>.' ),
-							self_admin_url( 'update-core.php' )
+							' ' . __( '<a href="%s">Please update WordPress</a>.', 'jetpack' ),
+							esc_url( self_admin_url( 'update-core.php' ) )
 						);
 					} elseif ( current_user_can( 'update_php' ) ) {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
-							' ' . __( '<a href="%s">Learn more about updating PHP</a>.' ),
+							' ' . __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ),
 							esc_url( wp_get_update_php_url() )
 						);
 						wp_update_php_annotation();
 					}
 				} elseif ( ! $compatible_wp ) {
-					_e( 'This plugin doesn&#8217;t work with your version of WordPress.' );
+					_e( 'This plugin doesn&#8217;t work with your version of WordPress.', 'jetpack' );
 					if ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update WordPress" screen URL */
-							' ' . __( '<a href="%s">Please update WordPress</a>.' ),
+							' ' . __( '<a href="%s">Please update WordPress</a>.', 'jetpack'  ),
 							self_admin_url( 'update-core.php' )
 						);
 					}
 				} elseif ( ! $compatible_php ) {
-					_e( 'This plugin doesn&#8217;t work with your version of PHP.' );
+					_e( 'This plugin doesn&#8217;t work with your version of PHP.', 'jetpack' );
 					if ( current_user_can( 'update_php' ) ) {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
-							' ' . __( '<a href="%s">Learn more about updating PHP</a>.' ),
+							' ' . __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ),
 							esc_url( wp_get_update_php_url() )
 						);
 						wp_update_php_annotation();
@@ -478,17 +478,17 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				<div class="name column-name">
 					<h3>
 						<a href="<?php echo esc_url( $details_link ); ?>" class="jptracks thickbox open-plugin-details-modal" data-jptracks-name="jetpack_about_plugin_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>">
-						<?php echo $title; ?>
+						<?php echo esc_html( $title ); ?>
 						<img src="<?php echo esc_attr( $plugin_icon_url ); ?>" class="plugin-icon" alt="">
 						</a>
 					</h3>
 				</div>
 				<div class="desc column-description">
-					<p><?php echo $description; ?></p>
+					<p><?php echo esc_html( $description ); ?></p>
 				</div>
 
 				<div class="details-link">
-					<a class="jptracks thickbox open-plugin-details-modal" href="<?php echo $details_link; ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
+					<a class="jptracks thickbox open-plugin-details-modal" href="<?php echo esc_url( $details_link ); ?>" data-jptracks-name="jetpack_about_plugin_details_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>"><?php _e( 'More Details', 'jetpack' ); ?></a>
 				</div>
 			</div>
 
@@ -503,23 +503,23 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						)
 					);
 					?>
-					<span class="num-ratings" aria-hidden="true">(<?php echo number_format_i18n( $plugin['num_ratings'] ); ?> <?php esc_html_e( 'ratings', 'jetpack' ); ?>)</span>
+					<span class="num-ratings" aria-hidden="true">(<?php echo esc_html( number_format_i18n( $plugin['num_ratings'] ) ); ?> <?php esc_html_e( 'ratings', 'jetpack' ); ?>)</span>
 					<div class="downloaded">
 						<?php
 						if ( $plugin['active_installs'] >= 1000000 ) {
 							$active_installs_millions = floor( $plugin['active_installs'] / 1000000 );
 							$active_installs_text     = sprintf(
 								/* translators: number of millions of installs. */
-								_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations' ),
+								_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations', 'jetpack' ),
 								number_format_i18n( $active_installs_millions )
 							);
 						} elseif ( 0 === $plugin['active_installs'] ) {
-							$active_installs_text = _x( 'Less Than 10', 'Active plugin installations' );
+							$active_installs_text = _x( 'Less Than 10', 'Active plugin installations', 'jetpack' );
 						} else {
 							$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';
 						}
 						/* translators: number of active installs */
-						printf( __( '%s Active Installations' ), $active_installs_text );
+						printf( esc_html__( '%s Active Installations', 'jetpack' ), $active_installs_text );
 						?>
 					</div>
 				</div>
@@ -581,9 +581,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		}
 		$output = '';
 		foreach ( $hashes as $hash ) {
-			$output .= '<li><img src="' . $hash . '?s=150"></li>' . "\n";
+			$output .= '<li><img src="' . esc_url( $hash ) . '?s=150"></li>' . "\n";
 		}
-		echo $output;
+		echo $output; // WPCS: XSS ok.
 	}
 
 }
