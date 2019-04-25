@@ -38,10 +38,10 @@
             <directory prefix="test_" suffix=".php">php/modules/publicize</directory>
         </testsuite>
         <testsuite name="sharedaddy">
-            <directory prefix="test_" suffix=".php">php/modules/sharedaddy</directory>
+            <directory prefix="test" suffix=".php">php/modules/sharedaddy</directory>
         </testsuite>
         <testsuite name="shortcodes">
-            <directory prefix="test_" suffix=".php">php/modules/shortcodes</directory>
+            <directory prefix="test" suffix=".php">php/modules/shortcodes</directory>
         </testsuite>
         <testsuite name="widgets">
             <directory prefix="test_" suffix=".php">php/modules/widgets</directory>
@@ -50,7 +50,7 @@
             <directory prefix="test_" suffix=".php">php/modules/sso</directory>
         </testsuite>
         <testsuite name="contact-form">
-            <directory prefix="test_" suffix=".php">php/modules/contact-form</directory>
+            <directory prefix="test" suffix=".php">php/modules/contact-form</directory>
         </testsuite>
         <testsuite name="sync">
             <directory prefix="test_" suffix=".php">php/sync</directory>
