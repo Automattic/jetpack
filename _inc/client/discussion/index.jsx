@@ -56,14 +56,14 @@ export class Discussion extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-
-				<Card
-					title={ __(
-						'Open your site to comments and invite subscribers to get alerts about your latest work.'
-					) }
-					className="jp-settings-description"
-				/>
-
+				{ ! this.props.searchTerm && (
+					<Card
+						title={ __(
+							'Open your site to comments and invite subscribers to get alerts about your latest work.'
+						) }
+						className="jp-settings-description"
+					/>
+				) }
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }

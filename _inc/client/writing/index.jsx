@@ -76,13 +76,14 @@ export class Writing extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-
-				<Card
-					title={ __(
-						'Compose content the way you want to and streamline your publishing experience.'
-					) }
-					className="jp-settings-description"
-				/>
+				{ ! this.props.searchTerm && (
+					<Card
+						title={ __(
+							'Compose content the way you want to and streamline your publishing experience.'
+						) }
+						className="jp-settings-description"
+					/>
+				) }
 
 				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
 				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
