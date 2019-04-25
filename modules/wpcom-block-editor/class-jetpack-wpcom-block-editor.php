@@ -35,10 +35,24 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Jetpack_WPCOM_Block_Editor constructor.
 	 */
 	private function __construct() {
-		add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
-		add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
+		if ( $this->is_iframed_block_editor() ) {
+			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
+			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
+		}
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+	}
+
+	/**
+	 * Checks if we are embedding the block editor in an iframe in WordPress.com.
+	 *
+	 * @return bool Whether the current request is from the iframed block editor.
+	 */
+	public function is_iframed_block_editor() {
+		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+		global $pagenow;
+		// phpcs:ignore WordPress.Security.NonceVerification
+		return ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) && ! empty( $_GET['frame-nonce'] ) && $is_calypsoify;
 	}
 
 	/**
@@ -197,7 +211,7 @@ class Jetpack_WPCOM_Block_Editor {
 				),
 			)
 		);
-		if ( $is_calypsoify ) {
+		if ( $this->is_iframed_block_editor() ) {
 			$src_calypso_iframe_bridge = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
 				: '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.min.js';
@@ -219,8 +233,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @return array External TinyMCE plugins.
 	 */
 	public function add_tinymce_plugins( $plugin_array ) {
-		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
-		if ( $is_calypsoify ) {
+		if ( $this->is_iframed_block_editor() ) {
 			$debug               = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 			$src_calypso_tinymce = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.js?minify=false'
