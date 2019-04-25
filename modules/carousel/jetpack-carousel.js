@@ -1270,32 +1270,7 @@ jQuery( document ).ready( function( $ ) {
 			if ( ! value.match( ' ' ) && value.match( '_' ) ) {
 				return '';
 			}
-			// Prefix list originally based on http://commons.wikimedia.org/wiki/MediaWiki:Filename-prefix-blacklist
-			$( [
-				'CIMG', // Casio
-				'DSC_', // Nikon
-				'DSCF', // Fuji
-				'DSCN', // Nikon
-				'DUW', // some mobile phones
-				'GEDC', // GE
-				'IMG', // generic
-				'JD', // Jenoptik
-				'MGP', // Pentax
-				'PICT', // misc.
-				'Imagen', // misc.
-				'Foto', // misc.
-				'DSC', // misc.
-				'Scan', // Scanners
-				'SANY', // Sanyo
-				'SAM', // Samsung
-				'Screen Shot [0-9]+', // Mac screenshots
-			] ).each( function( key, val ) {
-				var regex = new RegExp( '^' + val );
-				if ( regex.test( value ) ) {
-					value = '';
-					return;
-				}
-			} );
+
 			return value;
 		},
 
