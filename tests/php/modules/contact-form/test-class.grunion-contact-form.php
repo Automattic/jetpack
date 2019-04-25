@@ -324,7 +324,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field
 		$form = new Grunion_Contact_Form( array( 'to' => '"john" <john@example.com>', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
-		$form->process_submission();
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
 	}
 
 	public function pre_test_process_submission_sends_correct_single_email( $args ){
@@ -361,7 +362,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Initialize a form with name, dropdown and radiobutton (first, second
 		// and third option), text field
 		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com, jane@example.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
-		$form->process_submission();
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
 	}
 
 	public function pre_test_process_submission_sends_correct_multiple_email( $args ){
@@ -397,6 +399,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com' ) );
 		$result = $form->process_submission();
+		$this->assertNotNull( $result );
 	}
 
 	public function pre_test_process_submission_wont_send_spam_if_marked_as_spam_with_true(){
@@ -416,6 +419,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$form = new Grunion_Contact_Form( array( 'to' => 'john@example.com' ) );
 		$result = $form->process_submission();
+		$this->assertNotNull( $result );
 	}
 
 	public function pre_test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam( $args ){
