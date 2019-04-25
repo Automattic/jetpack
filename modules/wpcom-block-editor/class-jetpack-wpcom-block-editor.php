@@ -215,7 +215,9 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => false,
+					'isVisible' => $is_calypsoify,
+					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
+					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
 				'isCalypsoify'    => $is_calypsoify,
 				'richTextToolbar' => array(
