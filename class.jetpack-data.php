@@ -33,8 +33,8 @@ class Jetpack_Data {
 			}
 			$tokens = array( "{$token_chunks[0]}.{$token_chunks[1]}" );
 		} else {
-			$tokens = defined( 'JETPACK__BLOG_TOKEN' ) && ';stored;' !== $token_key
-				? array( JETPACK__BLOG_TOKEN )
+			$tokens = defined( 'JETPACK__BLOG_TOKENS' ) && ';stored;' !== $token_key
+				? explode( ',', JETPACK__BLOG_TOKENS )
 				: array();
 
 			$token = Jetpack_Options::get_option( 'blog_token' );
