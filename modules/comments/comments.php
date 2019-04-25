@@ -280,7 +280,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
 		// Prophylactic check: anything else should never happen.
 		if ( $token_key && $token_key !== $blog_token->secret ) {
-			$params['token_key'] = $token_key;
+			if ( preg_match( '/^;.\d+;\d+;$/', $token_key, $matches ) ) {
+				$params['token_key'] = $token_key;
+			} else {
+				$params['token_key'] = ';stored;';
+			}
 		}
 
 		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, $blog_token->secret );

@@ -5,7 +5,10 @@ class Jetpack_Data {
 	 * Gets locally stored token
 	 *
 	 * @param int|false $user_id false: Return the Blog Token. int: Return that user's User Token.
-	 * @param string|false $token_key: If provided, check that the stored token matches the provided $token_key.
+	 * @param string|false $token_key: If provided, check that the stored token matches the provided input.
+	 *                                 false           : Use first token. Default.
+	 *                                 ';stored;'      : Use first stored token. (Stored tokens are the normal kind.)
+	 *                                 non-empty string: Use matching token
 	 * @return object|false
 	 */
 	public static function get_access_token( $user_id = false, $token_key = false ) {
@@ -30,7 +33,9 @@ class Jetpack_Data {
 			}
 			$tokens = array( "{$token_chunks[0]}.{$token_chunks[1]}" );
 		} else {
-			$tokens = defined( 'JETPACK__BLOG_TOKEN' ) ? array( JETPACK__BLOG_TOKEN ) : array();
+			$tokens = defined( 'JETPACK__BLOG_TOKEN' ) && ';stored;' !== $token_key
+				? array( JETPACK__BLOG_TOKEN )
+				: array();
 
 			$token = Jetpack_Options::get_option( 'blog_token' );
 			if ( empty( $token ) && empty( $tokens ) ) {
@@ -40,8 +45,15 @@ class Jetpack_Data {
 			$tokens[] = $token;
 		}
 
-		// Return the token matching $token_key or false if none.
-		if ( false !== $token_key ) {
+		if ( false === $token_key ) {
+			// Use first token.
+			$token = $tokens[0];
+		} elseif ( ';stored;' === $token_key ) {
+			// Use first stored token.
+			$token = $tokens[0]; // $tokens only contains stored tokens because of earlier check.
+		} else {
+			// Use the token matching $token_key or false if none.
+			// Ensure we check the full key.
 			$token_check = rtrim( $token_key, '.' ) . '.';
 
 			$valid_token = false;
@@ -51,15 +63,15 @@ class Jetpack_Data {
 				}
 			}
 
-			return $valid_token ? (object) array(
-				'secret' => $valid_token,
-				'external_user_id' => (int) $user_id,
-			) : false;
+			if ( ! $valid_token ) {
+				return false;
+			}
+
+			$token = $valid_token;
 		}
 
-		// Return the first token.
 		return (object) array(
-			'secret' => $tokens[0],
+			'secret' => $token,
 			'external_user_id' => (int) $user_id,
 		);
 	}
