@@ -73,17 +73,20 @@ const webpackConfig = {
 			filename: '[name].dops-style.css',
 		} ),
 		new WordPressExternalDependenciesPlugin(),
+		// new HtmlWebpackPlugin( {
+		// 	template: '!!prerender-loader?string!_inc/client/static.html',
+		// 	filename: 'static.html',
+		// 	inject: false,
+		// } ),
 		new HtmlWebpackPlugin( {
-			template: '!prerender-loader?string!_inc/client/static.jsx',
-			filename: 'static.html',
-		} ),
-		new HtmlWebpackPlugin( {
-			template: '!prerender-loader?string!_inc/client/static-noscript-notice.jsx',
+			template: '!!prerender-loader?string!_inc/client/static-noscript-notice.html',
 			filename: 'static-noscript-notice.html',
+			inject: false,
 		} ),
 		new HtmlWebpackPlugin( {
-			template: '!prerender-loader?string!_inc/client/static-version-notice.jsx',
+			template: '!!prerender-loader?string!_inc/client/static-version-notice.html',
 			filename: 'static-version-notice.html',
+			inject: false,
 		} ),
 	],
 	devtool: devMode ? 'source-map' : false,
