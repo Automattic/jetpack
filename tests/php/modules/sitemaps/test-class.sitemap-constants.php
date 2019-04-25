@@ -7,6 +7,7 @@
  */
 
 require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
+
 /**
  * Test class for Jetpack sitemap constants.
  *
