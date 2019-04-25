@@ -38,7 +38,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 
 		self::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		// Hacky :(
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::setup_connections_wpcom();
 		} else {
@@ -161,7 +160,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function tearDown() {
-	global $wpcom_rest_api_v2_plugins;
+		global $wpcom_rest_api_v2_plugins;
 
 		parent::tearDown();
 
@@ -183,14 +182,14 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 			$GLOBALS['wp_rest_additional_fields'] = $this->_backup_wp_rest_additional_fields;
 		}
 
-	// Clean up custom meta from publicizeable post types
-	foreach ( get_post_types() as $post_type ) {
-	if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
-	continue;
-	}
+		// Clean up custom meta from publicizeable post types
+		foreach ( get_post_types() as $post_type ) {
+			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
+				continue;
+			}
 
-	unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
-	}
+			unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
+		}
 	}
 
 	public function test_register_fields_posts() {
