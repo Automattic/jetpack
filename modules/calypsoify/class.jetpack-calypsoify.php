@@ -295,15 +295,52 @@ class Jetpack_Calypsoify {
 		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
-	public function get_close_gutenberg_url() {
+	function get_calypso_origin() {
+		$origin = $_GET[ 'origin' ];
+		$whitelist = array(
+			'http://calypso.localhost:3000',
+			'http://127.0.0.1:41050', // Desktop App
+			'https://wpcalypso.wordpress.com',
+			'https://horizon.wordpress.com',
+			'https://wordpress.com',
+		);
+		return in_array( $origin, $whitelist ) ? $origin : 'https://wordpress.com';
+	}
+
+	function get_site_suffix() {
+		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+			$site_suffix = Jetpack::build_raw_urls( home_url() );
+		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+			$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		}
+
+		if ( $site_suffix ) {
+			return "/${site_suffix}";
+		}
+		return '';
+	}
+
+	public function get_calypso_url( $post_id = null ) {
 		$screen = get_current_screen();
+		$post_type = $screen->post_type;
+		if ( is_null( $post_id ) ) {
+			// E.g. `posts`, `pages`, or `types/some_custom_post_type`
+			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
+				? "/${post_type}s"
+				: "/types/${post_type}";
+			$post_suffix = '';
+		} else {
+			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
+				? "/${post_type}"
+				: "/edit/${post_type}";
+			$post_suffix = "/${post_id}";
+		}
 
-		// E.g. `posts`, `pages`, or `types/some_custom_post_type`
-		$post_type = ( 'post' === $screen->post_type || 'page' === $screen->post_type )
-			? $screen->post_type . 's'
-			: 'types/' . $screen->post_type;
+		return $this->get_calypso_origin() . $post_type_suffix . $this->get_site_suffix() . $post_suffix;
+	}
 
-		return 'https://wordpress.com/' . $post_type . '/' . Jetpack::build_raw_urls( home_url() );
+	public function get_close_gutenberg_url() {
+		return $this->get_calypso_url();
 	}
 
 	public function check_param() {
