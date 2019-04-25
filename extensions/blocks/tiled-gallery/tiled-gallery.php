@@ -60,7 +60,7 @@ class Jetpack_Tiled_Gallery_Block {
 					&& preg_match( '/data-height="([0-9]+)"/', $image_html, $img_width )
 					&& preg_match( '/src="([^"]+)"/', $image_html, $img_src )
 				) {
-					// Drop img src query string so it can be used as a base toadd photon params
+					// Drop img src query string so it can be used as a base to add photon params
 					// for the srcset.
 					$src_parts   = explode( '?', $img_src[1], 2 );
 					$orig_src    = $src_parts[0];
@@ -112,7 +112,7 @@ class Jetpack_Tiled_Gallery_Block {
 						$srcset = 'srcset="' . esc_attr( implode( ',', $srcset_parts ) ) . '"';
 
 						$find[]    = $image_html;
-						$replace[] = str_replace( '<img ', '<img ' . $srcset, $image_html );
+						$replace[] = str_replace( '<img', '<img ' . $srcset, $image_html );
 					}
 				}
 			}
