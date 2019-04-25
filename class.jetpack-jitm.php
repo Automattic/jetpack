@@ -406,4 +406,4 @@ class Jetpack_JITM {
 	}
 }
 
-add_action( 'init', array( 'Jetpack_JITM', 'init' ) );
+add_action( 'admin_init', array( 'Jetpack_JITM', 'init' ) );

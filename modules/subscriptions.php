@@ -6,7 +6,7 @@
  * Recommendation Order: 8
  * First Introduced: 1.2
  * Requires Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup

@@ -31,6 +31,9 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
+
+		// do this again later to collect any CPTs that get registered later
+		add_action( 'restapi_theme_init', array( $this, 'register_fields' ), 20 );
 	}
 
 	/**

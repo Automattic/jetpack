@@ -6,7 +6,7 @@
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: post by email, email
