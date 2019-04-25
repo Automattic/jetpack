@@ -85,7 +85,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Adds custom admin body class if this is a whitelisted iframe request.
 	 *
 	 * @param string $classes Admin body classes.
-	 *
 	 * @return string
 	 */
 	public function add_iframed_body_class( $classes ) {
@@ -126,7 +125,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 *
 	 * @param string $nonce Nonce that was used in the form to verify.
 	 * @param string $action Should give context to what is taking place and be the same when nonce was created.
-	 *
 	 * @return boolean|WP_Error Whether the nonce is valid.
 	 */
 	public function verify_frame_nonce( $nonce, $action ) {
@@ -180,7 +178,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 *
 	 * @param string $salt Salt for the given scheme.
 	 * @param string $scheme Authentication scheme.
-	 *
 	 * @return string
 	 */
 	public function filter_salt( $salt, $scheme ) {
