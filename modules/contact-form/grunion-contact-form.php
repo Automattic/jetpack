@@ -2559,7 +2559,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 7.2.0
+		 * @since 7.3.0
 		 *
 		 * @param int $post_id Post contact form lives on.
 		 * @param string|array $to Array of valid email addresses, or single email address.
