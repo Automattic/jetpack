@@ -95,6 +95,7 @@ class Jetpack_Options {
 			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
 			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
 			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
+			'first_admin_view',             // (bool)   Set to true the first time the user views the admin. Usually after the initial connection.
 		);
 	}
 
