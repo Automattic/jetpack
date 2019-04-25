@@ -47,7 +47,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
 		</testsuite>
 		<testsuite name="sharedaddy">
-			<directory prefix="test_" suffix=".php">tests/php/modules/sharedaddy</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/sharedaddy</directory>
 		</testsuite>
 		<testsuite name="shortcodes">
 			<directory prefix="test" suffix=".php">tests/php/modules/shortcodes</directory>
