@@ -276,7 +276,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Data::get_access_token()->secret );
+		$blog_token = Jetpack_Data::get_access_token();
+		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
+		// Prophylactic check: anything else should never happen.
+		if ( $token_key && $token_key !== $blog_token->secret ) {
+			$params['token_key'] = $token_key;
+		}
+
+		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, $blog_token->secret );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
