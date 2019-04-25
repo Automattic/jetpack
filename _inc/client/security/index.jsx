@@ -85,14 +85,16 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				{ ! this.props.searchTerm && (
-					<Card
-						title={ __(
-							'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
-						) }
-						className="jp-settings-description"
-					/>
-				) }
+				<Card
+					title={
+						this.props.searchTerm
+							? __( 'Security' )
+							: __(
+									'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
+							  )
+					}
+					className="jp-settings-description"
+				/>
 				{ foundBackups && <BackupsScan { ...commonProps } /> }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (

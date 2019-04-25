@@ -53,13 +53,14 @@ class Sharing extends Component {
 		return (
 			<div>
 				<QuerySite />
-				{ ! this.props.searchTerm && (
-					<Card
-						title={ __( 'Share your content on social media and increase audience engagement.' ) }
-						className="jp-settings-description"
-					/>
-				) }
-
+				<Card
+					title={
+						this.props.searchTerm
+							? __( 'Sharing' )
+							: __( 'Share your content on social media and increase audience engagement.' )
+					}
+					className="jp-settings-description"
+				/>
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }

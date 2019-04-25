@@ -67,14 +67,16 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-				{ ! this.props.searchTerm && (
-					<Card
-						title={ __(
-							'Maximize your site’s visibility in search engines and view traffic stats in real time.'
-						) }
-						className="jp-settings-description"
-					/>
-				) }
+				<Card
+					title={
+						this.props.searchTerm
+							? __( 'Traffic' )
+							: __(
+									'Maximize your site’s visibility in search engines and view traffic stats in real time.'
+							  )
+					}
+					className="jp-settings-description"
+				/>
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
