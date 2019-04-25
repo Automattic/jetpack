@@ -1,6 +1,6 @@
 
 .jetpack-contact-form {
-	padding: 10px 18px;
+	padding: 10px 0;
 
 	&.has-intro {
 		padding: 0;
@@ -53,8 +53,14 @@
 		margin-top:-1px;
 		margin-bottom: -3px;
 
-		.components-form-toggle {
-			margin: 2px 8px 0 0;
+		&.jetpack-field-label__required {
+			.components-form-toggle {
+				margin: 2px 8px 0 0;
+			}
+
+			.components-toggle-control__label {
+				word-break: keep-all;
+			}
 		}
 	}
 
@@ -81,6 +87,7 @@
 	margin: 0;
 	margin-bottom: 2px;
 	padding: 0;
+	width: auto;
 
 	&:focus {
 		border-color: #fff;
