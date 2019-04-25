@@ -59,13 +59,14 @@
 			}
 
 			.components-toggle-control__label {
-				word-break: keep-all;
+				word-break: normal;
 			}
 		}
 	}
 
 	.required {
 		color: #dc3232;
+		word-break: normal;
 	}
 
 	.components-toggle-control .components-base-control__field {
