@@ -77,11 +77,13 @@ class Jetpack_Tiled_Gallery_Block {
 						$max_width = min( self::IMG_SRCSET_WIDTH_MAX, $orig_width, $orig_height );
 
 						for ( $w = $min_width; $w <= $max_width; $w = min( $max_width, $w + self::IMG_SRCSET_WIDTH_STEP ) ) {
-							$photonized_src = jetpack_photon_url(
-								$orig_src,
-								array(
-									'resize' => $w . ',' . $w,
-									'strip'  => 'all',
+							$photonized_src = esc_url(
+								jetpack_photon_url(
+									$orig_src,
+									array(
+										'resize' => $w . ',' . $w,
+										'strip'  => 'all',
+									)
 								)
 							);
 							$srcset_parts[] = $photonized_src . ' ' . $w . 'w';
@@ -94,11 +96,13 @@ class Jetpack_Tiled_Gallery_Block {
 						$max_width = min( self::IMG_SRCSET_WIDTH_MAX, $orig_width );
 
 						for ( $w = $min_width; $w <= $max_width; $w = min( $max_width, $w + self::IMG_SRCSET_WIDTH_STEP ) ) {
-							$photonized_src = jetpack_photon_url(
-								$orig_src,
-								array(
-									'strip' => 'all',
-									'w'     => $w,
+							$photonized_src = esc_url(
+								jetpack_photon_url(
+									$orig_src,
+									array(
+										'strip' => 'all',
+										'w'     => $w,
+									)
 								)
 							);
 							$srcset_parts[] = $photonized_src . ' ' . $w . 'w';
