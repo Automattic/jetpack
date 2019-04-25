@@ -44,7 +44,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	// this only applies to the test replicastore - in production we overlay data
 	function test_sync_start_resets_storage() {
-		$this->server_replica_storage->reset(); // Reset the data in the local store.
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
@@ -308,7 +307,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 		$previous_interval_end = $event->args['previous_end'];
-		
+
 		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
 
 		Jetpack_Sync_Settings::reset_data();

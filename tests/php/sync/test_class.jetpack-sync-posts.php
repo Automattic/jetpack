@@ -10,7 +10,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->server_replica_storage->reset();
 		$user_id = $this->factory->user->create();
 
 		// create a post
@@ -93,15 +92,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_delete_post_deletes_data() {
-
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
-		$count = $this->server_replica_storage->post_count();
+
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
 
 		// there should be no posts at all
-		$this->assertEquals( ( $count - 1 ), $this->server_replica_storage->post_count() );
+		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
 	}
 
 	public function test_delete_post_syncs_event() {
@@ -135,14 +133,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "foo bar", $remote_post->post_content );
 
-		$posts_sync_module = new Jetpack_Sync_Module_Posts();
-
-		$local_posts = array_map( array(
-			$posts_sync_module,
-			'filter_post_content_and_add_links'
-		), array( get_post( $this->post->ID ) ) );
-		$this->assertEquals( $local_posts, $this->server_replica_storage->get_posts() );
-
+		$this->assertDataIsSynced();
 	}
 
 	public function test_sync_new_page() {
