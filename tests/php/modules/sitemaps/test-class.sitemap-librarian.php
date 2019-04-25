@@ -6,8 +6,8 @@
  * @since 4.7.0
  */
 
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.php';
+require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
+require_jetpack_file( 'modules/sitemaps/sitemap-librarian.php' );
 
 /**
  * Test class for Jetpack_Sitemap_Librarian.

@@ -6,8 +6,8 @@
  * @since 4.7.0
  */
 
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemaps.php';
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-finder.php';
+require_jetpack_file( 'modules/sitemaps/sitemaps.php' );
+require_jetpack_file( 'modules/sitemaps/sitemap-finder.php' );
 
 /**
  * Test class for Jetpack_Sitemap_Finder.

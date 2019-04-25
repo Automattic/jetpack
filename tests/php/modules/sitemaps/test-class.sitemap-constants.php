@@ -6,8 +6,7 @@
  * @since 4.7.0
  */
 
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
-
+require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
 /**
  * Test class for Jetpack sitemap constants.
  *

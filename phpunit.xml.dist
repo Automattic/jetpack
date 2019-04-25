@@ -56,7 +56,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
 		<testsuite name="sitemaps">
-			<directory prefix="test_" suffix=".php">tests/php/modules/sitemaps</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/sitemaps</directory>
 		</testsuite>
 		<testsuite name="sso">
 			<directory prefix="test_" suffix=".php">tests/php/modules/sso</directory>
