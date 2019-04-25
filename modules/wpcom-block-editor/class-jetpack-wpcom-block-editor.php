@@ -229,7 +229,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Register the Tiny MCE plugins for the WordPress.com block editor integration.
 	 *
 	 * @param array $plugin_array An array of external Tiny MCE plugins.
-	 *
 	 * @return array External TinyMCE plugins.
 	 */
 	public function add_tinymce_plugins( $plugin_array ) {
