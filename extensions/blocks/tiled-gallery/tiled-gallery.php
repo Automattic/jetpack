@@ -10,7 +10,7 @@
 /**
  * Jetpack Tiled Gallery Block class
  *
- * @since 7.4
+ * @since 7.3
  */
 class Jetpack_Tiled_Gallery_Block {
 	/* Values for building srcsets */
