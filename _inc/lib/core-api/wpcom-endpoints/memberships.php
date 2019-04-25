@@ -90,7 +90,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			require_lib( 'memberships' );
 			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
 			if ( ! $connected_destination_account_id ) {
-				return new WP_Error( 'no-destination-account', __( 'Please set up Stripe account for this site first', 'jetpack' ) );
+				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
 			}
 			$product = Memberships_Product::create(
 				get_current_blog_id(),
@@ -119,7 +119,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				)
 			);
 			if ( is_wp_error( $response ) ) {
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com', 'jetpack' ), 404 );
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			return $data;
@@ -152,7 +152,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				null
 			);
 			if ( is_wp_error( $response ) ) {
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WP.com', 'jetpack' ), 404 );
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			if ( ! $connected_account_id ) {
