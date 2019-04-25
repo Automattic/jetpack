@@ -37,7 +37,7 @@ class JumpStart extends Component {
 	};
 
 	dismissLink = () =>
-		__( '{{a}}Skip, and explore features individually{{/a}}.', {
+		__( '{{a}}Skip, and explore features individually.{{/a}}', {
 			components: {
 				a: (
 					<a
@@ -65,8 +65,8 @@ class JumpStart extends Component {
 						</p>
 						<p className="jp-jumpstart-card__description-text">
 							{ __(
-								'Next, activate Jetpack’s recommended feature set to maximize your site’s security and performance. ' +
-									'{{a}}Learn more about what’s included{{/a}}.',
+								"Next, activate Jetpack's recommended features. We've picked the features most useful for maximizing your site's security and performance, like secure authentication, downtime monitoring, image hosting, and lazy loading images. Activate them all with a click, and they'll make sure your site is safe and speedy. " +
+									'{{a}}Learn more about our recommended features.{{/a}}',
 								{
 									components: {
 										a: (
