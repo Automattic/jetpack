@@ -176,7 +176,7 @@ class Jetpack_Cxn_Test_Base {
 
 		if ( 'all' !== $type ) {
 			foreach ( $results as $test => $result ) {
-				if ( ! in_array( $type, $result['type'], true ) ) {
+				if ( $type !== $result['type'] ) {
 					unset( $results[ $test ] );
 				}
 			}
