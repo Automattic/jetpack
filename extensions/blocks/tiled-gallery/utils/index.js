@@ -67,13 +67,15 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 
 	/**
 	 * Build a sensible `srcSet` that will let the browser get an optimized image based on
-	 * viewport width
+	 * viewport width.
 	 */
 
 	const step = 300;
+	const srcsetMinWith = 600;
+
 	let srcSet;
 	if ( isSquareishLayout( layoutStyle ) ) {
-		const minWidth = Math.min( 600, width, height );
+		const minWidth = Math.min( srcsetMinWith, width, height );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width, height );
 
 		srcSet = range( minWidth, maxWidth, step )
@@ -87,7 +89,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 			.filter( Boolean )
 			.join( ',' );
 	} else {
-		const minWidth = Math.min( 600, width );
+		const minWidth = Math.min( srcsetMinWith, width );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width );
 
 		srcSet = range( minWidth, maxWidth, step )
