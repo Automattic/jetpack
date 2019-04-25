@@ -104,7 +104,7 @@
 		transform: translate( -50%, -50% );
 	}
 
-	// Hide captions and upload buttons in style picker preview
+	// Hide upload buttons in style picker preview
 	.editor-block-preview__content & {
 		.editor-media-placeholder {
 			display: none;
