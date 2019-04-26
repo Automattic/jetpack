@@ -3,8 +3,11 @@
  * Embed support for Medium
  *
  * Supported formats:
- * https://medium.com/p/3eaed64aed8a
- * [medium url="https://medium.com/help-center" width="100%" border="false" collapsed="true"]
+ * - Profiles: https://medium.com/@jeherve
+ * - Collections: https://medium.com/s/user-friendly
+ * - Stories: https://medium.com/@jeherve/this-is-a-story-19f582daaf5b
+ * - And all the above in shortcode formats:
+ * [medium url="https://medium.com/@jeherve/this-is-a-story-19f582daaf5b" width="100%" border="false" collapsed="true"]
  *
  * @package Jetpack
  */
