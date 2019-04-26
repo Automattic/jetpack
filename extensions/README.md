@@ -63,6 +63,8 @@ Generally, all new extensions should start out as a beta.
 
 Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
 
+Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
+
 ## Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
@@ -139,6 +141,8 @@ rsync -az --delete _inc/blocks/ \
 
 To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
+## Good to know when developing Gutenberg extensions
+
 ## The Build
 
 - Compiled extensions are output to `_inc/blocks`
@@ -161,8 +165,6 @@ define( 'GUTENBERG_DEVELOPMENT_MODE', true );
 You could modify `SCRIPT_DEBUG` from `docker/wordpress/wp-config.php` in your Docker environment and add `GUTENBERG_DEVELOPMENT_MODE` there as well, or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`).
 
 [G Debugger](https://wordpress.org/plugins/g-debugger/) plugin might come handy, too.
-
-## Good to know when developing Gutenberg extensions
 
 ### Don't worry about dependencies
 
