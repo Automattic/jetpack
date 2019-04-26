@@ -109,8 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Admin Experience: Improve timing our "just in time messages" for new sites setting up Jetpack for the first time.
-* Admin Experience: Ensure we display the "Recommended Features" card when you visit the Jetpack dashboard for the first time.
+* Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
 * JSON API: Add behind the scene improvements to support the WordPress.com site management experience.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sync: Report details on what is queued up to sync on the status endpoint.
@@ -123,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Dashboard: Improve headings when searching for Jetpack features.
+* Admin Experience: Translate "just in time messages".
 * Development Mode: Display fewer sections of the Admin Dashboard. Some simply don't apply in Development Mode.
 * Sharing: Improve accessibility of sharing buttons by increasing contrast ratio. Props https://titan.as
 * Shortcodes: Retire the Google Video shortcode. The service itself has long been retired.
