@@ -168,7 +168,7 @@ export const settings = {
 			},
 			{
 				type: 'block',
-				blocks: [ 'core/gallery' ],
+				blocks: [ 'core/gallery', 'jetpack/slideshow' ],
 				transform: attributes => {
 					const validImages = getValidImages( attributes.images );
 					if ( validImages.length > 0 ) {
