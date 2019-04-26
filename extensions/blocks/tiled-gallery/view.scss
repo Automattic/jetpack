@@ -19,7 +19,7 @@ $tiled-gallery-max-column-count: 20;
 			@for $cols from 1 through $tiled-gallery-max-column-count {
 				&.columns-#{$cols} {
 					.tiled-gallery__col {
-						width: calc( ( 100% - ( #{$tiled-gallery-gutter} * ( #{$cols} - 1 ) ) ) / #{$cols} );
+						width: calc( ( 100% - #{ $tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
 					}
 				}
 			}
