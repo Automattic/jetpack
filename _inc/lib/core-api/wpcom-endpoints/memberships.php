@@ -119,6 +119,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				)
 			);
 			if ( is_wp_error( $response ) ) {
+				if ( $response->get_error_code() === 'missing_token' ) {
+					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+				}
 				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
@@ -152,6 +155,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				null
 			);
 			if ( is_wp_error( $response ) ) {
+				if ( $response->get_error_code() === 'missing_token' ) {
+					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+				}
 				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
