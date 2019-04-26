@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sync: Report details on what is queued up to sync on the status endpoint.
+* Tiled Galleries: Add improved layout for when images are in the process of uploading.
 * WordAds: Add location id (e.g. under the post) to the ad calls.
 * WordPress.com API: Add behind the scene improvements to support the WordPress.com site management experience.
 
