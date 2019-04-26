@@ -47,7 +47,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
 		</testsuite>
 		<testsuite name="sharedaddy">
-			<directory prefix="test_" suffix=".php">tests/php/modules/sharedaddy</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/sharedaddy</directory>
 		</testsuite>
 		<testsuite name="shortcodes">
 			<directory prefix="test" suffix=".php">tests/php/modules/shortcodes</directory>
@@ -56,7 +56,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/widgets</directory>
 		</testsuite>
 		<testsuite name="sitemaps">
-			<directory prefix="test_" suffix=".php">tests/php/modules/sitemaps</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/sitemaps</directory>
 		</testsuite>
 		<testsuite name="sso">
 			<directory prefix="test_" suffix=".php">tests/php/modules/sso</directory>
@@ -65,7 +65,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/subscriptions</directory>
 		</testsuite>
 		<testsuite name="contact-form">
-			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/contact-form</directory>
 		</testsuite>
 		<testsuite name="verification-tools">
 			<directory prefix="test_" suffix=".php">tests/php/modules/verification-tools</directory>
@@ -101,7 +101,7 @@
 			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
 		</testsuite>
 		<testsuite name="search">
-			<directory prefix="test_" suffix=".php">tests/php/modules/search</directory>
+			<directory prefix="test" suffix=".php">tests/php/modules/search</directory>
 		</testsuite>
 		<testsuite name="geo-location">
 			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>

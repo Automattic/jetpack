@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemaps.php';
+require_jetpack_file( 'modules/sitemaps/sitemaps.php' );
 
 class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 

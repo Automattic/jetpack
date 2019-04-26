@@ -3,6 +3,9 @@
 /**
  * Testing CRUD on Meta
  */
+
+require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+
 class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 	protected $meta_module;

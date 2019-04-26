@@ -6,9 +6,9 @@
  * @since 4.7.0
  */
 
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php';
-require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer-fallback.php';
+require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
+require_jetpack_file( 'modules/sitemaps/sitemap-buffer.php' );
+require_jetpack_file( 'modules/sitemaps/sitemap-buffer-fallback.php' );
 
 /**
  * Test class for Jetpack_Sitemap_Buffer.

@@ -1,7 +1,7 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../../modules/search/class.jetpack-search.php';
-require dirname( __FILE__ ) . '/../../../../modules/search/class.jetpack-search-helpers.php';
+require_jetpack_file( 'modules/search/class.jetpack-search.php' );
+require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
 
 class WP_Test_Jetpack_Search_Helpers_Customize {
 	public $previewing = false;
