@@ -108,13 +108,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* JSON API: Behind the scene improvements to support the WordPress.com site management experience.
+* JSON API: Add behind the scene improvements to support the WordPress.com site management experience.
 
 **Improved compatibility**
 
 * Blocks: Use the Editor's "BlockIcon" for native placeholder icons instead of custom CSS.
 
 **Bug fixes**
+
+* Admin Dashboard: Improve headings when searching for Jetpack features.
 
 
 --------
