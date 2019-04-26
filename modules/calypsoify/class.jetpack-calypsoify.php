@@ -295,7 +295,12 @@ class Jetpack_Calypsoify {
 		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
-	function get_calypso_origin() {
+	/**
+	 * Returns the Calypso domain that originated the current request.
+	 *
+	 * @return string
+	 */
+	private function get_calypso_origin() {
 		$origin = $_GET[ 'origin' ];
 		$whitelist = array(
 			'http://calypso.localhost:3000',
@@ -307,7 +312,15 @@ class Jetpack_Calypsoify {
 		return in_array( $origin, $whitelist ) ? $origin : 'https://wordpress.com';
 	}
 
-	function get_site_suffix() {
+	/**
+	 * Returns the site slug suffix to be used as part of the Calypso URLs. It already
+	 * includes the slash separator at the beginning.
+	 *
+	 * @example "https://wordpress.com/block-editor" . $this->get_site_suffix()
+	 *
+	 * @return string
+	 */
+	private function get_site_suffix() {
 		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
 			$site_suffix = Jetpack::build_raw_urls( home_url() );
 		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
@@ -320,6 +333,13 @@ class Jetpack_Calypsoify {
 		return '';
 	}
 
+	/**
+	 * Returns the Calypso URL that displays either the current post type list (if no args
+	 * are supplied) or the classic editor for the current post (if a post ID is supplied).
+	 *
+	 * @param int|null $post_id
+	 * @return string
+	 */
 	public function get_calypso_url( $post_id = null ) {
 		$screen = get_current_screen();
 		$post_type = $screen->post_type;
@@ -339,6 +359,12 @@ class Jetpack_Calypsoify {
 		return $this->get_calypso_origin() . $post_type_suffix . $this->get_site_suffix() . $post_suffix;
 	}
 
+	/**
+	 * Returns the URL to be used on the block editor close button for going back to the
+	 * Calypso post list.
+	 *
+	 * @return string
+	 */
 	public function get_close_gutenberg_url() {
 		return $this->get_calypso_url();
 	}
