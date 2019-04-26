@@ -41,6 +41,16 @@ const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {
 	label: styleNames[ style.name ],
 } ) );
 
+/**
+ * Filter valid images
+ *
+ * @param {array} images Array of image objects
+ * @return {array} Array of image objects which have id and url
+ */
+function getValidImages( images ) {
+	return filter( images, ( { id, url } ) => id && url );
+}
+
 const blockAttributes = {
 	// Set default align
 	align: {
@@ -141,9 +151,26 @@ export const settings = {
 		from: [
 			{
 				type: 'block',
-				blocks: [ 'core/gallery' ],
+				isMultiBlock: true,
+				blocks: [ 'core/image' ],
+				isMatch: attributes => getValidImages( attributes ).length > 0,
 				transform: attributes => {
-					const validImages = filter( attributes.images, ( { id, url } ) => id && url );
+					const validImages = getValidImages( attributes );
+					return createBlock( `jetpack/${ name }`, {
+						images: validImages.map( ( { id, url, alt } ) => ( {
+							id,
+							url,
+							alt,
+						} ) ),
+						ids: validImages.map( ( { id } ) => id ),
+					} );
+				},
+			},
+			{
+				type: 'block',
+				blocks: [ 'core/gallery', 'jetpack/slideshow' ],
+				transform: attributes => {
+					const validImages = getValidImages( attributes.images );
 					if ( validImages.length > 0 ) {
 						return createBlock( `jetpack/${ name }`, {
 							images: validImages.map( ( { id, url, alt } ) => ( {
@@ -167,10 +194,10 @@ export const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/image' ],
-				transform: ( { images } ) => {
+				transform: ( { align, images } ) => {
 					if ( images.length > 0 ) {
 						return images.map( ( { id, url, alt } ) =>
-							createBlock( 'core/image', { id, url, alt } )
+							createBlock( 'core/image', { align, id, url, alt } )
 						);
 					}
 					return createBlock( 'core/image' );
