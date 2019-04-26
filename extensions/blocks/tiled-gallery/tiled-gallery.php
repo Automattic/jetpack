@@ -67,6 +67,10 @@ class Jetpack_Tiled_Gallery_Block {
 					$orig_height = absint( $img_height[1] );
 					$orig_width  = absint( $img_width[1] );
 
+					// Because URLs are already "photon", the photon function used short-circuits
+					// before ssl is added. Detect ssl and add is if necessary.
+					$is_ssl = false !== strpos( $src_parts[1], 'ssl=1' );
+
 					if ( ! $orig_width || ! $orig_height || ! $orig_src ) {
 						continue;
 					}
@@ -77,16 +81,17 @@ class Jetpack_Tiled_Gallery_Block {
 						$max_width = min( self::IMG_SRCSET_WIDTH_MAX, $orig_width, $orig_height );
 
 						for ( $w = $min_width; $w <= $max_width; $w = min( $max_width, $w + self::IMG_SRCSET_WIDTH_STEP ) ) {
-							$photonized_src = esc_url(
-								jetpack_photon_url(
-									$orig_src,
-									array(
-										'resize' => $w . ',' . $w,
-										'strip'  => 'all',
-									)
-								)
+							$srcset_src = add_query_arg(
+								array(
+									'resize' => $w . ',' . $w,
+									'strip'  => 'all',
+								),
+								$orig_src
 							);
-							$srcset_parts[] = $photonized_src . ' ' . $w . 'w';
+							if ( $is_ssl ) {
+								$srcset_src = add_query_arg( 'ssl', '1', $srcset_src );
+							}
+							$srcset_parts[] = esc_url( $srcset_src ) . ' ' . $w . 'w';
 							if ( $w >= $max_width ) {
 								break;
 							}
@@ -96,16 +101,17 @@ class Jetpack_Tiled_Gallery_Block {
 						$max_width = min( self::IMG_SRCSET_WIDTH_MAX, $orig_width );
 
 						for ( $w = $min_width; $w <= $max_width; $w = min( $max_width, $w + self::IMG_SRCSET_WIDTH_STEP ) ) {
-							$photonized_src = esc_url(
-								jetpack_photon_url(
-									$orig_src,
-									array(
-										'strip' => 'all',
-										'w'     => $w,
-									)
-								)
+							$srcset_src = add_query_arg(
+								array(
+									'strip' => 'all',
+									'w'     => $w,
+								),
+								$orig_src
 							);
-							$srcset_parts[] = $photonized_src . ' ' . $w . 'w';
+							if ( $is_ssl ) {
+								$srcset_src = add_query_arg( 'ssl', '1', $srcset_src );
+							}
+							$srcset_parts[] = esc_url( $srcset_src ) . ' ' . $w . 'w';
 							if ( $w >= $max_width ) {
 								break;
 							}
