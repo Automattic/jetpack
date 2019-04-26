@@ -92,7 +92,7 @@ function jetpack_embed_medium_get_embed_type( $url ) {
 	$url_path = wp_parse_url( $url, PHP_URL_PATH );
 	if ( preg_match( '/^\/@[\.\w]+$/', $url_path ) ) {
 		return 'profile';
-	} elseif ( preg_match( '/^\/[\da-zA-Z-]+$/', $url_path ) ) {
+	} elseif ( preg_match( '/^\/(?:s)\/(.+)$/', $url_path ) ) {
 		return 'collection';
 	}
 
