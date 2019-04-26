@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Dashboard: Improve headings when searching for Jetpack features.
+* Development Mode: Display fewer sections of the Admin Dashboard. Some simply don't apply in Development Mode.
 * Shortcodes: Retire the Google Video shortcode. The service itself has long been retired.
 
 
