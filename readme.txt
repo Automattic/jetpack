@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: https://wp.me/p1moTy-ipR
 
 **Major Enhancements**
+* We streamlined the default features of Jetpack to make the "out of the box" experience better.
 
 **Enhancements**
 
