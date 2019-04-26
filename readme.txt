@@ -122,8 +122,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Dashboard: Improve headings when searching for Jetpack features.
-* Admin Experience: Translate "just in time messages".
 * Development Mode: Display fewer sections of the Admin Dashboard. Some simply don't apply in Development Mode.
+* Internationalization: Translate various sections missed, such as "just in time messages" and block search keywords.
 * Likes & Sharing: Hide the Likes/Sharing settings from private post types, like reusable blocks.
 * Sharing: Improve accessibility of sharing buttons by increasing contrast ratio. Props https://titan.as
 * Shortcodes: Retire the Google Video shortcode. The service itself has long been retired.
