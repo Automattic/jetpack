@@ -1,12 +1,22 @@
 <?php
-/*
+/**
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
  * Ported from an internal Automattic plugin.
-*/
-
+ */
 class Jetpack_Calypsoify {
-	static $instance = false;
 
+	/**
+	 * Singleton instance of `Jetpack_Calypsoify`.
+	 *
+	 * @var object
+	 */
+	public static $instance = false;
+
+	/**
+	 * Is Calypsoify enabled, based on any value of `calypsoify` user meta.
+	 *
+	 * @var bool
+	 */
 	public $is_calypsoify_enabled = false;
 
 	private function __construct() {
@@ -372,6 +382,11 @@ class Jetpack_Calypsoify {
 		return $this->get_calypso_url();
 	}
 
+	/**
+	 * Returns the URL for switching the user's editor to the Calypso (WordPress.com Classic) editor.
+	 *
+	 * @return string
+	 */
 	public function get_switch_to_classic_editor_url() {
 		return add_query_arg(
 			'set-editor',
