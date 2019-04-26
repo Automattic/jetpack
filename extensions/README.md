@@ -59,6 +59,12 @@ Generally, all new extensions should start out as a beta.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
+### Testing
+
+Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+
+Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
+
 ## Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
