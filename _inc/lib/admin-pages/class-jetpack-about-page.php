@@ -171,7 +171,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							</a>
 						</p>
 						<p>
-							<?php esc_html_e( 'We’re a distributed company with 864 Automatticians in 68 countries speaking 84 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ); ?>
+							<?php esc_html_e( 'We’re a distributed company with over 875 Automatticians in more than 67 countries speaking at least 83 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ); ?>
 						</p>
 						<p>
 							<?php esc_html_e( 'We believe in Open Source and the vast majority of our work is available under the GPL.', 'jetpack' ); ?>
