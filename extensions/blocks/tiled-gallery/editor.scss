@@ -19,6 +19,16 @@
 	padding-left: 4px;
 	padding-right: 4px;
 
+	&.is-style-square,
+	&.is-style-circle {
+		.tiled-gallery__item.is-transient img {
+			// Transient images (no src attribute) occupy no vertical space.
+			// If on a row by themself, the row is hidden.
+			// By setting the bottom margin, ensure they occupy the correct vertical space.
+			margin-bottom: 100%;
+		}
+	}
+
 	.tiled-gallery__item {
 		// Hide the focus outline that otherwise briefly appears when selecting a block.
 		> img:focus {
@@ -41,8 +51,16 @@
 			}
 		}
 
-		&.is-transient img {
-			opacity: 0.3;
+		&.is-transient {
+			height: 100%;
+			width: 100%;
+			img {
+				background-position: center;
+				background-size: cover;
+				height: 100%;
+				opacity: 0.3;
+				width: 100%;
+			}
 		}
 	}
 
