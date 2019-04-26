@@ -1,11 +1,23 @@
 <?php
-/*
+/**
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
  * Ported from an internal Automattic plugin.
-*/
-
+ */
 class Jetpack_Calypsoify {
-	static $instance = false;
+
+	/**
+	 * Singleton instance of `Jetpack_Calypsoify`.
+	 *
+	 * @var object
+	 */
+	public static $instance = false;
+
+	/**
+	 * Is Calypsoify enabled, based on any value of `calypsoify` user meta.
+	 *
+	 * @var bool
+	 */
+	public $is_calypsoify_enabled = false;
 
 	private function __construct() {
 		add_action( 'wp_loaded', array( $this, 'setup' ) );
@@ -20,9 +32,10 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup() {
+		$this->is_calypsoify_enabled = 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
 		add_action( 'admin_init', array( $this, 'check_param' ), 4 );
 
-		if ( 1 == (int) get_user_meta( get_current_user_id(), 'calypsoify', true ) ) {
+		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
 		}
 
@@ -367,6 +380,19 @@ class Jetpack_Calypsoify {
 	 */
 	public function get_close_gutenberg_url() {
 		return $this->get_calypso_url();
+	}
+
+	/**
+	 * Returns the URL for switching the user's editor to the Calypso (WordPress.com Classic) editor.
+	 *
+	 * @return string
+	 */
+	public function get_switch_to_classic_editor_url() {
+		return add_query_arg(
+			'set-editor',
+			'classic',
+			$this->is_calypsoify_enabled ? $this->get_calypso_url( get_the_ID() ) : false
+		);
 	}
 
 	public function check_param() {
