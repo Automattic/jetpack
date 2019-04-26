@@ -9,6 +9,7 @@ import { isBlobURL } from '@wordpress/blob';
 import { withDispatch } from '@wordpress/data';
 import {
 	BlockControls,
+	BlockIcon,
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
@@ -29,6 +30,7 @@ import {
 /**
  * Internal dependencies
  */
+import { icon } from '.';
 import Slideshow from './slideshow';
 import './editor.scss';
 
@@ -184,7 +186,7 @@ class SlideshowEdit extends Component {
 				<Fragment>
 					{ controls }
 					<MediaPlaceholder
-						icon="format-gallery"
+						icon={ <BlockIcon icon={ icon } /> }
 						className={ className }
 						labels={ {
 							title: __( 'Slideshow', 'jetpack' ),
