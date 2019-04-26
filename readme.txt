@@ -112,6 +112,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Blocks: Use the Editor's "BlockIcon" for native placeholder icons instead of custom CSS.
+
 **Bug fixes**
 
 
