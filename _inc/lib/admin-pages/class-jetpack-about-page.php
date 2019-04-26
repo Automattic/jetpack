@@ -350,13 +350,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					case 'update_available':
 						if ( $status['url'] ) {
 							$action_links[] = sprintf(
-								'<a class="update-now button aria-button-if-js jptracks" data-plugin="%s" data-slug="%s" href="%s" aria-label="%s" data-name="%s" data-jptracks-name="jetpack_about_update_button" data-jptracks-prop="%s">%s</a>',
+								'<a class="update-now button aria-button-if-js jptracks" data-plugin="%1$s" data-slug="%2$s" href="%3$s" aria-label="%4$s" data-name="%5$s" data-jptracks-name="jetpack_about_update_button" data-jptracks-prop="%5$s">%6$s</a>',
 								esc_attr( $status['file'] ),
 								esc_attr( $plugin['slug'] ),
 								esc_url( $status['url'] ),
 								/* translators: %s: plugin name and version */
 								esc_attr( sprintf( __( 'Update %s now', 'jetpack' ), $name ) ),
-								esc_attr( $name ),
 								esc_attr( $name ),
 								__( 'Update Now', 'jetpack' )
 							);
