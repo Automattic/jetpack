@@ -110,10 +110,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
-* JSON API: Add behind the scene improvements to support the WordPress.com site management experience.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sync: Report details on what is queued up to sync on the status endpoint.
 * WordAds: Add location id (e.g. under the post) to the ad calls.
+* WordPress.com API: Add behind the scene improvements to support the WordPress.com site management experience.
 
 **Improved compatibility**
 
