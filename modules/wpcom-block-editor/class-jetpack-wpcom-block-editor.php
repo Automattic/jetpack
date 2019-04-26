@@ -198,7 +198,6 @@ class Jetpack_WPCOM_Block_Editor {
 	public function enqueue_scripts() {
 		$debug         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 		$version       = gmdate( 'YW' );
-		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
 
 		$src_common = $debug
 			? '//widgets.wp.com/wpcom-block-editor/common.js?minify=false'
@@ -215,7 +214,7 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => $is_calypsoify,
+					'isVisible' => $this->is_iframed_block_editor(),
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
 					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
