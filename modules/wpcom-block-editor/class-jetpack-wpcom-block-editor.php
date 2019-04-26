@@ -196,8 +196,8 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueue the scripts for the WordPress.com block editor integration.
 	 */
 	public function enqueue_scripts() {
-		$debug         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-		$version       = gmdate( 'YW' );
+		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$version = gmdate( 'YW' );
 
 		$src_common = $debug
 			? '//widgets.wp.com/wpcom-block-editor/common.js?minify=false'
@@ -218,7 +218,6 @@ class Jetpack_WPCOM_Block_Editor {
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
 					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
-				'isCalypsoify'    => $is_calypsoify,
 				'richTextToolbar' => array(
 					'justify'   => __( 'Justify', 'jetpack' ),
 					'underline' => __( 'Underline', 'jetpack' ),
