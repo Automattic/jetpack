@@ -42,7 +42,6 @@ $tools = array(
 $connected_tools = array(
 	'calypsoify/class.jetpack-calypsoify.php',
 	'plugin-search.php',
-	'memberships/class-jetpack-memberships.php',
 	'simple-payments/simple-payments.php',
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
