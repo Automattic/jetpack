@@ -47,14 +47,21 @@ $color__back-link: #6c7781;
 
 .jetpack-about__logo {
 	width: 265px;
+
+	@media screen and (max-width: 400px) {
+		width: 100%;
+	}
+}
+.jetpack-about__content {
+	display: flex;
+
+	@media screen and (max-width: 782px) {
+		flex-wrap: wrap;
+	}
 }
 
 .jetpack-about__text {
-	margin-right: 40%;
-
-	@media screen and (max-width: 660px) {
-		margin-right: 0;
-	}
+	order: 1;
 
 	p {
 		font-size: 1rem;
@@ -67,20 +74,19 @@ $color__back-link: #6c7781;
 }
 
 .jetpack-about__images {
-	float: right;
 	text-align: center;
-	margin-bottom: 1em;
-	margin-left: 5%;
-	width: 36.5%;
+	margin-left: 48px;
+	order: 2;
 
-	@media screen and (max-width: 660px) {
+	@media screen and (max-width: 782px) {
 		margin-left: 0;
+		order: 0;
 		text-align: left;
 		width: 100%;
 	}
 
 	.meet-the-team {
-		max-width: 320px;
+		margin-bottom: 0;
 		text-align: center;
 	}
 }
@@ -88,13 +94,19 @@ $color__back-link: #6c7781;
 .jetpack-about__gravatars {
 	display: flex;
 	flex-wrap: wrap;
-	max-width: 320px;
+	width: 320px;
+
+	@media screen and (max-width: 450px) {
+		max-width: 320px;
+		width: 100%;
+	}
 
 	li {
 		margin-bottom: 0;
 		width: 25%;
 
 		img {
+			max-width: 80px;
 			vertical-align: top;
 			width: 100%;
 		}
@@ -125,26 +137,17 @@ $color__back-link: #6c7781;
 	margin-bottom: 0;
 
  	.plugin-card-top {
-		min-height: 165px;
 		padding: 20px 20px 15px;
 		position: relative;
 
 		.name,
 		.desc,
 		.details-link {
-			margin-left: 108px;
+			margin-left: 148px;
 		}
 
 		.name h3 {
 			margin-top: 0;
-		}
-
-		.plugin-icon {
-			height: 84px;
-			left: 24px;
-			position: absolute;
-			top: 24px;
-			width: 84px;
 		}
 
 		.details-link {
