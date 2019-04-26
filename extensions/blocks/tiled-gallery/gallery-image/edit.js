@@ -83,6 +83,8 @@ class GalleryImageEdit extends Component {
 				break;
 		}
 
+		const isTransient = isBlobURL( origUrl );
+
 		const img = (
 			// Disable reason: Image itself is not meant to be interactive, but should
 			// direct image selection and unfocus caption fields.
@@ -99,10 +101,11 @@ class GalleryImageEdit extends Component {
 					onClick={ this.onImageClick }
 					onKeyDown={ this.onImageKeyDown }
 					ref={ this.img }
-					src={ url }
+					src={ isTransient ? undefined : url }
 					tabIndex="0"
+					style={ isTransient ? { backgroundImage: `url(${ url })` } : undefined }
 				/>
-				{ isBlobURL( origUrl ) && <Spinner /> }
+				{ isTransient && <Spinner /> }
 			</Fragment>
 			/* eslint-enable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
 		);
@@ -112,7 +115,7 @@ class GalleryImageEdit extends Component {
 			<figure
 				className={ classnames( 'tiled-gallery__item', {
 					'is-selected': isSelected,
-					'is-transient': isBlobURL( origUrl ),
+					'is-transient': isTransient,
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 			>
