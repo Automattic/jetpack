@@ -20,4 +20,9 @@ add_action( 'jetpack_modules_loaded', 'sharedaddy_loaded' );
 
 function sharedaddy_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
+	add_filter( 'jetpack_module_configuration_url_sharedaddy', 'jetpack_sharedaddy_configuration_url' );
+}
+
+function jetpack_sharedaddy_configuration_url() {
+	return admin_url( 'admin.php?page=jetpack#/settings?term=social%20buttons' );
 }
