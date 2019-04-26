@@ -127,6 +127,10 @@ abstract class SAL_Site {
 		);
 	}
 
+	public function is_wpcom_atomic() {
+		return false;
+	}
+
 	public function is_wpcom_store() {
 		return false;
 	}
