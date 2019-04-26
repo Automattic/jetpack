@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin Experience: Improve timing our "just in time messages" for new sites setting up Jetpack for the first time.
 * JSON API: Add behind the scene improvements to support the WordPress.com site management experience.
 
 **Improved compatibility**
