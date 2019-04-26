@@ -319,6 +319,9 @@ abstract class Jetpack_Admin_Page {
 					<?php } ?>
 					<?php if ( current_user_can( 'manage_options' ) ) { ?>
 						<li class="jp-footer__link-item">
+							<a href="<?php echo esc_url( admin_url() . 'admin.php?page=jetpack_modules' ); ?>" title="<?php esc_html_e( "Access the full list of Jetpack modules available on your site.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Modules', 'Navigation item', 'jetpack' ); ?></a>
+						</li>
+						<li class="jp-footer__link-item">
 							<a href="<?php echo esc_url( admin_url() . 'admin.php?page=jetpack-debugger' ); ?>" title="<?php esc_html_e( "Test your site's compatibility with Jetpack.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>
 						</li>
 					<?php } ?>
