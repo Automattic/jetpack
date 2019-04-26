@@ -152,6 +152,7 @@
 		"@babel/core": "7.4.0",
 		"@babel/register": "7.4.0",
 		"@wordpress/element": "2.3.0",
+		"@wordpress/i18n": "3.3.0",
 		"@wordpress/jest-preset-default": "4.0.0",
 		"babel-eslint": "10.0.1",
 		"babel-loader": "8.0.5",
