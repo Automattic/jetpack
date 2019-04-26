@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
+* Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sync: Report details on what is queued up to sync on the status endpoint.
 * WordAds: Add location id (e.g. under the post) to the ad calls.
@@ -124,7 +125,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Dashboard: Improve headings when searching for Jetpack features.
 * Development Mode: Display fewer sections of the Admin Dashboard. Some simply don't apply in Development Mode.
 * Internationalization: Translate various sections missed, such as "just in time messages" and block search keywords.
-* Likes & Sharing: Hide the Likes/Sharing settings from private post types, like reusable blocks.
 * Sharing: Improve accessibility of sharing buttons by increasing contrast ratio. Props https://titan.as
 * Shortcodes: Retire the Google Video shortcode. The service itself has long been retired.
 
