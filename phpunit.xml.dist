@@ -4,17 +4,7 @@
 	</php>
 	<testsuites>
 		<testsuite name="general">
-			<file>tests/php/test_class.jetpack.php</file>
-			<file>tests/php/test_class.functions.compat.php</file>
-			<file>tests/php/test_class.jetpack-network.php</file>
-			<file>tests/php/test_class.jetpack-client-server.php</file>
-			<file>tests/php/test_class.jetpack-xmlrpc-server.php</file>
-			<file>tests/php/test_class.jetpack-heartbeat.php</file>
-			<file>tests/php/test_class.jetpack-gutenberg.php</file>
-			<file>tests/php/test_class.jetpack-constants.php</file>
-			<file>tests/php/test_class.jetpack-connection-banner.php</file>
-			<file>tests/php/test_class.jetpack-options.php</file>
-			<file>tests/php/test_class.jetpack-plan.php</file>
+			<directory prefix="test" suffix=".php">tests/php/general</directory>
 		</testsuite>
 		<testsuite name="php-lint">
 			<file>tests/php/test_php-lint.php</file>

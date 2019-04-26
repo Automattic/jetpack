@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../class.jetpack-xmlrpc-server.php';
+require_once dirname( __FILE__ ) . '/../../../class.jetpack-xmlrpc-server.php';
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	function test_xmlrpc_features_available() {
