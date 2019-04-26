@@ -59,6 +59,10 @@ Generally, all new extensions should start out as a beta.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
+### Testing
+
+Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+
 ## Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
@@ -135,8 +139,6 @@ rsync -az --delete _inc/blocks/ \
 
 To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
-## Good to know when developing Gutenberg extensions
-
 ## The Build
 
 - Compiled extensions are output to `_inc/blocks`
@@ -159,6 +161,8 @@ define( 'GUTENBERG_DEVELOPMENT_MODE', true );
 You could modify `SCRIPT_DEBUG` from `docker/wordpress/wp-config.php` in your Docker environment and add `GUTENBERG_DEVELOPMENT_MODE` there as well, or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`).
 
 [G Debugger](https://wordpress.org/plugins/g-debugger/) plugin might come handy, too.
+
+## Good to know when developing Gutenberg extensions
 
 ### Don't worry about dependencies
 
