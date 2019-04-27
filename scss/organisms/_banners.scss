@@ -288,10 +288,12 @@
 .updated .notice-dismiss {
 	z-index: 1;
 	text-decoration: none;
-	&:before {
-		color: $white;
-	}
 }
+
+.jp-wpcom-connect__container-top-text + .jp-wpcom-connect__inner-container .notice-dismiss::before {
+	color: $white;
+}
+
 // end overrides
 
 .jp-wpcom-connect__container-top-text {
