@@ -645,7 +645,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		);
 	}
 
-	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true ) {
+	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
@@ -718,7 +718,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			}
 
 			// get the checksum value
-			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii );
+			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii, $salt );
 
 			if ( is_wp_error( $value ) ) {
 				return $value;
@@ -738,7 +738,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		return $histogram;
 	}
 
-	private function table_checksum( $table, $columns, $id_column, $where_sql = '1=1', $min_id = null, $max_id = null, $strip_non_ascii = true ) {
+	private function table_checksum( $table, $columns, $id_column, $where_sql = '1=1', $min_id = null, $max_id = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		// sanitize to just valid MySQL column names
@@ -753,13 +753,13 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( $min_id !== null && $max_id !== null ) {
 			if ( $min_id == $max_id ) {
 				$min_id = intval( $min_id );
-				$where_sql = " $id_column = $min_id LIMIT 1";
+				$where_sql .= " AND $id_column = $min_id LIMIT 1";
 			} else {
 				if ( $min_id !== null ) {
 					$min_id = intval( $min_id );
 					$max_id = intval( $max_id );
 					$size = $max_id - $min_id;
-					$where_sql = " $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
+					$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
 				}
 			}
 		} else {
@@ -775,12 +775,11 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 
 		$query = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CRC32(CONCAT({$columns_sql}))) + COUNT({$id_column}), 10, 16)
-				FROM $table
-				WHERE $where_sql
+			SELECT CAST( SUM( CRC32( CONCAT_WS( '#', '%s', {$columns_sql} ) ) ) AS UNSIGNED INT )
+			FROM $table
+			WHERE $where_sql;
 ENDSQL;
-		$result = $wpdb->get_var( $query );
-
+		$result = $wpdb->get_var( $wpdb->prepare( $query, $salt ) );
 		if ( $wpdb->last_error ) {
 			return new WP_Error( 'database_error', $wpdb->last_error );
 		}

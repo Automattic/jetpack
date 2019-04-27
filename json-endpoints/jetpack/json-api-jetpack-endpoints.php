@@ -519,6 +519,7 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 		'end_id' => '(int=null) Ending ID for the range',
 		'columns' => '(string) Columns to checksum',
 		'strip_non_ascii' => '(bool=true) Strip non-ascii characters from all columns',
+		'shared_salt' => '(string) Salt to reduce the collision and improve validation',
 	),
 	'response_format' => array(
 		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
