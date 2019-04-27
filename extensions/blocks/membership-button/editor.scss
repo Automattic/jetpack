@@ -25,4 +25,9 @@
 	.membership-button__field-button {
 		margin: 4px;
 	}
+
+	.membership-button__field-error .components-text-control__input {
+		border: 1px solid;
+		border-color: var( --color-error );
+	}
 }

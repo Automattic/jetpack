@@ -44,7 +44,9 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			editedProductCurrency: 'USD',
 			editedProductPrice: 5,
+			editedProductPriceValid: true,
 			editedProductTitle: '',
+			editedProductTitleValid: true,
 			editedProductRenewInterval: '1 month',
 		};
 		this.timeout = null;
@@ -95,16 +97,31 @@ class MembershipsButtonEdit extends Component {
 
 	handlePriceChange = price => {
 		price = parseFloat( price );
-		if ( ! isNaN( price ) ) {
-			this.setState( { editedProductPrice: price } );
-		} else {
-			this.setState( { editedProductPrice: undefined } );
-		}
+		this.setState( {
+			editedProductPrice: price,
+			editedProductPriceValid: ! isNaN( price ) && price >= 5,
+		} );
 	};
 
-	handleTitleChange = editedProductTitle => this.setState( { editedProductTitle } );
+	handleTitleChange = editedProductTitle =>
+		this.setState( {
+			editedProductTitle,
+			editedProductTitleValid: editedProductTitle.length > 0,
+		} );
 	// eslint-disable-next-line
 	saveProduct = () => {
+		if ( ! this.state.editedProductTitle || this.state.editedProductTitle.length === 0 ) {
+			this.setState( { editedProductTitleValid: false } );
+			return;
+		}
+		if (
+			! this.state.editedProductPrice ||
+			isNaN( this.state.editedProductPrice ) ||
+			this.state.editedProductPrice < 5
+		) {
+			this.setState( { editedProductPriceValid: false } );
+			return;
+		}
 		this.setState( { addingMembershipAmount: PRODUCT_FORM_SUBMITTED } );
 		const path = '/wpcom/v2/memberships/product';
 		const method = 'POST';
@@ -164,7 +181,11 @@ class MembershipsButtonEdit extends Component {
 					/>
 					<TextControl
 						label={ __( 'Price', 'jetpack' ) }
-						className="membership-button__field membership-button__field-price"
+						className={ classnames( {
+							'membership-membership-button__field': true,
+							'membership-button__field-price': true,
+							'membership-button__field-error': ! this.state.editedProductPriceValid,
+						} ) }
 						onChange={ this.handlePriceChange }
 						placeholder={ formatCurrency( 0, this.state.editedProductCurrency ) }
 						required
@@ -174,7 +195,10 @@ class MembershipsButtonEdit extends Component {
 					/>
 				</div>
 				<TextControl
-					className="membership-button__field"
+					className={ classnames( {
+						'membership-button__field': true,
+						'membership-button__field-error': ! this.state.editedProductTitleValid,
+					} ) }
 					label={ __( 'Describe your subscription in a few words', 'jetpack' ) }
 					onChange={ this.handleTitleChange }
 					placeholder={ __( 'Subscription description', 'jetpack' ) }
