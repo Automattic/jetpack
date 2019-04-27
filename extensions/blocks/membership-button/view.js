@@ -23,7 +23,7 @@ function handleIframeResult( eventFromIframe ) {
 	}
 }
 
-function activateSubscription( block, blogId, planId, poweredText ) {
+function activateSubscription( block, blogId, planId, poweredText, lang ) {
 	block.addEventListener( 'click', () => {
 		tb_show(
 			null,
@@ -31,6 +31,8 @@ function activateSubscription( block, blogId, planId, poweredText ) {
 				blogId +
 				'&plan=' +
 				planId +
+				'&lang=' +
+				lang +
 				'TB_iframe=true&height=600&width=400',
 			null
 		);
@@ -51,6 +53,7 @@ const initializeMembershipButtonBlocks = () => {
 	membershipButtonBlocks.forEach( block => {
 		const blogId = block.getAttribute( 'data-blog-id' );
 		const planId = block.getAttribute( 'data-plan-id' );
+		const lang = block.getAttribute( 'data-lang' );
 		const poweredText = block
 			.getAttribute( 'data-powered-text' )
 			.replace(
@@ -58,7 +61,7 @@ const initializeMembershipButtonBlocks = () => {
 				'<a href="https://wordpress.com" target="_blank" rel="noreferrer noopener">WordPress.com</a>'
 			);
 		try {
-			activateSubscription( block, blogId, planId, poweredText );
+			activateSubscription( block, blogId, planId, poweredText, lang );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Problem activating Membership Button ' + planId, err );

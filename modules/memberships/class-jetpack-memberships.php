@@ -236,10 +236,11 @@ class Jetpack_Memberships {
 		$button_styles = implode( $button_styles, ';' );
 		add_thickbox();
 		return sprintf(
-			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" class="%s" style="%s">%s</button>',
+			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" data-lang="%s" class="%s" style="%s">%s</button>',
 			esc_attr( $data['blog_id'] ),
 			esc_attr( $data['powered_text'] ),
 			esc_attr( $data['id'] ),
+			esc_attr( get_locale() ),
 			esc_attr( implode( $classes, ' ' ) ),
 			esc_attr( $button_styles ),
 			esc_html( $data['button_label'] )
