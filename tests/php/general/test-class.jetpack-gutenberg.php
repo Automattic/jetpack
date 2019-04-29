@@ -23,6 +23,9 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 		delete_option( 'jetpack_excluded_extensions' );
+
+		// These action causing issues in tests in WPCOM context. Since we are not using any real block here,
+		// and we are testing block availability with block stubs - we safe to remove these actions for these tests.
 		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
 		Jetpack_Gutenberg::init();
 	}
