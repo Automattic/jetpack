@@ -24,6 +24,7 @@ class Jetpack_Sync_Settings {
 		'max_queue_size_full_sync' => true,
 		'sync_via_cron'            => true,
 		'cron_sync_time_limit'     => true,
+		'known_importers'          => true,
 	);
 
 	static $is_importing;
@@ -74,6 +75,9 @@ class Jetpack_Sync_Settings {
 				break;
 			case 'comment_meta_whitelist':
 				$default_array_value = Jetpack_Sync_Defaults::get_comment_meta_whitelist();
+				break;
+			case 'known_importers':
+				$default_array_value = Jetpack_Sync_Defaults::get_known_importers();
 				break;
 		}
 

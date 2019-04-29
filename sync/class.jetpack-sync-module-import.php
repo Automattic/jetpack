@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
+
 class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 	/**
@@ -9,22 +11,6 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 * @var array
 	 */
 	private $synced_actions = array();
-
-	/**
-	 * A mapping of known importers to friendly names.
-	 * Keys are the class name of the known importer.
-	 * Values are the friendly name.
-	 *
-	 * @var array
-	 */
-	private static $known_importers = array(
-		'Blogger_Importer'     => 'blogger',
-		'LJ_API_Import'        => 'livejournal',
-		'MT_Import'            => 'mt',
-		'RSS_Import'           => 'rss',
-		'WC_Tax_Rate_Importer' => 'woo-tax-rate',
-		'WP_Import'            => 'wordpress',
-	);
 
 	/**
 	 * A mapping of action types to sync action name.
@@ -87,8 +73,9 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		}
 
 		// Get $importer from known_importers.
-		if ( isset( self::$known_importers[ $importer ] ) ) {
-			$importer = self::$known_importers[ $importer ];
+		$known_importers = Jetpack_Sync_Settings::get_setting( 'known_importers' );
+		if ( isset( $known_importers[ $importer ] ) ) {
+			$importer = $known_importers[ $importer ];
 		}
 
 		$importer_name = $this->get_importer_name( $importer );
