@@ -755,12 +755,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				$min_id = intval( $min_id );
 				$where_sql .= " AND $id_column = $min_id LIMIT 1";
 			} else {
-				if ( null !== $min_id ) {
-					$min_id = intval( $min_id );
-					$max_id = intval( $max_id );
-					$size = $max_id - $min_id;
-					$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
-				}
+				$min_id = intval( $min_id );
+				$max_id = intval( $max_id );
+				$size = $max_id - $min_id;
+				$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
 			}
 		} else {
 			if ( null !== $min_id ) {
