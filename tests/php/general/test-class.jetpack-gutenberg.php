@@ -23,6 +23,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 		delete_option( 'jetpack_excluded_extensions' );
+		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
 		Jetpack_Gutenberg::init();
 	}
 
