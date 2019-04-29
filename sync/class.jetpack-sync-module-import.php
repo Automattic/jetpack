@@ -80,6 +80,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 		$importer_name = $this->get_importer_name( $importer );
 
+		// $sync_action should be either 'jetpack_sync_import_start' or 'jetpack_sync_import_end' as mapped via $import_sync_action_map.
 		do_action( $sync_action, $importer, $importer_name );
 	}
 
