@@ -31,7 +31,6 @@ class Jetpack_Photon_Static_Assets_CDN {
 		add_action( 'admin_print_styles', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
 		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_script_relative_path' ), 10, 2 );
-		Jetpack::enable_module_configurable( __FILE__ );
 	}
 
 	/**
