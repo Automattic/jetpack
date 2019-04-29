@@ -6,7 +6,7 @@ ylw=$'\e[1;33m'
 white=$'\e[0m'
 cyn=$'\e[1;36m'
 
-SUPPORT_BASE_URL=https://github.com/Automattic/jetpack/blob/add/check-development-environment-script/docs/development-environment-cli-support.md
+SUPPORT_BASE_URL=https://github.com/Automattic/jetpack/blob/master/docs/development-environment-cli-support.md
 
 function output { printf $white"$@";  }
 function success { printf $grn"$@";  }
