@@ -392,7 +392,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// check what happens when we pass in an invalid column
 		$histogram = $store->checksum_histogram( 'posts', 20, 0, 0, array( 'this_column_doesnt_exist' ) );
 
-		if ( !empty( $histogram ) ) {
+		if ( ! empty( $histogram ) ) {
 			$this->assertTrue( is_wp_error( $histogram ) );
 		} else {
 			$this->assertTrue( is_array( $histogram ) );
