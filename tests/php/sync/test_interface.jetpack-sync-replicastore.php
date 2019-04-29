@@ -110,7 +110,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		$labelled_checksums = array_combine( array_map( 'get_class', $all_replicastores ), $checksums );
 
 		// find unique checksums - if all checksums are the same, there should be only one element
-		$unique_checksums_count = count( array_unique( array_map( 'serialize', $checksums ) ) );
+		$unique_checksums_count = count( array_unique( array_map( 'serialize', array_values( $checksums ) ) ) );
 
 		$this->assertEquals( 1, $unique_checksums_count, 'Checksums do not match: ' . print_r( $labelled_checksums, 1 ) );
 
@@ -334,6 +334,31 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @dataProvider store_provider
 	 * @requires PHP 5.3
 	 */
+	function test_replica_checksum_posts_return_different_values_on_enej_case( $store ) {
+		$store->reset();
+		$post = self::$factory->post( 807 );
+		$store->upsert_post( $post );
+		$post = self::$factory->post( 811 );
+		$store->upsert_post( $post );
+		$post = self::$factory->post( 816 );
+		$store->upsert_post( $post );
+		$before_checksum = $store->posts_checksum();
+		$post = self::$factory->post( 812 );
+		$store->upsert_post( $post );
+		$post = self::$factory->post( 813 );
+		$store->upsert_post( $post );
+		$post = self::$factory->post( 814 );
+		$store->upsert_post( $post );
+		$post = self::$factory->post( 815 );
+		$store->upsert_post( $post );
+		$after_checksum = $store->posts_checksum();
+		$this->assertNotEquals( $before_checksum, $after_checksum );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 * @requires PHP 5.3
+	 */
 	function test_histogram_accepts_columns( $store ) {
 		for ( $i = 1; $i <= 20; $i += 1 ) {
 			$post = self::$factory->post( $i, array( 'post_content' => "Test post $i" ) );
@@ -347,7 +372,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$post_checksum = $histogram['1'];
 
-		$this->assertEquals( $post_checksum, strtoupper( dechex( sprintf( '%u', crc32( "Test post 1" ) ) ) ) );
+		$this->assertEquals( $post_checksum, (string) crc32( implode( '#', array( '' ,"Test post 1"  ) ) ) );
 	}
 
 	/**
@@ -367,7 +392,12 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// check what happens when we pass in an invalid column
 		$histogram = $store->checksum_histogram( 'posts', 20, 0, 0, array( 'this_column_doesnt_exist' ) );
 
-		$this->assertTrue( is_wp_error( $histogram ) );
+		if ( ! empty( $histogram ) ) {
+			$this->assertTrue( is_wp_error( $histogram ) );
+		} else {
+			$this->assertTrue( is_array( $histogram ) );
+		}
+
 
 		$wpdb->suppress_errors = $suppressed;
 	}

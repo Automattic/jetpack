@@ -79,17 +79,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return null;
 	}
 
-	private function reduce_checksum( $carry, $object ) {
-		// append fields
-		$value = '';
-		foreach ( $this->checksum_fields[ get_current_blog_id() ] as $field ) {
-			$value .= preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
-		}
-
-		$result = $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
-		return $result;
-	}
-
 	function filter_post_status( $post ) {
 		$matched_status = ! in_array( $post->post_status, array( 'inherit' ) )
 		                  && ( $this->post_status[ get_current_blog_id() ] ? $post->post_status === $this->post_status[ get_current_blog_id() ] : true );
@@ -708,6 +697,19 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			$array = $filtered_array;
 		}
 
-		return strtoupper( dechex( array_reduce( $array, array( $this, 'reduce_checksum' ), 0 ) ) );
+		return (string) array_sum( array_map( array( $this, 'concat_items' ), $array ) );
+
 	}
+
+	public function concat_items( $object ) {
+		$values = array();
+		foreach ( $this->checksum_fields[ get_current_blog_id() ] as $field ) {
+			$values[] = preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
+		}
+		// array('') is the empty value of the salt.
+		$item_array = array_merge( array(''), $values );
+
+		return crc32( implode( '#', $item_array ) );
+	}
+
 }

@@ -645,7 +645,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		);
 	}
 
-	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true ) {
+	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
@@ -712,14 +712,19 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				ARRAY_N
 			);
 
+			if ( null === $first_id || null === $last_id  ) {
+				// Nothing to checksum here...
+				break;
+			}
+
 			// get the checksum value
-			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii );
+			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii, $salt );
 
 			if ( is_wp_error( $value ) ) {
 				return $value;
 			}
 
-			if ( $first_id === null || $last_id === null ) {
+			if ( null === $first_id || null === $last_id  ) {
 				break;
 			} elseif ( $first_id === $last_id ) {
 				$histogram[ $first_id ] = $value;
@@ -733,7 +738,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		return $histogram;
 	}
 
-	private function table_checksum( $table, $columns, $id_column, $where_sql = '1=1', $min_id = null, $max_id = null, $strip_non_ascii = true ) {
+	private function table_checksum( $table, $columns, $id_column, $where_sql = '1=1', $min_id = null, $max_id = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		// sanitize to just valid MySQL column names
@@ -745,29 +750,43 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			$columns_sql = implode( ',', $sanitized_columns );
 		}
 
-		if ( $min_id !== null ) {
-			$min_id     = intval( $min_id );
-			$where_sql .= " AND $id_column >= $min_id";
+		if ( null !== $min_id && null !== $max_id ) {
+			if ( $min_id === $max_id ) {
+				$min_id = intval( $min_id );
+				$where_sql .= " AND $id_column = $min_id LIMIT 1";
+			} else {
+				$min_id = intval( $min_id );
+				$max_id = intval( $max_id );
+				$size = $max_id - $min_id;
+				$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
+			}
+		} else {
+			if ( null !== $min_id ) {
+				$min_id = intval( $min_id );
+				$where_sql .= " AND $id_column >= $min_id";
+			}
+
+			if ( null !== $max_id ) {
+				$max_id = intval( $max_id );
+				$where_sql .= " AND $id_column <= $max_id";
+			}
 		}
 
-		if ( $max_id !== null ) {
-			$max_id     = intval( $max_id );
-			$where_sql .= " AND $id_column <= $max_id";
-		}
-
-		$query  = <<<ENDSQL
-			SELECT CONV(BIT_XOR(CRC32(CONCAT({$columns_sql}))), 10, 16)
-				FROM $table
-				WHERE $where_sql
+		$query = <<<ENDSQL
+			SELECT CAST( SUM( CRC32( CONCAT_WS( '#', '%s', {$columns_sql} ) ) ) AS UNSIGNED INT )
+			FROM $table
+			WHERE $where_sql;
 ENDSQL;
-		$result = $wpdb->get_var( $query );
-
+		$result = $wpdb->get_var( $wpdb->prepare( $query, $salt ) );
 		if ( $wpdb->last_error ) {
 			return new WP_Error( 'database_error', $wpdb->last_error );
 		}
 
 		return $result;
+	}
 
+	public function get_checksum_type() {
+		return 'sum';
 	}
 
 	private function meta_count( $table, $where_sql, $min_id, $max_id ) {
