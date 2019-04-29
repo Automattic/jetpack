@@ -24,5 +24,9 @@ function sharedaddy_loaded() {
 }
 
 function jetpack_sharedaddy_configuration_url() {
-	return admin_url( 'admin.php?page=jetpack#/settings?term=social%20buttons' );
+	// get URL from WP
+	$site_url = parse_url( get_site_url() );
+	// remove www. if present
+	$parsed_url = str_replace( 'www.', '', $site_url[ 'host' ] );
+	return 'https://wordpress.com/sharing/buttons/' . $parsed_url;
 }
