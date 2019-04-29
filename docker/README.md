@@ -331,7 +331,7 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 
 Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
 
-Since everything under `mu-plugins` and `wordpress/wp-content` are git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
+Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
 1. First ensure your containers are stopped (`yarn docker:stop`).
 1. Create a docker-compose file. You can place it anywhere in your computer:
