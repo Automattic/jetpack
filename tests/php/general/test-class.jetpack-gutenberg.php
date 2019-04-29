@@ -69,7 +69,8 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
 		Jetpack_Gutenberg::get_availability();
 		Jetpack_Gutenberg::get_availability();
-		remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		$result = remove_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block') );
+		$this->assertTrue( $result );
 	}
 
 	function register_block() {
