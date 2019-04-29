@@ -334,7 +334,7 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
 1. First ensure your containers are stopped (`yarn docker:stop`).
-1. Create a docker-compose file. You can place it anywhere in your computer:
+2. Create a docker-compose file. You can place it anywhere in your computer:
 	```yml
 	version: '3.3'
 	services:
@@ -342,7 +342,7 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
 	    volumes:
 	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
 	```
-1. Start containers and include your custom volumes by running:
+3. Start containers and include your custom volumes by running:
 	```bash
 	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
 	```
