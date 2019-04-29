@@ -80,6 +80,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 		$importer_name = $this->get_importer_name( $importer );
 
+		// $sync_action should be either 'jetpack_sync_import_start' or 'jetpack_sync_import_end' as mapped via $import_sync_action_map.
 		do_action( $sync_action, $importer, $importer_name );
 	}
 
@@ -96,22 +97,20 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 */
 	private static function get_calling_importer_class() {
 		// If WP_Importer doesn't exist, neither will any importer that extends it.
-		if ( ! class_exists( 'WP_Importer' ) ) {
+		if ( ! class_exists( 'WP_Importer', false ) ) {
 			return 'unknown';
 		}
 
 		$action    = current_filter();
-		$backtrace = wp_debug_backtrace_summary( null, 0, false );
+		$backtrace = debug_backtrace( false ); //phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.debug_backtrace_optionsFound,WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 
 		$do_action_pos = -1;
 		$backtrace_len = count( $backtrace );
 		for ( $i = 0; $i < $backtrace_len; $i++ ) {
 			// Find the location in the stack of the calling action.
-			if ( preg_match( "/^do_action\s*\\(\s*\'([^\']+\s*)/", $backtrace[ $i ], $matches ) ) {
-				if ( $matches[1] === $action ) {
-					$do_action_pos = $i;
-					break;
-				}
+			if ( 'do_action' === $backtrace[ $i ]['function'] && $action === $backtrace[ $i ]['args'][0] ) {
+				$do_action_pos = $i;
+				break;
 			}
 		}
 
@@ -121,14 +120,17 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		}
 
 		// Continue iterating the stack looking for a caller that extends WP_Importer.
-		$backtrace_len = count( $backtrace );
 		for ( $i = $do_action_pos + 1; $i < $backtrace_len; $i++ ) {
-			// Grab only class_name from the trace.
-			list( $class_name ) = explode( '->', $backtrace[ $i ] );
+			// If there is no class on the trace, continue.
+			if ( ! isset( $backtrace[ $i ]['class'] ) ) {
+				continue;
+			}
+
+			$class_name = $backtrace[ $i ]['class'];
 
 			// Check if the class extends WP_Importer.
-			if ( class_exists( $class_name ) ) {
-				$parents = class_parents( $class_name );
+			if ( class_exists( $class_name, false ) ) {
+				$parents = class_parents( $class_name, false );
 				if ( $parents && in_array( 'WP_Importer', $parents, true ) ) {
 					return $class_name;
 				}
