@@ -342,7 +342,7 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
 	    volumes:
 	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
 	```
-	First part before `:` is path in your system to your own plugin and second part is path inside the Docker container. You can just replace "my-plugin" with what ever folder name you'd like. If you are developing a theme, switch `plugins/` to `themes/`.
+	What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `plugins/my-plugin` with the path to your own plugin or theme.
 3. Start containers and include your custom volumes by running:
 	```bash
 	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
