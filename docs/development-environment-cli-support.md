@@ -36,9 +36,9 @@ The containers for the Jetpack docker containers are created when you ran `yarn 
 
 If you are using the Jetpack Docker Image, make sure you run `yarn docker:up`.
 
-### Docker Is Running
+### Docker Is running
 
-make sure the Docker Daemon is running.
+Make sure the Docker Daemon is running.
 
 ### Node Modules are available
 
@@ -50,9 +50,9 @@ yarn
 
 ### Node version is proper
 
-For developing Jetpack you need Node > 10 nowadays.
+We need to keep our Node version requirements updated frequently.
 
-Confirm your version of node by running
+Confirm your version of node by running the following command and check that it satisfies the requirements stated in the doc [Development Environment](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md).
 
 ```sh
 node -v
@@ -60,7 +60,7 @@ node -v
 
 ### NVM is available
 
-The `nvm` command is not _really_ needed but it's a tool that allows you to install multiple nvm versions.
+The `nvm` command is not _really_ needed but it's a tool that allows you to install multiple Node versions.
 
 You can also work with any global `node` command.
 
