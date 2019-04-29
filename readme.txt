@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Block Editor: Thanks to some iframe magic, WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
