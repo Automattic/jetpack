@@ -406,10 +406,10 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				}
 			}
 
-			$details_link = self_admin_url(
-				'plugin-install.php?tab=plugin-information&amp;plugin=' . $plugin['slug'] .
-				'&amp;TB_iframe=true&amp;width=600&amp;height=550'
-			);
+			$plugin_install = "plugin-install.php?tab=plugin-information&amp;plugin={$plugin['slug']}&amp;TB_iframe=true&amp;width=600&amp;height=550";
+			$details_link   = is_multisite()
+				? network_admin_url( $plugin_install )
+				: admin_url( $plugin_install );
 
 			if ( ! empty( $plugin['icons']['svg'] ) ) {
 				$plugin_icon_url = $plugin['icons']['svg'];
