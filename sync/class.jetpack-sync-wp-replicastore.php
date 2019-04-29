@@ -785,7 +785,10 @@ ENDSQL;
 		}
 
 		return $result;
+	}
 
+	public function get_checksum_type() {
+		return 'sum';
 	}
 
 	private function meta_count( $table, $where_sql, $min_id, $max_id ) {

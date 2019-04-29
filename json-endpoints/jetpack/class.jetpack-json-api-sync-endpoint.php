@@ -80,11 +80,9 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		if ( ! isset( $args['strip_non_ascii'] ) ) {
 			$args['strip_non_ascii'] = true;
 		}
+		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'], $args['shared_salt'] );
 
-		l( 'Jetpack_JSON_API_Sync_Histogram_Endpoint' );
-		l( $args );
-
-		return $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'], $args['shared_salt'] );
+		return array( 'histogram' => $histogram, 'type' => $store->get_checksum_type() );
 	}
 }
 

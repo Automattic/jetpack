@@ -522,7 +522,8 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 		'shared_salt' => '(string) Salt to reduce the collision and improve validation',
 	),
 	'response_format' => array(
-		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
+		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"',
+		'type'      => '(string) Type of checksum algorithm',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/data-histogram'
 ) );
