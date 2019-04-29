@@ -60,6 +60,13 @@ export class Footer extends React.Component {
 		} );
 	};
 
+	trackModulesClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'modules',
+		} );
+	};
+
 	trackDebugClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
@@ -88,6 +95,25 @@ export class Footer extends React.Component {
 				);
 			}
 			return '';
+		};
+
+		const maybeShowModules = () => {
+			if ( this.props.userCanManageOptions ) {
+				return (
+					<li className="jp-footer__link-item">
+						<a
+							onClick={ this.trackModulesClick }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack_modules' }
+							title={ __( 'Access the full list of Jetpack modules available on your site.' ) }
+							className="jp-footer__link"
+						>
+							{ __( 'Modules', {
+								context: 'Navigation item. Noun. Links to a list of modules for Jetpack.',
+							} ) }
+						</a>
+					</li>
+				);
+			}
 		};
 
 		const maybeShowDebug = () => {
@@ -190,6 +216,7 @@ export class Footer extends React.Component {
 							{ __( 'Privacy', { context: 'Shorthand for Privacy Policy.' } ) }
 						</a>
 					</li>
+					{ maybeShowModules() }
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
 					{ maybeShowDevCardFooterLink() }
