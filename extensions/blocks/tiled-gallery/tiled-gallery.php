@@ -1,4 +1,5 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
 /**
  * Tiled Gallery block. Depends on the Photon module.
  *
@@ -69,7 +70,7 @@ class Jetpack_Tiled_Gallery_Block {
 
 					// Because URLs are already "photon", the photon function used short-circuits
 					// before ssl is added. Detect ssl and add is if necessary.
-					$is_ssl = false !== strpos( $src_parts[1], 'ssl=1' );
+					$is_ssl = ! empty( $src_parts[1] ) && false !== strpos( $src_parts[1], 'ssl=1' );
 
 					if ( ! $orig_width || ! $orig_height || ! $orig_src ) {
 						continue;
