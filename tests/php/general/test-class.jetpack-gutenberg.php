@@ -22,6 +22,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'user_tokens', array( $this->master_user_id => "honey.badger.$this->master_user_id" ) );
 
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
+		delete_option( 'jetpack_excluded_extensions' );
 		Jetpack_Gutenberg::init();
 	}
 
@@ -128,5 +129,19 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
 		$this->assertFalse( $availability['tomato']['available'], 'Availability is not false exists' );
 		$this->assertEquals( $availability['tomato']['unavailable_reason'], 'missing_module', 'unavailable_reason is not "missing_module"'  );
+	}
+
+	function test_get_available_extensions() {
+		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
+		$this->assertInternalType( 'array', $extensions );
+		$this->assertNotEmpty( $extensions );
+		$this->assertContains( 'onion', $extensions );
+
+		update_option( 'jetpack_excluded_extensions', array( 'onion' ) );
+
+		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
+		$this->assertInternalType( 'array', $extensions );
+		$this->assertNotEmpty( $extensions );
+		$this->assertNotContains( 'onion', $extensions );
 	}
 }
