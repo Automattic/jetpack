@@ -11,9 +11,9 @@ module.exports = [
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/class.jetpack-password-checker.php',
 	'modules/masterbar/',
-	'modules/memberships/class-jetpack-memberships.php',
+	'modules/memberships/',
 	'modules/module-extras.php',
 	'modules/module-info.php',
 	'modules/theme-tools/social-menu/',
-	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php'
+	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 ];
