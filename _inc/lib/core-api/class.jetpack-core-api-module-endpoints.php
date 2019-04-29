@@ -809,62 +809,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
 					break;
 
-				case 'onpublish':
-				case 'onupdate':
-				case 'Bias Language':
-				case 'Cliches':
-				case 'Complex Expression':
-				case 'Diacritical Marks':
-				case 'Double Negative':
-				case 'Hidden Verbs':
-				case 'Jargon Language':
-				case 'Passive voice':
-				case 'Phrases to Avoid':
-				case 'Redundant Expression':
-				case 'guess_lang':
-					if ( in_array( $option, array( 'onpublish', 'onupdate' ) ) ) {
-						$atd_option = 'AtD_check_when';
-					} elseif ( 'guess_lang' == $option ) {
-						$atd_option = 'AtD_guess_lang';
-						$option     = 'true';
-					} else {
-						$atd_option = 'AtD_options';
-					}
-					$user_id                 = get_current_user_id();
-					if ( ! function_exists( 'AtD_get_options' ) ) {
-						include_once( JETPACK__PLUGIN_DIR . 'modules/after-the-deadline.php' );
-					}
-					$grouped_options_current = AtD_get_options( $user_id, $atd_option );
-					unset( $grouped_options_current['name'] );
-					$grouped_options = $grouped_options_current;
-					if ( $value && ! isset( $grouped_options [$option] ) ) {
-						$grouped_options [$option] = $value;
-					} elseif ( ! $value && isset( $grouped_options [$option] ) ) {
-						unset( $grouped_options [$option] );
-					}
-					// If option value was the same, consider it done, otherwise try to update it.
-					$options_to_save = implode( ',', array_keys( $grouped_options ) );
-					$updated         = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $options_to_save ) : true;
-					break;
-
-				case 'ignored_phrases':
-				case 'unignore_phrase':
-					$user_id         = get_current_user_id();
-					$atd_option      = 'AtD_ignored_phrases';
-					$grouped_options = $grouped_options_current = explode( ',', AtD_get_setting( $user_id, $atd_option ) );
-					if ( 'ignored_phrases' == $option ) {
-						$grouped_options = explode( ',', $value );
-					} else {
-						$index = array_search( $value, $grouped_options );
-						if ( false !== $index ) {
-							unset( $grouped_options[$index] );
-							$grouped_options = array_values( $grouped_options );
-						}
-					}
-					$ignored_phrases = implode( ',', array_filter( array_map( 'strip_tags', $grouped_options ) ) );
-					$updated         = $grouped_options != $grouped_options_current ? AtD_update_setting( $user_id, $atd_option, $ignored_phrases ) : true;
-					break;
-
 				case 'admin_bar':
 				case 'roles':
 				case 'count_roles':
@@ -954,11 +898,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$error = sprintf( esc_html__( 'Onboarding failed to process: %s', 'jetpack' ), $result );
 						$updated = false;
 					}
-					break;
-
-				case 'show_welcome_for_new_plan':
-					// If option value was the same, consider it done.
-					$updated = get_option( $option ) !== $value ? update_option( $option, (bool) $value ) : true;
 					break;
 
 				default:
@@ -1326,14 +1265,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				}
 				$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( $params );
 				foreach ( $options as $option => $definition ) {
-					if ( in_array( $options[ $option ]['jp_group'], array( 'after-the-deadline', 'post-by-email' ) ) ) {
+					if ( in_array( $options[ $option ]['jp_group'], array( 'post-by-email' ) ) ) {
 						$module = $options[ $option ]['jp_group'];
 						break;
 					}
 				}
 			}
-			// User is trying to create, regenerate or delete its PbE || ATD settings.
-			if ( 'post-by-email' === $module || 'after-the-deadline' === $module ) {
+			// User is trying to create, regenerate or delete its PbE.
+			if ( 'post-by-email' === $module ) {
 				return current_user_can( 'edit_posts' ) && current_user_can( 'jetpack_admin_page' );
 			}
 			return current_user_can( 'jetpack_configure_modules' );

@@ -127,6 +127,10 @@ abstract class SAL_Site {
 		);
 	}
 
+	public function is_wpcom_atomic() {
+		return false;
+	}
+
 	public function is_wpcom_store() {
 		return false;
 	}
@@ -632,6 +636,10 @@ abstract class SAL_Site {
 	}
 
 	function get_launch_status() {
+		return false;
+	}
+
+	function get_site_segment() {
 		return false;
 	}
 }

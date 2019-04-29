@@ -1,11 +1,11 @@
 <?php
 /**
  * Module Name: WP.me Shortlinks
- * Module Description: Create short and simple links for all posts and pages.
+ * Module Description: Generates shorter links so you can have more space to write on social media sites.
  * Sort Order: 8
  * First Introduced: 1.1
  * Requires Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social
  * Feature: Writing
  * Additional Search Queries: shortlinks, wp.me

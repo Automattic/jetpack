@@ -2,11 +2,11 @@
 
 /**
  * Module Name: Custom CSS
- * Module Description: Tweak your site’s CSS without modifying your theme.
+ * Module Description: Adds options for CSS preprocessor use, disabling the theme's CSS, or custom image width.
  * Sort Order: 2
  * First Introduced: 1.7
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Appearance
  * Feature: Appearance
  * Additional Search Queries: css, customize, custom, style, editor, less, sass, preprocessor, font, mobile, appearance, theme, stylesheet

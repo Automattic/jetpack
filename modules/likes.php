@@ -263,7 +263,10 @@ class Jetpack_Likes {
 			return;
 		}
 
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return;
 		}
 

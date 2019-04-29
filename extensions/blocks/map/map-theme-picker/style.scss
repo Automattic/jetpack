@@ -1,13 +1,14 @@
+@import '../../../shared/styles/gutenberg-colors.scss';
 
 .component__map-theme-picker__button {
 	.edit-post-settings-sidebar__panel-block & {
-		border: 1px solid lightgray;
+		border: 1px solid $light-gray-500;
 		border-radius: 100%;
 		width: 56px;
 		height: 56px;
 		margin: 2px;
 		text-indent: -9999px;
-		background-color: lightgray;
+		background-color: $light-gray-500;
 		background-position: center center;
 		background-repeat: no-repeat;
 		background-size: contain;
@@ -17,7 +18,7 @@
 			transform: scale( 1.1 );
 		}
 		&.is-selected {
-			border-color: black;
+			border-color: $black;
 		}
 		&.is-theme-default {
 			background-image: url( './map-theme_default.jpg' );

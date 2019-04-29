@@ -1,5 +1,8 @@
+@import '../../shared/styles/gutenberg-colors.scss';
+@import '../../shared/styles/jetpack-variables.scss';
+
 .wp-block-jetpack-slideshow {
-	margin-bottom: 1.5em;
+	margin-bottom: $jetpack-block-margin-bottom;
 	position: relative;
 
 	.wp-block-jetpack-slideshow_container {
@@ -71,7 +74,7 @@
 		}
 
 		&:focus {
-			outline: thin dotted #fff;
+			outline: thin dotted $white;
 			outline-offset: -4px;
 		}
 	}
@@ -112,7 +115,7 @@
 		background-color: rgba( 0, 0, 0, 0.5 );
 		box-sizing: border-box;
 		bottom: 0;
-		color: #fff;
+		color: $white;
 		cursor: text;
 		left: 0;
 		margin: 0 !important;

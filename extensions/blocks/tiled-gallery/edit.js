@@ -6,6 +6,7 @@ import { Component, Fragment } from '@wordpress/element';
 import { filter, get, pick } from 'lodash';
 import {
 	BlockControls,
+	BlockIcon,
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
@@ -47,12 +48,7 @@ export function defaultColumnsNumber( attributes ) {
 }
 
 export const pickRelevantMediaFiles = image => {
-	const imageProps = pick( image, [
-		[ 'alt' ],
-		[ 'id' ],
-		[ 'link' ],
-		/* @TODO Captions disabled [ 'caption' ], */
-	] );
+	const imageProps = pick( image, [ [ 'alt' ], [ 'id' ], [ 'link' ] ] );
 	imageProps.url =
 		get( image, [ 'sizes', 'large', 'url' ] ) ||
 		get( image, [ 'media_details', 'sizes', 'large', 'source_url' ] ) ||
@@ -212,7 +208,7 @@ class TiledGalleryEdit extends Component {
 				<Fragment>
 					{ controls }
 					<MediaPlaceholder
-						icon={ <div className="tiled-gallery__media-placeholder-icon">{ icon }</div> }
+						icon={ <BlockIcon icon={ icon } /> }
 						className={ className }
 						labels={ {
 							title: __( 'Tiled Gallery', 'jetpack' ),

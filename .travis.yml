@@ -42,6 +42,9 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
+    env: WP_TRAVISCI="yarn build"
 
 cache:
   directories:

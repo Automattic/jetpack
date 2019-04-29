@@ -1,5 +1,6 @@
 @import './view.scss';
 @import './variables.scss';
+@import '../../shared/styles/gutenberg-colors.scss';
 
 // inspired by from assets/shared/_animations loading-fade
 @keyframes tiled-gallery-img-placeholder {
@@ -18,6 +19,16 @@
 	// Ensure that selected image outlines are visibile
 	padding-left: 4px;
 	padding-right: 4px;
+
+	&.is-style-square,
+	&.is-style-circle {
+		.tiled-gallery__item.is-transient img {
+			// Transient images (no src attribute) occupy no vertical space.
+			// If on a row by themself, the row is hidden.
+			// By setting the bottom margin, ensure they occupy the correct vertical space.
+			margin-bottom: 100%;
+		}
+	}
 
 	.tiled-gallery__item {
 		// Hide the focus outline that otherwise briefly appears when selecting a block.
@@ -41,51 +52,18 @@
 			}
 		}
 
-		&.is-transient img {
-			opacity: 0.3;
+		&.is-transient {
+			height: 100%;
+			width: 100%;
+			img {
+				background-position: center;
+				background-size: cover;
+				height: 100%;
+				opacity: 0.3;
+				width: 100%;
+			}
 		}
-
-		/* @TODO Caption has been commented out */
-		// .editor-rich-text {
-		// 	position: absolute;
-		// 	bottom: 0;
-		// 	width: 100%;
-		// 	max-height: 100%;
-		// 	overflow-y: auto;
-		// }
-
-		// .editor-rich-text figcaption:not( [data-is-placeholder-visible='true'] ) {
-		// 	position: relative;
-		// 	overflow: hidden;
-		// 	color: var( --color-white );
-		// }
-
-		// &.is-selected .editor-rich-text {
-		// 	// IE calculates this incorrectly, so leave it to modern browsers.
-		// 	@supports ( position: sticky ) {
-		// 		right: 0;
-		// 		left: 0;
-		// 		margin-top: -4px;
-		// 	}
-
-		// 	// Override negative margins so this toolbar isn't hidden by overflow. Overflow is needed for long captions.
-		// 	.editor-rich-text__inline-toolbar {
-		// 		top: 0;
-		// 	}
-
-		// 	// Make extra space for the inline toolbar.
-		// 	.editor-rich-text__tinymce {
-		// 		padding-top: 48px;
-		// 	}
-		// }
 	}
-
-	// Circle layout doesn't support captions
-	// @TODO handle this in the component
-	/* @TODO Caption has been commented out */
-	// &.is-style-circle .tiled-gallery__item .editor-rich-text {
-	// 	display: none;
-	// }
 
 	.tiled-gallery__add-item {
 		margin-top: $tiled-gallery-gutter;
@@ -112,7 +90,7 @@
 
 			&:hover,
 			&:focus {
-				border: $tiled-gallery-add-item-border-width solid $tiled-gallery-add-item-border-color;
+				border: 1px solid $dark-gray-500;
 			}
 		}
 	}
@@ -142,33 +120,20 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
+		margin: 0;
 		transform: translate( -50%, -50% );
 	}
 
-	// Hide captions and upload buttons in style picker preview
+	// Hide upload buttons in style picker preview
 	.editor-block-preview__content & {
-		/* @TODO Caption has been commented out */
-		// figcaption,
 		.editor-media-placeholder {
 			display: none;
 		}
-	}
-
-	// Matches with `.dashicon` in `MediaPlaceholder` component
-	.tiled-gallery__media-placeholder-icon {
-		height: 20px;
-		margin-right: 1ch; // stylelint-disable-line unit-whitelist
-		width: 20px;
 	}
 }
 
 .tiled-gallery__filter-picker-menu {
 	$active-item-outline-width: 2px;
-
-	// @TODO replace with Gutenberg variables
-	$dark-gray-500: #555d66;
-	$dark-gray-900: #191e23;
-
 	padding: 7px;
 
 	// Leave space between elements for active state styling

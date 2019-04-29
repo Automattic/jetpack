@@ -56,9 +56,6 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
-
-			// Deprecated
-			'google-plus-1'    => 'Share_GooglePlus1',
 		);
 
 		/**
@@ -578,7 +575,10 @@ function sharing_maybe_enqueue_scripts() {
 }
 
 function sharing_add_footer() {
-	if ( Jetpack_AMP_Support::is_amp_request() ) {
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
 		return;
 	}
 

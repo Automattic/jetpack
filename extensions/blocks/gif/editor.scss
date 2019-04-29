@@ -1,3 +1,5 @@
+@import '../../shared/styles/gutenberg-colors.scss';
+
 .wp-block-jetpack-gif {
 	figure {
 		transition: padding-top 125ms ease-in-out;
@@ -64,10 +66,10 @@
 		padding-bottom: calc( 100% / 10 - 4px );
 		width: calc( 100% / 10 - 4px );
 		&:hover {
-			box-shadow: 0 0 0 1px #555d66;
+			box-shadow: 0 0 0 1px $dark-gray-500;
 		}
 		&:focus {
-			box-shadow: 0 0 0 2px #00a0d2;
+			box-shadow: 0 0 0 2px $blue-medium-500;
 			outline: 0;
 		}
 	}
@@ -79,6 +81,6 @@
 		max-width: 200px;
 	}
 	svg path {
-		fill: #ccc;
+		fill: $dark-gray-150;
 	}
 }

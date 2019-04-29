@@ -153,7 +153,10 @@ class Jetpack_Carousel {
 	}
 
 	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $output;
 		}
 
@@ -208,7 +211,10 @@ class Jetpack_Carousel {
 	 * @return string $content Post content.
 	 */
 	function check_content_for_blocks( $content ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $content;
 		}
 
@@ -354,7 +360,10 @@ class Jetpack_Carousel {
 	}
 
 	function set_in_gallery( $output ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $output;
 		}
 		$this->in_gallery = true;
@@ -372,7 +381,10 @@ class Jetpack_Carousel {
 	 * @return string Modified HTML content of the post
 	 */
 	function add_data_img_tags_and_enqueue_assets( $content ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $content;
 		}
 
@@ -426,7 +438,10 @@ class Jetpack_Carousel {
 	}
 
 	function add_data_to_images( $attr, $attachment = null ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $attr;
 		}
 
@@ -498,7 +513,10 @@ class Jetpack_Carousel {
 
 	function add_data_to_container( $html ) {
 		global $post;
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $html;
 		}
 

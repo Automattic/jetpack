@@ -79,7 +79,6 @@ class Jetpack {
 		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
 		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 		'contact-form'        => array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
 		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
@@ -630,9 +629,6 @@ class Jetpack {
 		// returns HTTPS support status
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
-		// If any module option is updated before Jump Start is dismissed, hide Jump Start.
-		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
-
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
 
@@ -661,6 +657,7 @@ class Jetpack {
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
+		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
@@ -2988,16 +2985,6 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
-		// A flag for Jump Start so it's not shown again. Only set if it hasn't been yet.
-		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
-
-			//Jump start is being dismissed send data to MC Stats
-			$jetpack->stat( 'jumpstart', 'manual,'.$module );
-
-			$jetpack->do_stats( 'server_side' );
-		}
-
 		if ( $redirect ) {
 			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 		}
@@ -3025,16 +3012,6 @@ class Jetpack {
 
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
-
-		// A flag for Jump Start so it's not shown again.
-		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
-
-			//Jump start is being dismissed send data to MC Stats
-			$jetpack->stat( 'jumpstart', 'manual,deactivated-'.$module );
-
-			$jetpack->do_stats( 'server_side' );
-		}
 
 		return self::update_active_modules( $new );
 	}
@@ -6403,6 +6380,11 @@ p {
 			'jetpack_enable_site_verification'                       => null,
 			'can_display_jetpack_manage_notice'                      => null,
 			'can_display_jetpack_manage_notice'                      => 'jetpack_json_manage_api_enabled',
+			// Removed in Jetpack 7.3.0
+			'atd_load_scripts'                                       => null,
+			'atd_http_post_timeout'                                  => null,
+			'atd_http_post_error'                                    => null,
+			'atd_service_domain'                                     => null,
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6657,38 +6639,6 @@ p {
 	 */
 	public static function get_jetpack_options_for_reset() {
 		return Jetpack_Options::get_options_for_reset();
-	}
-
-	/**
-	 * Check if an option of a Jetpack module has been updated.
-	 *
-	 * If any module option has been updated before Jump Start has been dismissed,
-	 * update the 'jumpstart' option so we can hide Jump Start.
-	 *
-	 * @param string $option_name
-	 *
-	 * @return bool
-	 */
-	public static function jumpstart_has_updated_module_option( $option_name = '' ) {
-		// Bail if Jump Start has already been dismissed
-		if ( 'new_connection' !== Jetpack_Options::get_option( 'jumpstart' ) ) {
-			return false;
-		}
-
-		$jetpack = Jetpack::init();
-
-		// Manual build of module options
-		$option_names = self::get_jetpack_options_for_reset();
-
-		if ( in_array( $option_name, $option_names['wp_options'] ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'jetpack_action_taken' );
-
-			//Jump start is being dismissed send data to MC Stats
-			$jetpack->stat( 'jumpstart', 'manual,'.$option_name );
-
-			$jetpack->do_stats( 'server_side' );
-		}
-
 	}
 
 	/*
@@ -7117,5 +7067,30 @@ p {
 	}
 	function can_display_jetpack_manage_notice() {
 		_deprecated_function( __METHOD__, 'jetpack-7.3' );
+	}
+
+	/**
+	 * Clean leftoveruser meta.
+	 *
+	 * Delete Jetpack-related user meta when it is no longer needed.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param int $user_id User ID being updated.
+	 */
+	public static function user_meta_cleanup( $user_id ) {
+		$meta_keys = array(
+			// AtD removed from Jetpack 7.3
+			'AtD_options',
+			'AtD_check_when',
+			'AtD_guess_lang',
+			'AtD_ignored_phrases',
+		);
+
+		foreach ( $meta_keys as $meta_key ) {
+			if ( get_user_meta( $user_id, $meta_key ) ) {
+				delete_user_meta( $user_id, $meta_key );
+			}
+		}
 	}
 }

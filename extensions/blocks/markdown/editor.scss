@@ -1,14 +1,8 @@
-// @TODO: Replace with Gutenberg variables
-$black: #000;
-$dark-gray-100: #8f98a1;
-$dark-gray-800: #23282d;
-$editor-html-font: Menlo, Consolas, monaco, monospace;
-$light-gray-200: #f3f4f5;
-$light-gray-500: #e2e4e7;
-$text-editor-font-size: inherit;
+@import '../../shared/styles/gutenberg-colors.scss';
+@import '../../shared/styles/gutenberg-variables.scss';
 
 .wp-block-jetpack-markdown__placeholder {
-	opacity: 0.62; // See https://github.com/WordPress/gutenberg/blob/c0f87a212b0ad25c18ac5bf8c2e9b1cb780f1a14/packages/editor/src/components/rich-text/style.scss#L110
+	opacity: 0.62; // See https://github.com/WordPress/gutenberg/blob/db7decd27f7c476684bc8edde381ffab4c916cb2/packages/block-editor/src/components/rich-text/style.scss#L72
 	pointer-events: none;
 }
 
@@ -23,6 +17,7 @@ $text-editor-font-size: inherit;
 			margin-bottom: 32px;
 		}
 
+		// See https://github.com/WordPress/gutenberg/blob/db7decd27f7c476684bc8edde381ffab4c916cb2/packages/block-library/src/heading/editor.scss#L12-L35
 		h1,
 		h2,
 		h3 {
@@ -89,6 +84,7 @@ $text-editor-font-size: inherit;
 			}
 		}
 
+		// See https://github.com/WordPress/gutenberg/blob/db7decd27f7c476684bc8edde381ffab4c916cb2/packages/block-editor/src/components/rich-text/style.scss#L28-L39
 		code,
 		pre {
 			color: $dark-gray-800;
@@ -98,14 +94,14 @@ $text-editor-font-size: inherit;
 		code {
 			background: $light-gray-200;
 			border-radius: 2px;
-			font-size: $text-editor-font-size;
+			font-size: inherit; // This is necessary to override upstream CSS.
 			padding: 2px;
 		}
 
 		pre {
 			border-radius: 4px;
 			border: 1px solid $light-gray-500;
-			font-size: 14px;
+			font-size: $text-editor-font-size;
 			padding: 0.8em 1em;
 
 			code {
@@ -138,7 +134,7 @@ $text-editor-font-size: inherit;
 .wp-block-jetpack-markdown {
 	.wp-block-jetpack-markdown__editor {
 		font-family: $editor-html-font;
-		font-size: 14px;
+		font-size: $text-editor-font-size;
 
 		&:focus {
 			border-color: transparent;

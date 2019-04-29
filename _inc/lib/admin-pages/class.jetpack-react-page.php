@@ -33,6 +33,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
+
+		// If this is the first time the user is viewing the admin, don't show JITMs.
+		// This filter is added just in time because this function is called on admin_menu
+		// and JITMs are initialized on admin_init
+		if ( Jetpack::is_active() && ! Jetpack_Options::get_option( 'first_admin_view', false ) ) {
+			Jetpack_Options::update_option( 'first_admin_view', true );
+			add_filter( 'jetpack_just_in_time_msgs', '__return_false' );
+		}
 	}
 
 	/**
@@ -321,8 +329,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * The option can be of 4 things, and will be stored as such:
  * new_connection      : Brand new connection - Show
  * jumpstart_activated : Jump Start has been activated - dismiss
- * jetpack_action_taken: Manual activation of a module already happened - dismiss
  * jumpstart_dismissed : Manual dismissal of Jump Start - dismiss
+ * jetpack_action_taken: Deprecated since 7.3 But still listed here to respect behaviour for old versions.
+ *                       Manual activation of a module already happened - dismiss.
  *
  * @todo move to functions.global.php when available
  * @since 3.6
