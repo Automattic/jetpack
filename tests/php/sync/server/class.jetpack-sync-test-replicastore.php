@@ -702,7 +702,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	public function concat_items( $object ) {
-
+		$values = array();
 		foreach ( $this->checksum_fields[ get_current_blog_id() ] as $field ) {
 			$values[] = preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
 		}
