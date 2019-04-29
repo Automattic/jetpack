@@ -1,0 +1,22 @@
+/**
+ * Gutenberg variables
+ *
+ * Unfortunately these are not currently (04/2019) published to NPM.
+ *
+ * https://github.com/WordPress/gutenberg/blob/df6a17c8eb07e1355527b01e99ee22cf4c2338d7/assets/stylesheets/_variables.scss
+ */
+
+$default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+$default-font-size: 13px;
+$default-line-height: 1.4;
+$editor-font: "Noto Serif", serif;
+$editor-html-font: Menlo, Consolas, monaco, monospace;
+$editor-font-size: 16px;
+$text-editor-font-size: 14px;
+
+// @TODO: From which file in Gutenberg are these coming from?
+// Used in business-hours
+$break-xlarge: 1080px;
+//$break-large: 960px; // admin sidebar auto folds
+//$break-medium: 782px; // editor sidebar auto folds
+$break-small: 600px;
