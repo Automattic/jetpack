@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
+* Social Icons: Add Stack Overflow support. Welcome to the Jetpack contributor ranks Muhammad Osama Arshad!
 * Sync: Report details on what is queued up to sync on the status endpoint.
 * Tiled Galleries: Add improved layout for when images are in the process of uploading.
 * WordAds: Add location id (e.g. under the post) to the ad calls.
