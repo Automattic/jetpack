@@ -261,17 +261,23 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$is_dry_run = ! empty( $assoc_args['dry-run'] );
 
-		if ( ! $is_dry_run ) {
+		if ( $is_dry_run ) {
+			WP_CLI::warning(
+				__(
+					"\nThis is a `Dry Run`.\n" .
+					"No actions will be taken.\n" .
+					"The following messages will give you preview of what will happen when you run this command.\n\n",
+					'jetpack'
+				)
+			);
+		} else {
 			// We only need to confirm "Are you sure?" when we are not doing a dry run.
 			jetpack_cli_are_you_sure();
 		}
-		
+
 		switch ( $action ) {
 			case 'options':
 				$options_to_reset = Jetpack_Options::get_options_for_reset();
-				if ( $is_dry_run ) {
-					WP_CLI::success( __( 'This is a `Dry Run` and no options will be reset or set!', 'jetpack' ) );
-				}
 				// Reset the Jetpack options
 				WP_CLI::line( sprintf(
 					__( "Resetting Jetpack Options for %s...\n", "jetpack" ),
@@ -319,8 +325,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( ! $is_dry_run ) {
 					$default_modules = Jetpack::get_default_modules();
 					Jetpack::update_active_modules( $default_modules );
-				} else {
-					WP_CLI::success( __( 'This is a `Dry Run` and module activation will be reset', 'jetpack' ) );
 				}
 
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
@@ -332,10 +336,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				global $wpdb;
 				$option = 'jetpack_callables_sync_checksum';
 
-				if ( $is_dry_run ) {
-					WP_CLI::success( __( 'This is a `Dry Run` and no options will be deleted', 'jetpack' ) );
-				}
-
 				if ( is_multisite() && function_exists( 'get_sites' ) ) {
 					$sites        = get_sites( array( 'number' => 1000 ) );
 					$count_fixes  = 0;
@@ -343,13 +343,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 						switch_to_blog( $site->blog_id );
 						$count = self::count_option( $option );
 						if ( $count > 1 ) {
-							if ( $is_dry_run ) {
-								WP_CLI::line( sprintf( __( 'DRY RUN: Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
-							} else {
+							if ( ! $is_dry_run ) {
 								delete_option( $option );
-								WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
 							}
-
+							WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
 							$count_fixes++;
 							$sleep_duration = ( $is_dry_run ? 1 : 20 );
 							sleep( $sleep_duration ); // Allow some time for replication to catch up.
@@ -362,30 +359,21 @@ class Jetpack_CLI extends WP_CLI_Command {
 					} else {
 						WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
 					}
-					if ( $is_dry_run ) {
-						WP_CLI::line( "\n" . __( "This was a DRY RUN!", 'jetpack' ) );
-					}
 					return;
 				}
 
 				$count = self::count_option( $option );
 				if ( $count > 1 ) {
-					if ( $is_dry_run ) {
-						WP_CLI::success( sprintf( __( 'DRY RUN: Deleted %s %s options', 'jetpack' ), $count, $option ) );
-					} else {
+					if ( ! $is_dry_run ) {
 						delete_option( $option );
-						WP_CLI::success( sprintf( __( 'Deleted %s %s options', 'jetpack' ), $count, $option ) );
 					}
-
+					WP_CLI::success( sprintf( __( 'Deleted %s %s options', 'jetpack' ), $count, $option ) );
 					return;
 				}
 
 				WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
 				break;
 
-		}
-		if ( $is_dry_run ) {
-			WP_CLI::line( "\n" . __( "This was a DRY RUN!", 'jetpack' ) );
 		}
 	}
 
