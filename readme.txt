@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Tiled Galleries: Add responsive imaging (srcset) support to the Tiled Gallery block.
 * WordAds: Add location id (e.g. under the post) to the ad calls.
 * WordPress.com API: Add behind the scene improvements to support the WordPress.com site management experience.
+* WordPress.com Menu Bar: Redesign to direct navigation items to WordPress.com instead of duplicating experiences.
 
 **Improved compatibility**
 
