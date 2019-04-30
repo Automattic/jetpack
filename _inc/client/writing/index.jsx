@@ -49,7 +49,6 @@ export class Writing extends React.Component {
 			'masterbar',
 			'markdown',
 			'shortcodes',
-			'after-the-deadline',
 			'custom-content-types',
 			'post-by-email',
 			'infinite-scroll',
@@ -66,9 +65,7 @@ export class Writing extends React.Component {
 			return null;
 		}
 
-		const showComposing =
-				this.props.userCanManageModules ||
-				( this.props.userCanEditPosts && this.props.isModuleActivated( 'after-the-deadline' ) ),
+		const showComposing = this.props.userCanManageModules || this.props.userCanEditPosts,
 			showPostByEmail =
 				this.props.userCanManageModules ||
 				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
@@ -76,14 +73,16 @@ export class Writing extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-
 				<Card
-					title={ __(
-						'Compose content the way you want to and streamline your publishing experience.'
-					) }
+					title={
+						this.props.searchTerm
+							? __( 'Writing' )
+							: __(
+									'Compose content the way you want to and streamline your publishing experience.'
+							  )
+					}
 					className="jp-settings-description"
 				/>
-
 				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
 				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
 					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />

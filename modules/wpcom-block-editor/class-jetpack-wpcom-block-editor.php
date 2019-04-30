@@ -40,6 +40,7 @@ class Jetpack_WPCOM_Block_Editor {
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
+
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 	}
@@ -50,10 +51,10 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @return bool Whether the current request is from the iframed block editor.
 	 */
 	public function is_iframed_block_editor() {
-		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
 		global $pagenow;
+
 		// phpcs:ignore WordPress.Security.NonceVerification
-		return ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) && ! empty( $_GET['frame-nonce'] ) && $is_calypsoify;
+		return ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) && ! empty( $_GET['frame-nonce'] );
 	}
 
 	/**
@@ -66,9 +67,14 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function show_error_if_logged_out() {
 		if ( ! get_current_user_id() ) {
-			$login_url = wp_login_url();
 			/* translators: %s: Login URL */
-			wp_die( sprintf( __( 'In order to use the block editor of this Jetpack site in WordPress.com, you need to <a href="%s" target="_blank" rel="noopener noreferrer">log into</a> the Jetpack site.', 'jetpack' ), $login_url ) ); // // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$message = __( 'Please <a href="%s" target="_blank" rel="noopener noreferrer">log into</a> your Jetpack-connected site to use the block editor on WordPress.com.', 'jetpack' );
+
+			wp_die(
+				sprintf( wp_kses_post( $message ), esc_url( wp_login_url() ) ),
+				'',
+				array( 'response' => 401 )
+			);
 		}
 	}
 
@@ -196,13 +202,13 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueue the scripts for the WordPress.com block editor integration.
 	 */
 	public function enqueue_scripts() {
-		$debug         = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-		$version       = gmdate( 'YW' );
-		$is_calypsoify = 1 === (int) get_user_meta( get_current_user_id(), 'calypsoify', true );
+		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$version = gmdate( 'YW' );
 
 		$src_common = $debug
 			? '//widgets.wp.com/wpcom-block-editor/common.js?minify=false'
 			: '//widgets.wp.com/wpcom-block-editor/common.min.js';
+
 		wp_enqueue_script(
 			'wpcom-block-editor-common',
 			$src_common,
@@ -215,19 +221,22 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => false,
+					'isVisible' => $this->is_iframed_block_editor(),
+					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
+					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
-				'isCalypsoify'    => $is_calypsoify,
 				'richTextToolbar' => array(
 					'justify'   => __( 'Justify', 'jetpack' ),
 					'underline' => __( 'Underline', 'jetpack' ),
 				),
 			)
 		);
+
 		if ( $this->is_iframed_block_editor() ) {
 			$src_calypso_iframe_bridge = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
 				: '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.min.js';
+
 			wp_enqueue_script(
 				'wpcom-block-editor-calypso-iframe-bridge',
 				$src_calypso_iframe_bridge,
@@ -250,12 +259,14 @@ class Jetpack_WPCOM_Block_Editor {
 			$src_calypso_tinymce = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.js?minify=false'
 				: '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.min.js';
+
 			$plugin_array['gutenberg-wpcom-iframe-media-modal'] = add_query_arg(
 				'v',
 				gmdate( 'YW' ),
 				$src_calypso_tinymce
 			);
 		}
+
 		return $plugin_array;
 	}
 }

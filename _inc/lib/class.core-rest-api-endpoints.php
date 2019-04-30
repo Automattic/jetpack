@@ -2051,113 +2051,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'related-posts',
 			),
 
-			// Spelling and Grammar - After the Deadline
-			'onpublish' => array(
-				'description'       => esc_html__( 'Proofread when a post or page is first published.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'onupdate' => array(
-				'description'       => esc_html__( 'Proofread when a post or page is updated.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Bias Language' => array(
-				'description'       => esc_html__( 'Bias Language', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Cliches' => array(
-				'description'       => esc_html__( 'Clichés', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Complex Expression' => array(
-				'description'       => esc_html__( 'Complex Phrases', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Diacritical Marks' => array(
-				'description'       => esc_html__( 'Diacritical Marks', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Double Negative' => array(
-				'description'       => esc_html__( 'Double Negatives', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Hidden Verbs' => array(
-				'description'       => esc_html__( 'Hidden Verbs', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Jargon Language' => array(
-				'description'       => esc_html__( 'Jargon', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Passive voice' => array(
-				'description'       => esc_html__( 'Passive Voice', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Phrases to Avoid' => array(
-				'description'       => esc_html__( 'Phrases to Avoid', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'Redundant Expression' => array(
-				'description'       => esc_html__( 'Redundant Phrases', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'guess_lang' => array(
-				'description'       => esc_html__( 'Use automatically detected language to proofread posts and pages', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'ignored_phrases' => array(
-				'description'       => esc_html__( 'Add Phrase to be ignored', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => 'esc_html',
-				'jp_group'          => 'after-the-deadline',
-			),
-			'unignore_phrase' => array(
-				'description'       => esc_html__( 'Remove Phrase from being ignored', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => '',
-				'sanitize_callback' => 'esc_html',
-				'jp_group'          => 'after-the-deadline',
-			),
-
 			// Verification Tools
 			'google' => array(
 				'description'       => esc_html__( 'Google Search Console', 'jetpack' ),
@@ -2919,21 +2812,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$current_value = get_option( $key, $default_value );
 					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
 				}
-				break;
-
-			case 'after-the-deadline':
-				if ( ! function_exists( 'AtD_get_options' ) ) {
-					include_once( JETPACK__PLUGIN_DIR . 'modules/after-the-deadline.php' );
-				}
-				$atd_options = array_merge( AtD_get_options( get_current_user_id(), 'AtD_options' ), AtD_get_options( get_current_user_id(), 'AtD_check_when' ) );
-				unset( $atd_options['name'] );
-				foreach ( $atd_options as $key => $value ) {
-					$options[ $key ]['current_value'] = self::cast_value( $value, $options[ $key ] );
-				}
-				$atd_options = AtD_get_options( get_current_user_id(), 'AtD_guess_lang' );
-				$options['guess_lang']['current_value'] = self::cast_value( isset( $atd_options['true'] ), $options[ 'guess_lang' ] );
-				$options['ignored_phrases']['current_value'] = AtD_get_setting( get_current_user_id(), 'AtD_ignored_phrases' );
-				unset( $options['unignore_phrase'] );
 				break;
 
 			case 'stats':

@@ -1,9 +1,10 @@
+@import '../../shared/styles/gutenberg-colors.scss';
 
 .wp-block-jetpack-map {
 	.wp-block-jetpack-map__gm-container {
 		width: 100%;
 		overflow: hidden;
-		background: lightgray;
+		background: $light-gray-500;
 		min-height: 400px;
 		text-align: left;
 	}

@@ -10,7 +10,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-
 		$user_id = $this->factory->user->create();
 
 		// create a post

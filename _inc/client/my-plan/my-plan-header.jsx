@@ -24,8 +24,7 @@ class MyPlanHeader extends React.Component {
 
 	render() {
 		let planCard = '';
-		const planClass = 'dev' !== this.props.plan ? getPlanClass( this.props.plan ) : 'dev';
-		switch ( planClass ) {
+		switch ( getPlanClass( this.props.plan ) ) {
 			case 'is-free-plan':
 				planCard = (
 					<div className="jp-landing__plan-card">
@@ -117,30 +116,6 @@ class MyPlanHeader extends React.Component {
 							<p className="jp-landing__plan-features-text">
 								{ __(
 									'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.'
-								) }
-							</p>
-						</div>
-					</div>
-				);
-				break;
-
-			case 'dev':
-				planCard = (
-					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img
-								src={ imagePath + '/plans/plan-free.svg' }
-								className="jp-landing__plan-icon"
-								alt={ __( 'Jetpack Free Plan' ) }
-							/>
-						</div>
-						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Your site is on Development Mode' ) }
-							</h3>
-							<p className="jp-landing__plan-features-text">
-								{ __(
-									'Once you connect, you can upgrade to a paid plan in order to unlock world-class security, spam protection tools, and priority support.'
 								) }
 							</p>
 						</div>

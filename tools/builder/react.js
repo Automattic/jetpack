@@ -109,7 +109,6 @@ function onBuild( done, err, stats ) {
 	const supportedModules = [
 		'shortcodes',
 		'widgets',
-		'after-the-deadline',
 		'widget-visibility',
 		'custom-css',
 		'publicize',

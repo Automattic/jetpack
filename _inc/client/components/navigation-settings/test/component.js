@@ -37,7 +37,7 @@ describe( 'NavigationSettings', () => {
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
 			isLinked: true,
-			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, 'after-the-deadline': true, photon: true, publicize: true, likes: true },
+			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, photon: true, publicize: true, likes: true },
 			isPluginActive: () => true
 		};
 

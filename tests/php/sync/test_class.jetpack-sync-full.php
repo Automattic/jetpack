@@ -310,7 +310,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 		$previous_interval_end = $event->args['previous_end'];
-		
+
 		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
 
 		Jetpack_Sync_Settings::reset_data();

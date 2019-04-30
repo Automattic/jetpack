@@ -201,6 +201,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'site_user_type'                       => wp_json_encode( array( 1 => 'pineapple' ) ),
 			'site_segment'                         => 'pineapple',
 			'site_vertical'                        => 'pineapple',
+			'jetpack_excluded_extensions'          => 'pineapple',
+			'jetpack-memberships-connected-account-id' => '340',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

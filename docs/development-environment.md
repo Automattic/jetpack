@@ -12,6 +12,16 @@ In most cases you want to have accessible an WordPress installation for Jetpack 
 * Yarn 1.7
 * PHP 7.0 (in case you are running WordPress locally)
 
+## Script for checking if your environment is ready for contributing to Jetpack
+
+We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
+
+```sh
+tools/check-development-environment.sh
+```
+
+You should expect to get no red `FAILED` check messages. If there happens to be one, you can follow the link mentioned in the status check to see what's needed to address the issue.
+
 ## A note on Node versions used for the build tasks
 
 We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `yarn build` or `yarn`).

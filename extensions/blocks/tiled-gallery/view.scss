@@ -1,10 +1,11 @@
+@import '../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
 @import './css-gram.scss';
 
 $tiled-gallery-max-column-count: 20;
 
 .wp-block-jetpack-tiled-gallery {
-	margin: 0 auto 1.5em;
+	margin: 0 auto $jetpack-block-margin-bottom;
 
 	&.is-style-circle .tiled-gallery__item img {
 		border-radius: 50%;
@@ -19,7 +20,7 @@ $tiled-gallery-max-column-count: 20;
 			@for $cols from 1 through $tiled-gallery-max-column-count {
 				&.columns-#{$cols} {
 					.tiled-gallery__col {
-						width: calc( ( 100% - ( #{$tiled-gallery-gutter} * ( #{$cols} - 1 ) ) ) / #{$cols} );
+						width: calc( ( 100% - #{ $tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
 					}
 				}
 			}

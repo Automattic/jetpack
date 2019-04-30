@@ -1,3 +1,5 @@
+@import '../../shared/styles/gutenberg-colors.scss';
+
 .wp-block-jetpack-slideshow__add-item {
 	margin-top: 4px;
 	width: 100%;
@@ -23,10 +25,9 @@
 
 		&:hover,
 		&:focus {
-			border: 1px solid #555d66;
+			border: 1px solid $dark-gray-500;
 		}
 	}
-
 }
 
 .wp-block-jetpack-slideshow_slide {

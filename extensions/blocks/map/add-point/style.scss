@@ -1,3 +1,4 @@
+@import '../../../shared/styles/gutenberg-colors.scss';
 
 .component__add-point {
 	position: absolute;
@@ -19,7 +20,6 @@
 	&:focus,
 	&:active {
 		background-color: transparent;
-		box-shadow: none;
 	}
 }
 .component__add-point__popover {
@@ -41,6 +41,6 @@
 	box-shadow: none;
 	float: right;
 	path {
-		color: #aaa;
+		color: $dark-gray-150;
 	}
 }

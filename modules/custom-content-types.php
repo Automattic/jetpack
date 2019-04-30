@@ -5,7 +5,7 @@
  * Module Description: Display different types of content on your site with custom content types.
  * First Introduced: 3.1
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Writing
  * Sort Order: 34
  * Feature: Writing

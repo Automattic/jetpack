@@ -59,6 +59,12 @@ Generally, all new extensions should start out as a beta.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
+### Testing
+
+Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+
+Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
+
 ## Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
@@ -208,8 +214,11 @@ Possible:
 
 ### Colors
 
-- To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/). Use Gutenberg color variables where possible.
-- The build also supports [Muriel colors](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`). Prefer CSS custom properties if possible.
+To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/).
+
+Use Gutenberg color variables where possible by importing them in your stylesheet from `extensions/shared/styles/gutenberg-colors.scss`.
+
+The build pipeline also supports [Muriel colors](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`) without specifically importing them first. Prefer CSS custom properties if possible.
 
 ### Icons
 
