@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: Add a "sharing_ajax_action" to to allow other plugins and scripts to render sharing buttons. Thanks Darren Cooney!
 * Social Icons: Add Stack Overflow support. Welcome to the Jetpack contributor ranks Muhammad Osama Arshad!
 * Sync: Report details on what is queued up to sync on the status endpoint.
+* Sync: Improve importer detection so we can better handle cases of imported content.
 * Tiled Galleries: Add improved layout for when images are in the process of uploading.
 * Tiled Galleries: Add responsive imaging (srcset) support to the Tiled Gallery block.
 * WordAds: Add location id (e.g. under the post) to the ad calls.
