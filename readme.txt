@@ -115,7 +115,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Backups: Add SSH CLI command for hosting integration support.
 * Block Editor: WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
 * Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
-* Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sharing: Add a "sharing_ajax_action" to to allow other plugins and scripts to render sharing buttons. Thanks Darren Cooney!
@@ -133,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: Use the Editor's "BlockIcon" for native placeholder icons instead of custom CSS.
 * Blocks: Drop i18n wrapper, use @wordpress/i18n directly. This means it will be easier and faster to provide translated bits of text.
 * Coding Standards: Update our code to match the latest WordPress coding standards in various places.
+* Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Simple Payments: Easily convert old shortcode-style Simple Payment buttons to a block.
 
 **Bug fixes**
