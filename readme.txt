@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
+* Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Social Icons: Add Stack Overflow support. Welcome to the Jetpack contributor ranks Muhammad Osama Arshad!
 * Sync: Report details on what is queued up to sync on the status endpoint.
