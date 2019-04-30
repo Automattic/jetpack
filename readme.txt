@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 * We streamlined the default features of Jetpack to make the "out of the box" experience better.
+* Want to add a recurring donation or membership to your site? You'll want to check out our new Membership Block!
 
 **Enhancements**
 
