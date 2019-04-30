@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Google Plus: Remove from Social Icons and Sharing since the service has retired.
 * Internationalization: Translate various sections missed, such as "just in time messages" and block search keywords.
 * Manage: Remove Manage as an independent module. These features have been fully integrated for a few versions now.
+* Multisite: Restore ability to connect subsites via the Network Admin.
 * Open Graph Tags: Prevent a PHP notice on some author pages.
 * Sharing: Improve accessibility of sharing buttons by increasing contrast ratio. Props https://titan.as
 * Sharing: Fix the alignment of the official buttons for LinkedIn and Pinterest.
