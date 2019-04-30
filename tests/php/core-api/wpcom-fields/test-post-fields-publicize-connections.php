@@ -1,4 +1,5 @@
 <?php
+// Test
 
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
