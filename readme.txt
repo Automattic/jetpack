@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: Use the Editor's "BlockIcon" for native placeholder icons instead of custom CSS.
 * Blocks: Drop i18n wrapper, use @wordpress/i18n directly. This means it will be easier and faster to provide translated bits of text.
 * Coding Standards: Update our code to match the latest WordPress coding standards in various places.
+* Simple Payments: Easily convert old shortcode-style Simple Payment buttons to a block.
 
 **Bug fixes**
 
