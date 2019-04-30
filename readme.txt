@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
+* Sharing: Add a "sharing_ajax_action" to to allow other plugins and scripts to render sharing buttons. Thanks Darren Cooney!
 * Social Icons: Add Stack Overflow support. Welcome to the Jetpack contributor ranks Muhammad Osama Arshad!
 * Sync: Report details on what is queued up to sync on the status endpoint.
 * Tiled Galleries: Add improved layout for when images are in the process of uploading.
