@@ -24,9 +24,6 @@ function sharedaddy_loaded() {
 }
 
 function jetpack_sharedaddy_configuration_url() {
-	// get URL from WP
-	$site_url = parse_url( get_site_url() );
-	// remove www. if present
-	$parsed_url = str_replace( 'www.', '', $site_url[ 'host' ] );
-	return 'https://wordpress.com/sharing/buttons/' . $parsed_url;
+	$site_suffix  = Jetpack::build_raw_urls( get_home_url() );
+	return 'https://wordpress.com/sharing/buttons/' . $site_suffix;
 }
