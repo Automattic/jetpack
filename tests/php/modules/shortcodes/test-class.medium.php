@@ -58,9 +58,9 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verify that a post with a link to a Medium collection displays collection markup.
+	 * Verify that a post with a link to a Medium collection displays link (collection embeds are not supported anymore).
 	 *
-	 * @since 7.3.0
+	 * @since 7.4.0
 	 */
 	public function test_shortcode_medium_faux_embed_collection() {
 		$collection_url = 'https://medium.com/s/user-friendly';
@@ -68,7 +68,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 		$content = apply_filters( 'the_content', $collection_url );
 
 		$this->assertContains(
-			'<a class="m-collection" href="' . $collection_url,
+			'<a href="' . $collection_url . '" target="_blank" rel="noopener noreferrer">View this collection on Medium.com</a>',
 			$content
 		);
 	}
