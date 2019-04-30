@@ -165,6 +165,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Slideshow: Fix a JavaScript error that occurs when block is first added.
 * Slideshow: Add slideshow images to Open Graph tags when using the Slideshow block.
 * Social Icons: Remove Google+, uses the generic Google now.
+* Theme Tools: Ensure Featured Content tag is retained on a post after saving. Thanks Anis Ladram, you're a Jetpack contributor now!
 * Widgets: Remove the Cookies & Consents Banner (not just hide it) after consenting. Thanks Tony Tettinger!
 
 
