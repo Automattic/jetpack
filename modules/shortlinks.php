@@ -89,7 +89,7 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
 }
 
 /**
- * Add Shortlinks to the REST API Post response.
+ * Add Shortlinks to the REST API responses.
  *
  * @since 6.9.0
  *
@@ -99,6 +99,7 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
 function wpme_rest_register_shortlinks() {
 	register_rest_field(
 		array(
+			'attachment',
 			'page',
 			'post',
 		),
