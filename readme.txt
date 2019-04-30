@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Report details on what is queued up to sync on the status endpoint.
 * Sync: Improve importer detection so we can better handle cases of imported content.
 * Sync: Add an option to disable sync for an entire network.
+* Sync: Adds new WP-CLI Jetpack Sync commands: settings, enable, disable, reset.
 * Testimonials: Sort by menu order to give site owners more flexibility for display. Thanks Felipe Elia!
 * Tiled Galleries: Add improved layout for when images are in the process of uploading.
 * Tiled Galleries: Add responsive imaging (srcset) support to the Tiled Gallery block.
