@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Blocks: Use the Editor's "BlockIcon" for native placeholder icons instead of custom CSS.
+* Coding Standards: Update our code to match the latest WordPress coding standards in various places.
 
 **Bug fixes**
 
