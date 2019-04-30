@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: Transform core images to Tiled Galleries or Slideshow blocks and back!
 * Block Editor: Provide an option to disable particular extensions.
 * Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
+* Contact Form: Do not prefill for administrators on their own sites.
 * Grammar and Spelling: Remove from Jetpack. We've chekced the spelling a lot over the years, but now time to retire.
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
