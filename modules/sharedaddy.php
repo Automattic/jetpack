@@ -11,19 +11,34 @@
  * Module Tags: Social, Recommended
  * Feature: Engagement
  * Additional Search Queries: share, sharing, sharedaddy, social buttons, buttons, share facebook, share twitter, social media sharing, social media share, social share, icons, email, facebook, twitter, linkedin, pinterest, pocket, social widget, social media
+ *
+ * @package Jetpack
  */
 
-if ( !function_exists( 'sharing_init' ) )
-	include dirname( __FILE__ ).'/sharedaddy/sharedaddy.php';
+if ( ! function_exists( 'sharing_init' ) ) {
+	require dirname( __FILE__ ) . '/sharedaddy/sharedaddy.php';
+}
 
 add_action( 'jetpack_modules_loaded', 'sharedaddy_loaded' );
 
+/**
+ * Sharing module code loaded after all modules have been loaded.
+ */
 function sharedaddy_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	add_filter( 'jetpack_module_configuration_url_sharedaddy', 'jetpack_sharedaddy_configuration_url' );
 }
 
+/**
+ * Return Jetpack Sharing configuration URL
+ *
+ * @return string Sharing config URL
+ */
 function jetpack_sharedaddy_configuration_url() {
-	$site_suffix  = Jetpack::build_raw_urls( get_home_url() );
+	if ( Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! Jetpack::is_user_connected() ) {
+		return admin_url( 'options-general.php?page=sharing' );
+	}
+
+	$site_suffix = Jetpack::build_raw_urls( get_home_url() );
 	return 'https://wordpress.com/sharing/buttons/' . $site_suffix;
 }
