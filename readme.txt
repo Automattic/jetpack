@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Dashboard: Improve headings when searching for Jetpack features.
 * Development Mode: Display fewer sections of the Admin Dashboard. Some simply don't apply in Development Mode.
+* Google Plus: Remove from Social Icons and Sharing since the service has retired.
 * Internationalization: Translate various sections missed, such as "just in time messages" and block search keywords.
 * Sharing: Improve accessibility of sharing buttons by increasing contrast ratio. Props https://titan.as
 * Sharing: Fix the alignment of the official buttons for LinkedIn and Pinterest.
