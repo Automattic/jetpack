@@ -98,7 +98,7 @@ export class Footer extends React.Component {
 		};
 
 		const maybeShowModules = () => {
-			if ( this.props.userCanManageOptions ) {
+			if ( this.props.siteConnectionStatus && this.props.userCanManageOptions ) {
 				return (
 					<li className="jp-footer__link-item">
 						<a
