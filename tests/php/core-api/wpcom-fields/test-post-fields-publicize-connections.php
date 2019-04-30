@@ -24,6 +24,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	private $_backup_wp_rest_additional_fields;
 
 	public static function wpSetUpBeforeClass( $factory ) {
+		add_filter( 'tests_allow_http_request', '__return_true' );
+
 		register_post_type( 'example-with', array(
 			'show_in_rest' => true,
 			'supports' => array( 'publicize', 'custom-fields' )
@@ -87,9 +89,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 					),
 				),
 			),
-	) );
-	self::$connection_ids[] = 'test-unique-id456';
-	self::$connection_ids[] = 'test-unique-id123';
+		) );
 	}
 
 	public static function wpTearDownAfterClass() {
@@ -98,7 +98,9 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function setUp() {
-		$this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft', 'post_author' => self::$user_id ) );
+		add_filter( 'tests_allow_http_request', '__return_true' );
+
+		$this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 
 		$this->maybe_setup_fields();
 
@@ -111,8 +113,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		// but fails when:
 		// phpunit --group=rest-api
-		$this->publicize = publicize_init();
-		$this->publicize->register_post_meta();
+		$publicize = publicize_init();
+		$publicize->register_post_meta();
 	}
 
 	function maybe_setup_fields() {
@@ -164,8 +166,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 
 		parent::tearDown();
 
-		wp_delete_post( $this->draft_id, true );
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// WPCOM_REST_API_V2_Post_Publicize_Connections_Field is already active
 			// in this test environment. No need for the fancy hoops further below.
@@ -180,15 +180,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 			unset( $GLOBALS['wp_rest_additional_fields'] );
 		} else {
 			$GLOBALS['wp_rest_additional_fields'] = $this->_backup_wp_rest_additional_fields;
-		}
-
-		// Clean up custom meta from publicizeable post types
-		foreach ( get_post_types() as $post_type ) {
-			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
-				continue;
-			}
-
-			unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
 		}
 	}
 
@@ -229,7 +220,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$data     = $response->get_data();
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
-	$this->assertInternalType( 'array', $data['jetpack_publicize_connections'] );
+		$this->assertInternalType( 'array', $data['jetpack_publicize_connections'] );
 		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
