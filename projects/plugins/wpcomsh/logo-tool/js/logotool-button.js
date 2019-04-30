@@ -10,7 +10,7 @@
 				}
 			});
 
-			if ( ! wp.customize( 'custom_logo' ) ) {
+			if ( ! $( id + ' .thumbnail' ).length ) {
 				insertLogoButton( id );
 			}
 		}
@@ -23,14 +23,28 @@
 				}
 			});
 
-			if ( ! wp.customize( 'site_logo' ) ) {
+			if ( ! $( id + ' .thumbnail' ).length ) {
 				insertLogoButton( id );
 			}
 		}
 	});
 
+	function logoTool( slug ) {
+		var id = '#customizer-control-' + slug;
+	
+		wp.customize( slug ).bind( 'change', function( to, from ) {
+			if ( ! to ) {
+				insertLogoButton( id );
+			}
+		});
+
+		if ( ! $( id + ' .thumbnail' ).length ) {
+			insertLogoButton( id );
+		}
+	}
+
 	function insertLogoButton( id ) {
-		var button = $( '<a class="button" target="_blank" href="https://logojoy.grsm.io/WordPress" />' ).text( _Logojoy_l10n.create ).css({
+		var button = $( '<a class="button" target="_blank" href="https://logojoy.grsm.io/looka" />' ).text( _Logotool_l10n.create ).css({
 			height: 'auto',
 			marginRight: '8px',
 			textAlign: 'center',
