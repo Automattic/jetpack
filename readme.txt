@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Browser Compatibility: Remove legacy code for Internet Explorer 10.
 * Coding Standards: Update our code to match the latest WordPress coding standards in various places.
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
+* Related Posts: Improve the internationalization of the "in X category" text.
 * Simple Payments: Easily convert old shortcode-style Simple Payment buttons to a block.
 
 **Bug fixes**
