@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Dashboard: Improve headings when searching for Jetpack features.
+* Admin Dashboard: Remove legacy views no longer used in Jetpack.
 * Development Mode: Display fewer sections of the Admin Dashboard. Some simply don't apply in Development Mode.
 * Google Plus: Remove from Social Icons and Sharing since the service has retired.
 * Internationalization: Translate various sections missed, such as "just in time messages" and block search keywords.
