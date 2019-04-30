@@ -139,6 +139,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: Use the Editor's "BlockIcon" for native placeholder icons instead of custom CSS.
 * Blocks: Drop i18n wrapper, use @wordpress/i18n directly. This means it will be easier and faster to provide translated bits of text.
 * Blocks: Move block development to the Jetpack repo. You shouldn't see any changes, but this helps us make Jetpack Blocks better faster.
+* Block Editor: Improve the experience of using the Block Editor via the WordPress.com dashboard.
 * Browser Compatibility: Remove legacy code for Internet Explorer 10.
 * Coding Standards: Update our code to match the latest WordPress coding standards in various places.
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
