@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
 * Admin Experience: Add an "About Jetpack" page to let folks know more about Automattic, the company behind WordPress.com and Jetpack.
+* Backups: Add SSH CLI command for hosting integration support.
 * Block Editor: WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
 * Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
