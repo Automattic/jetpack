@@ -5,7 +5,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that [medium] exists.
 	 *
-	 * @since  7.3.0
+	 * @since  7.4.0
 	 */
 	public function test_shortcodes_medium_exists() {
 		$this->assertEquals( shortcode_exists( 'medium' ), true );
@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that calling do_shortcode with the shortcode doesn't return the same content.
 	 *
-	 * @since 7.3.0
+	 * @since 7.4.0
 	 */
 	public function test_shortcodes_medium_empty() {
 		$content = '[medium]';
@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that a post with a link to a Profile page displays profile markup.
 	 *
-	 * @since 7.3.0
+	 * @since 7.4.0
 	 */
 	public function test_shortcode_medium_faux_embed_profile() {
 		$profile_url = 'https://medium.com/@jeherve';
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	/**
 	 * Verify that a post with a link to a Medium story displays story markup.
 	 *
-	 * @since 7.3.0
+	 * @since 7.4.0
 	 */
 	public function test_shortcode_medium_faux_embed_story() {
 		$story_url = 'https://medium.com/@jeherve/this-is-a-story-19f582daaf5b';
