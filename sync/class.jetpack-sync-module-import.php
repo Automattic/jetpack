@@ -80,8 +80,35 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 
 		$importer_name = $this->get_importer_name( $importer );
 
-		// $sync_action should be either 'jetpack_sync_import_start' or 'jetpack_sync_import_end' as mapped via $import_sync_action_map.
-		do_action( $sync_action, $importer, $importer_name );
+		switch ( $sync_action ) {
+			case 'jetpack_sync_import_start':
+				/**
+				 * Used for syncing the start of an import
+				 *
+				 * @since 7.3.0
+				 *
+				 * @module sync
+				 *
+				 * @param string $importer      Either a string reported by the importer, the class name of the importer, or 'unknown'.
+				 * @param string $importer_name The name reported by the importer, or 'Unknown Importer'.
+				 */
+				do_action( 'jetpack_sync_import_start', $importer, $importer_name );
+				break;
+
+			case 'jetpack_sync_import_end':
+				/**
+				 * Used for syncing the end of an import
+				 *
+				 * @since 7.3.0
+				 *
+				 * @module sync
+				 *
+				 * @param string $importer      Either a string reported by the importer, the class name of the importer, or 'unknown'.
+				 * @param string $importer_name The name reported by the importer, or 'Unknown Importer'.
+				 */
+				do_action( 'jetpack_sync_import_end', $importer, $importer_name );
+				break;
+		}
 	}
 
 	private function get_importer_name( $importer ) {
