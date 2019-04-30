@@ -67,14 +67,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function show_error_if_logged_out() {
 		if ( ! get_current_user_id() ) {
-			/* translators: %s: Login URL */
-			$message = __( 'Please <a href="%s" target="_blank" rel="noopener noreferrer">log into</a> your Jetpack-connected site to use the block editor on WordPress.com.', 'jetpack' );
-
-			wp_die(
-				sprintf( wp_kses_post( $message ), esc_url( wp_login_url() ) ),
-				'',
-				array( 'response' => 401 )
-			);
+			wp_safe_redirect( wp_login_url( $_SERVER['REQUEST_URI'] ) );
 		}
 	}
 
