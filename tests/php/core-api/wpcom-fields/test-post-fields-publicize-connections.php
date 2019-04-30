@@ -21,11 +21,11 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	static private $connection_ids = [];
 
 	private $draft_id = 0;
-	private $_backup_wp_rest_additional_fields;
+	private $needs_cleanup = true;
+	private $wp_rest_additional_fields = null;
+	private $publicize = null;
 
 	public static function wpSetUpBeforeClass( $factory ) {
-		add_filter( 'tests_allow_http_request', '__return_true' );
-
 		register_post_type( 'example-with', array(
 			'show_in_rest' => true,
 			'supports' => array( 'publicize', 'custom-fields' )
@@ -45,6 +45,13 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		} else {
 			self::setup_connections_jetpack();
 		}
+	}
+
+	public static function wpTearDownAfterClass() {
+		unregister_post_type( 'example-with' );
+		unregister_post_type( 'example-without' );
+
+		remove_post_type_support( 'post', 'publicize' );
 	}
 
 	static function setup_connections_wpcom() {
@@ -90,21 +97,17 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 				),
 			),
 		) );
-	}
 
-	public static function wpTearDownAfterClass() {
-		unregister_post_type( 'example-with' );
-		unregister_post_type( 'example-without' );
+		self::$connection_ids[] = 'test-unique-id456';
+		self::$connection_ids[] = 'test-unique-id123';
 	}
 
 	public function setUp() {
-		add_filter( 'tests_allow_http_request', '__return_true' );
-
-		$this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
-
-		$this->maybe_setup_fields();
+		$this->draft_id = $this->factory->post->create( array( 'post_status' => 'draft', 'post_author' => self::$user_id ) );
 
 		parent::setUp();
+
+		$this->setup_fields();
 
 		wp_set_current_user( self::$user_id );
 
@@ -113,74 +116,61 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		// but fails when:
 		// phpunit --group=rest-api
-		$publicize = publicize_init();
-		$publicize->register_post_meta();
-	}
-
-	function maybe_setup_fields() {
-		global $wpcom_rest_api_v2_plugins;
-		if ( isset( $wpcom_rest_api_v2_plugins['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] ) ) {
-			// WPCOM_REST_API_V2_Post_Publicize_Connections_Field is already active
-			// in this test environment. No need for the fancy hoops further below.
-			return;
-		}
-
-		// Backup this core global that WPCOM_REST_API_V2_Post_Publicize_Connections_Field
-		// changes via register_rest_field()
-		$this->_backup_wp_rest_additional_fields = isset( $GLOBALS['wp_rest_additional_fields'] ) ? $GLOBALS['wp_rest_additional_fields'] : 'unset';
-
-		// Normally, hooks are backed up for us by WP_UnitTestCase::setUp()
-		// We have to load WPCOM_REST_API_V2_Post_Publicize_Connections_Field before
-		// WP_Test_Jetpack_REST_Testcase::setUp(), though, so that it is loaded prior to
-		// WP_Test_Jetpack_REST_Testcase::setUp()'s `do_action( 'rest_api_init' )`.
-		// Thus, the order would normally be:
-		// 1. wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Post_Publicize_Connections_Field' ) (calls `add_action( 'rest_api_init' )`)
-		// 2. WP_Test_Jetpack_REST_Testcase::setUp() (calls `do_action( 'rest_api_init' )`)
-		// 3. WP_UnitTestCase::setUp() (calls `WP_UnitTestCase::_backup_hooks()`).
-		// and we end up incorrectly backing up the hooks we've changeed via
-		// WPCOM_REST_API_V2_Post_Publicize_Connections_Field's `add_action( 'rest_api_init' )` call.
-		// (We want to backup the "default" hooks prior to any changes these tests make.)
-		//
-		// Instead, we "manually" call WP_UnitTestCase::_backup_hooks() first:
-		// 1. WP_UnitTestCase::_backup_hooks()
-		// 2. wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Post_Publicize_Connections_Field' ) (calls `add_action( 'rest_api_init' )`)
-		// 3. WP_Test_Jetpack_REST_Testcase::setUp() (calls `do_action( 'rest_api_init' )`)
-		// 4. WP_UnitTestCase::setUp() (is smart enough *not* to call `WP_UnitTestCase::_backup_hooks()` a second time).
-		// and we are now correctly backing up the default hooks so that when we restore hooks
-		// in WP_UnitTestCase::tearDown(), we correctly restore the hooks as they were prior to
-		// WPCOM_REST_API_V2_Post_Publicize_Connections_Field's `add_action( 'rest_api_init' )` call.
-		$this->_backup_hooks();
-
-		// The Publicize Connections field is loaded conditionally based on whether
-		// the Publicize Module is active.
-		// The Module is not active in this test environment, so load it manually.
-		// It might look like it would be simpler if we only did this once in
-		// ::wpSetUpBeforeClass() instead of once for eeach test here in ::setUp().
-		// If we did that, though, we'd lose (and break) WP_UnitTestCase's
-		// hook backup/restore functionality (see comment on above line).
-		wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Post_Publicize_Connections_Field' );
+		$this->publicize = publicize_init();
+		$this->publicize->register_post_meta();
 	}
 
 	public function tearDown() {
-		global $wpcom_rest_api_v2_plugins;
+		$this->teardown_fields();
 
 		parent::tearDown();
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// WPCOM_REST_API_V2_Post_Publicize_Connections_Field is already active
-			// in this test environment. No need for the fancy hoops further below.
+		wp_delete_post( $this->draft_id, true );
+
+		// Clean up custom meta from publicizeable post types
+		foreach ( get_post_types() as $post_type ) {
+			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
+				continue;
+			}
+
+			unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
+		}
+	}
+
+	private function setup_fields() {
+		if ( isset( $GLOBALS['wpcom_rest_api_v2_plugins']['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] ) ) {
+			/*
+			 * If WPCOM_REST_API_V2_Post_Publicize_Connections_Field is already loaded in this environment,
+			 * we don't have to do anything interesting.
+			 */
+			$this->needs_cleanup = false;
+		} else {
+			/*
+			 * Otherwise, we need to load WPCOM_REST_API_V2_Post_Publicize_Connections_Field, call its
+			 * ->register_fields() (since do_action( 'rest_api_init' ) has already been called at this
+			 * point), and remember to manually clean up after ourselves.
+			 */
+			$this->wp_rest_additional_fields = isset( $GLOBALS['wp_rest_additional_fields'] ) ? $GLOBALS['wp_rest_additional_fields'] : 'unset';
+			wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Post_Publicize_Connections_Field' );
+			$GLOBALS['wpcom_rest_api_v2_plugins']['WPCOM_REST_API_V2_Post_Publicize_Connections_Field']->register_fields();
+			$this->needs_cleanup = true;
+		}
+	}
+
+	private function teardown_fields() {
+		if ( ! $this->needs_cleanup ) {
 			return;
 		}
 
-		// De-memoize wpcom_rest_api_v2_load_plugin()
-		unset( $wpcom_rest_api_v2_plugins['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] );
-
-		// Restore this core global
-		if ( 'unset' === $this->_backup_wp_rest_additional_fields ) {
+		if ( 'unset' === $this->wp_rest_additional_fields ) {
 			unset( $GLOBALS['wp_rest_additional_fields'] );
 		} else {
-			$GLOBALS['wp_rest_additional_fields'] = $this->_backup_wp_rest_additional_fields;
+			$GLOBALS['wp_rest_additional_fields'] = $this->wp_rest_additional_fields;
 		}
+
+		$this->wp_rest_additional_fields = null;
+
+		unset( $GLOBALS['wpcom_rest_api_v2_plugins']['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] );
 	}
 
 	public function test_register_fields_posts() {
