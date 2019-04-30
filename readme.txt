@@ -147,7 +147,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: Improve accessibility of sharing buttons by increasing contrast ratio. Props https://titan.as
 * Sharing: Fix the alignment of the official buttons for LinkedIn and Pinterest.
 * Shortcodes: Retire the Google Video, Jetpack Subscribe, and Digg shortcodes.
-* Social Icons: Remove Google+, fallbacks to generic Google now.
+* Slideshow: Fixe a JavaScript error that occurs when block is first added.
+* Social Icons: Remove Google+, uses the generic Google now.
 * Widgets: Remove the Cookies & Consents Banner (not just hide it) after consenting. Thanks Tony Tettinger!
 
 
