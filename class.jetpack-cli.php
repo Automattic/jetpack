@@ -259,11 +259,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 
-		// Are you sure?
-		jetpack_cli_are_you_sure();
-
 		$is_dry_run = ! empty( $assoc_args['dry-run'] );
 
+		if ( ! $is_dry_run ) {
+			// We only need to confirm "Are you sure?" when we are not doing a dry run.
+			jetpack_cli_are_you_sure();
+		}
+		
 		switch ( $action ) {
 			case 'options':
 				$options_to_reset = Jetpack_Options::get_options_for_reset();
