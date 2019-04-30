@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Experience: Add a link to the full list of Jetpack features in the footer of Jetpack dashboard pages.
 * Backups: Add SSH CLI command for hosting integration support.
 * Block Editor: WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
+* Block Editor: Transform core images to Tiled Galleries or Slideshow blocks and back!
 * Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
 * Grammar and Spelling: Remove from Jetpack. We've chekced the spelling a lot over the years, but now time to retire.
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
