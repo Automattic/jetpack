@@ -4,15 +4,18 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fef1f67c3c2108903cce0cc4b093c576",
+    "content-hash": "3b68eccc65ce929501b983a49f67711e",
     "packages": [
         {
             "name": "automattic/jetpack-core",
-            "version": "7.2-alpha",
+            "version": "7.2.1",
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-core",
-                "reference": "242b31da044279d21714da6dd16367e51e2b4617"
+                "reference": "ed0edda4ea3da0d1a8ba670e7cf94c5f1d644e23"
+            },
+            "require": {
+                "php": ">=5.3.3"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
@@ -21,6 +24,20 @@
                 "wp-coding-standards/wpcs": "2.0.0"
             },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\V7\\Core\\": "lib/"
+                },
+                "xfiles": [
+                    "jetpack-core.php"
+                ],
+                "xclassmap": [
+                    "lib/"
+                ],
+                "xexclude-from-classmap": [
+                    "/test/"
+                ]
+            },
             "scripts": {
                 "php:compatibility": [
                     "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php"
@@ -42,6 +59,9 @@
             "homepage": "http://jetpack.com/",
             "support": {
                 "issues": "https://github.com/Automattic/jetpack/issues"
+            },
+            "transport-options": {
+                "symlink": true
             }
         },
         {
@@ -536,9 +556,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "automattic/jetpack-core": 15
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

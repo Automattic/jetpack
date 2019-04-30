@@ -12,92 +12,60 @@
  * Domain Path: /languages/
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '5.0' );
-
 define( 'JETPACK__VERSION',            '7.2-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE',        __FILE__ );
-
-defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
-defined( 'JETPACK_CLIENT__HTTPS' )           or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
-defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
-defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
-
 defined( 'JETPACK__SANDBOX_DOMAIN' ) or define( 'JETPACK__SANDBOX_DOMAIN', '' );
 
-defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
-	'JETPACK__DEBUGGER_PUBLIC_KEY',
-	"\r\n" . '-----BEGIN PUBLIC KEY-----' . "\r\n"
-	. 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+uLLVoxGCY71LS6KFc6' . "\r\n"
-	. '1UnF6QGBAsi5XF8ty9kR3/voqfOkpW+gRerM2Kyjy6DPCOmzhZj7BFGtxSV2ZoMX' . "\r\n"
-	. '9ZwWxzXhl/Q/6k8jg8BoY1QL6L2K76icXJu80b+RDIqvOfJruaAeBg1Q9NyeYqLY' . "\r\n"
-	. 'lEVzN2vIwcFYl+MrP/g6Bc2co7Jcbli+tpNIxg4Z+Hnhbs7OJ3STQLmEryLpAxQO' . "\r\n"
-	. 'q8cbhQkMx+FyQhxzSwtXYI/ClCUmTnzcKk7SgGvEjoKGAmngILiVuEJ4bm7Q1yok' . "\r\n"
-	. 'xl9+wcfW6JAituNhml9dlHCWnn9D3+j8pxStHihKy2gVMwiFRjLEeD8K/7JVGkb/' . "\r\n"
-	. 'EwIDAQAB' . "\r\n"
-	. '-----END PUBLIC KEY-----' . "\r\n"
-);
+// always load this
+$loader = require JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
 
-/**
- * Returns the location of Jetpack's lib directory. This filter is applied
- * in require_lib().
- *
- * @since 4.0.2
- *
- * @return string Location of Jetpack library directory.
- *
- * @filter require_lib_dir
- */
-function jetpack_require_lib_dir() {
-	return JETPACK__PLUGIN_DIR . '_inc/lib';
+// by making this check first, we never load the Bootstrap class more than once
+if ( ! defined( 'Jetpack_V7_Core_Loaded' ) ) {
+	// this should autoload the bootstrap file
+	$plugin = new \Jetpack\V7\Core\Bootstrap();
+	$plugin->load();
 }
 
+// classes to load:
+// Client
+// Debugger
+// Compat
 
-/**
- * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
- * code debug mode, it shouldn't use minified assets. Note that this filter is not being used
- * in every place where assets are enqueued. The filter is added at priority 9 to be overridden
- * by any default priority filter that runs after it.
- *
- * @since 6.2.0
- *
- * @return boolean
- *
- * @filter jetpack_should_use_minified_assets
- */
-function jetpack_should_use_minified_assets() {
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		return false;
-	}
-	return true;
-}
+// eventually we won't have to force these to load, but right now they define constants that are used elsewhere in Jetpack
+$loader->loadClass( 'Jetpack\V7\Core\Client'   );
+$loader->loadClass( 'Jetpack\V7\Core\Debugger' );
+$loader->loadClass( 'Jetpack\V7\Core\Compat'   );
+$loader->loadClass( 'Jetpack\V7\Core\Api'      );
+$loader->loadClass( 'Jetpack\V7\Core\Lib'      );
 
-/**
- * Outputs for an admin notice about running Jetpack on outdated WordPress.
- *
- * @since 7.2.0
- */
-function jetpack_admin_unsupported_wp_notice() { ?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
-	</div>
-	<?php
-}
+// Initialize the plugin if not already loaded.
+add_action( 'init', function(){
 
-if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
-	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
-	return;
-}
 
-add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
-add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
+});
+
+// Optional, remove later
+// Protect
+
+
+
+
+
+
+
+
+
+// legacy classes
+$loader->loadClass( 'Jetpack' );
+
+
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
+// require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
