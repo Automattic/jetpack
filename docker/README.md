@@ -327,6 +327,29 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
 
+## Custom plugins & themes in the container
+
+Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
+
+Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
+
+1. First ensure your containers are stopped (`yarn docker:stop`).
+2. Create a docker-compose file. You can place it anywhere in your computer:
+	```yml
+	version: '3.3'
+	services:
+	  wordpress:
+	    volumes:
+	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
+	```
+	What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `plugins/my-plugin` with the path to your own plugin or theme.
+3. Start containers and include your custom volumes by running:
+	```bash
+	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
+	```
+
+You can pass multiple configuration files by adding more `-f/--file` arguments. Docker Compose [combines them into a single configuration](https://docs.docker.com/compose/reference/overview/#use--f-to-specify-name-and-path-of-one-or-more-compose-files).
+
 ## Debugging
 
 ### Accessing logs
