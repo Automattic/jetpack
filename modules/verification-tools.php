@@ -21,8 +21,4 @@ function jetpack_verification_tools_loaded() {
 }
 add_action( 'jetpack_modules_loaded', 'jetpack_verification_tools_loaded' );
 
-function jetpack_verification_tools_configuration_url() {
-	return admin_url( 'tools.php' );
-}
-
 jetpack_load_verification_tools();

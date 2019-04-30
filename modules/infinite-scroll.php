@@ -63,17 +63,6 @@ class Jetpack_Infinite_Scroll_Extras {
 	 */
 	public function action_jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		add_filter( 'jetpack_module_configuration_url_infinite-scroll', array( $this, 'infinite_scroll_configuration_url' ) );
-	}
-
-	/**
-	 * Overrides default configuration url
-	 *
-	 * @uses admin_url
-	 * @return string module settings URL
-	 */
-	public function infinite_scroll_configuration_url() {
-		return admin_url( 'options-reading.php#infinite-scroll-options' );
 	}
 
 	/**
