@@ -16,7 +16,8 @@
   "license": "GPL-2.0+",
   "files": [
     "build/index.js",
-    "build/example.js"
+    "build/example.js",
+    "svg-sprite/social-logos.svg"
   ],
   "dependencies": {
     "prop-types": "^15.5.7"
