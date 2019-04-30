@@ -4,7 +4,6 @@
  *
  * Supported formats:
  * - Profiles: https://medium.com/@jeherve
- * - Collections: https://medium.com/s/user-friendly
  * - Stories: https://medium.com/@jeherve/this-is-a-story-19f582daaf5b
  * - And all the above in shortcode formats:
  * [medium url="https://medium.com/@jeherve/this-is-a-story-19f582daaf5b" width="100%" border="false" collapsed="true"]
@@ -42,6 +41,14 @@ function jetpack_embed_medium_embed_html( $args ) {
 	}
 
 	$args['type'] = jetpack_embed_medium_get_embed_type( $args['url'] );
+
+	if ( 'collection' === $args['type'] ) {
+		return sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( $args['url'] ),
+			esc_html__( 'View this collection on Medium.com', 'jetpack' )
+		);
+	}
 
 	wp_enqueue_script(
 		'medium-embed',
