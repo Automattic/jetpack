@@ -109,8 +109,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Block Editor: WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
 * Admin Experience: Improve our "just in time messages" and "Recommended Features" for new sites setting up Jetpack for the first time.
+* Block Editor: WordPress.com users can now compose Block Editor posts for their Jetpack sites without leaving WordPress.com.
+* Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
 * Likes and Sharing: Add Likes and Sharing settings as a Block Editor extension.
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
