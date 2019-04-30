@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 grn=$'\e[1;32m'
 red=$'\e[1;31m'
