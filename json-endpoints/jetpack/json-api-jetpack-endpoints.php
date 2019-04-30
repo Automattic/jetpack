@@ -464,6 +464,9 @@ new Jetpack_JSON_API_Sync_Status_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'response_format' => array(
+		'posts_checksum' => '(string|null) Posts checksum',
+		'comments_checksum' => '(string|null) Comments checksum',
+		'post_meta_checksum' => '(string|null) Post Meta checksum',
 		'started' => '(int|null) The unix timestamp when the last sync started',
 		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
 		'send_started' => '(int|null) The unix timestamp when the last sent process started',

@@ -440,6 +440,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_sync_status() {
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 		self::initialize_sender();
 
 		$sync_module     = Jetpack_Sync_Modules::get_module( 'full-sync' );
@@ -447,19 +448,25 @@ class Jetpack_Sync_Actions {
 		$full_queue      = self::$sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron       = $cron_timestamps[0] - time();
+		$store           = new Jetpack_Sync_WP_Replicastore();
+		$checksums       = $store->checksum_all();
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 		return array_merge(
 			$full_sync_status,
 			array(
-				'cron_size'            => count( $cron_timestamps ),
-				'next_cron'            => $next_cron,
-				'queue_size'           => $queue->size(),
-				'queue_lag'            => $queue->lag(),
-				'queue_next_sync'      => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
-				'full_queue_size'      => $full_queue->size(),
-				'full_queue_lag'       => $full_queue->lag(),
-				'full_queue_next_sync' => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+				'posts_checksum'        => $checksums['posts'],
+				'comments_checksum'     => $checksums['comments'],
+				'post_meta_checksum'    => $checksums['post_meta'],
+				'comment_meta_checksum' => $checksums['comment_meta'],
+				'cron_size'             => count( $cron_timestamps ),
+				'next_cron'             => $next_cron,
+				'queue_size'            => $queue->size(),
+				'queue_lag'             => $queue->lag(),
+				'queue_next_sync'       => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+				'full_queue_size'       => $full_queue->size(),
+				'full_queue_lag'        => $full_queue->lag(),
+				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
 			)
 		);
 	}
@@ -482,4 +489,3 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
 add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
-
