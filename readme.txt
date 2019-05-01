@@ -88,10 +88,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Security: Prevent unwanted intrusions with brute force attack protection, malware scanning, spam filtering, and downtime monitoring. Secure your site data with on-demand backups and restores.
-2. Performance: Load pages faster, and serve your images and static files from our global network of servers.
-3. Customization: Customize your website with professionally-designed WordPress themes, useful blocks, and custom widgets.
-4. Marketing: Promote your newest posts, pages, and products across your social media channels.
+1. Prevent unwanted intrusions with brute force attack protection, malware scanning, spam filtering, and downtime monitoring. Secure your site data with on-demand backups and restores.
+2. Load pages faster, and serve your images and static files from our global network of servers.
+3. Customize your website with professionally-designed WordPress themes, useful blocks, and custom widgets.
+4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
 
