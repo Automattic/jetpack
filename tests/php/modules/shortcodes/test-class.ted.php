@@ -7,7 +7,22 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		if ( in_array( 'external-http', $this->getGroups() ) ) {
+		// Back compat for PHPUnit 3!
+		// @todo Remove this when WP's PHP version bumps.
+		if ( is_callable( array( $this, 'getGroups' ) ) ) {
+			$groups = $this->getGroups();
+		} else {
+			$annotations = $this->getAnnotations();
+			$groups = array();
+			foreach ( $annotations as $source ) {
+				if ( ! isset( $source['group'] ) ) {
+					continue;
+				}
+				$groups = array_merge( $groups, $source['group'] );
+			}
+		}
+
+		if ( in_array( 'external-http', $groups ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {
