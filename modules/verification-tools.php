@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Module Name: Site verification
  * Module Description: Establish your site's authenticity with external services.
@@ -9,15 +8,22 @@
  * Auto Activate: Yes
  * Feature: Engagement
  * Additional Search Queries: webmaster, seo, google, bing, pinterest, search, console
+ *
+ * @package Jetpack
  */
 
+/**
+ * Load Verification Tools code.
+ */
 function jetpack_load_verification_tools() {
-	include dirname( __FILE__ ) . "/verification-tools/blog-verification-tools.php";
+	include dirname( __FILE__ ) . '/verification-tools/blog-verification-tools.php';
 }
 
+/**
+ * Functionality to load for Verification Tools after all modules have been loaded.
+ */
 function jetpack_verification_tools_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	add_filter( 'jetpack_module_configuration_url_verification-tools', 'jetpack_verification_tools_configuration_url' );
 }
 add_action( 'jetpack_modules_loaded', 'jetpack_verification_tools_loaded' );
 
