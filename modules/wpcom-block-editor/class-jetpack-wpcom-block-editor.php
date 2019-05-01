@@ -96,7 +96,7 @@ class Jetpack_WPCOM_Block_Editor {
 		$query = wp_parse_url( urldecode( $_GET['redirect_to'] ), PHP_URL_QUERY );
 		$args  = wp_parse_args( $query );
 
-		if ( $this->framing_allowed( $args['frame-nonce'] ) ) {
+		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
 			add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
 			remove_action( 'login_init', 'send_frame_options_header' );
 		}
