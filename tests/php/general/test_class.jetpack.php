@@ -355,11 +355,15 @@ EXPECTED;
 	}
 
 	function test_sync_error_idc_validation_returns_false_if_no_option() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+
 		Jetpack_Options::delete_option( 'sync_error_idc' );
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 	}
 
 	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+
 		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
@@ -368,6 +372,8 @@ EXPECTED;
 	}
 
 	function test_sync_error_idc_validation_cleans_up_when_validation_fails() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+
 		Jetpack_Options::update_option( 'sync_error_idc', array(
 			'home'    => 'coolsite.com/',
 			'siteurl' => 'coolsite.com/wp/',
@@ -378,6 +384,8 @@ EXPECTED;
 	}
 
 	function test_sync_error_idc_validation_cleans_up_when_part_of_validation_fails() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+
 		$test = Jetpack::get_sync_error_idc_option();
 		$test['siteurl'] = 'coolsite.com/wp/';
 		Jetpack_Options::update_option( 'sync_error_idc', $test );
@@ -387,6 +395,8 @@ EXPECTED;
 	}
 
 	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
 		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 
@@ -460,6 +470,8 @@ EXPECTED;
 	}
 
 	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
+		add_filter( 'pre_http_request', array( $this, '__idc_is_allowed' ) );
+
 		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 		$this->assertTrue( Jetpack::is_staging_site() );
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
