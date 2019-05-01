@@ -41,6 +41,7 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
+		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 	}
@@ -68,6 +69,7 @@ class Jetpack_WPCOM_Block_Editor {
 	public function show_error_if_logged_out() {
 		if ( ! get_current_user_id() ) {
 			wp_safe_redirect( wp_login_url( $_SERVER['REQUEST_URI'] ) );
+			exit;
 		}
 	}
 
@@ -78,6 +80,45 @@ class Jetpack_WPCOM_Block_Editor {
 		if ( $this->framing_allowed() ) {
 			remove_action( 'admin_init', 'send_frame_options_header' );
 		}
+	}
+
+	/**
+	 * Allows to iframe the login page if a user is logged out
+	 * while trying to access the block editor from wordpress.com.
+	 */
+	public function allow_block_editor_login() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( empty( $_GET['redirect_to'] ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification
+		$url  = wp_parse_url( urldecode( $_GET['redirect_to'] ) );
+		$args = wp_parse_args( $url['query'] );
+
+		if (
+			! empty( $args['frame-nonce'] ) &&
+			(
+				false !== strpos( $url['path'], 'post.php' ) ||
+				false !== strpos( $url['path'], 'post-new.php' )
+			)
+		) {
+			add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
+			remove_action( 'login_init', 'send_frame_options_header' );
+		}
+	}
+
+	/**
+	 * Adds a login message.
+	 *
+	 * Intended to soften the expectation mismatch of ending up with a login screen rather than the editor.
+	 *
+	 * @param WP_Error $errors WP Error object.
+	 * @return \WP_Error
+	 */
+	public function add_login_message( $errors ) {
+		$errors->add( 'info', __( 'Before we continue, please log in to your site.', 'jetpack' ), 'message' );
+		return $errors;
 	}
 
 	/**
