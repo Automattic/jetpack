@@ -20,6 +20,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 		}
 
 		$oembed_query = wp_parse_url( $url, PHP_URL_QUERY );
+		$oembed_query_args = null;
 		wp_parse_str( $oembed_query, $oembed_query_args );
 		if ( ! isset( $oembed_query_args['maxheight'], $oembed_query_args['maxwidth'], $oembed_query_args['url'], $oembed_query_args['lang'] ) ) {
 			return new WP_Error( 'unexpected-http-request', 'Test is making an unexpected HTTP request.' );
