@@ -90,17 +90,25 @@ function _manually_install_woocommerce() {
 }
 
 // If we are running the uninstall tests don't load jepack.
-if ( ! ( in_running_uninstall_group() ) ) {
+if ( ! ( in_running_phpunit_group( 'uninstall' ) ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
 	}
 }
 
+if ( ! in_running_phpunit_group( 'external-http' ) ) {
+	tests_add_filter( 'http_response', 'jetpack_tests_throw_on_http_request', 10, 3 );
+}
+
+function jetpack_tests_throw_on_http_request( $response, $args, $url ) {
+	throw new Exception( "Unexpected HTTP Request: $url" );
+}
+
 require $test_root . '/includes/bootstrap.php';
 
 // Load the shortcodes module to test properly.
-if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
+if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_phpunit_group( 'uninstall' ) ) {
 	require dirname( __FILE__ ) . '/../../modules/shortcodes.php';
 }
 
@@ -110,9 +118,30 @@ require dirname( __FILE__ ) . '/attachment_test_case.php';
 // Load WPCOM-shared helper functions.
 require dirname( __FILE__ ) . '/lib/wpcom-helper-functions.php';
 
-function in_running_uninstall_group() {
-	global  $argv;
-	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
+function in_running_phpunit_group( $group ) {
+	global $argv;
+
+	if ( ! is_array( $argv ) ) {
+		return false;
+	}
+
+	if ( preg_grep( sprintf( '/--group=\S*,?%s(?:,|$)/', $group ), $argv ) ) {
+		return true;
+	}
+
+	$group_args = array_keys( $argv, '--group' );
+	foreach ( $group_args as $group_arg ) {
+		if ( ! isset( $argv[ $group_arg + 1 ] ) ) {
+			continue;
+		}
+
+		$group_values = explode( ',', $argv[ $group_arg + 1 ] );
+		if ( in_array( $group, $group_values ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
