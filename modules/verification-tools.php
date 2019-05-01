@@ -17,7 +17,6 @@ function jetpack_load_verification_tools() {
 
 function jetpack_verification_tools_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	add_filter( 'jetpack_module_configuration_url_verification-tools', 'jetpack_verification_tools_configuration_url' );
 }
 add_action( 'jetpack_modules_loaded', 'jetpack_verification_tools_loaded' );
 
