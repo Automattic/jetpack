@@ -93,16 +93,10 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification
-		$url  = wp_parse_url( urldecode( $_GET['redirect_to'] ) );
-		$args = wp_parse_args( $url['query'] );
+		$query = wp_parse_url( urldecode( $_GET['redirect_to'] ), PHP_URL_QUERY );
+		$args  = wp_parse_args( $query );
 
-		if (
-			! empty( $args['frame-nonce'] ) &&
-			(
-				false !== strpos( $url['path'], 'post.php' ) ||
-				false !== strpos( $url['path'], 'post-new.php' )
-			)
-		) {
+		if ( $this->framing_allowed( $args['frame-nonce'] ) ) {
 			add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
 			remove_action( 'login_init', 'send_frame_options_header' );
 		}
@@ -138,13 +132,15 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Checks whether this is a whitelisted iframe request.
 	 *
+	 * @param string $nonce Optional. Nonce to verify. Default $_GET['frame-nonce'].
 	 * @return bool
 	 */
-	public function framing_allowed() {
-		$verified = $this->verify_frame_nonce(
-			$_GET['frame-nonce'], // phpcs:ignore WordPress.Security.NonceVerification
-			'frame-' . Jetpack_Options::get_option( 'id' )
-		);
+	public function framing_allowed( $nonce = '' ) {
+		if ( empty( $nonce ) ) {
+			$nonce = $_GET['frame-nonce']; // phpcs:ignore WordPress.Security.NonceVerification
+		}
+
+		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . Jetpack_Options::get_option( 'id' ) );
 
 		if ( is_wp_error( $verified ) ) {
 			wp_die( $verified ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -206,7 +202,8 @@ class Jetpack_WPCOM_Block_Editor {
 			return new WP_Error( 'nonce_invalid_expired', 'Expired nonce.', array( 'status' => 401 ) );
 		}
 
-		if ( get_current_user_id() !== $this->nonce_user_id ) {
+		// Check if it matches the current user, unless they're trying to log in.
+		if ( get_current_user_id() !== $this->nonce_user_id && ! doing_action( 'login_init' ) ) {
 			return new WP_Error( 'nonce_invalid_user_mismatch', 'User ID mismatch.', array( 'status' => 401 ) );
 		}
 
