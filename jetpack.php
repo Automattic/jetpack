@@ -25,14 +25,14 @@ defined( 'JETPACK__SANDBOX_DOMAIN' ) or define( 'JETPACK__SANDBOX_DOMAIN', '' );
 $loader = require JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
 
 // by making this check first, we never load the Bootstrap class more than once
-if ( ! defined( 'Jetpack_V7_Core_Loaded' ) ) {
+// if ( ! defined( 'Jetpack_V7_Core_Loaded' ) ) {
 	// this should autoload the bootstrap file
 	$plugin = new \Jetpack\V7\Core\Bootstrap();
 	$plugin->load();
-} else {
-	// $loader->addClassMap ?? reuse existing loading instance
+// } else {
+// 	// $loader->addClassMap ?? reuse existing loading instance
 
-}
+// }
 
 // classes to load:
 // Client
