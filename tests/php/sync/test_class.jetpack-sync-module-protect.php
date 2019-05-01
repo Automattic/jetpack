@@ -7,6 +7,11 @@
 require_once dirname( __FILE__ ) . '/../../../modules/protect.php';
 
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
+	function setUp() {
+		parent::setUp();
+
+		add_filter( 'pre_http_request', array( $this, 'mock_bruteprotect_api_response' ), 10, 3 );
+	}
 
 	function test_sends_failed_login_message() {
 		$user_id = $this->factory->user->create();
@@ -44,5 +49,18 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_valid_failed_login_attempt' );
 
 		$this->assertEquals( '', $action->args[0]['login'] );
+	}
+
+	function mock_bruteprotect_api_response( $response, $args, $url ) {
+		if ( 'https://api.bruteprotect.com/' !== $url ) {
+			return $response;
+		}
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body' => '{"status":"ok","msg":"API Key Required","seconds_remaining":60,"error":"API Key Required"}',
+		);
 	}
 }
