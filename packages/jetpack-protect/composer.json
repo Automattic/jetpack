@@ -1,0 +1,34 @@
+{
+	"name": "automattic/jetpack-protect",
+	"description": "Protect library for Jetpack",
+	"homepage": "http://jetpack.com/",
+	"version": "7.2.1",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/Automattic/jetpack/issues"
+	},
+	"autoload": {
+		"psr-4": {
+			"Jetpack\\V7\\Protect\\": "lib/"
+		},
+		"files": [
+			"defines.php"
+		]
+	},
+	"require": {
+		"php": ">=5.3.3"
+	},
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
+		"wp-coding-standards/wpcs": "2.0.0",
+		"sirbrillig/phpcs-variable-analysis": "2.6.0",
+		"phpcompatibility/phpcompatibility-wp": "2.0.0"
+	},
+	"scripts": {
+		"php:compatibility": "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:lint": "composer install && vendor/bin/phpcs -p",
+		"php:autofix": "composer install && vendor/bin/phpcbf",
+		"php:lint:errors": "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
+	}
+}
