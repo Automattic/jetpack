@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3b68eccc65ce929501b983a49f67711e",
+    "content-hash": "b819c866222c9d1fb21317c1f83d1d07",
     "packages": [
         {
             "name": "automattic/jetpack-core",
@@ -56,6 +56,65 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Core library for Jetpack",
+            "homepage": "http://jetpack.com/",
+            "support": {
+                "issues": "https://github.com/Automattic/jetpack/issues"
+            },
+            "transport-options": {
+                "symlink": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-search",
+            "version": "7.2.1",
+            "dist": {
+                "type": "path",
+                "url": "./packages/jetpack-search",
+                "reference": "69e416880189ce8b1bef684a9907b6503e39be1b"
+            },
+            "require": {
+                "automattic/jetpack-core": "7.2.1",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
+                "phpcompatibility/phpcompatibility-wp": "2.0.0",
+                "sirbrillig/phpcs-variable-analysis": "2.6.0",
+                "wp-coding-standards/wpcs": "2.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\V7\\Core\\": "lib/"
+                },
+                "xfiles": [
+                    "jetpack-core.php"
+                ],
+                "classmap": [
+                    "legacy/"
+                ],
+                "exclude-from-classmap": [
+                    "/test/"
+                ]
+            },
+            "scripts": {
+                "php:compatibility": [
+                    "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php"
+                ],
+                "php:lint": [
+                    "composer install && vendor/bin/phpcs -p"
+                ],
+                "php:autofix": [
+                    "composer install && vendor/bin/phpcbf"
+                ],
+                "php:lint:errors": [
+                    "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Search module for Jetpack",
             "homepage": "http://jetpack.com/",
             "support": {
                 "issues": "https://github.com/Automattic/jetpack/issues"
@@ -459,16 +518,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.4.1",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "5b4333b4010625d29580eb4a41f1e53251be6baa"
+                "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/5b4333b4010625d29580eb4a41f1e53251be6baa",
-                "reference": "5b4333b4010625d29580eb4a41f1e53251be6baa",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
+                "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
                 "shasum": ""
             },
             "require": {
@@ -506,7 +565,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-03-19T03:22:27+00:00"
+            "time": "2019-04-10T23:49:02+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
