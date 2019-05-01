@@ -88,31 +88,37 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function allow_block_editor_login() {
 		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( empty( $_GET['redirect_to'] ) ) {
+		if ( empty( $_REQUEST['redirect_to'] ) ) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification
-		$query = wp_parse_url( urldecode( $_GET['redirect_to'] ), PHP_URL_QUERY );
+		$query = wp_parse_url( urldecode( $_REQUEST['redirect_to'] ), PHP_URL_QUERY );
 		$args  = wp_parse_args( $query );
 
 		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
-			add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
+			$_REQUEST['interim-login'] = true;
+			add_action( 'wp_login', array( $this, 'do_redirect' ) );
+			add_action( 'login_form', array( $this, 'maintain_redirect_to' ) );
 			remove_action( 'login_init', 'send_frame_options_header' );
 		}
 	}
 
 	/**
-	 * Adds a login message.
-	 *
-	 * Intended to soften the expectation mismatch of ending up with a login screen rather than the editor.
-	 *
-	 * @param WP_Error $errors WP Error object.
-	 * @return \WP_Error
+	 * Maintains the `redirect_to` parameter in login form links.
 	 */
-	public function add_login_message( $errors ) {
-		$errors->add( 'info', __( 'Before we continue, please log in to your site.', 'jetpack' ), 'message' );
-		return $errors;
+	public function maintain_redirect_to() {
+		?>
+		<input type="hidden" name="redirect_to" value="<?php echo esc_url( $_REQUEST['redirect_to'] ); ?>" />
+		<?php
+	}
+
+	/**
+	 * Does the redirect to the block editor.
+	 */
+	public function do_redirect() {
+		wp_redirect( $GLOBALS['redirect_to'] );
+		exit;
 	}
 
 	/**
