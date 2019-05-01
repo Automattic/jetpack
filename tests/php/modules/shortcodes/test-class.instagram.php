@@ -5,11 +5,16 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		/**
-		 * We normally make an HTTP request to Instagram's oEmbed endpoint.
-		 * This filter bypasses that HTTP request for these tests.
-		 */
-		add_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
+		if ( in_array( 'external-http', $this->getGroups() ) ) {
+			// Used by WordPress.com - does nothing in Jetpack.
+			add_filter( 'tests_allow_http_request', '__return_true' );
+		} else {
+			/**
+			 * We normally make an HTTP request to Instagram's oEmbed endpoint.
+			 * This filter bypasses that HTTP request for these tests.
+			 */
+			add_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
+		}
 	}
 
 	public function pre_http_request( $response, $args, $url ) {
@@ -197,9 +202,6 @@ BODY;
 	 * @group external-http
 	 */
 	public function test_shortcode_instagram_via_oembed_http_request() {
-		// Remove the HTTP request bypass
-		remove_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
-
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
 		$content       = '[instagram url="' . $instagram_url . '"]';
 

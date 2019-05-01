@@ -39,12 +39,19 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	}
 
 	function setUp() {
-		/*
-		 * We normally make an HTTP request to Getty's oEmbed endpoint to generate
-		 * the shortcode output.
-		 * This filter bypasses that HTTP request for these tests
-		 */
-		add_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 3 );
+		parent::setUp();
+
+		if ( in_array( 'external-http', $this->getGroups() ) ) {
+			// Used by WordPress.com - does nothing in Jetpack.
+			add_filter( 'tests_allow_http_request', '__return_true' );
+		} else {
+			/*
+			 * We normally make an HTTP request to Getty's oEmbed endpoint to generate
+			 * the shortcode output.
+			 * This filter bypasses that HTTP request for these tests
+			 */
+			add_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 3 );
+		}
 	}
 
 	function getty_oembed_response( $html, $url, $args ) {
@@ -159,8 +166,6 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_getty_image_via_oembed_http_request() {
-		remove_filter( 'pre_oembed_result', array( $this, 'getty_oembed_response' ), 10, 3 );
-
 		$image_id = '82278805';
 		$content = "[getty src='$image_id']";
 
