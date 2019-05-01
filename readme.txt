@@ -88,14 +88,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
-2. Downtime Monitoring: Know right away if and when your site goes down.
-3. Performance: Free high-speed content delivery network for your images.
-4. Analytics: Concise site stats and traffic insights.
-5. Themes: Hundreds of customizable, professional themes.
-6. Apps: Update your site from any device with the free WordPress apps.
-7. Revenue: Sell products and take payments with simple payment buttons.
-8. Sharing: Connect your site to social networks for automated social sharing.
+1. Security: Prevent unwanted intrusions with brute force attack protection, malware scanning, spam filtering, and downtime monitoring. Secure your site data with on-demand backups and restores.
+2. Performance: Load pages faster, and serve your images and static files from our global network of servers.
+3. Customization: Customize your website with professionally-designed WordPress themes, useful blocks, and custom widgets.
+4. Marketing: Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
 
