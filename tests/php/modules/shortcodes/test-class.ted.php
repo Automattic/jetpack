@@ -5,6 +5,8 @@
  */
 class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 	public function setUp() {
+		parent::setUp();
+
 		/**
 		 * We normally make an HTTP request to Instagram's oEmbed endpoint.
 		 * This filter bypasses that HTTP request for these tests.
