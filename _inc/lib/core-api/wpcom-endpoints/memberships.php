@@ -102,6 +102,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'connected_destination_account_id' => $connected_destination_account_id,
 				)
 			);
+			if ( is_wp_error( $product ) ) {
+				return new WP_Error( $product->get_error_code(), __( 'Creating product has failed.', 'jetpack' ) );
+			}
 			return $product->to_array();
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
