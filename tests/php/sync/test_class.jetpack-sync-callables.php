@@ -24,6 +24,30 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
 		set_current_screen( 'post-user' ); // this only works in is_admin()
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_filter' ), 10, 3 );
+	}
+
+	// Used by test_force_sync_callabled_on_plugin_update().
+	function pre_http_filter( $response, $args, $url ) {
+		// Anything but `false` here will stop the HTTP request.
+
+		if ( 0 === strpos( $url, 'https://api.wordpress.org/core/version-check/1.7/?' ) ) {
+			// @see `wp_version_check()`, which is attached to the `upgrader_process_complete` action.
+			return true;
+		}
+
+		if ( 'https://api.wordpress.org/plugins/update-check/1.1/' === $url ) {
+			// @see `wp_update_plugins()`, which is attached to the `upgrader_process_complete` action.
+			return true;
+		}
+
+		if ( 'https://api.wordpress.org/themes/update-check/1.1/' === $url ) {
+			// @see `wp_update_themes()`, which is attached to the `upgrader_process_complete` action.
+			return true;
+		}
+
+		return $response;
 	}
 
 	function test_white_listed_function_is_synced() {
