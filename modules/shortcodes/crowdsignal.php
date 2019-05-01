@@ -8,6 +8,8 @@
  * https://jeherve.survey.fm/a-survey
  * https://jeherve.survey.fm/a-survey-with-branches
  * [crowdsignal type="iframe" survey="7676FB1FF2B56CE9" height="auto" domain="jeherve" id="a-survey"]
+ * [crowdsignal survey="7676FB1FF2B56CE9"]
+ * [polldaddy survey="7676FB1FF2B56CE9"]
  * [crowdsignal poll=9541291]
  * [crowdsignal rating=8755352]
  *
@@ -45,7 +47,7 @@ if (
 			add_action( 'init', array( $this, 'register_scripts' ) );
 
 			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
-			add_shortcode( 'polldaddy', array( $this, 'crowdsignal_shortcode' ) );
+			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 
 			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
@@ -84,14 +86,15 @@ if (
 		 *
 		 * @param array  $settings Array of information about a survey / poll.
 		 * @param string $survey_link HTML link tag for a specific survey or poll.
+		 * @param string $survey_url  Link to the survey or poll.
 		 */
-		private function get_async_code( array $settings, $survey_link ) {
+		private function get_async_code( array $settings, $survey_link, $survey_url ) {
 			wp_enqueue_script( 'crowdsignal-survey' );
 
 			if ( 'button' === $settings['type'] ) {
 				$placeholder = sprintf(
 					'<a class="cs-embed pd-embed" href="%1$s" data-settings="%2$s">%3$s</a>',
-					esc_attr( $survey_link ),
+					esc_url( $survey_url ),
 					esc_attr( wp_json_encode( $settings ) ),
 					esc_html( $settings['title'] )
 				);
@@ -150,7 +153,17 @@ if (
 		}
 
 		/**
-		 * Shortcode for polldadddy
+		 * Support for legacy Polldaddy shortcode.
+		 *
+		 * @param array $atts Shortcode attributes.
+		 */
+		public function polldaddy_shortcode( $atts ) {
+			$atts['site'] = 'polldaddy.com';
+			return $this->crowdsignal_shortcode( $atts );
+		}
+
+		/**
+		 * Shortcode for Crowdsignal
 		 * [crowdsignal poll|survey|rating="123456"]
 		 *
 		 * @param array $atts Shortcode attributes.
@@ -183,6 +196,7 @@ if (
 					'visit'      => 'single',
 					'domain'     => '',
 					'id'         => '',
+					'site'       => 'crowdsignal.com',
 				),
 				$atts,
 				'crowdsignal'
@@ -308,8 +322,14 @@ if (
 					$attributes['title'] = esc_html__( 'Take Our Poll', 'jetpack' );
 				}
 
-				$poll      = intval( $attributes['poll'] );
-				$poll_url  = sprintf( 'https://poll.fm/%d', $poll );
+				$poll = intval( $attributes['poll'] );
+
+				if ( 'crowdsignal.com' === $attributes['site'] ) {
+					$poll_url = sprintf( 'https://poll.fm/%d', $poll );
+				} else {
+					$poll_url = sprintf( 'https://polldaddy.com/p/%d', $poll );
+				}
+
 				$poll_js   = sprintf( 'https://secure.polldaddy.com/p/%d.js', $poll );
 				$poll_link = sprintf(
 					'<a href="%s" target="_blank">%s</a>',
@@ -342,9 +362,10 @@ if (
 							'delay' => intval( $attributes['delay'] ),
 							'visit' => $attributes['visit'],
 							'id'    => intval( $poll ),
+							'site'  => $attributes['site'],
 						);
 
-						return $this->get_async_code( $settings, $poll_link );
+						return $this->get_async_code( $settings, $poll_link, $poll_url );
 					} else {
 						if ( 1 === $attributes['cb'] ) {
 							$attributes['cb'] = '?cb=' . mktime();
@@ -450,11 +471,17 @@ if (
 						$inline = false;
 					}
 
-					$survey      = preg_replace( '/[^a-f0-9]/i', '', $attributes['survey'] );
-					$survey_url  = esc_url( "https://survey.fm/{$survey}" );
+					$survey = preg_replace( '/[^a-f0-9]/i', '', $attributes['survey'] );
+
+					if ( 'crowdsignal.com' === $attributes['site'] ) {
+						$survey_url = 'https://survey.fm/' . $survey;
+					} else {
+						$survey_url = 'https://polldaddy.com/s/' . $survey;
+					}
+
 					$survey_link = sprintf(
-						'<a href="%s" target="_blank">%s</a>',
-						$survey_url,
+						'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+						esc_url( $survey_url ),
 						esc_html( $attributes['title'] )
 					);
 
@@ -503,11 +530,15 @@ if (
 							! empty( $attributes['domain'] )
 							&& ! empty( $attributes['id'] )
 						) {
-
 							$domain = preg_replace( '/[^a-z0-9\-]/i', '', $attributes['domain'] );
 							$id     = preg_replace( '/[\/\?&\{\}]/', '', $attributes['id'] );
 
-							$auto_src = esc_url( "https://{$domain}.survey.fm/{$id}" );
+							if ( 'crowdsignal.com' === $attributes['site'] ) {
+								$auto_src = esc_url( "https://{$domain}.survey.fm/{$id}" );
+							} else {
+								$auto_src = esc_url( "https://{$domain}.polldaddy.com/s/{$id}" );
+							}
+
 							$auto_src = wp_parse_url( $auto_src );
 
 							if ( ! is_array( $auto_src ) || 0 === count( $auto_src ) ) {
@@ -518,14 +549,20 @@ if (
 								return '<!-- no crowdsignal output -->';
 							}
 
-							$domain = $auto_src['host'] . '/';
-							$id     = ltrim( $auto_src['path'], '/' );
+							if ( strpos( $auto_src['host'], 'survey.fm' ) ) {
+								$domain = $auto_src['host'] . '/';
+							} else {
+								$domain = $auto_src['host'] . '/s/';
+							}
+
+							$id = ltrim( $auto_src['path'], '/' );
 
 							$settings = array(
 								'type'   => $attributes['type'],
 								'auto'   => true,
 								'domain' => $domain,
 								'id'     => $id,
+								'site'   => $attributes['site'],
 							);
 						}
 					} else {
@@ -578,6 +615,7 @@ if (
 								'align'      => $attributes['align'],
 								'style'      => $attributes['style'],
 								'id'         => $survey,
+								'site'       => $attributes['site'],
 							)
 						);
 					}
@@ -586,7 +624,7 @@ if (
 						return '<!-- no crowdsignal output -->';
 					}
 
-					return $this->get_async_code( $settings, $survey_link );
+					return $this->get_async_code( $settings, $survey_link, $survey_url );
 				}
 			} else {
 				return '<!-- no crowdsignal output -->';
