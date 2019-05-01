@@ -44,7 +44,6 @@ define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
 
 define( 'JETPACK_BETA_MANIFEST_URL', 'https://betadownload.jetpack.me/jetpack-branches.json' );
 define( 'JETPACK_ORG_API_URL', 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' );
-define( 'JETPACK_RC_API_URL', 'https://betadownload.jetpack.me/rc/rc.json' );
 define( 'JETPACK_GITHUB_API_URL', 'https://api.github.com/repos/Automattic/Jetpack/' );
 define( 'JETPACK_GITHUB_URL', 'https://github.com/Automattic/jetpack' );
 define( 'JETPACK_DEFAULT_URL', 'https://jetpack.com' );
