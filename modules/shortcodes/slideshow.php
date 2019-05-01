@@ -226,6 +226,8 @@ class Jetpack_Slideshow_Shortcode {
 		 * esc_attr(), which will double-encode.
 		 *
 		 * Since we can't rely on JSON_HEX_AMP, we do both.
+		 *
+		 * @todo Update when minimum is PHP 5.3+
 		 */
 		$gallery_attributes = _wp_specialchars( wp_check_invalid_utf8( $gallery ), ENT_QUOTES, false, true );
 
