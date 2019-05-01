@@ -1,6 +1,12 @@
 <?php
 
 class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
+	public function setUp() {
+		parent::setUp();
+
+		// Prevents a possible HTTP request
+		add_filter( 'pre_transient_jetpack_https_test', '__return_true' );
+	}
 
 	/**
 	 * @covers Jetpack_Heartbeat::init
