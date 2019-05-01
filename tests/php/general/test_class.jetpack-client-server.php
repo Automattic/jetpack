@@ -32,9 +32,13 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		) );
 		wp_set_current_user( $author_id );
 
+		$jetpack = $this->createMock( 'Jetpack' );
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
-			->setMethods( array( 'do_exit' ) )
+			->setMethods( array( 'do_exit', 'get_jetpack' ) )
 			->getMock();
+		$jetpack = $this->createMock( 'Jetpack' );
+		$client_server->method( 'get_jetpack' )
+			->willReturn( $jetpack );
 
 		$result = $client_server->authorize();
 
@@ -54,8 +58,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
-			->setMethods( array( 'do_exit' ) )
+			->setMethods( array( 'do_exit', 'get_jetpack' ) )
 			->getMock();
+		$jetpack = $this->createMock( 'Jetpack' );
+		$client_server->method( 'get_jetpack' )
+			->willReturn( $jetpack );
 
 		$result = $client_server->authorize();
 
@@ -74,8 +81,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		wp_set_current_user( $author_id );
 
 		$client_server = $this->getMockBuilder( 'Jetpack_Client_Server' )
-			->setMethods( array( 'do_exit' ) )
+			->setMethods( array( 'do_exit', 'get_jetpack' ) )
 			->getMock();
+		$jetpack = $this->createMock( 'Jetpack' );
+		$client_server->method( 'get_jetpack' )
+			->willReturn( $jetpack );
 
 		$result = $client_server->authorize( array( 'error' => 'test_error' ) );
 
