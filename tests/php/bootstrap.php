@@ -102,6 +102,9 @@ if ( ! in_running_phpunit_group( 'external-http' ) ) {
 }
 
 function jetpack_tests_throw_on_http_request( $response, $args, $url ) {
+	echo "\n";
+	echo $response['body'];
+	echo "\n";
 	throw new Exception( "Unexpected HTTP Request: $url" );
 }
 
