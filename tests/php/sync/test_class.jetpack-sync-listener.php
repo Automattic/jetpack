@@ -118,6 +118,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 		$current_user = wp_get_current_user();
+
+		add_filter( 'pre_http_request', array( $this, 'mock_bruteprotect_api_response' ), 10, 3 );
+
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
 
 		$example_actor = array(
@@ -153,8 +156,12 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 		$current_user = wp_get_current_user();
+
 		add_filter( 'jetpack_sync_actor_user_data', '__return_false' );
+		add_filter( 'pre_http_request', array( $this, 'mock_bruteprotect_api_response' ), 10, 3 );
+
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
+
 		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 
 		$example_actor = array(
@@ -194,5 +201,18 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 	function get_page_url() {
 		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+	}
+
+	function mock_bruteprotect_api_response( $response, $args, $url ) {
+		if ( 'https://api.bruteprotect.com/' !== $url ) {
+			return $response;
+		}
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body' => '{"status":"ok","msg":"API Key Required","seconds_remaining":60,"error":"API Key Required"}',
+		);
 	}
 }
