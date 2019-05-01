@@ -416,7 +416,7 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'seo-tools' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
-												href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl }
+												href={ 'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl }
 											>
 												{ __( 'Configure site SEO' ) }
 											</Button>
@@ -455,7 +455,7 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'google-analytics' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-												href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl }
+												href={ 'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl }
 											>
 												{ __( 'Configure Google Analytics' ) }
 											</Button>
@@ -641,7 +641,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-									href={ 'https://wordpress.com/sharing/' + this.props.siteRawUrl }
+									href={ 'https://wordpress.com/marketing/connections/' + this.props.siteRawUrl }
 								>
 									{ __( 'Start publicizing now' ) }
 								</Button>
