@@ -15,6 +15,11 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 		self::$subscriber_user_id = $factory->user->create( array( 'role' => 'subscriber' ) );
 		Jetpack_Options::update_option( 'mapbox_api_key', 'ABC' );
 
+	}
+
+	public function setUp() {
+		parent::setUp();
+
 		add_filter( 'pre_http_request', array( __CLASS__, 'do_not_verify_mapbox' ), 10, 3 );
 	}
 
