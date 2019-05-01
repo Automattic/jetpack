@@ -52,6 +52,12 @@ class Bootstrap {
 		} // or raise exception??
 
 		define( 'Jetpack_V7_Core_Loaded', true );
+
+		// load compat
+		// load constants
+		// check WP version
+		// etc
+
 	}
 
 	public function loaded() {

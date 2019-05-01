@@ -14,13 +14,14 @@
 
 define( 'JETPACK__VERSION',            '7.2-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
-define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE',        __FILE__ );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
 defined( 'JETPACK__SANDBOX_DOMAIN' ) or define( 'JETPACK__SANDBOX_DOMAIN', '' );
 
 // always load this
+
+// TODO: use a filter to look up the loader - thanks Eric!
 $loader = require JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
 
 // by making this check first, we never load the Bootstrap class more than once
@@ -28,6 +29,9 @@ if ( ! defined( 'Jetpack_V7_Core_Loaded' ) ) {
 	// this should autoload the bootstrap file
 	$plugin = new \Jetpack\V7\Core\Bootstrap();
 	$plugin->load();
+} else {
+	// $loader->addClassMap ?? reuse existing loading instance
+
 }
 
 // classes to load:
