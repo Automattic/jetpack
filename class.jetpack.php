@@ -6999,6 +6999,10 @@ p {
 			return sanitize_key( $_GET['calypso_env'] );
 		}
 
+		if ( getenv( 'CALYPSO_ENV' ) ) {
+			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
+		}
+
 		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
 			return sanitize_key( CALYPSO_ENV );
 		}
