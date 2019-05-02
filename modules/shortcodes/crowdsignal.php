@@ -734,7 +734,12 @@ if (
 				return $content;
 			}
 
-			return preg_replace( '!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='//static.polldaddy.com/p/$2.js'></script><noscript> <a href='https://poll.fm/$2'>View Poll</a></noscript>\n", $content ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			return jetpack_preg_replace_outside_tags(
+				'!(?:\n|\A)https?://(polldaddy\.com/poll|poll\.fm)/([0-9]+?)(/.*)?(?:\n|\Z)!i',
+				"\n<script type='text/javascript' charset='utf-8' src='//static.polldaddy.com/p/$2.js'></script><noscript> <a href='https://poll.fm/$2'>View Poll</a></noscript>\n", // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+				$content,
+				'polldaddy.com/poll'
+			);
 		}
 
 		// higher priority because we need it before auto-link and autop get to it.
