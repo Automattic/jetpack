@@ -355,7 +355,7 @@ class Jetpack_Debug_Data {
 		$user = new WP_User( $master_user );
 
 		if ( ! $user ) {
-			return 'Master user no longer exists. Please disconnect and reconnect Jetpack.';
+			return __( 'Master user no longer exists. Please disconnect and reconnect Jetpack.', 'jetpack' );
 		}
 
 		return sprintf( '#%1$d %2$s (%3$s)', $user->ID, $user->user_login, $user->user_email ); // Format: "#1 username (user@example.com)".
