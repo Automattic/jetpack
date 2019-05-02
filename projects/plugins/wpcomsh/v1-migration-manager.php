@@ -19,7 +19,7 @@ class V1_Migration_Manager {
 			$at_options['v1_migration_options'] ?? [],
 			[
 				'migration_active'        => false,
-				'maintenance_mode'        => true,
+				'maintenance_mode'        => false,
 				'media_backfill_active'   => true,
 				'show_maintenance_notice' => false,
 				'migration_window_start'  => date('Y-m-d H:i:s'),
@@ -35,6 +35,7 @@ class V1_Migration_Manager {
 			add_action( 'wp_footer',     [ $this, 'show_adminbar_notice' ] );
 			add_action( 'admin_notices', [ $this, 'display_migration_notice' ] );
 			add_action( 'admin_notices', [ $this, 'display_upcoming_migration_notice' ] );
+			$this->handle_migration_lock_request();
 		}
 
 		$this->handle_checksum_request();
@@ -50,7 +51,11 @@ class V1_Migration_Manager {
 			return false;
 		}
 
-		$migration_activated = $this->options['migration_active'];
+		$migration_activated = get_option( 'wpcom_atomic_migration_lock', false );
+		if ( ! $migration_activated ) {
+			$migratino_activeated = $this->options['migration_active'];
+		}
+
 		if ( $migration_activated && time() < intval( $migration_activated ) ) {
 			return true;
 		}
@@ -218,6 +223,29 @@ class V1_Migration_Manager {
 							"SELECT MD5( CONCAT_WS( ',', `ID`, `post_title`, `guid`, `post_content` ) ) as `checksum` FROM $wpdb->posts ORDER BY `ID` DESC"
 					) ) );
 					die();
+			}
+		}
+	}
+
+	/** 
+	 * Toggles migration lock
+	 */
+	public function handle_migration_lock_request() {
+		if ( 
+			! empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
+			'some-super-secret-value-anyone-can-find' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] 
+		) {
+			$uri = $_SERVER[ 'REQUEST_URI' ];
+
+			if ( '/wp-json/wp/v2/av1-migration-lock' ) {
+				$enable = $_GET[ 'enable' ];
+				if ( $enable )  {
+					$migration_timeout = strtotime( '+2 hours' );
+					set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
+				} else {
+					delete_option( 'wpcom_atomic_migration_lock' );
+				}
+				die();
 			}
 		}
 	}
