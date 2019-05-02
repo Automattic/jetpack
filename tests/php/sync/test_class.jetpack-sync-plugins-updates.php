@@ -48,6 +48,10 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_a_plugin_is_synced() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$plugin_defaults = array(
 			'title'  => '',
 			'url'    => '',
@@ -72,6 +76,10 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$plugin_defaults = array(
 			'title'  => '',
 			'url'    => '',
@@ -101,6 +109,10 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		 */
 		$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2" );
 
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$this->server_event_storage->reset();
 		$plugin_defaults = array(
 			'title'  => '',
@@ -126,6 +138,10 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_error_in_bulk_is_synced() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$plugin_defaults = array(
 			'title'  => '',
 			'url'    => '',
@@ -151,6 +167,10 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$plugin_defaults = array(
 			'title'  => '',
 			'url'    => '',
@@ -171,6 +191,10 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_with_autoupdate_constant_results_in_proper_state() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$plugin_defaults = array(
 			'title'  => '',
 			'url'    => '',

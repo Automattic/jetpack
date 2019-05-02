@@ -116,5 +116,139 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	function pre_http_request_success() {
 		return array( 'body' => json_encode( array( 'success' => true ) ) );
 	}
-}
 
+	public static function mock_plugins_update_request() {
+		add_filter( 'pre_http_request', array( __CLASS__, 'pre_http_request_plugins_update' ), 10, 3 );
+	}
+
+	public static function unmock_plugins_update_request() {
+		remove_filter( 'pre_http_request', array( __CLASS__, 'pre_http_request_plugins_update' ), 10, 3 );
+	}
+
+	public static function pre_http_request_plugins_update( $response, $args, $url ) {
+		if ( 'https://api.wordpress.org/plugins/update-check/1.1/' !== $url ) {
+			return $response;
+		}
+
+		$version = explode( '-', JETPACK__VERSION );
+		$version = $version[0];
+
+		$body = <<<BODY
+{
+  "plugins": {
+    "jetpack/jetpack.php": {
+      "id": "w.org/plugins/jetpack",
+      "slug": "jetpack",
+      "plugin": "jetpack/jetpack.php",
+      "new_version": "{$version}",
+      "url": "https://wordpress.org/plugins/jetpack/",
+      "package": "https://downloads.wordpress.org/plugin/jetpack.{$version}.zip",
+      "icons": {
+        "2x": "https://ps.w.org/jetpack/assets/icon-256x256.png?rev=1791404",
+        "1x": "https://ps.w.org/jetpack/assets/icon.svg?rev=1791404",
+        "svg": "https://ps.w.org/jetpack/assets/icon.svg?rev=1791404"
+      },
+      "banners": {
+        "2x": "https://ps.w.org/jetpack/assets/banner-1544x500.png?rev=1791404",
+        "1x": "https://ps.w.org/jetpack/assets/banner-772x250.png?rev=1791404"
+      },
+      "banners_rtl": []
+    }
+  },
+  "translations": [],
+  "no_update": {}
+}
+BODY;
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body' => $body,
+		);
+	}
+
+	public static function mock_themes_update_request() {
+		add_filter( 'pre_http_request', array( __CLASS__, 'pre_http_request_themes_update' ), 10, 3 );
+	}
+
+	public static function unmock_themes_update_request() {
+		add_filter( 'pre_http_request', array( __CLASS__, 'pre_http_request_themes_update' ), 10, 3 );
+	}
+
+	public static function pre_http_request_themes_update( $response, $args, $url ) {
+		if ( 'https://api.wordpress.org/themes/update-check/1.1/' !== $url ) {
+			return $response;
+		}
+
+		$body = <<<BODY
+{
+  "themes": {
+    "noop": {
+      "theme": "noop",
+      "new_version": "0.0.1",
+      "url": "https://wordpress.org/themes/noop/",
+      "package": "https://downloads.wordpress.org/theme/default.0.0.1.zip"
+    }
+  },
+  "translations": []
+}
+BODY;
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body' => $body,
+		);
+	}
+
+	public static function mock_core_update_request() {
+		add_filter( 'pre_http_request', array( __CLASS__, 'pre_http_request_core_update' ), 10, 3 );
+	}
+
+	public static function unmock_core_update_request() {
+		remove_filter( 'pre_http_request', array( __CLASS__, 'pre_http_request_core_update' ), 10, 3 );
+	}
+
+	public static function pre_http_request_core_update( $response, $args, $url ) {
+		if ( 0 !== strpos( $url, 'https://api.wordpress.org/core/version-check/1.7/?' ) ) {
+			return $response;
+		}
+
+		$version = $GLOBALS['wp_version'];
+
+		$body = <<<BODY
+{
+  "offers": [
+    {
+      "response": "latest",
+      "download": "https://downloads.wordpress.org/release/wordpress-{$version}.zip",
+      "locale": "en_US",
+      "packages": {
+        "full": "https://downloads.wordpress.org/release/wordpress-{$version}.zip",
+        "no_content": "https://downloads.wordpress.org/release/wordpress-{$version}-no-content.zip",
+        "new_bundled": "https://downloads.wordpress.org/release/wordpress-{$version}-new-bundled.zip",
+        "partial": false,
+        "rollback": false
+      },
+      "current": "{$version}",
+      "version": "{$version}",
+      "php_version": "{$GLOBALS['required_php_version']}",
+      "mysql_version": "{$GLOBALS['required_mysql_version']}",
+      "new_bundled": "1.0",
+      "partial_version": false
+    }
+  ],
+  "translations": []
+}
+BODY;
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body' => $body,
+		);
+	}
+}

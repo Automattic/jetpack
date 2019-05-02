@@ -191,6 +191,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	static function install_the_plugin() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -207,6 +211,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		);
 		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
 		$upgrader->install( ABSPATH . self::PLUGIN_ZIP );
+
+		self::unmock_themes_update_request();
+		self::unmock_plugins_update_request();
+		self::unmock_core_update_request();
 	}
 
 	function set_update_plugin_transient( $transient ) {
