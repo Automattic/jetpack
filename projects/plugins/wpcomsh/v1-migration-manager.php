@@ -13,6 +13,8 @@ class V1_Migration_Manager {
 
 	public $at_options;
 
+	public $migration_activated;
+
 	public function __construct( $at_options ) {
 		$this->at_options = $at_options; 
 		$this->options = wp_parse_args(
@@ -29,7 +31,7 @@ class V1_Migration_Manager {
 			]
 		);
 
-		$this->migration_actived = get_option( 'wpcom_atomic_migration_lock', false );
+		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock', false );
 		if ( ! $this->migration_activated ) {
 			$this->migration_activated = $this->options['migration_active'];
 		}
