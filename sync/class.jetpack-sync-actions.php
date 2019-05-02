@@ -452,6 +452,7 @@ class Jetpack_Sync_Actions {
 		$checksums       = $store->checksum_all();
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
+
 		return array_merge(
 			$full_sync_status,
 			array(
