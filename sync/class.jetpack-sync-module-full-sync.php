@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
-		add_action( 'jetpack_full_sync_start', $callable, 10, 2 );
+		add_action( 'jetpack_full_sync_start', $callable, 10, 3 );
 		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
@@ -52,10 +52,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		$enqueue_status   = array();
 		$full_sync_config = array();
-
+		$include_empty = false;
+		$empty = array();
 		// default value is full sync
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
+			$include_empty = true;
 			foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 				$module_configs[ $module->name() ] = true;
 			}
@@ -86,6 +88,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 					0,              // queued
 					false,          // current state
 				);
+			} else if( $include_empty && $total_items === 0 ) {
+				$empty[ $module_name ] = true;
 			}
 		}
 
@@ -100,10 +104,11 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 * @since 7.3.0 Added $range arg.
 		 *
-		 * @param $full_sync_config - array
+		 * @param $full_sync_config
 		 * @param $range array
+		 * @param $empty array
 		 */
-		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
+		do_action( 'jetpack_full_sync_start', $full_sync_config, $range, $empty );
 
 		$this->continue_enqueuing( $full_sync_config, $enqueue_status );
 
