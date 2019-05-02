@@ -1105,7 +1105,10 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		}
 	}
 	foreach( (array) $lines as $line ) {
-		if ( trim( $new ) == trim( $line ) ) {
+		if (
+			trim( $new ) != '' &&
+			trim( $new ) == trim( $line )
+		) {
 			wp_cache_debug( "wp_cache_replace_line: setting not changed - $new" );
 			return false;
 		} elseif ( preg_match( "/$old/", $line ) ) {
