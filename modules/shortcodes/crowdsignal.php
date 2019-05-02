@@ -230,7 +230,10 @@ if (
 
 			self::$add_script = $infinite_scroll;
 
-			if ( intval( $attributes['rating'] ) > 0 && ! $no_script ) { // rating embed.
+			/*
+			 * Rating embed.
+			 */
+			if ( intval( $attributes['rating'] ) > 0 && ! $no_script ) {
 
 				if ( empty( $attributes['unique_id'] ) ) {
 					$attributes['unique_id'] = is_page() ? 'wp-page-' . $post->ID : 'wp-post-' . $post->ID;
@@ -322,7 +325,10 @@ if (
 						);
 					}
 				}
-			} elseif ( intval( $attributes['poll'] ) > 0 ) { // poll embed.
+			} elseif ( intval( $attributes['poll'] ) > 0 ) {
+				/*
+				 * Poll embed.
+				 */
 
 				if ( empty( $attributes['title'] ) ) {
 					$attributes['title'] = esc_html__( 'Take Our Poll', 'jetpack' );
@@ -455,7 +461,10 @@ if (
 						}
 					}
 				}
-			} elseif ( ! empty( $attributes['survey'] ) ) { // survey embed.
+			} elseif ( ! empty( $attributes['survey'] ) ) {
+				/*
+				 * Survey embed.
+				 */
 
 				if ( in_array(
 					$attributes['type'],
