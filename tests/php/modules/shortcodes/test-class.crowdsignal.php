@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a id="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -71,10 +71,167 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a id="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
 		);
+	}
+
+	/**
+	 * Test a basic legacy Polldaddy survey.
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_polldaddy_survey() {
+		$id      = '7676FB1FF2B56CE9';
+		$content = '[polldaddy survey=' . $id . ']';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertEquals(
+			sprintf(
+				'<a class="cs-embed pd-embed" href="https://polldaddy.com/s/%1$s" data-settings="{&quot;title&quot;:&quot;Take Our Survey&quot;,&quot;type&quot;:&quot;button&quot;,&quot;text_color&quot;:&quot;000000&quot;,&quot;back_color&quot;:&quot;FFFFFF&quot;,&quot;id&quot;:&quot;%1$s&quot;,&quot;site&quot;:&quot;polldaddy.com&quot;}">Take Our Survey</a>',
+				$id
+			),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Test a basic Crowdsignal survey.
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_crowdsignal_survey() {
+		$id      = '7676FB1FF2B56CE9';
+		$content = '[crowdsignal survey=' . $id . ']';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertEquals(
+			sprintf(
+				'<a class="cs-embed pd-embed" href="https://survey.fm/%1$s" data-settings="{&quot;title&quot;:&quot;Take Our Survey&quot;,&quot;type&quot;:&quot;button&quot;,&quot;text_color&quot;:&quot;000000&quot;,&quot;back_color&quot;:&quot;FFFFFF&quot;,&quot;id&quot;:&quot;%1$s&quot;,&quot;site&quot;:&quot;crowdsignal.com&quot;}">Take Our Survey</a>',
+				$id
+			),
+			$shortcode_content
+		);
+
+		// Test AMP version. On AMP views, we only show a link.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$shortcode_content = do_shortcode( $content );
+		$this->assertEquals(
+			sprintf(
+				'<a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">Take Our Survey</a>',
+				$id
+			),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Test a Crowdsignal survey in an iFrame.
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_crowdsignal_survey_iframe() {
+		$id      = '7676FB1FF2B56CE9';
+		$content = '[crowdsignal survey=' . $id . ' type="iframe" width="400" height="600"]';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertEquals(
+			sprintf(
+				'<iframe src="https://survey.fm/%1$s?iframe=1" frameborder="0" width="400" height="600" scrolling="auto" allowtransparency="true" marginheight="0" marginwidth="0"><a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">Take Our Survey</a></iframe>',
+				$id
+			),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Test a Crowdsignal survey in an iFrame, using a custom domain name, and a custom title.
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_crowdsignal_survey_iframe_customdomain() {
+		$id      = '7676FB1FF2B56CE9';
+		$domain  = 'jeherve';
+		$name    = 'a-survey';
+		$title   = 'A test survey';
+		$content = sprintf(
+			'[crowdsignal survey="%1$s" type="iframe" width="400" height="auto" domain="%2$s" id="%3$s" title="%4$s"]',
+			$id,
+			$domain,
+			$name,
+			$title
+		);
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertEquals(
+			sprintf(
+				'<div class="cs-embed pd-embed" data-settings="{&quot;type&quot;:&quot;iframe&quot;,&quot;auto&quot;:true,&quot;domain&quot;:&quot;%2$s.survey.fm\/&quot;,&quot;id&quot;:&quot;%3$s&quot;,&quot;site&quot;:&quot;crowdsignal.com&quot;}"></div><noscript><a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">%4$s</a></noscript>',
+				$id,
+				$domain,
+				$name,
+				$title
+			),
+			$shortcode_content
+		);
+	}
+
+	/**
+	 * Test a basic legacy Polldaddy rating.
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_polldaddy_rating() {
+		global $post;
+
+		$id      = 8755352;
+		$content = '[polldaddy rating=' . $id . ']';
+		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+
+		setup_postdata( $post );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+		$this->assertContains(
+			sprintf(
+				'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d_post_%2$d"></div>',
+				$id,
+				$post->ID
+			),
+			$actual
+		);
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Test a basic Crowdsignal rating.
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_crowdsignal_rating() {
+		global $post;
+
+		$id      = 8755352;
+		$content = '[crowdsignal rating=' . $id . ']';
+		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+
+		setup_postdata( $post );
+		ob_start();
+		the_content();
+		$actual = ob_get_clean();
+		$this->assertContains(
+			sprintf(
+				'<div class="cs-rating pd-rating" id="pd_rating_holder_%1$d_post_%2$d"></div>',
+				$id,
+				$post->ID
+			),
+			$actual
+		);
+		wp_reset_postdata();
 	}
 }
