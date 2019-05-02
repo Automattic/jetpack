@@ -183,7 +183,7 @@ class Jetpack_Debug_Data {
 
 		$debug_info['current_user'] = array(
 			'label'   => 'Current User',
-			'value'   => $user_id,
+			'value'   => self::human_readable_user( $user_id ),
 			'private' => false,
 		);
 		$debug_info['tokens_set']   = array(
@@ -357,6 +357,19 @@ class Jetpack_Debug_Data {
 		if ( ! $user ) {
 			return 'Master user no longer exists. Please disconnect and reconnect Jetpack.';
 		}
+
+		return self::human_readable_user( $user );
+	}
+
+	/**
+	 * Return human readable string for a given user object.
+	 *
+	 * @param WP_User|int $user Object or ID.
+	 *
+	 * @return string
+	 */
+	private function human_readable_user( $user ) {
+		$user = new WP_User( $user );
 
 		return sprintf( '#%1$d %2$s (%3$s)', $user->ID, $user->user_login, $user->user_email ); // Format: "#1 username (user@example.com)".
 	}
