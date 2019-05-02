@@ -314,7 +314,7 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	private function get_calypso_origin() {
-		$origin = $_GET[ 'origin' ];
+		$origin    = ! empty( $_GET['origin'] ) ? $_GET['origin'] : 'https://wordpress.com';
 		$whitelist = array(
 			'http://calypso.localhost:3000',
 			'http://127.0.0.1:41050', // Desktop App
