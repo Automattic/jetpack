@@ -25,7 +25,7 @@ class PublicizeSettingsButton extends Component {
 
 		// If running in WP.com wp-admin or in Calypso, we redirect to Calypso sharing settings.
 		if ( siteFragment ) {
-			return `https://wordpress.com/sharing/${ siteFragment }`;
+			return `https://wordpress.com/marketing/connections/${ siteFragment }`;
 		}
 
 		// If running in WordPress.org wp-admin we redirect to Sharing settings in wp-admin.
