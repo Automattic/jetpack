@@ -156,7 +156,7 @@ class Jetpack_Debug_Data {
 		);
 		$debug_info['master_user']    = array(
 			'label'   => 'Jetpack Master User',
-			'value'   => Jetpack_Options::get_option( 'master_user' ),
+			'value'   => self::human_readable_master_user(),
 			'private' => false,
 		);
 
@@ -348,5 +348,26 @@ class Jetpack_Debug_Data {
 		}
 
 		return $debug_info;
+	}
+
+	/**
+	 * Returns a human readable string for which user is the master user.
+	 *
+	 * @return string
+	 */
+	private function human_readable_master_user() {
+		$master_user = Jetpack_Options::get_option( 'master_user' );
+
+		if ( ! $master_user ) {
+			return 'No master user set.';
+		}
+
+		$user = new WP_User( $master_user );
+
+		if ( ! $user ) {
+			return 'Master user no longer exists. Please disconnect and reconnect Jetpack.';
+		}
+
+		return sprintf( '#%1$d %2$s (%3$s)', $user->ID, $user->user_login, $user->user_email ); // Format: "#1 username (user@example.com)".
 	}
 }
