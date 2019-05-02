@@ -6995,7 +6995,7 @@ p {
 	 * @return string Calypso environment
 	 */
 	public static function get_calypso_env() {
-		if ( ! empty( $_GET['calypso_env'] ) ) {
+		if ( isset( $_GET['calypso_env'] ) ) {
 			return sanitize_key( $_GET['calypso_env'] );
 		}
 
