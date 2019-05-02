@@ -203,7 +203,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function enqueue_scripts() {
 		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-		$version = gmdate( 'YW' );
+		$version = '20190502032107';
 
 		$src_common = $debug
 			? '//widgets.wp.com/wpcom-block-editor/common.js?minify=false'
