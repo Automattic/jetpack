@@ -100,6 +100,10 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_API_Plugins_Install_Endpoint() {
+		if ( is_multisite() ) {
+			wp_get_current_user()->set_role( 'manage_network');
+		}
+
 		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 			'stat'            => 'plugins:1:new',
 			'method'          => 'POST',
