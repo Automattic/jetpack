@@ -29,7 +29,7 @@ class V1_Migration_Manager {
 			]
 		);
 
-		$this->migration_active = get_option( 'wpcom_atomic_migration_lock', false );
+		$this->migration_actived = get_option( 'wpcom_atomic_migration_lock', false );
 		if ( ! $this->migration_activated ) {
 			$this->migration_activated = $this->options['migration_active'];
 		}
