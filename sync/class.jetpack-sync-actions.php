@@ -456,10 +456,10 @@ class Jetpack_Sync_Actions {
 		return array_merge(
 			$full_sync_status,
 			array(
-				'posts_checksum'        => $checksums['posts'],
-				'comments_checksum'     => $checksums['comments'],
-				'post_meta_checksum'    => $checksums['post_meta'],
-				'comment_meta_checksum' => $checksums['comment_meta'],
+				'posts_checksum'        => (string) $checksums['posts'],
+				'comments_checksum'     => (string) $checksums['comments'],
+				'post_meta_checksum'    => (string) $checksums['post_meta'],
+				'comment_meta_checksum' => (string) $checksums['comment_meta'],
 				'cron_size'             => count( $cron_timestamps ),
 				'next_cron'             => $next_cron,
 				'queue_size'            => $queue->size(),
