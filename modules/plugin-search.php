@@ -446,13 +446,13 @@ class Jetpack_Plugin_Search {
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$configure_url = "https://wordpress.com/sharing/$siteFragment";
+				$configure_url = "https://wordpress.com/marketing/connections/$siteFragment";
 				break;
 			case 'seo-tools':
-				$configure_url = "https://wordpress.com/settings/traffic/$siteFragment#seo";
+				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#seo";
 				break;
 			case 'google-analytics':
-				$configure_url = "https://wordpress.com/settings/traffic/$siteFragment#analytics";
+				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#analytics";
 				break;
 			case 'wordads':
 				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";

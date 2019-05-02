@@ -52,7 +52,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }
+							href={ 'https://wordpress.com/marketing/sharing-buttons/' + siteRawUrl }
 						>
 							{ __( 'Configure your sharing buttons' ) }
 						</Card>
