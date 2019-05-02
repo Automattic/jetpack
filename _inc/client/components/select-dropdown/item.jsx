@@ -3,14 +3,15 @@
 /**
  * External Dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-const Count = require( 'components/count' );
+import Count from 'components/count';
 
 class SelectDropdownItem extends React.Component {
 	static propTypes = {
@@ -18,18 +19,18 @@ class SelectDropdownItem extends React.Component {
 		path: PropTypes.string,
 		selected: PropTypes.bool,
 		onClick: PropTypes.func,
-		count: PropTypes.number
+		count: PropTypes.number,
 	};
 
 	static defaultProps = {
-		selected: false
+		selected: false,
 	};
 
 	render() {
 		const optionClassName = classNames( this.props.className, {
 			'dops-select-dropdown__item': true,
 			'is-selected': this.props.selected,
-			'is-disabled': this.props.disabled
+			'is-disabled': this.props.disabled,
 		} );
 
 		return (
@@ -42,13 +43,11 @@ class SelectDropdownItem extends React.Component {
 					data-bold-text={ this.props.value || this.props.children }
 					role="option"
 					tabIndex={ 0 }
-					aria-selected={ this.props.selected } >
+					aria-selected={ this.props.selected }
+				>
 					<span className="dops-select-dropdown__item-text">
 						{ this.props.children }
-						{
-							'number' === typeof this.props.count &&
-							<Count count={ this.props.count } />
-						}
+						{ 'number' === typeof this.props.count && <Count count={ this.props.count } /> }
 					</span>
 				</a>
 			</li>
@@ -56,4 +55,4 @@ class SelectDropdownItem extends React.Component {
 	}
 }
 
-module.exports = SelectDropdownItem;
+export default SelectDropdownItem;

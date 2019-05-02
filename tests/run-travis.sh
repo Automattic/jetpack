@@ -4,7 +4,13 @@ echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
+	# Run a external-html group tests
+	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+		export WP_TRAVISCI = "phpunit --group external-http"
+	fi
+
 	echo "Running phpunit with:"
+	echo " - $(phpunit --version)"
 	echo " - WordPress mode: $WP_MODE"
 	echo " - WordPress branch: $WP_BRANCH"
 
@@ -31,11 +37,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		fi
 	fi
 else
-
-	gem install sass
-	gem install compass
-	yarn
-
+	# Run linter/tests
 	if $WP_TRAVISCI; then
 		# Everything is fine
 		:

@@ -23,7 +23,7 @@ var jetpackLazyImagesModule = function( $ ) {
 	} );
 
 	function lazy_load_init() {
-		images = document.querySelectorAll( 'img[data-lazy-src]' );
+		images = document.querySelectorAll( 'img.jetpack-lazy-image:not(.jetpack-lazy-image--handled)' );
 		imageCount = images.length;
 
 		// If initialized, then disconnect the observer
@@ -97,7 +97,6 @@ var jetpackLazyImagesModule = function( $ ) {
 	 */
 	function applyImage( image ) {
 		var theImage = $( image ),
-			src,
 			srcset,
 			sizes,
 			theClone;
@@ -106,26 +105,21 @@ var jetpackLazyImagesModule = function( $ ) {
 			return;
 		}
 
-		src = theImage.attr( 'data-lazy-src' );
-		if ( ! src ) {
-			return;
-		}
-
 		srcset = theImage.attr( 'data-lazy-srcset' );
 		sizes = theImage.attr( 'data-lazy-sizes' );
 		theClone = theImage.clone();
 
 		// Remove lazy attributes from the clone.
-		theClone.removeAttr( 'data-lazy-src' ),
 		theClone.removeAttr( 'data-lazy-srcset' ),
 		theClone.removeAttr( 'data-lazy-sizes' );
+		theClone.removeAttr( 'data-lazy-src' );
 
 		// Add the attributes we want on the finished image.
 		theClone.addClass( 'jetpack-lazy-image--handled' );
 		theClone.attr( 'data-lazy-loaded', 1 );
-		theClone.attr( 'src', src );
-
-		if ( srcset ) {
+		if ( ! srcset ) {
+			theClone.removeAttr( 'srcset' );
+		} else {
 			theClone.attr( 'srcset', srcset );
 		}
 		if ( sizes ) {

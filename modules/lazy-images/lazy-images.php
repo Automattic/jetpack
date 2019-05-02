@@ -40,6 +40,10 @@ class Jetpack_Lazy_Images {
 			return;
 		}
 
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
@@ -102,11 +106,6 @@ class Jetpack_Lazy_Images {
 			return $content;
 		}
 
-		// Don't lazyload for amp-wp content
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
-			return $content;
-		}
-
 		// This is a pretty simple regex, but it works
 		$content = preg_replace_callback( '#<(img)([^>]+?)(>(.*?)</\\1>|[\/]?>)#si', array( __CLASS__, 'process_image' ), $content );
 
@@ -162,7 +161,7 @@ class Jetpack_Lazy_Images {
 	 * @return string The image with updated lazy attributes
 	 */
 	static function process_image( $matches ) {
-		$old_attributes_str = $matches[2];
+		$old_attributes_str       = $matches[2];
 		$old_attributes_kses_hair = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
 
 		if ( empty( $old_attributes_kses_hair['src'] ) ) {
@@ -170,16 +169,13 @@ class Jetpack_Lazy_Images {
 		}
 
 		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
-		$new_attributes = self::process_image_attributes( $old_attributes );
 
 		// If we didn't add lazy attributes, just return the original image source.
-		if ( empty( $new_attributes['data-lazy-src'] ) ) {
+		if ( ! empty( $old_attributes['class'] ) && false !== strpos( $old_attributes['class'], 'jetpack-lazy-image' ) ) {
 			return $matches[0];
 		}
 
-		// Ensure we add the jetpack-lazy-image class to this image.
-		$new_attributes['class'] = sprintf( '%s jetpack-lazy-image', empty( $new_attributes['class'] ) ? '' : $new_attributes['class'] );
-
+		$new_attributes     = self::process_image_attributes( $old_attributes );
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
 		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
@@ -237,21 +233,25 @@ class Jetpack_Lazy_Images {
 
 		$old_attributes = $attributes;
 
-		// Set placeholder and lazy-src
-		$attributes['src'] = self::get_placeholder_image();
-		$attributes['data-lazy-src'] = $old_attributes['src'];
-
-		// Handle `srcset`
-		if ( ! empty( $attributes['srcset'] ) ) {
-			$attributes['data-lazy-srcset'] = $old_attributes['srcset'];
-			unset( $attributes['srcset'] );
+		// Stash srcset and sizes in data attributes.
+		foreach ( array( 'srcset', 'sizes' ) as $attribute ) {
+			if ( isset( $old_attributes[ $attribute ] ) ) {
+				$attributes[ "data-lazy-$attribute" ] = $old_attributes[ $attribute ];
+				unset( $attributes[ $attribute ] );
+			}
 		}
 
-		// Handle `sizes`
-		if ( ! empty( $attributes['sizes'] ) ) {
-			$attributes['data-lazy-sizes'] = $old_attributes['sizes'];
-			unset( $attributes['sizes'] );
-		}
+		// We set this, adding the query arg so that it doesn't exactly equal the src attribute, so that photon JavaScript
+		// will hold off on processing this image.
+		$attributes['data-lazy-src'] = esc_url_raw( add_query_arg( 'is-pending-load', true, $attributes['src'] ) );
+
+		$attributes['srcset'] = self::get_placeholder_image();
+		$attributes['class']  = sprintf(
+			'%s jetpack-lazy-image',
+			empty( $old_attributes['class'] )
+				? ''
+				: $old_attributes['class']
+		);
 
 		/**
 		 * Allow plugins and themes to override the attributes on the image before the content is updated.
@@ -280,7 +280,8 @@ class Jetpack_Lazy_Images {
 	public function add_nojs_fallback() {
 		?>
 			<style type="text/css">
-				html:not( .jetpack-lazy-images-js-enabled ) .jetpack-lazy-image {
+				/* If html does not have either class, do not show lazy loaded images. */
+				html:not( .jetpack-lazy-images-js-enabled ):not( .js ) .jetpack-lazy-image {
 					display: none;
 				}
 			</style>
@@ -338,9 +339,6 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			Jetpack::get_file_url_for_environment(

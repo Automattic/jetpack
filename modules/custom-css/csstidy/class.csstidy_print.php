@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable PHPCompatibility
 /**
  * CSSTidy - CSS Parser and Optimiser
  *

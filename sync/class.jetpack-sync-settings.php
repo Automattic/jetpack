@@ -6,24 +6,26 @@ class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(
-		'dequeue_max_bytes'       => true,
-		'upload_max_bytes'        => true,
-		'upload_max_rows'         => true,
-		'sync_wait_time'          => true,
-		'sync_wait_threshold'     => true,
-		'enqueue_wait_time'       => true,
-		'max_queue_size'          => true,
-		'max_queue_lag'           => true,
-		'queue_max_writes_sec'    => true,
-		'post_types_blacklist'    => true,
-		'disable'                 => true,
-		'render_filtered_content' => true,
-		'post_meta_whitelist'     => true,
-		'comment_meta_whitelist'  => true,
-		'max_enqueue_full_sync'   => true,
-		'max_queue_size_full_sync'=> true,
-		'sync_via_cron'           => true,
-		'cron_sync_time_limit'    => true,
+		'dequeue_max_bytes'        => true,
+		'upload_max_bytes'         => true,
+		'upload_max_rows'          => true,
+		'sync_wait_time'           => true,
+		'sync_wait_threshold'      => true,
+		'enqueue_wait_time'        => true,
+		'max_queue_size'           => true,
+		'max_queue_lag'            => true,
+		'queue_max_writes_sec'     => true,
+		'post_types_blacklist'     => true,
+		'disable'                  => true,
+		'network_disable'          => true,
+		'render_filtered_content'  => true,
+		'post_meta_whitelist'      => true,
+		'comment_meta_whitelist'   => true,
+		'max_enqueue_full_sync'    => true,
+		'max_queue_size_full_sync' => true,
+		'sync_via_cron'            => true,
+		'cron_sync_time_limit'     => true,
+		'known_importers'          => true,
 	);
 
 	static $is_importing;
@@ -53,19 +55,34 @@ class Jetpack_Sync_Settings {
 			return self::$settings_cache[ $setting ];
 		}
 
-		$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
+		if ( self::is_network_setting( $setting ) ) {
+			if ( is_multisite() ) {
+				$value = get_site_option( self::SETTINGS_OPTION_PREFIX . $setting );
+			} else {
+				// On single sites just return the default setting
+				$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+				self::$settings_cache[ $setting ] = $value;
+				return $value;
+			}
+		} else {
+			$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
+		}
 
-		if ( false === $value ) {
-			$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-			$value        = Jetpack_Sync_Defaults::$$default_name;
-			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+		if ( false === $value ) { // no default value is set.
+			$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+			if ( self::is_network_setting( $setting ) ) {
+				update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+			} else {
+				// We set one so that it gets autoloaded
+				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+			}
 		}
 
 		if ( is_numeric( $value ) ) {
 			$value = intval( $value );
 		}
 		$default_array_value = null;
-		switch( $setting ) {
+		switch ( $setting ) {
 			case 'post_types_blacklist':
 				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
 				break;
@@ -74,6 +91,9 @@ class Jetpack_Sync_Settings {
 				break;
 			case 'comment_meta_whitelist':
 				$default_array_value = Jetpack_Sync_Defaults::get_comment_meta_whitelist();
+				break;
+			case 'known_importers':
+				$default_array_value = Jetpack_Sync_Defaults::get_known_importers();
 				break;
 		}
 
@@ -93,17 +113,29 @@ class Jetpack_Sync_Settings {
 	static function update_settings( $new_settings ) {
 		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
 		foreach ( $validated_settings as $setting => $value ) {
-			update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+
+			if ( self::is_network_setting( $setting ) ) {
+				if ( is_multisite() && is_main_site() ) {
+					update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+				}
+			} else {
+				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+			}
+
 			unset( self::$settings_cache[ $setting ] );
 
 			// if we set the disabled option to true, clear the queues
-			if ( 'disable' === $setting && !! $value ) {
+			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
 				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
 			}
 		}
+	}
+
+	static function is_network_setting( $setting ) {
+		return strpos( $setting, 'network_' ) === 0;
 	}
 
 	// returns escapted SQL that can be injected into a WHERE clause
@@ -136,7 +168,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function set_importing( $is_importing ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_importing = $is_importing;
 	}
 
@@ -148,8 +180,12 @@ class Jetpack_Sync_Settings {
 		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
 	}
 
+	static function is_sync_enabled() {
+		return ! ( self::get_setting( 'disable' ) || self::get_setting( 'network_disable' ) );
+	}
+
 	static function set_doing_cron( $is_doing_cron ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		// set to NULL to revert to WP_IMPORTING, the standard behavior
 		self::$is_doing_cron = $is_doing_cron;
 	}
 

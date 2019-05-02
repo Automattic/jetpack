@@ -3,7 +3,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	public $image;
 
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
-		$this->image = $attachment_image;
+		$this->image     = $attachment_image;
 		$this->grayscale = $grayscale;
 
 		$this->image_title = $this->image->post_title;
@@ -19,7 +19,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		}
 
 		$this->orig_file = wp_get_attachment_url( $this->image->ID );
-		$this->link = $needs_attachment_link
+		$this->link      = $needs_attachment_link
 			? get_attachment_link( $this->image->ID )
 			// The filter will photonize the URL if and only if Photon is active
 			: apply_filters( 'jetpack_photon_url', $this->orig_file );
@@ -38,12 +38,13 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	}
 
 	public function fuzzy_image_meta() {
-		$meta = wp_get_attachment_metadata( $this->image->ID );
+		$meta     = wp_get_attachment_metadata( $this->image->ID );
 		$img_meta = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' == $k || 'longitude' == $k )
-					unset( $img_meta[$k] );
+				if ( 'latitude' == $k || 'longitude' == $k ) {
+					unset( $img_meta[ $k ] );
+				}
 			}
 		}
 
@@ -67,8 +68,8 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	}
 
 	public function large_file() {
-		$large_file_info  = wp_get_attachment_image_src( $this->image->ID, 'large' );
-		$large_file       = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
+		$large_file_info = wp_get_attachment_image_src( $this->image->ID, 'large' );
+		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 		return $large_file;
 	}
 }
@@ -80,15 +81,25 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
 
 		$this->size = 'large';
 
-		if ( $this->image->width < 250 )
+		if ( $this->image->width < 250 ) {
 			$this->size = 'small';
+		}
 	}
 }
 
 class Jetpack_Tiled_Gallery_Square_Item extends Jetpack_Tiled_Gallery_Item {
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
 		parent::__construct( $attachment_image, $needs_attachment_link, $grayscale );
-		$this->img_src_grayscale = jetpack_photon_url( $this->img_src, array( 'filter' => 'grayscale', 'resize' => array( $this->image->width, $this->image->height ) ) );
+		$this->img_src_grayscale = jetpack_photon_url(
+			$this->img_src,
+			array(
+				'filter' => 'grayscale',
+				'resize' => array(
+					$this->image->width,
+					$this->image->height,
+				),
+			)
+		);
 	}
 }
 

@@ -12,7 +12,7 @@
 wp_embed_register_handler( 'medium', '#^https?://medium.com/([a-zA-z0-9-_@]+)#', 'jetpack_embed_medium_oembed' );
 
 function jetpack_embed_medium_oembed( $matches, $attr, $url ) {
-	$attr = jetpack_embed_medium_args( $attr );
+	$attr        = jetpack_embed_medium_args( $attr );
 	$attr['url'] = $url;
 
 	return jetpack_embed_medium_embed_html( $attr );
@@ -50,7 +50,7 @@ function jetpack_embed_medium_get_embed_type( $url ) {
 	$url_path = parse_url( $url, PHP_URL_PATH );
 	if ( preg_match( '/^\/@[\.\w]+$/', $url_path ) ) {
 		return 'profile';
-	} else if ( preg_match( '/^\/[\da-zA-Z-]+$/', $url_path ) ) {
+	} elseif ( preg_match( '/^\/[\da-zA-Z-]+$/', $url_path ) ) {
 		return 'collection';
 	}
 
@@ -58,10 +58,14 @@ function jetpack_embed_medium_get_embed_type( $url ) {
 }
 
 function jetpack_embed_medium_args( $atts ) {
-	return shortcode_atts( array(
-		'url' => '',
-		'width' => '400',
-		'border' => true,
-		'collapsed' => false,
-	), $atts, 'medium' );
+	return shortcode_atts(
+		array(
+			'url'       => '',
+			'width'     => '400',
+			'border'    => true,
+			'collapsed' => false,
+		),
+		$atts,
+		'medium'
+	);
 }

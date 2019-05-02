@@ -8,12 +8,12 @@ import Card from 'components/card';
 /**
  * Internal dependencies
  */
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const Masterbar = moduleSettingsForm(
+export const Masterbar = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),
@@ -25,14 +25,15 @@ export const Masterbar = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'WordPress.com toolbar', { context: 'Settings header' } ) }
 					module="masterbar"
-					hideButton>
+					hideButton
+				>
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'masterbar' } }
 						support={ {
 							link: 'https://jetpack.com/support/masterbar/',
 						} }
-						>
+					>
 						<p>
 							{ __(
 								'The WordPress.com toolbar replaces the default WordPress ' +
@@ -47,23 +48,20 @@ export const Masterbar = moduleSettingsForm(
 							disabled={ unavailableInDevMode || ! isLinked }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
-							toggleModule={ this.props.toggleModuleNow }>
+							toggleModule={ this.props.toggleModuleNow }
+						>
 							{ __( 'Enable the WordPress.com toolbar' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{
-						( ! this.props.isUnavailableInDevMode( 'masterbar' ) && ! this.props.isLinked ) && (
-							<Card
-								compact
-								className="jp-settings-card__configure-link"
-								href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
-							>
-								{
-									__( 'Connect your user account to WordPress.com to use this feature' )
-								}
-							</Card>
-						)
-					}
+					{ ! this.props.isUnavailableInDevMode( 'masterbar' ) && ! this.props.isLinked && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
+						>
+							{ __( 'Create a Jetpack account to use this feature' ) }
+						</Card>
+					) }
 				</SettingsCard>
 			);
 		}

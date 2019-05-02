@@ -3,16 +3,17 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import omit from 'lodash/omit';
-import forOwn from 'lodash/forOwn';
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty, forOwn, omit } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
 
 export const FormFieldset = props => {
 	return (
-		<fieldset { ...omit( props, 'className' ) } className={ classNames( props.className, 'jp-form-fieldset' ) } >
+		<fieldset
+			{ ...omit( props, 'className' ) }
+			className={ classNames( props.className, 'jp-form-fieldset' ) }
+		>
 			{ props.children }
 		</fieldset>
 	);
@@ -24,7 +25,11 @@ export class FormLabel extends React.Component {
 	render() {
 		const { className, htmlFor, ...otherProps } = this.props;
 		return (
-			<label { ...otherProps } htmlFor={ htmlFor } className={ classNames( className, 'jp-form-label' ) } >
+			<label
+				{ ...otherProps }
+				htmlFor={ htmlFor }
+				className={ classNames( className, 'jp-form-label' ) }
+			>
 				{ this.props.children }
 			</label>
 		);
@@ -36,7 +41,10 @@ export class FormLegend extends React.Component {
 
 	render() {
 		return (
-			<legend { ...omit( this.props, 'className' ) } className={ classNames( this.props.className, 'jp-form-legend' ) } >
+			<legend
+				{ ...omit( this.props, 'className' ) }
+				className={ classNames( this.props.className, 'jp-form-legend' ) }
+			>
 				{ this.props.children }
 			</legend>
 		);
@@ -50,7 +58,11 @@ export class FormCheckbox extends React.Component {
 		const otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
-			<input { ...otherProps } type="checkbox" className={ classNames( this.props.className, 'jp-form-checkbox' ) } />
+			<input
+				{ ...otherProps }
+				type="checkbox"
+				className={ classNames( this.props.className, 'jp-form-checkbox' ) }
+			/>
 		);
 	}
 }
@@ -62,7 +74,7 @@ export class FormTextInput extends React.Component {
 		isError: false,
 		isValid: false,
 		selectOnFocus: false,
-		type: 'text'
+		type: 'text',
 	};
 
 	focus = () => {
@@ -74,7 +86,7 @@ export class FormTextInput extends React.Component {
 		const classes = classNames( className, {
 			'jp-form-text-input': true,
 			'is-error': this.props.isError,
-			'is-valid': this.props.isValid
+			'is-valid': this.props.isValid,
 		} );
 
 		return (
@@ -82,7 +94,8 @@ export class FormTextInput extends React.Component {
 				{ ...this.props }
 				ref="textField"
 				className={ classes }
-				onClick={ selectOnFocus ? this.selectOnFocus : null } />
+				onClick={ selectOnFocus ? this.selectOnFocus : null }
+			/>
 		);
 	}
 
@@ -96,7 +109,10 @@ export class FormTextarea extends React.Component {
 
 	render() {
 		return (
-			<textarea { ...omit( this.props, 'className' ) } className={ classNames( this.props.className, 'jp-form-textarea' ) } >
+			<textarea
+				{ ...omit( this.props, 'className' ) }
+				className={ classNames( this.props.className, 'jp-form-textarea' ) }
+			>
 				{ this.props.children }
 			</textarea>
 		);
@@ -113,7 +129,8 @@ export class FormRadio extends React.Component {
 			<input
 				{ ...otherProps }
 				type="radio"
-				className={ classNames( this.props.className, 'jp-form-radio' ) } />
+				className={ classNames( this.props.className, 'jp-form-radio' ) }
+			/>
 		);
 	}
 }
@@ -124,7 +141,7 @@ export class FormButton extends React.Component {
 	static defaultProps = {
 		isSubmitting: false,
 		isPrimary: true,
-		type: 'submit'
+		type: 'submit',
 	};
 
 	getDefaultButtonAction = () => {
@@ -133,14 +150,15 @@ export class FormButton extends React.Component {
 
 	render() {
 		const buttonClasses = classNames( {
-			'jp-form-button': true
+			'jp-form-button': true,
 		} );
 
 		return (
 			<Button
 				{ ...omit( this.props, 'className' ) }
 				primary={ this.props.isPrimary }
-				className={ classNames( this.props.className, buttonClasses ) }>
+				className={ classNames( this.props.className, buttonClasses ) }
+			>
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
 			</Button>
 		);
@@ -153,8 +171,8 @@ export class FormSelect extends React.Component {
 			target: {
 				type: 'select',
 				name: this.props.name,
-				value: option.value
-			}
+				value: option.value,
+			},
 		} );
 	};
 
@@ -163,10 +181,13 @@ export class FormSelect extends React.Component {
 		forOwn( this.props.validValues, ( label, value ) => {
 			validValues.push( { label: label, value: value } );
 		} );
-		return <SelectDropdown
-			options={ validValues }
-			onSelect={ this.handleOnSelect }
-			disabled={ this.props.disabled }
-			initialSelected={ this.props.value } />;
+		return (
+			<SelectDropdown
+				options={ validValues }
+				onSelect={ this.handleOnSelect }
+				disabled={ this.props.disabled }
+				initialSelected={ this.props.value }
+			/>
+		);
 	}
 }

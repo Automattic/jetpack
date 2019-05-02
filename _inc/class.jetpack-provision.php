@@ -24,7 +24,7 @@ class Jetpack_Provision { //phpcs:ignore
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility
+					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility.PHP.NewClosure.Found
 						return $named_args[ $url_arg ];
 					}, 11 );
 				} elseif ( ! defined( $constant_name ) ) {
@@ -70,9 +70,7 @@ class Jetpack_Provision { //phpcs:ignore
 			wp_set_current_user( $master_user_id );
 		}
 
-		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
-			? get_site_icon_url()
-			: false;
+		$site_icon = get_site_icon_url();
 
 		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
 

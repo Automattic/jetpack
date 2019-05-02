@@ -47,19 +47,15 @@ add_filter( 'gallery_widget_content_width', 'twentysixteen_gallery_widget_conten
  */
 function twentysixteen_remove_share() {
 	if ( is_single() || is_archive() || is_home() ) {
-	    remove_filter( 'the_excerpt', 'sharing_display', 19 );
-	    if ( class_exists( 'Jetpack_Likes' ) ) {
-	        remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
-	    }
+		remove_filter( 'the_excerpt', 'sharing_display', 19 );
+		if ( class_exists( 'Jetpack_Likes' ) ) {
+			remove_filter( 'the_excerpt', array( Jetpack_Likes::init(), 'post_likes' ), 30, 1 );
+		}
 	}
 }
 add_action( 'loop_start', 'twentysixteen_remove_share' );
 
 function twentysixteen_jetpack_lazy_images_compat() {
-	if ( ! function_exists( 'wp_add_inline_script' ) ) {
-		return;
-	}
-
 	// Since TwentySixteen outdents when window is resized, let's trigger a window resize
 	// every time we lazy load an image on the TwentySixteen theme.
 	wp_add_inline_script(

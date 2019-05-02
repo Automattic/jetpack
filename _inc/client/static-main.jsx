@@ -14,7 +14,7 @@ import { setInitialState } from 'state/initial-state';
 import Footer from 'components/footer';
 
 class StaticMain extends React.Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 	}
 
@@ -24,9 +24,7 @@ class StaticMain extends React.Component {
 				<Masthead { ...this.props } />
 				<LoadingPlaceholder { ...this.props } />
 				<Footer { ...this.props } />
-				<style type="text/css">
-					{ '.vp-deactivated{ display: none; }' }
-				</style>
+				<style type="text/css">{ '.vp-deactivated{ display: none; }' }</style>
 			</div>
 		);
 	}

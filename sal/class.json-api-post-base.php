@@ -413,12 +413,9 @@ abstract class SAL_Post {
 	public function is_likes_enabled() {
 		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-		$post_likes_switched    = (bool) get_post_meta( $this->post->ID, 'switch_like_status', true );
-		$post_likes_enabled = $sitewide_likes_enabled;
-		if ( $post_likes_switched ) {
-			$post_likes_enabled = ! $post_likes_enabled;
-		}
-		return (bool) $post_likes_enabled;
+		$post_likes_switched    = get_post_meta( $this->post->ID, 'switch_like_status', true );
+
+		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
 	}
 
 	public function is_sharing_enabled() {

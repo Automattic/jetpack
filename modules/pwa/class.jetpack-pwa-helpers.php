@@ -10,9 +10,7 @@ class Jetpack_PWA_Helpers {
 	}
 
 	public static function site_icon_url( $size = 512 ) {
-		$url = function_exists( 'get_site_icon_url' )
-			? get_site_icon_url( $size )
-			: false;
+		$url = get_site_icon_url( $size );
 
 		// Fall back to built-in WordPress icon
 		if ( ! $url && in_array( $size, self::get_default_manifest_icon_sizes() ) ) {

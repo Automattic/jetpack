@@ -1,8 +1,9 @@
 <?php
-
 /**
  * Dailymotion code
- * */
+ *
+ * @package Jetpack
+ */
 
 /**
  * Original codes:
@@ -10,7 +11,7 @@
  * <embed height="270" type="application/x-shockwave-flash" width="480" src="http&#58;//www.dailymotion.com/swf/video/xekmrq?additionalInfos=0" wmode="opaque" pluginspage="http&#58;//www.macromedia.com/go/getflashplayer" allowscriptaccess="never" allownetworking="internal" />
  *
  * <object width="480" height="240"><param name="movie" value="http://www.dailymotion.com/swf/video/xen4ms_ghinzu-cold-love-mirror-mirror_music?additionalInfos=0"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param>
- * 	<embed type="application/x-shockwave-flash" src="http://www.dailymotion.com/swf/video/xen4ms_ghinzu-cold-love-mirror-mirror_music?additionalInfos=0" width="480" height="240" allowfullscreen="true" allowscriptaccess="always"></embed>
+ *  <embed type="application/x-shockwave-flash" src="http://www.dailymotion.com/swf/video/xen4ms_ghinzu-cold-love-mirror-mirror_music?additionalInfos=0" width="480" height="240" allowfullscreen="true" allowscriptaccess="always"></embed>
  * </object><br /><b><a href="http://www.dailymotion.com/video/xen4ms_ghinzu-cold-love-mirror-mirror_music">Ghinzu - Cold Love (Mirror Mirror)</a></b><br /><i>Uploaded by <a href="http://www.dailymotion.com/GhinzuTV">GhinzuTV</a>. - <a href="http://www.dailymotion.com/us/channel/music">Watch more music videos, in HD!</a></i>
  *
  * Code as of 01.01.11:
@@ -18,8 +19,9 @@
  * movie param enforces anti-xss protection
  *
  * Scroll down for the new <iframe> embed code handler.
+ *
+ * @param string $content Post content.
  */
-
 function dailymotion_embed_to_shortcode( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'www.dailymotion.com/swf/' ) ) {
 		return $content;
@@ -28,8 +30,8 @@ function dailymotion_embed_to_shortcode( $content ) {
 	$regexp     = '!<object.*>\s*(<param.*></param>\s*)*<embed((?:\s+\w+="[^"]*")*)\s+src="http(?:\:|&#0*58;)//(www\.dailymotion\.com/swf/[^"]*)"((?:\s+\w+="[^"]*")*)\s*(?:/>|>\s*</embed>)\s*</object><br /><b><a .*>.*</a></b><br /><i>.*</i>!';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
-	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
+	foreach ( compact( 'regexp', 'regexp_ent' ) as $reg => $regexp ) {
+		if ( ! preg_match_all( $regexp, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
 
@@ -37,14 +39,14 @@ function dailymotion_embed_to_shortcode( $content ) {
 			$src    = html_entity_decode( $match[3] );
 			$params = $match[2] . $match[4];
 
-			if ( 'regexp_ent' == $reg ) {
+			if ( 'regexp_ent' === $reg ) {
 				$src    = html_entity_decode( $src );
 				$params = html_entity_decode( $params );
 			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );
 
-			if ( ! isset( $params['type'] ) || 'application/x-shockwave-flash' != $params['type']['value'] ) {
+			if ( ! isset( $params['type'] ) || 'application/x-shockwave-flash' !== $params['type']['value'] ) {
 				continue;
 			}
 
@@ -80,18 +82,18 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  * autoplay, endscreen-enable, mute, sharing-enabled, start, subtitles-default,
  * ui-highlight, ui-logo, ui-start-screen-info, ui-theme
  * see https://developer.dailymotion.com/player#player-parameters
+ *
  * @todo: Update code to sniff for iframe embeds and convert those to shortcodes.
  *
- * @param array $atts
- * @return string html
+ * @param array $atts Shortcode attributes.
  *
+ * @return string html
  */
-
 function dailymotion_shortcode( $atts ) {
 	global $content_width;
 
 	if ( isset( $atts[0] ) ) {
-		$id = ltrim( $atts[0], '=' );
+		$id         = ltrim( $atts[0], '=' );
 		$atts['id'] = $id;
 
 	} else {
@@ -105,34 +107,36 @@ function dailymotion_shortcode( $atts ) {
 
 	$atts = shortcode_atts(
 		array(
-			'id'                   => '', // string
-			'width'                => '', // int
-			'height'               => '', // int
-			'title'                => '', // string
-			'user'                 => '', // string
-			'video'                => '', // string
-			'autoplay'             => 0,  // int
-			'endscreen-enable'     => 1,  // int
-			'mute'                 => 0,  // int
-			'sharing-enable'       => 1,  // int
-			'start'                => '', // int
-			'subtitles-default'    => '', // string
-			'ui-highlight'         => '', // string
-			'ui-logo'              => 1,  // int
-			'ui-start-screen-info' => 0,  // int
-			'ui-theme'             => '', // string
-		), $atts, 'dailymotion'
+			'id'                   => '', // string.
+			'width'                => '', // int.
+			'height'               => '', // int.
+			'title'                => '', // string.
+			'user'                 => '', // string.
+			'video'                => '', // string.
+			'autoplay'             => 0,  // int.
+			'endscreen-enable'     => 1,  // int.
+			'mute'                 => 0,  // int.
+			'sharing-enable'       => 1,  // int.
+			'start'                => '', // int.
+			'subtitles-default'    => '', // string.
+			'ui-highlight'         => '', // string.
+			'ui-logo'              => 1,  // int.
+			'ui-start-screen-info' => 0,  // int.
+			'ui-theme'             => '', // string.
+		),
+		$atts,
+		'dailymotion'
 	);
 
 	if ( isset( $atts['id'] ) && ! empty( $atts['id'] ) ) {
-		$id = urlencode( $atts['id'] );
+		$id = rawurlencode( $atts['id'] );
 	} else {
 		return '<!--Dailymotion error: bad or missing ID-->';
 	}
 
 	/*set width and height using provided parameters if any */
-	$width  = isset( $atts['width'] )  ? intval( $atts['width'] )  : 0 ;
-	$height = isset( $atts['height'] ) ? intval( $atts['height'] ) : 0 ;
+	$width  = isset( $atts['width'] ) ? intval( $atts['width'] ) : 0;
+	$height = isset( $atts['height'] ) ? intval( $atts['height'] ) : 0;
 
 	if ( ! $width && ! $height ) {
 		if ( ! empty( $content_width ) ) {
@@ -181,7 +185,7 @@ function dailymotion_shortcode( $atts ) {
 	if ( isset( $atts['ui-start-screen-info'] ) && '0' === $atts['ui-start-screen-info'] ) {
 		$player_params['ui-start-screen-info'] = '0';
 	}
-	if ( isset( $atts['ui-theme'] ) && in_array( strtolower( $atts['ui-theme'] ), array( 'dark', 'light' ) ) ) {
+	if ( isset( $atts['ui-theme'] ) && in_array( strtolower( $atts['ui-theme'] ), array( 'dark', 'light' ), true ) ) {
 		$player_params['ui-theme'] = esc_attr( $atts['ui-theme'] );
 	}
 
@@ -196,19 +200,38 @@ function dailymotion_shortcode( $atts ) {
 	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
 		$output .= '<iframe width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" src="' . esc_url( $video_url ) . '" style="border:0;" allowfullscreen></iframe>';
 
-		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) ) {
+		$video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] );
+		$title = wp_kses( $atts['title'], array() );
+		if (
+			array_key_exists( 'video', $atts )
+			&& $video
+			&& array_key_exists( 'title', $atts )
+			&& $title
+		) {
 			$output .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '" target="_blank">' . esc_html( $title ) . '</a></strong>';
 		}
 
-		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) ) {
+		$user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] );
+		if ( array_key_exists( 'user', $atts ) && $user ) {
 			/* translators: %s is a Dailymotion user name */
-			$output .= '<br /><em>' . wp_kses( sprintf( __( 'Uploaded by %s', 'jetpack' ), '<a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>' ), array( 'a' => array( 'href' => true, 'target' => true ) ) ) . '</em>';
+			$output .= '<br /><em>' . wp_kses(
+				sprintf(
+					/* Translators: placeholder is a Dailymotion username, linking to a Dailymotion profile page. */
+					__( 'Uploaded by %s', 'jetpack' ),
+					'<a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>'
+				),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+					),
+				)
+			) . '</em>';
 		}
 	}
 
 	return $output;
 }
-
 add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
 
 /**
@@ -217,34 +240,40 @@ add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
  * Examples:
  * [dailymotion-channel user=MatthewDominick]
  * [dailymotion-channel user=MatthewDominick type=grid] (supports grid, carousel, badge/default)
+ *
+ * @param array $atts Shortcode attributes.
  */
 function dailymotion_channel_shortcode( $atts ) {
 	$username = $atts['user'];
 
-	switch( $atts['type'] ) {
+	switch ( $atts['type'] ) {
 		case 'grid':
-			return '<iframe width="300px" height="264px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=grid' ) . '"></iframe>';
+			$channel_iframe = '<iframe width="300px" height="264px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=grid' ) . '"></iframe>';
 			break;
 		case 'carousel':
-			return '<iframe width="300px" height="360px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=carousel' ) . '"></iframe>';
+			$channel_iframe = '<iframe width="300px" height="360px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username . '?type=carousel' ) . '"></iframe>';
 			break;
 		default:
-			return '<iframe width="300px" height="78px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username ) . '"></iframe>';
+			$channel_iframe = '<iframe width="300px" height="78px" scrolling="no" style="border:0;" src="' . esc_url( '//www.dailymotion.com/badge/user/' . $username ) . '"></iframe>';
 	}
-}
 
+	return $channel_iframe;
+}
 add_shortcode( 'dailymotion-channel', 'dailymotion_channel_shortcode' );
 
 /**
  * Embed Reversal for Badge/Channel
+ *
+ * @param string $content Post content.
  */
 function dailymotion_channel_reversal( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'dailymotion.com/badge/' ) ) {
 		return $content;
 	}
 
-	/* Sample embed code:
-		<iframe width="300px" height="360px" scrolling="no" frameborder="0" src="http://www.dailymotion.com/badge/user/Dailymotion?type=carousel"></iframe>
+	/*
+	 * Sample embed code:
+	 * <iframe width="300px" height="360px" scrolling="no" frameborder="0" src="http://www.dailymotion.com/badge/user/Dailymotion?type=carousel"></iframe>
 	*/
 
 	$regexes = array();
@@ -256,21 +285,21 @@ function dailymotion_channel_reversal( $content ) {
 
 	foreach ( $regexes as $regex ) {
 		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) ) {
-	 		continue;
+			continue;
 		}
 
 		foreach ( $matches as $match ) {
-			$url_pieces = parse_url( $match[1] );
+			$url_pieces = wp_parse_url( $match[1] );
 
 			if ( 'type=carousel' === $url_pieces['query'] ) {
 				$type = 'carousel';
-			} else if ( 'type=grid' === $url_pieces['query'] ) {
+			} elseif ( 'type=grid' === $url_pieces['query'] ) {
 				$type = 'grid';
 			} else {
 				$type = 'badge';
 			}
 
-			$shortcode = '[dailymotion-channel user=' . esc_attr( $url_pieces['path'] ) . ' type=' . esc_attr( $type ) . ']';
+			$shortcode     = '[dailymotion-channel user=' . esc_attr( $url_pieces['path'] ) . ' type=' . esc_attr( $type ) . ']';
 			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
 			$content       = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
 		}
@@ -278,7 +307,6 @@ function dailymotion_channel_reversal( $content ) {
 
 	return $content;
 }
-
 add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
 
 /**
@@ -286,16 +314,17 @@ add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
  *
  * Converts a generic HTML embed code from Dailymotion into an
  * oEmbeddable URL.
+ *
+ * @param string $content Post content.
  */
-
 function jetpack_dailymotion_embed_reversal( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'dailymotion.com/embed' ) ) {
 		return $content;
 	}
 
-	/* Sample embed code as of Sep 17th 2014:
-
-		<iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/x25x71x" allowfullscreen></iframe><br /><a href="http://www.dailymotion.com/video/x25x71x_dog-with-legs-in-casts-learns-how-to-enter-the-front-door_animals" target="_blank">Dog with legs in casts learns how to enter the...</a> <i>by <a href="http://www.dailymotion.com/videobash" target="_blank">videobash</a></i>
+	/*
+	 * Sample embed code as of Sep 17th 2014:
+	 * <iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/x25x71x" allowfullscreen></iframe><br /><a href="http://www.dailymotion.com/video/x25x71x_dog-with-legs-in-casts-learns-how-to-enter-the-front-door_animals" target="_blank">Dog with legs in casts learns how to enter the...</a> <i>by <a href="http://www.dailymotion.com/videobash" target="_blank">videobash</a></i>
 	*/
 	$regexes = array();
 
@@ -325,5 +354,4 @@ function jetpack_dailymotion_embed_reversal( $content ) {
 
 	return $content;
 }
-
 add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );

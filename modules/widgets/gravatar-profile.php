@@ -21,8 +21,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Gravatar Profile', 'jetpack' ) ),
 			array(
-				'classname'   => 'widget-grofile grofile',
-				'description' => __( 'Display a mini version of your Gravatar Profile', 'jetpack' ),
+				'classname'                   => 'widget-grofile grofile',
+				'description'                 => __( 'Display a mini version of your Gravatar Profile', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -51,19 +51,22 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		 */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 
-		$instance = wp_parse_args( $instance, array(
-			'title' => '',
-			'email' => ''
-		) );
+		$instance = wp_parse_args(
+			$instance, array(
+				'title' => '',
+				'email' => '',
+			)
+		);
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		if ( !$instance['email'] ) {
+		if ( ! $instance['email'] ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
-				if ( ! empty( $title ) )
+				if ( ! empty( $title ) ) {
 					echo $args['before_title'] . $title . $args['after_title'];
+				}
 				echo '<p>' . sprintf( __( 'You need to select what to show in this <a href="%s">Gravatar Profile widget</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
 				echo $args['after_widget'];
 			}
@@ -71,20 +74,23 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		}
 
 		echo $args['before_widget'];
-		if ( ! empty( $title ) )
+		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];
+		}
 
 		$profile = $this->get_profile( $instance['email'] );
 
-		if( ! empty( $profile ) ) {
-			$profile = wp_parse_args( $profile, array(
-				'thumbnailUrl' => '',
-				'profileUrl'   => '',
-				'displayName'  => '',
-				'aboutMe'      => '',
-				'urls'         => array(),
-				'accounts'     => array(),
-			) );
+		if ( ! empty( $profile ) ) {
+			$profile      = wp_parse_args(
+				$profile, array(
+					'thumbnailUrl' => '',
+					'profileUrl'   => '',
+					'displayName'  => '',
+					'aboutMe'      => '',
+					'urls'         => array(),
+					'accounts'     => array(),
+				)
+			);
 			$gravatar_url = add_query_arg( 's', 320, $profile['thumbnailUrl'] ); // the default grav returned by grofiles is super small
 
 			// Enqueue front end assets.
@@ -99,16 +105,19 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 			<?php
 
-			if( $instance['show_personal_links'] )
+			if ( $instance['show_personal_links'] ) {
 				$this->display_personal_links( (array) $profile['urls'] );
+			}
 
-			if( $instance['show_account_links'] )
+			if ( $instance['show_account_links'] ) {
 				$this->display_accounts( (array) $profile['accounts'] );
+			}
 
 			?>
 
 			<p><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link">
-				<?php echo esc_html(
+				<?php
+				echo esc_html(
 					/**
 					 * Filter the Gravatar Profile widget's profile link title.
 					 *
@@ -122,7 +131,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 						'jetpack_gravatar_full_profile_title',
 						__( 'View Full Profile &rarr;', 'jetpack' )
 					)
-				); ?>
+				);
+				?>
 			</a></p>
 
 			<?php
@@ -136,11 +146,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function display_personal_links( $personal_links = array() ) {
-		if ( empty( $personal_links ) )
+		if ( empty( $personal_links ) ) {
 			return;
+		}
 		?>
 
-			<h4><?php echo esc_html(
+			<h4>
+			<?php
+			echo esc_html(
 				apply_filters(
 					/**
 					 * Filter the Gravatar Profile widget's "Personal Links" section title.
@@ -153,11 +166,13 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					 */
 					'jetpack_gravatar_personal_links_title',
 					__( 'Personal Links', 'jetpack' )
-					)
-				); ?></h4>
+				)
+			);
+				?>
+				</h4>
 			<ul class="grofile-urls grofile-links">
 
-			<?php foreach( $personal_links as $personal_link ) : ?>
+			<?php foreach ( $personal_links as $personal_link ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $personal_link['value'] ); ?>">
 						<?php
@@ -173,12 +188,15 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function display_accounts( $accounts = array() ) {
-		if ( empty( $accounts ) )
+		if ( empty( $accounts ) ) {
 			return;
+		}
 		?>
 
-		<h4><?php echo esc_html(
-				/**
+		<h4>
+		<?php
+		echo esc_html(
+			/**
 				 * Filter the Gravatar Profile widget's "Verified Services" section title.
 				 *
 				 * @module widgets
@@ -191,12 +209,16 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					'jetpack_gravatar_verified_services_title',
 					__( 'Verified Services', 'jetpack' )
 				)
-			); ?></h4>
+		);
+			?>
+			</h4>
 		<ul class="grofile-urls grofile-accounts">
 
-		<?php foreach( $accounts as $account ) :
-			if( $account['verified'] != 'true' )
+		<?php
+		foreach ( $accounts as $account ) :
+			if ( $account['verified'] != 'true' ) {
 				continue;
+			}
 
 			$sanitized_service_name = $this->get_sanitized_service_name( $account['shortname'] );
 			?>
@@ -252,7 +274,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
-				<?php esc_html_e( 'Title', 'jetpack' ); ?> <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+				<?php esc_html_e( 'Title', 'jetpack' ); ?> <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 			</label>
 		</p>
 
@@ -261,19 +283,23 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				<?php esc_html_e( 'Select a user or pick "custom" and enter a custom email address.', 'jetpack' ); ?>
 				<br />
 
-				<?php wp_dropdown_users( array(
-					'show_option_none' => __( 'Custom', 'jetpack' ),
-					'selected'         => $email_user,
-					'name'             => $this->get_field_name( 'email_user' ),
-					'id'               => $this->get_field_id( 'email_user' ),
-					'class'            => 'gravatar-profile-user-select',
-				) );?>
+				<?php
+				wp_dropdown_users(
+					array(
+						'show_option_none' => __( 'Custom', 'jetpack' ),
+						'selected'         => $email_user,
+						'name'             => $this->get_field_name( 'email_user' ),
+						'id'               => $this->get_field_id( 'email_user' ),
+						'class'            => 'gravatar-profile-user-select',
+					)
+				);
+				?>
 			</label>
 		</p>
 
 		<p class="gprofile-email-container <?php echo empty( $email_user ) || $email_user == -1 ? '' : 'hidden'; ?>">
 			<label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php esc_html_e( 'Custom Email Address', 'jetpack' ); ?>
-				<input class="widefat" id="<?php echo $this->get_field_id('email'); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" />
+				<input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="text" value="<?php echo esc_attr( $email ); ?>" />
 			</label>
 		</p>
 
@@ -295,7 +321,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</label>
 		</p>
 
-		<p><a href="<?php echo esc_url( $profile_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( 'Edit Your Profile', 'jetpack' )?></a> | <a href="https://gravatar.com" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( "What's a Gravatar?", 'jetpack' ); ?></a></p>
+		<p><a href="<?php echo esc_url( $profile_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( 'Edit Your Profile', 'jetpack' ); ?></a> | <a href="https://gravatar.com" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( "What's a Gravatar?", 'jetpack' ); ?></a></p>
 
 		<?php
 	}
@@ -328,12 +354,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		$instance['show_account_links']  = isset( $new_instance['show_account_links'] ) ? (bool) $new_instance['show_account_links'] : false;
 
 		if ( $instance['email_user'] > 0 ) {
-			$user = get_userdata( $instance['email_user'] );
+			$user              = get_userdata( $instance['email_user'] );
 			$instance['email'] = $user->user_email;
 		}
 
 		$hashed_email = md5( strtolower( trim( $instance['email'] ) ) );
-		$cache_key = 'grofile-' . $hashed_email;
+		$cache_key    = 'grofile-' . $hashed_email;
 		delete_transient( $cache_key );
 
 		return $instance;
@@ -341,16 +367,16 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 	private function get_profile( $email ) {
 		$hashed_email = md5( strtolower( trim( $email ) ) );
-		$cache_key = 'grofile-' . $hashed_email;
+		$cache_key    = 'grofile-' . $hashed_email;
 
-		if( ! $profile = get_transient( $cache_key ) ) {
+		if ( ! $profile = get_transient( $cache_key ) ) {
 			$profile_url = sprintf(
 				'https://secure.gravatar.com/%s.json',
 				$hashed_email
 			);
 
-			$expire = 300;
-			$response = wp_remote_get(
+			$expire        = 300;
+			$response      = wp_remote_get(
 				esc_url_raw( $profile_url ),
 				array( 'User-Agent' => 'WordPress.com Gravatar Profile Widget' )
 			);
@@ -360,15 +386,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				$profile = json_decode( $profile, true );
 
 				if ( is_array( $profile ) && ! empty( $profile['entry'] ) && is_array( $profile['entry'] ) ) {
-					$expire = 900; // cache for 15 minutes
+					$expire  = 900; // cache for 15 minutes
 					$profile = $profile['entry'][0];
 				} else {
 					// Something strange happened.  Cache for 5 minutes.
 					$profile = array();
 				}
-
 			} else {
-				$expire = 900; // cache for 15 minutes
+				$expire  = 900; // cache for 15 minutes
 				$profile = array();
 			}
 
@@ -379,7 +404,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 	private function get_sanitized_service_name( $shortname ) {
 		// Some services have stylized or mixed cap names *cough* WP *cough*
-		switch( $shortname ) {
+		switch ( $shortname ) {
 			case 'friendfeed':
 				return 'FriendFeed';
 			case 'linkedin':
@@ -388,6 +413,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				return 'Yahoo!';
 			case 'youtube':
 				return 'YouTube';
+			// phpcs:ignore WordPress.WP.CapitalPDangit
 			case 'wordpress':
 				return 'WordPress';
 			case 'tripit':

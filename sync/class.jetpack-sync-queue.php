@@ -38,7 +38,7 @@ class Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 		$this->row_iterator = 0;
-		$this->random_int = mt_rand( 1, 1000000 );
+		$this->random_int   = mt_rand( 1, 1000000 );
 	}
 
 	function add( $item ) {
@@ -47,12 +47,14 @@ class Jetpack_Sync_Queue {
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
 		while ( ! $added ) {
-			$rows_added = $wpdb->query( $wpdb->prepare(
-				"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
-				$this->get_next_data_row_option_name(),
-				serialize( $item ),
-				'no'
-			) );
+			$rows_added = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
+					$this->get_next_data_row_option_name(),
+					serialize( $item ),
+					'no'
+				)
+			);
 			$added      = ( 0 !== $rows_added );
 		}
 	}
@@ -94,10 +96,12 @@ class Jetpack_Sync_Queue {
 	function lag( $now = null ) {
 		global $wpdb;
 
-		$first_item_name = $wpdb->get_var( $wpdb->prepare(
-			"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
-			"jpsq_{$this->id}-%"
-		) );
+		$first_item_name = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
+				"jpsq_{$this->id}-%"
+			)
+		);
 
 		if ( ! $first_item_name ) {
 			return 0;
@@ -119,25 +123,34 @@ class Jetpack_Sync_Queue {
 	function reset() {
 		global $wpdb;
 		$this->delete_checkout_id();
-		$wpdb->query( $wpdb->prepare(
-			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
-		) );
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				"jpsq_{$this->id}-%"
+			)
+		);
 	}
 
 	function size() {
 		global $wpdb;
 
-		return (int) $wpdb->get_var( $wpdb->prepare(
-			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
-		) );
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s",
+				"jpsq_{$this->id}-%"
+			)
+		);
 	}
 
 	// we use this peculiar implementation because it's much faster than count(*)
 	function has_any_items() {
 		global $wpdb;
-		$value = $wpdb->get_var( $wpdb->prepare(
-			"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )", "jpsq_{$this->id}-%"
-		) );
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )",
+				"jpsq_{$this->id}-%"
+			)
+		);
 
 		return ( $value === '1' );
 	}
@@ -216,7 +229,7 @@ class Jetpack_Sync_Queue {
 			$max_item_id = $item_with_size->id;
 		}
 
-		$query = $wpdb->prepare( 
+		$query = $wpdb->prepare(
 			"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name >= %s and option_name <= %s ORDER BY option_name ASC",
 			$min_item_id,
 			$max_item_id
@@ -337,9 +350,9 @@ class Jetpack_Sync_Queue {
 
 	private function get_checkout_id() {
 		global $wpdb;
-		$checkout_value = $wpdb->get_var( 
+		$checkout_value = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT option_value FROM $wpdb->options WHERE option_name = %s", 
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s",
 				$this->get_lock_option_name()
 			)
 		);
@@ -357,10 +370,10 @@ class Jetpack_Sync_Queue {
 	private function set_checkout_id( $checkout_id ) {
 		global $wpdb;
 
-		$expires = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
+		$expires     = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
-				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
 				"$checkout_id:$expires",
 				$this->get_lock_option_name()
 			)
@@ -369,7 +382,7 @@ class Jetpack_Sync_Queue {
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
-					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
+					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )",
 					$this->get_lock_option_name(),
 					"$checkout_id:$expires"
 				)
@@ -383,11 +396,11 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 		// rather than delete, which causes fragmentation, we update in place
 		return $wpdb->query(
-			$wpdb->prepare( 
-				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
-				"0:0",
-				$this->get_lock_option_name() 
-			) 
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
+				'0:0',
+				$this->get_lock_option_name()
+			)
 		);
 
 	}
@@ -455,11 +468,11 @@ class Jetpack_Sync_Utils {
 		return array_map( array( __CLASS__, 'get_item_id' ), $items );
 	}
 
-	static private function get_item_value( $item ) {
+	private static function get_item_value( $item ) {
 		return $item->value;
 	}
 
-	static private function get_item_id( $item ) {
+	private static function get_item_id( $item ) {
 		return $item->id;
 	}
 }

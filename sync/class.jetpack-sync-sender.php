@@ -13,8 +13,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Sender {
 
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
-	const WPCOM_ERROR_SYNC_DELAY = 60;
-	const QUEUE_LOCKED_SYNC_DELAY = 10;
+	const WPCOM_ERROR_SYNC_DELAY     = 60;
+	const QUEUE_LOCKED_SYNC_DELAY    = 10;
 
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
@@ -53,14 +53,14 @@ class Jetpack_Sync_Sender {
 		}
 	}
 
-	public function maybe_set_user_from_token( ) {
-		$jetpack = Jetpack::init();
+	public function maybe_set_user_from_token() {
+		$jetpack       = Jetpack::init();
 		$verified_user = $jetpack->verify_xml_rpc_signature();
 		if ( Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user
 		) {
-			$old_user = wp_get_current_user();
+			$old_user       = wp_get_current_user();
 			$this->old_user = isset( $old_user->ID ) ? $old_user->ID : 0;
 			wp_set_current_user( $verified_user['user_id'] );
 		}
@@ -73,7 +73,7 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function get_next_sync_time( $queue_name ) {
-		return (double) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
+		return (float) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
 	}
 
 	public function set_next_sync_time( $time, $queue_name ) {
@@ -125,7 +125,7 @@ class Jetpack_Sync_Sender {
 
 		Jetpack_Sync_Settings::set_is_syncing( false );
 
-		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
+		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (float) $this->get_sync_wait_threshold();
 
 		if ( is_wp_error( $sync_result ) ) {
 			if ( 'unclosed_buffer' === $sync_result->get_error_code() ) {
@@ -144,13 +144,13 @@ class Jetpack_Sync_Sender {
 
 	public function get_items_to_send( $buffer, $encode = true ) {
 		// track how long we've been processing so we can avoid request timeouts
-		$start_time = microtime( true );
+		$start_time    = microtime( true );
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = $buffer->get_items();
 		// set up current screen to avoid errors rendering content
-		require_once( ABSPATH . 'wp-admin/includes/class-wp-screen.php' );
-		require_once( ABSPATH . 'wp-admin/includes/screen.php' );
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'sync' );
 		$skipped_items_ids = array();
 		// we estimate the total encoded size as we go by encoding each item individually
@@ -180,7 +180,7 @@ class Jetpack_Sync_Sender {
 				break;
 			}
 			$items_to_send[ $key ] = $encoded_item;
-			if ( microtime(true) - $start_time > $this->max_dequeue_time ) {
+			if ( microtime( true ) - $start_time > $this->max_dequeue_time ) {
 				break;
 			}
 		}
@@ -188,8 +188,13 @@ class Jetpack_Sync_Sender {
 		return array( $items_to_send, $skipped_items_ids, $items, microtime( true ) - $start_time );
 	}
 
-	public function do_sync_for_queue( $queue ) {
+	private function fastcgi_finish_request() {
+		if ( function_exists( 'fastcgi_finish_request' ) && version_compare( phpversion(), '7.0.16', '>=' ) ) {
+			fastcgi_finish_request();
+		}
+	}
 
+	public function do_sync_for_queue( $queue ) {
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
 			return new WP_Error( 'empty_queue_' . $queue->id );
@@ -199,6 +204,11 @@ class Jetpack_Sync_Sender {
 		// bad state
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
+		}
+
+		/* Don't make the request block till we finish, if possible. */
+		if ( Jetpack_Constants::is_true( 'REST_REQUEST' ) || Jetpack_Constants::is_true('XMLRPC_REQUEST' ) ) {
+			$this->fastcgi_finish_request();
 		}
 
 		$checkout_start_time = microtime( true );
@@ -235,7 +245,7 @@ class Jetpack_Sync_Sender {
 			Jetpack_Sync_Settings::set_is_sending( false );
 		} else {
 			$processed_item_ids = $skipped_items_ids;
-			$skipped_items_ids = array();
+			$skipped_items_ids  = array();
 		}
 
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
@@ -293,9 +303,9 @@ class Jetpack_Sync_Sender {
 	}
 	function set_codec() {
 		if ( function_exists( 'gzinflate' ) ) {
-			$this->codec           = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+			$this->codec = new Jetpack_Sync_JSON_Deflate_Array_Codec();
 		} else {
-			$this->codec           = new Jetpack_Sync_Simple_Codec();
+			$this->codec = new Jetpack_Sync_Simple_Codec();
 		}
 	}
 

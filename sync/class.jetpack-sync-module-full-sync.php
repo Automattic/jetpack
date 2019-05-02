@@ -14,7 +14,7 @@
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
-	const FULL_SYNC_TIMEOUT = 3600;
+	const FULL_SYNC_TIMEOUT    = 3600;
 
 	public function name() {
 		return 'full-sync';
@@ -22,8 +22,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	function init_full_sync_listeners( $callable ) {
 		// synthetic actions for full sync
-		add_action( 'jetpack_full_sync_start', $callable );
-		add_action( 'jetpack_full_sync_end', $callable );
+		add_action( 'jetpack_full_sync_start', $callable, 10, 2 );
+		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
@@ -50,7 +50,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->update_status_option( 'started', time() );
 		$this->update_status_option( 'params', $module_configs );
 
-		$enqueue_status = array();
+		$enqueue_status   = array();
 		$full_sync_config = array();
 
 		// default value is full sync
@@ -63,7 +63,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// set default configuration, calculate totals, and save configuration if totals > 0
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			$module_name = $module->name();
+			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
 
 			if ( ! $module_config ) {
@@ -81,7 +81,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			// if there's information to process, configure this module
 			if ( ! is_null( $total_items ) && $total_items > 0 ) {
 				$full_sync_config[ $module_name ] = $module_config;
-				$enqueue_status[ $module_name ] = array(
+				$enqueue_status[ $module_name ]   = array(
 					$total_items,   // total
 					0,              // queued
 					false,          // current state
@@ -92,13 +92,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->set_config( $full_sync_config );
 		$this->set_enqueue_status( $enqueue_status );
 
+		$range = $this->get_content_range( $full_sync_config );
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
 		 *
 		 * @since 4.2.0
+		 * @since 7.3.0 Added $range arg.
+		 *
+		 * @param $full_sync_config - array
+		 * @param $range array
 		 */
-		do_action( 'jetpack_full_sync_start', $full_sync_config );
+		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
 
 		$this->continue_enqueuing( $full_sync_config, $enqueue_status );
 
@@ -112,7 +117,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// if full sync queue is full, don't enqueue more items
 		$max_queue_size_full_sync = Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
-		$full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
+		$full_sync_queue          = new Jetpack_Sync_Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
 
@@ -140,18 +145,18 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 				|| // no enqueue status
 					! $enqueue_status[ $module_name ]
 				|| // finished enqueuing this module
-					true === $enqueue_status[ $module_name ][ 2 ] ) {
+					true === $enqueue_status[ $module_name ][2] ) {
 				continue;
 			}
 
-			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][ 2 ] );
+			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
 
-			$enqueue_status[ $module_name ][ 2 ] = $next_enqueue_state;
+			$enqueue_status[ $module_name ][2] = $next_enqueue_state;
 
 			// if items were processed, subtract them from the limit
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				$enqueue_status[ $module_name ][ 1 ] += $items_enqueued;
-				$remaining_items_to_enqueue -= $items_enqueued;
+				$enqueue_status[ $module_name ][1] += $items_enqueued;
+				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
 			// stop processing if we've reached our limit of items to enqueue
@@ -166,19 +171,67 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		// setting autoload to true means that it's faster to check whether we should continue enqueuing
 		$this->update_status_option( 'queue_finished', time(), true );
 
+		$range = $this->get_content_range( $configs );
+
 		/**
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
 		 *
 		 * @since 4.2.0
+		 * @since 7.3.0 Added $range arg.
+		 *
+		 * @param args ''
+		 * @param $range array 
 		 */
-		do_action( 'jetpack_full_sync_end', '' );
+		do_action( 'jetpack_full_sync_end', '', $range );
+	}
+
+	function get_range( $type ) {
+		global $wpdb;
+		if ( ! in_array( $type, array( 'comments', 'posts' ) ) ) {
+			return array();
+		}
+
+		switch ( $type ) {
+			case 'posts':
+				$table     = $wpdb->posts;
+				$id        = 'ID';
+				$where_sql = Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+
+				break;
+			case 'comments':
+				$table     = $wpdb->comments;
+				$id        = 'comment_ID';
+				$where_sql = Jetpack_Sync_Settings::get_comments_filter_sql();
+				break;
+		}
+		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE {$where_sql}" );
+		if ( isset( $results[0] ) ) {
+			return $results[0];
+		}
+
+		return array();
+	}
+
+	private function get_content_range( $config ) {
+		$range = array();
+		// Only when we are sending the whole range do we want to send also the range
+		if ( isset( $config['posts'] ) && $config['posts'] === true ) {
+			$range['posts'] = $this->get_range( 'posts' );
+		}
+
+		if ( isset( $config['comments'] ) && $config['comments'] === true ) {
+			$range['comments'] = $this->get_range( 'comments' );
+		}
+		return $range;
 	}
 
 	function update_sent_progress_action( $actions ) {
-
 		// quick way to map to first items with an array of arrays
 		$actions_with_counts = array_count_values( array_filter( array_map( array( $this, 'get_action_name' ), $actions ) ) );
+
+		// Total item counts for each action.
+		$actions_with_total_counts = $this->get_actions_totals( $actions );
 
 		if ( ! $this->is_started() || $this->is_finished() ) {
 			return;
@@ -191,16 +244,26 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module_actions     = $module->get_full_sync_actions();
 			$status_option_name = "{$module->name()}_sent";
+			$total_option_name  = "{$status_option_name}_total";
 			$items_sent         = $this->get_status_option( $status_option_name, 0 );
+			$items_sent_total   = $this->get_status_option( $total_option_name, 0 );
 
 			foreach ( $module_actions as $module_action ) {
 				if ( isset( $actions_with_counts[ $module_action ] ) ) {
 					$items_sent += $actions_with_counts[ $module_action ];
 				}
+
+				if ( ! empty( $actions_with_total_counts[ $module_action ] ) ) {
+					$items_sent_total += $actions_with_total_counts[ $module_action ];
+				}
 			}
 
 			if ( $items_sent > 0 ) {
 				$this->update_status_option( $status_option_name, $items_sent );
+			}
+
+			if ( 0 !== $items_sent_total ) {
+				$this->update_status_option( $total_option_name, $items_sent_total );
 			}
 		}
 
@@ -216,12 +279,53 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		return false;
 	}
 
+	/**
+	 * Retrieve the total number of items we're syncing in a particular queue item (action).
+	 * `$queue_item[1]` is expected to contain chunks of items, and `$queue_item[1][0]`
+	 * represents the first (and only) chunk of items to sync in that action.
+	 *
+	 * @param array $queue_item Item of the sync queue that corresponds to a particular action.
+	 * @return int Total number of items in the action.
+	 */
+	public function get_action_totals( $queue_item ) {
+		if ( is_array( $queue_item ) && isset( $queue_item[1][0] ) ) {
+			if ( is_array( $queue_item[1][0] ) ) {
+				// Let's count the items we sync in this action.
+				return count( $queue_item[1][0] );
+			}
+			// -1 indicates that this action syncs all items by design.
+			return -1;
+		}
+		return 0;
+	}
+
+	/**
+	 * Retrieve the total number of items for a set of actions, grouped by action name.
+	 *
+	 * @param array $actions An array of actions.
+	 * @return array An array, representing the total number of items, grouped per action.
+	 */
+	public function get_actions_totals( $actions ) {
+		$totals = array();
+
+		foreach ( $actions as $action ) {
+			$name          = $this->get_action_name( $action );
+			$action_totals = $this->get_action_totals( $action );
+			if ( ! isset( $totals[ $name ] ) ) {
+				$totals[ $name ] = 0;
+			}
+			$totals[ $name ] += $action_totals;
+		}
+
+		return $totals;
+	}
+
 	public function is_started() {
-		return !! $this->get_status_option( 'started' );
+		return ! ! $this->get_status_option( 'started' );
 	}
 
 	public function is_finished() {
-		return !! $this->get_status_option( 'finished' );
+		return ! ! $this->get_status_option( 'finished' );
 	}
 
 	public function get_status() {
@@ -231,6 +335,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			'send_started'   => $this->get_status_option( 'send_started' ),
 			'finished'       => $this->get_status_option( 'finished' ),
 			'sent'           => array(),
+			'sent_total'     => array(),
 			'queue'          => array(),
 			'config'         => $this->get_status_option( 'params' ),
 			'total'          => array(),
@@ -248,15 +353,20 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 			list( $total, $queued, $state ) = $enqueue_status[ $name ];
 
 			if ( $total ) {
-				$status[ 'total' ][ $name ] = $total;
+				$status['total'][ $name ] = $total;
 			}
 
 			if ( $queued ) {
-				$status[ 'queue' ][ $name ] = $queued;
+				$status['queue'][ $name ] = $queued;
 			}
 
 			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
-				$status[ 'sent' ][ $name ] = $sent;
+				$status['sent'][ $name ] = $sent;
+			}
+
+			$sent_total = $this->get_status_option( "{$name}_sent_total" );
+			if ( $sent_total ) {
+				$status['sent_total'][ $name ] = $sent_total;
 			}
 		}
 
@@ -275,6 +385,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
+			Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent_total" );
 		}
 	}
 

@@ -38,18 +38,6 @@ class Jetpack_WooCommerce_Analytics {
 	 * @return bool
 	 */
 	public static function shouldTrackStore() {
-		// Tracking only Site pages
-		if ( is_admin() ) {
-			return false;
-		}
-		// Don't track site admins
-		if ( is_user_logged_in() && in_array( 'administrator',  wp_get_current_user()->roles ) ) {
-			return false;
-		}
-		// Make sure Jetpack is installed and active
-		if ( ! Jetpack::is_active() ) {
-			return false;
-		}
 		/**
 		 * Make sure WooCommerce is installed and active
 		 *
@@ -58,7 +46,18 @@ class Jetpack_WooCommerce_Analytics {
 		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
 			return false;
 		}
-
+		// Tracking only Site pages
+		if ( is_admin() ) {
+			return false;
+		}
+		// Don't track site admins
+		if ( is_user_logged_in() && in_array( 'administrator', wp_get_current_user()->roles ) ) {
+			return false;
+		}
+		// Make sure Jetpack is installed and active
+		if ( ! Jetpack::is_active() ) {
+			return false;
+		}
 		// Ensure the WooCommerce class exists and is a valid version
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( ! $minimum_woocommerce_active ) {
@@ -80,7 +79,7 @@ class Jetpack_WooCommerce_Analytics {
 	 * Function to instantiate our class and make it a singleton
 	 */
 	public static function get_instance() {
-		if ( ! Jetpack_WooCommerce_Analytics::shouldTrackStore() ) {
+		if ( ! self::shouldTrackStore() ) {
 			return;
 		}
 		if ( ! self::$instance ) {

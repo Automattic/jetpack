@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Google Docs and Google Calendar Shortcode
  *
@@ -33,6 +32,8 @@
  *
  * Generic
  * <iframe src="https://docs.google.com/file/d/0B0SIdZW7iu-zX1RWREJpMXVHZVU/preview" width="640" height="480"></iframe>
+ *
+ * @package Jetpack
  */
 
 add_filter( 'pre_kses', 'googleapps_embed_to_shortcode' );
@@ -43,12 +44,16 @@ add_shortcode( 'googleapps', 'googleapps_shortcode' );
  *
  * @since 4.5.0
  *
- * @param string $content
+ * @param string $content Post content.
  *
  * @return mixed
  */
 function googleapps_embed_to_shortcode( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, '<iframe' ) && false === stripos( $content, '.google.com' ) ) {
+	if (
+		! is_string( $content )
+		|| false === stripos( $content, '<iframe' )
+		&& false === stripos( $content, '.google.com' )
+	) {
 		return $content;
 	}
 
@@ -59,20 +64,22 @@ function googleapps_embed_to_shortcode( $content ) {
 	$regexp_noquot     = '!<iframe(.*?)src=https://(docs|drive)\.google\.com/[-\.\w/]*?(viewer)\?(.*?)>(.*?)</iframe>!';
 	$regexp_ent_noquot = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp_noquot, ENT_NOQUOTES ) );
 
-	foreach ( array( 'regexp', 'regexp_ent', 'regexp_squot', 'regexp_ent_squot', 'regexp_noquot', 'regexp_ent_noquot' ) as $reg ) {
-		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
+	foreach ( compact( 'regexp', 'regexp_ent', 'regexp_squot', 'regexp_ent_squot', 'regexp_noquot', 'regexp_ent_noquot' ) as $reg => $regexp ) {
+		if ( ! preg_match_all( $regexp, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
 
 		foreach ( $matches as $match ) {
 			$params = $match[1] . $match[5];
-			if ( in_array( $reg, array( 'regexp_ent', 'regexp_ent_squot' ) ) ) {
+			if ( in_array( $reg, array( 'regexp_ent', 'regexp_ent_squot' ), true ) ) {
 				$params = html_entity_decode( $params );
 			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );
 
-			$width = $height = 0;
+			$width  = 0;
+			$height = 0;
+
 			if ( isset( $params['width'] ) ) {
 				$width = (int) $params['width']['value'];
 			}
@@ -81,14 +88,19 @@ function googleapps_embed_to_shortcode( $content ) {
 				$height = (int) $params['height']['value'];
 			}
 
-			// allow the user to specify width greater than 200 inside text widgets
-			if ( $width > 400 && isset( $_POST['widget-text'] ) ) {
+			// allow the user to specify width greater than 200 inside text widgets.
+			if (
+				$width > 400
+				// We don't need to check a nonce here. A nonce is already checked "further up" in most code paths.
+				// In the case where no nonce is ever checked, setting this $_POST parameter doesn't do anything the submitter couldn't already do (set the width/height).
+				&& isset( $_POST['widget-text'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			) {
 				$width  = 200;
 				$height = 200;
 			}
 
 			$attributes = '';
-			if ( isset( $params['width'] ) && '100%' == $params['width']['value'] ) {
+			if ( isset( $params['width'] ) && '100%' === $params['width']['value'] ) {
 				$width = '100%';
 			}
 
@@ -101,7 +113,7 @@ function googleapps_embed_to_shortcode( $content ) {
 			}
 
 			$domain = 'spreadsheets';
-			if ( in_array( $match[2], array( 'docs', 'drive', 'www', 'calendar' ) ) ) {
+			if ( in_array( $match[2], array( 'docs', 'drive', 'www', 'calendar' ), true ) ) {
 				$domain = $match[2];
 			}
 
@@ -125,7 +137,7 @@ function googleapps_embed_to_shortcode( $content ) {
  *
  * @since 4.5.0
  *
- * @param array $atts
+ * @param array $atts Shortcode attributes.
  *
  * @return string
  */
@@ -140,7 +152,8 @@ function googleapps_shortcode( $atts ) {
 			'dir'    => 'document',
 			'query'  => '',
 			'src'    => '',
-		), $atts
+		),
+		$atts
 	);
 
 	if ( isset( $content_width ) && is_numeric( $attr['width'] ) && $attr['width'] > $content_width ) {
@@ -148,7 +161,7 @@ function googleapps_shortcode( $atts ) {
 	}
 
 	if ( isset( $content_width ) && '560' === $attr['height'] ) {
-		$attr['height'] = $content_height = floor( $content_width * 3 / 4 );
+		$attr['height'] = floor( $content_width * 3 / 4 );
 	}
 
 	if ( isset( $atts[0] ) && $atts[0] ) {
@@ -174,7 +187,7 @@ function googleapps_shortcode( $atts ) {
 	do_action( 'jetpack_bump_stats_extras', 'embeds', googleapps_service_name( $attr['domain'], $attr['dir'] ) );
 
 	return sprintf(
-		'<iframe src="%s" frameborder="0" width="%s" height="%s" marginheight="0" marginwidth="0"></iframe>',
+		'<iframe src="%s" frameborder="0" width="%s" height="%s" marginheight="0" marginwidth="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>',
 		esc_url( 'https://' . $attr['domain'] . '.google.com/' . $attr['query'] ),
 		esc_attr( $attr['width'] ),
 		esc_attr( $attr['height'] )
@@ -186,28 +199,28 @@ function googleapps_shortcode( $atts ) {
  *
  * @since 4.5.0
  *
- * @param string $domain
- * @param string $dir
+ * @param string $domain Google subdomain.
+ * @param string $dir    Subdirectory of the shared URL.
  *
  * @return bool
  */
 function googleapps_validate_domain_and_dir( $domain, $dir ) {
-	if ( ! in_array( $domain, array( 'docs', 'drive', 'www', 'spreadsheets', 'calendar' ) ) ) {
+	if ( ! in_array( $domain, array( 'docs', 'drive', 'www', 'spreadsheets', 'calendar' ), true ) ) {
 		return false;
 	}
 
-	// Calendars
+	// Calendars.
 	if ( ( 'www' === $domain || 'calendar' === $domain ) && 'calendar/' !== substr( $dir, 0, 9 ) ) {
 		return false;
 	}
 
-	// Docs
-	if ( in_array( $domain, array( 'docs', 'drive' ) ) && ! preg_match( '![-\.\w/]*(presentation/embed|presentation/d/(.*)|present/embed|document/pub|spreadsheets/d/(.*)|document/d/(e/)?[\w-]+/pub|file/d/[\w-]+/preview|viewer|forms/d/(.*)/viewform|spreadsheet/\w+)$!', $dir ) ) {
+	// Docs.
+	if ( in_array( $domain, array( 'docs', 'drive' ), true ) && ! preg_match( '![-\.\w/]*(presentation/embed|presentation/d/(.*)|present/embed|document/pub|spreadsheets/d/(.*)|document/d/(e/)?[\w-]+/pub|file/d/[\w-]+/preview|viewer|forms/d/(.*)/viewform|spreadsheet/\w+)$!', $dir ) ) {
 		return false;
 	}
 
-	// Spreadsheets
-	if ( 'spreadsheets' == $domain && ! preg_match( '!^([-\.\w/]+/pub|[-\.\w/]*embeddedform)$!', $dir ) ) {
+	// Spreadsheets.
+	if ( 'spreadsheets' === $domain && ! preg_match( '!^([-\.\w/]+/pub|[-\.\w/]*embeddedform)$!', $dir ) ) {
 		return false;
 	}
 
@@ -219,8 +232,8 @@ function googleapps_validate_domain_and_dir( $domain, $dir ) {
  *
  * @since 4.5.0
  *
- * @param string $domain
- * @param string $dir
+ * @param string $domain Google subdomain.
+ * @param string $dir    Subdirectory of the shared URL.
  *
  * @return string
  */
@@ -228,10 +241,10 @@ function googleapps_service_name( $domain, $dir ) {
 	switch ( $domain ) {
 		case 'drive':
 		case 'docs':
-			$service_name = ( 'present/embed' == $dir ) ? 'googledocs_presentation' : 'googledocs_document';
+			$service_name = ( 'present/embed' === $dir ) ? 'googledocs_presentation' : 'googledocs_document';
 			break;
 		case 'spreadsheets':
-			$service_name = ( 'embeddedform' == $dir ) ? 'googledocs_form' : 'googledocs_spreadsheet';
+			$service_name = ( 'embeddedform' === $dir ) ? 'googledocs_form' : 'googledocs_spreadsheet';
 			break;
 		case 'calendar':
 		default:

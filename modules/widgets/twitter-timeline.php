@@ -27,8 +27,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Twitter Timeline', 'jetpack' ) ),
 			array(
-				'classname' => 'widget_twitter_timeline',
-				'description' => __( 'Display an official Twitter Embedded Timeline widget.', 'jetpack' ),
+				'classname'                   => 'widget_twitter_timeline',
+				'description'                 => __( 'Display an official Twitter Embedded Timeline widget.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -124,7 +124,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'link-color',
 			'border-color',
 			'tweet-limit',
-			'lang'
+			'lang',
 		);
 		foreach ( $data_attribs as $att ) {
 			if ( ! empty( $instance[ $att ] ) && ! is_array( $instance[ $att ] ) ) {
@@ -136,6 +136,22 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
 		if ( ! empty( $partner ) ) {
 			echo ' data-partner="' . esc_attr( $partner ) . '"';
+		}
+
+		/**
+		 * Allow the activation of Do Not Track for the Twitter Timeline Widget.
+		 *
+		 * @see https://developer.twitter.com/en/docs/twitter-for-websites/timelines/guides/parameter-reference.html
+		 *
+		 * @module widgets
+		 *
+		 * @since 6.9.0
+		 *
+		 * @param bool false Should the Twitter Timeline use the DNT attribute? Default to false.
+		 */
+		$dnt = apply_filters( 'jetpack_twitter_timeline_default_dnt', false );
+		if ( true === $dnt ) {
+			echo ' data-dnt="true"';
 		}
 
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
@@ -246,7 +262,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			if ( preg_match( $hex_regex, $new_color ) ) {
 				$instance[ $color ] = $new_color;
 			}
-
 		}
 
 		$instance['type'] = 'profile';
@@ -257,7 +272,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$instance['chrome'] = array();
-		$chrome_settings = array(
+		$chrome_settings    = array(
 			'noheader',
 			'nofooter',
 			'noborders',
@@ -276,9 +291,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
- 	 * Returns a link to the documentation for a feature of this widget on
- 	 * Jetpack or WordPress.com.
- 	 */
+	 * Returns a link to the documentation for a feature of this widget on
+	 * Jetpack or WordPress.com.
+	 */
 	public function get_docs_link( $hash = '' ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$base_url = 'https://support.wordpress.com/widgets/twitter-timeline-widget/';

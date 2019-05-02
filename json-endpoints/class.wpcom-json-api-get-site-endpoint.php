@@ -50,6 +50,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
+		'launch_status'     => '(string) A string describing the launch status of a site',
 	);
 
 	protected static $no_member_fields = array(
@@ -68,6 +69,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_private',
 		'is_following',
 		'meta',
+		'launch_status',
 	);
 
 	protected static $site_options_format = array(
@@ -109,6 +111,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wordads',
 		'publicize_permanently_disabled',
 		'frame_nonce',
+		'frame_nonce_site_only',
 		'page_on_front',
 		'page_for_posts',
 		'headstart',
@@ -120,12 +123,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'podcasting_archive',
 		'is_domain_only',
 		'is_automated_transfer',
+		'is_wpcom_atomic',
 		'is_wpcom_store',
 		'signup_is_store',
 		'has_pending_automated_transfer',
 		'woocommerce_is_active',
 		'design_type',
-		'site_goals'
+		'site_goals',
+		'site_segment',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -141,14 +146,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
+		'is_wpcom_atomic',
 		'is_wpcom_store',
 		'woocommerce_is_active',
 		'frame_nonce',
+		'frame_nonce_site_only',
 		'design_type',
-		'wordads'
+		'wordads',
 	);
 
-	private $site;
+	protected $site;
 
 	// protected $compact = null;
 	protected $fields_to_include = '_all';
@@ -353,9 +360,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
 			case 'jetpack_modules':
-				$jetpack_modules = $this->site->get_jetpack_modules();
-				if ( ! is_null( $jetpack_modules ) ) {
-					$response[ $key ] = $jetpack_modules;
+				if ( is_user_member_of_blog() ) {
+					$response[ $key ] = $this->site->get_jetpack_modules();
 				}
 				break;
 			case 'plan' :
@@ -363,6 +369,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
+				break;
+			case 'launch_status' :
+				$response[ $key ] = $this->site->get_launch_status();
 				break;
 		}
 
@@ -488,7 +497,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->is_publicize_permanently_disabled();
 					break;
 				case 'frame_nonce' :
-					$options[ $key ] = $site->get_frame_nonce();
+					$options[ $key ] = $site->get_frame_nonce_site_only();
+					break;
+				case 'frame_nonce_site_only' :
+					$options[ $key ] = $site->get_frame_nonce_site_only();
 					break;
 				case 'page_on_front' :
 					if ( $custom_front_page ) {
@@ -530,6 +542,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'blog_public':
 					$options[ $key ] = $site->get_blog_public();
 					break;
+				case 'is_wpcom_atomic':
+					$options[ $key ] = $site->is_wpcom_atomic();
+					break;
 				case 'is_wpcom_store':
 					$options[ $key ] = $site->is_wpcom_store();
 					break;
@@ -557,6 +572,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_goals':
 					$options[ $key ] = $site->get_site_goals();
+					break;
+				case 'site_segment':
+					$options[ $key ] = $site->get_site_segment();
 					break;
 			}
 		}

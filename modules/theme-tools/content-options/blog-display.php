@@ -51,10 +51,10 @@ function jetpack_blog_display_custom_excerpt( $content ) {
 			$text = trim( preg_replace( "/[\n\r\t ]+/", ' ', $text ), ' ' );
 			preg_match_all( '/./u', $text, $words );
 			$words = array_slice( $words[0], 0, $excerpt_length + 1 );
-			$sep = '';
+			$sep   = '';
 		} else {
 			$words = preg_split( "/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY );
-			$sep = ' ';
+			$sep   = ' ';
 		}
 
 		if ( count( $words ) > $excerpt_length ) {
@@ -90,18 +90,20 @@ function jetpack_the_content_to_the_excerpt( $content ) {
 function jetpack_the_excerpt_to_the_content( $content ) {
 	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		ob_start();
-		the_content( sprintf(
-			wp_kses(
-				/* translators: %s: Name of current post. Only visible to screen readers */
-				__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack' ),
-				array(
-					'span' => array(
-						'class' => array(),
-					),
-				)
-			),
-			get_the_title()
-		) );
+		the_content(
+			sprintf(
+				wp_kses(
+					/* translators: %s: Name of current post. Only visible to screen readers */
+					__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack' ),
+					array(
+						'span' => array(
+							'class' => array(),
+						),
+					)
+				),
+				get_the_title()
+			)
+		);
 		$content = ob_get_clean();
 	}
 	return $content;
@@ -132,18 +134,20 @@ function jetpack_the_content_customizer( $content ) {
 function jetpack_the_excerpt_customizer( $excerpt ) {
 	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		ob_start();
-		the_content( sprintf(
-			wp_kses(
-				/* translators: %s: Name of current post. Only visible to screen readers */
-				__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack' ),
-				array(
-					'span' => array(
-						'class' => array(),
-					),
-				)
-			),
-			get_the_title()
-		) );
+		the_content(
+			sprintf(
+				wp_kses(
+					/* translators: %s: Name of current post. Only visible to screen readers */
+					__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack' ),
+					array(
+						'span' => array(
+							'class' => array(),
+						),
+					)
+				),
+				get_the_title()
+			)
+		);
 		$content = ob_get_clean();
 	}
 	if ( empty( $content ) ) {
@@ -175,10 +179,10 @@ function jetpack_the_content_customizer_class( $new_class = null ) {
 	if ( isset( $new_class ) ) {
 		// Assign a new class and return.
 		$class = $new_class;
-	} else if ( isset( $class ) ) {
+	} elseif ( isset( $class ) ) {
 		// Reset the class after getting value.
 		$prev_class = $class;
-		$class = null;
+		$class      = null;
 		return $prev_class;
 	} else {
 		// Return default class value.

@@ -3,9 +3,9 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import omit from 'lodash/omit';
+import { omit } from 'lodash';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class TextInput extends React.Component {
 	static displayName = 'TextInput';
@@ -14,7 +14,7 @@ export default class TextInput extends React.Component {
 		isError: false,
 		isValid: false,
 		selectOnFocus: false,
-		type: 'text'
+		type: 'text',
 	};
 
 	focus = () => {
@@ -26,7 +26,7 @@ export default class TextInput extends React.Component {
 		const classes = classNames( className, {
 			'dops-text-input': true,
 			'is-error': this.props.isError,
-			'is-valid': this.props.isValid
+			'is-valid': this.props.isValid,
 		} );
 		const forwardedProps = omit( this.props, 'selectOnFocus', 'isError', 'isValid' );
 		return (
@@ -34,11 +34,12 @@ export default class TextInput extends React.Component {
 				{ ...forwardedProps }
 				ref="textField"
 				className={ classes }
-				onClick={ selectOnFocus ? this.selectOnFocus : null } />
+				onClick={ selectOnFocus ? this.selectOnFocus : null }
+			/>
 		);
 	}
 
-	selectOnFocus = ( event ) => {
+	selectOnFocus = event => {
 		event.target.select();
 	};
 }

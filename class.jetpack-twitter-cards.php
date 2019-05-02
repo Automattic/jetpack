@@ -13,6 +13,13 @@ class Jetpack_Twitter_Cards {
 	static function twitter_cards_tags( $og_tags ) {
 		global $post;
 
+		/**
+		 * Maximum alt text length.
+		 *
+		 * @see https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary-card-with-large-image.html
+		 */
+		$alt_length = 420;
+
 		if ( post_password_required() ) {
 			return $og_tags;
 		}
@@ -83,6 +90,16 @@ class Jetpack_Twitter_Cards {
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $featured[0]['src'] ) );
 				} else {
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $featured[0]['src'] ) );
+				}
+
+				// Add the alt tag if we have one.
+				if ( ! empty( $featured[0]['alt_text'] ) ) {
+					// Shorten it if it is too long.
+					if ( strlen( $featured[0]['alt_text'] ) > $alt_length ) {
+						$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $featured[0]['alt_text'], 0, $alt_length ) . '…' );
+					} else {
+						$og_tags['twitter:image:alt'] = esc_attr( $featured[0]['alt_text'] );
+					}
 				}
 			}
 		}
@@ -174,7 +191,7 @@ class Jetpack_Twitter_Cards {
 			}
 
 			// Third fall back, Site Icon
-			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() ) {
 				$og_tags['twitter:image'] = get_site_icon_url( '240' );
 			}
 

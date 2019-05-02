@@ -3,11 +3,13 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
+import { get } from 'lodash';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
@@ -17,6 +19,7 @@ import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import BackupsScan from './backups-scan';
 import Antispam from './antispam';
+import { ManagePlugins } from './manage-plugins';
 import { Monitor } from './monitor';
 import { Protect } from './protect';
 import { SSO } from './sso';
@@ -82,13 +85,25 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
+				<Card
+					title={
+						this.props.searchTerm
+							? __( 'Security' )
+							: __(
+									'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
+							  )
+					}
+					className="jp-settings-description"
+				/>
 				{ foundBackups && <BackupsScan { ...commonProps } /> }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
-				{ foundAkismet &&
+				{ foundAkismet && (
 					<div>
 						<Antispam { ...commonProps } />
 						<QueryAkismetKeyCheck />
-					</div> }
+					</div>
+				) }
+				<ManagePlugins { ...commonProps } />
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>

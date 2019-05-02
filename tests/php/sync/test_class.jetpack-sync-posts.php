@@ -10,7 +10,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-
 		$user_id = $this->factory->user->create();
 
 		// create a post
@@ -111,6 +110,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 'deleted_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
+	}
+
+	public function test_update_post_includes_gutenberg_info_in_state() {
+		$this->post->post_content = "Updated using classic editor";
+
+		wp_update_post( $this->post );
+
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+
+		$this->assertEquals( false, $event->args[3]['is_gutenberg_meta_box_update'] );
 	}
 
 	public function test_update_post_updates_data() {
@@ -258,6 +268,49 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
 		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
 		$this->assertTrue( (bool) $update_attachment_event );
+		$this->assertFalse( (bool) $add_attachment_event );
+	}
+
+	public function test_sync_attach_attachment_to_post() {
+		$filename = dirname( __FILE__ ) . '/../files/jetpack.jpg';
+
+		// Check the type of file. We'll use this as the 'post_mime_type'.
+		$filetype = wp_check_filetype( basename( $filename ), null );
+
+		// Get the path to the upload directory.
+		$wp_upload_dir = wp_upload_dir();
+
+		// Prepare an array of post data for the attachment.
+		$attachment = array(
+			'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ),
+			'post_mime_type' => $filetype['type'],
+			'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+			'post_content'   => '',
+			'post_status'    => 'inherit'
+		);
+
+		// Give attachment a parent id
+		$post_id = wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg' );
+		$attachment['ID'] = $post_id;
+
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		$post_id = wp_insert_attachment( $attachment, dirname( __FILE__ ) . '/../files/jetpack.jpg', 1000 );
+
+		$this->sender->do_sync();
+
+		$remote_attachment = $this->server_replica_storage->get_post( $post_id );
+		$attachment        = get_post( $post_id );
+
+		$this->assertEquals( $attachment, $remote_attachment );
+
+		$attach_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_attach_attachment' );
+		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
+		$add_attachment_event    = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
+
+		$this->assertTrue( (bool) $attach_attachment_event );
+		$this->assertFalse( (bool) $update_attachment_event );
 		$this->assertFalse( (bool) $add_attachment_event );
 	}
 
@@ -503,6 +556,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
 
+		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
+
 		// Also works for post type that was never registed
 		$post_id = $this->factory->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
@@ -511,6 +566,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
 	}
 
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
@@ -535,6 +591,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( strtotime( $this->post->post_modified ) <= strtotime( $post->post_modified ) );
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
+		$this->assertEquals( 'post', $post->post_type );
 
 
 		// Since the filter is not there any more the sync should happen as expected.
@@ -894,7 +951,7 @@ That was a cool video.';
 
 		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
 
 		$filtered = '<p>Check out this cool video:</p>

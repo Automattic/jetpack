@@ -11,6 +11,7 @@ php:
 - "5.6"
 - "7.0"
 - "7.2"
+- "7.3"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -30,19 +31,20 @@ matrix:
   include:
   # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
   - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
-  - php: "5.2"
     env: WP_MODE=single WP_BRANCH=latest
     dist: precise
   - php: "5.2"
     env: WP_MODE=single WP_BRANCH=previous
     dist: precise
-  - php: "5.2"
-    env: WP_MODE=multi  WP_BRANCH=master
-    dist: precise
-  - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
+    env: WP_TRAVISCI="yarn lint"
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
+    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
+  - if: branch !~ /(^branch-.*-built)/
+    language: node_js
+    env: WP_TRAVISCI="yarn build"
 
 cache:
   directories:
@@ -63,28 +65,12 @@ branches:
 git:
   depth: 1
 
-# Clones WordPress and configures our testing environment
 before_script:
-    - phpenv config-rm xdebug.ini
-    - export PLUGIN_SLUG=$(basename $(pwd))
-    - source ~/.nvm/nvm.sh
-    - export PATH="$HOME/.composer/vendor/bin:$PATH"
-    - |
-        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-            composer global require "phpunit/phpunit=5.7.*"
-        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
-            composer global require "phpunit/phpunit=4.8.*"
-        fi
-    - nvm install 8
-    - nvm use 8
-    - ./tests/prepare-wordpress.sh
-    - mysql -e "set global wait_timeout = 3600;"
+  - export PLUGIN_SLUG=$(basename $(pwd))
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - ./tests/setup-travis.sh
 
-script:
-    - echo "Running with the following versions:"
-    - php -v
-    - phpunit --version
-    - ./tests/run-travis.sh
+script: ./tests/run-travis.sh
 
 sudo: false
 

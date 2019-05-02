@@ -11,15 +11,11 @@
  * Additional Search Queries: like widget, like button, like, likes
  */
 
-Jetpack::dns_prefetch( array(
-	'//widgets.wp.com',
-	'//s0.wp.com',
-	'//s1.wp.com',
-	'//s2.wp.com',
-	'//0.gravatar.com',
-	'//1.gravatar.com',
-	'//2.gravatar.com',
-) );
+Jetpack::dns_prefetch(
+	array(
+		'//widgets.wp.com',
+	)
+);
 
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
@@ -42,7 +38,7 @@ class Jetpack_Comment_Likes {
 		$this->url_parts = parse_url( $this->url );
 		$this->domain    = $this->url_parts['host'];
 
-		add_action( 'init', array( $this, 'frontend_init' ) );
+		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
@@ -121,10 +117,6 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function frontend_init() {
-		if ( is_admin() ) {
-			return;
-		}
-
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}

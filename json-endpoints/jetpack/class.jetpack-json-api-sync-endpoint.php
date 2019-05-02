@@ -10,7 +10,6 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected function result() {
 		$args = $this->input();
-
 		$modules = null;
 
 		// convert list of modules in comma-delimited format into an array
@@ -33,7 +32,6 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( empty( $modules ) ) {
 			$modules = null;
 		}
-
 		return array( 'scheduled' => Jetpack_Sync_Actions::do_full_sync( $modules ) );
 	}
 
@@ -79,7 +77,12 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 		$store = new Jetpack_Sync_WP_Replicastore();
 
-		return $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'] );
+		if ( ! isset( $args['strip_non_ascii'] ) ) {
+			$args['strip_non_ascii'] = true;
+		}
+		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'], $args['shared_salt'] );
+
+		return array( 'histogram' => $histogram, 'type' => $store->get_checksum_type() );
 	}
 }
 

@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import useMockery from 'test/helpers/use-mockery';
 import useFakeDom from 'test/helpers/use-fake-dom';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 
 describe( 'Search', function() {
 	let React, TestUtils, EMPTY_COMPONENT;
@@ -36,7 +36,7 @@ describe( 'Search', function() {
 				this.initialValue = 'hello';
 				this.searchElement = React.createElement( this.searchClass, {
 					initialValue: this.initialValue,
-					onSearch: this.onSearch
+					onSearch: this.onSearch,
 				} );
 				this.rendered = TestUtils.renderIntoDocument( this.searchElement );
 			} );
@@ -48,7 +48,7 @@ describe( 'Search', function() {
 		context( 'without initialValue', function() {
 			beforeEach( function() {
 				this.searchElement = React.createElement( this.searchClass, {
-					onSearch: this.onSearch
+					onSearch: this.onSearch,
 				} );
 				this.rendered = TestUtils.renderIntoDocument( this.searchElement );
 			} );

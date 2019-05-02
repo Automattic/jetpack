@@ -33,7 +33,7 @@ class Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	protected function setup_filters() {
-		add_filter( 'comments_array',     array( $this, 'comments_array' ) );
+		add_filter( 'comments_array', array( $this, 'comments_array' ) );
 		add_filter( 'preprocess_comment', array( $this, 'allow_logged_in_user_to_comment_as_guest' ), 0 );
 	}
 
@@ -79,7 +79,7 @@ class Highlander_Comments_Base {
 
 		$signing = array();
 		foreach ( $parameters as $k => $v ) {
-			if ( !is_scalar( $v ) ) {
+			if ( ! is_scalar( $v ) ) {
 				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ) );
 			}
 
@@ -90,36 +90,41 @@ class Highlander_Comments_Base {
 	}
 
 	/*
- 	 * After commenting as a guest while logged in, the user needs to see both:
+	  * After commenting as a guest while logged in, the user needs to see both:
 	 *
 	 * ( user_id = blah AND comment_approved = 0 )
 	 * and
 	 * ( comment_author_email = blah AND comment_approved = 0 )
 	 *
- 	 * Core only does the first since the user is logged in.
- 	 *
- 	 * Add the second to the comments array.
- 	 */
+	  * Core only does the first since the user is logged in.
+	  *
+	  * Add the second to the comments array.
+	  */
 	function comments_array( $comments ) {
 		global $wpdb, $post;
 
 		$commenter = $this->get_current_commenter();
 
-		if ( !$commenter['user_id'] )
+		if ( ! $commenter['user_id'] ) {
 			return $comments;
+		}
 
-		if ( !$commenter['comment_author'] )
+		if ( ! $commenter['comment_author'] ) {
 			return $comments;
+		}
 
-		$in_moderation_comments = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM `$wpdb->comments` WHERE `comment_post_ID` = %d AND `user_id` = 0 AND `comment_author` = %s AND `comment_author_email` = %s AND `comment_approved` = '0' ORDER BY `comment_date_gmt` /* Highlander_Comments_Base::comments_array() */",
-			$post->ID,
-			wp_specialchars_decode( $commenter['comment_author'], ENT_QUOTES ),
-			$commenter['comment_author_email']
-		) );
+		$in_moderation_comments = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM `$wpdb->comments` WHERE `comment_post_ID` = %d AND `user_id` = 0 AND `comment_author` = %s AND `comment_author_email` = %s AND `comment_approved` = '0' ORDER BY `comment_date_gmt` /* Highlander_Comments_Base::comments_array() */",
+				$post->ID,
+				wp_specialchars_decode( $commenter['comment_author'], ENT_QUOTES ),
+				$commenter['comment_author_email']
+			)
+		);
 
-		if ( !$in_moderation_comments )
+		if ( ! $in_moderation_comments ) {
 			return $comments;
+		}
 
 		// @todo ZOMG this is a bad idea
 		$comments = array_merge( $comments, $in_moderation_comments );
@@ -157,16 +162,16 @@ class Highlander_Comments_Base {
 		$comment_author_email = '';
 		$comment_author_url   = '';
 
-		if ( isset( $_COOKIE['comment_author_' . COOKIEHASH] ) ) {
-			$comment_author = $_COOKIE['comment_author_' . COOKIEHASH];
+		if ( isset( $_COOKIE[ 'comment_author_' . COOKIEHASH ] ) ) {
+			$comment_author = $_COOKIE[ 'comment_author_' . COOKIEHASH ];
 		}
 
-		if ( isset( $_COOKIE['comment_author_email_' . COOKIEHASH] ) ) {
-			$comment_author_email = $_COOKIE['comment_author_email_' . COOKIEHASH];
+		if ( isset( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
+			$comment_author_email = $_COOKIE[ 'comment_author_email_' . COOKIEHASH ];
 		}
 
-		if ( isset( $_COOKIE['comment_author_url_' . COOKIEHASH] ) ) {
-			$comment_author_url = $_COOKIE['comment_author_url_' . COOKIEHASH];
+		if ( isset( $_COOKIE[ 'comment_author_url_' . COOKIEHASH ] ) ) {
+			$comment_author_url = $_COOKIE[ 'comment_author_url_' . COOKIEHASH ];
 		}
 
 		if ( is_user_logged_in() ) {
@@ -185,7 +190,7 @@ class Highlander_Comments_Base {
 	 * @return If no
 	 */
 	function allow_logged_out_user_to_comment_as_external() {
-		if ( !$this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
 			return;
 		}
 
@@ -208,19 +213,23 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if user is not logged in or not a post request
-		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) || !is_user_logged_in() ) {
+		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) || ! is_user_logged_in() ) {
 			return $comment_data;
 		}
 
 		// Bail if this is not a guest or external service credentialed request
-		if ( !$this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
 			return $comment_data;
 		}
 
 		$user = wp_get_current_user();
 
-		foreach ( array( 'comment_author' => 'display_name', 'comment_author_email' => 'user_email', 'comment_author_url' => 'user_url' ) as $comment_field => $user_field ) {
-			if ( $comment_data[$comment_field] != addslashes( $user->$user_field ) ) {
+		foreach ( array(
+			'comment_author'       => 'display_name',
+			'comment_author_email' => 'user_email',
+			'comment_author_url'   => 'user_url',
+		) as $comment_field => $user_field ) {
+			if ( $comment_data[ $comment_field ] != addslashes( $user->$user_field ) ) {
 				return $comment_data; // some other plugin already did something funky
 			}
 		}
@@ -234,11 +243,15 @@ class Highlander_Comments_Base {
 		}
 
 		$author_change = false;
-		foreach ( array( 'comment_author' => 'author', 'comment_author_email' => 'email', 'comment_author_url' => 'url' ) as $comment_field => $post_field ) {
-			if ( $comment_data[$comment_field] != $_POST[$post_field] && 'url' != $post_field ) {
+		foreach ( array(
+			'comment_author'       => 'author',
+			'comment_author_email' => 'email',
+			'comment_author_url'   => 'url',
+		) as $comment_field => $post_field ) {
+			if ( $comment_data[ $comment_field ] != $_POST[ $post_field ] && 'url' != $post_field ) {
 				$author_change = true;
 			}
-			$comment_data[$comment_field] = $_POST[$post_field];
+			$comment_data[ $comment_field ] = $_POST[ $post_field ];
 		}
 
 		// Mark as guest comment if name or email were changed
@@ -269,23 +282,24 @@ class Highlander_Comments_Base {
 		}
 
 		// Set comment author cookies
+		// phpcs:ignore WordPress.WP.CapitalPDangit
 		if ( ( 'wordpress' != $id_source ) && is_user_logged_in() ) {
 			/** This filter is already documented in core/wp-includes/comment-functions.php */
 			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
-			setcookie( 'comment_author_'       . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime,              COOKIEPATH, COOKIE_DOMAIN );
-			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime,        COOKIEPATH, COOKIE_DOMAIN );
-			setcookie( 'comment_author_url_'   . COOKIEHASH, esc_url($comment->comment_author_url), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'comment_author_email_' . COOKIEHASH, $comment->comment_author_email, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'comment_author_url_' . COOKIEHASH, esc_url( $comment->comment_author_url ), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 		}
 	}
 
 	/**
- 	 * Get an avatar from Photon
- 	 *
- 	 * @since JetpackComments (1.4)
- 	 * @param string $url
- 	 * @param int $size
- 	 * @return string
- 	 */
+	 * Get an avatar from Photon
+	 *
+	 * @since JetpackComments (1.4)
+	 * @param string $url
+	 * @param int $size
+	 * @return string
+	 */
 	protected function photon_avatar( $url, $size ) {
 		$size = (int) $size;
 

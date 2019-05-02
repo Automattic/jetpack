@@ -2,9 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import get from 'lodash/get';
-import assign from 'lodash/assign';
-import merge from 'lodash/merge';
+import { assign, get, merge } from 'lodash';
 
 /**
  * Internal dependencies
@@ -35,37 +33,37 @@ export const data = ( state = {}, action ) => {
 };
 
 export const initialRequestsState = {
-	isFetchingSiteData: false
+	isFetchingSiteData: false,
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH:
 			return assign( {}, state, {
-				isFetchingSiteData: true
+				isFetchingSiteData: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH:
 			return assign( {}, state, {
-				isFetchingSiteFeatures: true
+				isFetchingSiteFeatures: true,
 			} );
 		case JETPACK_SITE_PLANS_FETCH:
 			return assign( {}, state, {
-				isFetchingSitePlans: true
+				isFetchingSitePlans: true,
 			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingSiteData: false
+				isFetchingSiteData: false,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingSiteFeatures: false
+				isFetchingSiteFeatures: false,
 			} );
 		case JETPACK_SITE_PLANS_FETCH_FAIL:
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return assign( {}, state, {
-				isFetchingSitePlans: false
+				isFetchingSitePlans: false,
 			} );
 
 		default:
@@ -75,7 +73,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 
 export const reducer = combineReducers( {
 	data,
-	requests
+	requests,
 } );
 
 /**
@@ -122,4 +120,8 @@ export function getActiveFeatures( state ) {
 
 export function getAvailablePlans( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePlans' ] );
+}
+
+export function getSiteID( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'ID' ] );
 }

@@ -44,7 +44,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		 *
 		 * @module protect
 		 *
-		 * @since 5.6
+		 * @since 5.6.0
 		 *
 		 * @param bool $can_send_recovery_emails Defaults to true.
 		 */
@@ -355,7 +355,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			<title><?php echo $title ?></title>
 			<style type="text/css">
 				html {
-					background: #f3f6f8;
+					background: #f6f6f6;
 				}
 
 				body {

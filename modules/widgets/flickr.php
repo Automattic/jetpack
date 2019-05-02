@@ -22,7 +22,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', esc_html__( 'Flickr', 'jetpack' ) ),
 				array(
-					'description' => esc_html__( 'Display your recent Flickr photos.', 'jetpack' ),
+					'description'                 => esc_html__( 'Display your recent Flickr photos.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				),
 				array()
@@ -52,7 +52,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				'title'             => esc_html__( 'Flickr Photos', 'jetpack' ),
 				'items'             => 4,
 				'flickr_image_size' => 'thumbnail',
-				'flickr_rss_url'    => ''
+				'flickr_rss_url'    => '',
 			);
 		}
 

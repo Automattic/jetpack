@@ -31,7 +31,10 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
-		if ( Jetpack::is_module_active( 'manage' ) ) {
+		if (
+			/** This filter is documented in class.jetpack-json-api-endpoint.php */
+			apply_filters( 'jetpack_json_manage_api_enabled', true )
+		) {
 			add_filter( 'auto_update_theme', array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), 10, 2 );
 			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation' ), 10, 2 );

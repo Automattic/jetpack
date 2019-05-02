@@ -8,6 +8,8 @@
 
 ## FILES
 .DS_Store
+# Custom environment for docker-compose (used by docker-compose.yml)
+/.env
 languages/messages.pot
 .idea
 *.iml
@@ -16,13 +18,16 @@ tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
 .eslintcache
 yarn-error.log
-/modules/**/*/*block.js
+.phpcs.xml
+phpcs.xml
+/modules/**/*.min.css.map
 
 ## Things for docker-composer
 /docker/data/mysql/*
 !/docker/data/mysql/.gitkeep
 /docker/logs/*
 !/docker/logs/.gitkeep
+# Custom environment for docker containers
 /docker/.env
 /docker/wordpress-develop/*
 !/docker/wordpress-develop/.gitkeep

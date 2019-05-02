@@ -572,6 +572,11 @@ jQuery( function() {
 	 * @return string        Markdown-processed content
 	 */
 	public function transform( $text, $args = array() ) {
+		// If this contains Gutenberg content, let's keep it intact.
+		if ( has_blocks( $text ) ) {
+			return $text;
+		}
+
 		$args = wp_parse_args( $args, array(
 			'id' => false,
 			'unslash' => true,

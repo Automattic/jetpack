@@ -17,7 +17,8 @@ function wufoo_shortcode( $atts ) {
 			'autoresize' => true,
 			'height'     => '500',
 			'header'     => 'show',
-		), $atts
+		),
+		$atts
 	);
 
 	// Check username and formhash to ensure they only have alphanumeric characters or underscores, and aren't empty.
@@ -27,7 +28,7 @@ function wufoo_shortcode( $atts ) {
 		 * Return an error to the users with instructions if one of these params is invalid
 		 * They don't have default values because they are user/form-specific
 		 */
-		$return_error = sprintf( __( 'Something is wrong with your Wufoo shortcode. If you copy and paste it from the %sWufoo Code Manager%s, you should be golden.', 'jetpack' ), '<a href="https://wufoo.com/docs/code-manager/" target="_blank">', '</a>' );
+		$return_error = sprintf( __( 'Something is wrong with your Wufoo shortcode. If you copy and paste it from the %1$sWufoo Code Manager%2$s, you should be golden.', 'jetpack' ), '<a href="https://wufoo.com/docs/code-manager/" target="_blank">', '</a>' );
 
 		return '
 			<div style="border: 20px solid red; border-radius: 40px; padding: 40px; margin: 50px 0 70px;">
@@ -45,7 +46,7 @@ function wufoo_shortcode( $atts ) {
 	 * Required parameters are present.
 	 * An error will be returned inside the form if they are invalid.
 	 */
-	$js_embed = '(function(){try{var wufoo_' . $attr['formhash'] . ' = new WufooForm();';
+	$js_embed  = '(function(){try{var wufoo_' . $attr['formhash'] . ' = new WufooForm();';
 	$js_embed .= 'wufoo_' . $attr['formhash'] . '.initialize({';
 	$js_embed .= "'userName':'" . $attr['username'] . "', ";
 	$js_embed .= "'formHash':'" . $attr['formhash'] . "', ";
@@ -59,7 +60,7 @@ function wufoo_shortcode( $atts ) {
 	/**
 	 * iframe embed, loaded inside <noscript> tags.
 	 */
-	$iframe_embed = '<iframe ';
+	$iframe_embed  = '<iframe ';
 	$iframe_embed .= 'height="' . (int) $attr['height'] . '" ';
 	$iframe_embed .= 'allowTransparency="true" frameborder="0" scrolling="no" style="width:100%;border:none;"';
 	$iframe_embed .= 'src="https://' . $attr['username'] . '.wufoo.com/embed/' . $attr['formhash'] . '/">';

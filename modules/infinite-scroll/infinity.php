@@ -150,8 +150,6 @@ class The_Neverending_Home_Page {
 								break;
 
 							default:
-								continue;
-
 								break;
 						}
 					}
@@ -898,7 +896,9 @@ class The_Neverending_Home_Page {
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-		var infiniteScroll = <?php echo json_encode( array( 'settings' => $js_settings ) ); ?>;
+		var infiniteScroll = JSON.parse( decodeURIComponent( '<?php echo
+			rawurlencode( json_encode( array( 'settings' => $js_settings ) ) );
+		?>' ) );
 		//]]>
 		</script>
 		<?php
@@ -1211,8 +1211,6 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
-		global $wp_customize;
-		global $wp_version;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1364,11 +1362,6 @@ class The_Neverending_Home_Page {
 			/** This action is already documented in modules/infinite-scroll/infinity.php */
 			do_action( 'infinite_scroll_empty' );
 			$results['type'] = 'empty';
-		}
-
-		// This should be removed when WordPress 4.8 is released.
-		if ( version_compare( $wp_version, '4.7', '<' ) && is_customize_preview() ) {
-			$wp_customize->remove_preview_signature();
 		}
 
 		wp_send_json(
@@ -1538,9 +1531,15 @@ class The_Neverending_Home_Page {
 	 *
 	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
+	 *
 	 */
 	private function default_footer() {
-		$credits = sprintf(
+		if ( '' !== get_privacy_policy_url() ) {
+			$credits = get_the_privacy_policy_link() . '<span role="separator" aria-hidden="true"> / </span>';
+		} else {
+			$credits = '';
+		}
+		$credits .= sprintf(
 			'<a href="https://wordpress.org/" rel="noopener noreferrer" target="_blank" rel="generator">%1$s</a> ',
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);

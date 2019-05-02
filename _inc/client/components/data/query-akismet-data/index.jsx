@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { isFetchingAkismetData, fetchAkismetData } from 'state/at-a-glance';
 
 class QueryAkismetData extends Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.fetchingAkismetData ) {
 			this.props.fetchAkismetData();
 		}
@@ -23,17 +23,22 @@ class QueryAkismetData extends Component {
 }
 
 QueryAkismetData.defaultProps = {
-	fetchAkismetData: () => {}
+	fetchAkismetData: () => {},
 };
 
-export default connect( ( state ) => {
-	return {
-		fetchAkismetData: fetchAkismetData(),
-		fetchingAkismetData: isFetchingAkismetData( state )
-	};
-}, ( dispatch ) => {
-	return bindActionCreators( {
-		fetchAkismetData
-	}, dispatch );
-}
+export default connect(
+	state => {
+		return {
+			fetchAkismetData: fetchAkismetData(),
+			fetchingAkismetData: isFetchingAkismetData( state ),
+		};
+	},
+	dispatch => {
+		return bindActionCreators(
+			{
+				fetchAkismetData,
+			},
+			dispatch
+		);
+	}
 )( QueryAkismetData );

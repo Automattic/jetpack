@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
 import { translate as __ } from 'i18n-calypso';
@@ -15,9 +15,8 @@ import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
-import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
-import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
+import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
 import {
 	setInitialState,
@@ -26,11 +25,13 @@ import {
 	getApiNonce,
 	getApiRootUrl,
 	userCanManageModules,
-	userCanConnectSite
+	userCanConnectSite,
+	getTracksUserData,
 } from 'state/initial-state';
-import { areThereUnsavedSettings, clearUnsavedSettingsFlag, showWelcomeForNewPlan } from 'state/settings';
+import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
+import MyPlan from 'my-plan/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
@@ -41,13 +42,13 @@ import AdminNotices from 'components/admin-notices';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
-import { getTracksUserData } from 'state/initial-state';
-import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
+const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+
 class Main extends React.Component {
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
@@ -57,6 +58,20 @@ class Main extends React.Component {
 		window.addEventListener( 'beforeunload', this.onBeforeUnload );
 		// Handles transition between routes handled by react-router
 		this.props.router.listenBefore( this.routerWillLeave );
+
+		// Track initial page view
+		this.props.isSiteConnected &&
+			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
+	}
+
+	componentDidMount() {
+		// If we have a div that's only found on the Jetpack dashboard when not connected,
+		// let's move the connection banner inside that div, inside the React page.
+		const connectReactContainer = jQuery( '.jp-jetpack-connect__container' );
+		const fullScreenContainer = jQuery( '.jp-connect-full__container' );
+		if ( connectReactContainer && fullScreenContainer.length > 0 ) {
+			fullScreenContainer.prependTo( connectReactContainer );
+		}
 	}
 
 	/*
@@ -65,7 +80,11 @@ class Main extends React.Component {
 	 */
 	onBeforeUnload = () => {
 		if ( this.props.areThereUnsavedSettings ) {
-			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+			if (
+				confirm(
+					__( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' )
+				)
+			) {
 				this.props.clearUnsavedSettingsFlag();
 			} else {
 				return false;
@@ -74,13 +93,17 @@ class Main extends React.Component {
 	};
 
 	/*
- 	 * Shows a confirmation dialog if there are unsaved module settings.
- 	 *
- 	 * Return true or false according to the history.listenBefore specification which is part of react-router
+	 * Shows a confirmation dialog if there are unsaved module settings.
+	 *
+	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
 	routerWillLeave = () => {
 		if ( this.props.areThereUnsavedSettings ) {
-			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+			if (
+				confirm(
+					__( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' )
+				)
+			) {
 				window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			} else {
 				return false;
@@ -91,10 +114,7 @@ class Main extends React.Component {
 	initializeAnalyitics = () => {
 		const tracksUser = this.props.tracksUserData;
 		if ( tracksUser ) {
-			analytics.initialize(
-				tracksUser.userid,
-				tracksUser.username
-			);
+			analytics.initialize( tracksUser.userid, tracksUser.username );
 		}
 	};
 
@@ -104,16 +124,22 @@ class Main extends React.Component {
 			return false;
 		}
 
-		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
+		return (
+			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
 			nextProps.searchTerm !== this.props.searchTerm ||
-			nextProps.newPlanActivated !== this.props.newPlanActivated ||
-			nextProps.rewindStatus !== this.props.rewindStatus;
+			nextProps.rewindStatus !== this.props.rewindStatus
+		);
 	}
 
 	componentDidUpdate( prevProps ) {
+		// Track page view on change only
+		prevProps.route.path !== this.props.route.path &&
+			this.props.isSiteConnected &&
+			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
+
 		// Not taking into account development mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
 		// in development mode.
@@ -124,39 +150,23 @@ class Main extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps( nextProps ) {
-		if ( nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
-			nextProps.isJumpstarting !== this.props.isJumpstarting ) {
-			this.handleJumpstart( nextProps );
+	renderJumpstart = () => {
+		if ( ! this.props.isSiteConnected ) {
+			return null;
 		}
-	}
 
-	/**
-	 *
-	 * Takes care of redirection when
-	 * - jumpstarting ( resseting options )
-	 * - the jumpstart is complete
-	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
-	 */
-	handleJumpstart = nextProps => {
-		const history = createHistory();
-		const willShowJumpStart = nextProps.jumpStartStatus;
-		const willBeJumpstarting = nextProps.isJumpstarting;
+		if ( ! this.props.jumpStartStatus ) {
+			return null;
+		}
 
-		if ( ! this.props.jumpStartStatus && willShowJumpStart ) {
-			window.location.hash = 'jumpstart';
-			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
-		}
-		if ( this.props.jumpStartStatus && ! willShowJumpStart && ! willBeJumpstarting ) {
-			window.location.hash = 'dashboard';
-			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
-		}
+		return (
+			<div aria-live="assertive">
+				<JumpStart />
+			</div>
+		);
 	};
 
 	renderMainContent = route => {
-		// Track page views
-		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
-
 		if ( ! this.props.userCanManageModules ) {
 			if ( ! this.props.siteConnectionStatus ) {
 				return false;
@@ -168,71 +178,79 @@ class Main extends React.Component {
 			);
 		}
 
-		if ( ! this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
-			return (
-				<div aria-live="assertive">
-					<JetpackConnect />
-				</div>
-			);
+		if ( false === this.props.siteConnectionStatus && this.props.userCanConnectSite ) {
+			return <div className="jp-jetpack-connect__container" aria-live="assertive" />;
 		}
 
-		if ( this.props.isSiteConnected && this.props.jumpStartStatus ) {
-			if ( includes( [ '/', '/dashboard' ], route ) ) {
-				window.location.hash = 'jumpstart';
-				const history = createHistory();
-				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
-			} else if ( '/jumpstart' === route ) {
-				return (
-					<div aria-live="assertive">
-						<JumpStart />
-					</div>
-				);
-			}
-		}
-
-		const settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+		const settingsNav = (
+			<NavigationSettings
+				route={ this.props.route }
+				siteRawUrl={ this.props.siteRawUrl }
+				siteAdminUrl={ this.props.siteAdminUrl }
+			/>
+		);
 		let pageComponent,
 			navComponent = <Navigation route={ this.props.route } />;
 
 		switch ( route ) {
 			case '/dashboard':
-				pageComponent = <AtAGlance
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
-					rewindStatus={ this.props.rewindStatus } />;
+				pageComponent = (
+					<AtAGlance
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						rewindStatus={ this.props.rewindStatus }
+					/>
+				);
+				break;
+			case '/my-plan':
+				pageComponent = (
+					<MyPlan
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						rewindStatus={ this.props.rewindStatus }
+					/>
+				);
 				break;
 			case '/plans':
-				pageComponent = <Plans
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
-					rewindStatus={ this.props.rewindStatus } />;
+				pageComponent = (
+					<Plans
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						rewindStatus={ this.props.rewindStatus }
+					/>
+				);
 				break;
 			case '/settings':
-			case '/general':
-			case '/engagement':
 			case '/security':
-			case '/traffic':
-			case '/discussion':
+			case '/performance':
 			case '/writing':
 			case '/sharing':
+			case '/discussion':
+			case '/traffic':
 			case '/privacy':
 				navComponent = settingsNav;
-				pageComponent = <SearchableSettings
-					route={ this.props.route }
-					siteAdminUrl={ this.props.siteAdminUrl }
-					siteRawUrl={ this.props.siteRawUrl }
-					searchTerm={ this.props.searchTerm }
-					rewindStatus={ this.props.rewindStatus } />;
+				pageComponent = (
+					<SearchableSettings
+						route={ this.props.route }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						siteRawUrl={ this.props.siteRawUrl }
+						searchTerm={ this.props.searchTerm }
+						rewindStatus={ this.props.rewindStatus }
+					/>
+				);
 				break;
 
 			default:
 				// If no route found, kick them to the dashboard and do some url/history trickery
 				const history = createHistory();
 				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-				pageComponent = <AtAGlance
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
-					rewindStatus={ this.props.rewindStatus } />;
+				pageComponent = (
+					<AtAGlance
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						rewindStatus={ this.props.rewindStatus }
+					/>
+				);
 		}
 
 		window.wpNavMenuClassChange();
@@ -240,29 +258,37 @@ class Main extends React.Component {
 		return (
 			<div aria-live="assertive">
 				{ navComponent }
+				{ this.renderJumpstart() }
 				{ pageComponent }
-				<WelcomeNewPlan
-					siteRawUrl={ this.props.siteRawUrl }
-					newPlanActivated={ this.props.newPlanActivated }
-					userCanManageModules={ this.props.userCanManageModules }
-				/>
 			</div>
 		);
 	};
+
+	shouldShowAppsCard() {
+		// Do not show in settings page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+	}
+
+	shouldShowSupportCard() {
+		// Do not show in settings page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+	}
 
 	render() {
 		return (
 			<div>
 				<Masthead route={ this.props.route } />
-					<div className="jp-lower">
-						{ this.props.isSiteConnected && <QueryRewindStatus /> }
-						<AdminNotices />
-						<JetpackNotices />
-						{ this.renderMainContent( this.props.route.path ) }
-						{ ! this.props.jumpStartStatus && <SupportCard path={ this.props.route.path } /> }
-						{ ! this.props.jumpStartStatus && <AppsCard /> }
-					</div>
-					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+				<div className="jp-lower">
+					{ this.props.isSiteConnected && <QueryRewindStatus /> }
+					<AdminNotices />
+					<JetpackNotices />
+					{ this.renderMainContent( this.props.route.path ) }
+					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
+					{ this.shouldShowAppsCard() && <AppsCard /> }
+				</div>
+				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
 			</div>
 		);
@@ -273,7 +299,6 @@ export default connect(
 	state => {
 		return {
 			jumpStartStatus: getJumpStartStatus( state ),
-			isJumpstarting: isJumpstarting( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
 			siteRawUrl: getSiteRawUrl( state ),
@@ -286,17 +311,16 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
-			newPlanActivated: showWelcomeForNewPlan( state ),
 			rewindStatus: getRewindStatus( state ),
 		};
 	},
-	( dispatch ) => ( {
+	dispatch => ( {
 		setInitialState: () => {
 			return dispatch( setInitialState() );
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
-		}
+		},
 	} )
 )( withRouter( Main ) );
 
@@ -306,20 +330,15 @@ export default connect(
 window.wpNavMenuClassChange = function() {
 	let hash = window.location.hash;
 	const settingRoutes = [
-			'#/settings',
-			'#/general',
-			'#/discussion',
-			'#/security',
-			'#/traffic',
-			'#/writing',
-			'#/sharing',
-			'#/privacy',
-		],
-		dashboardRoutes = [
-			'#/',
-			'#/dashboard',
-			'#/plans'
-		];
+		'#/settings',
+		'#/security',
+		'#/performance',
+		'#/writing',
+		'#/sharing',
+		'#/discussion',
+		'#/traffic',
+		'#/privacy',
+	];
 
 	// Clear currents
 	jQuery( '.current' ).each( function( i, obj ) {
@@ -328,22 +347,30 @@ window.wpNavMenuClassChange = function() {
 
 	hash = hash.split( '?' )[ 0 ];
 	if ( includes( dashboardRoutes, hash ) ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' ).find( 'li' ).filter( function( index ) {
-			return index === 1;
-		} );
+		const subNavItem = jQuery( '#toplevel_page_jetpack' )
+			.find( 'li' )
+			.filter( function( index ) {
+				return index === 1;
+			} );
 		subNavItem[ 0 ].classList.add( 'current' );
 	} else if ( includes( settingRoutes, hash ) ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' ).find( 'li' ).filter( function( index ) {
-			return index === 2;
-		} );
+		const subNavItem = jQuery( '#toplevel_page_jetpack' )
+			.find( 'li' )
+			.filter( function( index ) {
+				return index === 2;
+			} );
 		subNavItem[ 0 ].classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );
 
-	$body.on( 'click', 'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/plans"]', function() {
-		window.scrollTo( 0, 0 );
-	} );
+	$body.on(
+		'click',
+		'a[href$="#/dashboard"], a[href$="#/settings"], .jp-dash-section-header__settings[href="#/security"], .dops-button[href="#/my-plan"], .dops-button[href="#/plans"], .jp-dash-section-header__external-link[href="#/security"]',
+		function() {
+			window.scrollTo( 0, 0 );
+		}
+	);
 
 	$body.on( 'click', '.jetpack-js-stop-propagation', function( e ) {
 		e.stopPropagation();

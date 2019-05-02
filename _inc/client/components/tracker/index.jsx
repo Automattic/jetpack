@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { getSearchTerm } from 'state/search';
 
 export class Tracker extends Component {
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		const record = this.props.analytics.tracks.recordEvent;
 
 		if ( nextProps.searchTerm !== this.props.searchTerm ) {
@@ -26,13 +26,11 @@ export class Tracker extends Component {
 
 Tracker.propTypes = {
 	analytics: PropTypes.object,
-	searchTerm: PropTypes.string
+	searchTerm: PropTypes.string,
 };
 
-export default connect(
-	( state ) => {
-		return {
-			searchTerm: getSearchTerm( state )
-		};
-	}
-)( Tracker );
+export default connect( state => {
+	return {
+		searchTerm: getSearchTerm( state ),
+	};
+} )( Tracker );

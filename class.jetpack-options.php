@@ -52,8 +52,12 @@ class Jetpack_Options {
 				'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
+				'ab_connect_banner_green_bar', // (int) Version displayed of the A/B test for the green bar at the top of the connect banner.
 				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
 				'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
+				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
+				'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
+				'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 			);
 
 		case 'private' :
@@ -85,11 +89,14 @@ class Jetpack_Options {
 			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
-			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jumpstart_dismissed.
 			'hide_jitm',                    // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
 			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
 			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
+			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
+			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
+			'first_admin_view',             // (bool)   Set to true the first time the user views the admin. Usually after the initial connection.
 		);
 	}
 
@@ -363,9 +370,17 @@ class Jetpack_Options {
 		global $wpdb;
 		$autoload_value = $autoload ? 'yes' : 'no';
 
+		$old_value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				$name
+			)
+		);
+		if ( $old_value === $value ) {
+			return false;
+		}
+
 		$serialized_value = maybe_serialize( $value );
-		// try updating, if no update then insert
-		// TODO: try to deal with the fact that unchanged values can return updated_num = 0
 		// below we used "insert ignore" to at least suppress the resulting error
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
@@ -375,6 +390,7 @@ class Jetpack_Options {
 			)
 		);
 
+		// Try inserting the option if the value doesn't exits.
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->query(
 				$wpdb->prepare(
@@ -384,7 +400,7 @@ class Jetpack_Options {
 				)
 			);
 		}
-		return $updated_num;
+		return (bool) $updated_num;
 	}
 
 	/**
@@ -462,7 +478,7 @@ class Jetpack_Options {
 				'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 				'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
 				'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
-				'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+				'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jumpstart_dismissed.
 
 				// non_compact
 				'activated',
@@ -538,6 +554,7 @@ class Jetpack_Options {
 			'jpo_site_type',
 			'jpo_homepage_format',
 			'jpo_contact_page',
+			'jetpack_excluded_extensions',
 		);
 	}
 

@@ -75,6 +75,7 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 
 		$post_data = array (
 			'post_ID'      => $post_id,
+			'post_type'    => $post->post_type,
 			'post_title'   => $input['title'],
 			'post_content' => $input['content'],
 			'post_excerpt' => $input['excerpt'],

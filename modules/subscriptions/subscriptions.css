@@ -2,6 +2,10 @@
 	width: 95%;
 }
 
+.comment-subscription-form {
+	margin-bottom: 1em;
+}
+
 .comment-subscription-form .subscribe-label {
 	display: inline !important;
 }
@@ -12,7 +16,12 @@
 	list-style: none;
 }
 
-/* Meant only for screen readers */
+/*
+Text meant only for screen readers.
+Provides support for themes that do not bundle this CSS yet.
+@see https://make.wordpress.org/accessibility/2015/02/09/hiding-text-for-screen-readers-with-wordpress-core/
+***********************************/
+.screen-reader-text,
 .comment-subscription-form-title {
 	border: 0;
 	clip: rect(1px, 1px, 1px, 1px);

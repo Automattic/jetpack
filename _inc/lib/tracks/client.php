@@ -78,7 +78,7 @@ function jetpack_tracks_get_identity( $user_id ) {
 	// User is connected, but no meta is set yet.  Use WPCOM ID and set meta.
 	if ( Jetpack::is_user_connected( $user_id ) ) {
 		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
-		add_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'], true );
+		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
 
 		return array(
 			'_ut' => 'wpcom:user_id',

@@ -10,7 +10,7 @@
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
-	if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+	if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
 		return;
 	}
 
@@ -57,11 +57,14 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @since 5.0.0
 	 */
-	public function __construct() {
+	public function __construct( $name = null ) {
+		if ( empty( $name ) ) {
+			$name = esc_html__( 'Search', 'jetpack' );
+		}
 		parent::__construct(
 			Jetpack_Search_Helpers::FILTER_WIDGET_BASE,
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Search', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', $name ),
 			array(
 				'classname'   => 'jetpack-filters widget_search',
 				'description' => __( 'Replaces the default search with an Elasticsearch-powered search interface and filters.', 'jetpack' ),
@@ -70,9 +73,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		if (
 			Jetpack_Search_Helpers::is_active_widget( $this->id ) &&
-			! Jetpack::is_module_active( 'search' )
+			! $this->is_search_active()
 		) {
-			Jetpack::activate_module( 'search', false, false );
+			$this->activate_search();
 		}
 
 		if ( is_admin() ) {
@@ -84,6 +87,25 @@ class Jetpack_Search_Widget extends WP_Widget {
 		add_action( 'jetpack_search_render_filters_widget_title', array( 'Jetpack_Search_Template_Tags', 'render_widget_title' ), 10, 3 );
 		add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
 	}
+
+	/**
+	 * Check whether search is currently active
+	 *
+	 * @since 6.3
+	 */
+	public function is_search_active() {
+		return Jetpack::is_module_active( 'search' );
+	}
+
+	/**
+	 * Activate search
+	 *
+	 * @since 6.3
+	 */
+	public function activate_search() {
+		Jetpack::activate_module( 'search', false, false );
+	}
+
 
 	/**
 	 * Enqueues the scripts and styles needed for the customizer.
@@ -117,19 +139,21 @@ class Jetpack_Search_Widget extends WP_Widget {
 			JETPACK__VERSION
 		);
 
-		wp_localize_script( 'jetpack-search-widget-admin', 'jetpack_search_filter_admin', array(
-			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
-			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'tracksEventData'    => array(
-				'is_customizer' => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
-			),
-			'i18n'               => array(
-				'month'        => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', false ),
-				'year'         => Jetpack_Search_Helpers::get_date_filter_type_name( 'year', false ),
-				'monthUpdated' => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', true ),
-				'yearUpdated'  => Jetpack_Search_Helpers::get_date_filter_type_name( 'year', true ),
-			),
-		) );
+		wp_localize_script(
+			'jetpack-search-widget-admin', 'jetpack_search_filter_admin', array(
+				'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
+				'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				'tracksEventData'    => array(
+					'is_customizer' => (int) is_customize_preview(),
+				),
+				'i18n'               => array(
+					'month'        => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', false ),
+					'year'         => Jetpack_Search_Helpers::get_date_filter_type_name( 'year', false ),
+					'monthUpdated' => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', true ),
+					'yearUpdated'  => Jetpack_Search_Helpers::get_date_filter_type_name( 'year', true ),
+				),
+			)
+		);
 
 		wp_enqueue_script( 'jetpack-search-widget-admin' );
 	}
@@ -166,7 +190,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		return array(
 			'relevance|DESC' => is_admin() ? esc_html__( 'Relevance (recommended)', 'jetpack' ) : esc_html__( 'Relevance', 'jetpack' ),
 			'date|DESC'      => esc_html__( 'Newest first', 'jetpack' ),
-			'date|ASC'       => esc_html__( 'Oldest first', 'jetpack' )
+			'date|ASC'       => esc_html__( 'Oldest first', 'jetpack' ),
 		);
 	}
 
@@ -215,13 +239,16 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	public function jetpack_search_populate_defaults( $instance ) {
-		$instance = wp_parse_args( (array) $instance, array(
-			'title'              => '',
-			'search_box_enabled' => true,
-			'user_sort_enabled'  => true,
-			'sort'               => self::DEFAULT_SORT,
-			'filters'            => array( array() ),
-		) );
+		$instance = wp_parse_args(
+			(array) $instance, array(
+				'title'              => '',
+				'search_box_enabled' => true,
+				'user_sort_enabled'  => true,
+				'sort'               => self::DEFAULT_SORT,
+				'filters'            => array( array() ),
+				'post_types'         => array(),
+			)
+		);
 
 		return $instance;
 	}
@@ -238,6 +265,19 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$instance = $this->jetpack_search_populate_defaults( $instance );
 
 		$display_filters = false;
+
+		if ( Jetpack::is_development_mode() ) {
+			echo $args['before_widget'];
+			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
+				<div class="jetpack-search-sort-wrapper">
+					<label>
+						<?php esc_html_e( 'Jetpack Search not supported in Development Mode', 'jetpack' ); ?>
+					</label>
+				</div>
+			</div><?php
+			echo $args['after_widget'];
+			return;
+		}
 
 		if ( is_search() ) {
 			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
@@ -269,7 +309,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 		echo $args['before_widget'];
-		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper"><?php
+		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
+		<?php
 
 		if ( ! empty( $title ) ) {
 			/**
@@ -286,9 +327,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		$default_sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
+		$default_sort            = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		list( $orderby, $order ) = $this->sorting_to_wp_query_param( $default_sort );
-		$current_sort = "{$orderby}|{$order}";
+		$current_sort            = "{$orderby}|{$order}";
 
 		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
 		// it separately when it's not.
@@ -296,8 +337,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 			Jetpack_Search_Template_Tags::render_widget_search_form( $instance['post_types'], $orderby, $order );
 		}
 
-		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ): ?>
-			<div class="jetpack-search-sort-wrapper">
+		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) :
+				?>
+					<div class="jetpack-search-sort-wrapper">
 				<label>
 					<?php esc_html_e( 'Sort by', 'jetpack' ); ?>
 					<select class="jetpack-search-sort">
@@ -309,7 +351,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 					</select>
 				</label>
 			</div>
-		<?php endif;
+		<?php
+		endif;
 
 		if ( $display_filters ) {
 			/**
@@ -331,7 +374,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$this->maybe_render_sort_javascript( $instance, $order, $orderby );
 
-		echo "</div>";
+		echo '</div>';
 		echo $args['after_widget'];
 	}
 
@@ -354,11 +397,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 		?>
 		<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
-					var orderByDefault = <?php echo wp_json_encode( $orderby ); ?>,
-						orderDefault   = <?php echo wp_json_encode( $order ); ?>,
-						widgetId       = <?php echo wp_json_encode( $this->id ); ?>,
-						searchQuery    = <?php echo wp_json_encode( get_query_var( 's', '' ) ); ?>,
-						isSearch       = <?php echo wp_json_encode( is_search() ); ?>;
+					var orderByDefault = '<?php echo 'date' === $orderby ? 'date' : 'relevance'; ?>',
+						orderDefault   = '<?php echo 'ASC' === $order ? 'ASC' : 'DESC'; ?>',
+						widgetId       = decodeURIComponent( '<?php echo rawurlencode( $this->id ); ?>' ),
+						searchQuery    = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' ),
+						isSearch       = <?php echo (int) is_search(); ?>;
 
 					var container = $( '#' + widgetId + '-wrapper' ),
 						form = container.find('.jetpack-search-form form'),
@@ -438,7 +481,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		if ( isset( $new_instance['filter_type'] ) ) {
 			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
 				$count = intval( $new_instance['num_filters'][ $index ] );
-				$count = min( 50, $count ); // Set max boundary at 20.
+				$count = min( 50, $count ); // Set max boundary at 50.
 				$count = max( 1, $count );  // Set min boundary at 1.
 
 				switch ( $type ) {
@@ -566,7 +609,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				</label>
 			</p>
 
-			<?php if ( ! $hide_filters ): ?>
+			<?php if ( ! $hide_filters ) : ?>
 				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
 					<?php echo $this->render_widget_edit_filter( array(), true ); ?>
 				</script>
@@ -598,7 +641,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * We need to render HTML in two formats: an Underscore template (client-size)
+	 * We need to render HTML in two formats: an Underscore template (client-side)
 	 * and native PHP (server-side). This helper function allows for easy rendering
 	 * of attributes in both formats.
 	 *
@@ -625,8 +668,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param bool   $is_template Whether this is for an Underscore template or not.
 	 */
 	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
-		$compare_json = wp_json_encode( $compare );
-		echo $is_template ? "<%= $compare_json === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
+		$compare_js = rawurlencode( $compare );
+		echo $is_template ? "<%= decodeURIComponent( '$compare_js' ) === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
 	}
 
 	/**
@@ -640,15 +683,17 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param bool  $is_template Whether this is for an Underscore template or not.
 	 */
 	public function render_widget_edit_filter( $filter, $is_template = false ) {
-		$args = wp_parse_args( $filter, array(
-			'name'      => '',
-			'type'      => 'taxonomy',
-			'taxonomy'  => '',
-			'post_type' => '',
-			'field'     => '',
-			'interval'  => '',
-			'count'     => self::DEFAULT_FILTER_COUNT,
-		) );
+		$args = wp_parse_args(
+			$filter, array(
+				'name'      => '',
+				'type'      => 'taxonomy',
+				'taxonomy'  => '',
+				'post_type' => '',
+				'field'     => '',
+				'interval'  => '',
+				'count'     => self::DEFAULT_FILTER_COUNT,
+			)
+		);
 
 		$args['name_placeholder'] = Jetpack_Search_Helpers::generate_widget_filter_name( $args );
 
@@ -765,5 +810,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
 			</p>
 		</div>
-	<?php }
+	<?php
+	}
 }
