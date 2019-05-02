@@ -29,6 +29,11 @@ class V1_Migration_Manager {
 			]
 		);
 
+		$this->migration_active = get_option( 'wpcom_atomic_migration_lock', false );
+		if ( ! $this->migration_activated ) {
+			$this->migration_activated = $this->options['migration_active'];
+		}
+
 		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 			add_filter( 'query',         [ $this, 'enable_lock_while_running_migration' ] );
 			add_action( 'get_header',    [ $this, 'migration_maintenance_mode' ] );
@@ -51,12 +56,7 @@ class V1_Migration_Manager {
 			return false;
 		}
 
-		$migration_activated = get_option( 'wpcom_atomic_migration_lock', false );
-		if ( ! $migration_activated ) {
-			$migration_activated = $this->options['migration_active'];
-		}
-
-		if ( $migration_activated && time() < intval( $migration_activated ) ) {
+		if ( $this->migration_activated && time() < intval( $this->migration_activated ) ) {
 			return true;
 		}
 		return false;
