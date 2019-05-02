@@ -100,8 +100,24 @@ class Jetpack_WPCOM_Block_Editor {
 			$_REQUEST['interim-login'] = true;
 			add_action( 'wp_login', array( $this, 'do_redirect' ) );
 			add_action( 'login_form', array( $this, 'maintain_redirect_to' ) );
+			add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
 			remove_action( 'login_init', 'send_frame_options_header' );
 		}
+	}
+
+	/**
+	 * Adds a login message.
+	 *
+	 * Intended to soften the expectation mismatch of ending up with a login screen rather than the editor.
+	 *
+	 * @param WP_Error $errors WP Error object.
+	 * @return \WP_Error
+	 */
+	public function add_login_message( $errors ) {
+		$errors->remove( 'expired' );
+		$errors->add( 'info', __( 'Before we continue, please log in to your Jetpack site.', 'jetpack' ), 'message' );
+
+		return $errors;
 	}
 
 	/**
