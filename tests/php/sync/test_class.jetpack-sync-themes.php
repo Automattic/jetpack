@@ -255,6 +255,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_themes_sync() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$dummy_details = array(
 			'type' => 'theme',
 			'action' => 'update',
@@ -282,6 +286,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_update_theme_sync() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		$dummy_details = array(
 			'type' => 'theme',
 			'action' => 'update',
