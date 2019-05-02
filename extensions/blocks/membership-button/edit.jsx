@@ -352,6 +352,7 @@ class MembershipsButtonEdit extends Component {
 							<Button isLink onClick={ this.apiCall }>
 								{ __( 'Re-check Connection', 'jetpack' ) }
 							</Button>
+							{ this.renderDisclaimer() }
 						</div>
 					</Placeholder>
 				) }
@@ -364,6 +365,7 @@ class MembershipsButtonEdit extends Component {
 								<br />
 								<br />
 								{ this.renderAddMembershipAmount() }
+								{ this.renderDisclaimer() }
 							</div>
 						</Placeholder>
 					) }
