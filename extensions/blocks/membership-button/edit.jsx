@@ -267,6 +267,31 @@ class MembershipsButtonEdit extends Component {
 		</div>
 	);
 
+	renderDisclaimer = () => {
+		return (
+			<div className="membership-button__disclaimer">
+				{ __( 'Read more about ', 'jetpack' ) }
+				<a
+					rel="noopener noreferer"
+					// eslint-disable-next-line react/jsx-no-target-blank
+					target="_blank"
+					href="https://en.support.wordpress.com/memberships/"
+				>
+					{ __( 'memberships', 'jetpack' ) }
+				</a>
+				{ __( ' and ', 'jetpack' ) }
+				<a
+					rel="noopener noreferer"
+					// eslint-disable-next-line react/jsx-no-target-blank
+					target="_blank"
+					href="https://en.support.wordpress.com/memberships/#related-fees"
+				>
+					{ __( 'related fees.', 'jetpack' ) }
+				</a>
+			</div>
+		);
+	};
+
 	render = () => {
 		const { className, notices } = this.props;
 		const { connected, connectURL, products } = this.state;
@@ -353,6 +378,7 @@ class MembershipsButtonEdit extends Component {
 								{ __( 'Or add another membership amount:', 'jetpack' ) }
 								<br />
 								{ this.renderAddMembershipAmount() }
+								{ this.renderDisclaimer() }
 							</div>
 						</Placeholder>
 					) }

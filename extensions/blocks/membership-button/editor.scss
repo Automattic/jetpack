@@ -30,4 +30,10 @@
 		border: 1px solid;
 		border-color: var( --color-error );
 	}
+
+	.membership-button__disclaimer {
+		margin-top: 20px;
+		font-style: italic;
+		color: var( --color-gray-400 );
+	}
 }
