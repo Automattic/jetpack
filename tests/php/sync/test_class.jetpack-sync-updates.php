@@ -23,6 +23,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
+		self::mock_plugins_update_request();
+
 		wp_update_plugins();
 		$this->check_for_updates_to_sync();
 		$this->sender->do_sync();
@@ -83,6 +85,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
+
+		self::mock_themes_update_request();
 
 		wp_update_themes();
 		$this->check_for_updates_to_sync();
@@ -145,6 +149,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
+		self::mock_core_update_request();
+
 		$this->sender->do_sync();
 		delete_site_transient( 'update_core' );
 		$this->server_event_storage->reset();
@@ -166,6 +172,10 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_wp_version() {
+		self::mock_core_update_request();
+		self::mock_plugins_update_request();
+		self::mock_themes_update_request();
+
 		global $wp_version;
 		$previous_version = $wp_version;
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
