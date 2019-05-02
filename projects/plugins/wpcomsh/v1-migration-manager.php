@@ -53,7 +53,7 @@ class V1_Migration_Manager {
 
 		$migration_activated = get_option( 'wpcom_atomic_migration_lock', false );
 		if ( ! $migration_activated ) {
-			$migratino_activeated = $this->options['migration_active'];
+			$migration_activated = $this->options['migration_active'];
 		}
 
 		if ( $migration_activated && time() < intval( $migration_activated ) ) {
@@ -233,7 +233,7 @@ class V1_Migration_Manager {
 	public function handle_migration_lock_request() {
 		if ( 
 			! empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
-			'some-super-secret-value-anyone-can-find' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] 
+			'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] 
 		) {
 			$uri = $_SERVER[ 'REQUEST_URI' ];
 
