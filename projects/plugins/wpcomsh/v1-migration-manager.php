@@ -240,7 +240,7 @@ class V1_Migration_Manager {
 			$uri = $_SERVER[ 'REQUEST_URI' ];
 
 			if ( '/wp-json/wp/v2/av1-migration-lock' ) {
-				$enable = $_GET[ 'enable' ];
+				$enable = isset( $_GET[ 'enable' ] ) && $_GET[ 'enable' ];
 				if ( $enable )  {
 					$migration_timeout = strtotime( '+2 hours' );
 					set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
