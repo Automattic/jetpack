@@ -36,7 +36,6 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	private function __construct() {
 		if ( $this->is_iframed_block_editor() ) {
-			add_action( 'init', array( $this, 'show_error_if_logged_out' ) );
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
@@ -56,21 +55,6 @@ class Jetpack_WPCOM_Block_Editor {
 
 		// phpcs:ignore WordPress.Security.NonceVerification
 		return ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) && ! empty( $_GET['frame-nonce'] );
-	}
-
-	/**
-	 * Shows a custom message if the user is logged out.
-	 *
-	 * The iframed block editor can be only embedded in WordPress.com if the user is logged
-	 * into the Jetpack site. So we abort the default redirection to the login page (which
-	 * cannot be embedded in a iframe) and instead we explain that we need the user to log
-	 * into Jetpack.
-	 */
-	public function show_error_if_logged_out() {
-		if ( ! get_current_user_id() ) {
-			wp_safe_redirect( wp_login_url( $_SERVER['REQUEST_URI'] ) );
-			exit;
-		}
 	}
 
 	/**
