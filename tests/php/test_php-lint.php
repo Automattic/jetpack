@@ -13,7 +13,7 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 			'./tools',
 			'./tests',
 			'./vendor',
-			'./jetpack-cli.php',
+			'./class.jetpack-cli.php',
 			'./_inc/class.jetpack-provision.php',
 			'./_inc/lib/debugger/debug-functions-for-php53.php',
 		);
