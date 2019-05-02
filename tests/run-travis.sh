@@ -6,7 +6,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
-		export WP_TRAVISCI = "phpunit --group external-html"
+		export WP_TRAVISCI = "phpunit --group external-http"
 	fi
 
 	echo "Running phpunit with:"
