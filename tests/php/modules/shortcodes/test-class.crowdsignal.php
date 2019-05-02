@@ -2,6 +2,13 @@
 
 class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
+	public function setUp() {
+		parent::setUp();
+
+		// Register the scripts needed by the shortcode.
+		CrowdsignalShortcode::register_scripts();
+	}
+
 	/**
 	 * @author scotchfield
 	 * @covers CrowdSignal::crowdsignal_shortcode
@@ -56,6 +63,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			),
 			$shortcode_content
 		);
+		$this->assertTrue( wp_script_is( 'crowdsignal-shortcode', 'enqueued' ) );
 	}
 
 	/**
@@ -76,6 +84,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			),
 			$shortcode_content
 		);
+		$this->assertTrue( wp_script_is( 'crowdsignal-shortcode', 'enqueued' ) );
 	}
 
 	/**
@@ -96,6 +105,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			),
 			$shortcode_content
 		);
+		$this->assertTrue( wp_script_is( 'crowdsignal-survey', 'enqueued' ) );
 	}
 
 	/**
@@ -116,6 +126,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			),
 			$shortcode_content
 		);
+		$this->assertTrue( wp_script_is( 'crowdsignal-survey', 'enqueued' ) );
 
 		// Test AMP version. On AMP views, we only show a link.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -179,6 +190,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			),
 			$shortcode_content
 		);
+		$this->assertTrue( wp_script_is( 'crowdsignal-survey', 'enqueued' ) );
 	}
 
 	/**

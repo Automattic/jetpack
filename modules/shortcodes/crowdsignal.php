@@ -57,7 +57,7 @@ if (
 		/**
 		 * Register scripts that may be enqueued later on by the shortcode.
 		 */
-		public function register_scripts() {
+		public static function register_scripts() {
 			wp_register_script(
 				'crowdsignal-shortcode',
 				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
