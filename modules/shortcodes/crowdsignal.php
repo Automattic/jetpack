@@ -158,6 +158,10 @@ if (
 		 * @param array $atts Shortcode attributes.
 		 */
 		public function polldaddy_shortcode( $atts ) {
+			if ( ! is_array( $atts ) ) {
+				return '<!-- Polldaddy shortcode passed invalid attributes -->';
+			}
+
 			$atts['site'] = 'polldaddy.com';
 			return $this->crowdsignal_shortcode( $atts );
 		}
