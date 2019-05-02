@@ -202,6 +202,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event_data->args[1], $enabled_slugs );
 	}
 
+	/**
+	 * @group external-http
+	 */
 	public function test_install_edit_delete_theme_sync() {
 		$theme_slug = 'itek';
 		$theme_name = 'iTek';
