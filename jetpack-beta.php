@@ -1183,14 +1183,14 @@ class Jetpack_Beta {
 
 
 	public static function tamper_with_jetpack_constants() {
-		if ( self::constant_get_option( 'jetpack_sandbox_domain', '' ) ) {
+		if ( ! defined( 'JETPACK__SANDBOX_DOMAIN' ) && self::constant_get_option( 'jetpack_sandbox_domain', '' ) ) {
 			define( 'JETPACK__SANDBOX_DOMAIN', self::constant_get_option( 'jetpack_sandbox_domain', '' ) );
 		}
 
-		if ( self::constant_get_option( 'jetpack_protect_api_host', '' ) ) {
+		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) && self::constant_get_option( 'jetpack_protect_api_host', '' ) ) {
 			define( 'JETPACK_PROTECT__API_HOST', self::constant_get_option( 'jetpack_protect_api_host', '' ) );
 		}
-		if ( self::constant_get_option( 'jetpack_beta_blocks', '' ) ) {
+		if ( ! defiend( 'JETPACK_BETA_BLOCKS' ) && self::constant_get_option( 'jetpack_beta_blocks', '' ) ) {
 			define( 'JETPACK_BETA_BLOCKS', self::constant_get_option( 'jetpack_beta_blocks', '' ) ? true : false );
 		}
 	}
