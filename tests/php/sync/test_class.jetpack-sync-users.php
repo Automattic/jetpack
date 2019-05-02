@@ -432,6 +432,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_syncs_user_authentication_attempts() {
+		add_filter( 'pre_http_request', array( $this, 'mock_bruteprotect_api_response' ), 10, 3 );
+
 		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and
@@ -745,6 +747,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sends_insecure_password_flag() {
+		add_filter( 'pre_http_request', array( $this, 'mock_bruteprotect_api_response' ), 10, 3 );
+
 		$user = get_user_by( 'ID', $this->user_id );
 
 		do_action( 'authenticate', $user, $user->user_login, 'admin' );
@@ -759,6 +763,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_does_not_send_insecure_password_flags_on_secure_password() {
+		add_filter( 'pre_http_request', array( $this, 'mock_bruteprotect_api_response' ), 10, 3 );
+
 		$user = get_user_by( 'ID', $this->user_id );
 
 		do_action( 'authenticate', $user, $user->user_login, wp_generate_password( 25 ) );
@@ -803,4 +809,16 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
+	function mock_bruteprotect_api_response( $response, $args, $url ) {
+		if ( 'https://api.bruteprotect.com/' !== $url ) {
+			return $response;
+		}
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body' => '{"status":"ok","msg":"API Key Required","seconds_remaining":60,"error":"API Key Required"}',
+		);
+	}
 }
