@@ -552,7 +552,7 @@ class Jetpack {
 
 		$calypso_env = $this->get_calypso_env();
 
-		if ( ! empty( $calypso_env ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
+		if ( ! empty( $calypso_env ) && defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
