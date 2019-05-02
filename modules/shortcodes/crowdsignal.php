@@ -210,7 +210,9 @@ if (
 				return '<!-- Crowdsignal shortcode passed invalid attributes -->';
 			}
 
-			$inline          = ! in_the_loop();
+			$inline = ! in_the_loop()
+				&& ! Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' );
+
 			$no_script       = false;
 			$infinite_scroll = false;
 
