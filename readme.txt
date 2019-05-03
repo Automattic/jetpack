@@ -102,7 +102,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 * We streamlined the default features of Jetpack to make the "out of the box" experience better.
-* Want to add a recurring donation or membership to your site? You'll want to check out our new Membership Block!
 * WordPress 5.2 will add a new Site Health section to your dashboard. Jetpack already integrates with it, letting you know that your Jetpack features are working!
 
 **Enhancements**
@@ -117,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
 * Contact Form: Do not prefill for administrators on their own sites.
 * Grammar and Spelling: Remove from Jetpack. We've chekced the spelling a lot over the years, but now time to retire.
+* Membership Block: Add a new block behind the JETPACK_BETA_BLOCKS constant. Stay tuned!
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sharing: Add a "sharing_ajax_action" to to allow other plugins and scripts to render sharing buttons. Thanks Darren Cooney!
