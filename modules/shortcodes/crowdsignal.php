@@ -11,6 +11,7 @@
  * [crowdsignal survey="7676FB1FF2B56CE9"]
  * [polldaddy survey="7676FB1FF2B56CE9"]
  * [crowdsignal poll=9541291]
+ * [crowdsignal poll=9541291 type=slider]
  * [crowdsignal rating=8755352]
  *
  * @package Jetpack
@@ -355,6 +356,9 @@ if (
 				) {
 					return $poll_link;
 				} else {
+					/*
+					 * Slider poll.
+					 */
 					if (
 						'slider' === $attributes['type']
 						&& ! $inline
