@@ -160,7 +160,15 @@ class Jetpack_Debug_Data {
 			'private' => false,
 		);
 
-		/* Token information is private, but awareness if there one is set is helpful. */
+		/**
+		 * Token information is private, but awareness if there one is set is helpful.
+		 *
+		 * To balance out information vs privacy, we only display and include the "key",
+		 * which is a segment of the token prior to a period within the token and is
+		 * technically not private.
+		 *
+		 * If a token does not contain a period, then it is malformed and we report it as such.
+		 */
 		$user_id     = get_current_user_id();
 		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
 		$blog_token  = Jetpack_Options::get_option( 'blog_token' );
@@ -173,9 +181,15 @@ class Jetpack_Debug_Data {
 		$tokenset = '';
 		if ( $blog_token ) {
 			$tokenset = 'Blog ';
+			$blog_key = substr( $blog_token, 0, strpos( $blog_token, '.' ) );
+			// Intentionally not translated since this is helpful when sent to Happiness.
+			$blog_key = ( $blog_key ) ? $blog_key : 'Potentially Malformed Token.';
 		}
 		if ( $user_token ) {
 			$tokenset .= 'User';
+			$user_key  = substr( $user_token, 0, strpos( $user_token, '.' ) );
+			// Intentionally not translated since this is helpful when sent to Happiness.
+			$user_key = ( $user_key ) ? $user_key : 'Potentially Malformed Token.';
 		}
 		if ( ! $tokenset ) {
 			$tokenset = 'None';
@@ -187,9 +201,19 @@ class Jetpack_Debug_Data {
 			'private' => false,
 		);
 		$debug_info['tokens_set']   = array(
-			'label' => 'Tokens defined',
-			'value' => $tokenset,
-			'private => false,',
+			'label'   => 'Tokens defined',
+			'value'   => $tokenset,
+			'private' => false,
+		);
+		$debug_info['blog_token']   = array(
+			'label'   => 'Blog token',
+			'value'   => ( $blog_token ) ? $blog_key : 'Not set.',
+			'private' => false,
+		);
+		$debug_info['user_token']   = array(
+			'label'   => 'User token',
+			'value'   => ( $user_token ) ? $user_key : 'Not set.',
+			'private' => false,
 		);
 
 		/** Jetpack Environmental Information */
