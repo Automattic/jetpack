@@ -19,7 +19,7 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls } from '@wordpress/editor';
+import { InspectorControls, BlockIcon } from '@wordpress/editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
@@ -317,12 +317,16 @@ class MembershipsButtonEdit extends Component {
 				{ ( connected === API_STATE_LOADING ||
 					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
 					! this.props.attributes.planId && (
-						<Placeholder icon={ icon } notices={ notices }>
+						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
 							<Spinner />
 						</Placeholder>
 					) }
 				{ ! this.props.attributes.planId && connected === API_STATE_NOTCONNECTED && (
-					<Placeholder icon={ icon } label={ __( 'Memberships', 'jetpack' ) } notices={ notices }>
+					<Placeholder
+						icon={ <BlockIcon icon={ icon } /> }
+						label={ __( 'Memberships', 'jetpack' ) }
+						notices={ notices }
+					>
 						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 							{ __(
 								'In order to start selling Membership plans, you have to connect to Stripe:',
@@ -331,7 +335,7 @@ class MembershipsButtonEdit extends Component {
 							<br />
 							<br />
 							<Button isDefault isLarge href={ connectURL } target="_blank">
-								{ __( 'Connect to Stripe or set up account', 'jetpack' ) }
+								{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
 							</Button>
 							<br />
 							<br />
@@ -345,7 +349,11 @@ class MembershipsButtonEdit extends Component {
 				{ ! this.props.attributes.planId &&
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
-						<Placeholder icon={ icon } label={ __( 'Memberships', 'jetpack' ) } notices={ notices }>
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Memberships', 'jetpack' ) }
+							notices={ notices }
+						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 								{ __( 'Add your first Membership amount:', 'jetpack' ) }
 								<br />
@@ -359,7 +367,11 @@ class MembershipsButtonEdit extends Component {
 					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
-						<Placeholder icon={ icon } label={ __( 'Memberships', 'jetpack' ) } notices={ notices }>
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Memberships', 'jetpack' ) }
+							notices={ notices }
+						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 								{ __( 'Select payment amount:', 'jetpack' ) }
 								{ this.renderMembershipAmounts() }
