@@ -30,7 +30,7 @@ abstract class Jetpack_Sync_Module {
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		// in subclasses, return the number of actions enqueued, and next module state (true == done)
-		return array( 0, true );
+		return array( null, true );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
