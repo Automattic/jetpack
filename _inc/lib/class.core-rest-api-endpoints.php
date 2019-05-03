@@ -2389,6 +2389,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		// Add modules to list so they can be toggled
 		$modules = Jetpack::get_available_modules();
+		error_log("available modules");
+		error_log(print_r($modules,1));
 		if ( is_array( $modules ) && ! empty( $modules ) ) {
 			$module_args = array(
 				'description'       => '',

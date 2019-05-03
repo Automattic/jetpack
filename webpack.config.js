@@ -26,7 +26,8 @@ const webpackConfig = {
 				loader: 'babel-loader',
 				// include both typical npm-linked locations and default module
 				// locations to handle both cases
-				include: [ path.join( __dirname, 'test' ), path.join( __dirname, '_inc/client' ) ],
+				exclude: /node_modules/,
+				// include: [ path.join( __dirname, 'test' ), path.join( __dirname, '_inc/client' ), path.join( __dirname, 'vendor/automattic/jetpack-search/js/client' ) ],
 			},
 			{
 				test: /\.css$/,
@@ -54,6 +55,7 @@ const webpackConfig = {
 		modules: [
 			path.resolve( __dirname, 'node_modules' ),
 			path.resolve( __dirname, '_inc/client' ),
+			path.resolve( __dirname, 'vendor/automattic/jetpack-search/js/client' ),
 		],
 	},
 	resolveLoader: {

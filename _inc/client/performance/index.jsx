@@ -17,7 +17,7 @@ import { isModuleFound } from 'state/search';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import Media from './media';
-import Search from './search';
+import Search from 'performance/search'; //loads from vendor/automattic/jetpack-search/js/client/...
 import SpeedUpSite from './speed-up-site';
 
 class Performance extends Component {

@@ -22,7 +22,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
-import DashSearch from './search';
+import DashSearch from 'at-a-glance/search'; //loads from vendor/automattic/jetpack-search/js/client/...
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';

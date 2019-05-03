@@ -551,6 +551,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			: $request['slug']
 		);
 
+		// error_log(print_r($options,1));
+
 		// Prepare to toggle module if needed
 		$toggle_module = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 

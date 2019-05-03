@@ -13,6 +13,4 @@
  * Plans: business
  */
 
-require_once( dirname( __FILE__ ) . '/search/class.jetpack-search.php' );
-
 Jetpack_Search::instance();

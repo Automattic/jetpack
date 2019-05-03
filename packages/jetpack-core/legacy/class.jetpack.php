@@ -611,7 +611,6 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
 			if ( Jetpack::is_module_active( 'stats' ) && Jetpack::is_module_active( 'search' ) ) {
-				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
 				Jetpack_Search_Performance_Logger::init();
 			}
 		}
@@ -2432,7 +2431,7 @@ class Jetpack {
 	 * Generate a module's path from its slug.
 	 */
 	public static function get_module_path( $slug ) {
-		return JETPACK__PLUGIN_DIR . "modules/$slug.php";
+		return apply_filters( 'jetpack_get_module_path', $slug, JETPACK__PLUGIN_DIR . "modules/$slug.php" );
 	}
 
 	/**

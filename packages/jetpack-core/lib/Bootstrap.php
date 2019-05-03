@@ -25,8 +25,6 @@ namespace Jetpack\V7\Core;
 $my_version = '7.2.1';
 $primary_class = '\\Jetpack\\V7\\Core\\Bootstrap';
 
-error_log("loading bootstrap " . getmypid());
-
 // we need autoload = FALSE here otherwise it reports the class exists even if the class itself hasn't been defined yet
 if ( class_exists( $primary_class, false ) ) {
 	$reflector = new \ReflectionClass( $primary_class );

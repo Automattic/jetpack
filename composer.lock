@@ -87,8 +87,8 @@
                 "psr-4": {
                     "Jetpack\\V7\\Core\\": "lib/"
                 },
-                "xfiles": [
-                    "jetpack-core.php"
+                "files": [
+                    "module.php"
                 ],
                 "classmap": [
                     "legacy/"
