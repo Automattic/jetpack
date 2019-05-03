@@ -206,12 +206,12 @@ class Jetpack_Debug_Data {
 			'private' => false,
 		);
 		$debug_info['blog_token']   = array(
-			'label'   => 'Blog token',
+			'label'   => 'Blog Token Key',
 			'value'   => ( $blog_token ) ? $blog_key : 'Not set.',
 			'private' => false,
 		);
 		$debug_info['user_token']   = array(
-			'label'   => 'User token',
+			'label'   => 'User Token Key',
 			'value'   => ( $user_token ) ? $user_key : 'Not set.',
 			'private' => false,
 		);
