@@ -112,6 +112,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'publicize_permanently_disabled',
 		'frame_nonce',
 		'jetpack_frame_nonce',
+		'page_on_front',
 		'page_for_posts',
 		'headstart',
 		'headstart_is_fresh',
@@ -150,6 +151,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'woocommerce_is_active',
 		'frame_nonce',
 		'design_type',
+		'wordads',
 		'jetpack_frame_nonce',
 	);
 
