@@ -11,6 +11,7 @@ import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency
 
 import {
 	Button,
+	ExternalLink,
 	PanelBody,
 	Placeholder,
 	Spinner,
@@ -270,24 +271,9 @@ class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				{ __( 'Read more about ', 'jetpack' ) }
-				<a
-					rel="noopener noreferer"
-					// eslint-disable-next-line react/jsx-no-target-blank
-					target="_blank"
-					href="https://en.support.wordpress.com/memberships/"
-				>
-					{ __( 'memberships', 'jetpack' ) }
-				</a>
-				{ __( ' and ', 'jetpack' ) }
-				<a
-					rel="noopener noreferer"
-					// eslint-disable-next-line react/jsx-no-target-blank
-					target="_blank"
-					href="https://en.support.wordpress.com/memberships/#related-fees"
-				>
-					{ __( 'related fees.', 'jetpack' ) }
-				</a>
+				<ExternalLink href="https://en.support.wordpress.com/memberships/#related-fees">
+					{ __( 'Read more about memberships and related fees.', 'jetpack' ) }
+				</ExternalLink>
 			</div>
 		);
 	};
