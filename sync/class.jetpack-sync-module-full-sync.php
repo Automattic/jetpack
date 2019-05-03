@@ -103,6 +103,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.2.0
 		 * @since 7.3.0 Added $range arg.
+		 * @since 7.4.0 Added $empty arg.
 		 *
 		 * @param $full_sync_config
 		 * @param $range array
