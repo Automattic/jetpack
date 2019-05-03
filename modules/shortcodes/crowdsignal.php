@@ -4,6 +4,7 @@
  *
  * Formats:
  * [polldaddy type="iframe" survey="EB151947E5950FCF" height="auto" domain="jeherve" id="a-survey-with-branches"]
+ * [crowdsignal type="iframe" survey="EB151947E5950FCF" height="auto" domain="jeherve" id="a-survey-with-branches"]
  * https://polldaddy.com/poll/7910844/
  * https://jeherve.survey.fm/a-survey
  * https://jeherve.survey.fm/a-survey-with-branches
@@ -557,12 +558,7 @@ if (
 							$domain = preg_replace( '/[^a-z0-9\-]/i', '', $attributes['domain'] );
 							$id     = preg_replace( '/[\/\?&\{\}]/', '', $attributes['id'] );
 
-							if ( 'crowdsignal.com' === $attributes['site'] ) {
-								$auto_src = esc_url( "https://{$domain}.survey.fm/{$id}" );
-							} else {
-								$auto_src = esc_url( "https://{$domain}.polldaddy.com/s/{$id}" );
-							}
-
+							$auto_src = esc_url( "https://{$domain}.survey.fm/{$id}" );
 							$auto_src = wp_parse_url( $auto_src );
 
 							if ( ! is_array( $auto_src ) || 0 === count( $auto_src ) ) {
@@ -573,13 +569,8 @@ if (
 								return '<!-- no crowdsignal output -->';
 							}
 
-							if ( strpos( $auto_src['host'], 'survey.fm' ) ) {
-								$domain = $auto_src['host'] . '/';
-							} else {
-								$domain = $auto_src['host'] . '/s/';
-							}
-
-							$id = ltrim( $auto_src['path'], '/' );
+							$domain = $auto_src['host'] . '/';
+							$id     = ltrim( $auto_src['path'], '/' );
 
 							$settings = array(
 								'type'   => $attributes['type'],
