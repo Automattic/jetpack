@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b819c866222c9d1fb21317c1f83d1d07",
+    "content-hash": "aa23b5c97b1c9e95c82b83735c48775d",
     "packages": [
         {
             "name": "automattic/jetpack-core",
-            "version": "7.2.1",
+            "version": "7.2.2",
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-core",
-                "reference": "ed0edda4ea3da0d1a8ba670e7cf94c5f1d644e23"
+                "reference": "2a969a252ee4ff2f9e64fade5232898bb8191689"
             },
             "require": {
                 "php": ">=5.3.3"
@@ -31,10 +31,10 @@
                 "xfiles": [
                     "jetpack-core.php"
                 ],
-                "xclassmap": [
-                    "lib/"
+                "classmap": [
+                    "legacy/"
                 ],
-                "xexclude-from-classmap": [
+                "exclude-from-classmap": [
                     "/test/"
                 ]
             },
@@ -70,10 +70,10 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-search",
-                "reference": "69e416880189ce8b1bef684a9907b6503e39be1b"
+                "reference": "8c71dfba6f3e15dd8b8ec4b93b2248f6cd6c020c"
             },
             "require": {
-                "automattic/jetpack-core": "7.2.1",
+                "automattic/jetpack-core": "7.2.2",
                 "php": ">=5.3.3"
             },
             "require-dev": {

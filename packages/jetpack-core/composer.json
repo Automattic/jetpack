@@ -2,7 +2,7 @@
 	"name": "automattic/jetpack-core",
 	"description": "Core library for Jetpack",
 	"homepage": "http://jetpack.com/",
-	"version": "7.2.1",
+	"version": "7.2.2",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"support": {
