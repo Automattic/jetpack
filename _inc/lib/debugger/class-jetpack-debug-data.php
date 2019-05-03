@@ -349,13 +349,13 @@ class Jetpack_Debug_Data {
 		$master_user = Jetpack_Options::get_option( 'master_user' );
 
 		if ( ! $master_user ) {
-			return 'No master user set.';
+			return __( 'No master user set.', 'jetpack' );
 		}
 
 		$user = new WP_User( $master_user );
 
 		if ( ! $user ) {
-			return 'Master user no longer exists. Please disconnect and reconnect Jetpack.';
+			return __( 'Master user no longer exists. Please disconnect and reconnect Jetpack.', 'jetpack' );
 		}
 
 		return self::human_readable_user( $user );
