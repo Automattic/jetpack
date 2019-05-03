@@ -88,7 +88,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 					0,              // queued
 					false,          // current state
 				);
-			} else if( $include_empty && $total_items === 0 ) {
+			} else if ( $include_empty && $total_items === 0 ) {
 				$empty[ $module_name ] = true;
 			}
 		}
