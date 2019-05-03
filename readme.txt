@@ -88,14 +88,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Screenshots ==
 
-1. Security: Protection against brute force attacks, spam, and malware. On-demand backups and restores.
-2. Downtime Monitoring: Know right away if and when your site goes down.
-3. Performance: Free high-speed content delivery network for your images.
-4. Analytics: Concise site stats and traffic insights.
-5. Themes: Hundreds of customizable, professional themes.
-6. Apps: Update your site from any device with the free WordPress apps.
-7. Revenue: Sell products and take payments with simple payment buttons.
-8. Sharing: Connect your site to social networks for automated social sharing.
+1. Keep hackers out with brute force attack protection, malware scanning, spam filtering, and downtime monitoring. Secure your site data with on-demand backups and restores.
+2. Load pages faster, and serve your images and static files from our massive global content delivery network.
+3. Customize your website with professionally-designed WordPress themes, blocks, and widgets.
+4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
 
@@ -106,7 +102,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 * We streamlined the default features of Jetpack to make the "out of the box" experience better.
-* Want to add a recurring donation or membership to your site? You'll want to check out our new Membership Block!
 * WordPress 5.2 will add a new Site Health section to your dashboard. Jetpack already integrates with it, letting you know that your Jetpack features are working!
 
 **Enhancements**
@@ -121,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: Add a "grunion_after_message_sent" hook for after a form submission is e-mailed. Thanks Tim Nolte for contributing to Jetpack!
 * Contact Form: Do not prefill for administrators on their own sites.
 * Grammar and Spelling: Remove from Jetpack. We've chekced the spelling a lot over the years, but now time to retire.
+* Membership Block: Add a new block behind the JETPACK_BETA_BLOCKS constant. Stay tuned!
 * Photon: Remove jQuery dependency for photon.js. Same Image CDN awesomeness with less overhead.
 * Portfolios: Remove the "Portfolio Items" description that would display on some themes.
 * Sharing: Add a "sharing_ajax_action" to to allow other plugins and scripts to render sharing buttons. Thanks Darren Cooney!

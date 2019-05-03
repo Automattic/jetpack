@@ -104,23 +104,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return Jetpack::is_module_active( 'wordads' );
 	}
 
-	/**
-	 * Creates a nonce to allow an iframed block editor to make authenticated requests to a Jetpack site.
-	 *
-	 * Disabled here in Jetpack because the nonce is only needed when making calls from dotcom domains,
-	 * not when making calls on the same origin as we would be doing from `wp-admin/post.php` and friends.
-	 */
 	function get_frame_nonce() {
 		return false;
 	}
 
-	/**
-	 * Creates a post preview nonce to use if the current user is logged out.
-	 *
-	 * Disabled here in Jetpack because the nonce is only needed when making calls from dotcom domains,
-	 * in the case where users create a post in Calypso but are logged out from their Jetpack site.
-	 */
-	function get_frame_nonce_site_only() {
+	function get_jetpack_frame_nonce() {
 		return false;
 	}
 
