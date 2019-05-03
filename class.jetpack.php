@@ -2452,7 +2452,15 @@ class Jetpack {
 	 * Generate a module's path from its slug.
 	 */
 	public static function get_module_path( $slug ) {
-		return JETPACK__PLUGIN_DIR . "modules/$slug.php";
+		/**
+		 * Filters the path of a modules.
+		 *
+		 * @since 7.4.0
+		 *
+		 * @param array $return The absolute path to a module's root php file
+		 * @param string $slug The module slug
+		 */
+		return apply_filters( 'jetpack_get_module_path', $slug, JETPACK__PLUGIN_DIR . "modules/$slug.php" );
 	}
 
 	/**
