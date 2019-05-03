@@ -497,9 +497,7 @@ function wpcomsh_get_attachment_url( $url, $post_id ) {
 	}
 	return $url;
 }
-if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
-	add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
-}
+add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
 /**
  * When WordPress.com passes along an expiration for auth cookies and it is smaller
  * than the value set by Jetpack by default (YEAR_IN_SECONDS), use the smaller
