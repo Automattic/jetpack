@@ -1190,7 +1190,7 @@ class Jetpack_Beta {
 		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) && self::constant_get_option( 'jetpack_protect_api_host', '' ) ) {
 			define( 'JETPACK_PROTECT__API_HOST', self::constant_get_option( 'jetpack_protect_api_host', '' ) );
 		}
-		if ( ! defiend( 'JETPACK_BETA_BLOCKS' ) && self::constant_get_option( 'jetpack_beta_blocks', '' ) ) {
+		if ( ! defined( 'JETPACK_BETA_BLOCKS' ) && self::constant_get_option( 'jetpack_beta_blocks', '' ) ) {
 			define( 'JETPACK_BETA_BLOCKS', self::constant_get_option( 'jetpack_beta_blocks', '' ) ? true : false );
 		}
 	}
