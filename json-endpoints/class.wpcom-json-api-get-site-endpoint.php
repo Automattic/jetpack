@@ -111,7 +111,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wordads',
 		'publicize_permanently_disabled',
 		'frame_nonce',
-		'page_on_front',
+		'jetpack_frame_nonce',
 		'page_for_posts',
 		'headstart',
 		'headstart_is_fresh',
@@ -150,7 +150,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'woocommerce_is_active',
 		'frame_nonce',
 		'design_type',
-		'wordads',
+		'jetpack_frame_nonce',
 	);
 
 	private $site;
@@ -496,6 +496,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'frame_nonce' :
 					$options[ $key ] = $site->get_frame_nonce();
+					break;
+				case 'jetpack_frame_nonce' :
+					$options[ $key ] = $site->get_jetpack_frame_nonce();
 					break;
 				case 'page_on_front' :
 					if ( $custom_front_page ) {

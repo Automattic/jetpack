@@ -61,6 +61,8 @@ abstract class SAL_Site {
 
 	abstract public function get_frame_nonce();
 
+	abstract public function get_jetpack_frame_nonce();
+
 	abstract public function allowed_file_types();
 
 	abstract public function get_post_formats();
