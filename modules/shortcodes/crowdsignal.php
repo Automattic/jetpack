@@ -177,6 +177,10 @@ if (
 			global $post;
 			global $content_width;
 
+			if ( ! is_array( $atts ) ) {
+				return '<!-- Crowdsignal shortcode passed invalid attributes -->';
+			}
+
 			$attributes = shortcode_atts(
 				array(
 					'survey'     => null,
@@ -206,10 +210,6 @@ if (
 				$atts,
 				'crowdsignal'
 			);
-
-			if ( ! is_array( $atts ) ) {
-				return '<!-- Crowdsignal shortcode passed invalid attributes -->';
-			}
 
 			$inline = ! in_the_loop()
 				&& ! Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' );
