@@ -187,7 +187,7 @@ if (
 					'item_id'    => null,
 					'title'      => null,
 					'permalink'  => null,
-					'cb'         => 0,
+					'cb'         => 0, // cache buster. Helps with testing.
 					'type'       => 'button',
 					'body'       => '',
 					'button'     => '',
