@@ -88,6 +88,27 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test a Crowdsignal slider poll (sticks to the bottom right corner of the page).
+	 *
+	 * @since 7.4.0
+	 */
+	public function test_shortcodes_crowdsignal_poll_slider() {
+		$id      = 9541291;
+		$content = '[crowdsignal poll=' . $id . ' type="slider"]';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertEquals(
+			sprintf(
+				'<div class="cs-embed pd-embed" data-settings="{&quot;type&quot;:&quot;slider&quot;,&quot;embed&quot;:&quot;poll&quot;,&quot;delay&quot;:100,&quot;visit&quot;:&quot;single&quot;,&quot;id&quot;:%1$d,&quot;site&quot;:&quot;crowdsignal.com&quot;}"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				$id
+			),
+			$shortcode_content
+		);
+		$this->assertTrue( wp_script_is( 'crowdsignal-survey', 'enqueued' ) );
+	}
+
+	/**
 	 * Test a basic legacy Polldaddy survey.
 	 *
 	 * @since 7.4.0
