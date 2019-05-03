@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa23b5c97b1c9e95c82b83735c48775d",
+    "content-hash": "71fb849bebeb05936004e55842cb006c",
     "packages": [
         {
             "name": "automattic/jetpack-core",
@@ -56,6 +56,59 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Core library for Jetpack",
+            "homepage": "http://jetpack.com/",
+            "support": {
+                "issues": "https://github.com/Automattic/jetpack/issues"
+            },
+            "transport-options": {
+                "symlink": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-protect",
+            "version": "7.2.2",
+            "dist": {
+                "type": "path",
+                "url": "./packages/jetpack-protect",
+                "reference": "a761b39c54559b92c50890c55b79ae77ebc9884c"
+            },
+            "require": {
+                "automattic/jetpack-core": "7.2.2",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
+                "phpcompatibility/phpcompatibility-wp": "2.0.0",
+                "sirbrillig/phpcs-variable-analysis": "2.6.0",
+                "wp-coding-standards/wpcs": "2.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\V7\\Protect\\": "lib/"
+                },
+                "files": [
+                    "module.php"
+                ]
+            },
+            "scripts": {
+                "php:compatibility": [
+                    "composer install && vendor/bin/phpcs -p --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php"
+                ],
+                "php:lint": [
+                    "composer install && vendor/bin/phpcs -p"
+                ],
+                "php:autofix": [
+                    "composer install && vendor/bin/phpcbf"
+                ],
+                "php:lint:errors": [
+                    "composer install && vendor/bin/phpcs -p --runtime-set ignore_warnings_on_exit 1"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Protect library for Jetpack",
             "homepage": "http://jetpack.com/",
             "support": {
                 "issues": "https://github.com/Automattic/jetpack/issues"

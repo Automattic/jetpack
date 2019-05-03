@@ -22,8 +22,6 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-
 class Jetpack {
 	public $xmlrpc_server = null;
 
@@ -517,9 +515,7 @@ class Jetpack {
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
 		if ( Jetpack::is_active() ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
@@ -537,7 +533,6 @@ class Jetpack {
 		/**
 		 * Prepare Gutenberg Editor functionality
 		 */
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		Jetpack_Gutenberg::init();
 		Jetpack_Gutenberg::load_independent_blocks();
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
@@ -562,7 +557,6 @@ class Jetpack {
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 
 			$this->require_jetpack_authentication();

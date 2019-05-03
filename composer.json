@@ -41,6 +41,13 @@
 			"options": {
 				"symlink": true
 			}
+		},
+		{
+			"type": "path",
+			"url": "./packages/jetpack-protect",
+			"options": {
+				"symlink": true
+			}
 		}
 	]
 }

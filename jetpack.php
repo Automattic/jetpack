@@ -19,32 +19,20 @@ define( 'JETPACK__PLUGIN_FILE',        __FILE__ );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
 defined( 'JETPACK__SANDBOX_DOMAIN' ) or define( 'JETPACK__SANDBOX_DOMAIN', '' );
 
-// always load this
+// ensure a default autoload mechanism is available
+// this is filterable so on future platforms we can use a single autoloader
+// that compiles all plugin dependencies in one place
+if ( ! has_filter( 'jetpack_autoload' ) ) {
+	add_filter( 'jetpack_autoload', function( $plugin, $loader ) {
+		return require_once plugin_dir_path( $plugin ) . '/vendor/autoload.php';
+	}, 10, 2 );
+}
 
-// TODO: use a filter to look up the loader - thanks Eric!
-$loader = require JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
+$loader = apply_filters( 'jetpack_autoload', __FILE__, false );
 
-// by making this check first, we never load the Bootstrap class more than once
-// if ( ! defined( 'Jetpack_V7_Core_Loaded' ) ) {
-	// this should autoload the bootstrap file
-	$plugin = new \Jetpack\V7\Core\Bootstrap();
-	$plugin->load();
-// } else {
-// 	// $loader->addClassMap ?? reuse existing loading instance
-
-// }
-
-// classes to load:
-// Client
-// Debugger
-// Compat
-
-// eventually we won't have to force these to load, but right now they define constants that are used elsewhere in Jetpack
-$loader->loadClass( 'Jetpack\V7\Core\Client'   );
-$loader->loadClass( 'Jetpack\V7\Core\Debugger' );
-$loader->loadClass( 'Jetpack\V7\Core\Compat'   );
-$loader->loadClass( 'Jetpack\V7\Core\Api'      );
-$loader->loadClass( 'Jetpack\V7\Core\Lib'      );
+// this should autoload the bootstrap file
+$plugin = new \Jetpack\V7\Core\Bootstrap();
+$plugin->load( $loader );
 
 // Initialize the plugin if not already loaded.
 add_action( 'init', function(){
@@ -52,26 +40,10 @@ add_action( 'init', function(){
 
 });
 
-// Optional, remove later
-// Protect
-
-
-
-
-
-
-
-
-
-// legacy classes
-$loader->loadClass( 'Jetpack' );
 
 
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-// require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
 require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );

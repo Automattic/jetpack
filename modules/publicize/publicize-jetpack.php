@@ -35,8 +35,6 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
-
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 
 	function add_disconnect_notice() {

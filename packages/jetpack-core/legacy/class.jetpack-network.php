@@ -601,7 +601,6 @@ class Jetpack_Network {
 			return;
 		}
 
-		require_once( 'class.jetpack-network-sites-list-table.php' );
 		$myListTable = new Jetpack_Network_Sites_List_Table();
 		echo '<div class="wrap"><h2>' . __( 'Sites', 'jetpack' ) . '</h2>';
 		echo '<form method="post">';
