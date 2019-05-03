@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 5.0.2
-* Stable tag: 1.6.4
+* Tested up to: 5.1.1
+* Stable tag: 1.6.5
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -265,6 +265,28 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.6.5 ###
+* Check advanced-cache.php was created by the plugin before modifying/deleting it. (#666)
+* When saving settings, save blank lines. Fixes problems with WP_CACHE and WPCACHEHOME in wp-config.php. Related to #652. (#667)
+* Update outdated code and use is_multisite() (#600)
+* Fix the delete cache button in the admin bar. (#603)
+* Code cleanup in #602
+* Use get_post_status instead of post_status (#623)
+* Fixes button - Update Direct Pages (#622)
+* Removes apache_response_headers and uses only headers_list (#618)
+* Function is_site_admin has been deprecated (#611)
+* Fixes action urls in wp_cache_manager (#610)
+* Remove the link to the HibbsLupusTrust tweet. (#635)
+* Don't load wp-cache-config.php if it's already loaded (#605)
+* PHPCS fixes and optimization for plugins/domain-mapping.php (#615)
+* Introduces PHP_VERSION_ID for faster checking (#604)
+* Fixes regex and optimizes ossdl-cdn.php (#596)
+* Only update new settings and use a temporary file to avoid corruption. (#652)
+* Serve cached files to rejected user agents, don't cache them. (#658)
+* Combine multiple headers with the same name (#641)
+* Open ‘Delete Cache’ link in same window (#656)
+* Promote the Jetpack Site Accelerator on the CDN page. (#636)
 
 ### 1.6.4 ###
 * Changes between [1.6.3 and 1.6.4](https://github.com/Automattic/wp-super-cache/compare/1.6.3...1.6.4)
@@ -691,4 +713,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Bug fixes
+Many bug fixes
