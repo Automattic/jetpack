@@ -430,7 +430,12 @@ if (
 								'crowdsignal-shortcode',
 								'crowdsignal_shortcode_options',
 								array(
-									'script_url' => esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ),
+									'script_url' => esc_url_raw(
+										Jetpack::get_file_url_for_environment(
+											'_inc/build/polldaddy-shortcode.min.js',
+											'_inc/polldaddy-shortcode.js'
+										)
+									),
 								)
 							);
 
@@ -713,7 +718,12 @@ if (
 					'crowdsignal-shortcode',
 					'crowdsignal_shortcode_options',
 					array(
-						'script_url' => esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ),
+						'script_url' => esc_url_raw(
+							Jetpack::get_file_url_for_environment(
+								'_inc/build/polldaddy-shortcode.min.js',
+								'_inc/polldaddy-shortcode.js'
+							)
+						),
 					)
 				);
 			}
