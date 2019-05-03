@@ -20,10 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'private' ) ) {
-	return;
-}
-
 if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
 	include_once 'sitemaps/sitemaps.php';
 }

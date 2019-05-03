@@ -1809,9 +1809,19 @@ class Jetpack {
 	}
 
 	/**
-	 * Loads the currently active modules.
+	 * Loads the private module if it has been activated.
 	 */
-	public static function load_modules() {
+	public static function load_private() {
+		if ( self::is_module_active( 'private' ) ) {
+			self::load_modules( array( 'private' ) );
+		}
+	}
+
+	/**
+	 * Loads modules from given array, otherwise all the currently active modules.
+	 * @param $custom_modules Array Modules to be loaded.
+	 */
+	public static function load_modules( $custom_modules = array() ) {
 		if (
 			! self::is_active()
 			&& ! self::is_development_mode()
@@ -1833,7 +1843,7 @@ class Jetpack {
 		}
 		list( $version ) = explode( ':', $version );
 
-		$modules = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
+		$modules = ( empty( $custom_modules ) ) ? array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) ) : $custom_modules;
 
 		$modules_data = array();
 
@@ -1890,12 +1900,14 @@ class Jetpack {
 			do_action( 'jetpack_module_loaded_' . $module );
 		}
 
-		/**
-		 * Fires when all the modules are loaded.
-		 *
-		 * @since 1.1.0
-		 */
-		do_action( 'jetpack_modules_loaded' );
+		if ( empty( $custom_modules ) ) {
+			/**
+			* Fires when all the modules are loaded.
+			*
+			* @since 1.1.0
+			*/
+			do_action( 'jetpack_modules_loaded' );
+		}
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
 		require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
@@ -3017,7 +3029,7 @@ class Jetpack {
 
 		$jetpack = Jetpack::init();
 
-		$active = Jetpack::get_active_modules();
+		$active = Jetpack_Options::get_option( 'active_modules', array() );
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
 		return self::update_active_modules( $new );
