@@ -24,6 +24,12 @@ PHP is needed all around the build process for Jetpack bundles.
 
 PHPUnit is the tool that helps us run unit tests for Jetpack.
 
+### Command is available: docker
+
+The command `docker` comes installed with the Docker app in most environments.
+
+This command is essential for running the Jetpack Docker Development Environment.
+
 ### Docker images are available
 
 The containers for the Jetpack docker images are created when you ran `yarn docker:up`.
