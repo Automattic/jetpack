@@ -122,6 +122,7 @@ main() {
 	output "\n==============================\n\n"
 
 	check command_is_available docker
+	check command_is_available docker-compose
 	check  docker_is_running
 	check  docker_images_are_available
 	check  docker_containers_are_available

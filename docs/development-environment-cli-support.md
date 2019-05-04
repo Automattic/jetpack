@@ -26,9 +26,15 @@ PHPUnit is the tool that helps us run unit tests for Jetpack.
 
 ### Command is available: docker
 
-The command `docker` comes installed with the Docker app in most environments.
+The command `docker` comes with the Docker app in most environments.
 
 This command is essential for running the Jetpack Docker Development Environment.
+
+### Command is available: docker-compose
+
+The command `docker-compose` comes with the Docker app in most environments nowawadays but it wasn not the case with old versions of the Docker app.
+
+This command is needed for leveraging the multiple docker containers that encompass the Jetpack Docker Development Environment.
 
 ### Docker images are available
 
