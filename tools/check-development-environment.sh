@@ -88,13 +88,13 @@ function support_url {
 function assert {
 	output "* $1 $2":
 	$1 $2 && success " SUCCESS\n"
-	$1 $2 || danger " FAILED. Check $(support_url "$1" "$2" )\n"
+	$1 $2 || danger " FAILED.\n\tCheck $(support_url "$1" "$2" )\n"
 }
 
 function check {
 	output "* $1 $2":
 	$1 $2 && success " SUCCESS\n"
-	$1 $2 || output " NOPE. Check $(support_url "$1" "$2" )\n"
+	$1 $2 || output " NOPE.\n\tCheck $(support_url "$1" "$2" )\n"
 }
 
 main() {
