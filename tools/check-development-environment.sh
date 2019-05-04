@@ -25,8 +25,12 @@ function node_version_is_proper {
 	version_gt `node -v |cut -b 2-` $REQUIRED
 }
 
+function which {
+	type "$1" >>/dev/null 2>&1
+}
+
 function command_is_available {
-	which -s $1 || command_exists_as_alias $1 || type $1 >/dev/null 2>/dev/null
+	which $1 || command_exists_as_alias $1 || type $1 >/dev/null 2>/dev/null
 }
 function nvm_is_available {
     [ -f ~/.nvm/nvm.sh ] && source ~/.nvm/nvm.sh && command_is_available nvm
@@ -38,7 +42,7 @@ function docker_is_running {
 
 function repo_is_up_to_date {
 	git fetch origin >/dev/null
-	git diff -s --exit-code master origin/master
+	git diff --exit-code master origin/master
 }
 
 function node_modules_are_available {
@@ -94,18 +98,19 @@ function check {
 }
 
 main() {
-	output "Jetpack development environment checking\n\n"
+	output "Jetpack development environment check\n\n"
 	output "\nChecking under $PWD\n\n"
-	output "Tools for development, linting, unit testing\n"
-	output "============================================ \n\n"
+
+	output "Tools for development, linting, unit testing PHP\n"
+	output "================================================ \n\n"
 
 	assert command_is_available php
 	assert command_is_available phpunit
 	assert command_is_available composer
 	assert vendor_dir_is_available
 
-	output "\n\nJavaScript tooling\n"
-	output "======================\n\n"
+	output "\n\nTools for development, linting, unit testing JavaScript"
+	output "\n ======================================================\n\n"
 
 	assert command_is_available node
 	assert node_version_is_proper
@@ -113,17 +118,17 @@ main() {
 	check  nvm_is_available || check command_is_available n
 	assert node_modules_are_available
 
-	output "\nJetpack Development Environment\n"
-	output "=================================\n\n"
+	output "\nDocker Development Environment"
+	output "\n==============================\n\n"
 
-	assert command_is_available docker
+	check command_is_available docker
 	check  docker_is_running
 	check  docker_images_are_available
 	check  docker_containers_are_available
 	check  docker_containers_are_running
 
-	output "\n\nTools for contributing\n"
-	output "==========================\n\n"
+	output "\n\nTools for contributing"
+	output "\n======================\n\n"
 
 	assert command_is_available git
 	assert is_git_dir
