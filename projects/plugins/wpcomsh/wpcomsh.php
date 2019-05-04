@@ -816,3 +816,17 @@ function wpcomsh_site_status_tests_disable( $tests ) {
 	unset( $tests['direct']['php_extensions'] );
 	return $tests;
 }
+
+/**
+ * This is a copy of the filter in misc.php https://wpcom.trac.automattic.com/browser/trunk/wp-content/mu-plugins/misc.php?rev=190597#L3983
+ * We filter the user agent to identify requests as WordPress.com and this makes those requests consistent across Atomic sites.
+ * It also stops our requests from being blocked by hosts that filter the standard WordPress user agent string as was the case
+ * with this import p9F6qB-36t-p2
+ *
+ */
+function wpcomsh_filter_outgoing_user_agent( $agent ) {
+	global $wp_version;
+
+	return str_replace( "WordPress/$wp_version", 'WordPress.com', $agent );
+}
+add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 );
