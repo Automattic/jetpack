@@ -1791,9 +1791,6 @@ class Jetpack {
 		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
 		wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
 		wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
-
-		// For core, see <https://core.trac.wordpress.org/ticket/46067>.
-		wp_oembed_add_provider( '#^https?://giphy\.com/embed/(?:.+?-)?\w+#', 'https://giphy.com/services/oembed', true );
 	}
 
 	/**
