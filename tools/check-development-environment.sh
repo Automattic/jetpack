@@ -42,7 +42,7 @@ function docker_is_running {
 
 function repo_is_up_to_date {
 	git fetch origin >/dev/null
-	git diff --exit-code master origin/master
+	git diff -s --exit-code master origin/master
 }
 
 function node_modules_are_available {
