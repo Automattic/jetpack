@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
  */
 import { imagePath } from 'constants/urls';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import ChecklistProgress from './checklist-progress-card';
 
 class MyPlanHeader extends React.Component {
 	trackLearnMore = () => {
@@ -135,7 +136,12 @@ class MyPlanHeader extends React.Component {
 				);
 				break;
 		}
-		return <div>{ planCard }</div>;
+		return (
+			<>
+				<div>{ planCard }</div>
+				<ChecklistProgress />
+			</>
+		);
 	}
 }
 export default connect( state => {
