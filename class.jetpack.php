@@ -448,15 +448,14 @@ class Jetpack {
 		$active_modules       = Jetpack::get_active_modules();
 		$new_active_modules   = array();
 		$new_deactive_modules = array();
-
-		list( $modules, $current_modules, $active_modules ) = array_map( 'isArray', array( $modules, $current_modules, $active_modules ) );
-
+		list(
+			$modules,
+			$current_modules,
+			$active_modules )   = array_map( 'isArray', array( $modules, $current_modules, $active_modules ) );
 		$new_active_modules   = array_diff( $modules, $current_modules );
 		$new_deactive_modules = array_diff( $active_modules, $modules );
-		
-		
-		$new_current_modules = array_diff( array_merge( $current_modules, $new_active_modules ), $new_deactive_modules );
-		$success             = Jetpack_Options::update_option( 'active_modules', array_unique( $new_current_modules ) );
+		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_deactive_modules );
+		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $new_current_modules ) );
 		
 		foreach( $new_active_modules as $module ) {
 			/**
