@@ -436,7 +436,7 @@ class Jetpack {
 		delete_transient( self::$plugin_upgrade_lock_key );
 	}
 
-	function isArray( $arr ) {
+	static function isArray( $arr ) {
 		if ( ! is_array( $arr ) ) {
 			return array();
 		}
@@ -446,12 +446,13 @@ class Jetpack {
 	static function update_active_modules( $modules ) {
 		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
 		$active_modules       = Jetpack::get_active_modules();
+	
 		$new_active_modules   = array();
 		$new_deactive_modules = array();
-		list(
-			$modules,
-			$current_modules,
-			$active_modules )   = array_map( 'isArray', array( $modules, $current_modules, $active_modules ) );
+		$current_modules      = ( is_array( $current_modules ) ) ? $current_modules : array();
+		$modules              = ( is_array( $modules ) ) ? $modules : array();
+		$active_modules       = ( is_array( $active_modules ) ) ? $active_modules : array();
+
 		$new_active_modules   = array_diff( $modules, $current_modules );
 		$new_deactive_modules = array_diff( $active_modules, $modules );
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_deactive_modules );
