@@ -4,8 +4,10 @@ Fixes #
 
 #### Changes proposed in this Pull Request:
 <!--- Explain what functional changes your PR includes -->
-
 *
+
+#### Is this a new feature or does it add/remove features to an existing part of Jetpack?
+* If you're an Automattician, include a shortlink link to the p2 discussion with Product here.
 
 #### Testing instructions:
 <!-- Please include detailed testing steps, explaining how to test your change. -->
