@@ -232,6 +232,13 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
+		wp_enqueue_style(
+			'wpcom-block-editor-styles',
+			'//widgets.wp.com/wpcom-block-editor/style.css',
+			array(),
+			$version
+		);
+
 		if ( $this->is_iframed_block_editor() ) {
 			$src_calypso_iframe_bridge = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
