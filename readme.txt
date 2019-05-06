@@ -163,6 +163,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Slideshow: Fix a JavaScript error that occurs when block is first added.
 * Slideshow: Add slideshow images to Open Graph tags when using the Slideshow block.
 * Social Icons: Remove Google+, uses the generic Google now.
+* Subscriptions: Correct conflicts that were possible with the checkboxes after a comment submission form.
 * Theme Tools: Ensure Featured Content tag is retained on a post after saving. Thanks Anis Ladram, you're a Jetpack contributor now!
 * Uninstalling Jetpack: Prevent notice about JETPACK__PLUGIN_DIR already being defined when programmatically uninstalling Jetpack. (But why would you uninstall?)
 * Widgets: Remove the Cookies & Consents Banner (not just hide it) after consenting. Thanks Tony Tettinger!
