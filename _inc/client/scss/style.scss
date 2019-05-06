@@ -13,6 +13,7 @@
 
 // Variables
 @import 'variables/colors';
+@import '../../../node_modules/@automattic/calypso-color-schemes/src/__color-studio/color-variables.scss';
 @import 'variables/layout';
 
 // Mixins
@@ -53,3 +54,8 @@
 @import '../plans/style';
 @import '../settings/style';
 @import '../traffic/style';
+
+// Component-based imports
+@import '../my-plan/checklist-progress-card/style.scss';
+@import '../my-plan/checklist-progress-card/progress-bar/style.scss';
+@import '../my-plan/checklist-progress-card/progress-bar/screen-reader-text/style.scss';
