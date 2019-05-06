@@ -114,8 +114,6 @@ const analytics = {
 
 	tracks: {
 		recordEvent: function( eventName, eventProperties ) {
-			let superProperties;
-
 			eventProperties = eventProperties || {};
 
 			if ( eventName.indexOf( 'akismet_' ) !== 0 && eventName.indexOf( 'jetpack_' ) !== 0 ) {
@@ -125,7 +123,7 @@ const analytics = {
 
 			if ( _superProps ) {
 				debug( '- Super Props: %o', _superProps );
-				eventProperties = assign( eventProperties, superProperties );
+				eventProperties = assign( eventProperties, _superProps );
 			}
 			debug(
 				'Record event "%s" called with props %s',
