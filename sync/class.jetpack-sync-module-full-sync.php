@@ -105,9 +105,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 7.3.0 Added $range arg.
 		 * @since 7.4.0 Added $empty arg.
 		 *
-		 * @param $full_sync_config
-		 * @param $range array
-		 * @param $empty array
+		 * @param array $full_sync_config
+		 * @param array $range
+		 * @param array $empty
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range, $empty );
 
@@ -186,8 +186,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 * @since 7.3.0 Added $range arg.
 		 *
-		 * @param args ''
-		 * @param $range array 
+		 * @param string $arg
+		 * @param array  $range
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
 	}
