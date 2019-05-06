@@ -124,11 +124,9 @@ const analytics = {
 			}
 
 			if ( _superProps ) {
-				superProperties = _superProps.getAll();
-				debug( '- Super Props: %o', superProperties );
+				debug( '- Super Props: %o', _superProps );
 				eventProperties = assign( eventProperties, superProperties );
 			}
-
 			debug(
 				'Record event "%s" called with props %s',
 				eventName,

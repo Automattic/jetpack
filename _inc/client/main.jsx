@@ -118,8 +118,9 @@ class Main extends React.Component {
 
 	initializeAnalyitics = () => {
 		const tracksUser = this.props.tracksUserData;
+
 		if ( tracksUser ) {
-			analytics.initialize( tracksUser.userid, tracksUser.username, tracksUser.blogid );
+			analytics.initialize( tracksUser.userid, tracksUser.username, { blogid: tracksUser.blogid } );
 		}
 	};
 
