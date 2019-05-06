@@ -80,6 +80,20 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests albums with a custom color.
+	 *
+	 * @since 7.4.0
+	 */
+	public function tests_shortcodes_soundcloud_album_custom_color() {
+		$content = '[soundcloud url="https://soundcloud.com/closetorgan/sets/smells-like-lynx-africa-private" color="00cc11"]';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( '<iframe width="100%" height="450"', $shortcode_content );
+		$this->assertContains( 'w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fclosetorgan%2Fsets%2Fsmells-like-lynx-africa-private&width=false&height=false&auto_play=false&hide_related=false&visual=false&show_comments=false&show_user=false&show_reposts=false&color=00cc11', $shortcode_content );
+	}
+
+	/**
 	 * Shortcode reversals.
 	 */
 	public function test_shortcodes_soundcloud_reversal_player() {
