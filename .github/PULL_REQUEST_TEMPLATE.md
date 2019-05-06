@@ -9,7 +9,7 @@ Fixes #
 *
 
 #### Is this a new feature or does it add/remove features to an existing part of Jetpack?
-* If you're an Automattician, include a shortlink link to the p2 discussion with Jetpack Product here.
+* If you're an Automattician, include a shortlink to the p2 discussion with Jetpack Product here.
 
 #### Testing instructions:
 <!-- If you were reviewing this PR, how would you like the instructions to be presented? -->
