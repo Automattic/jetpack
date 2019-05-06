@@ -203,6 +203,11 @@ export const settings = {
 					return createBlock( 'core/image' );
 				},
 			},
+			{
+				type: 'block',
+				blocks: [ 'jetpack/slideshow' ],
+				transform: ( { images } ) => createBlock( 'jetpack/slideshow', { images }, [] ),
+			},
 		],
 	},
 	edit,
