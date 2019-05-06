@@ -102,6 +102,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'connected_destination_account_id' => $connected_destination_account_id,
 				)
 			);
+			if ( is_wp_error( $product ) ) {
+				return new WP_Error( $product->get_error_code(), __( 'Creating product has failed.', 'jetpack' ) );
+			}
 			return $product->to_array();
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
@@ -125,6 +128,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
+			// If endpoint returned error, we have to detect it.
+			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
+				return new WP_Error( $data['code'], $data['message'], 401 );
+			}
 			return $data;
 		}
 
