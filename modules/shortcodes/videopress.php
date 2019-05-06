@@ -4,6 +4,8 @@
  *
  * @since 2.4
  * @since 3.9.5 Added compatibility with refactored VideoPress module.
+ *
+ * @package Jetpack
  */
 
 if ( ! Jetpack::is_module_active( 'videopress' ) ) {
