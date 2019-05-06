@@ -31,6 +31,7 @@ export default function GalleryImageSave( props ) {
 			data-url={ origUrl }
 			data-width={ width }
 			src={ url }
+			className={ `wp-image-${ id }` } // WordPress adds an srcset when it sees wp-image-${ id }
 		/>
 	);
 
