@@ -893,9 +893,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $range['comments']->min ) );
 		$this->assertTrue( isset( $range['comments']->count ) );
 	}
-
-
-
+	
 	function record_full_sync_end_checksum( $checksum, $range ) {
 		// $checksum  has been deprecated...
 		$this->full_sync_end_range = $range;
