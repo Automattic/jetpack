@@ -1179,6 +1179,20 @@ class Jetpack_User_Agent_Info {
 	}
 
 
+	// Detect if user agent is the WordPress.com Desktop app.
+	static function is_wordpress_desktop_app( ) {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
+			return false;
+
+		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$pos   = strpos( $agent, 'WordPressDesktop' );
+		if ( false !== $pos )
+			return true;
+		else
+			return false;
+	}
+
+
 	/*
 	 * is_blackberry_tablet() can be used to check the User Agent for a RIM blackberry tablet
 	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
