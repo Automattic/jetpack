@@ -355,7 +355,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 						restore_current_blog();
 					}
 					if ( $count_fixes ) {
-						WP_CLI::success( sprintf( __( "Successfully reset %s on %s sites.", 'jetpack' ), $option, $count_fixes ) );
+						WP_CLI::success(
+							sprintf(
+								__( "Successfully reset %s on %s sites.", 'jetpack' ),
+								$option,
+								$count_fixes
+							)
+						);
 					} else {
 						WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
 					}
