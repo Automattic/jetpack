@@ -77,6 +77,8 @@ class Jetpack_Sync_Actions {
 				is_admin()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+				( self::sync_via_cron_allowed() && Jetpack_Constants::is_true( 'DOING_CRON' ) )
 			)
 		) ) {
 			self::initialize_sender();
