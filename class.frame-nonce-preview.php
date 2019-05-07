@@ -7,6 +7,13 @@ class Jetpack_Frame_Nonce_Preview {
 	static $instance = null;
 
 	/**
+	 * Whether the frame nonce for the current request is valid.
+	 *
+	 * @var bool
+	 */
+	private $frame_nonce_valid;
+
+	/**
 	 * Returns the single instance of the Jetpack_Frame_Nonce_Preview object
 	 *
 	 * @since 4.3.0
@@ -45,15 +52,19 @@ class Jetpack_Frame_Nonce_Preview {
 			return false;
 		}
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.verifyFrameNonce', sanitize_key( $_GET['frame-nonce'] ) );
+		if ( empty( $this->frame_nonce_valid ) ) {
+			Jetpack::load_xml_rpc_client();
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.verifyFrameNonce', sanitize_key( $_GET['frame-nonce'] ) );
 
-		if ( $xml->isError() ) {
-			return false;
+			if ( $xml->isError() ) {
+				return false;
+			}
+
+			$this->frame_nonce_valid = (bool) $xml->getResponse();
 		}
 
-		return (bool) $xml->getResponse();
+		return $this->frame_nonce_valid;
 	}
 
 	/**
@@ -69,9 +80,11 @@ class Jetpack_Frame_Nonce_Preview {
 		if (
 			$query->is_main_query() &&
 			$query->is_preview() &&
-			$query->is_singular()
+			$query->is_singular() &&
+			$this->is_frame_nonce_valid()
 		) {
 			add_filter( 'posts_results', array( $this, 'set_post_to_publish' ), 10, 2 );
+			define( 'IFRAME_REQUEST', true );
 		}
 
 		return $query;
@@ -89,7 +102,7 @@ class Jetpack_Frame_Nonce_Preview {
 	public function set_post_to_publish( $posts ) {
 		remove_filter( 'posts_results', array( $this, 'set_post_to_publish' ), 10, 2 );
 
-		if ( empty( $posts ) || is_user_logged_in() || ! $this->is_frame_nonce_valid() ) {
+		if ( empty( $posts ) || is_user_logged_in() ) {
 			return $posts;
 		}
 
@@ -112,6 +125,7 @@ class Jetpack_Frame_Nonce_Preview {
 		if ( ! $this->is_frame_nonce_valid() ) {
 			wp_die( __( 'Sorry, you are not allowed to preview drafts.', 'jetpack' ) );
 		}
+		define( 'IFRAME_REQUEST', true );
 		add_filter( 'the_preview', '_set_preview' );
 	}
 }
