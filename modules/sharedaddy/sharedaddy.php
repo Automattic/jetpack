@@ -256,17 +256,42 @@ function sharing_global_resources_save() {
 	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
 }
 
+function sharing_recaptcha_site_key() {
+	if( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
+		return;
+	}
+
+	if( defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined ( 'RECAPTCHA_SITE_KEY' ) ) {
+		define( 'RECAPTCHA_SITE_KEY', RECAPTCHA_PUBLIC_KEY );
+	}
+
+	return RECAPTCHA_SITE_KEY;
+}
+
+function sharing_recaptcha_secret_key() {
+	if( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
+		return;
+	}
+
+	if( defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined ( 'RECAPTCHA_SECRET_KEY' ) ) {
+		define( 'RECAPTCHA_SECRET_KEY', RECAPTCHA_PRIVATE_KEY );
+	}
+
+	return RECAPTCHA_SECRET_KEY;
+
+}
+
 function sharing_email_dialog() {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
+	$recaptcha = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key() );
 	echo $recaptcha->get_recaptcha_html(); // xss ok
 }
 
 function sharing_email_check( $true, $post, $data ) {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY );
+	$recaptcha = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key() );
 	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
 	$result    = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
 
