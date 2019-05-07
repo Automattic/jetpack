@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: _s Jetpack\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-07T19:45:53.133Z\n"
+"POT-Creation-Date: 2019-05-07T20:09:40.110Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -76,18 +76,6 @@ msgctxt "Navigation item."
 msgid "Sharing"
 msgstr ""
 
-#: _inc/client/state/dev-version/actions.js:29
-msgid "Resetting Jetpack options…"
-msgstr ""
-
-#: _inc/client/state/dev-version/actions.js:39
-msgid "Options reset."
-msgstr ""
-
-#: _inc/client/state/dev-version/actions.js:52
-msgid "Options failed to reset."
-msgstr ""
-
 #: _inc/client/state/connection/actions.js:42
 msgid "Testing Jetpack Connection"
 msgstr ""
@@ -114,6 +102,18 @@ msgstr ""
 
 #: _inc/client/state/connection/actions.js:199
 msgid "Error unlinking from WordPress.com. %(error)s"
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:29
+msgid "Resetting Jetpack options…"
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:39
+msgid "Options reset."
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:52
+msgid "Options failed to reset."
 msgstr ""
 
 #: _inc/client/state/jumpstart/actions.js:30
@@ -2385,78 +2385,6 @@ msgstr ""
 msgid "Jupiter"
 msgstr ""
 
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:41
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:57
-msgid "Daily, automated backups (unlimited storage)"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:45
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:65
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:85
-msgid "Priority support"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:49
-msgid "Spam filtering"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:61
-msgid "Daily, automated malware scanning"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:69
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:89
-msgid "Unlimited, high-speed video hosting"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:77
-msgid "Real-time, automated backups (unlimited storage)"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:81
-msgid "Daily, automated malware scanning with automated resolution"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:93
-msgid "SEO preview tools"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:100
-msgid "Site stats, related content, and sharing tools"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:104
-msgid "Brute force attack protection and downtime monitoring"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:108
-msgid "Unlimited, high-speed image hosting"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:138
-msgid "Disconnect Jetpack"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:140
-msgid ""
-"By disconnecting %(siteName)s from WordPress.com you will no longer have "
-"access to the following:"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:159
-msgctxt "A caption for a button to cancel disconnection."
-msgid "Stay connected"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:164
-msgctxt "A caption for a button to disconnect."
-msgid "Disconnect"
-msgstr ""
-
-#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:169
-msgid "Read more about Jetpack benefits"
-msgstr ""
-
 #: _inc/client/components/jetpack-notices/dismissable.jsx:37
 msgid "You have successfully disconnected Jetpack"
 msgstr ""
@@ -2619,6 +2547,78 @@ msgid ""
 "effectively protect your site."
 msgstr ""
 
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:41
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:57
+msgid "Daily, automated backups (unlimited storage)"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:45
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:65
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:85
+msgid "Priority support"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:49
+msgid "Spam filtering"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:61
+msgid "Daily, automated malware scanning"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:69
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:89
+msgid "Unlimited, high-speed video hosting"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:77
+msgid "Real-time, automated backups (unlimited storage)"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:81
+msgid "Daily, automated malware scanning with automated resolution"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:93
+msgid "SEO preview tools"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:100
+msgid "Site stats, related content, and sharing tools"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:104
+msgid "Brute force attack protection and downtime monitoring"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:108
+msgid "Unlimited, high-speed image hosting"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:138
+msgid "Disconnect Jetpack"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:140
+msgid ""
+"By disconnecting %(siteName)s from WordPress.com you will no longer have "
+"access to the following:"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:159
+msgctxt "A caption for a button to cancel disconnection."
+msgid "Stay connected"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:164
+msgctxt "A caption for a button to disconnect."
+msgid "Disconnect"
+msgstr ""
+
+#: _inc/client/components/jetpack-disconnect-dialog/index.jsx:169
+msgid "Read more about Jetpack benefits"
+msgstr ""
+
 #: _inc/client/components/jumpstart/index.jsx:34
 msgid "Activate recommended features"
 msgstr ""
@@ -2654,6 +2654,12 @@ msgstr ""
 
 #: _inc/client/components/masthead/index.jsx:121
 msgid "Settings"
+msgstr ""
+
+#: _inc/client/components/module-overridden-banner/index.jsx:52
+msgid ""
+"%(moduleName)s has been disabled by a site administrator. {{link}}Learn "
+"more{{/link}}."
 msgstr ""
 
 #: _inc/client/components/module-settings/connect-module-options.jsx:63
@@ -2724,12 +2730,6 @@ msgstr ""
 
 #: _inc/client/components/module-settings/index.jsx:233
 msgid "Display an ad unit at the top of your site."
-msgstr ""
-
-#: _inc/client/components/module-overridden-banner/index.jsx:52
-msgid ""
-"%(moduleName)s has been disabled by a site administrator. {{link}}Learn "
-"more{{/link}}."
 msgstr ""
 
 #: _inc/client/components/module-toggle/index.jsx:78
