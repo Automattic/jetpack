@@ -333,7 +333,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::error( __( 'Please specify if you would like to reset your options, modules or sync-checksum', 'jetpack' ) );
 				break;
 			case 'sync-checksum':
-				global $wpdb;
 				$option = 'jetpack_callables_sync_checksum';
 
 				if ( is_multisite() && function_exists( 'get_sites' ) ) {
