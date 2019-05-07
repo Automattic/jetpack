@@ -603,7 +603,7 @@ if ( ! function_exists( 'crowdsignal_link' ) ) {
 	 * This should be removed after Core has the current regex is in our minimum version.
 	 *
 	 * @see https://core.trac.wordpress.org/ticket/46467
-	 * @todo Confirm patch landed and remove once 5.2 is the minimum version.
+	 * @todo Remove once 5.2 is the minimum version.
 	 */
 wp_oembed_add_provider( '#https?://.+\.survey\.fm/.*#i', 'https://api.crowdsignal.com/oembed', true );
 
