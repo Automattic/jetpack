@@ -105,9 +105,9 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 7.3.0 Added $range arg.
 		 * @since 7.4.0 Added $empty arg.
 		 *
-		 * @param array $full_sync_config
-		 * @param array $range
-		 * @param array $empty
+		 * @param array $full_sync_config Sync configuration for all sync modules.
+		 * @param array $range            Range of the sync items, containing min and max IDs for some item types.
+		 * @param array $empty            The modules with no items to sync during a full sync.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range, $empty );
 
@@ -186,8 +186,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 * @since 7.3.0 Added $range arg.
 		 *
-		 * @param string $arg
-		 * @param array  $range
+		 * @param string $checksum Deprecated since 7.3.0 - @see https://github.com/Automattic/jetpack/pull/11945/
+		 * @param array  $range    Range of the sync items, containing min and max IDs for some item types.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
 	}
