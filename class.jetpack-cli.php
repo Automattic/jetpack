@@ -367,7 +367,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 					if ( ! $is_dry_run ) {
 						delete_option( $option );
 					}
-					WP_CLI::success( sprintf( __( 'Deleted %s %s options', 'jetpack' ), $count, $option ) );
+					WP_CLI::success(
+						sprintf(
+							__( 'Deleted %s %s options', 'jetpack' ),
+							$count,
+							$option
+						)
+					);
 					return;
 				}
 
