@@ -15,7 +15,9 @@ import QueryChecklistProgress from 'components/data/query-checklist-progress';
 import QuerySite from 'components/data/query-site';
 import { getSiteID } from 'state/site';
 import { getTasks } from 'state/checklist/selectors';
-import './style.scss';
+
+// Style imports are unused
+// import './style.scss';
 
 function ChecklistProgressCard( { completed, total, siteId } ) {
 	if ( ! siteId ) {
@@ -28,18 +30,18 @@ function ChecklistProgressCard( { completed, total, siteId } ) {
 	}
 
 	return (
-		<Card compact>
+		<Card compact className="checklist__header">
 			<QuerySite />
 			<QueryChecklistProgress />
 			{ completed && total && (
 				<>
 					<div className="checklist__header-main">
 						<div className="checklist__header-progress">
-							<h2 className="checklist__header-progress-text">
+							<span className="checklist__header-progress-text">
 								{ __( 'Your Jetpack setup progress', {
 									comment: 'Onboarding task list progress',
 								} ) }
-							</h2>
+							</span>
 							<span className="checklist__header-progress-number">{ `${ completed }/${ total }` }</span>
 						</div>
 						<ProgressBar compact canGoBackwards total={ total } value={ completed } />
