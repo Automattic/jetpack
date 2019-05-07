@@ -82,4 +82,13 @@
 	.progress-bar__progress {
 		background-color: $muriel-hot-green-400;
 	}
+
+	.dops-button.is-primary {
+		background: $green-primary;
+		border-color: $green-secondary;
+
+		&:focus {
+			box-shadow: 0 0 0 2px lighten( $green-secondary, 20% );
+		}
+	}
 }

@@ -47,7 +47,7 @@ function ChecklistProgressCard( { completed, total, siteId } ) {
 						<ProgressBar compact canGoBackwards total={ total } value={ completed } />
 					</div>
 					<div className="checklist__header-secondary">
-						<Button primary href={ `wordpress.com/plans/my-plan/${ siteId }` }>
+						<Button compact primary href={ `https://wordpress.com/plans/my-plan/${ siteId }` }>
 							{ __( 'Complete Jetpack Setup', {
 								comment: 'Text on link to list of onboarding tasks',
 							} ) }
