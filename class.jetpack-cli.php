@@ -391,7 +391,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 	static function count_option( $option ) {
 		global $wpdb;
-		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option ) );
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option
+			)
+		);
 
 	}
 
