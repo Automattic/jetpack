@@ -45,6 +45,40 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
+	function test_enqueues_sync_start_action_without_post_sends_empty_range() {
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+
+		list( $config, $range, $empty ) = $start_event->args;
+
+		$posts = get_posts();
+		if ( empty( $posts ) ) {
+			$this->assertTrue( $empty['posts'] );
+		}
+
+		$comments = get_comments();
+		if ( empty( $comments ) ) {
+			$this->assertTrue( $empty['comments'] );
+		}
+
+		$this->full_sync->reset_data();
+
+		$post = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post, 1 );
+
+
+		$this->full_sync->start();
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+		list( $config, $range, $empty ) = $start_event->args;
+
+		$this->assertFalse( isset( $empty['posts'] ) );
+		$this->assertFalse( isset( $empty['comments'] ) );
+
+	}
+
 	// this only applies to the test replicastore - in production we overlay data
 	function test_sync_start_resets_storage() {
 		$this->factory->post->create();
@@ -859,7 +893,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $range['comments']->min ) );
 		$this->assertTrue( isset( $range['comments']->count ) );
 	}
-
 	function record_full_sync_end_checksum( $checksum, $range ) {
 		// $checksum  has been deprecated...
 		$this->full_sync_end_range = $range;
