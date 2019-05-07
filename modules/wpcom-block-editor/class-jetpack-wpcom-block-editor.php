@@ -232,9 +232,12 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
+		$src_styles = $debug
+			? '//widgets.wp.com/wpcom-block-editor/common.css?minify=false'
+			: '//widgets.wp.com/wpcom-block-editor/common.min.css';
 		wp_enqueue_style(
 			'wpcom-block-editor-styles',
-			'//widgets.wp.com/wpcom-block-editor/style.css',
+			$src_styles,
 			array(),
 			$version
 		);
