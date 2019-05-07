@@ -153,9 +153,9 @@ export const settings = {
 				type: 'block',
 				isMultiBlock: true,
 				blocks: [ 'core/image' ],
-				isMatch: attributes => getValidImages( attributes ).length > 0,
-				transform: attributes => {
-					const validImages = getValidImages( attributes );
+				isMatch: images => getValidImages( images ).length > 0,
+				transform: images => {
+					const validImages = getValidImages( images );
 					return createBlock( `jetpack/${ name }`, {
 						images: validImages.map( ( { id, url, alt } ) => ( {
 							id,
@@ -169,8 +169,8 @@ export const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/gallery', 'jetpack/slideshow' ],
-				transform: attributes => {
-					const validImages = getValidImages( attributes.images );
+				transform: ( { images } ) => {
+					const validImages = getValidImages( images );
 					if ( validImages.length > 0 ) {
 						return createBlock( `jetpack/${ name }`, {
 							images: validImages.map( ( { id, url, alt } ) => ( {
@@ -178,6 +178,7 @@ export const settings = {
 								url,
 								alt,
 							} ) ),
+							ids: validImages.map( ( { id } ) => id ),
 						} );
 					}
 					return createBlock( `jetpack/${ name }` );
@@ -188,8 +189,8 @@ export const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/gallery' ],
-				transform: ( { images, columns, linkTo } ) =>
-					createBlock( 'core/gallery', { images, columns, imageCrop: true, linkTo } ),
+				transform: ( { images, ids, columns, linkTo } ) =>
+					createBlock( 'core/gallery', { images, ids, columns, imageCrop: true, linkTo } ),
 			},
 			{
 				type: 'block',
