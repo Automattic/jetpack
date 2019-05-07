@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: _s Jetpack\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-07T16:39:17.347Z\n"
+"POT-Creation-Date: 2019-05-07T19:45:53.133Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -76,6 +76,18 @@ msgctxt "Navigation item."
 msgid "Sharing"
 msgstr ""
 
+#: _inc/client/state/dev-version/actions.js:29
+msgid "Resetting Jetpack options…"
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:39
+msgid "Options reset."
+msgstr ""
+
+#: _inc/client/state/dev-version/actions.js:52
+msgid "Options failed to reset."
+msgstr ""
+
 #: _inc/client/state/connection/actions.js:42
 msgid "Testing Jetpack Connection"
 msgstr ""
@@ -102,18 +114,6 @@ msgstr ""
 
 #: _inc/client/state/connection/actions.js:199
 msgid "Error unlinking from WordPress.com. %(error)s"
-msgstr ""
-
-#: _inc/client/state/dev-version/actions.js:29
-msgid "Resetting Jetpack options…"
-msgstr ""
-
-#: _inc/client/state/dev-version/actions.js:39
-msgid "Options reset."
-msgstr ""
-
-#: _inc/client/state/dev-version/actions.js:52
-msgid "Options failed to reset."
 msgstr ""
 
 #: _inc/client/state/jumpstart/actions.js:30
@@ -2656,12 +2656,6 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: _inc/client/components/module-overridden-banner/index.jsx:52
-msgid ""
-"%(moduleName)s has been disabled by a site administrator. {{link}}Learn "
-"more{{/link}}."
-msgstr ""
-
 #: _inc/client/components/module-settings/connect-module-options.jsx:63
 msgid "Updating Post by Email address…"
 msgstr ""
@@ -2730,6 +2724,12 @@ msgstr ""
 
 #: _inc/client/components/module-settings/index.jsx:233
 msgid "Display an ad unit at the top of your site."
+msgstr ""
+
+#: _inc/client/components/module-overridden-banner/index.jsx:52
+msgid ""
+"%(moduleName)s has been disabled by a site administrator. {{link}}Learn "
+"more{{/link}}."
 msgstr ""
 
 #: _inc/client/components/module-toggle/index.jsx:78
