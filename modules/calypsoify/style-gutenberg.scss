@@ -143,15 +143,3 @@ a {
 .revisions-tooltip {
   transform: translateY(-36px);
 }
-
-/* IFRAME MODIFICATIONS */
-.is-iframed .edit-post-layout .components-notice-list {
-	top: inherit;
-}
-
-@media (min-width: 600px) {
-	body.block-editor-page.is-iframed.is-fullscreen-mode {
-		margin-top: inherit;
-		height: 100%;
-	}
-}
