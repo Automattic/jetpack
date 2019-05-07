@@ -11,7 +11,7 @@
  * Text Domain: jetpack
  * Domain Path: /languages/
  */
-
+error_log( 'loading jetpack ' );
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.0' );
 
 define( 'JETPACK__VERSION',            '7.4-alpha' );
