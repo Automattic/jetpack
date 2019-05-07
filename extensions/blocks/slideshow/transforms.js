@@ -20,9 +20,9 @@ const transforms = {
 			type: 'block',
 			isMultiBlock: true,
 			blocks: [ 'core/image' ],
-			isMatch: attributes => getValidImages( attributes ).length > 0,
-			transform: attributes => {
-				const validImages = getValidImages( attributes );
+			isMatch: images => getValidImages( images ).length > 0,
+			transform: images => {
+				const validImages = getValidImages( images );
 				return createBlock( 'jetpack/slideshow', {
 					images: validImages.map( ( { alt, caption, id, url } ) => ( {
 						alt,
@@ -37,8 +37,8 @@ const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'core/gallery', 'jetpack/tiled-gallery' ],
-			transform: attributes => {
-				const validImages = getValidImages( attributes );
+			transform: ( { images } ) => {
+				const validImages = getValidImages( images );
 				if ( validImages.length > 0 ) {
 					return createBlock( 'jetpack/slideshow', {
 						images: validImages.map( ( { alt, caption, id, url } ) => ( {
@@ -47,6 +47,7 @@ const transforms = {
 							id,
 							url,
 						} ) ),
+						ids: validImages.map( ( { id } ) => id ),
 					} );
 				}
 				return createBlock( 'jetpack/slideshow' );
@@ -57,12 +58,7 @@ const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'core/gallery' ],
-			transform: ( { images } ) => createBlock( 'core/gallery', { images } ),
-		},
-		{
-			type: 'block',
-			blocks: [ 'jetpack/tiled-gallery' ],
-			transform: ( { images } ) => createBlock( 'jetpack/tiled-gallery', { images }, [] ),
+			transform: ( { images, ids } ) => createBlock( 'core/gallery', { images, ids } ),
 		},
 		{
 			type: 'block',
