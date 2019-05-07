@@ -2,6 +2,70 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.2.1 =
+* Release date: April 04, 2019
+* Release post: https://wp.me/p1moTy-h7o
+
+* Feature Hints: display suggestions only for features available under the site's current plan.
+* Feature Hints: improve visual display to make more distinct from search results.
+* Feature Hints: disable hints once administrators have dismissed three hints.
+* Slideshow Block: resolve an issue that broke navigating between images.
+
+= 7.2 =
+
+* Release date: April 02, 2019
+* Release post: https://wp.me/p1moTy-foe
+
+**Major Enhancements**
+
+* Adds a Repeat Visitor block that controls block visibility based on how often a visitor has viewed the page.
+* New option to disable Ads blocks for visitors on mobile devices.
+
+
+**Enhancements**
+
+* Admin Dashboard: improve text and design to make your administration experience all the better.
+* Jumpstart: streamline what features are suggested to be activated when setting up Jetpack for the first time.
+* Password Checker: adds a password checker class that will help Jetpack let you know if you're using a weak password. More about this coming in a future release!
+* Plans: refactor how Jetpack Plans are coded within Jetpack to improve performance and help prevent any future bugs.
+* Post Images: provide the image itself when requesting an attachment's post image.
+* REST API: Enable Likes and Sharing meta field for all post types.
+* Related Posts: improve HTML markup for related posts, with emphasis on accessibility.
+* Search: add an easy way to see the raw Jetpack Search query results in the search page's source code.
+* Shortcodes: allow links in Quiz shortcode explanations.
+* Widgets: improve the text for the Blog Stats widget when stats data can not be retrieved from WordPress.com.
+
+**Improved compatibility**
+
+* General: require WordPress 5.0! To celebrate, we cleaned out some compatibility code that supported older versions. We know how to party.
+* General: update various parts of Jetpack to fully align with WordPress coding standards to make developing Jetpack easier!
+* Connection: notify site owners when a plugin or theme is double-encoding URL redirects.
+* Shortcodes: update the Ustream shortcode to use the HTML5 player for a better experience on all browsers.
+* Shortcodes: add AMP support for Crowdsignal polls and shortcodes.
+* Sitemaps: add thumbnails to video sitemaps to improve compatibility with Google Search Console. Props Adam Heckler!
+* Sync: improve performance when using the VIP Legacy Redirect plugin.
+* Twenty Nineteen Compatibility: prevent sharing buttons overlapping with the Like button. Props Torres!
+* VideoPress: update right-to-left language CSS to remove extra styles only used on browsers no longer supported.
+* Widgets: improve rendering of Contact Info widget map when using the AMP plugin.
+
+**Bug fixes**
+
+* Admin Dashboard: fix an error that you'd see in the console when changing your Carousel settings.
+* Blocks: fix an issue where sometimes we would attempt to register a particular block twice. I'm looking at you, Related Posts.
+* Blocks: display all Business Hours details, even if they're the default set.
+* Blocks: fix an error that occurred when loading some translations in the Block Editor.
+* Blocks: resolve a conflict between the Ads block and infinite scroll that would cause new posts to sometimes not load.
+* General: ensure the proper Jetpack plan is reflected throughout Jetpack and the administrative dashboard.
+* Plugin Search: display Akismet and VaultPress plugin cards when WordPress.org suggests them.
+* Publicize: remove unused assets, like images and JavaScript that aren't needed anymore.
+* Related Posts: restore use of the jetpack_relatedposts_filter_options filter.
+* Security: Improvements to the Likes feature and the Slideshow block.
+* Sharing: update WhatsApp to be more consistent with the other sharing buttons.
+* Shortcodes: remove Lytro service, which closed in March.
+* Stats: properly handle an error from the REST API that sometimes caused issues with the Stats Dashboard.
+* Widgets: display all characters in an address from Contact Info correctly when sometimes we encoded those that we'd expect in an URL.
+* Widgets: improve the performance of the Contact Info widget by eliminating unused JavaScript.
+
 = 7.1.1 =
 
 * Release date: March 06, 2019
