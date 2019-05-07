@@ -13,7 +13,8 @@ import ScreenReaderText from './screen-reader-text';
 /**
  * Style dependencies
  */
-import './style.scss';
+// Unused in current build system
+// import './style.scss';
 
 export default class ProgressBar extends PureComponent {
 	static defaultProps = {
