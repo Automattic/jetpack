@@ -15,7 +15,6 @@
 		flex-direction: row;
 		align-items: center;
 		justify-content: flex-end;
-		padding-right: 36px;
 	}
 
 	&-progress {
@@ -84,6 +83,7 @@
 	}
 
 	.dops-button.is-primary {
+		margin-right: 0;
 		background: $green-primary;
 		border-color: $green-secondary;
 
