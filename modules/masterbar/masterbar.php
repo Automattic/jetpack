@@ -287,6 +287,9 @@ class A8C_WPCOM_Masterbar {
 
 		$this->add_me_submenu( $wp_admin_bar );
 		$this->add_write_button( $wp_admin_bar );
+
+		// Add a sidebar toggle on mobile.
+		wp_admin_bar_sidebar_toggle( $wp_admin_bar );
 	}
 
 	/**
@@ -463,16 +466,5 @@ class A8C_WPCOM_Masterbar {
 				),
 			)
 		);
-
-		// Restore dashboard menu toggle. This toggle is hidden with CSS on non-mobile views.
-		if ( is_admin() ) {
-			$wp_admin_bar->add_menu(
-				array(
-					'id'    => 'menu-toggle',
-					'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . esc_html__( 'Menu', 'jetpack' ) . '</span>',
-					'href'  => '#',
-				)
-			);
-		}
 	}
 }
