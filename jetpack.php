@@ -79,7 +79,7 @@ if ( ! function_exists( 'jetpack_enqueue_library' ) ) {
 			return;
 		}
 
-		if ( ! did_action( 'plugin_loaded' ) ) {
+		if ( ! did_action( 'plugins_loaded' ) ) {
 			_doing_it_wrong( $class_name , 'Not all plugins have loaded yet!' );
 		}
 
