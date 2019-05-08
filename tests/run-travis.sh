@@ -7,9 +7,11 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
+	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
+		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	fi
 
-	echo "Running phpunit with:"
+	echo "Running \`$WP_TRAVISCI\` with:"
 	echo " - $(phpunit --version)"
 	echo " - WordPress mode: $WP_MODE"
 	echo " - WordPress branch: $WP_BRANCH"
