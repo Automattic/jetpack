@@ -81,11 +81,15 @@ class Jetpack_WPCOM_Block_Editor {
 		$args  = wp_parse_args( $query );
 
 		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
-			$_REQUEST['interim-login'] = true;
-			add_action( 'wp_login', array( $this, 'do_redirect' ) );
-			add_action( 'login_form', array( $this, 'maintain_redirect_to' ) );
-			add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
-			remove_action( 'login_init', 'send_frame_options_header' );
+			if ( Jetpack::is_module_active( 'sso' ) ) {
+				add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+			} else {
+				$_REQUEST['interim-login'] = true;
+				add_action( 'wp_login', array( $this, 'do_redirect' ) );
+				add_action( 'login_form', array( $this, 'maintain_redirect_to' ) );
+				add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
+				remove_action( 'login_init', 'send_frame_options_header' );
+			}
 		}
 	}
 
