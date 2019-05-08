@@ -816,3 +816,13 @@ function wpcomsh_site_status_tests_disable( $tests ) {
 	unset( $tests['direct']['php_extensions'] );
 	return $tests;
 }
+
+/**
+ * Make User Agent consistent with the rest of WordPress.com.
+ */
+function wpcomsh_filter_outgoing_user_agent( $agent ) {
+	global $wp_version;
+
+	return str_replace( "WordPress/$wp_version", 'WordPress.com', $agent );
+}
+add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 );
