@@ -148,6 +148,7 @@
 	},
 	"devDependencies": {
 		"@automattic/calypso-build": "1.0.0",
+		"@automattic/calypso-color-schemes": "1.0.0",
 		"@automattic/wordpress-external-dependencies-plugin": "1.0.0",
 		"@babel/core": "7.4.0",
 		"@babel/register": "7.4.0",
