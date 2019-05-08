@@ -13,7 +13,7 @@ echo $PHPUNIT_COMMAND_OVERRIDE
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
-		export WP_TRAVISCI=${PHPUNIT_COMMAND_OVERRIDE}
+		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	fi
 
 	echo "Running \`$WP_TRAVISCI\` with:"
