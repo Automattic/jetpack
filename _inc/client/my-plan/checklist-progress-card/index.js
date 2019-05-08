@@ -15,9 +15,6 @@ import QueryChecklistProgress from 'components/data/query-checklist-progress';
 import { getSiteRawUrl } from 'state/initial-state';
 import { getTasks } from 'state/checklist/selectors';
 
-// Style imports are unused
-// import './style.scss';
-
 function ChecklistProgressCard( { completed, total, siteSlug } ) {
 	return (
 		<Card compact className="checklist__header">
