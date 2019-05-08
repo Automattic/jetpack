@@ -18,7 +18,7 @@ function send_travis_api_request {
 			\"config\": {
 				\"merge_mode\": \"deep_merge\",
 				\"env\": {
-					\"PHPUNIT_COMMAND_OVERRIDE\": \"phpunit --group ${GROUP_NAME}\"
+					\"global\": [\"PHPUNIT_COMMAND_OVERRIDE=${GROUP_NAME}\"]
 				},
 				\"branches\": {
 					\"only\": [\"${BRANCH_NAME}\"]
@@ -27,7 +27,7 @@ function send_travis_api_request {
 		}
 	}"
 
-	if [[ ! $DRY_RUN=="true" ]]; then
+	if [[ $DRY_RUN=="true" ]]; then
 		echo $DRY_RUN
 		echo "DRY RUN! Not sending an actual request"
 		echo $body
