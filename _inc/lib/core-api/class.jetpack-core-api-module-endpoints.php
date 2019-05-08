@@ -437,17 +437,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'wordpress_api_key':
-					// When field is clear, return empty. Otherwise it would return "false".
-					if ( '' === get_option( 'wordpress_api_key', '' ) ) {
-						$response[ $setting ] = '';
-					} else {
-						if ( ! class_exists( 'Akismet' ) ) {
-							if ( is_readable( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-								require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
-							}
+					if ( ! class_exists( 'Akismet' ) ) {
+						if ( is_readable( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+							require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
 						}
-						$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
 					}
+					$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
 					break;
 
 				case 'onboarding':
@@ -1396,12 +1391,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * @return bool|WP_Error Returns true if class file exists and class is loaded, WP_Error otherwise.
 	 */
 	private function akismet_class_exists() {
-		if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-			return new WP_Error( 'not_installed', esc_html__( 'Please install Akismet.', 'jetpack' ), array( 'status' => 400 ) );
-		}
-
 		if ( ! class_exists( 'Akismet' ) ) {
-			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'not_active', esc_html__( 'Please install and activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
 		return true;
