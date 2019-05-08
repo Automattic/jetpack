@@ -369,7 +369,7 @@ class Jetpack_Debug_Data {
 	 *
 	 * @return string
 	 */
-	private function human_readable_master_user() {
+	private static function human_readable_master_user() {
 		$master_user = Jetpack_Options::get_option( 'master_user' );
 
 		if ( ! $master_user ) {
@@ -392,7 +392,7 @@ class Jetpack_Debug_Data {
 	 *
 	 * @return string
 	 */
-	private function human_readable_user( $user ) {
+	private static function human_readable_user( $user ) {
 		$user = new WP_User( $user );
 
 		return sprintf( '#%1$d %2$s (%3$s)', $user->ID, $user->user_login, $user->user_email ); // Format: "#1 username (user@example.com)".
