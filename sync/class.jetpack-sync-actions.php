@@ -439,7 +439,7 @@ class Jetpack_Sync_Actions {
 		}
 	}
 
-	static function get_sync_status() {
+	static function get_sync_status( $fields = null ) {
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 		self::initialize_sender();
 
@@ -449,25 +449,40 @@ class Jetpack_Sync_Actions {
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron       = $cron_timestamps[0] - time();
 		$store           = new Jetpack_Sync_WP_Replicastore();
-		$checksums       = $store->checksum_all();
+
+		$checksums = array();
+
+		if ( is_null( $fields ) === false ) {
+			$fields_params = explode( ',', $fields );
+
+			if ( in_array( 'posts_checksum', $fields_params, true ) ) {
+				$checksums['posts_checksum'] = $store->posts_checksum();
+			}
+			if ( in_array( 'comments_checksum', $fields_params, true ) ) {
+				$checksums['comments_checksum'] = $store->comments_checksum();
+			}
+			if ( in_array( 'post_meta_checksum', $fields_params, true ) ) {
+				$checksums['post_meta_checksum'] = $store->post_meta_checksum();
+			}
+			if ( in_array( 'comment_meta_checksum', $fields_params, true ) ) {
+				$checksums['comment_meta_checksum'] = $store->comment_meta_checksum();
+			}
+		}
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 
 		return array_merge(
 			$full_sync_status,
+			$checksums,
 			array(
-				'posts_checksum'        => (string) $checksums['posts'],
-				'comments_checksum'     => (string) $checksums['comments'],
-				'post_meta_checksum'    => (string) $checksums['post_meta'],
-				'comment_meta_checksum' => (string) $checksums['comment_meta'],
-				'cron_size'             => count( $cron_timestamps ),
-				'next_cron'             => $next_cron,
-				'queue_size'            => $queue->size(),
-				'queue_lag'             => $queue->lag(),
-				'queue_next_sync'       => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
-				'full_queue_size'       => $full_queue->size(),
-				'full_queue_lag'        => $full_queue->lag(),
-				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
+				'cron_size'            => count( $cron_timestamps ),
+				'next_cron'            => $next_cron,
+				'queue_size'           => $queue->size(),
+				'queue_lag'            => $queue->lag(),
+				'queue_next_sync'      => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
+				'full_queue_size'      => $full_queue->size(),
+				'full_queue_lag'       => $full_queue->lag(),
+				'full_queue_next_sync' => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
 			)
 		);
 	}
