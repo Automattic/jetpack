@@ -4,6 +4,12 @@ require_jetpack_file( 'class.json-api.php' );
 require_jetpack_file( 'class.json-api-endpoints.php' );
 
 class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
+	private static $super_admin_user_id;
+
+	public static function wpSetUpBeforeClass( $factory ) {
+		self::$super_admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		grant_super_admin( self::$super_admin_user_id );
+	}
 
 	public function setUp() {
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
@@ -101,7 +107,7 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 */
 	public function test_Jetpack_API_Plugins_Install_Endpoint() {
 		if ( is_multisite() ) {
-			wp_get_current_user()->set_role( 'manage_network');
+			wp_set_current_user( self::$super_admin_user_id );
 		}
 
 		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
