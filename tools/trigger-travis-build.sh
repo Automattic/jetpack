@@ -27,7 +27,7 @@ function send_travis_api_request {
 		}
 	}"
 
-	if [[ $DRY_RUN=="true" ]]; then
+	if [ ! -z ${DRY_RUN} ]; then
 		echo $DRY_RUN
 		echo "DRY RUN! Not sending an actual request"
 		echo $body
