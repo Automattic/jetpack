@@ -4,3 +4,4 @@
 !avoid-plugin-deletion.php
 !conflicting-plugin.php
 !conflicting-plugin/class.jetpack.php
+!conflicting-plugin/class.jetpack-constants.php

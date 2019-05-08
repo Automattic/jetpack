@@ -56,6 +56,47 @@ function jetpack_require_lib_dir() {
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
 
+/**
+ * THIS CODE WOULD NEED TO BE DUPLICATED IN EACH PLUGIN...
+ */
+if ( ! function_exists( 'jetpack_enqueue_library' ) ) {
+	function jetpack_enqueue_library( $class_name, $version, $path ) {
+		global $jetpack_libraries;
+		if ( ! is_array( $jetpack_libraries ) ) {
+			$jetpack_libraries = array();
+		}
+		if ( ! isset( $jetpack_libraries[ $class_name ] ) ) {
+			$jetpack_libraries[ $class_name ] = array();
+		}
+		$jetpack_libraries[ $class_name ][] = array( 'version' => $version, 'path' => $path );
+	}
+
+	// add the autoloader
+	spl_autoload_register( function ($class_name) {
+		global $jetpack_libraries;
+		if ( ! isset( $jetpack_libraries[ $class_name ] ) ) {
+			// the library is not registered try a different autoloader
+			return;
+		}
+
+		if ( ! did_action( 'plugin_loaded' ) ) {
+			_doing_it_wrong( $class_name , 'Not all plugins have loaded yet!' );
+		}
+
+		$initial = array_shift($jetpack_libraries[ $class_name ] );
+		$max_version_info = array_reduce( $jetpack_libraries[ $class_name ], function( $carry_class_info, $class_info ) {
+			if ( version_compare( $class_info['version'], $carry_class_info['version'], '>' ) ) {
+				return $class_info;
+			}
+			return $carry_class_info;
+		}, $initial );
+
+		require_once $max_version_info['path'];
+	} );
+}
+/**
+ * END OF DUPLICATE CODE
+ */
 
 /**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
@@ -97,7 +138,7 @@ add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
+jetpack_enqueue_library( 'Jetpack', '7.3', JETPACK__PLUGIN_DIR . 'class.jetpack.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
@@ -118,7 +159,7 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
+jetpack_enqueue_library( 'Jetpack_Constants', '7.3', JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
