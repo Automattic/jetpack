@@ -8,14 +8,8 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
-		export WP_TRAVISCI="phpunit --group ${PHPUNIT_COMMAND_OVERRIDE}"
+		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	fi
-
-	echo "!!!! DEBUG OUTPUT"
-	echo $WP_TRAVISCI
-	echo $TRAVIS_EVENT_TYPE
-	echo $PHPUNIT_COMMAND_OVERRIDE
-	echo $PHPUNIT_COMMAND_OVERRIDE2
 
 	echo "Running \`$WP_TRAVISCI\` with:"
 	echo " - $(phpunit --version)"
