@@ -4,6 +4,11 @@ echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
+echo "!!!! DEBUG OUTPUT"
+echo $WP_TRAVISCI
+echo $TRAVIS_EVENT_TYPE
+echo $PHPUNIT_COMMAND_OVERRIDE
+
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
