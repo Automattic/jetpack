@@ -12,8 +12,8 @@
 @import 'functions/rem';
 
 // Variables
-@import 'variables/colors';
 @import '../../../node_modules/@automattic/calypso-color-schemes/src/__color-studio/color-variables.scss';
+@import 'variables/colors';
 @import 'variables/layout';
 
 // Mixins
