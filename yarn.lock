@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0-beta.5":
-  version "1.0.0-beta.5"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0-beta.5.tgz#aa69a39dba981a301c26c08abebaf9ad2841e66a"
-  integrity sha512-KBQunuYXpb0WTWc9vPSXI77wBp1ZBHqCXMLkcDUTNS3avjIiMl0ZJ5y+V77e2yJAwm+3a9+wQbd9LibZnXhIBQ==
+"@automattic/calypso-build@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0.tgz#ee6598d300d1d5776d34b2a31d5ebfa6b8a0c042"
+  integrity sha512-B5THsLP8vvIUYCfgOXUNtxtFcA5xiBTptC3wp/EzdUnC1e7qWWvw6SrzB4+xgJ87coWKA2KjXphI5k2L21p8BQ==
   dependencies:
     "@automattic/calypso-color-schemes" "^1.0.0"
     "@automattic/wordpress-external-dependencies-plugin" "^1.0.0"
@@ -18,13 +18,16 @@
     "@babel/plugin-transform-runtime" "7.4.0"
     "@babel/preset-env" "7.4.2"
     "@babel/preset-react" "7.0.0"
+    "@babel/preset-typescript" "7.3.3"
     "@wordpress/babel-plugin-import-jsx-pragma" "2.1.0"
+    "@wordpress/browserslist-config" "2.3.0"
     autoprefixer "9.4.4"
     babel-loader "8.0.5"
     browserslist "4.5.4"
     caniuse-api "3.0.0"
     css-loader "2.1.1"
     duplicate-package-checker-webpack-plugin "3.0.0"
+    file-loader "3.0.1"
     mini-css-extract-plugin-with-rtl "github:Automattic/mini-css-extract-plugin-with-rtl"
     node-sass "4.11.0"
     postcss-custom-properties "8.0.9"
@@ -32,7 +35,9 @@
     sass-loader "7.1.0"
     terser-webpack-plugin "1.2.3"
     thread-loader "2.1.2"
+    typescript "3.4.3"
     webpack "4.29.6"
+    webpack-cli "3.3.0"
     webpack-filter-warnings-plugin "1.2.1"
     webpack-rtl-plugin "1.8.0"
 
@@ -431,6 +436,13 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
+"@babel/plugin-syntax-typescript@^7.2.0":
+  version "7.3.3"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-typescript/-/plugin-syntax-typescript-7.3.3.tgz#a7cc3f66119a9f7ebe2de5383cce193473d65991"
+  integrity sha512-dGwbSMA1YhVS8+31CnPR7LB4pcbrzcV99wQzby4uAfrkZPYZlQ7ImwdpzLqi6Z6IL02b8IAL379CaMwo0x5Lag==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+
 "@babel/plugin-transform-arrow-functions@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-arrow-functions/-/plugin-transform-arrow-functions-7.2.0.tgz#9aeafbe4d6ffc6563bf8f8372091628f00779550"
@@ -663,6 +675,14 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
+"@babel/plugin-transform-typescript@^7.3.2":
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-typescript/-/plugin-transform-typescript-7.4.4.tgz#93e9c3f2a546e6d3da1e9cc990e30791b807aa9f"
+  integrity sha512-rwDvjaMTx09WC0rXGBRlYSSkEHOKRrecY6hEr3SVIPKII8DVWXtapNAfAyMC0dovuO+zYArcAuKeu3q9DNRfzA==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/plugin-syntax-typescript" "^7.2.0"
+
 "@babel/plugin-transform-unicode-regex@^7.2.0":
   version "7.4.3"
   resolved "https://registry.yarnpkg.com/@babel/plugin-transform-unicode-regex/-/plugin-transform-unicode-regex-7.4.3.tgz#3868703fc0e8f443dda65654b298df576f7b863b"
@@ -738,6 +758,14 @@
     "@babel/plugin-transform-react-jsx" "^7.0.0"
     "@babel/plugin-transform-react-jsx-self" "^7.0.0"
     "@babel/plugin-transform-react-jsx-source" "^7.0.0"
+
+"@babel/preset-typescript@7.3.3":
+  version "7.3.3"
+  resolved "https://registry.yarnpkg.com/@babel/preset-typescript/-/preset-typescript-7.3.3.tgz#88669911053fa16b2b276ea2ede2ca603b3f307a"
+  integrity sha512-mzMVuIP4lqtn4du2ynEfdO0+RYcslwrZiJHXu4MGaC1ctJiW2fyaeDrtjJGs7R/KebZ1sgowcIoWf4uRpEfKEg==
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/plugin-transform-typescript" "^7.3.2"
 
 "@babel/register@7.4.0":
   version "7.4.0"
@@ -10268,6 +10296,11 @@ type-fest@^0.4.1:
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
+
+typescript@3.4.3:
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.3.tgz#0eb320e4ace9b10eadf5bc6103286b0f8b7c224f"
+  integrity sha512-FFgHdPt4T/duxx6Ndf7hwgMZZjZpB+U0nMNGVCYPq0rEzWKjEDobm4J6yb3CS7naZ0yURFqdw9Gwc7UOh/P9oQ==
 
 ua-parser-js@^0.7.18:
   version "0.7.19"
