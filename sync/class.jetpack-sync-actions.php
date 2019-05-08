@@ -69,22 +69,36 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters(
 			'jetpack_sync_sender_should_load',
-			(
-				( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
-				||
-				current_user_can( 'manage_options' )
-				||
-				is_admin()
-				||
-				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
-				||
-				( self::sync_via_cron_allowed() && Jetpack_Constants::is_true( 'DOING_CRON' ) )
-			)
+			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
 		}
+	}
+
+	static function should_initialize_sender() {
+		if ( Jetpack_Constants::is_true( 'DOING_CRON' ) ) {
+			return self::sync_via_cron_allowed();
+		}
+
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
+			return true;
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		if ( is_admin() ) {
+			return true;
+		}
+
+		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	static function sync_allowed() {
