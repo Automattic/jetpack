@@ -18,7 +18,8 @@ function send_travis_api_request {
 			\"config\": {
 				\"merge_mode\": \"deep_merge\",
 				\"env\": {
-					\"global\": [\"PHPUNIT_COMMAND_OVERRIDE=${GROUP_NAME}\"]
+					\"PHPUNIT_COMMAND_OVERRIDE2\":\"${GROUP_NAME}\"
+					\"global\": [\"PHPUNIT_COMMAND_OVERRIDE=${GROUP_NAME}\", \"WP_TRAVISCI=phpunit\"]
 				},
 				\"branches\": {
 					\"only\": [\"${BRANCH_NAME}\"]

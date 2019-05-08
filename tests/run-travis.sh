@@ -12,9 +12,10 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	fi
 
 	echo "!!!! DEBUG OUTPUT"
-echo $WP_TRAVISCI
-echo $TRAVIS_EVENT_TYPE
-echo $PHPUNIT_COMMAND_OVERRIDE
+	echo $WP_TRAVISCI
+	echo $TRAVIS_EVENT_TYPE
+	echo $PHPUNIT_COMMAND_OVERRIDE
+	echo $PHPUNIT_COMMAND_OVERRIDE2
 
 	echo "Running \`$WP_TRAVISCI\` with:"
 	echo " - $(phpunit --version)"
