@@ -184,6 +184,7 @@ class Jetpack_Tracks_Client {
 		}
 
 		return array(
+			'blogid' => Jetpack_Options::get_option( 'id', 0 ),
 			'userid' => $user_data['ID'],
 			'username' => $user_data['login'],
 		);

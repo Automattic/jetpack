@@ -114,25 +114,22 @@ const analytics = {
 
 	tracks: {
 		recordEvent: function( eventName, eventProperties ) {
-			let superProperties;
-
 			eventProperties = eventProperties || {};
 
-			debug(
-				'Record event "%s" called with props %s',
-				eventName,
-				JSON.stringify( eventProperties )
-			);
 			if ( eventName.indexOf( 'akismet_' ) !== 0 && eventName.indexOf( 'jetpack_' ) !== 0 ) {
 				debug( '- Event name must be prefixed by "akismet_" or "jetpack_"' );
 				return;
 			}
 
 			if ( _superProps ) {
-				superProperties = _superProps.getAll();
-				debug( '- Super Props: %o', superProperties );
-				eventProperties = assign( eventProperties, superProperties );
+				debug( '- Super Props: %o', _superProps );
+				eventProperties = assign( eventProperties, _superProps );
 			}
+			debug(
+				'Record event "%s" called with props %s',
+				eventName,
+				JSON.stringify( eventProperties )
+			);
 
 			window._tkq.push( [ 'recordEvent', eventName, eventProperties ] );
 		},
