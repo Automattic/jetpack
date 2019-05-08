@@ -465,7 +465,7 @@ class A8C_WPCOM_Masterbar {
 		);
 
 		// Restore dashboard menu toggle that is needed on mobile views.
-		if ( is_admin() ) {
+		if ( is_admin() && wp_is_mobile() ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'id'    => 'menu-toggle',
