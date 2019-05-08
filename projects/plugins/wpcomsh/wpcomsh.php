@@ -819,7 +819,6 @@ function wpcomsh_site_status_tests_disable( $tests ) {
 
 /**
  * Make User Agent consistent with the rest of WordPress.com.
- *
  */
 function wpcomsh_filter_outgoing_user_agent( $agent ) {
 	global $wp_version;
