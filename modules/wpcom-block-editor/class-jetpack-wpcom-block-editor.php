@@ -89,6 +89,7 @@ class Jetpack_WPCOM_Block_Editor {
 				add_action( 'login_form', array( $this, 'maintain_redirect_to' ) );
 				add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
 				remove_action( 'login_init', 'send_frame_options_header' );
+				wp_add_inline_style( 'login', '.interim-login #login{padding-top:8%}' );
 			}
 		}
 	}
