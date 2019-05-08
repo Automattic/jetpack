@@ -12,26 +12,15 @@ import Button from 'components/button';
 import Card from 'components/card';
 import ProgressBar from './progress-bar';
 import QueryChecklistProgress from 'components/data/query-checklist-progress';
-import QuerySite from 'components/data/query-site';
-import { getSiteID } from 'state/site';
+import { getSiteRawUrl } from 'state/initial-state';
 import { getTasks } from 'state/checklist/selectors';
 
 // Style imports are unused
 // import './style.scss';
 
-function ChecklistProgressCard( { completed, total, siteId } ) {
-	if ( ! siteId ) {
-		return (
-			<>
-				<QuerySite />
-				<QueryChecklistProgress />
-			</>
-		);
-	}
-
+function ChecklistProgressCard( { completed, total, siteSlug } ) {
 	return (
 		<Card compact className="checklist__header">
-			<QuerySite />
 			<QueryChecklistProgress />
 			{ completed && total && (
 				<>
@@ -47,7 +36,7 @@ function ChecklistProgressCard( { completed, total, siteId } ) {
 						<ProgressBar compact canGoBackwards total={ total } value={ completed } />
 					</div>
 					<div className="checklist__header-secondary">
-						<Button compact primary href={ `https://wordpress.com/plans/my-plan/${ siteId }` }>
+						<Button compact primary href={ `https://wordpress.com/plans/my-plan/${ siteSlug }` }>
 							{ __( 'Complete Jetpack Setup', {
 								comment: 'Text on link to list of onboarding tasks',
 							} ) }
@@ -66,7 +55,7 @@ export default connect( state => {
 		: null;
 	const total = tasks ? Object.keys( tasks ).length : null;
 	return {
-		siteId: getSiteID( state ),
+		siteSlug: getSiteRawUrl( state ),
 		completed,
 		total,
 	};
