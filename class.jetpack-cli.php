@@ -254,7 +254,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function reset( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
-		if ( ! in_array( $action, array( 'options', 'modules', 'sync-checksum' ) ) ) {
+		if ( ! in_array( $action, array( 'options', 'modules', 'sync-checksum' ), true ) ) {
 			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
