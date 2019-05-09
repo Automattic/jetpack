@@ -364,7 +364,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					if ( $count_fixes ) {
 						WP_CLI::success(
 							sprintf(
-								__( "Successfully reset %s on %s sites.", 'jetpack' ),
+								__( 'Successfully reset %s on %s sites.', 'jetpack' ),
 								$option,
 								$count_fixes
 							)
