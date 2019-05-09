@@ -61,9 +61,25 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Prevents frame options header from firing if this is a whitelisted iframe request.
 	 */
 	public function disable_send_frame_options_header() {
-		if ( $this->framing_allowed() ) {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( $this->framing_allowed( $_GET['frame-nonce'] ) ) {
 			remove_action( 'admin_init', 'send_frame_options_header' );
 		}
+	}
+
+	/**
+	 * Adds custom admin body class if this is a whitelisted iframe request.
+	 *
+	 * @param string $classes Admin body classes.
+	 * @return string
+	 */
+	public function add_iframed_body_class( $classes ) {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( $this->framing_allowed( $_GET['frame-nonce'] ) ) {
+			$classes .= ' is-iframed ';
+		}
+
+		return $classes;
 	}
 
 	/**
@@ -140,30 +156,12 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Adds custom admin body class if this is a whitelisted iframe request.
-	 *
-	 * @param string $classes Admin body classes.
-	 * @return string
-	 */
-	public function add_iframed_body_class( $classes ) {
-		if ( $this->framing_allowed() ) {
-			$classes .= ' is-iframed ';
-		}
-
-		return $classes;
-	}
-
-	/**
 	 * Checks whether this is a whitelisted iframe request.
 	 *
-	 * @param string $nonce Optional. Nonce to verify. Default $_GET['frame-nonce'].
+	 * @param string $nonce Nonce to verify.
 	 * @return bool
 	 */
-	public function framing_allowed( $nonce = '' ) {
-		if ( empty( $nonce ) ) {
-			$nonce = $_GET['frame-nonce']; // phpcs:ignore WordPress.Security.NonceVerification
-		}
-
+	public function framing_allowed( $nonce ) {
 		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . Jetpack_Options::get_option( 'id' ) );
 
 		if ( is_wp_error( $verified ) ) {
