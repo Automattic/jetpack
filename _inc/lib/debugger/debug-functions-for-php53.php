@@ -42,7 +42,7 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 						' ',
 						str_replace( 'test__', '', $test['name'] )
 					)
-				) . ': ' . __( 'Successful test!', 'jetpack' );
+				);
 				$return = array(
 					'label'       => $label,
 					'status'      => 'good',
