@@ -247,9 +247,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * wp jetpack reset options
 	 * wp jetpack reset modules
-	 * wp jetpack reset sync-checksum --dry-run
+	 * wp jetpack reset sync-checksum --dry-run --offset=0
 	 *
-	 * @synopsis <modules|options|sync-checksum> [--dry-run]
+	 * @synopsis <modules|options|sync-checksum> [--dry-run] [--offset=<offset>]
 	 *
 	 */
 	public function reset( $args, $assoc_args ) {
@@ -335,8 +335,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'sync-checksum':
 				$option = 'jetpack_callables_sync_checksum';
 
-				if ( is_multisite() && function_exists( 'get_sites' ) ) {
-					$sites        = get_sites( array( 'number' => 1000 ) );
+
+
+				if ( is_multisite() ) {
+					$offset = isset( $assoc_args['offset'] ) ? (int) $assoc_args['offset'] : 0;
+					// 1000 is a good limit since we don't expect the number of sites to be more then 1000 on sites
+					// Offset can be used to paginate and try to clean up more sites.
+					$sites        = get_sites( array( 'number' => 1000, 'offset' => $offset ) );
 					$count_fixes  = 0;
 					foreach ( $sites as $site ) {
 						switch_to_blog( $site->blog_id );
@@ -388,6 +393,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Return the number of times an option appears
+	 * Normally an option would only appear 1 since the option key is supposed to be unique
+	 * but if a site hasn't update the DB schema then that would not be the case.
+	 *
+	 * @param $option
+	 *
+	 * @return int
+	 */
 	static function count_option( $option ) {
 		global $wpdb;
 		return (int) $wpdb->get_var(
