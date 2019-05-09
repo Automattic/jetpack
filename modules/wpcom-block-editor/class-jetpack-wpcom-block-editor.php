@@ -80,8 +80,12 @@ class Jetpack_WPCOM_Block_Editor {
 		$query = wp_parse_url( urldecode( $_REQUEST['redirect_to'] ), PHP_URL_QUERY );
 		$args  = wp_parse_args( $query );
 
+		// Check nonce and make sure this is a Gutenframe request.
 		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
+
+			// If SSO is active, we'll let WordPress.com handle authentication...
 			if ( Jetpack::is_module_active( 'sso' ) ) {
+				// ...but only if it's not an Atomic site. They already do that.
 				if ( ! jetpack_is_atomic_site() ) {
 					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
 				}
