@@ -387,7 +387,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					return;
 				}
 
-				WP_CLI::success( __( "No options were deleted.", 'jetpack' ) );
+				WP_CLI::success( __( 'No options were deleted.', 'jetpack' ) );
 				break;
 
 		}
