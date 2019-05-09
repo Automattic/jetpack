@@ -16,7 +16,7 @@ import {
 	userCanManageOptions,
 	getSiteAdminUrl,
 } from 'state/initial-state';
-import { isInIdentityCrisis } from 'state/connection';
+import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -168,10 +168,14 @@ export class Footer extends React.Component {
 			}
 		};
 
+		const aboutPageUrl = this.props.siteConnectionStatus
+			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
+			: 'https://jetpack.com';
+
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
-					<a href={ this.props.siteAdminUrl + 'admin.php?page=jetpack_about' }>
+					<a href={ aboutPageUrl }>
 						<svg
 							role="img"
 							className="jp-footer__a8c-attr"
@@ -204,7 +208,7 @@ export class Footer extends React.Component {
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackAboutClick }
-							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack_about' }
+							href={ aboutPageUrl }
 							className="jp-footer__link"
 							title={ __( 'About Jetpack' ) }
 						>
@@ -249,11 +253,12 @@ export default connect(
 	state => {
 		return {
 			currentVersion: getCurrentVersion( state ),
-			userCanManageOptions: userCanManageOptions( state ),
-			isDevVersion: _isDevVersion( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			isInIdentityCrisis: isInIdentityCrisis( state ),
 			displayDevCard: canDisplayDevCard( state ),
+			isDevVersion: _isDevVersion( state ),
+			isInIdentityCrisis: isInIdentityCrisis( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
 	dispatch => {
