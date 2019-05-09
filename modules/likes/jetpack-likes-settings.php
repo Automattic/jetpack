@@ -42,9 +42,8 @@ class Jetpack_Likes_Settings {
 		 * @param string Likes metabox title. Default to "Likes".
 		 */
 		$title = apply_filters( 'likes_meta_box_title', __( 'Likes', 'jetpack' ) );
-		$back_compat = Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ); // TODO: remove once the Likes extension is done with it's beta.
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default', array( '__back_compat_meta_box' => $back_compat ) );
+			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default', array( '__back_compat_meta_box' => true ) );
 		}
 	}
 
