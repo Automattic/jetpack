@@ -225,6 +225,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			return self::skipped_test( $name );
 		}
 
+		$id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! is_int( $id ) ) {
+			return self::failing_test( $name, __( 'There is an unexpected value set as your site ID.', 'jetpack' ), 'cycle_connection' );
+		}
+
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
 			Jetpack_Client::WPCOM_JSON_API_VERSION
@@ -240,6 +246,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( ! $body ) {
 			$message = __( 'Connection test failed (empty response body)', 'jetpack' ) . wp_remote_retrieve_response_code( $response );
 			return self::failing_test( $name, $message );
+		}
+
+		if ( 404 === wp_remote_retrieve_response_code( $response ) ) {
+			return self::skipped_test( $name, __( 'The WordPress.com API returned a 404 error.', 'jetpack' ) );
 		}
 
 		$result       = json_decode( $body );
