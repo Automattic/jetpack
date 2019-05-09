@@ -399,7 +399,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	/**
 	 * Return the number of times an option appears
 	 * Normally an option would only appear 1 since the option key is supposed to be unique
-	 * but if a site hasn't update the DB schema then that would not be the case.
+	 * but if a site hasn't updated the DB schema then that would not be the case.
 	 *
 	 * @param $option
 	 *
