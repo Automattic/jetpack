@@ -464,6 +464,10 @@ new Jetpack_JSON_API_Sync_Status_Endpoint(
 		'path_labels'     => array(
 			'$site' => '(int|string) The site ID, The site domain',
 		),
+		'query_parameters' => array(
+			'fields' => '(string=posts_checksum,total) List of comma-separated fields to return (see `response_format`).',
+		),
+		
 		'response_format' => array(
 			'posts_checksum'        => '(string|null) Posts checksum. Needs to be requested using the filter parameter.',
 			'comments_checksum'     => '(string|null) Comments checksum. Needs to be requested using the filter parameter.',
