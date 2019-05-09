@@ -53,7 +53,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		$args   = $this->query_args();
-		$fields = $args['fields'];
+		$fields = isset( $args['fields'] ) ? $args['fields'] : array();
 		return Jetpack_Sync_Actions::get_sync_status( $fields );
 	}
 }
