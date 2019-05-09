@@ -92,7 +92,7 @@ class Jetpack_WPCOM_Block_Editor {
 			} else {
 				$_REQUEST['interim-login'] = true;
 				add_action( 'wp_login', array( $this, 'do_redirect' ) );
-				add_action( 'login_form', array( $this, 'maintain_redirect_to' ) );
+				add_action( 'login_form', array( $this, 'add_login_html' ) );
 				add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
 				remove_action( 'login_init', 'send_frame_options_header' );
 				wp_add_inline_style( 'login', '.interim-login #login{padding-top:8%}' );
@@ -117,10 +117,17 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Maintains the `redirect_to` parameter in login form links.
+	 * Adds visual feedback of login in progress.
 	 */
-	public function maintain_redirect_to() {
+	public function add_login_html() {
 		?>
 		<input type="hidden" name="redirect_to" value="<?php echo esc_url( $_REQUEST['redirect_to'] ); ?>" />
+		<script type="application/javascript">
+			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
+				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
+				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack' ) ); ?>';
+			} );
+		</script>
 		<?php
 	}
 
