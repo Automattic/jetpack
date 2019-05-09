@@ -452,7 +452,7 @@ class Jetpack_Sync_Actions {
 
 		$checksums = array();
 
-		if ( is_null( $fields ) === false ) {
+		if ( ! is_null( $fields ) ) {
 			$fields_params = explode( ',', $fields );
 
 			if ( in_array( 'posts_checksum', $fields_params, true ) ) {
