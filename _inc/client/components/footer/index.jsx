@@ -52,6 +52,13 @@ export class Footer extends React.Component {
 		} );
 	};
 
+	trackAboutClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'about',
+		} );
+	};
+
 	trackPrivacyClick = () => {
 		window.requestAnimationFrame( smoothScroll );
 		analytics.tracks.recordJetpackClick( {
@@ -78,6 +85,7 @@ export class Footer extends React.Component {
 		const classes = classNames( this.props.className, 'jp-footer' );
 
 		const version = this.props.currentVersion;
+
 		const maybeShowReset = () => {
 			if ( this.props.isDevVersion && this.props.userCanManageOptions ) {
 				return (
@@ -163,7 +171,7 @@ export class Footer extends React.Component {
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
-					<a href="https://automattic.com" target="_blank" rel="noopener noreferrer">
+					<a href={ this.props.siteAdminUrl + 'admin.php?page=jetpack_about' }>
 						<svg
 							role="img"
 							className="jp-footer__a8c-attr"
@@ -191,6 +199,16 @@ export class Footer extends React.Component {
 							title={ __( 'Jetpack version' ) }
 						>
 							{ version ? __( 'Jetpack version %(version)s', { args: { version } } ) : 'Jetpack' }
+						</a>
+					</li>
+					<li className="jp-footer__link-item">
+						<a
+							onClick={ this.trackAboutClick }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack_about' }
+							className="jp-footer__link"
+							title={ __( 'About Jetpack' ) }
+						>
+							{ __( 'About', { context: 'Link to learn more about Jetpack.' } ) }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
