@@ -457,18 +457,17 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 // GET /sites/%s/sync/status
 new Jetpack_JSON_API_Sync_Status_Endpoint(
 	array(
-		'description'     => 'Status of the current full sync or the previous full sync',
-		'method'          => 'GET',
-		'path'            => '/sites/%s/sync/status',
-		'stat'            => 'sync-status',
-		'path_labels'     => array(
+		'description'      => 'Status of the current full sync or the previous full sync',
+		'method'           => 'GET',
+		'path'             => '/sites/%s/sync/status',
+		'stat'             => 'sync-status',
+		'path_labels'      => array(
 			'$site' => '(int|string) The site ID, The site domain',
 		),
 		'query_parameters' => array(
-			'fields' => '(string=posts_checksum,total) List of comma-separated fields to return (see `response_format`).',
+			'fields' => '(string|null) List of comma-separated fields to return (see `response_format`).',
 		),
-		
-		'response_format' => array(
+		'response_format'  => array(
 			'posts_checksum'        => '(string|null) Posts checksum. Needs to be requested using the filter parameter.',
 			'comments_checksum'     => '(string|null) Comments checksum. Needs to be requested using the filter parameter.',
 			'post_meta_checksum'    => '(string|null) Post Meta checksum. Needs to be requested using the filter parameter.',
@@ -490,7 +489,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint(
 			'cron_size'             => '(int) Size of the current cron array',
 			'next_cron'             => '(int) The number of seconds till the next item in cron.',
 		),
-		'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
+		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
 	)
 );
 
