@@ -140,7 +140,7 @@
 		"swiper": "4.5.0",
 		"uglify-save-license": "0.4.1",
 		"url-loader": "1.1.2",
-		"webpack": "4.29.6"
+		"webpack": "4.31.0"
 	},
 	"optionalDependencies": {
 		"react": "16.8.6",
