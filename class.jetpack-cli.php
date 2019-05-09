@@ -352,8 +352,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 							}
 							WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
 							$count_fixes++;
-							$sleep_duration = ( $is_dry_run ? 1 : 3 );
-							sleep( $sleep_duration ); // Allow some time for replication to catch up.
+							if ( ! $is_dry_run ) {
+								// We could be deleting a lot of options rows at the same time.
+								// Allow some time for replication to catch up.
+								sleep( 3 );
+							}
 						}
 
 						restore_current_blog();
