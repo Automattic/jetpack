@@ -440,7 +440,6 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function get_sync_status( $fields = null ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 		self::initialize_sender();
 
 		$sync_module     = Jetpack_Sync_Modules::get_module( 'full-sync' );
@@ -448,11 +447,13 @@ class Jetpack_Sync_Actions {
 		$full_queue      = self::$sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron       = $cron_timestamps[0] - time();
-		$store           = new Jetpack_Sync_WP_Replicastore();
 
 		$checksums = array();
 
 		if ( ! is_null( $fields ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
+			$store           = new Jetpack_Sync_WP_Replicastore();
+
 			$fields_params = array_map( 'trim', explode( ',', $fields ) );
 
 			if ( in_array( 'posts_checksum', $fields_params, true ) ) {
