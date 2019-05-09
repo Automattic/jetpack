@@ -16,7 +16,7 @@ import {
 	userCanManageOptions,
 	getSiteAdminUrl,
 } from 'state/initial-state';
-import { isInIdentityCrisis } from 'state/connection';
+import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -231,11 +231,12 @@ export default connect(
 	state => {
 		return {
 			currentVersion: getCurrentVersion( state ),
-			userCanManageOptions: userCanManageOptions( state ),
-			isDevVersion: _isDevVersion( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			isInIdentityCrisis: isInIdentityCrisis( state ),
 			displayDevCard: canDisplayDevCard( state ),
+			isDevVersion: _isDevVersion( state ),
+			isInIdentityCrisis: isInIdentityCrisis( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
 	dispatch => {
