@@ -9,38 +9,31 @@ error_log( 'loading conflicting plugin' );
  * THIS CODE WOULD NEED TO BE DUPLICATED IN EACH PLUGIN...
  */
 if ( ! function_exists( 'jetpack_enqueue_library' ) ) {
+	global $jetpack_libraries;
+	if ( ! is_array( $jetpack_libraries ) ) {
+		$jetpack_libraries = array();
+	}
+
 	function jetpack_enqueue_library( $class_name, $version, $path ) {
 		global $jetpack_libraries;
-		if ( ! is_array( $jetpack_libraries ) ) {
-			$jetpack_libraries = array();
-		}
 		if ( ! isset( $jetpack_libraries[ $class_name ] ) ) {
-			$jetpack_libraries[ $class_name ] = array();
+			$jetpack_libraries[ $class_name ] = array( 'version' => $version, 'path' => $path );
 		}
-		$jetpack_libraries[ $class_name ][] = array( 'version' => $version, 'path' => $path );
+		// Check if the version passed in is bigger
+		if ( version_compare( $version, $jetpack_libraries[ $class_name ]['version'],'>' ) ) {
+			$jetpack_libraries[ $class_name ] = array( 'version' => $version, 'path' => $path );
+		}
 	}
 
 	// add the autoloader
-	spl_autoload_register( function ($class_name) {
+	spl_autoload_register( function ( $class_name ) {
 		global $jetpack_libraries;
-		if ( ! isset( $jetpack_libraries[ $class_name ] ) ) {
-			// the library is not registered try a different autoloader
-			return;
-		}
-
-		if ( ! did_action( 'plugins_loaded' ) ) {
-			_doing_it_wrong( $class_name , 'Not all plugins have loaded yet!' );
-		}
-
-		$initial = array_shift($jetpack_libraries[ $class_name ] );
-		$max_version_info = array_reduce( $jetpack_libraries[ $class_name ], function( $carry_class_info, $class_info ) {
-			if ( version_compare( $class_info['version'], $carry_class_info['version'], '>' ) ) {
-				return $class_info;
+		if ( isset( $jetpack_libraries[ $class_name ] ) ) {
+			if ( ! did_action( 'plugins_loaded' ) ) {
+				_doing_it_wrong( $class_name, 'Not all plugins have loaded yet!', '1' );
 			}
-			return $carry_class_info;
-		}, $initial );
-
-		require_once $max_version_info['path'];
+			require_once $jetpack_libraries[ $class_name ]['path'];
+		}
 	} );
 }
 /**
