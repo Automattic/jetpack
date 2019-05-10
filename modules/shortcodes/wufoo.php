@@ -72,15 +72,15 @@ function wufoo_shortcode( $atts ) {
 	// Embed URL.
 	$embed_url = sprintf(
 		'https://%1$s.wufoo.com/embed/%2$s/',
-		esc_attr( $attr['username'] ),
-		esc_attr( $attr['formhash'] )
+		$attr['username'],
+		$attr['formhash']
 	);
 
 	// Form URL.
 	$form_url = sprintf(
 		'https://%1$s.wufoo.com/forms/%2$s/',
-		esc_attr( $attr['username'] ),
-		esc_attr( $attr['formhash'] )
+		$attr['username'],
+		$attr['formhash']
 	);
 
 	/*
