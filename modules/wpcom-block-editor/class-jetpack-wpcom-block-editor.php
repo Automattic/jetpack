@@ -36,11 +36,11 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	private function __construct() {
 		if ( $this->is_iframed_block_editor() ) {
-			add_action( 'init', array( $this, 'show_error_if_logged_out' ) );
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
+		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 	}
@@ -58,31 +58,11 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Shows a custom message if the user is logged out.
-	 *
-	 * The iframed block editor can be only embedded in WordPress.com if the user is logged
-	 * into the Jetpack site. So we abort the default redirection to the login page (which
-	 * cannot be embedded in a iframe) and instead we explain that we need the user to log
-	 * into Jetpack.
-	 */
-	public function show_error_if_logged_out() {
-		if ( ! get_current_user_id() ) {
-			/* translators: %s: Login URL */
-			$message = __( 'Please <a href="%s" target="_blank" rel="noopener noreferrer">log into</a> your Jetpack-connected site to use the block editor on WordPress.com.', 'jetpack' );
-
-			wp_die(
-				sprintf( wp_kses_post( $message ), esc_url( wp_login_url() ) ),
-				'',
-				array( 'response' => 401 )
-			);
-		}
-	}
-
-	/**
 	 * Prevents frame options header from firing if this is a whitelisted iframe request.
 	 */
 	public function disable_send_frame_options_header() {
-		if ( $this->framing_allowed() ) {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( $this->framing_allowed( $_GET['frame-nonce'] ) ) {
 			remove_action( 'admin_init', 'send_frame_options_header' );
 		}
 	}
@@ -94,7 +74,8 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @return string
 	 */
 	public function add_iframed_body_class( $classes ) {
-		if ( $this->framing_allowed() ) {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( $this->framing_allowed( $_GET['frame-nonce'] ) ) {
 			$classes .= ' is-iframed ';
 		}
 
@@ -102,15 +83,86 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
+	 * Allows to iframe the login page if a user is logged out
+	 * while trying to access the block editor from wordpress.com.
+	 */
+	public function allow_block_editor_login() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( empty( $_REQUEST['redirect_to'] ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification
+		$query = wp_parse_url( urldecode( $_REQUEST['redirect_to'] ), PHP_URL_QUERY );
+		$args  = wp_parse_args( $query );
+
+		// Check nonce and make sure this is a Gutenframe request.
+		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
+
+			// If SSO is active, we'll let WordPress.com handle authentication...
+			if ( Jetpack::is_module_active( 'sso' ) ) {
+				// ...but only if it's not an Atomic site. They already do that.
+				if ( ! jetpack_is_atomic_site() ) {
+					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+				}
+			} else {
+				$_REQUEST['interim-login'] = true;
+				add_action( 'wp_login', array( $this, 'do_redirect' ) );
+				add_action( 'login_form', array( $this, 'add_login_html' ) );
+				add_filter( 'wp_login_errors', array( $this, 'add_login_message' ) );
+				remove_action( 'login_init', 'send_frame_options_header' );
+				wp_add_inline_style( 'login', '.interim-login #login{padding-top:8%}' );
+			}
+		}
+	}
+
+	/**
+	 * Adds a login message.
+	 *
+	 * Intended to soften the expectation mismatch of ending up with a login screen rather than the editor.
+	 *
+	 * @param WP_Error $errors WP Error object.
+	 * @return \WP_Error
+	 */
+	public function add_login_message( $errors ) {
+		$errors->remove( 'expired' );
+		$errors->add( 'info', __( 'Before we continue, please log in to your Jetpack site.', 'jetpack' ), 'message' );
+
+		return $errors;
+	}
+
+	/**
+	 * Maintains the `redirect_to` parameter in login form links.
+	 * Adds visual feedback of login in progress.
+	 */
+	public function add_login_html() {
+		?>
+		<input type="hidden" name="redirect_to" value="<?php echo esc_url( $_REQUEST['redirect_to'] ); ?>" />
+		<script type="application/javascript">
+			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
+				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
+				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack' ) ); ?>';
+			} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Does the redirect to the block editor.
+	 */
+	public function do_redirect() {
+		wp_redirect( $GLOBALS['redirect_to'] );
+		exit;
+	}
+
+	/**
 	 * Checks whether this is a whitelisted iframe request.
 	 *
+	 * @param string $nonce Nonce to verify.
 	 * @return bool
 	 */
-	public function framing_allowed() {
-		$verified = $this->verify_frame_nonce(
-			$_GET['frame-nonce'], // phpcs:ignore WordPress.Security.NonceVerification
-			'frame-' . Jetpack_Options::get_option( 'id' )
-		);
+	public function framing_allowed( $nonce ) {
+		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . Jetpack_Options::get_option( 'id' ) );
 
 		if ( is_wp_error( $verified ) ) {
 			wp_die( $verified ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -172,7 +224,8 @@ class Jetpack_WPCOM_Block_Editor {
 			return new WP_Error( 'nonce_invalid_expired', 'Expired nonce.', array( 'status' => 401 ) );
 		}
 
-		if ( get_current_user_id() !== $this->nonce_user_id ) {
+		// Check if it matches the current user, unless they're trying to log in.
+		if ( get_current_user_id() !== $this->nonce_user_id && ! doing_action( 'login_init' ) ) {
 			return new WP_Error( 'nonce_invalid_user_mismatch', 'User ID mismatch.', array( 'status' => 401 ) );
 		}
 
