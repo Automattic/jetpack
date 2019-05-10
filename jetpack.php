@@ -67,7 +67,7 @@ if ( ! function_exists( 'jetpack_enqueue_library' ) ) {
 	function jetpack_enqueue_library( $class_name, $version, $path ) {
 		global $jetpack_libraries;
 		if ( ! isset( $jetpack_libraries[ $class_name ] )
-		     || version_compare( $jetpack_libraries[ $class_name ] ['version'], $version, '>' )
+		     || version_compare( $jetpack_libraries[ $class_name ] ['version'], $version, '<' )
 		) {
 			$jetpack_libraries[ $class_name ] = array( 'version' => $version, 'path' => $path );
 		}
