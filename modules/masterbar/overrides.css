@@ -59,3 +59,8 @@
 #wpadminbar .quicklinks li#wp-admin-bar-my-account #wp-admin-bar-user-info .ab-sign-out {
 	display: inline-block;
 }
+
+/* Remove the admin menu toggle in Gutenberg - https://github.com/Automattic/jetpack/issues/12320 */
+.jetpack-masterbar.post-new-php.block-editor-page #wp-admin-bar-menu-toggle {
+	display: none;
+}
