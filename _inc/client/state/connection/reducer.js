@@ -119,7 +119,7 @@ export const reducer = combineReducers( {
  * Returns true if site is connected to WordPress.com
  *
  * @param  {Object}      state Global state tree
- * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
+ * @return {boolean|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
  */
 export function getSiteConnectionStatus( state ) {
 	if ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) {

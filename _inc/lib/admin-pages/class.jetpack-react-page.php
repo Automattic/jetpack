@@ -387,6 +387,7 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'publish_posts'      => current_user_can( 'publish_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
+			'customize'          => current_user_can( 'customize' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
 			'manage_plugins'	 => current_user_can( 'install_plugins' )
 									&& current_user_can( 'activate_plugins' )

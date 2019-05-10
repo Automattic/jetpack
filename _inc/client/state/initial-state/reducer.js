@@ -96,6 +96,17 @@ export function userCanManageOptions( state ) {
 }
 
 /**
+ * Check if user has access to the Customizer.
+ *
+ * @param  {Object} state Global state tree.
+ *
+ * @return {bool}         Whether user can access the Customizer.
+ */
+export function userCanCustomize( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'customize', false );
+}
+
+/**
  * Return true if user can edit posts, usually admins, editors, authors and contributors.
  *
  * @param {Object} state Global state tree

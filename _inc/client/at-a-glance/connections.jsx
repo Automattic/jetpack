@@ -5,14 +5,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Gridicon from 'components/gridicon';
-import DashItem from 'components/dash-item';
 
 /**
  * Internal dependencies
  */
 import { getSiteConnectionStatus, isCurrentUserLinked, isDevMode } from 'state/connection';
 import {
+	userCanCustomize,
 	userCanDisconnectSite,
 	userIsMaster,
 	getUserWpComLogin,
@@ -20,56 +19,93 @@ import {
 	getUserWpComAvatar,
 	getUsername,
 	getSiteIcon,
+	getSiteAdminUrl,
 } from 'state/initial-state';
 import QueryUserConnectionData from 'components/data/query-user-connection';
+import Button from 'components/button';
 import ConnectButton from 'components/connect-button';
+import Gridicon from 'components/gridicon';
+import DashItem from 'components/dash-item';
+
+/**
+ * Renders the site icon, using the stored icon if there's one. Otherwise uses the default globe icon.
+ *
+ * @param {string} siteIcon URL to the image used as the site icon.
+ * @returns {object} The site icon.
+ */
+const renderSiteIcon = siteIcon =>
+	siteIcon ? (
+		<img
+			width="64"
+			height="64"
+			className="jp-connection-settings__site-icon"
+			src={ siteIcon }
+			alt=""
+		/>
+	) : (
+		<Gridicon icon="globe" size={ 64 } />
+	);
+
+/**
+ * Render button linked to the Customizer Site Icon section
+ *
+ * @param {string}  linkToCustomizer Link to the Customizer screen.
+ * @returns {object} Button to change the site icon.
+ */
+const getChangeSiteIcon = linkToCustomizer => (
+	<Button compact href={ linkToCustomizer } className="jp-connection-settings__change-site-icon">
+		{ __( 'Change' ) }
+	</Button>
+);
 
 export class DashConnections extends Component {
-	/*
+	static propTypes = {
+		siteConnectionStatus: PropTypes.any.isRequired,
+		isDevMode: PropTypes.bool.isRequired,
+		userCanDisconnectSite: PropTypes.bool.isRequired,
+		userIsMaster: PropTypes.bool.isRequired,
+		isLinked: PropTypes.bool.isRequired,
+		userWpComLogin: PropTypes.any.isRequired,
+		userWpComEmail: PropTypes.any.isRequired,
+		userWpComAvatar: PropTypes.any.isRequired,
+		username: PropTypes.any.isRequired,
+		customizeSiteIcon: PropTypes.string.isRequired,
+		userCanCustomize: PropTypes.bool.isRequired,
+	};
+
+	/**
 	 * Render a card for site connection. If it's connected, indicate if user is the connection owner.
 	 * Show alternative message if site is in development mode.
 	 *
-	 * @returns {string}
+	 * @returns {object} Card for site connection.
 	 */
 	siteConnection() {
 		let cardContent = '';
 
 		if ( this.props.isDevMode ) {
 			cardContent = (
-				<div className="jp-connection-settings__info">
-					{ this.props.siteIcon ? (
-						<img
-							width="64"
-							height="64"
-							className="jp-connection-settings__site-icon"
-							src={ this.props.siteIcon }
-							alt=""
-						/>
-					) : (
-						<Gridicon icon="globe" size={ 64 } />
-					) }
-					<div className="jp-connection-settings__text">
-						{ __(
-							'Your site is in Development Mode, so it can not be connected to WordPress.com.'
-						) }
+				<React.Fragment>
+					<div className="jp-connection-settings__info">
+						<div className="jp-connection-settings__site-icon-wrap">
+							{ renderSiteIcon( this.props.siteIcon ) }
+							{ this.props.userCanCustomize && getChangeSiteIcon( this.props.customizeSiteIcon ) }
+						</div>
+						<div className="jp-connection-settings__text">
+							{ __(
+								'Your site is in Development Mode, so it can not be connected to WordPress.com.'
+							) }
+						</div>
 					</div>
-				</div>
+				</React.Fragment>
 			);
 		} else if ( true === this.props.siteConnectionStatus ) {
 			cardContent = (
-				<div>
+				<React.Fragment>
 					<div className="jp-connection-settings__info">
-						{ this.props.siteIcon ? (
-							<img
-								width="64"
-								height="64"
-								className="jp-connection-settings__site-icon"
-								src={ this.props.siteIcon }
-								alt=""
-							/>
-						) : (
-							<Gridicon icon="globe" size={ 64 } />
-						) }
+						<div className="jp-connection-settings__site-icon-wrap">
+							{ renderSiteIcon( this.props.siteIcon ) }
+							{ this.props.userCanCustomize && getChangeSiteIcon( this.props.customizeSiteIcon ) }
+						</div>
 						<div className="jp-connection-settings__text">
 							{ __( 'Your site is connected to WordPress.com.' ) }
 							{ this.props.userIsMaster && (
@@ -78,14 +114,15 @@ export class DashConnections extends Component {
 									<em>{ __( 'You are the Jetpack owner.' ) }</em>
 								</span>
 							) }
+							<br />
+							{ this.props.userCanDisconnectSite && (
+								<div className="jp-connection-settings__actions">
+									<ConnectButton asLink />
+								</div>
+							) }
 						</div>
 					</div>
-					{ this.props.userCanDisconnectSite && (
-						<div className="jp-connection-settings__actions">
-							<ConnectButton asLink />
-						</div>
-					) }
-				</div>
+				</React.Fragment>
 			);
 		}
 
@@ -191,22 +228,11 @@ export class DashConnections extends Component {
 	}
 }
 
-DashConnections.propTypes = {
-	siteConnectionStatus: PropTypes.any.isRequired,
-	isDevMode: PropTypes.bool.isRequired,
-	userCanDisconnectSite: PropTypes.bool.isRequired,
-	userIsMaster: PropTypes.bool.isRequired,
-	isLinked: PropTypes.bool.isRequired,
-	userWpComLogin: PropTypes.any.isRequired,
-	userWpComEmail: PropTypes.any.isRequired,
-	userWpComAvatar: PropTypes.any.isRequired,
-	username: PropTypes.any.isRequired,
-};
-
 export default connect( state => {
 	return {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isDevMode: isDevMode( state ),
+		userCanCustomize: userCanCustomize( state ),
 		userCanDisconnectSite: userCanDisconnectSite( state ),
 		userIsMaster: userIsMaster( state ),
 		userWpComLogin: getUserWpComLogin( state ),
@@ -215,5 +241,8 @@ export default connect( state => {
 		username: getUsername( state ),
 		isLinked: isCurrentUserLinked( state ),
 		siteIcon: getSiteIcon( state ),
+		customizeSiteIcon: `${ getSiteAdminUrl(
+			state
+		) }customize.php?autofocus[section]=title_tagline`,
 	};
 } )( DashConnections );

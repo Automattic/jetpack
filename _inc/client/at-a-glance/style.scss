@@ -312,9 +312,6 @@
 		align-items: flex-start;
 	}
 }
-.jp-connection-settings__info {
-	display: flex;
-}
 
 .jp-connection-settings__actions {
 	margin: 1em 0 0;
@@ -330,6 +327,9 @@
 	word-break: break-word;
 }
 .jp-connection-settings__info {
+	display: flex;
+	width: 100%;
+
 	.gridicon {
 		opacity: .6;
 	}
@@ -346,6 +346,16 @@
 		border-radius: 50%;
 		margin-bottom: 0;
 	}
+
+	.jp-connection-settings__site-icon-wrap {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+.jp-dash-item a.jp-connection-settings__change-site-icon {
+	font-style: normal;
+	margin-top: rem( 4px );
 }
 
 .jp-connection-settings__username {
