@@ -263,12 +263,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( $is_dry_run ) {
 			WP_CLI::warning(
-				__(
-					"\nThis is a `Dry Run`.\n" .
-					"No actions will be taken.\n" .
-					"The following messages will give you preview of what will happen when you run this command.\n\n",
-					'jetpack'
-				)
+				__( "\nThis is a dry run.\n", 'jetpack' ) .
+				__( "No actions will be taken.\n", 'jetpack' ) .
+				__( "The following messages will give you preview of what will happen when you run this command.\n\n", 'jetpack' )
 			);
 		} else {
 			// We only need to confirm "Are you sure?" when we are not doing a dry run.
@@ -335,14 +332,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'sync-checksum':
 				$option = 'jetpack_callables_sync_checksum';
 
-
-
 				if ( is_multisite() ) {
 					$offset = isset( $assoc_args['offset'] ) ? (int) $assoc_args['offset'] : 0;
-					// 1000 is a good limit since we don't expect the number of sites to be more then 1000 on sites
-					// Offset can be used to paginate and try to clean up more sites.
-					$sites        = get_sites( array( 'number' => 1000, 'offset' => $offset ) );
-					$count_fixes  = 0;
+
+					/*
+					 * 1000 is a good limit since we don't expect the number of sites to be more than 1000
+					 * Offset can be used to paginate and try to clean up more sites.
+					 */
+					$sites       = get_sites( array( 'number' => 1000, 'offset' => $offset ) );
+					$count_fixes = 0;
 					foreach ( $sites as $site ) {
 						switch_to_blog( $site->blog_id );
 						$count = self::count_option( $option );
@@ -350,11 +348,21 @@ class Jetpack_CLI extends WP_CLI_Command {
 							if ( ! $is_dry_run ) {
 								delete_option( $option );
 							}
-							WP_CLI::line( sprintf( __( 'Deleted %s %s options from %s', 'jetpack' ), $count, $option, "{$site->domain}{$site->path}" ) );
+							WP_CLI::line(
+								sprintf(
+									/* translators: %1$d is a number, %2$s is the name of an option, %2$s is the site URL. */
+									__( 'Deleted %1$d %2$s options from %3$s', 'jetpack' ),
+									$count,
+									$option,
+									"{$site->domain}{$site->path}"
+								)
+							);
 							$count_fixes++;
 							if ( ! $is_dry_run ) {
-								// We could be deleting a lot of options rows at the same time.
-								// Allow some time for replication to catch up.
+								/*
+								 * We could be deleting a lot of options rows at the same time.
+								 * Allow some time for replication to catch up.
+								 */
 								sleep( 3 );
 							}
 						}
@@ -364,7 +372,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 					if ( $count_fixes ) {
 						WP_CLI::success(
 							sprintf(
-								__( 'Successfully reset %s on %s sites.', 'jetpack' ),
+								/* translators: %1$s is the name of an option, %2$d is a number of sites. */
+								__( 'Successfully reset %1$s on %2$d sites.', 'jetpack' ),
 								$option,
 								$count_fixes
 							)
@@ -382,7 +391,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 					}
 					WP_CLI::success(
 						sprintf(
-							__( 'Deleted %s %s options', 'jetpack' ),
+							/* translators: %1$d is a number, %2$s is the name of an option. */
+							__( 'Deleted %1$d %2$s options', 'jetpack' ),
 							$count,
 							$option
 						)
@@ -401,15 +411,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * Normally an option would only appear 1 since the option key is supposed to be unique
 	 * but if a site hasn't updated the DB schema then that would not be the case.
 	 *
-	 * @param $option
+	 * @param string $option Option name.
 	 *
 	 * @return int
 	 */
-	static function count_option( $option ) {
+	private static function count_option( $option ) {
 		global $wpdb;
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s", $option
+				"SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s",
+				$option
 			)
 		);
 
