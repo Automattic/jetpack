@@ -247,23 +247,34 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * wp jetpack reset options
 	 * wp jetpack reset modules
+	 * wp jetpack reset sync-checksum --dry-run --offset=0
 	 *
-	 * @synopsis <modules|options>
+	 * @synopsis <modules|options|sync-checksum> [--dry-run] [--offset=<offset>]
+	 *
 	 */
 	public function reset( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
-		if ( ! in_array( $action, array( 'options', 'modules' ) ) ) {
+		if ( ! in_array( $action, array( 'options', 'modules', 'sync-checksum' ), true ) ) {
 			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 
-		// Are you sure?
-		jetpack_cli_are_you_sure();
+		$is_dry_run = ! empty( $assoc_args['dry-run'] );
+
+		if ( $is_dry_run ) {
+			WP_CLI::warning(
+				__( "\nThis is a dry run.\n", 'jetpack' ) .
+				__( "No actions will be taken.\n", 'jetpack' ) .
+				__( "The following messages will give you preview of what will happen when you run this command.\n\n", 'jetpack' )
+			);
+		} else {
+			// We only need to confirm "Are you sure?" when we are not doing a dry run.
+			jetpack_cli_are_you_sure();
+		}
 
 		switch ( $action ) {
 			case 'options':
 				$options_to_reset = Jetpack_Options::get_options_for_reset();
-
 				// Reset the Jetpack options
 				WP_CLI::line( sprintf(
 					__( "Resetting Jetpack Options for %s...\n", "jetpack" ),
@@ -271,8 +282,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 				) );
 				sleep(1); // Take a breath
 				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
-					Jetpack_Options::delete_option( $option_to_reset );
-					usleep( 100000 );
+					if ( ! $is_dry_run ) {
+						Jetpack_Options::delete_option( $option_to_reset );
+						usleep( 100000 );
+					}
+
 					/* translators: This is the result of an action. The option named %s was reset */
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
@@ -281,8 +295,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::line( __( "Resetting the jetpack options stored in wp_options...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
-					delete_option( $option_to_reset );
-					usleep( 100000 );
+					if ( ! $is_dry_run ) {
+						delete_option( $option_to_reset );
+						usleep( 100000 );
+					}
 					/* translators: This is the result of an action. The option named %s was reset */
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
@@ -291,22 +307,123 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI::line( __( "Resetting default modules...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				$default_modules = Jetpack::get_default_modules();
-				Jetpack::update_active_modules( $default_modules );
+				if ( ! $is_dry_run ) {
+					Jetpack::update_active_modules( $default_modules );
+				}
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 
 				// Jumpstart option is special
-				Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+				if ( ! $is_dry_run ) {
+					Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
+				}
 				WP_CLI::success( __( 'jumpstart option reset', 'jetpack' ) );
 				break;
 			case 'modules':
-				$default_modules = Jetpack::get_default_modules();
-				Jetpack::update_active_modules( $default_modules );
+				if ( ! $is_dry_run ) {
+					$default_modules = Jetpack::get_default_modules();
+					Jetpack::update_active_modules( $default_modules );
+				}
+
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
 				break;
 			case 'prompt':
-				WP_CLI::error( __( 'Please specify if you would like to reset your options, or modules', 'jetpack' ) );
+				WP_CLI::error( __( 'Please specify if you would like to reset your options, modules or sync-checksum', 'jetpack' ) );
 				break;
+			case 'sync-checksum':
+				$option = 'jetpack_callables_sync_checksum';
+
+				if ( is_multisite() ) {
+					$offset = isset( $assoc_args['offset'] ) ? (int) $assoc_args['offset'] : 0;
+
+					/*
+					 * 1000 is a good limit since we don't expect the number of sites to be more than 1000
+					 * Offset can be used to paginate and try to clean up more sites.
+					 */
+					$sites       = get_sites( array( 'number' => 1000, 'offset' => $offset ) );
+					$count_fixes = 0;
+					foreach ( $sites as $site ) {
+						switch_to_blog( $site->blog_id );
+						$count = self::count_option( $option );
+						if ( $count > 1 ) {
+							if ( ! $is_dry_run ) {
+								delete_option( $option );
+							}
+							WP_CLI::line(
+								sprintf(
+									/* translators: %1$d is a number, %2$s is the name of an option, %2$s is the site URL. */
+									__( 'Deleted %1$d %2$s options from %3$s', 'jetpack' ),
+									$count,
+									$option,
+									"{$site->domain}{$site->path}"
+								)
+							);
+							$count_fixes++;
+							if ( ! $is_dry_run ) {
+								/*
+								 * We could be deleting a lot of options rows at the same time.
+								 * Allow some time for replication to catch up.
+								 */
+								sleep( 3 );
+							}
+						}
+
+						restore_current_blog();
+					}
+					if ( $count_fixes ) {
+						WP_CLI::success(
+							sprintf(
+								/* translators: %1$s is the name of an option, %2$d is a number of sites. */
+								__( 'Successfully reset %1$s on %2$d sites.', 'jetpack' ),
+								$option,
+								$count_fixes
+							)
+						);
+					} else {
+						WP_CLI::success( __( 'No options were deleted.', 'jetpack' ) );
+					}
+					return;
+				}
+
+				$count = self::count_option( $option );
+				if ( $count > 1 ) {
+					if ( ! $is_dry_run ) {
+						delete_option( $option );
+					}
+					WP_CLI::success(
+						sprintf(
+							/* translators: %1$d is a number, %2$s is the name of an option. */
+							__( 'Deleted %1$d %2$s options', 'jetpack' ),
+							$count,
+							$option
+						)
+					);
+					return;
+				}
+
+				WP_CLI::success( __( 'No options were deleted.', 'jetpack' ) );
+				break;
+
 		}
+	}
+
+	/**
+	 * Return the number of times an option appears
+	 * Normally an option would only appear 1 since the option key is supposed to be unique
+	 * but if a site hasn't updated the DB schema then that would not be the case.
+	 *
+	 * @param string $option Option name.
+	 *
+	 * @return int
+	 */
+	private static function count_option( $option ) {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM $wpdb->options WHERE option_name = %s",
+				$option
+			)
+		);
+
 	}
 
 	/**
