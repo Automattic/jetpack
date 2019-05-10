@@ -72,6 +72,7 @@
 
 .jetpack-masterbar.post-new-php.block-editor-page #wpadminbar #wp-admin-bar-menu-toggle .ab-icon:before {
 	color: #fff !important;
+	font-size: 28px;
 }
 
 @media screen and (max-width: 480px) {
