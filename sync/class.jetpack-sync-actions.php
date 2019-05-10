@@ -450,7 +450,7 @@ class Jetpack_Sync_Actions {
 
 		$checksums = array();
 
-		if ( ! is_null( $fields ) ) {
+		if ( ! empty( $fields ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 			$store         = new Jetpack_Sync_WP_Replicastore();
 			$fields_params = array_map( 'trim', explode( ',', $fields ) );
