@@ -436,6 +436,14 @@ class Jetpack {
 		delete_transient( self::$plugin_upgrade_lock_key );
 	}
 
+	/**
+	 * Saves all the currently active modules to options.
+	 * Also fires Action hooks for each newly activated and deactived module.
+	 * 
+	 * @param $modules Array Array of active modules to be saved in options.
+	 * 
+	 * @return $success bool true for success, false for failure.
+	 */
 	static function update_active_modules( $modules ) {
 		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
 		$active_modules       = Jetpack::get_active_modules();
