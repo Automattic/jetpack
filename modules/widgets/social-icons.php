@@ -364,7 +364,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		$aria_hidden = ' aria-hidden="true"';
 
 		// Begin SVG markup.
-		$svg = '<svg class="icon icon-' . esc_attr( $args['icon'] ) . '"' . $aria_hidden . ' role="img">';
+		$svg = '<svg class="icon icon-' . esc_attr( $args['icon'] ) . '"' . $aria_hidden . ' role="presentation">';
 
 		/*
 		 * Display the icon.
@@ -526,7 +526,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => 'goodreads.com',
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
-			),			
+			),
 			array(
 				'url'   => 'google.com',
 				'icon'  => 'google',
