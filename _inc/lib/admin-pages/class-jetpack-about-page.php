@@ -34,9 +34,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	public function get_page_hook() {
 		// Add the main admin Jetpack menu.
 		return add_submenu_page(
-			'jetpack',
+			null,
 			esc_html__( 'About Jetpack', 'jetpack' ),
-			esc_html__( 'About Jetpack', 'jetpack' ),
+			'',
 			'jetpack_admin_page',
 			'jetpack_about',
 			array( $this, 'render' )
@@ -632,7 +632,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 * This function does not allow modifying the returned URL, and is only used to compare the actually used URL with the
 	 * default one.
 	 *
- 	 * @todo: Remove when 5.1 is minimum WP version.
+	 * @todo: Remove when 5.1 is minimum WP version.
 	 * @since 5.1.0
 	 * @access private
 	 *
@@ -648,7 +648,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 * This function is to be used after {@see wp_get_update_php_url()} to display a consistent
 	 * annotation if the web host has altered the default "Update PHP" page URL.
 	 *
- 	 * @todo: Remove when 5.1 is minimum WP version.
+	 * @todo: Remove when 5.1 is minimum WP version.
 	 * @since 5.1.0
 	 */
 	private function jp_update_php_annotation() {
