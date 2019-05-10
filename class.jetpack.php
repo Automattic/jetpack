@@ -436,19 +436,10 @@ class Jetpack {
 		delete_transient( self::$plugin_upgrade_lock_key );
 	}
 
-	static function isArray( $arr ) {
-		if ( ! is_array( $arr ) ) {
-			return array();
-		}
-		return $arr;
-	}
-
 	static function update_active_modules( $modules ) {
 		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
 		$active_modules       = Jetpack::get_active_modules();
 	
-		$new_active_modules   = array();
-		$new_deactive_modules = array();
 		$current_modules      = ( is_array( $current_modules ) ) ? $current_modules : array();
 		$modules              = ( is_array( $modules ) ) ? $modules : array();
 		$active_modules       = ( is_array( $active_modules ) ) ? $active_modules : array();
@@ -458,7 +449,7 @@ class Jetpack {
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_deactive_modules );
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $new_current_modules ) );
 		
-		foreach( $new_active_modules as $module ) {
+		foreach ( $new_active_modules as $module ) {
 			/**
 			 * Fires when a specific module is activated.
 			 *
@@ -479,7 +470,7 @@ class Jetpack {
 			do_action( "jetpack_activate_module_$module", $module );
 		}
 			
-		foreach( $new_deactive_modules as $module ) {
+		foreach ( $new_deactive_modules as $module ) {
 			/**
 			 * Fired after a module has been deactivated.
 			 *
