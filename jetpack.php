@@ -89,6 +89,7 @@ function jetpack_admin_unsupported_wp_notice() { ?>
 }
 
 if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+	error_log("Your version of WordPress (" . $GLOBALS['wp_version'] . ") is lower than the required version, " . JETPACK__MINIMUM_WP_VERSION );
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
 	return;
 }
