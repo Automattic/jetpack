@@ -1060,13 +1060,13 @@ function wp_cache_setting( $field, $value ) {
 
 	$GLOBALS[ $field ] = $value;
 	if ( is_numeric( $value ) ) {
-		wp_cache_replace_line( '^ *\$' . $field, "\$$field = $value;", $wp_cache_config_file );
+		return wp_cache_replace_line( '^ *\$' . $field, "\$$field = $value;", $wp_cache_config_file );
 	} elseif ( is_object( $value ) || is_array( $value ) ) {
 		$text = var_export( $value, true );
 		$text = preg_replace( '/[\s]+/', ' ', $text );
-		wp_cache_replace_line( '^ *\$' . $field, "\$$field = $text;", $wp_cache_config_file );
+		return wp_cache_replace_line( '^ *\$' . $field, "\$$field = $text;", $wp_cache_config_file );
 	} else {
-		wp_cache_replace_line( '^ *\$' . $field, "\$$field = '$value';", $wp_cache_config_file );
+		return wp_cache_replace_line( '^ *\$' . $field, "\$$field = '$value';", $wp_cache_config_file );
 	}
 }
 
@@ -1110,7 +1110,7 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 			trim( $new ) == trim( $line )
 		) {
 			wp_cache_debug( "wp_cache_replace_line: setting not changed - $new" );
-			return false;
+			return true;
 		} elseif ( preg_match( "/$old/", $line ) ) {
 			wp_cache_debug( "wp_cache_replace_line: changing line " . trim( $line ) . " to *$new*" );
 			$found = true;

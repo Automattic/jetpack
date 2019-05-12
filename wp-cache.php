@@ -2188,9 +2188,13 @@ function wp_cache_debug_settings() {
 function wp_cache_enable() {
 	global $wp_cache_config_file, $cache_enabled;
 
-	if ( ! wp_cache_replace_line( '^\s*\$cache_enabled\s*=', '$cache_enabled = true;', $wp_cache_config_file ) ) {
-		return;
+	if ( $cache_enabled ) {
+		wp_cache_debug( 'wp_cache_enable: already enabled' );
+		return true;
 	}
+
+	wp_cache_setting( 'cache_enabled', true );
+	wp_cache_debug( 'wp_cache_enable: enable cache' );
 
 	$cache_enabled = true;
 
@@ -2206,9 +2210,13 @@ function wp_cache_enable() {
 function wp_cache_disable() {
 	global $wp_cache_config_file, $cache_enabled;
 
-	if ( ! wp_cache_replace_line( '^\s*\$cache_enabled\s*=', '$cache_enabled = false;', $wp_cache_config_file ) ) {
-		return;
+	if ( ! $cache_enabled ) {
+		wp_cache_debug( 'wp_cache_disable: already disabled' );
+		return true;
 	}
+
+	wp_cache_setting( 'cache_enabled', false );
+	wp_cache_debug( 'wp_cache_disable: disable cache' );
 
 	$cache_enabled = false;
 
@@ -2220,9 +2228,13 @@ function wp_cache_disable() {
 function wp_super_cache_enable() {
 	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
-	if ( ! wp_cache_replace_line( '^\s*\$super_cache_enabled\s*=', '$super_cache_enabled = true;', $wp_cache_config_file ) ) {
-		return;
+	if ( $super_cache_enabled ) {
+		wp_cache_debug( 'wp_super_cache_enable: already enabled' );
+		return true;
 	}
+
+	wp_cache_setting( 'super_cache_enabled', true );
+	wp_cache_debug( 'wp_super_cache_enable: enable cache' );
 
 	$super_cache_enabled = true;
 
@@ -2239,9 +2251,13 @@ function wp_super_cache_enable() {
 function wp_super_cache_disable() {
 	global $cache_path, $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
-	if ( ! wp_cache_replace_line('^\s*\$super_cache_enabled\s*=', '$super_cache_enabled = false;', $wp_cache_config_file ) ) {
-		return;
+	if ( ! $super_cache_enabled ) {
+		wp_cache_debug( 'wp_super_cache_disable: already disabled' );
+		return true;
 	}
+
+	wp_cache_setting( 'super_cache_enabled', false );
+	wp_cache_debug( 'wp_super_cache_disable: disable cache' );
 
 	$super_cache_enabled = false;
 
@@ -2566,7 +2582,10 @@ function wp_cache_create_advanced_cache() {
 		return false;
 	}
 
-	if ( !is_writeable_ACLSafe($global_config_file) || !wp_cache_replace_line('define *\( *\'WPCACHEHOME\'', $line, $global_config_file ) ) {
+	if (
+		! is_writeable_ACLSafe( $global_config_file ) ||
+		! wp_cache_replace_line( 'define *\( *\'WPCACHEHOME\'', $line, $global_config_file )
+	) {
 		echo '<div class="notice notice-error"><h4>' . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( 'Could not update %s!</em> WPCACHEHOME must be set in config file.', 'wp-super-cache' ), $global_config_file ) . "</h4></div>";
 		return false;
 	}
@@ -2614,7 +2633,6 @@ function wp_cache_check_link() {
 		echo "<li>" . sprintf( __( 'Make %1$s writable using the chmod command through your ftp or server software. (<em>chmod 777 %1$s</em>) and refresh this page. This is only a temporary measure and you&#8217;ll have to make it read only afterwards again. (Change 777 to 755 in the previous command)', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</li>";
 		echo "<li>" . sprintf( __( 'Refresh this page to update <em>%s/advanced-cache.php</em>', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</li></ol>";
 		echo sprintf( __( 'If that doesn&#8217;t work, make sure the file <em>%s/advanced-cache.php</em> doesn&#8217;t exist:', 'wp-super-cache' ), WP_CONTENT_DIR ) . "<ol>";
-		printf( __( '<li>Open <em>%1$s</em> in a text editor.</li><li>Change the text <em>CACHEHOME</em> to <em>%2$s</em></li><li> Save the file and copy it to <em>%3$s</em> and refresh this page.</li>', 'wp-super-cache' ), $wp_cache_file, WPCACHEHOME, $wp_cache_link );
 		echo "</ol>";
 		echo "</div>";
 		return false;
@@ -2630,18 +2648,21 @@ function wp_cache_check_global_config() {
 
 
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
-		$global = ABSPATH . 'wp-config.php';
+		$global_config_file = ABSPATH . 'wp-config.php';
 	} else {
-		$global = dirname(ABSPATH) . '/wp-config.php';
+		$global_config_file = dirname( ABSPATH ) . '/wp-config.php';
 	}
 
 	$line = 'define(\'WP_CACHE\', true);';
-	if (!is_writeable_ACLSafe($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
+	if (
+		! is_writeable_ACLSafe( $global_config_file ) ||
+		! wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', $line, $global_config_file )
+	) {
 		if ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) == false ) {
 			echo '<div class="notice notice-error">' . __( "<h4>WP_CACHE constant set to false</h4><p>The WP_CACHE constant is used by WordPress to load the code that serves cached pages. Unfortunately, it is set to false. Please edit your wp-config.php and add or edit the following line above the final require_once command:<br /><br /><code>define('WP_CACHE', true);</code></p>", 'wp-super-cache' ) . "</div>";
 		} else {
 			echo '<div class="notice notice-error"><p>' . __( "<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</code> file and I couldn&#8217;t modify it.", 'wp-super-cache' ) . "</p>";
-			echo "<p>" . sprintf( __( "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by WordPress core. ", 'wp-super-cache' ), $global ) . "</p></div>";
+			echo "<p>" . sprintf( __( "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by WordPress core. ", 'wp-super-cache' ), $global_config_file ) . "</p></div>";
 		}
 		return false;
 	}  else {
@@ -3725,11 +3746,23 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 
 	if ( apply_filters( 'wpsc_enable_wp_config_edit', true ) ) {
 		$line = 'define(\'WP_CACHE\', true);';
-		if ( strpos( file_get_contents( $global_config_file ), $line ) && ( !is_writeable_ACLSafe( $global_config_file ) || !wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', '', $global_config_file ) ) ) {
+		if (
+			strpos( file_get_contents( $global_config_file ), $line ) &&
+			(
+				! is_writeable_ACLSafe( $global_config_file ) ||
+				! wp_cache_replace_line( 'define*\(*\'WP_CACHE\'', '', $global_config_file )
+			)
+		) {
 			wp_die( "Could not remove WP_CACHE define from $global_config_file. Please edit that file and remove the line containing the text 'WP_CACHE'. Then refresh this page." );
 		}
 		$line = 'define( \'WPCACHEHOME\',';
-		if ( strpos( file_get_contents( $global_config_file ), $line ) && ( !is_writeable_ACLSafe( $global_config_file ) || !wp_cache_replace_line( 'define *\( *\'WPCACHEHOME\'', '', $global_config_file ) ) ) {
+		if (
+			strpos( file_get_contents( $global_config_file ), $line ) &&
+			(
+				! is_writeable_ACLSafe( $global_config_file ) ||
+				! wp_cache_replace_line( 'define *\( *\'WPCACHEHOME\'', '', $global_config_file )
+			)
+		) {
 			wp_die( "Could not remove WPCACHEHOME define from $global_config_file. Please edit that file and remove the line containing the text 'WPCACHEHOME'. Then refresh this page." );
 		}
 	} elseif ( function_exists( 'wp_cache_debug' ) ) {
