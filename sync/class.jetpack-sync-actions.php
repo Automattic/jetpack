@@ -439,6 +439,12 @@ class Jetpack_Sync_Actions {
 		}
 	}
 
+	/**
+	 * Get the sync status
+	 *
+	 * @param string|null $fields A comma-separated string of the fields to include in the array from the JSON response.
+	 * @return array
+	 */
 	static function get_sync_status( $fields = null ) {
 		self::initialize_sender();
 
