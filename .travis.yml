@@ -76,6 +76,12 @@ script: ./tests/run-travis.sh
 
 sudo: false
 
+jobs:
+  include:
+    - stage: after test
+      php: "7.3"
+      script: echo "Running after test build"
+
 notifications:
    webhooks:
      urls:
