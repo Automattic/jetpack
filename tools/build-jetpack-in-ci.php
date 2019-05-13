@@ -1,9 +1,9 @@
 <?php
 
-$commit = get_env( 'TRAVIS_COMMIT' );
-$repo   = get_env( 'TRAVIS_REPO_SLUG' );
-$branch = get_env( 'TRAVIS_BRANCH' );
-$pr     = get_env( 'TRAVIS_PULL_REQUEST' );
+$commit = getenv( 'TRAVIS_COMMIT' );
+$repo   = getenv( 'TRAVIS_REPO_SLUG' );
+$branch = getenv( 'TRAVIS_BRANCH' );
+$pr     = getenv( 'TRAVIS_PULL_REQUEST' );
 
 // Remove anything which isn't a word, whitespace, number
 // or any of the following caracters -_~,;[]().
