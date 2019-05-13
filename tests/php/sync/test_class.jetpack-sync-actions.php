@@ -47,4 +47,3 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'comment_meta_checksum', $comment_meta );
 	}
 }
-
