@@ -80,7 +80,7 @@ jobs:
   include:
     - stage: after test
       php: "7.3"
-      script: ./tools/build-jetpack-in-ci.php
+      script: php ./tools/build-jetpack-in-ci.php
 
 notifications:
    webhooks:
