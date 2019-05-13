@@ -2,7 +2,8 @@
 
 $commit = getenv( 'TRAVIS_COMMIT' );
 $repo   = getenv( 'TRAVIS_REPO_SLUG' );
-$branch = getenv( 'TRAVIS_BRANCH' );
+// `TRAVIS_BRANCH` set to `master for PRs, so lets use `TRAVIS_PULL_REQUEST` in such cases (not sure we actually need this)
+$branch = 'master' === getenv( 'TRAVIS_BRANCH' ) ? getenv( 'TRAVIS_PULL_REQUEST' ) : getenv( 'TRAVIS_BRANCH' );
 $pr     = getenv( 'TRAVIS_PULL_REQUEST' );
 
 // Remove anything which isn't a word, whitespace, number
@@ -54,10 +55,10 @@ $cmd[] = 'cd /tmp && '
 	. 'mv /tmp/jetpack-dev.zip ' . $destination_path;
 
 foreach ( $cmd as $c ) {
-	// exec( $c, $output, $exit );
-	echo $c;
-	// if ( 0 !== $exit ) {
-	if ( 0 !== 0 ) {
+	echo $c . "\n";
+	exec( $c, $output, $exit );
+	if ( 0 !== $exit ) {
+	// if ( 0 !== 0 ) {
 		echo( 'Something went wrong: ' );
 		echo( 'Command `' . $c . '\' exited with code ' . $exit );
 
@@ -80,7 +81,8 @@ $n = array(
 );
 
 
-echo $n . "\n";
+print_r( $n );
+echo "\n";
 
 // if ( 'master' === $branch ) {
 // 	$branches->{ $sanitized_branch } = $n;
