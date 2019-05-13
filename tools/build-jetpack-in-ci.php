@@ -2,8 +2,8 @@
 
 $commit = getenv( 'TRAVIS_COMMIT' );
 $repo   = getenv( 'TRAVIS_REPO_SLUG' );
-// `TRAVIS_BRANCH` set to `master for PRs, so lets use `TRAVIS_PULL_REQUEST` in such cases (not sure we actually need this)
-$branch = 'master' === getenv( 'TRAVIS_BRANCH' ) ? getenv( 'TRAVIS_PULL_REQUEST' ) : getenv( 'TRAVIS_BRANCH' );
+// `TRAVIS_BRANCH` set to `master for PRs, so lets use `TRAVIS_PULL_REQUEST_BRANCH` in such cases (not sure we actually need this)
+$branch = 'master' === getenv( 'TRAVIS_BRANCH' ) ? getenv( 'TRAVIS_PULL_REQUEST_BRANCH' ) : getenv( 'TRAVIS_BRANCH' );
 $pr     = getenv( 'TRAVIS_PULL_REQUEST' );
 
 // Remove anything which isn't a word, whitespace, number
