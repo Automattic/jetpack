@@ -81,7 +81,7 @@
 		"css-loader": "2.1.1",
 		"del": "4.1.1",
 		"email-validator": "2.0.4",
-		"eslint": "5.15.3",
+		"eslint": "5.16.0",
 		"eslint-config-prettier": "4.2.0",
 		"eslint-config-wpcalypso": "4.0.1",
 		"eslint-loader": "2.1.2",
