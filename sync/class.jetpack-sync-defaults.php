@@ -80,6 +80,7 @@ class Jetpack_Sync_Defaults {
 		'wpcom_publish_comments_with_markdown',
 		'jetpack_activated',
 		'jetpack_available_modules',
+		'jetpack_allowed_xsite_search_ids',
 		'jetpack_autoupdate_plugins',
 		'jetpack_autoupdate_plugins_translations',
 		'jetpack_autoupdate_themes',
