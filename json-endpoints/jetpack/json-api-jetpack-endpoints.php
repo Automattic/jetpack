@@ -455,34 +455,43 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 ) );
 
 // GET /sites/%s/sync/status
-new Jetpack_JSON_API_Sync_Status_Endpoint( array(
-	'description'     => 'Status of the current full sync or the previous full sync',
-	'method'          => 'GET',
-	'path'            => '/sites/%s/sync/status',
-	'stat'            => 'sync-status',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'response_format' => array(
-		'started' => '(int|null) The unix timestamp when the last sync started',
-		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
-		'send_started' => '(int|null) The unix timestamp when the last sent process started',
-		'finished' => '(int|null) The unix timestamp when the last sync finished',
-		'total'  => '(array) Count of actions that could be sent',
-		'queue'  => '(array) Count of actions that have been added to the queue',
-		'sent'  => '(array) Count of actions that have been sent',
-		'config' => '(array) Configuration of the last full sync',
-		'queue_size' => '(int) Number of items in the  sync queue',
-		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
-		'queue_next_sync' => '(float) Time in seconds before trying to sync again',
-		'full_queue_size' => '(int) Number of items in the full sync queue',
-		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
-		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
-		'cron_size' => '(int) Size of the current cron array',
-		'next_cron' => '(int) The number of seconds till the next item in cron.',
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
-) );
+new Jetpack_JSON_API_Sync_Status_Endpoint(
+	array(
+		'description'      => 'Status of the current full sync or the previous full sync',
+		'method'           => 'GET',
+		'path'             => '/sites/%s/sync/status',
+		'stat'             => 'sync-status',
+		'path_labels'      => array(
+			'$site' => '(int|string) The site ID, The site domain',
+		),
+		'query_parameters' => array(
+			'fields' => '(string|null) List of comma-separated fields to return (see `response_format`).',
+		),
+		'response_format'  => array(
+			'posts_checksum'        => '(string|null) Posts checksum. Needs to be requested using the filter parameter.',
+			'comments_checksum'     => '(string|null) Comments checksum. Needs to be requested using the filter parameter.',
+			'post_meta_checksum'    => '(string|null) Post Meta checksum. Needs to be requested using the filter parameter.',
+			'comment_meta_checksum' => '(string|null) Comment Meta checksum. Needs to be requested using the filter parameter.',
+			'started'               => '(int|null) The unix timestamp when the last sync started',
+			'queue_finished'        => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
+			'send_started'          => '(int|null) The unix timestamp when the last send process started',
+			'finished'              => '(int|null) The unix timestamp when the last sync finished',
+			'total'                 => '(array) Count of actions that could be sent',
+			'queue'                 => '(array) Count of actions that have been added to the queue',
+			'sent'                  => '(array) Count of actions that have been sent',
+			'config'                => '(array) Configuration of the last full sync',
+			'queue_size'            => '(int) Number of items in the sync queue',
+			'queue_lag'             => '(float) Time delay of the oldest item in the sync queue',
+			'queue_next_sync'       => '(float) Time in seconds before trying to sync again',
+			'full_queue_size'       => '(int) Number of items in the full sync queue',
+			'full_queue_lag'        => '(float) Time delay of the oldest item in the full sync queue',
+			'full_queue_next_sync'  => '(float) Time in seconds before trying to sync the full sync queue again',
+			'cron_size'             => '(int) Size of the current cron array',
+			'next_cron'             => '(int) The number of seconds till the next item in cron.',
+		),
+		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
+	)
+);
 
 
 // GET /sites/%s/data-checksums

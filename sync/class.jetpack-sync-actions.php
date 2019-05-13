@@ -455,7 +455,13 @@ class Jetpack_Sync_Actions {
 		}
 	}
 
-	static function get_sync_status() {
+	/**
+	 * Get the sync status
+	 *
+	 * @param string|null $fields A comma-separated string of the fields to include in the array from the JSON response.
+	 * @return array
+	 */
+	static function get_sync_status( $fields = null ) {
 		self::initialize_sender();
 
 		$sync_module     = Jetpack_Sync_Modules::get_module( 'full-sync' );
@@ -464,9 +470,32 @@ class Jetpack_Sync_Actions {
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron       = $cron_timestamps[0] - time();
 
+		$checksums = array();
+
+		if ( ! empty( $fields ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
+			$store         = new Jetpack_Sync_WP_Replicastore();
+			$fields_params = array_map( 'trim', explode( ',', $fields ) );
+
+			if ( in_array( 'posts_checksum', $fields_params, true ) ) {
+				$checksums['posts_checksum'] = $store->posts_checksum();
+			}
+			if ( in_array( 'comments_checksum', $fields_params, true ) ) {
+				$checksums['comments_checksum'] = $store->comments_checksum();
+			}
+			if ( in_array( 'post_meta_checksum', $fields_params, true ) ) {
+				$checksums['post_meta_checksum'] = $store->post_meta_checksum();
+			}
+			if ( in_array( 'comment_meta_checksum', $fields_params, true ) ) {
+				$checksums['comment_meta_checksum'] = $store->comment_meta_checksum();
+			}
+		}
+
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
+
 		return array_merge(
 			$full_sync_status,
+			$checksums,
 			array(
 				'cron_size'            => count( $cron_timestamps ),
 				'next_cron'            => $next_cron,
@@ -498,4 +527,3 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
 add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
-

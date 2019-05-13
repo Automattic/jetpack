@@ -50,7 +50,9 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 // GET /sites/%s/sync/status
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		return Jetpack_Sync_Actions::get_sync_status();
+		$args   = $this->query_args();
+		$fields = isset( $args['fields'] ) ? $args['fields'] : array();
+		return Jetpack_Sync_Actions::get_sync_status( $fields );
 	}
 }
 
@@ -100,7 +102,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 				if ( is_numeric( $value ) ) {
 					$value = (int) $value;
 				}
-				
+
 				// special case for sending empty arrays - a string with value 'empty'
 				if ( $value === 'empty' ) {
 					$value = array();
@@ -208,12 +210,12 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		}
 
 		$buffer = $this->get_buffer( $queue, $args[ 'number_of_items' ] );
-		
+
 		// Check that the $buffer is not checkout out already
 		if ( is_wp_error( $buffer ) ) {
 			return new WP_Error( 'buffer_open', "We couldn't get the buffer it is currently checked out", 400 );
 		}
-		
+
 		if ( ! is_object( $buffer ) ) {
 			return new WP_Error( 'buffer_non-object', 'Buffer is not an object', 400 );
 		}

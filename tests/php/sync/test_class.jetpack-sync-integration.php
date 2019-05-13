@@ -1,7 +1,6 @@
 <?php
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
-
 	function test_sending_empties_queue() {
 		$this->factory->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
