@@ -148,7 +148,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$connect_url          = '';
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
-			$blog_id = get_current_blog_id();
+			$blog_id                              = get_current_blog_id();
+			$should_upgrade_to_access_memberships = should_upgrade_to_access_memberships( $blog_id );
 			if ( ! $connected_account_id ) {
 				$connect_url = get_memberships_connected_account_redirect( get_current_user_id(), $blog_id );
 			}
@@ -171,12 +172,14 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			if ( ! $connected_account_id ) {
 				$connect_url = empty( $data['connect_url'] ) ? '' : $data['connect_url'];
 			}
-			$products = empty( $data['products'] ) ? array() : $data['products'];
+			$products                             = empty( $data['products'] ) ? array() : $data['products'];
+			$should_upgrade_to_access_memberships = $data['should_upgrade_to_access_memberships'];
 		}
 		return array(
-			'connected_account_id' => $connected_account_id,
-			'connect_url'          => $connect_url,
-			'products'             => $products,
+			'connected_account_id'                 => $connected_account_id,
+			'connect_url'                          => $connect_url,
+			'products'                             => $products,
+			'should_upgrade_to_access_memberships' => $should_upgrade_to_access_memberships,
 		);
 	}
 }
