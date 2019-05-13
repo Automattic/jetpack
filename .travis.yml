@@ -47,6 +47,13 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn build"
+  - name: "E2E tests"
+    php: 7.2
+    env: WP_BRANCH=latest RUN_E2E=1
+    addons:
+      apt:
+        packages:
+          - nginx
 
 cache:
   directories:
