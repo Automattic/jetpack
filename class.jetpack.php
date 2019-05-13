@@ -4096,8 +4096,8 @@ p {
 						$url = add_query_arg( 'onboarding', $token, $url );
 					}
 
-					$calypso_env = ! empty( $_GET[ 'calypso_env' ] ) ? $_GET[ 'calypso_env' ] : false;
-					if ( $calypso_env ) {
+					$calypso_env = $this->get_calypso_env();
+					if ( ! empty( $calypso_env ) ) {
 						$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 					}
 
@@ -4529,8 +4529,10 @@ p {
 		// Get affiliate code and add it to the URL
 		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
 
-		if ( isset( $_GET['calypso_env'] ) ) {
-			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
+		$calypso_env = $this->get_calypso_env();
+
+		if ( ! empty( $calypso_env ) ) {
+			$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 		}
 
 		return $raw ? $url : esc_url( $url );
@@ -6979,6 +6981,30 @@ p {
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;
+	}
+
+	/**
+	 * Return Calypso environment value; used for developing Jetpack and pairing
+	 * it with different Calypso enrionments, such as localhost.
+	 *
+	 * @since 7.4.0
+	 *
+	 * @return string Calypso environment
+	 */
+	public static function get_calypso_env() {
+		if ( isset( $_GET['calypso_env'] ) ) {
+			return sanitize_key( $_GET['calypso_env'] );
+		}
+
+		if ( getenv( 'CALYPSO_ENV' ) ) {
+			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
+		}
+
+		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
+			return sanitize_key( CALYPSO_ENV );
+		}
+
+		return '';
 	}
 
 	/**

@@ -24,7 +24,7 @@ class Jetpack_Provision { //phpcs:ignore
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility.PHP.NewClosure.Found
+					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 						return $named_args[ $url_arg ];
 					}, 11 );
 				} elseif ( ! defined( $constant_name ) ) {
@@ -186,8 +186,9 @@ class Jetpack_Provision { //phpcs:ignore
 		}
 
 		// Add calypso env if set.
-		if ( getenv( 'CALYPSO_ENV' ) ) {
-			$url = add_query_arg( array( 'calypso_env' => getenv( 'CALYPSO_ENV' ) ), $url );
+		$calypso_env = Jetpack::get_calypso_env();
+		if ( ! empty( $calypso_env ) ) {
+			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}
 
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
@@ -278,7 +279,7 @@ class Jetpack_Provision { //phpcs:ignore
 	}
 
 	private static function get_api_host() {
-		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
+		$env_api_host = getenv( 'JETPACK_START_API_HOST', true ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.getenv_local_onlyFound
 		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
 	}
 }
