@@ -3931,6 +3931,7 @@ p {
 		}
 
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
+			// @todo: Add validation against a known whitelist
 			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
