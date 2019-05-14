@@ -101,6 +101,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* WordPress.com Editor: Redirect to a login page when logging out from the block editor on WordPress.com.
+
 
 = 7.3 =
 
