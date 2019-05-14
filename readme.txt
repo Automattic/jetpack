@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.3
+Stable tag: 7.3.1
 Requires at least: 5.0
 Tested up to: 5.2
 
@@ -94,6 +94,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
+
+= 7.3.1 =
+* Release date: May 14, 2019
+* Release post: https://wp.me/p1moTy-jgO
+
+**Bug fixes**
+
+* Admin Experience: Correct underline location under a dollar sign.
+* Deprecated Hooks: Do not offer a replacement for jetpack_json_manage_api_enabled since there isn't an equal replacement.
+* Debugger: Clarify labels in the Site Health Info section.
+* Likes and Sharing: Remove duplicate control in the block editor for Likes/Sharing. We added a native block editor plugin, but left the old fallback.
+* WordPress.com Editor: Redirect to a login page when logging out from the block editor on WordPress.com.
+* WordPress.com Toolbar: Add menu icon for smaller screen widths to restore wp-admin navigation menu.
 
 = 7.3 =
 

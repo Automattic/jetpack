@@ -6379,7 +6379,6 @@ p {
 			'jetpack_lazy_images_skip_image_with_atttributes'        => 'jetpack_lazy_images_skip_image_with_attributes',
 			'jetpack_enable_site_verification'                       => null,
 			'can_display_jetpack_manage_notice'                      => null,
-			'can_display_jetpack_manage_notice'                      => 'jetpack_json_manage_api_enabled',
 			// Removed in Jetpack 7.3.0
 			'atd_load_scripts'                                       => null,
 			'atd_http_post_timeout'                                  => null,
