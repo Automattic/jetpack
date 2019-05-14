@@ -4,8 +4,31 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d5ff4fa589c715b3ac4d8fad6888d401",
+    "content-hash": "b3d0869f5e7ebe7667f8a4ff44e0667f",
     "packages": [
+        {
+            "name": "automattic/jetpack-affiliate",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "./packages/jetpack-affiliate",
+                "reference": "516aa8786c4ec027d89903d6c0c4d99155a098a2",
+                "shasum": null
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\V7\\Partners\\": "lib/"
+                }
+            },
+            "license": [
+                "GPL"
+            ],
+            "description": "Reads an affiliate code for Jetpack. Useful to add it to the connection URL so it's read by wpcom.",
+            "transport-options": {
+                "symlink": true
+            }
+        },
         {
             "name": "composer/installers",
             "version": "v1.6.0",

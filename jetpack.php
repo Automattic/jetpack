@@ -12,6 +12,8 @@
  * Domain Path: /languages/
  */
 
+require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
+
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.0' );
 
 define( 'JETPACK__VERSION',            '7.4-alpha' );
@@ -126,7 +128,7 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
+
 	jetpack_require_lib( 'debugger' );
 }
 

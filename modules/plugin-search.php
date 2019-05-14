@@ -1,11 +1,12 @@
 <?php
+use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+
 /**
  * Disable direct access and execution.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
 
 if (
 	is_admin() &&

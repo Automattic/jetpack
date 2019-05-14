@@ -1,0 +1,13 @@
+{
+	"name": "automattic/jetpack-affiliate",
+	"description": "Reads an affiliate code for Jetpack. Useful to add it to the connection URL so it's read by wpcom.",
+	"type": "library",
+	"license": "GPL",
+	"version": "1.0.0",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Jetpack\\V7\\Partners\\": "lib/"
+		}
+	}
+}

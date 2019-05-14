@@ -22,6 +22,8 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
 class Jetpack {
@@ -4522,10 +4524,6 @@ p {
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
-		// Ensure that class to get the affiliate code is loaded
-		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-		}
 		// Get affiliate code and add it to the URL
 		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
 
