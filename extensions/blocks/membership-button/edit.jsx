@@ -342,11 +342,11 @@ class MembershipsButtonEdit extends Component {
 						notices={ notices }
 					>
 						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-							{ __( "You'll need to upgrade your plan to use the Membership Button", 'jetpack' ) }
+							{ __( "You'll need to upgrade your plan to use the Membership Button.", 'jetpack' ) }
 							<br />
 							<br />
 							<Button isDefault isLarge href={ this.state.shouldUpgrade } target="_blank">
-								{ __( 'Upgrade Your Plan.', 'jetpack' ) }
+								{ __( 'Upgrade Your Plan', 'jetpack' ) }
 							</Button>
 							<br />
 							{ this.renderDisclaimer() }
