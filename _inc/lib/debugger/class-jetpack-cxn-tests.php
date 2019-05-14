@@ -225,8 +225,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			return self::skipped_test( $name );
 		}
 
-		$id = Jetpack_Options::get_option( 'id' );
-
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
 			Jetpack_Client::WPCOM_JSON_API_VERSION
