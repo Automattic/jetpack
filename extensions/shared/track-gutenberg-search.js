@@ -12,7 +12,7 @@ const trackGutenbergSearch = event => {
 	const searchTerm = event.target.value;
 	const hasResults = document.getElementsByClassName( 'editor-inserter__no-results' ).length === 0;
 
-	if ( searchTerm === '' ) {
+	if ( searchTerm.length < 3 ) {
 		return;
 	}
 
