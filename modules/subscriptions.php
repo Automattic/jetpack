@@ -670,7 +670,7 @@ class Jetpack_Subscriptions {
 		 */
 		$str = apply_filters( 'jetpack_comment_subscription_form', $str );
 
-		return $submit_button . $str;
+		return $str . $submit_button;
 	}
 
 	/**
