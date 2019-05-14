@@ -3930,9 +3930,8 @@ p {
 			Jetpack::restate();
 		}
 
-		$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
-
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
+			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
 				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
