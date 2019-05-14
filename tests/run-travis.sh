@@ -2,6 +2,10 @@
 
 echo "Travis CI command: $WP_TRAVISCI"
 
+echo "EXITING EARLY FOR DEBUGGING PURPOSES"
+
+exit 0
+
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	# Run a external-html group tests
