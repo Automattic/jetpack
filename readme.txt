@@ -101,6 +101,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Experience: Correct underline location under a dollar sign.
 * Deprecated Hooks: Do not offer a replacement for jetpack_json_manage_api_enabled since there isn't an equal replacement.
 * Likes and Sharing: Remove duplicate control in the block editor for Likes/Sharing. We added a native block editor plugin, but left the old fallback.
 * WordPress.com Editor: Redirect to a login page when logging out from the block editor on WordPress.com.
