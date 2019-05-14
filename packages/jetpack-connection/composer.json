@@ -1,0 +1,13 @@
+{
+	"name": "automattic/jetpack-connection",
+	"description": "Everything needed to connect to the Jetpack infrastructure",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"version": "1.0.0",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Jetpack\\V7\\Connection\\": "lib/"
+		}
+	}
+}
