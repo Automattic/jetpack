@@ -95,6 +95,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 7.3.1 =
+* Release date: May 14, 2019
+* Release post: https://wp.me/p1moTy-jgO
+
+**Bug fixes**
+
+
 = 7.3 =
 
 * Release date: May 07, 2019
