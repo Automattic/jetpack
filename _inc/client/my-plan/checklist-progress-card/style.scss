@@ -92,3 +92,16 @@
 		}
 	}
 }
+
+	@media (max-width: 600px) {
+		.checklist__header {
+			display: block;
+			
+			&-secondary {
+				display: block;
+				text-align: left;
+				padding-top: 15px;
+			}
+		}
+	}
+
