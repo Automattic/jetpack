@@ -4841,11 +4841,12 @@ gulp-sourcemaps@2.6.5:
     strip-bom-string "1.X"
     through2 "2.X"
 
-gulp-tap@0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/gulp-tap/-/gulp-tap-0.1.3.tgz#120dca2901e76fb84d5cb4ad5f37cad0156361e4"
+gulp-tap@0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/gulp-tap/-/gulp-tap-0.4.2.tgz#558b302e6b66cf752142a33104c387081a6d5cec"
+  integrity sha1-VYswLmtmz3UhQqMxBMOHCBptXOw=
   dependencies:
-    event-stream "~3.1.0"
+    through2 "^2.0.3"
 
 gulp-util@*, gulp-util@>=2.2.0, gulp-util@^3.0.8, gulp-util@~3.0.0, gulp-util@~3.0.7:
   version "3.0.8"
@@ -10668,6 +10669,23 @@ watchpack@^1.5.0:
 webidl-conversions@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
+
+webpack-cli@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/webpack-cli/-/webpack-cli-3.3.0.tgz#55c8a74cae1e88117f9dda3a801c7272e93ca318"
+  integrity sha512-t1M7G4z5FhHKJ92WRKwZ1rtvi7rHc0NZoZRbSkol0YKl4HvcC8+DsmGDmK7MmZxHSAetHagiOsjOB6MmzC2TUw==
+  dependencies:
+    chalk "^2.4.1"
+    cross-spawn "^6.0.5"
+    enhanced-resolve "^4.1.0"
+    findup-sync "^2.0.0"
+    global-modules "^1.0.0"
+    import-local "^2.0.0"
+    interpret "^1.1.0"
+    loader-utils "^1.1.0"
+    supports-color "^5.5.0"
+    v8-compile-cache "^2.0.2"
+    yargs "^12.0.5"
 
 webpack-cli@3.3.2:
   version "3.3.2"
