@@ -80,7 +80,9 @@ jobs:
   include:
     - stage: after test
       php: "7.3"
-      before_install: nvm install 'lts/*'
+      before_install:
+      - nvm install 'lts/*'
+      - nvm use 'lts/*'
       script: php ./tools/build-jetpack-in-ci.php
 
 notifications:
