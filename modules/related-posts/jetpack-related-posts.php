@@ -1604,6 +1604,7 @@ EOT;
 	 */
 	protected function _enabled_for_request() {
 		$enabled = is_single()
+			&& ! is_attachment()
 			&& ! is_admin()
 			&& ( ! $this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
 
