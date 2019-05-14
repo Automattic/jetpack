@@ -227,10 +227,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$id = Jetpack_Options::get_option( 'id' );
 
-		if ( ! is_int( $id ) ) {
-			return self::failing_test( $name, __( 'There is an unexpected value set as your site ID.', 'jetpack' ), 'cycle_connection' );
-		}
-
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
 			Jetpack_Client::WPCOM_JSON_API_VERSION
