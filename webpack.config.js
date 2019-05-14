@@ -1,7 +1,7 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
-const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -14,10 +14,14 @@ const webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: path.join( __dirname, './_inc/client/admin.js' ),
+		static: path.join( __dirname, './_inc/client/static.jsx' ),
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
 		filename: '[name].js',
+		library: [ 'Jetpack', '[name]' ],
+		libraryTarget: 'umd',
+		globalObject: 'this',
 	},
 	module: {
 		// Webpack loaders are applied when a resource is matches the test case
@@ -78,15 +82,19 @@ const webpackConfig = {
 		// 	filename: 'static.html',
 		// 	inject: false,
 		// } ),
-		new HtmlWebpackPlugin( {
-			template: '!!prerender-loader?string!_inc/client/static-noscript-notice.html',
-			filename: 'static-noscript-notice.html',
-			inject: false,
-		} ),
-		new HtmlWebpackPlugin( {
-			template: '!!prerender-loader?string!_inc/client/static-version-notice.html',
-			filename: 'static-version-notice.html',
-			inject: false,
+		// new HtmlWebpackPlugin( {
+		// 	template: '!!prerender-loader?string!_inc/client/static-noscript-notice.html',
+		// 	filename: 'static-noscript-notice.html',
+		// 	inject: false,
+		// } ),
+		// new HtmlWebpackPlugin( {
+		// 	template: '!!prerender-loader?string!_inc/client/static-version-notice.html',
+		// 	filename: 'static-version-notice.html',
+		// 	inject: false,
+		// } ),
+		new StaticSiteGeneratorPlugin( {
+			entry: 'static',
+			paths: [ '/static.html' /* '/static-noscript-notice.html', '/static-version-notice.html' */ ],
 		} ),
 	],
 	devtool: devMode ? 'source-map' : false,
