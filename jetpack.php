@@ -12,6 +12,8 @@
  * Domain Path: /languages/
  */
 
+require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
+
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.0' );
 
 define( 'JETPACK__VERSION',            '7.4-alpha' );
