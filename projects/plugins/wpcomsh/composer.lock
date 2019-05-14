@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4667dc2f69f8a201f7411c74c06973ae",
+    "content-hash": "82eabf77b4b2701bb86cf463004bf40b",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v1.2.4",
+            "version": "v1.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "a6b55b23fe55e9f48d112e4c68d4d326087ee5ed"
+                "reference": "e21ed6a3d21190118441bd10d963766dbbcdcb26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/a6b55b23fe55e9f48d112e4c68d4d326087ee5ed",
-                "reference": "a6b55b23fe55e9f48d112e4c68d4d326087ee5ed",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/e21ed6a3d21190118441bd10d963766dbbcdcb26",
+                "reference": "e21ed6a3d21190118441bd10d963766dbbcdcb26",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +26,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2018-08-03T17:38:22+00:00"
+            "time": "2019-05-14T15:09:14+00:00"
         },
         {
             "name": "automattic/custom-fonts",
