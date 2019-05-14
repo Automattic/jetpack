@@ -108,7 +108,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com Editor: Redirect to a login page when logging out from the block editor on WordPress.com.
 * WordPress.com Toolbar: Add menu icon for smaller screen widths to restore wp-admin navigation menu.
 
-
 = 7.3 =
 
 * Release date: May 07, 2019
