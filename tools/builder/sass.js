@@ -10,6 +10,7 @@ import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
 import sass from 'gulp-sass';
 import sourcemaps from 'gulp-sourcemaps';
+import postcss from 'gulp-postcss';
 
 /**
  * Internal dependencies
@@ -34,12 +35,13 @@ gulp.task( 'sass:dashboard', function( done ) {
 
 gulp.task( 'sass:calypsoify', function( done ) {
 	log( 'Building Calypsoify CSS bundle...' );
+	// const plugins = [ postcssAutoprefixer(), customProperties() ];
 
 	return gulp
 		.src( './modules/calypsoify/*.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
-		.pipe( autoprefixer() )
+		.pipe( postcss() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './modules/calypsoify' ) )
 		.on( 'end', function() {
