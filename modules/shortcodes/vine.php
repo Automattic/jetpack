@@ -1,9 +1,9 @@
 <?php
 /**
  * Vine shortcode
- */
-
-/**
+ * The service is now archived, but existing embeds are still accessible.
+ *
+ * Examples:
  * Vine embed code:
  * <iframe class="vine-embed" src="https://vine.co/v/bjHh0zHdgZT" width="600" height="600" frameborder="0"></iframe>
  * <script async src="//platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>
