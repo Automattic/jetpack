@@ -41,16 +41,7 @@ gulp.task( 'react:master', function( done ) {
 		);
 	}
 
-	return webpack( config ).run(
-		onBuild.bind( this, function( error ) {
-			if ( error ) {
-				done( error );
-				return;
-			}
-
-			done();
-		} )
-	);
+	return webpack( config ).run( onBuild.bind( this, done ) );
 } );
 
 function onBuild( done, err, stats ) {
