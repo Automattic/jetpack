@@ -89,8 +89,8 @@ export function userCanManageModules( state ) {
 
 export function userCanManageOptions( state ) {
 	return get(
-		state.jetpack.initialState.userData.currentUser.permissions,
-		'manage_options',
+		state.jetpack.initialState,
+		[ 'userData', 'currentUser', 'permissions', 'manage_options' ],
 		false
 	);
 }
@@ -103,7 +103,11 @@ export function userCanManageOptions( state ) {
  * @return {bool} Whether user can edit posts.
  */
 export function userCanEditPosts( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
+	return get(
+		state.jetpack.initialState,
+		[ 'userData', 'currentUser', 'permissions', 'edit_posts' ],
+		false
+	);
 }
 
 /**
