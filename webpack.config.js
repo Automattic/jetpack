@@ -77,25 +77,7 @@ const webpackConfig = {
 			filename: '[name].dops-style.css',
 		} ),
 		new WordPressExternalDependenciesPlugin(),
-		// new HtmlWebpackPlugin( {
-		// 	template: '!!prerender-loader?string!_inc/client/static.html',
-		// 	filename: 'static.html',
-		// 	inject: false,
-		// } ),
-		// new HtmlWebpackPlugin( {
-		// 	template: '!!prerender-loader?string!_inc/client/static-noscript-notice.html',
-		// 	filename: 'static-noscript-notice.html',
-		// 	inject: false,
-		// } ),
-		// new HtmlWebpackPlugin( {
-		// 	template: '!!prerender-loader?string!_inc/client/static-version-notice.html',
-		// 	filename: 'static-version-notice.html',
-		// 	inject: false,
-		// } ),
-		new StaticSiteGeneratorPlugin( {
-			entry: 'static',
-			paths: [ '/static.html' /* '/static-noscript-notice.html', '/static-version-notice.html' */ ],
-		} ),
+		new StaticSiteGeneratorPlugin( { entry: 'static' } ),
 	],
 	devtool: devMode ? 'source-map' : false,
 };
