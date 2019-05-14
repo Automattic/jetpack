@@ -19,9 +19,7 @@ const webpackConfig = {
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
 		filename: '[name].js',
-		library: [ 'Jetpack', '[name]' ],
-		libraryTarget: 'umd',
-		globalObject: 'this',
+		libraryTarget: 'commonjs',
 	},
 	module: {
 		// Webpack loaders are applied when a resource is matches the test case
