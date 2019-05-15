@@ -99,10 +99,7 @@ install_ngrok() {
 	# download and install ngrok
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
 	unzip ngrok.zip
-	# ./ngrok authtoken $NGROK_TOKEN
-	# ./ngrok http -log=stdout -subdomain=$TRAVIS_COMMIT 8080 > /dev/null &
 	./ngrok http -log=stdout 80 > /dev/null &
-	# ./ngrok http -log=stdout 8080 > /dev/null &
 	sleep 3
 	NGROK_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
 	WP_SITE_URL=${NGROK_URL}
