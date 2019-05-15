@@ -43,6 +43,8 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 	. '-----END PUBLIC KEY-----' . "\r\n"
 );
 
+require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
