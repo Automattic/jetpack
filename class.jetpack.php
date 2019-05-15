@@ -4519,7 +4519,7 @@ p {
 		}
 
 		if ( $from ) {
-			$url = add_query_arg( 'from', sanitize_text_field( $from ), $url );
+			$url = add_query_arg( 'from', $from, $url );
 		}
 
 		// Ensure that class to get the affiliate code is loaded
@@ -4535,7 +4535,7 @@ p {
 			$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 		}
 
-		return $raw ? $url : esc_url( $url );
+		return $raw ? esc_url_raw( $url ) : esc_url( $url );
 	}
 
 	/**
