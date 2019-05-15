@@ -100,8 +100,14 @@ install_ngrok() {
 	# ./ngrok http -log=stdout -subdomain=$TRAVIS_COMMIT 8080 > /dev/null &
 	./ngrok http -log=stdout 80 > /dev/null &
 	# ./ngrok http -log=stdout 8080 > /dev/null &
+	sleep 3
 	NGROK_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
 	WP_SITE_URL=${NGROK_URL}
+
+	if [ -z "$WP_SITE_URL" ]; then
+		echo "WP_SITE_URL is not set after launching an ngrok"
+		exit 1
+	fi
 }
 
 export_env_variables() {
