@@ -70,10 +70,10 @@ class Jetpack_Network {
 			/*
 			 * If admin wants to automagically register new sites set the hook here
 			 *
-			 * This is a hacky way because xmlrpc is not available on wpmu_new_blog
+			 * This is a hacky way because xmlrpc is not available on wp_initialize_site
 			 */
 			if ( $this->get_option( 'auto-connect' ) == 1 ) {
-				add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
+				add_action( 'wp_initialize_site', array( $this, 'do_automatically_add_new_site' ) );
 			}
 		}
 
@@ -107,12 +107,15 @@ class Jetpack_Network {
 	 * Registers new sites upon creation
 	 *
 	 * @since 2.9
-	 * @uses  wpmu_new_blog
+	 * @since 7.4.0 Uses a WP_Site object.
+	 * @uses  wp_initialize_site
 	 *
-	 * @param int $blog_id
+	 * @param WP_Site $site
 	 **/
-	public function do_automatically_add_new_site( $blog_id ) {
-		$this->do_subsiteregister( $blog_id );
+	public function do_automatically_add_new_site( $site ) {
+		if ( is_a( $site, 'WP_Site') ) {
+			$this->do_subsiteregister( $site->id );
+		}
 	}
 
 	/**
