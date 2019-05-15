@@ -10,8 +10,8 @@
 	"require": {
 		"composer/installers": "1.6.0",
 		"ext-openssl": "*",
-		"automattic/jetpack-common-interfaces": "1.0.0",
-		"automattic/jetpack-logo": "1.0.1"
+		"automattic/jetpack-logo": "1.0.0",
+		"automattic/jetpack-common-interfaces": "1.0.0"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
