@@ -127,10 +127,6 @@ PHP
 	php wp-cli.phar db create
 
 	php wp-cli.phar core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=admin --admin_password=password --admin_email=admin@e2ewootestsite.com --path=$WP_CORE_DIR
-	# php wp-cli.phar theme install twentyseventeen --activate
-	# php wp-cli.phar plugin install woocommerce --activate
-
-	php wp-cli.phar user create customer customer@e2ewootestsite.com --user_pass=customer_password --role=customer --path=$WP_CORE_DIR
 
 	# Copying contents of bookings branch manually, since unable to download a private repo zip
 	cp -r $WORKING_DIR/../jetpack $WP_CORE_DIR/wp-content/plugins/
