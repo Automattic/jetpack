@@ -834,7 +834,7 @@ function wpcomsh_limit_post_revisions( $revisions ) {
 add_filter( 'wp_revisions_to_keep', 'wpcomsh_limit_post_revisions', 5 );
 
 // log wp_die() calls
-function wpcomsh_wp_die_handler( $message, $title = '', $args = [] ) {
+function wpcomsh_wp_die_handler( $message, $title, $args ) {
 	$e = new Exception( 'wp_die was called' );
 	error_log( $e );
 
