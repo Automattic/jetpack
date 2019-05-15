@@ -53,10 +53,11 @@ class Logo {
 	 *
 	 * @static
 	 *
+	 * @param string $url Optional custom URL of a Jetpack logo.
 	 * @return string The Jetpack logo.
 	 */
-	public static function render() {
-		$logo = new self();
+	public static function render( $url = '' ) {
+		$logo = new self( $url );
 
 		return $logo->get_image();
 	}
