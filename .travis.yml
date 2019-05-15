@@ -47,13 +47,6 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn build"
-  - name: "E2E tests"
-    php: 7.2
-    env: WP_BRANCH=latest RUN_E2E=1
-    addons:
-      apt:
-        packages:
-          - nginx
 
 cache:
   directories:
@@ -91,6 +84,10 @@ jobs:
       - nvm install 'lts/*'
       - nvm use 'lts/*'
       script: bash tests/setup-e2e-travis.sh jetpack_test root ''
+      addons:
+        apt:
+          packages:
+            - nginx
 
 notifications:
    webhooks:
