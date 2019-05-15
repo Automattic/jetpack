@@ -5,9 +5,9 @@
 
 	<rule ref="PHPCompatibilityWP"/>
 	<rule ref="WordPress-Core">
-		<!-- Can we disable this just for `packages/* -->
+		<!-- Can we disable this just for `packages/*`? -->
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-		<!-- Can we disable this just for `packages/* -->
+		<!-- Can we disable this just for `packages/*`? -->
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
 	</rule>
 	<rule ref="WordPress-Docs" />
