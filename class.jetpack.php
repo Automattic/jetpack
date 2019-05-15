@@ -4519,7 +4519,7 @@ p {
 		}
 
 		if ( $from ) {
-			$url = add_query_arg( 'from', $from, $url );
+			$url = add_query_arg( 'from', sanitize_key( $from ), $url );
 		}
 
 		// Ensure that class to get the affiliate code is loaded
