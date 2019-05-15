@@ -829,6 +829,6 @@ add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 
 
 // Limit post revisions
 function wpcomsh_limit_post_revisions( $revisions ) {
-	return 25;
+	return 100;
 }
 add_filter( 'wp_revisions_to_keep', 'wpcomsh_limit_post_revisions', 5 );
