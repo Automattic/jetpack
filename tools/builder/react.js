@@ -33,14 +33,6 @@ export const watch = function() {
 gulp.task( 'react:master', function( done ) {
 	const config = getWebpackConfig();
 
-	if ( 'production' !== process.env.NODE_ENV ) {
-		config.plugins.push(
-			new webpack.LoaderOptionsPlugin( {
-				debug: true,
-			} )
-		);
-	}
-
 	return webpack( config ).run( onBuild.bind( this, done ) );
 } );
 
