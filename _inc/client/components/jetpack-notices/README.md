@@ -1,7 +1,6 @@
-Jetpack Notices
-===============
+# Jetpack Notices
 
-There are a few different ways to display a Notice in Jetpack.  There are also different types.
+There are a few different ways to display a Notice in Jetpack. There are also different types.
 
 ## Global Notices
 
@@ -46,6 +45,7 @@ These are triggered by PHP, most commonly to display an error during connection.
 #### How to use:
 
 In jetpack-notices/reducer.js:
+
 ```import YOUR_DESIRED_ACTION from 'state/action-types';
 
 const notice = ( state = false, action ) => {
