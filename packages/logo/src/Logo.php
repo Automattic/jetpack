@@ -1,15 +1,46 @@
 <?php
+/**
+ * A logo for Jetpack.
+ *
+ * @package jetpack-logo
+ */
+
 namespace Jetpack\Assets;
 
+/**
+ * Create and render a Jetpack logo.
+ */
 class Logo {
-	public function get_image_url() {
-		return plugins_url( 'assets/logo.svg', __DIR__ );
+	/**
+	 * Absolute URL of the Jetpack logo.
+	 *
+	 * @var string
+	 */
+	private $url;
+
+	/**
+	 * Constructor.
+	 * You can optionally pass a URL to override the default one.
+	 *
+	 * @param string $url New URL of the Jetpack logo.
+	 */
+	public function __construct( $url = '' ) {
+		if ( ! $url ) {
+			$url = plugins_url( 'assets/logo.svg', __DIR__ );
+		}
+
+		$this->url = $url;
 	}
 
+	/**
+	 * Build and retrieve an <img /> tag with the Jetpack logo.
+	 *
+	 * @return string The Jetpack logo.
+	 */
 	public function get_image() {
 		return sprintf(
 			'<img src="%s" class="jetpack-logo" alt="%s" />',
-			esc_url( $this->get_image_url() ),
+			esc_url( $this->url ),
 			esc_attr__(
 				'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
 				'jetpack'
@@ -17,8 +48,16 @@ class Logo {
 		);
 	}
 
+	/**
+	 * Create a new `Logo` instance and render it.
+	 *
+	 * @static
+	 *
+	 * @return string The Jetpack logo.
+	 */
 	public static function render() {
 		$logo = new self();
+
 		return $logo->get_image();
 	}
 }
