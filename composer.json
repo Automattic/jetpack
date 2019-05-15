@@ -9,7 +9,8 @@
 	},
 	"require": {
 		"composer/installers": "1.6.0",
-		"ext-openssl": "*"
+		"ext-openssl": "*",
+		"automattic/jetpack-logo": "^1.0"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
@@ -18,9 +19,18 @@
 		"phpcompatibility/phpcompatibility-wp": "2.0.0"
 	},
 	"scripts": {
-		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.2-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
 		"php:lint": "composer install && vendor/bin/phpcs -p -s",
 		"php:autofix": "composer install && vendor/bin/phpcbf",
 		"php:lint:errors": "composer install && vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
-	}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "./packages/logo",
+			"options": {
+				"symlink": true
+			}
+		}
+	]
 }
