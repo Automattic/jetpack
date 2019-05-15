@@ -35,9 +35,6 @@ matrix:
   - php: "5.2"
     env: WP_MODE=single WP_BRANCH=5.1
     dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=5.0
-    dist: precise
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn lint"

@@ -374,16 +374,14 @@ class Jetpack_Plugin_Search {
 	 *
 	 * @since 7.1.0
 	 * @since 7.2.0 Only remove Jetpack.
+	 * @since 7.4.0 Simplify for WordPress 5.1+.
 	 *
 	 * @param array|object $plugin
 	 *
 	 * @return bool
 	 */
 	function filter_cards( $plugin ) {
-		// Take in account that before WordPress 5.1, the list of plugins is an array of objects.
-		// With WordPress 5.1 the list of plugins is an array of arrays.
-		$slug = is_array( $plugin ) ? $plugin['slug'] : $plugin->slug;
-		return ! in_array( $slug, array( 'jetpack' ), true );
+		return ! in_array( $plugin['slug'], array( 'jetpack' ), true );
 	}
 
 	/**
