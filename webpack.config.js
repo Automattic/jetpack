@@ -1,20 +1,14 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const devMode = process.env.NODE_ENV !== 'production';
 
-const webpackConfig = {
+const sharedWebpackConfig = {
 	mode: devMode ? 'development' : 'production',
-	// Entry points point to the javascript module
-	// that is used to generate the script file.
-	// The key is used as the name of the script.
-	entry: {
-		admin: path.join( __dirname, './_inc/client/admin.js' ),
-		static: path.join( __dirname, './_inc/client/static.jsx' ),
-	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
 		filename: '[name].js',
@@ -72,9 +66,47 @@ const webpackConfig = {
 			// both options are optional
 			filename: '[name].dops-style.css',
 		} ),
-		new WordPressExternalDependenciesPlugin(),
 	],
 	devtool: devMode ? 'source-map' : false,
 };
 
-module.exports = webpackConfig;
+module.exports = [
+	{
+		...sharedWebpackConfig,
+		// Entry points point to the javascript module
+		// that is used to generate the script file.
+		// The key is used as the name of the script.
+		entry: { admin: path.join( __dirname, './_inc/client/admin.js' ) },
+		plugins: [ ...sharedWebpackConfig.plugins, new WordPressExternalDependenciesPlugin() ],
+	},
+	{
+		...sharedWebpackConfig,
+		// Entry points point to the javascript module
+		// that is used to generate the script file.
+		// The key is used as the name of the script.
+		entry: { static: path.join( __dirname, './_inc/client/static.jsx' ) },
+		output: { ...sharedWebpackConfig.output, libraryTarget: 'commonjs2' },
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			new StaticSiteGeneratorPlugin( {
+				globals: {
+					window: {
+						Initial_State: {
+							dismissedNotices: [],
+							connectionStatus: {
+								devMode: {
+									isActive: false,
+								},
+							},
+							userData: {
+								currentUser: {
+									permissions: {},
+								},
+							},
+						},
+					},
+				},
+			} ),
+		],
+	},
+];
