@@ -75,8 +75,8 @@ install_e2e_site() {
 	NGINX_DIR="$HOME/nginx"
 	PHP_FPM_BIN="$HOME/.phpenv/versions/$TRAVIS_PHP_VERSION/sbin/php-fpm"
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
-	WP_SITE_URL="http://$TRAVIS_COMMIT.ngrok.io:8080"
-	# WP_SITE_URL="http://localhost:8080"
+	# WP_SITE_URL="http://$TRAVIS_COMMIT.ngrok.io:8080"
+	WP_SITE_URL="http://localhost:8080"
 	BRANCH=$TRAVIS_BRANCH
 	REPO=$TRAVIS_REPO_SLUG
 	WORKING_DIR="$PWD"
@@ -95,8 +95,6 @@ install_e2e_site() {
 	mkdir -p "$NGINX_DIR"
 	mkdir -p "$NGINX_DIR/sites-enabled"
 	mkdir -p "$NGINX_DIR/var"
-
-	cd jetpack
 
 	# Copy the default nginx config files
 	cp "$CONFIG_DIR/travis_php-fpm.conf" "$PHP_FPM_CONF"
@@ -121,16 +119,21 @@ define('WP_MEMORY_LIMIT', '256M');
 define('SCRIPT_DEBUG', true);
 PHP
 
+	echo "Setting other wp-config.php constants..."
+	php wp-cli.phar --allow-root config set WP_DEBUG true --raw --type=constant
+	php wp-cli.phar --allow-root config set WP_DEBUG_LOG true --raw --type=constant
+	php wp-cli.phar --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
+
 	php wp-cli.phar db create
 
-	php wp-cli.phar core install --url="$WP_SITE_URL" --title="E2E Woo Bookings Test Site" --admin_user=admin --admin_password=password --admin_email=admin@e2ewootestsite.com --path=$WP_CORE_DIR
+	php wp-cli.phar core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=admin --admin_password=password --admin_email=admin@e2ewootestsite.com --path=$WP_CORE_DIR
 	# php wp-cli.phar theme install twentyseventeen --activate
 	# php wp-cli.phar plugin install woocommerce --activate
 
 	php wp-cli.phar user create customer customer@e2ewootestsite.com --user_pass=customer_password --role=customer --path=$WP_CORE_DIR
 
 	# Copying contents of bookings branch manually, since unable to download a private repo zip
-	cp -r $WORKING_DIR/jetpack $WP_CORE_DIR/wp-content/plugins/
+	cp -r $WORKING_DIR/../jetpack $WP_CORE_DIR/wp-content/plugins/
 	php wp-cli.phar plugin activate jetpack
 
 	cd "$WORKING_DIR"
@@ -141,11 +144,14 @@ install_ngrok() {
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
 	unzip ngrok.zip
 	./ngrok authtoken $NGROK_TOKEN
-	./ngrok http -log=stdout -subdomain=$TRAVIS_COMMIT 8080 /dev/null &
+	./ngrok http -log=stdout -subdomain=$TRAVIS_COMMIT 8080 > /dev/null &
 }
 
 install_ngrok
 # install_db
 install_e2e_site
 
-curl -v $WP_SITE_URL
+curl -v localhost
+curl -v localhost:8080
+curl -v http://localhost:8080
+
