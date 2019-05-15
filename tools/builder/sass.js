@@ -49,14 +49,14 @@ gulp.task( 'sass:calypsoify', function( done ) {
 } );
 
 gulp.task( 'sass:dops', function( done ) {
-	log( 'Building dops-components CSS bundle...' );
+	log( 'Building components CSS bundle...' );
 
 	return gulp
 		.src( './_inc/build/*dops-style.css' )
 		.pipe( autoprefixer() )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			log( 'dops-components CSS finished.' );
+			log( 'components CSS finished.' );
 			doRTL( 'dops', done );
 		} );
 } );
