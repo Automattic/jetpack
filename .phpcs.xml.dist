@@ -4,12 +4,7 @@
 	<config name="testVersion" value="5.6-"/>
 
 	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Core">
-		<!-- Can we disable this just for `packages/*`? -->
-		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-		<!-- Can we disable this just for `packages/*`? -->
-		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
-	</rule>
+	<rule ref="WordPress-Core" />
 	<rule ref="WordPress-Docs" />
 	<rule ref="WordPress-Extra" />
 	<rule ref="VariableAnalysis" />
@@ -18,6 +13,14 @@
 		<properties>
 			<property name="text_domain" type="array" value="jetpack" />
 		</properties>
+	</rule>
+
+	<!-- Temporarily disable some sniffs that conflict with PSR-4. -->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>packages/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>packages/*</exclude-pattern>
 	</rule>
 
 	<!-- Check all PHP files in directory tree by default. -->
