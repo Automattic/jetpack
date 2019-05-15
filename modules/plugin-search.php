@@ -1,5 +1,5 @@
 <?php
-use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+use Jetpack\V7\Partners\Affiliate as Affiliate;
 
 /**
  * Disable direct access and execution.
@@ -424,7 +424,7 @@ class Jetpack_Plugin_Search {
 	 */
 	private function get_upgrade_url( $feature ) {
 		$site_raw_url = Jetpack::build_raw_urls( get_home_url() );
-		$affiliateCode = Jetpack_Affiliate::init()->get_affiliate_code();
+		$affiliateCode = Affiliate::init()->get_affiliate_code();
 		$user = wp_get_current_user()->ID;
 		return "https://jetpack.com/redirect/?source=plugin-hint-upgrade-$feature&site=$site_raw_url&u=$user" .
 		       ( $affiliateCode ? "&aff=$affiliateCode" : '' );

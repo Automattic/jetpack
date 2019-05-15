@@ -1,5 +1,5 @@
 <?php
-use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+use Jetpack\V7\Partners\Affiliate as Affiliate;
 
 /**
  * Tests for Jetpack_Affiliate
@@ -12,12 +12,12 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php';
 class WP_Test_Jetpack_Affiliate extends WP_UnitTestCase {
 
 	function test_affiliate_code_missing() {
-		$this->assertEmpty( Jetpack_Affiliate::init()->get_affiliate_code() );
+		$this->assertEmpty( Affiliate::init()->get_affiliate_code() );
 	}
 
 	function test_affiliate_code_exists() {
 		add_option( 'jetpack_affiliate_code', 'abc123' );
-		$this->assertEquals( 'abc123', Jetpack_Affiliate::init()->get_affiliate_code() );
+		$this->assertEquals( 'abc123', Affiliate::init()->get_affiliate_code() );
 	}
 
 	function test_affiliate_connect_url_missing() {
@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Affiliate extends WP_UnitTestCase {
 		$source = 'somesource123';
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
 		$user = 123;
-		$url = Jetpack_Affiliate::init()->add_code_as_query_arg(
+		$url = Affiliate::init()->add_code_as_query_arg(
 			"https://jetpack.com/redirect/?source={$source}&site={$normalized_site_url}&u={$user}"
 		);
 

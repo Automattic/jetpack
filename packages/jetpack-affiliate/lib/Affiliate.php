@@ -1,7 +1,7 @@
 <?php
 namespace Jetpack\V7\Partners;
 
-use \Jetpack as Jetpack;
+use Jetpack as Jetpack;
 
 if ( ! defined( 'ABSPATH' ) || ! is_admin() ) {
 	exit; // Exit if accessed directly or not in admin.
@@ -14,14 +14,14 @@ if ( ! defined( 'ABSPATH' ) || ! is_admin() ) {
  *
  * @since 6.9.0
  */
-class Jetpack_Affiliate {
+class Affiliate {
 
 	/**
 	 * Class instance
 	 *
 	 * @since 6.9.0
 	 *
-	 * @var Jetpack_Affiliate This class instance.
+	 * @var Affiliate This class instance.
 	 **/
 	private static $instance = null;
 
@@ -39,11 +39,11 @@ class Jetpack_Affiliate {
 	 *
 	 * @since 6.9.0
 	 *
-	 * @return Jetpack_Affiliate | false
+	 * @return Affiliate | false
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Affiliate();
+			self::$instance = new Affiliate();
 		}
 		return self::$instance;
 	}
@@ -84,4 +84,4 @@ class Jetpack_Affiliate {
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Affiliate', 'init' ) );
+add_action( 'init', array( 'Jetpack\V7\Partners\Affiliate', 'init' ) );

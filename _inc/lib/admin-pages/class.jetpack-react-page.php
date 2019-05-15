@@ -1,5 +1,5 @@
 <?php
-use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+use Jetpack\V7\Partners\Affiliate as Affiliate;
 
 include_once( 'class.jetpack-admin-page.php' );
 
@@ -252,7 +252,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
-			'aff' => Jetpack_Affiliate::init()->get_affiliate_code(),
+			'aff' => Affiliate::init()->get_affiliate_code(),
 			'settings' => $this->get_flattened_settings( $modules ),
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),

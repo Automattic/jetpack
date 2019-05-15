@@ -1,5 +1,5 @@
 <?php
-use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+use Jetpack\V7\Partners\Affiliate as Affiliate;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -351,7 +351,7 @@ class Jetpack_JITM {
 			);
 
 			// Get affiliate code and add it to the array of URL parameters
-			$aff = Jetpack_Affiliate::init()->get_affiliate_code();
+			$aff = Affiliate::init()->get_affiliate_code();
 			if ( '' !== $aff ) {
 				$url_params['aff'] = $aff;
 			}

@@ -22,7 +22,7 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Jetpack\V7\Partners\Jetpack_Affiliate as Jetpack_Affiliate;
+use Jetpack\V7\Partners\Affiliate as Affiliate;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
@@ -4525,7 +4525,7 @@ p {
 		}
 
 		// Get affiliate code and add it to the URL
-		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
+		$url = Affiliate::init()->add_code_as_query_arg( $url );
 
 		$calypso_env = $this->get_calypso_env();
 
