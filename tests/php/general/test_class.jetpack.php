@@ -6,7 +6,7 @@ class MockJetpack extends Jetpack {
 	}
 }
 
-class WP_Test_Jetpackk extends WP_UnitTestCase {
+class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	static $activated_modules = array();
 	static $deactivated_modules = array();
@@ -259,18 +259,24 @@ EXPECTED;
 		Jetpack::update_active_modules( array( 'monitor' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor' ) );
 		$this->assertEquals(  self::$deactivated_modules, array() );
+
+		// Simce we override the 'monitor' module, verify it does not appear in get_active_modules().
+		$active_modules = Jetpack::get_active_modules();
+		$this->assertEquals(  $active_modules, array() );
 	
+		// Verify that activating a new module does not deactivate 'monitor' module.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor', 'stats') );
 		$this->assertEquals(  self::$deactivated_modules, array() );
 	
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
 	
+		// With the module override filter removed, verify that monitor module appears in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
-		error_log('active mods are '  . print_r($active_modules, true));
 		$this->assertEquals(  $active_modules, array( 'monitor', 'stats' ) );
 	}
 	
+	 // This filter overrides the 'monitor' module.
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
 	
