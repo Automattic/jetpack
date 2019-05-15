@@ -39,11 +39,13 @@ gulp.task( 'react:master', function( done ) {
 function onBuild( done, err, stats ) {
 	// Webpack doesn't populate err in case the build fails
 	// @see https://github.com/webpack/webpack/issues/708
-	if ( stats.compilation.errors && stats.compilation.errors.length ) {
-		if ( done ) {
-			done( new PluginError( 'webpack', stats.compilation.errors[ 0 ] ) );
-			return; // Otherwise gulp complains about done called twice
-		}
+	const erroringStats = stats.stats.find(
+		( { compilation } ) => compilation.errors && compilation.errors.length
+	);
+
+	if ( erroringStats && done ) {
+		done( new PluginError( 'webpack', erroringStats.compilation.errors[ 0 ] ) );
+		return; // Otherwise gulp complains about done called twice
 	}
 
 	log(
