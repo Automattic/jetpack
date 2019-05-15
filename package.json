@@ -160,7 +160,6 @@
 		"@wordpress/eslint-plugin": "2.1.0",
 		"@wordpress/i18n": "3.4.0",
 		"@wordpress/jest-preset-default": "4.1.0",
-		"autoprefixer": "9.5.1",
 		"babel-eslint": "10.0.1",
 		"babel-loader": "8.0.6",
 		"chai": "4.2.0",

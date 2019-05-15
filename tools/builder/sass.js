@@ -35,7 +35,6 @@ gulp.task( 'sass:dashboard', function( done ) {
 
 gulp.task( 'sass:calypsoify', function( done ) {
 	log( 'Building Calypsoify CSS bundle...' );
-	// const plugins = [ postcssAutoprefixer(), customProperties() ];
 
 	return gulp
 		.src( './modules/calypsoify/*.scss' )
