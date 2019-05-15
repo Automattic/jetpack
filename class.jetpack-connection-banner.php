@@ -1,6 +1,6 @@
 <?php
 
-use Jetpack\Assets\Logo;
+//use Jetpack\Assets\Logo;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -172,7 +172,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<?php echo Logo::render(); ?>
+							<?php echo Jetpack\Assets\Logo::render(); ?>
 							<img
 								src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>"
 								class="jp-wpcom-connect__hide-phone-and-smaller"
@@ -241,7 +241,7 @@ class Jetpack_Connection_Banner {
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<?php echo Logo::render(); ?>
+					<?php echo Jetpack\Assets\Logo::render(); ?>
 
 					<div class="jp-connect-full__dismiss">
 						<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>

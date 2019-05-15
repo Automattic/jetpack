@@ -1,0 +1,19 @@
+{
+	"name": "automattic/jetpack-common-interfaces",
+	"description": "A set of standard interfaces for Automattic packages",
+	"type": "library",
+	"license": "GPL",
+	"authors": [
+		{
+			"name": "Michael Turk",
+			"email": "turk.michael@gmail.com"
+		}
+	],
+	"require": {},
+	"version": "1.0.0",
+	"autoload": {
+		"psr-4": {
+			"Jetpack\\Assets\\": "src/"
+		}
+	}
+}
