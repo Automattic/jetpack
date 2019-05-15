@@ -3933,9 +3933,10 @@ p {
 		}
 
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
+			// @todo: Add validation against a known whitelist
+			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
-				$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
 
 				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
@@ -3952,7 +3953,7 @@ p {
 					wp_safe_redirect( Jetpack::admin_url() );
 					exit;
 				} else {
-					$connect_url = $this->build_connect_url( true, false, 'iframe' );
+					$connect_url = $this->build_connect_url( true, false, $from );
 					$connect_url .= '&already_authorized=true';
 					wp_redirect( $connect_url );
 					exit;

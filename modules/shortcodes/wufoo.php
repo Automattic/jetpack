@@ -1,14 +1,19 @@
 <?php
-/*
-Plugin Name: Wufoo Shortcode Plugin
-Description: Enables shortcode to embed Wufoo forms. Usage: [wufoo username="chriscoyier" formhash="x7w3w3" autoresize="true" height="458" header="show"]
-Author: Chris Coyier / Wufoo, evansolomon
+/**
+ * Plugin Name: Wufoo Shortcode
+ * Based on https://wordpress.org/plugins/wufoo-shortcode/
+ *
+ * Examples:
+ * [wufoo username="jeherve" formhash="z1x13ltw1m8jtrw" autoresize="true" height="338" header="show"]
+ *
+ * @package Jetpack
+ */
 
-Based on https://wordpress.org/extend/plugins/wufoo-shortcode/
-https://wufoo.com/docs/code-manager/wordpress-shortcode-plugin/
-*/
-
-
+/**
+ * Display the Wufoo shortcode.
+ *
+ * @param array $atts Shortcode attributes.
+ */
 function wufoo_shortcode( $atts ) {
 	$attr = shortcode_atts(
 		array(

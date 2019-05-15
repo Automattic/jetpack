@@ -384,15 +384,17 @@ EOT;
 		);
 
 		/*
-		Below is a hack to get the block content to render correctly.
-
-		This functionality should be covered in /inc/blocks.php but due to an error,
-		this has not been fixed as of this writing.
-
-		Alda has submitted a patch to Core in order to have this issue fixed at
-		https://core.trac.wordpress.org/attachment/ticket/45495/do_blocks.diff and
-		hopefully it makes to to the final RC of WP 5.1.
-		*/
+		 * Below is a hack to get the block content to render correctly.
+		 *
+		 * This functionality should be covered in /inc/blocks.php but due to an error,
+		 * this has not been fixed as of this writing.
+		 *
+		 * Alda has submitted a patch to Core in order to have this issue fixed at
+		 * https://core.trac.wordpress.org/ticket/45495 and
+		 * made it into WordPress 5.2.
+		 *
+		 * @todo update when WP 5.2 is the minimum support version.
+		 */
 		$priority = has_filter( 'the_content', 'wpautop' );
 		remove_filter( 'the_content', 'wpautop', $priority );
 		add_filter( 'the_content', '_restore_wpautop_hook', $priority + 1 );
@@ -1604,6 +1606,7 @@ EOT;
 	 */
 	protected function _enabled_for_request() {
 		$enabled = is_single()
+			&& ! is_attachment()
 			&& ! is_admin()
 			&& ( ! $this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
 

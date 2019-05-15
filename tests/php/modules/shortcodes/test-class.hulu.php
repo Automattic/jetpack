@@ -35,19 +35,38 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function setUp() {
-
 		parent::setUp();
 
 		$this->src = 'https://www.hulu.com/embed.html?eid=';
 		$this->video_id = '771496';
 		$this->video_eid = '_hHzwnAcj3RrXMJFDDvkuw';
 
-		/**
-		 * We normally make an HTTP request to Hulu's oEmbed endpoint
-		 * to translate id (human readable video ID) -> eid (Hulu's internal video ID).
-		 * This filter bypasses that HTTP request for these tests.
-		 */
-		add_filter( "pre_transient_hulu-{$this->video_id}", array( $this, '_video_eid' ) );
+		// Back compat for PHPUnit 3!
+		// @todo Remove this when WP's PHP version bumps.
+		if ( is_callable( array( $this, 'getGroups' ) ) ) {
+			$groups = $this->getGroups();
+		} else {
+			$annotations = $this->getAnnotations();
+			$groups = array();
+			foreach ( $annotations as $source ) {
+				if ( ! isset( $source['group'] ) ) {
+					continue;
+				}
+				$groups = array_merge( $groups, $source['group'] );
+			}
+		}
+
+		if ( in_array( 'external-http', $groups ) ) {
+			// Used by WordPress.com - does nothing in Jetpack.
+			add_filter( 'tests_allow_http_request', '__return_true' );
+		} else {
+			/**
+			 * We normally make an HTTP request to Hulu's oEmbed endpoint
+			 * to translate id (human readable video ID) -> eid (Hulu's internal video ID).
+			 * This filter bypasses that HTTP request for these tests.
+			 */
+			add_filter( "pre_transient_hulu-{$this->video_id}", array( $this, '_video_eid' ) );
+		}
 	}
 
 	public function _video_eid() {
@@ -125,12 +144,6 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	 * @group external-http
 	 */
 	public function test_shortcodes_hulu_id_via_oembed_http_request() {
-		// we need to allow external calls for embed validation
-		// TODO allow specific request(s) or mock them out with 'pre_http_request'
-		add_filter( 'tests_allow_http_request', '__return_true' );
-		// Remove the HTTP request bypass
-		remove_all_filters( "pre_transient_hulu-{$this->video_id}" );
-
 		$content  = "[hulu $this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 
