@@ -43,7 +43,10 @@ install_wp() {
 /* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
 define('WP_MEMORY_LIMIT', '256M');
 define('SCRIPT_DEBUG', true);
-if( isset( \$_SERVER['HTTPS'] ) ) \$_SERVER['HTTPS'] = "on";
+
+/* Tweak to fix TOO_MANY_REDIRECTS ngrok problem */
+if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+    \$_SERVER['HTTPS'] = 'on';
 PHP
 
 	echo "Setting other wp-config.php constants..."
@@ -111,21 +114,17 @@ install_ngrok() {
 }
 
 export_env_variables() {
+	cd $WORKING_DIR
 	cat <<EOT >> env-file
 WP_SITE_URL=${WP_SITE_URL}
 WORKING_DIR=${WORKING_DIR}
 WHATEVER_VAR="${WP_SITE_URL}${WORKING_DIR}"
 EOT
-
-source env-file
 }
 
 install_ngrok
 setup_nginx
 install_wp
-# install_e2e_site
+export_env_variables
 
 echo $WP_SITE_URL
-curl -v localhost
-curl -v "$NGROK_URL"
-
