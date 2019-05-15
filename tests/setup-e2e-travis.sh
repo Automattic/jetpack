@@ -43,7 +43,7 @@ install_wp() {
 /* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
 define('WP_MEMORY_LIMIT', '256M');
 define('SCRIPT_DEBUG', true);
-if ( $_SERVER && $_SERVER['HTTPS'] ) $_SERVER['HTTPS'] = 'On';
+if( isset( \$_SERVER['HTTPS'] ) ) \$_SERVER['HTTPS'] = "on";
 PHP
 
 	echo "Setting other wp-config.php constants..."
@@ -53,7 +53,7 @@ PHP
 
 	wp db create
 
-	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=admin --admin_password=password --admin_email=admin@e2ewootestsite.com --path=$WP_CORE_DIR
+	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@e2egutenpacktests.com --path=$WP_CORE_DIR
 
 	# Copying contents of bookings branch manually, since unable to download a private repo zip
 	cp -r $WORKING_DIR/../jetpack $WP_CORE_DIR/wp-content/plugins/
@@ -101,7 +101,17 @@ install_ngrok() {
 	./ngrok http -log=stdout 80 > /dev/null &
 	# ./ngrok http -log=stdout 8080 > /dev/null &
 	NGROK_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
-	WP_SITE_URL=$NGROK_URL
+	WP_SITE_URL=${NGROK_URL}
+}
+
+export_env_variables() {
+	cat <<EOT >> env-file
+WP_SITE_URL=${WP_SITE_URL}
+WORKING_DIR=${WORKING_DIR}
+WHATEVER_VAR="${WP_SITE_URL}${WORKING_DIR}"
+EOT
+
+source env-file
 }
 
 install_ngrok
