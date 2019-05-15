@@ -72,17 +72,25 @@ export function isGutenbergAvailable( state ) {
 }
 
 export function userIsSubscriber( state ) {
-	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
+	return get(
+		state.jetpack.initialState,
+		[ 'userData', 'currentUser', 'permissions', 'edit_posts' ],
+		false
+	);
 }
 
 export function userCanPublish( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'publish_posts', false );
+	return get(
+		state.jetpack.initialState,
+		[ 'userData', 'currentUser', 'permissions', 'publish_posts' ],
+		false
+	);
 }
 
 export function userCanManageModules( state ) {
 	return get(
-		state.jetpack.initialState.userData.currentUser.permissions,
-		'manage_modules',
+		state.jetpack.initialState,
+		[ 'userData', 'currentUser', 'permissions', 'manage_modules' ],
 		false
 	);
 }
@@ -130,7 +138,11 @@ export function userCanDisconnectSite( state ) {
 }
 
 export function userCanConnectSite( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
+	return get(
+		state.jetpack.initialState,
+		[ 'userData', 'currentUser', 'permissions', 'connect' ],
+		false
+	);
 }
 
 export function userIsMaster( state ) {

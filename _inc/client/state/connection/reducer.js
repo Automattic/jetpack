@@ -214,7 +214,7 @@ export function isFetchingUserData( state ) {
  * @return {bool} true if the current user is connected to WP.com, false otherwise
  */
 export function isCurrentUserLinked( state ) {
-	return !! state.jetpack.connection.user.currentUser.isConnected;
+	return !! get( state.jetpack.connection.user.currentUser, [ 'isConnected' ] );
 }
 
 /**
