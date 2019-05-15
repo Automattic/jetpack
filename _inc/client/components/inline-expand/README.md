@@ -32,4 +32,5 @@ render: function() {
 	// elements
 </InlineExpand>
 ```
-* `icon` - To show an icon, pass an icon name like 'chevron-down'. Check list in dops-components/client/components/gridicon.
+
+- `icon` - To show an icon, pass an icon name like 'chevron-down'. Check list in \_inc/client/components/gridicon.
