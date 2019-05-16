@@ -447,7 +447,6 @@ class Jetpack {
 	static function update_active_modules( $modules ) {
 		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
 		$active_modules       = Jetpack::get_active_modules();
-
 		$new_active_modules   = array_diff( $modules, $current_modules );
 		$new_deactive_modules = array_diff( $active_modules, $modules );
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_deactive_modules );
