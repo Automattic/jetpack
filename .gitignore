@@ -46,3 +46,4 @@ phpcs.xml
 _inc/jetpack-strings.php
 /modules/**/*/block.js
 
+packages/jetpack-logo/vendor/*
