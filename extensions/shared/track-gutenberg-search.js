@@ -10,7 +10,8 @@ import analytics from '../../_inc/client/lib/analytics';
 
 const trackGutenbergSearch = event => {
 	const searchTerm = event.target.value;
-	const hasResults = document.getElementsByClassName( 'editor-inserter__no-results' ).length === 0;
+	const hasResults =
+		document.getElementsByClassName( 'block-editor-inserter__no-results' ).length === 0;
 
 	if ( searchTerm.length < 3 ) {
 		return;
@@ -33,7 +34,7 @@ const trackGutenbergSearch = event => {
 registerPlugin( 'track-no-search-results', {
 	render: () => {
 		document.onkeyup = event => {
-			if ( event.target.id.indexOf( 'editor-inserter__search' ) === 0 ) {
+			if ( event.target.id.indexOf( 'block-editor-inserter__search' ) === 0 ) {
 				trackGutenbergSearch( event );
 			}
 		};
