@@ -59,10 +59,9 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		const size = Math.min( PHOTON_MAX_RESIZE, width, height );
 		src = photonImplementation( url, {
 			resize: `${ size },${ size }`,
-			strip: 'all',
 		} );
 	} else {
-		src = photonImplementation( url, { strip: 'all' } );
+		src = photonImplementation( url );
 	}
 
 	/**
