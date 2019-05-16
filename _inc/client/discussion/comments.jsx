@@ -14,6 +14,9 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import SupportInfo from 'components/support-info';
+
+import './style.scss';
 
 class CommentsComponent extends React.Component {
 	/**
@@ -135,110 +138,81 @@ class CommentsComponent extends React.Component {
 				{ ( foundGravatar || foundMarkdown || foundCommentLikes ) && (
 					<SettingsGroup>
 						{ foundGravatar && (
-							<FormFieldset>
-								<ModuleToggle
-									slug="gravatar-hovercards"
-									compact
-									activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-									toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
-									toggleModule={ this.props.toggleModuleNow }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ gravatar.description + ' ' }
-										<a
-											href={ gravatar.learn_more_button }
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{ __( 'Learn more' ) }
-										</a>
-										<span className="jp-form-toggle-privacy-info">
-											<a
-												href={ gravatar.learn_more_button + '#privacy' }
-												target="_blank"
-												rel="noopener noreferrer"
-											>
-												{ __( 'Privacy Information' ) }
-											</a>
-										</span>
-									</span>
-								</ModuleToggle>
-							</FormFieldset>
+							<div className="jp-toggle-set">
+								<FormFieldset>
+									<ModuleToggle
+										slug="gravatar-hovercards"
+										compact
+										activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
+										toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
+										toggleModule={ this.props.toggleModuleNow }
+									>
+										<span className="jp-form-toggle-explanation">{ gravatar.description }</span>
+									</ModuleToggle>
+								</FormFieldset>
+								<SupportInfo
+									text={ __( 'Show Gravatar hovercards alongside comments.' ) }
+									link={ gravatar.learn_more_button }
+									privacyLink={ gravatar.learn_more_button + '#privacy' }
+								/>
+							</div>
 						) }
 						{ foundMarkdown && (
-							<FormFieldset>
-								<CompactFormToggle
-									checked={
-										!! this.props.getOptionValue(
-											'wpcom_publish_comments_with_markdown',
-											'markdown'
-										)
-									}
-									disabled={
-										this.props.isSavingAnyOption( [
+							<div className="jp-toggle-set">
+								<FormFieldset>
+									<CompactFormToggle
+										checked={
+											!! this.props.getOptionValue(
+												'wpcom_publish_comments_with_markdown',
+												'markdown'
+											)
+										}
+										disabled={
+											this.props.isSavingAnyOption( [
+												'markdown',
+												'wpcom_publish_comments_with_markdown',
+											] ) || 'inactive' === this.props.getModuleOverride( 'markdown' )
+										}
+										toggling={ this.props.isSavingAnyOption( [
 											'markdown',
 											'wpcom_publish_comments_with_markdown',
-										] ) || 'inactive' === this.props.getModuleOverride( 'markdown' )
-									}
-									toggling={ this.props.isSavingAnyOption( [
-										'markdown',
-										'wpcom_publish_comments_with_markdown',
-									] ) }
-									onChange={ this.handleMarkdownCommentsToggle }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Enable Markdown use for comments.' ) + ' ' }
-										<a
-											href={ markdown.learn_more_button }
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{ __( 'Learn more' ) }
-										</a>
-										<span className="jp-form-toggle-privacy-info">
-											<a
-												href={ markdown.learn_more_button + '#privacy' }
-												target="_blank"
-												rel="noopener noreferrer"
-											>
-												{ __( 'Privacy Information' ) }
-											</a>
+										] ) }
+										onChange={ this.handleMarkdownCommentsToggle }
+									>
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Enable Markdown use for comments.' ) }
 										</span>
-									</span>
-								</CompactFormToggle>
-							</FormFieldset>
+									</CompactFormToggle>
+								</FormFieldset>
+								<SupportInfo
+									text={ __( 'Allow readers to use markdown in comments.' ) }
+									link={ markdown.learn_more_button }
+									privacyLink={ markdown.learn_more_button + '#privacy' }
+								/>
+							</div>
 						) }
 						{ foundCommentLikes && (
-							<FormFieldset>
-								<ModuleToggle
-									slug="comment-likes"
-									compact
-									disabled={ commentLikesUnavailable }
-									activated={ commentLikesActive }
-									toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
-									toggleModule={ this.props.toggleModuleNow }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ 'Enable comment likes.' + ' ' }
-										<a
-											href="https://jetpack.com/support/comment-likes/"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											{ __( 'Learn more' ) }
-										</a>
-										<span className="jp-form-toggle-privacy-info">
-											<a
-												href="https://jetpack.com/support/comment-likes/#privacy"
-												target="_blank"
-												rel="noopener noreferrer"
-											>
-												{ __( 'Privacy Information' ) }
-											</a>
+							<div className="jp-toggle-set">
+								<FormFieldset>
+									<ModuleToggle
+										slug="comment-likes"
+										compact
+										disabled={ commentLikesUnavailable }
+										activated={ commentLikesActive }
+										toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
+										toggleModule={ this.props.toggleModuleNow }
+									>
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Enable comment likes.' ) }
 										</span>
-									</span>
-								</ModuleToggle>
-							</FormFieldset>
+									</ModuleToggle>
+								</FormFieldset>
+								<SupportInfo
+									text={ __( 'Allow readers to like individual comments.' ) }
+									link="https://jetpack.com/support/comment-likes/"
+									privacyLink="https://jetpack.com/support/comment-likes/#privacy"
+								/>
+							</div>
 						) }
 					</SettingsGroup>
 				) }
