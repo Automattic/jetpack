@@ -155,7 +155,7 @@
 		"@wordpress/i18n": "3.3.0",
 		"@wordpress/jest-preset-default": "4.0.0",
 		"babel-eslint": "10.0.1",
-		"babel-loader": "8.0.5",
+		"babel-loader": "8.0.6",
 		"chai": "4.2.0",
 		"commander": "2.20.0",
 		"copy-webpack-plugin": "5.0.2",
