@@ -12,13 +12,21 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-connection",
-                "reference": "0e4d75fd31354965470d4a8277e5473c5024f3d3"
+                "reference": "574353b798738c23e2e58d29be82ae80176519d4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "7.*.*"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\V7\\Connection\\": "lib/"
+                    "Jetpack\\V7\\Connection\\": "lib"
                 }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"

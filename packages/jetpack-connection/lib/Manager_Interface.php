@@ -12,7 +12,7 @@ namespace Jetpack\V7\Connection;
  * The interface that the Connection class must inherit in order to be used for connecting
  * to WordPress.com
  */
-interface Connection_Interface {
+interface Manager_Interface {
 
 	/**
 	 * Initializes all needed hooks and request handlers. Handles API calls, upload
