@@ -448,8 +448,8 @@ class Jetpack {
 		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
 		$active_modules       = Jetpack::get_active_modules();
 		$new_active_modules   = array_diff( $modules, $current_modules );
-		$new_deactive_modules = array_diff( $active_modules, $modules );
-		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_deactive_modules );
+		$new_inactive_modules = array_diff( $active_modules, $modules );
+		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
 		$reindexed_modules    = array_values( $new_current_modules );
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
 		
