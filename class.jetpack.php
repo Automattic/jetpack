@@ -474,7 +474,7 @@ class Jetpack {
 			do_action( "jetpack_activate_module_$module", $module );
 		}
 			
-		foreach ( $new_deactive_modules as $module ) {
+		foreach ( $new_inactive_modules as $module ) {
 			/**
 			 * Fired after a module has been deactivated.
 			 *
