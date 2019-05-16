@@ -46,14 +46,8 @@ function ChecklistProgressCard( { completed, total, siteSlug } ) {
 }
 
 export default connect( state => {
-	const tasks = getTasks( state );
-	const completed = tasks
-		? Object.keys( tasks ).filter( key => tasks[ key ].completed ).length
-		: null;
-	const total = tasks ? Object.keys( tasks ).length : null;
 	return {
 		siteSlug: getSiteRawUrl( state ),
-		completed,
-		total,
+		...getChecklistCompletion( state ), // add completed and total
 	};
 } )( ChecklistProgressCard );
