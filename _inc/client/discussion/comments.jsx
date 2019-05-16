@@ -151,7 +151,7 @@ class CommentsComponent extends React.Component {
 									</ModuleToggle>
 								</FormFieldset>
 								<SupportInfo
-									text={ __( 'Show Gravatar hover cards alongside comments.' ) }
+									text={ __( 'Show Gravatar hovercards alongside comments.' ) }
 									link={ gravatar.learn_more_button }
 									privacyLink={ gravatar.learn_more_button + '#privacy' }
 								/>
