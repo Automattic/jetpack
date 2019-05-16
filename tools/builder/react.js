@@ -69,22 +69,6 @@ function onBuild( done, err, stats ) {
 		Date.now()
 	);
 
-	if ( 'production' === process.env.NODE_ENV ) {
-		log( 'Uglifying JS...' );
-		gulp
-			.src( '_inc/build/admin.js' )
-			.pipe(
-				minify( {
-					noSource: true,
-					ext: { min: '.js' },
-				} )
-			)
-			.pipe( gulp.dest( '_inc/build' ) )
-			.on( 'end', function() {
-				log( 'Your JS is now uglified!' );
-			} );
-	}
-
 	const is_prod = 'production' === process.env.NODE_ENV;
 
 	const supportedModules = [
