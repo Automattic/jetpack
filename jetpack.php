@@ -96,6 +96,7 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 
 /**
  * Outputs an admin notice for folks running an outdated version of PHP.
+ * @todo: Remove once WP 5.2 is the minimum version.
  *
  * @since 7.4.0
  */
