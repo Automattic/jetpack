@@ -43,6 +43,7 @@ class MembershipsButtonEdit extends Component {
 			connectURL: null,
 			addingMembershipAmount: PRODUCT_NOT_ADDING,
 			shouldUpgrade: false,
+			upgradeURL: '',
 			products: [],
 			editedProductCurrency: 'USD',
 			editedProductPrice: 5,
@@ -70,13 +71,23 @@ class MembershipsButtonEdit extends Component {
 		const fetch = { path, method };
 		apiFetch( fetch ).then(
 			result => {
+				if (
+					result.errors &&
+					Object.values( result.errors ) &&
+					Object.values( result.errors )[ 0 ][ 0 ]
+				) {
+					this.setState( { connected: null, connectURL: API_STATE_NOTCONNECTED } );
+					this.onError( Object.values( result.errors )[ 0 ][ 0 ] );
+					return;
+				}
 				const connectURL = result.connect_url;
 				const products = result.products;
 				const shouldUpgrade = result.should_upgrade_to_access_memberships;
+				const upgradeURL = result.upgrade_url;
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL, products, shouldUpgrade } );
+				this.setState( { connected, connectURL, products, shouldUpgrade, upgradeURL } );
 			},
 			result => {
 				const connectURL = null;
@@ -345,7 +356,7 @@ class MembershipsButtonEdit extends Component {
 							{ __( "You'll need to upgrade your plan to use the Membership Button.", 'jetpack' ) }
 							<br />
 							<br />
-							<Button isDefault isLarge href={ this.state.shouldUpgrade } target="_blank">
+							<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
 								{ __( 'Upgrade Your Plan', 'jetpack' ) }
 							</Button>
 							<br />
