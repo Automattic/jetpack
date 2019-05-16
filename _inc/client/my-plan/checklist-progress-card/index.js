@@ -13,14 +13,14 @@ import Card from 'components/card';
 import ProgressBar from './progress-bar';
 import QueryChecklistProgress from 'components/data/query-checklist-progress';
 import { getSiteRawUrl } from 'state/initial-state';
-import { getTasks } from 'state/checklist/selectors';
+import { getChecklistCompletion } from 'state/checklist/selectors';
 
 function ChecklistProgressCard( { completed, total, siteSlug } ) {
 	return (
-		<Card compact className="checklist__header">
+		<>
 			<QueryChecklistProgress />
 			{ completed && total && (
-				<>
+				<Card compact className="checklist__header">
 					<div className="checklist__header-main">
 						<div className="checklist__header-progress">
 							<span className="checklist__header-progress-text">
@@ -39,9 +39,9 @@ function ChecklistProgressCard( { completed, total, siteSlug } ) {
 							} ) }
 						</Button>
 					</div>
-				</>
+				</Card>
 			) }
-		</Card>
+		</>
 	);
 }
 
