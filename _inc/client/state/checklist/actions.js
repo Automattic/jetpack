@@ -2,15 +2,10 @@
  * Internal dependencies
  */
 import { SITE_CHECKLIST_RECEIVE, SITE_CHECKLIST_REQUEST } from 'state/action-types';
-import restApi from 'rest-api';
 
 export function requestSiteChecklist() {
 	return dispatch => {
 		dispatch( { type: SITE_CHECKLIST_REQUEST } );
-		restApi
-			.getChecklistData()
-			.then( receiveSiteChecklist )
-			.then( dispatch );
 	};
 }
 

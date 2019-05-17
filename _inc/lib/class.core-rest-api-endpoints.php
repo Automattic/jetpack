@@ -452,19 +452,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
-
-		// WordPress.com onboarding checklist data
-		register_rest_route(
-			'jetpack/v4',
-			'/checklist',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_checklist',
-					'permission_callback' => __CLASS__ . '::get_checklist__permission_callback',
-				),
-			)
-		);
 	}
 
 	public static function get_plans( $request ) {
@@ -488,32 +475,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $data;
-	}
-
-	public static function get_checklist() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-		$response = Jetpack_Client::wpcom_json_api_request_as_user(
-			'sites/' . $site_id . '/checklist',
-			'1',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
-				),
-			),
-			null,
-			'rest'
-		);
-
-		if ( ! is_wp_error( $response ) ) {
-			$response = json_decode( wp_remote_retrieve_body( $response ), true );
-		}
-
-		return $response;
-	}
-
-	public static function get_checklist__permission_callback() {
-		return true;
 	}
 
 	/**

@@ -262,12 +262,6 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
-
-		getChecklistData() {
-			return getRequest( `${ apiRoot }jetpack/v4/checklist`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse );
-		},
 	};
 
 	function addCacheBuster( route ) {
