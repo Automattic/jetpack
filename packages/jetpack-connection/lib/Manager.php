@@ -8,6 +8,7 @@ class Manager implements Manager_Interface {
 
 	const SECRETS_MISSING = 'secrets_missing';
 	const SECRETS_EXPIRED = 'secrets_expired';
+	const SECRETS_OPTION_NAME = 'jetpack_secrets';
 
 	/**
 	 * The backend object for managing options.

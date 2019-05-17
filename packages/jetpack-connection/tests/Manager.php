@@ -30,7 +30,7 @@ class ManagerTest extends TestCase {
 		$this->mock->expects( $this->once() )
 			->method( 'update_option' )
 			->with(
-				$this->equalTo( 'jetpack_secrets' ),
+				$this->equalTo( Manager::SECRETS_OPTION_NAME ),
 				$this->equalTo( array(
 					'jetpack_name_1' => array(
 						'secret_1' => 'topsecretstring',
@@ -52,7 +52,7 @@ class ManagerTest extends TestCase {
 		$this->mock->expects( $this->once() )
 			->method( 'get_option' )
 			->with(
-				$this->equalTo( 'jetpack_secrets' ),
+				$this->equalTo( Manager::SECRETS_OPTION_NAME ),
 				$this->anything()
 			);
 
@@ -69,7 +69,7 @@ class ManagerTest extends TestCase {
 		$this->mock->expects( $this->exactly( 2 ) )
 			->method( 'get_option' )
 			->with(
-				$this->equalTo( 'jetpack_secrets' ),
+				$this->equalTo( Manager::SECRETS_OPTION_NAME ),
 				$this->anything()
 			)
 			->will(
@@ -86,7 +86,7 @@ class ManagerTest extends TestCase {
 		$this->mock->expects( $this->once() )
 			->method( 'update_option' )
 			->with(
-				$this->equalTo( 'jetpack_secrets' ),
+				$this->equalTo( Manager::SECRETS_OPTION_NAME ),
 				$this->equalTo( array() )
 			);
 
@@ -103,7 +103,7 @@ class ManagerTest extends TestCase {
 		$this->mock->expects( $this->once() )
 			->method( 'get_option' )
 			->with(
-				$this->equalTo( 'jetpack_secrets' ),
+				$this->equalTo( Manager::SECRETS_OPTION_NAME ),
 				$this->anything()
 			)
 			->will(
