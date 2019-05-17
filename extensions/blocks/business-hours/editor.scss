@@ -3,6 +3,10 @@
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
 
+	dd span {
+		display: block;
+	}
+
 	.business-hours__row {
 		display: flex;
 
