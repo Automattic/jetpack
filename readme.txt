@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Slideshow Block: depending on viewport, display prev/next arrows.
 * Slideshow Block: remove outline when focussing on the block.
 * Sync: offer posts, comments, and comment meta checksums when providing sync status.
+* WordPress.com Toolbar: display hamburger icon in toolbar when in the block editor.
 
 **Improved compatibility**
 
