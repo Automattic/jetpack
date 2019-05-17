@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* About Page: remove submenu and add link to page in the footer of Jetpack's dashboard.
 * Contact Form Block: improve styles for better display on mobile devices.
 
 **Improved compatibility**
