@@ -8,7 +8,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import ScreenReaderText from './screen-reader-text';
+import ScreenReaderText from 'components/screen-reader-text';
 
 export default class ProgressBar extends PureComponent {
 	static defaultProps = {
