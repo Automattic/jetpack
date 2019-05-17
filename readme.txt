@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: update embed type detection for Medium Collections.
 * Sync: add new WP Cli commands to help in monitoring and updating sync settings.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
+* WP Cli: ensure that WP Cli commands added by Jetpack include translator comments when necessary, to help with translations.
 
 --------
 
