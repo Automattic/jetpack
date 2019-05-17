@@ -11,9 +11,9 @@ class Manager implements Manager_Interface {
 	const SECRETS_OPTION_NAME = 'jetpack_secrets';
 
 	/**
-	 * The backend object for managing options.
+	 * The object for managing options.
 	 */
-	protected $option_backend;
+	protected $option_manager;
 
 	/**
 	 * The procedure that should be run to generate secrets.
@@ -35,15 +35,6 @@ class Manager implements Manager_Interface {
 	 */
 	public function initialize( $methods ) {
 		
-	}
-
-	/**
-	 * Sets an object that is to be used for all option manipulation.
-	 *
-	 * @param Object $backend an option backend object.
-	 */
-	public function set_option_backend( $backend ) {
-		$this->option_backend = $backend;
 	}
 
 	/**
@@ -131,12 +122,39 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * Set the callable that would be used to generate secrets.
+	 * Returns the callable that would be used to generate secrets.
 	 *
-	 * @param Callable a function that returns a secure string to be used as a secret.
+	 * @return Callable a function that returns a secure string to be used as a secret.
 	 */
-	public function set_secret_callable( $callable ) {
-		$this->secret_callable = $callable;
+	public function get_secret_callable() {
+		if ( ! isset( $this->secret_callable ) ) {
+			/**
+			 * Allows modification of the callable that is used to generate connection secrets.
+			 *
+			 * @param Callable a function or method that returns a secret string.
+			 */
+			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', 'wp_generate_password' );
+		}
+
+		return $this->secret_callable;
+	}
+
+	/**
+	 * Returns the object that is to be used for all option manipulation.
+	 *
+	 * @return Object $manager an option manager object.
+	 */
+	public function get_option_manager() {
+		if ( ! isset( $this->option_manager ) ) {
+			/**
+			 * Allows modification of the object that is used to manipulate stored data.
+			 *
+			 * @param Jetpack_Options an option manager object.
+			 */
+			$this->option_manager = apply_filters( 'jetpack_connection_option_manager', false );
+		}
+
+		return $this->option_manager;
 	}
 
 	/**
@@ -147,16 +165,18 @@ class Manager implements Manager_Interface {
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
 	public function generate_secrets( $action, $user_id, $exp ) {
+		$callable = $this->get_secret_callable();
+
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 		$secret_value = array(
-			'secret_1'  => call_user_func( $this->secret_callable ),
-			'secret_2'  => call_user_func( $this->secret_callable ),
+			'secret_1'  => call_user_func( $callable ),
+			'secret_2'  => call_user_func( $callable ),
 			'exp'       => time() + $exp,
 		);
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		$this->option_backend->update_option( 'jetpack_secrets', $secrets );
+		$this->get_option_manager()->update_option( self::SECRETS_OPTION_NAME, $secrets );
 		return $secrets[ $secret_name ];
 	}
 
@@ -170,7 +190,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function get_secrets( $action, $user_id, $exp ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = $this->option_backend->get_option( 'jetpack_secrets', array() );
+		$secrets = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return self::SECRETS_MISSING;
@@ -193,10 +213,10 @@ class Manager implements Manager_Interface {
 	 */
 	protected function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = $this->option_backend->get_option( 'jetpack_secrets', array() );
+		$secrets = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			$this->option_backend->update_option( 'jetpack_secrets', $secrets );
+			$this->get_option_manager()->update_option( self::SECRETS_OPTION_NAME, $secrets );
 		}
 	}
 

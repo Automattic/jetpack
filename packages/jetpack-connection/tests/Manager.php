@@ -1,29 +1,42 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use WP_Mock\Tools\TestCase;
 use Jetpack\V7\Connection\Manager;
 
 class ManagerTest extends TestCase {
+	public function setUp(): void {
+		\WP_Mock::setUp();
+
+		$this->mock = $this->getMockBuilder( 'stdClass' )
+					->setMethods( [ 'get_option', 'update_option' ] )
+					->getMock();
+
+		$this->generator = $this->getMockBuilder( 'stdClass' )
+						 ->setMethods( [ 'generate' ] )
+						 ->getMock();
+
+		$this->manager = new Manager();
+
+		\WP_Mock::onFilter( 'jetpack_connection_option_manager' )
+			->with( false )
+			->reply( $this->mock );
+
+		\WP_Mock::onFilter( 'jetpack_connection_secret_generator' )
+			->with( 'wp_generate_password' )
+			->reply( array( $this->generator, 'generate' ) );
+	}
+
+	public function tearDown(): void {
+		\WP_Mock::tearDown();
+	}
+
 	function test_class_implements_interface() {
 		$manager = new Manager();
 		$this->assertInstanceOf( 'Jetpack\V7\Connection\Manager_Interface', $manager );
 	}
 
-	function setUp() {
-		$this->mock = $this->getMockBuilder( 'stdClass' )
-					->setMethods( [ 'get_option', 'update_option' ] )
-					->getMock();
-
-		$this->manager = new Manager();
-		$this->manager->set_option_backend( $this->mock );
-	}
-
 	function test_generate_secrets() {
-		$generator = $this->getMockBuilder( 'stdClass' )
-				   ->setMethods( [ 'generate' ] )
-				   ->getMock();
-
-		$generator->expects( $this->exactly( 2 ) )
+		$this->generator->expects( $this->exactly( 2 ) )
 			->method( 'generate' )
 			->will( $this->returnValue( 'topsecretstring' ) );
 
@@ -39,8 +52,6 @@ class ManagerTest extends TestCase {
 					)
 				) )
 			);
-
-		$this->manager->set_secret_callable( array( $generator, 'generate' ) );
 
 		$secrets = $this->manager->generate_secrets( 'name', 1, 600 );
 
