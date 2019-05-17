@@ -26,17 +26,26 @@ class Jetpack_Sync_Queue_Buffer {
 }
 
 /**
+ * Base class for queue implementations
+ */
+abstract class Abstract_Jetpack_Sync_Queue {
+	public $id;
+	function __construct( $id ) {
+		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
+	}
+}
+
+/**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
  * closed. This uses raw SQL for two reasons: speed, and not triggering
  * tons of added_option callbacks.
  */
-class Jetpack_Sync_Queue {
-	public $id;
+class Jetpack_Sync_Queue extends Abstract_Jetpack_Sync_Queue {
 	private $row_iterator;
 
 	function __construct( $id ) {
-		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
+		parent::__construct( $id );
 		$this->row_iterator = 0;
 		$this->random_int   = mt_rand( 1, 1000000 );
 	}
