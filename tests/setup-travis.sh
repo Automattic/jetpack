@@ -2,6 +2,7 @@
 
 if [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
 	composer install
+	nvm use
 fi
 
 # If this is an NPM environment test, we don't need a developer WordPress checkout
