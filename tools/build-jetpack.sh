@@ -56,6 +56,15 @@ if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     echo "Now at version $CURRENT_VERSION!"
 fi
 
+# Checking for composer
+hash composer 2>/dev/null || {
+    echo >&2 "This script requires you to have composer package manager installed."
+    echo >&2 "Please install it following the instructions on https://getcomposer.org/. Aborting.";
+    exit 1;
+}
+
+composer --cwd $TARGET_DIR install
+
 # Checking for yarn
 hash yarn 2>/dev/null || {
     echo >&2 "This script requires you to have yarn package manager installed."
