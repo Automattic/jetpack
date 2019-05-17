@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
+* Sharing: make sure the Whatsapp button works well in all browsers, including Firefox on desktop.
 * Shortcodes: update embed type detection for Medium Collections.
 * Sync: add new WP Cli commands to help in monitoring and updating sync settings.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
