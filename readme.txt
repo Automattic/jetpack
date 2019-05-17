@@ -120,7 +120,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-* Shortcodes: Brought more of our shortcodes to meet current WordPress Coding Standards to help us maintain these features in the future.
+* Display Posts Widget: remove overly opinionated CSS.
+* Shortcodes: bring more of our shortcodes to meet current WordPress Coding Standards to help us maintain these features in the future.
 
 **Bug fixes**
 
