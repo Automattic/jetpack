@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
 * Shortcodes: update embed type detection for Medium Collections.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
 
