@@ -135,6 +135,8 @@ function jetpack_business_hours_render( $attributes ) {
 
 	$content .= '</dl>';
 
+	Jetpack_Gutenberg::load_assets_as_required( 'business-hours' );
+
 	/**
 	 * Allows folks to filter the HTML content for the Business Hours block
 	 *
