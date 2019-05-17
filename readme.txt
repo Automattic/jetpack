@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * About Page: remove submenu and add link to page in the footer of Jetpack's dashboard.
 * Admin Page: remove Themes card on Plans tab.
 * Admin Page: consolidate the look of the different discussion settings.
+* Business Hours Block: improve the display of Business Hours.
 * Contact Form Block: improve styles for better display on mobile devices.
 * Multisite: Use modern `wp_initialize_site` hook when automatically connecting new sites.
 * Search: add new option for cross-site search permissions.
