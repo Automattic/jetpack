@@ -98,8 +98,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 7.4 =
 
-* Release date: xx/xx/xxxx
-* Release post: https://wp.me/
+* Release date: June 4, 2019
+* Release post: https://wp.me/p1moTy-jgZ
 
 **Major Enhancements**
 
