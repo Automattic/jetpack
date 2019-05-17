@@ -70,7 +70,8 @@ sudo: false
 
 jobs:
   include:
-    - stage: after test
+    - stage: E2E tests
+      if: env(RUN_E2E) = true
       php: "7.3"
       before_install:
       - nvm install 'lts/*'

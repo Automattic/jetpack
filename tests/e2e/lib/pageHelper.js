@@ -6,6 +6,7 @@ export async function waitForSelector( page, selector, options = {} ) {
 	if ( ! options.hidden && el === null ) {
 		throw new Error( `ElementNotFoundException after waiting: ${ timeout } sec.` );
 	}
+	// eslint-disable-next-line no-console
 	console.log( `Found element by locator: ${ selector }` );
 	return el;
 }
