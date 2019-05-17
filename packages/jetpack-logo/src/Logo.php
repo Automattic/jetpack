@@ -7,12 +7,12 @@
 
 namespace Jetpack\Assets;
 
-use Jetpack\Assets\Renderable_Interface;
-
 /**
  * Create and render a Jetpack logo.
  */
 class Logo implements Renderable_Interface {
+
+	private $assets_manager;
 	/**
 	 * Absolute URL of the Jetpack logo.
 	 *
@@ -21,23 +21,17 @@ class Logo implements Renderable_Interface {
 	private $url;
 
 	/**
-	 * Instance of Logo
-	 *
-	 * @var Logo
-	 */
-	private static $instance;
-
-	/**
 	 * Default image url
 	 *
 	 * @var string
 	 */
-	private $default_url;
+	private $default_filename = 'logo.svg';
 
-	/**
-	 * Private constructor guarantees singleton behavior.
-	 */
-	private function __construct() {
+	public function __construct( $assets_manager = null ) {
+		$this->assets_manager =
+			$assets_manager instanceof Assets_Manager_Interface
+				? $assets_manager
+				: new Assets_Manager( array( 'images' => dirname( __FILE__ ) . '/../assets/images/' ) );
 	}
 
 	/**
@@ -45,40 +39,17 @@ class Logo implements Renderable_Interface {
 	 *
 	 * @return string The Jetpack logo.
 	 */
-	private function get_image() {
+	private function get_image( $filename ) {
 		return sprintf(
 			'<img src="%s" class="jetpack-logo" alt="%s" />',
-			esc_url( $this->url ),
-			esc_attr__(
+			\esc_url( $this->assets_manager->get_image_url( $filename ) ),
+			\esc_attr__(
 				'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
 				'jetpack'
 			)
 		);
 	}
 
-	/**
-	 * Set the image url
-	 *
-	 * @param $url Custom URL of a Jetpack logo.
-	 */
-	private function set_url( $url ) {
-		$this->url = $url;
-	}
-
-	/**
-	 * Get the instantiated Logo instance or create one if it doesn't exist yet
-	 *
-	 * @param $url URL of a Jetpack logo.
-	 *
-	 * @return Logo
-	 */
-	private static function get_instance() {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
 
 	/**
 	 * Create a new `Logo` instance and render it.
@@ -88,13 +59,9 @@ class Logo implements Renderable_Interface {
 	 * @param string $url Optional custom URL of a Jetpack logo.
 	 * @return string The Jetpack logo.
 	 */
-	public static function render( $url = '' ) {
-		$logo = self::get_instance();
-		if ( ! $url ) {
-			$logo->set_url( $logo->default_url );
-		} else {
-			$logo->set_url( $url );
-		}
-		return $logo->get_image();
+	public function render( $filename = null ) {
+		$filename = empty( $filename ) ? $this->default_filename : $filename;
+
+		return $this->get_image( $filename );
 	}
 }

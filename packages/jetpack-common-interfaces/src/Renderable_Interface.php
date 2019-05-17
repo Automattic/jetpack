@@ -14,5 +14,5 @@ interface Renderable_Interface {
 	 *
 	 * @return string
 	 */
-	public static function render();
+	public function render();
 }

@@ -1,16 +1,18 @@
 <?php
 
-//use Jetpack\Assets\Logo;
+use Jetpack\Assets\Logo;
 
 class Jetpack_Connection_Banner {
 	/**
 	 * @var Jetpack_Connection_Banner
 	 **/
 	private static $instance = null;
+    private $logo = null;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Connection_Banner();
+
 		}
 
 		return self::$instance;
@@ -81,6 +83,8 @@ class Jetpack_Connection_Banner {
 		if ( ! current_user_can( 'jetpack_connect' ) ) {
 			return;
 		}
+
+		$this->logo = new Logo();
 
 		add_action( 'admin_notices', array( $this, 'render_banner' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
@@ -157,7 +161,8 @@ class Jetpack_Connection_Banner {
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
 	 * @since 4.4.0
 	 */
-	function render_banner() { ?>
+	function render_banner() {
+	    ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<?php $this->get_ab_banner_top_bar(); ?>
 			<div class="jp-wpcom-connect__inner-container">
@@ -172,7 +177,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<?php echo Jetpack\Assets\Logo::render(); ?>
+							<?php echo $this->logo->render(); ?>
 							<img
 								src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>"
 								class="jp-wpcom-connect__hide-phone-and-smaller"
@@ -241,7 +246,7 @@ class Jetpack_Connection_Banner {
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<?php echo Jetpack\Assets\Logo::render(); ?>
+					<?php  echo self::init()->logo->render(); ?>
 
 					<div class="jp-connect-full__dismiss">
 						<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
