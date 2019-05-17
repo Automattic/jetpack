@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
 * Shortcodes: update embed type detection for Medium Collections.
+* Sync: add new WP Cli commands to help in monitoring and updating sync settings.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
 
 --------
