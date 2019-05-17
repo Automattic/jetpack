@@ -13,6 +13,7 @@
  */
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.1' );
+define( 'JETPACK__MINIMUM_PHP_VERSION', '5.3' );
 
 define( 'JETPACK__VERSION',            '7.4-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
@@ -90,6 +91,45 @@ function jetpack_admin_unsupported_wp_notice() { ?>
 
 if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
+	return;
+}
+
+/**
+ * Outputs an admin notice for folks running an outdated version of PHP.
+ * @todo: Remove once WP 5.2 is the minimum version.
+ *
+ * @since 7.4.0
+ */
+function jetpack_admin_unsupported_php_notice() { ?>
+	<div class="notice notice-error is-dismissible">
+		<p><?php esc_html_e( 'Jetpack requires a more recent version of PHP and has been paused. Please update PHP to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+		<p class="button-container">
+		<?php
+		printf(
+			'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+			esc_url( wp_get_update_php_url() ),
+			__( 'Learn more about updating PHP' ),
+			/* translators: accessibility text */
+			__( '(opens in a new tab)' )
+		);
+		?>
+	</p>
+	</div>
+	<?php
+}
+
+if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log(
+			sprintf(
+				/* translators: Placeholders are numbers, versions of PHP in use on the site, and required by Jetpack. */
+				esc_html__( 'Your version of PHP (%1$s) is lower than the version required by Jetpack (%2$s). Please update PHP to continue enjoying Jetpack.', 'jetpack' ),
+				esc_html( phpversion() ),
+				JETPACK__MINIMUM_PHP_VERSION
+			)
+		);
+	}
+	add_action( 'admin_notices', 'jetpack_admin_unsupported_php_notice' );
 	return;
 }
 
