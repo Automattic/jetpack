@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form Block: improve styles for better display on mobile devices.
 * Slideshow Block: depending on viewport, display prev/next arrows.
 * Slideshow Block: remove outline when focussing on the block.
+* Sync: offer posts, comments, and comment meta checksums when providing sync status.
 
 **Improved compatibility**
 
