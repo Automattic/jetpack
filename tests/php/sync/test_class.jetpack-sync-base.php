@@ -48,16 +48,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// make sure there are always (fake) WP updates available
 		remove_all_filters( 'jetpack_sync_update_core_value' );
-		add_filter( 'jetpack_sync_update_core_value', function( $value ) {
-			// insert fake updates
-			$value->updates[] = (object) [
-				"response" => "something",
-				"packages" => (object) [
-					"full" => "http://wordpress.com/foo.zip"
-				]
-			];
-			return $value;
-		}, 10, 1 );
+		add_filter( 'jetpack_sync_update_core_value', array( $this, 'addFakeCoreUpdate' ), 10, 1 );
 
 		// bind the two storage systems to the server events
 		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
@@ -128,6 +119,17 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	function pre_http_request_success() {
 		return array( 'body' => json_encode( array( 'success' => true ) ) );
+	}
+
+	function addFakeCoreUpdate( $value ) {
+		// insert fake updates
+		$value->updates[] = (object) [
+			"response" => "something",
+			"packages" => (object) [
+				"full" => "http://wordpress.com/foo.zip"
+			]
+		];
+		return $value;
 	}
 }
 
