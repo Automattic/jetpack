@@ -185,6 +185,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 				break;
 
 		}
+
 		if ( empty( $updates ) && empty( $no_updated ) ) {
 			return false;
 		}
@@ -192,6 +193,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function validate_update_change( $value, $expiration, $transient ) {
+		$value = apply_filters( "jetpack_filter_${transient}_value", $value, $expiration );
 		$new_checksum = $this->get_update_checksum( $value, $transient );
 
 		if ( false === $new_checksum ) {

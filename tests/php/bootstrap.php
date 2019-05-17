@@ -16,6 +16,10 @@
  */
 define( 'TESTING_IN_JETPACK', true );
 
+// ensure we load plugins from the correct place
+define( 'WP_PLUGIN_DIR', dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) );
+define( 'ABSPATH', dirname( dirname( WP_PLUGIN_DIR ) ) . '/' );
+
 // Support for:
 // 1. `WP_DEVELOP_DIR` environment variable
 // 2. Plugin installed inside of WordPress.org developer checkout
@@ -117,4 +121,4 @@ function in_running_uninstall_group() {
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
-require $test_root . '/includes/listener-loader.php';
+require $test_root . '/includes/speed-trap-listener.php';

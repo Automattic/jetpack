@@ -267,6 +267,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_add_whitelisted_option_on_init_89() {
+		if ( did_action( 'init' ) ) {
+			$this->markTestIncomplete( "Right now this doesn't work on WordPress 5.2+" );
+		}
 		add_action( 'init', array( $this, 'add_option_on_89' ), 89 );
 		do_action( 'init' );
 
