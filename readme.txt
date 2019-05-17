@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
+* Related Posts: do not add markup to attachment pages by default.
 * Sharing: make sure the Whatsapp button works well in all browsers, including Firefox on desktop.
 * Shortcodes: update embed type detection for Medium Collections.
 * Social Icons SVG: switch to the presentation role for better accessibility.
