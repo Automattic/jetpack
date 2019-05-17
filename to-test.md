@@ -1,17 +1,16 @@
-## 7.3
+## 7.4
 
-- Setup new sites and connections. The default set of features have changed. Does the text during the setup flow match what is being activated?
-- New membership block! Add a membership block, connect it to your Stripe account, add some amounts, etc. Bonus if you make a small donation to yourself. Requires JETPACK_BETA_BLOCKS constant set to true.
-- Check out the new about Automattic page at Jetpack->About Jetpack in wp-admin.
-- Visit WordPress.com and edit your site's posts using the Block Editor. Try interacting with adding media, opting in and out of the block editor, try the help buttons.
-- In the Block Editor, we've added new Likes and Sharing controls in the setting panel. Enable Likes, did it work? Requires Likes or Sharing to be enabled.
-- While still in the Block Editor, add regular core image blocks, select multiple blocks, and transform them into a Tiled Gallery or Slideshow. Transform a Tiled Gallery/Slideshow to core image blocks.
-- Speaking of Tiled Galleries, we've added responsive image support. On the front end, make sure srcset values are set. You should see much faster load times for new tiled galleries.
-- We're not done in the Block Editor, open a post with an old shortcode style Simple Payments button. Transform it to a block and it should retain the existing settings.  
-- With the WordPress 5.2 RC, check out the Tools->Site Health section. Do you see the Jetpack tests (hopefully under the Passed section) and undre the Debug Data?
-- Use the Social Icons and have a Stack Overflow account, add it and make sure the Stack Overflow icon looks good.
-- Have a multisite? Connect and disconnect some subsites from Network Admin. Any oddities?
+### Tiled Galleries
 
+We've made some changes to the editing experience when creating Tiled Galleries in the block editor. To test those changes, try the following:
+
+- Add a Tiled Gallery block, and make sure it is displayed nicely in the editor and on the frontend.
+- Try editing old posts with tiled gallery blocks. When opening the post in the editor, you should see no block invalidation error.
+- Those old posts should look nice on the front end as well.
+- Try creating a Tiled Gallery block with a lot of large images.
+- Reload the editor with a very small viewport (mobile view).
+- All images should load nicely, and faster.
+- Scale up the viewport; depending on the browser and if you look at the Network tab in your browser dev tools, you will likely see more requests fired for larger assets as the viewport width increases.
 
 ### Others
 
