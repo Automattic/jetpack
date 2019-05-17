@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * About Page: remove submenu and add link to page in the footer of Jetpack's dashboard.
 * Contact Form Block: improve styles for better display on mobile devices.
+* Search: add new option for cross-site search permissions.
 * Sharing: update default sharing settings to include buttons.
 * Slideshow Block: depending on viewport, display prev/next arrows.
 * Slideshow Block: remove outline when focussing on the block.
