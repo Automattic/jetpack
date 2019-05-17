@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Shortcodes: update embed type detection for Medium Collections.
 
 --------
 
