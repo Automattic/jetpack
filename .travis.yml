@@ -76,7 +76,7 @@ jobs:
       - nvm install 'lts/*'
       - nvm use 'lts/*'
       - yarn && yarn build
-      - bash tests/setup-e2e-travis.sh jetpack_test root ''
+      - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
       - source ./env-file
       script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e
       addons:
