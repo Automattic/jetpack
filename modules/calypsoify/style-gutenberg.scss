@@ -9,12 +9,6 @@
   display: none;
 }
 
-/* Hides the Manage Reusable Blocks links */
-.editor-inserter__manage-reusable-blocks,
-a.components-menu-item__button[href*="post_type=wp_block"] {
-  display: none;
-}
-
 .edit-post-sidebar__panel-tab {
 	&.is-active {
 		border-color: $color-primary;

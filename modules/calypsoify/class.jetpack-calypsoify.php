@@ -269,6 +269,7 @@ class Jetpack_Calypsoify {
 			'calypsoifyGutenberg',
 			array(
 				'closeUrl'   => $this->get_close_gutenberg_url(),
+				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block' . $this->get_site_suffix(),
 			)
 		);
 	}
@@ -323,6 +324,19 @@ class Jetpack_Calypsoify {
 			'https://wordpress.com',
 		);
 		return in_array( $origin, $whitelist ) ? $origin : 'https://wordpress.com';
+
+		function get_site_suffix() {
+			if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+				$site_suffix = Jetpack::build_raw_urls( home_url() );
+			} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+				$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+			}
+
+			if ( $site_suffix ) {
+				return "/${site_suffix}";
+			}
+			return '';
+		}
 	}
 
 	/**
