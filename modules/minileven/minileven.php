@@ -117,6 +117,10 @@ function jetpack_mobile_template( $theme ) {
 }
 
 function jetpack_mobile_available() {
+	/*
+	 * Create HTML markup with a link to "View Mobile Site".
+	 * The link adds "ak_action=accept_mobile" to the current URL.
+	 */
 	global $wp;
 	$url_params = array(
 		'ak_action' => 'accept_mobile',
