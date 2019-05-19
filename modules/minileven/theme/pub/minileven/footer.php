@@ -41,13 +41,9 @@
 				$url_params[] = $_GET;
 			}
 			$target_url = esc_url(
-				home_url(
-					add_query_arg(
-						$url_params,
+				home_url(add_query_arg($url_params,
 						$wp->request
-					)
-				)
-			);
+					)));
 		?>
 
 		<a href="<?php echo $target_url; ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a><br />
