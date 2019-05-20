@@ -33,6 +33,155 @@ abstract class Abstract_Jetpack_Sync_Queue {
 	function __construct( $id ) {
 		$this->id           = str_replace( '-', '_', $id ); // necessary to ensure we don't have ID collisions in the SQL
 	}
+
+	abstract function add( $item );
+	abstract function add_all( $items );
+	abstract function lag( $now = null );
+	abstract function reset();
+	abstract function size();
+	abstract function has_any_items();
+	abstract function checkout( $buffer_size );
+
+	// this checks out rows until it either empties the queue or hits a certain memory limit
+	// it loads the sizes from the DB first so that it doesn't accidentally
+	// load more data into memory than it needs to.
+	// The only way it will load more items than $max_size is if a single queue item
+	// exceeds the memory limit, but in that case it will send that item by itself.
+	abstract function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 );
+	abstract function checkin( $buffer );
+	abstract function close( $buffer, $ids_to_remove = null );
+	
+	function flush_all() {
+		$items = Jetpack_Sync_Utils::get_item_values( $this->fetch_items() );
+		$this->reset();
+
+		return $items;
+	}
+
+	function get_all() {
+		return $this->fetch_items();
+	}
+
+	function peek( $count = 1 ) {
+		$items = $this->fetch_items( $count );
+		if ( $items ) {
+			return Jetpack_Sync_Utils::get_item_values( $items );
+		}
+
+		return array();
+	}
+
+	abstract protected function fetch_items( $limit = null );
+
+	// use with caution, this could allow multiple processes to delete
+	// and send from the queue at the same time
+	abstract function force_checkin();
+
+	// used to lock checkouts from the queue.
+	// tries to wait up to $timeout seconds for the queue to be empty
+	abstract function lock( $timeout = 30 );
+	abstract function unlock();
+}
+
+/**
+ * An in-memory version of the sync queue. Transiently buffers and attempts to send entire queue
+ * at end of request. If there's an error sending, copies all items to the regular sync queue.
+ */
+class Jetpack_Memory_Sync_Queue extends Abstract_Jetpack_Sync_Queue {
+	private $items;
+	private $row_iterator;
+
+	function __construct( $id ) {
+		parent::__construct( $id );
+		$this->reset();
+		$this->row_iterator = 0;
+		// $this->random_int   = mt_rand( 1, 1000000 );
+	}
+
+	function add( $item ) {
+		$this->items[] = (object) array(
+			'id' => $this->row_iterator,
+			'value' => $item
+		);
+		$this->row_iterator += 1;
+	}
+
+	function add_all( $items ) {
+		foreach ( $items as $item ) {
+			$this->add( $item );
+		}
+	}
+
+	function lag( $now = NULL ) {
+		return 0;
+	}
+
+	function reset() {
+		$this->items = array();
+	}
+
+	function size() {
+		return count( $this->items );
+	}
+
+	function has_any_items() {
+		return $this->size() > 0;
+	}
+
+	function checkout( $buffer_size ) {
+		// best behaviour here? Always return all items?
+		if ( ! $this->has_any_items() ) {
+			return false;
+		}
+
+		$buffer_id = 1; // since it's always in memory, no need to avoid conflicts
+
+		$buffer = new Jetpack_Sync_Queue_Buffer( $buffer_id, $this->fetch_items( $buffer_size ) );
+
+		return $buffer;
+	}
+
+	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
+		// just give it everything
+		return new Jetpack_Sync_Queue_Buffer( 1, $this->fetch_items() );
+	}
+	
+	function checkin( $buffer ) {
+		// do nothing
+	}
+
+	function close( $buffer, $ids_to_remove = null ) {
+		// by default clear all items in the buffer
+		if ( is_null( $ids_to_remove ) ) {
+			$ids_to_remove = $buffer->get_item_ids();
+		}
+
+		global $wpdb;
+
+		$this->items = array_filter( $this->items, function ( $item ) use ( &$ids_to_remove ) { 
+			return ! in_array( $item->id, $ids_to_remove );
+		} );
+	}
+
+	// use with caution, this could allow multiple processes to delete
+	// and send from the queue at the same time
+	function force_checkin() {
+		// noop
+	}
+
+	// used to lock checkouts from the queue.
+	// tries to wait up to $timeout seconds for the queue to be empty
+	function lock( $timeout = 30 ) {
+		// noop
+	}
+	
+	function unlock() {
+		// noop
+	}
+
+	function fetch_items( $limit = null ) {
+		return array_slice( $this->items, 0, $limit );
+	}
 }
 
 /**
@@ -297,17 +446,6 @@ class Jetpack_Sync_Queue extends Abstract_Jetpack_Sync_Queue {
 		return true;
 	}
 
-	function flush_all() {
-		$items = Jetpack_Sync_Utils::get_item_values( $this->fetch_items() );
-		$this->reset();
-
-		return $items;
-	}
-
-	function get_all() {
-		return $this->fetch_items();
-	}
-
 	// use with caution, this could allow multiple processes to delete
 	// and send from the queue at the same time
 	function force_checkin() {
@@ -431,7 +569,7 @@ class Jetpack_Sync_Queue extends Abstract_Jetpack_Sync_Queue {
 		return 'jpsq_' . $this->id . '-' . $timestamp . '-' . $this->random_int . '-' . $this->row_iterator;
 	}
 
-	private function fetch_items( $limit = null ) {
+	protected function fetch_items( $limit = null ) {
 		global $wpdb;
 
 		if ( $limit ) {

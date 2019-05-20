@@ -4,25 +4,15 @@ $sync_dir = dirname( __FILE__ ) . '/../../../sync/';
 
 require_once $sync_dir . 'class.jetpack-sync-queue.php';
 
-class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
-
-	private $queue;
-
+class WP_Test_Jetpack_Sync_Queue_Memory extends WP_Test_Jetpack_Sync_Queue {
 	public function setUp() {
 		parent::setUp();
 
-		$this->queue = new Jetpack_Sync_Queue( 'my_queue' );
+		$this->queue = new Jetpack_Memory_Sync_Queue( 'my_queue' );
 	}
+}
 
-	function test_add_queue_items() {
-		$this->assertEquals( 0, $this->queue->size() );
-
-		$this->queue->add( 'foo' );
-
-		$this->assertEquals( 1, $this->queue->size() );
-		$this->assertEquals( array( 'foo' ), $this->queue->flush_all() );
-		$this->assertEquals( 0, $this->queue->size() );
-	}
+class WP_Test_Jetpack_Sync_Queue_DB extends WP_Test_Jetpack_Sync_Queue {
 
 	function test_add_queue_item_is_not_set_to_autoload() {
 		global $wpdb;
@@ -32,23 +22,6 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$queue = $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
 
 		$this->assertEquals( 'no', $queue->autoload );
-	}
-
-	function test_peek_items() {
-		$this->queue->add( 'foo' );
-		$this->queue->add( 'bar' );
-		$this->queue->add( 'baz' );
-
-		$this->assertEquals( array( 'foo' ), $this->queue->peek( 1 ) );
-		$this->assertEquals( array( 'foo', 'bar' ), $this->queue->peek( 2 ) );
-	}
-
-	function test_items_exist() {
-		$this->assertFalse( $this->queue->has_any_items() );
-
-		$this->queue->add( 'foo' );
-
-		$this->assertTrue( $this->queue->has_any_items() );
 	}
 
 	function test_queue_lag() {
@@ -73,27 +46,28 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( 6, intval( $queue->lag( 7.5 ) ) );
 	}
 
-	function test_checkout_queue_items() {
+	function test_checkin_non_checked_out_buffer_raises_error() {
+		$buffer   = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
+		$response = $this->queue->checkin( $buffer );
+
+		$this->assertEquals( 'buffer_not_checked_out', $response->get_error_code() );
+	}
+
+	function test_checkin_wrong_buffer_raises_error() {
+		$this->queue->add_all( array( 1, 2, 3, 4 ) );
+		$buffer       = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
+		$other_buffer = $this->queue->checkout( 5 );
+
+		$response = $this->queue->checkin( $buffer );
+
+		$this->assertEquals( 'buffer_mismatch', $response->get_error_code() );
+	}
+
+	function test_queue_is_persisted() {
+		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
+
 		$this->queue->add( 'foo' );
-
-		$buffer = $this->queue->checkout( 5 );
-
-		$this->assertFalse( is_wp_error( $buffer ) );
-
-		$this->assertEquals( array( 'foo' ), $buffer->get_item_values() );
-
-		$second_buffer = $this->queue->checkout( 5 );
-
-		$this->assertTrue( is_wp_error( $second_buffer ) );
-		$this->assertEquals( 'unclosed_buffer', $second_buffer->get_error_code() );
-
-		// checkin returns the buffer to the queue - you would call this if you
-		// had an error, e.g. an error POST-ing to WPCOM
-		$this->queue->checkin( $buffer );
-
-		$buffer = $this->queue->checkout( 5 );
-
-		$this->assertEquals( array( 'foo' ), $buffer->get_item_values() );
+		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_item_values() );
 	}
 
 	function test_checkout_with_memory_limit_works() {
@@ -164,6 +138,69 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$this->assertEquals( $large_string, $buffer_items[0] );
 	}
+}
+
+class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
+
+	protected $queue;
+
+	public function setUp() {
+		parent::setUp();
+
+		$this->queue = new Jetpack_Sync_Queue( 'my_queue' );
+	}
+
+	function test_add_queue_items() {
+		$this->assertEquals( 0, $this->queue->size() );
+
+		$this->queue->add( 'foo' );
+
+		$this->assertEquals( 1, $this->queue->size() );
+		$this->assertEquals( array( 'foo' ), $this->queue->flush_all() );
+		$this->assertEquals( 0, $this->queue->size() );
+	}
+
+	
+
+	function test_peek_items() {
+		$this->queue->add( 'foo' );
+		$this->queue->add( 'bar' );
+		$this->queue->add( 'baz' );
+
+		$this->assertEquals( array( 'foo' ), $this->queue->peek( 1 ) );
+		$this->assertEquals( array( 'foo', 'bar' ), $this->queue->peek( 2 ) );
+	}
+
+	function test_items_exist() {
+		$this->assertFalse( $this->queue->has_any_items() );
+
+		$this->queue->add( 'foo' );
+
+		$this->assertTrue( $this->queue->has_any_items() );
+	}
+
+	function test_checkout_queue_items() {
+		$this->queue->add( 'foo' );
+
+		$buffer = $this->queue->checkout( 5 );
+
+		$this->assertFalse( is_wp_error( $buffer ) );
+
+		$this->assertEquals( array( 'foo' ), $buffer->get_item_values() );
+
+		$second_buffer = $this->queue->checkout( 5 );
+
+		$this->assertTrue( is_wp_error( $second_buffer ) );
+		$this->assertEquals( 'unclosed_buffer', $second_buffer->get_error_code() );
+
+		// checkin returns the buffer to the queue - you would call this if you
+		// had an error, e.g. an error POST-ing to WPCOM
+		$this->queue->checkin( $buffer );
+
+		$buffer = $this->queue->checkout( 5 );
+
+		$this->assertEquals( array( 'foo' ), $buffer->get_item_values() );
+	}
 
 	function test_checkout_enforced_across_multiple_instances() {
 		$other_queue = new Jetpack_Sync_Queue( $this->queue->id, 2 );
@@ -178,23 +215,6 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$this->assertTrue( is_wp_error( $other_buffer ) );
 		$this->assertEquals( 'unclosed_buffer', $other_buffer->get_error_code() );
-	}
-
-	function test_checkin_non_checked_out_buffer_raises_error() {
-		$buffer   = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
-		$response = $this->queue->checkin( $buffer );
-
-		$this->assertEquals( 'buffer_not_checked_out', $response->get_error_code() );
-	}
-
-	function test_checkin_wrong_buffer_raises_error() {
-		$this->queue->add_all( array( 1, 2, 3, 4 ) );
-		$buffer       = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
-		$other_buffer = $this->queue->checkout( 5 );
-
-		$response = $this->queue->checkin( $buffer );
-
-		$this->assertEquals( 'buffer_mismatch', $response->get_error_code() );
 	}
 
 	function test_checkout_fetches_queue_of_set_size() {
@@ -257,13 +277,6 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$buffer = $this->queue->checkout( 2 );
 		$this->assertEquals( false, $buffer );
-	}
-
-	function test_queue_is_persisted() {
-		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
-
-		$this->queue->add( 'foo' );
-		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_item_values() );
 	}
 
 	function test_benchmark() {
