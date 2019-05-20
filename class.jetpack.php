@@ -3029,7 +3029,7 @@ class Jetpack {
 
 		$jetpack = Jetpack::init();
 
-		$active = Jetpack_Options::get_option( 'active_modules', array() );
+		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
 		return self::update_active_modules( $new );
