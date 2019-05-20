@@ -39,10 +39,10 @@ matrix:
     language: node_js
     env: WP_TRAVISCI="yarn build"
   - if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
-    php: "7.3"
+    name: "E2E Tests"
+    language: node_js
     before_script:
-    - nvm install 'lts/*'
-    - nvm use 'lts/*'
+    - nvm install
     - yarn && yarn build
     - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
     - source ./env-file
