@@ -43,10 +43,11 @@ matrix:
   - name: "E2E Tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
     php: "7.3"
+    env: WP_MODE=single WP_BRANCH=latest
     before_script:
     - nvm install
     - yarn && yarn build
-    - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
+    - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root '' localhost $WP_BRANCH
     - source ./env-file
     script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e
     addons:
