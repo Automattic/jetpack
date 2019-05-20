@@ -302,7 +302,16 @@ class Jetpack_Private {
 	 * @param string $content Content of At A Glance wp-admin dashboard widget.
 	 */
 	public static function add_private_dashboard_glance_items( $content ) {
-		return $content . '<br><br>' . __( 'This site is currently private', 'jetpack' );
+		return $content .
+			'<br><br>' .
+			wp_kses(
+				sprintf(
+					/* translators: URL for Jetpack dashboard. */
+					__( 'This site is set to private. <a href="%s">Make public</a>.', 'jetpack' ),
+					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+				),
+				array( 'a' => array( 'href' => true ) )
+			);
 	}
 
 	/**
