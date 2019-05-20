@@ -1819,9 +1819,9 @@ class Jetpack {
 
 	/**
 	 * Loads modules from given array, otherwise all the currently active modules.
-	 * @param $custom_modules Array Modules to be loaded.
+	 * @param $modules Array Specific modules to be loaded.
 	 */
-	public static function load_modules( $custom_modules = array() ) {
+	public static function load_modules( $modules = array() ) {
 		if (
 			! self::is_active()
 			&& ! self::is_development_mode()
@@ -1841,9 +1841,13 @@ class Jetpack {
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
-		list( $version ) = explode( ':', $version );
+		list( $version )            = explode( ':', $version );
+		$fetched_all_active_modules = false;
 
-		$modules = ( empty( $custom_modules ) ) ? array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) ) : $custom_modules;
+		if ( empty( $modules ) ) {
+			$modules                    = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
+			$fetched_all_active_modules = true;
+		}
 
 		$modules_data = array();
 
@@ -1900,7 +1904,7 @@ class Jetpack {
 			do_action( 'jetpack_module_loaded_' . $module );
 		}
 
-		if ( empty( $custom_modules ) ) {
+		if ( $fetched_all_active_modules ) {
 			/**
 			* Fires when all the modules are loaded.
 			*
