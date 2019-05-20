@@ -316,7 +316,7 @@ class Sharing_Service {
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => array( 'post', 'page' ),
+			'show'          => ! isset( $options['global'] ) ? array( 'post', 'page' ) : array(),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array(),
 		);
 
