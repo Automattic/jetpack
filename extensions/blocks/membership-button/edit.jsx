@@ -5,7 +5,7 @@
 import classnames from 'classnames';
 import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { trimEnd } from 'lodash';
 import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
 
@@ -156,6 +156,20 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
+	renderAmount = product => {
+		const amount = formatCurrency( parseFloat( product.price ), product.currency );
+		if ( product.interval === '1 month' ) {
+			return sprintf( __( '%s /month', 'jetpack' ), amount );
+		}
+		if ( product.interval === '1 year' ) {
+			return sprintf( __( '%s /year', 'jetpack' ), amount );
+		}
+		if ( product.interval === '1 year' ) {
+			return amount;
+		}
+		return sprintf( __( '%s /%s', 'jetpack' ), amount, product.interval );
+	};
+
 	renderAddMembershipAmount = () => {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING ) {
 			return (
@@ -265,7 +279,7 @@ class MembershipsButtonEdit extends Component {
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
-					{ formatCurrency( parseFloat( product.price ), product.currency ) }
+					{ this.renderAmount( product ) }
 				</Button>
 			) ) }
 		</div>
@@ -289,11 +303,11 @@ class MembershipsButtonEdit extends Component {
 			<InspectorControls>
 				<PanelBody title={ __( 'Product', 'jetpack' ) }>
 					<SelectControl
-						label="Membership plan"
+						label={ __( 'Membership plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
 						onChange={ this.setMembershipAmount }
 						options={ this.state.products.map( product => ( {
-							label: formatCurrency( parseFloat( product.price ), product.currency ),
+							label: this.renderAmount( product ),
 							value: product.id,
 							key: product.id,
 						} ) ) }
