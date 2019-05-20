@@ -38,12 +38,9 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn build"
-
-  allow_failures:
   - php: "7.3"
+    name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
-    env:
-      - WP_MODE=single WP_BRANCH=latest
     before_script:
     - nvm install
     - yarn && yarn build
@@ -54,6 +51,9 @@ matrix:
       apt:
         packages:
           - nginx
+
+  allow_failures:
+    - name: "E2E tests"
 
 cache:
   directories:
