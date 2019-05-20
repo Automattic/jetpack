@@ -80,7 +80,7 @@ class Highlander_Comments_Base {
 		$signing = array();
 		foreach ( $parameters as $k => $v ) {
 			if ( ! is_scalar( $v ) ) {
-				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ) );
+				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
 			$signing[] = "{$k}={$v}";

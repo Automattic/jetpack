@@ -467,7 +467,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack_Options::get_option( 'blog_token' ) );
 		if ( is_wp_error( $check ) ) {
-			wp_die( $check, 400 );
+			wp_die( $check );
 		}
 
 		// Bail if token is expired or not valid
