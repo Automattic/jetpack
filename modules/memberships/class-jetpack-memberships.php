@@ -217,6 +217,7 @@ class Jetpack_Memberships {
 		);
 
 		$classes = array(
+			'wp-block-button__link',
 			'components-button',
 			'is-primary',
 			'is-button',
