@@ -40,9 +40,8 @@ matrix:
     env: WP_TRAVISCI="yarn build"
 
   allow_failures:
-  - name: "E2E Tests"
+  - php: "7.3"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
-    php: "7.3"
     env: WP_MODE=single WP_BRANCH=latest
     before_script:
     - nvm install
