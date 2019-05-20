@@ -30,7 +30,7 @@ function ChecklistProgressCard( { completed, total, siteSlug } ) {
 							</span>
 							<span className="checklist__header-progress-number">{ `${ completed }/${ total }` }</span>
 						</div>
-						<ProgressBar compact canGoBackwards total={ total } value={ completed } />
+						<ProgressBar total={ total } value={ completed } />
 					</div>
 					<div className="checklist__header-secondary">
 						<Button compact primary href={ `https://wordpress.com/plans/my-plan/${ siteSlug }` }>

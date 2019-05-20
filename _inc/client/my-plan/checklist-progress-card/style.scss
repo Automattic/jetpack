@@ -78,10 +78,6 @@
 		}
 	}
 
-	.progress-bar__progress {
-		background-color: $muriel-hot-green-400;
-	}
-
 	.dops-button.is-primary {
 		margin-right: 0;
 		background: $green-primary;
@@ -93,15 +89,34 @@
 	}
 }
 
-	@media (max-width: 600px) {
-		.checklist__header {
+@media ( max-width: 600px ) {
+	.checklist__header {
+		display: block;
+
+		&-secondary {
 			display: block;
-			
-			&-secondary {
-				display: block;
-				text-align: left;
-				padding-top: 15px;
-			}
+			text-align: left;
+			padding-top: 15px;
 		}
 	}
+}
 
+.checklist-header-progress-bar {
+	width: 100%;
+	display: inline-block;
+	position: relative;
+	background-color: $muriel-gray-100;
+	border-radius: 4.5px;
+	height: 4px;
+}
+
+.checklist-header-progress-bar__progress {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	background-color: $muriel-hot-green-400;
+	border-radius: 4.5px;
+	transition: width 200ms;
+}

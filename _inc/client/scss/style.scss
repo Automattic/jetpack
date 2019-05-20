@@ -47,6 +47,7 @@
 @import '../components/apps-card/style';
 @import '../components/jetpack-dialogue/style';
 @import '../components/about-page/style';
+@import '../my-plan/checklist-progress-card/style.scss';
 
 // Page Templates
 @import '../at-a-glance/style';
@@ -54,7 +55,3 @@
 @import '../plans/style';
 @import '../settings/style';
 @import '../traffic/style';
-
-// Component-based imports
-@import '../my-plan/checklist-progress-card/style.scss';
-@import '../my-plan/checklist-progress-card/progress-bar/style.scss';
