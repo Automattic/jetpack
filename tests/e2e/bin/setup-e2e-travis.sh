@@ -32,8 +32,7 @@ install_ngrok() {
 	unzip ngrok.zip
 	./ngrok http -log=stdout 80 > /dev/null &
 	sleep 3
-	NGROK_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
-	WP_SITE_URL=${NGROK_URL}
+	WP_SITE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
 		echo "WP_SITE_URL is not set after launching an ngrok"
@@ -110,9 +109,6 @@ PHP
 }
 
 prepare_jetpack() {
-	cd $WORKING_DIR
-	yarn && yarn build
-
 	cd "$WP_CORE_DIR"
 	# Copying contents of bookings branch manually, since unable to download a private repo zip
 	ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/
@@ -132,6 +128,7 @@ EOT
 install_ngrok
 setup_nginx
 install_wp
+prepare_jetpack
 export_env_variables
 
 echo $WP_SITE_URL

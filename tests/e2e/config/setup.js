@@ -13,6 +13,12 @@ import {
 	/*activatePlugin, clearLocalStorage, */
 	setBrowserViewport,
 } from '@wordpress/e2e-test-utils';
+/**
+ * Internal dependencies
+ */
+import { registerScreenshotReporter } from '../lib/reporters/screenshot';
+
+registerScreenshotReporter();
 
 /**
  * Environment variables
