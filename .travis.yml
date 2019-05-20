@@ -29,10 +29,6 @@ env:
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  # Hard-coding the versions since WP 5.2 has a PHP 5.6 minimum support.
-  # When removing this, remove corresponding setup functions in setup-travis.sh.
-  - php: "5.3"
-    env: WP_MODE=single WP_BRANCH=5.1
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn lint"
