@@ -12,4 +12,7 @@ module.exports = {
 		context: true,
 		jestPuppeteer: true,
 	},
+	rules: {
+		'arrow-parens': [ 'as-needed' ],
+	},
 };
