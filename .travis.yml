@@ -77,7 +77,6 @@ notifications:
      recipients:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
-       - jeremy@automattic.com
        - miguel@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
