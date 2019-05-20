@@ -497,7 +497,7 @@ class Jetpack_Gutenberg {
 			: array();
 		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
 
-		if ( self::block_has_asset( $script_relative_path ) ) {
+		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
