@@ -49,8 +49,8 @@ function jetpack_gif_block_render( $attr ) {
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
-			<?php if ( Jetpack_AMP_Support::is_amp_request() ) : ?>
-				<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo intval( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
+			<?php if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) : ?>
+				<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
 					<div placeholder>
 						<?php echo wp_kses_post( $placeholder ); ?>
 					</div>
