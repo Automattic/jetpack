@@ -12,6 +12,7 @@
 @import 'functions/rem';
 
 // Variables
+@import '../../../node_modules/@automattic/calypso-color-schemes/src/__color-studio/color-variables.scss';
 @import 'variables/colors';
 @import 'variables/layout';
 
@@ -46,6 +47,7 @@
 @import '../components/apps-card/style';
 @import '../components/jetpack-dialogue/style';
 @import '../components/about-page/style';
+@import '../my-plan/checklist-progress-card/style.scss';
 
 // Page Templates
 @import '../at-a-glance/style';
