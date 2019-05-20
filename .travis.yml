@@ -44,7 +44,7 @@ matrix:
     before_script:
     - nvm install
     - yarn && yarn build
-    - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root '' localhost $WP_BRANCH
+    - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
     - source ./env-file
     script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e
     addons:
