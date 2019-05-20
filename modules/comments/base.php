@@ -236,9 +236,9 @@ class Highlander_Comments_Base {
 
 		if ( get_option( 'require_name_email' ) ) {
 			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
-				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ) );
+				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ), 400 );
 			} elseif ( ! is_email( $_POST['email'] ) ) {
-				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ) );
+				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ), 400 );
 			}
 		}
 
