@@ -42,7 +42,7 @@ matrix:
   allow_failures:
   - php: "7.3"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
-    env: WP_MODE=single WP_BRANCH=latest
+    env: WP_TRAVISCI=null
     before_script:
     - nvm install
     - yarn && yarn build
