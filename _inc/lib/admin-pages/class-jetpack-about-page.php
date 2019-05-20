@@ -182,7 +182,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<?php
 							echo esc_html(
 								sprintf(
-									/* translators: first placeholder is the number of Automatticians. The second is the number of countries of origin*/
+									/* translators: first placeholder is the number of Automattic employees. The second is the number of countries of origin. */
 									__( 'We’re a distributed company with over %1$s Automatticians in more than %2$s countries speaking at least 83 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ),
 									$this->a8c_data['a12s'],
 									$this->a8c_data['countries']
