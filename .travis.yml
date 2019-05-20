@@ -38,9 +38,11 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn build"
-  - if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
-    name: "E2E Tests"
-    language: node_js
+
+  allow_failures:
+  - name: "E2E Tests"
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    php: "7.3"
     before_script:
     - nvm install
     - yarn && yarn build
