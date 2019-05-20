@@ -146,6 +146,7 @@ class MembershipsButtonEdit extends Component {
 						},
 					] ),
 				} );
+				this.setMembershipAmount( result.id );
 			},
 			result => {
 				this.setState( { addingMembershipAmount: PRODUCT_FORM } );
