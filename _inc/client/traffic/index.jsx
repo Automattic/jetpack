@@ -67,7 +67,6 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-
 				<Card
 					title={
 						this.props.searchTerm
@@ -78,7 +77,6 @@ export class Traffic extends React.Component {
 					}
 					className="jp-settings-description"
 				/>
-
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
