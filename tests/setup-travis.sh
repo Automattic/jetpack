@@ -30,6 +30,9 @@ latest)
 previous)
 	git clone --depth=1 --branch $(php ./tests/get-wp-version.php --previous) git://develop.git.wordpress.org/ /tmp/wordpress-previous
 	;;
+5.1)
+	git clone --depth=1 --branch 5.1 git://develop.git.wordpress.org/ /tmp/wordpress-5.1
+	;;
 esac
 
 clone_exit_code=$?
