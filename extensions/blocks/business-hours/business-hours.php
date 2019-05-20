@@ -118,8 +118,7 @@ function jetpack_business_hours_render( $attributes ) {
 				continue;
 			}
 			$days_hours .= sprintf(
-				/* Translators: Business opening hours info. */
-				_x( 'From %1$s to %2$s', 'from business opening hour to closing hour', 'jetpack' ),
+				'%1$s - %2$s',
 				date( $time_format, $opening ),
 				date( $time_format, $closing )
 			);
