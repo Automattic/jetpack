@@ -11,7 +11,7 @@
 
 .edit-post-sidebar__panel-tab {
 	&.is-active {
-		border-color: $color-primary;
+		border-color: var( --color-primary-light );
 	}
 }
 
@@ -36,29 +36,29 @@
 	select,
 	textarea {
 		&:focus {
-			border-color: $color-primary;
-			box-shadow: 0 0 0 2px $color-primary-light;
+			border-color: var( --color-primary );
+			box-shadow: 0 0 0 2px var( --color-primary-light );
 		}
 	}
 
 	input[type='checkbox'] {
 		&:checked {
-			background: $color-primary;
-			border-color: $color-primary;
+			background: var( --color-primary );
+			border-color: var( --color-primary );
 		}
 	}
 }
 
 /* CORE UI */
 a {
-	color: $color-link;
+	color: var( --color-link );
 
 	&:active, &:hover {
-		color: $color-link-dark;
+		color: var( --color-link-dark );
 	}
 
 	&:focus {
-		color: $color-link-dark;
+		color: var( --color-link-dark );
 		box-shadow: none;
 		outline: thin dotted;
 	}
@@ -71,7 +71,7 @@ a {
 }
 
 .revision-php {
-  background: $gray-light;
+  background: var( --color-neutral-0 );
 
   #wpadminbar,
   #adminmenumain,
