@@ -1,0 +1,7 @@
+{
+	"WP_ADMIN_USER": {
+		"username": "wordpress",
+		"password": "wordpress"
+	},
+	"WP_BASE_URL": "http://localhost"
+}
