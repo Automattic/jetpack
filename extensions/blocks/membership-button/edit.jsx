@@ -164,7 +164,7 @@ class MembershipsButtonEdit extends Component {
 		if ( product.interval === '1 year' ) {
 			return sprintf( __( '%s / year', 'jetpack' ), amount );
 		}
-		if ( product.interval === '1 year' ) {
+		if ( product.interval === 'one-time' ) {
 			return amount;
 		}
 		return sprintf( __( '%s / %s', 'jetpack' ), amount, product.interval );
