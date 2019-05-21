@@ -41,15 +41,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var array
 	 */
-	private static $tags_allowed_in_the_button = array(
-		'br'     => array(),
-		'em'     => array(),
-		'strong' => array(),
-		'p'      => array(),
-		'img'    => array(
-			'src' => array(),
-		),
-	);
+	private static $tags_allowed_in_the_button = array( 'br' => array() );
 	/**
 	 * Classic singleton pattern
 	 *
