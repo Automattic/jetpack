@@ -155,7 +155,7 @@ class Jetpack_Private {
 				printf(
 					/* translators: URL for Jetpack dashboard. */
 					__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 				),
 				array( 'a' => array( 'href' => true ) )
 			);
