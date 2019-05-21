@@ -86,7 +86,7 @@ class Jetpack_Private {
 		 * Filter the capabilites a user needs to have to see the site
 		 *
 		 * @module private
-		 * @since 7.3
+		 * @since 7.4
 		 *
 		 * @param string $cap The lowest capability a user needs to have
 		 */
