@@ -914,6 +914,14 @@ function jetpack_more_info_copy_post() {
 add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );
 
 /**
+ * Private sites support link.
+ */
+function jetpack_private_more_link() {
+	echo 'https://jetpack.com/support/private';
+}
+add_action( 'jetpack_learn_more_button_private', 'jetpack_private_more_link' );
+
+/**
  * Private sites description.
  */
 function jetpack_private_more_info() {
