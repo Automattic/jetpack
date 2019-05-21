@@ -143,6 +143,7 @@ class MembershipsButtonEdit extends Component {
 							title: result.title,
 							interval: result.interval,
 							price: result.price,
+							currency: result.currency,
 						},
 					] ),
 				} );
