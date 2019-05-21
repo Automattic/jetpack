@@ -98,7 +98,7 @@ function jetpack_priv_notice_privacy_selector() {
 			printf(
 				/* translators: URL to the Jetpack dashboard. */
 				__( 'You can also make your site completely private by allowing only registered users to see it. <a href="%s">Go to Private Site settings</a>.', 'jetpack' ),
-				esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+				esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 			),
 			array( 'a' => array( 'href' => true ) )
 		);
