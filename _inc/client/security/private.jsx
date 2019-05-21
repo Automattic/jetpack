@@ -16,7 +16,6 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 export const Private = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
-			const module_enabled = this.props.getOptionValue( 'private' );
 			return (
 				<SettingsCard
 					{ ...this.props }
