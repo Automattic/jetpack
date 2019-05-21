@@ -10,7 +10,8 @@
 	"require": {
 		"composer/installers": "1.6.0",
 		"ext-openssl": "*",
-		"automattic/jetpack-connection": "^1.0"
+		"automattic/jetpack-connection": "^1.0",
+		"automattic/jetpack-options": "^1.0"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
@@ -23,6 +24,13 @@
 		{
 			"type": "path",
 			"url": "./packages/jetpack-connection",
+			"options": {
+				"symlink": true
+			}
+		},
+		{
+			"type": "path",
+			"url": "./packages/jetpack-options",
 			"options": {
 				"symlink": true
 			}

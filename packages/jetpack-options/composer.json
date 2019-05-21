@@ -2,9 +2,17 @@
 	"name": "automattic/jetpack-options",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"minimum-stability": "stable",
+	"version": "1.0.0",
 	"require": {},
 	"require-dev": {
 		"phpunit/phpunit": "7.*.*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Jetpack\\V7\\Options\\": "lib"
+		}
+	},
+	"scripts": {
+		"test": "phpunit"
 	}
 }

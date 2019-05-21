@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "585b2bd7827f0ca01ddeb68af83dd8af",
+    "content-hash": "dad16e2022535a2011137557dac686f0",
     "packages": [
         {
             "name": "automattic/jetpack-connection",
@@ -12,9 +12,10 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-connection",
-                "reference": "574353b798738c23e2e58d29be82ae80176519d4"
+                "reference": "a6596d642ca2b64f7b9ed53553ddd065d7a2719e"
             },
             "require-dev": {
+                "10up/wp_mock": "0.4.2",
                 "phpunit/phpunit": "7.*.*"
             },
             "type": "library",
@@ -32,6 +33,32 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure"
+        },
+        {
+            "name": "automattic/jetpack-options",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "./packages/jetpack-options",
+                "reference": "562014aeeae63c845491e22cd590f3ffa243bfea"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "7.*.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\V7\\Options\\": "lib"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ]
         },
         {
             "name": "composer/installers",
