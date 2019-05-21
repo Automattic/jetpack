@@ -1832,7 +1832,7 @@ class Jetpack {
 				sprintf(
 					/* translators: URL for Jetpack dashboard. */
 					__( '<span class="jp-at-a-glance__site-public">This site is set to public.</span> <a href="%s">Make private</a>.', 'jetpack' ),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 				),
 				array(
 					'a' => array( 'href' => true ),
