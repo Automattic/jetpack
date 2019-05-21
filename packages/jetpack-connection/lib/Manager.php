@@ -126,7 +126,7 @@ class Manager implements Manager_Interface {
 	 *
 	 * @return Callable a function that returns a secure string to be used as a secret.
 	 */
-	public function get_secret_callable() {
+	protected function get_secret_callable() {
 		if ( ! isset( $this->secret_callable ) ) {
 			/**
 			 * Allows modification of the callable that is used to generate connection secrets.
@@ -144,7 +144,7 @@ class Manager implements Manager_Interface {
 	 *
 	 * @return Object $manager an option manager object.
 	 */
-	public function get_option_manager() {
+	protected function get_option_manager() {
 		if ( ! isset( $this->option_manager ) ) {
 			/**
 			 * Allows modification of the object that is used to manipulate stored data.
