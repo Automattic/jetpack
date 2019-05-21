@@ -30,7 +30,8 @@ export const Private = withModuleSettingsFormHelpers(
 					>
 						<p>
 							{ __(
-								'Private sites can only be seen by you and other users who are members of this site.'
+								'Private sites can only be seen by you ' +
+									'and other users who are members of this site.'
 							) }
 						</p>
 
