@@ -7,7 +7,6 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { FEATURE_PRIVATE_JETPACK } from 'lib/plans/constants';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -17,12 +16,7 @@ export const Private = withModuleSettingsFormHelpers(
 	class extends Component {
 		render() {
 			return (
-				<SettingsCard
-					{ ...this.props }
-					module="private"
-					feature={ FEATURE_PRIVATE_JETPACK }
-					hideButton
-				>
+				<SettingsCard { ...this.props } module="private" hideButton>
 					<SettingsGroup
 						hasChild
 						module={ { module: 'private' } }
