@@ -175,7 +175,6 @@ class MyPlanBody extends React.Component {
 									this.props.siteRawUrl +
 									'?only=vaultpress'
 								}
-								className="is-primary"
 							>
 								{ __( 'View settings' ) }
 							</Button>
@@ -250,7 +249,6 @@ class MyPlanBody extends React.Component {
 											this.props.siteRawUrl +
 											'?only=akismet'
 										}
-										className="is-primary"
 									>
 										{ __( 'View settings' ) }
 									</Button>
@@ -283,7 +281,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateVideoPress }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'videopress' ) }
 											>
 												{ __( 'Activate video hosting' ) }
@@ -348,7 +345,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateAds }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'wordads' ) }
 											>
 												{ __( 'Start earning' ) }
@@ -386,7 +382,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateSearch }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'search' ) }
 											>
 												{ __( 'Activate Jetpack Search' ) }
@@ -423,7 +418,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateSeo }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'seo-tools' ) }
 											>
 												{ __( 'Activate SEO tools' ) }
@@ -462,7 +456,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateGoogleAnalytics }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
 											>
 												{ __( 'Activate Google Analytics' ) }
@@ -529,7 +522,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activatePublicize }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'publicize' ) }
 											>
 												{ __( 'Activate Publicize' ) }
@@ -713,7 +705,6 @@ class MyPlanBody extends React.Component {
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
 									href={ '#/plans' }
-									className="is-primary"
 								>
 									{ __( 'Explore Jetpack plans' ) }
 								</Button>
