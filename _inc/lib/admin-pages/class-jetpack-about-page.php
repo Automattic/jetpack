@@ -182,10 +182,11 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<?php
 							echo esc_html(
 								sprintf(
-									/* translators: first placeholder is the number of Automattic employees. The second is the number of countries of origin. */
-									__( 'We’re a distributed company with over %1$s Automatticians in more than %2$s countries speaking at least 83 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ),
+									/* translators: first placeholder is the number of Automattic employees. The second is the number of countries of origin*/
+									__( 'We’re a distributed company with over %1$s Automatticians in more than %2$s countries speaking at least %3$s different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ),
 									$this->a8c_data['a12s'],
-									$this->a8c_data['countries']
+									$this->a8c_data['countries'],
+									$this->a8c_data['languages']
 								)
 							);
 							?>
@@ -491,7 +492,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					<h3>
 						<a href="<?php echo esc_url( $details_link ); ?>" class="jptracks thickbox open-plugin-details-modal" data-jptracks-name="jetpack_about_plugin_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>">
 						<?php echo esc_html( $title ); ?>
-						<img src="<?php echo esc_attr( $plugin_icon_url ); ?>" class="plugin-icon" alt="">
+						<img src="<?php echo esc_url( $plugin_icon_url ); ?>" class="plugin-icon" alt="<?php esc_attr_e( 'Plugin icon', 'jetpack' ); ?>" aria-hidden="true">
 						</a>
 					</h3>
 				</div>
@@ -561,15 +562,16 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 * @return array $data
 	 */
 	private function fetch_a8c_data() {
-		$data = get_transient( 'a8c_data' );
+		$data = get_transient( 'jetpack_a8c_data' );
 		if ( false === $data ) {
 			$data = json_decode(
 				wp_remote_retrieve_body(
 					wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/jetpack-about' )
-				)
+				),
+				true
 			);
 			if ( ! empty( $data ) && is_array( $data ) ) {
-				set_transient( 'a8c_data', $data, DAY_IN_SECONDS );
+				set_transient( 'jetpack_a8c_data', $data, DAY_IN_SECONDS );
 			} else {
 				// Fallback if everything fails.
 				$data = array(
