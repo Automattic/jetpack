@@ -1819,15 +1819,16 @@ class Jetpack {
 		}
 	}
 
+	/**
+	 * Adds a message to the 'At a Glance' dashboard widget.
+	 *
+	 * @param string $content Content of 'At A Glance' wp-admin dashboard widget.
+	 */
 	public static function add_public_dashboard_glance_items( $content ) {
+		wp_enqueue_style( 'private', plugins_url( 'modules/private/private.css', __FILE__ ), array(), '20190521' );
 		return 
 			$content . 
 			'<br><br>' .
-			'<style>' .
-				'.jp-at-a-glance__site-public {' .
-					'color: #46B450;' .
-				'}' .
-			'</style>' .
 			wp_kses(
 				sprintf(
 					/* translators: URL for Jetpack dashboard. */

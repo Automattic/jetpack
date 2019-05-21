@@ -302,13 +302,9 @@ class Jetpack_Private {
 	 * @param string $content Content of At A Glance wp-admin dashboard widget.
 	 */
 	public static function add_private_dashboard_glance_items( $content ) {
+		wp_enqueue_style( 'private', plugins_url( 'private.css', __FILE__ ), array(), '20190521' );
 		return $content .
 			'<br><br>' .
-			'<style>' .
-				'.jp-at-a-glance__site-private {' .
-					'color: #DC3232;' .
-				'}' .
-			'</style>' .
 			wp_kses(
 				sprintf(
 					/* translators: URL for Jetpack dashboard. */
