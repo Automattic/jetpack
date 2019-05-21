@@ -102,7 +102,7 @@ class Jetpack_Private {
 	}
 
 	/**
-	 * Replaces the the blog's "name" value with "Protected Blog"
+	 * Replaces the the blog's "name" value with "Private Site"
 	 *
 	 * @see privatize_blog_maybe_mask_blog_name()
 	 * @param mixed $value The requested non-URL site information.
