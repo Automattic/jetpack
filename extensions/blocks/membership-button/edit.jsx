@@ -159,15 +159,15 @@ class MembershipsButtonEdit extends Component {
 	renderAmount = product => {
 		const amount = formatCurrency( parseFloat( product.price ), product.currency );
 		if ( product.interval === '1 month' ) {
-			return sprintf( __( '%s /month', 'jetpack' ), amount );
+			return sprintf( __( '%s / month', 'jetpack' ), amount );
 		}
 		if ( product.interval === '1 year' ) {
-			return sprintf( __( '%s /year', 'jetpack' ), amount );
+			return sprintf( __( '%s / year', 'jetpack' ), amount );
 		}
 		if ( product.interval === '1 year' ) {
 			return amount;
 		}
-		return sprintf( __( '%s /%s', 'jetpack' ), amount, product.interval );
+		return sprintf( __( '%s / %s', 'jetpack' ), amount, product.interval );
 	};
 
 	renderAddMembershipAmount = () => {
