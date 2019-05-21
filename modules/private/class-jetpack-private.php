@@ -304,13 +304,22 @@ class Jetpack_Private {
 	public static function add_private_dashboard_glance_items( $content ) {
 		return $content .
 			'<br><br>' .
+			'<style>' .
+				'.jp-at-a-glance__site-private {' .
+					'color: #DC3232;' .
+				'}' .
+			'</style>' .
 			wp_kses(
 				sprintf(
 					/* translators: URL for Jetpack dashboard. */
-					__( 'This site is set to private. <a href="%s">Make public</a>.', 'jetpack' ),
+					__( '<span class="%1$1s">This site is set to private.</span> <a href="%2$2s">Make public</a>.', 'jetpack' ),
+					esc_attr( 'jp-at-a-glance__site-private' ),
 					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
 				),
-				array( 'a' => array( 'href' => true ) )
+				array(
+					'a'    => array( 'href' => true ),
+					'span' => array( 'class' => true ),
+				)
 			);
 	}
 

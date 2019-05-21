@@ -1823,13 +1823,21 @@ class Jetpack {
 		return 
 			$content . 
 			'<br><br>' .
+			'<style>' .
+				'.jp-at-a-glance__site-public {' .
+					'color: #46B450;' .
+				'}' .
+			'</style>' .
 			wp_kses(
 				sprintf(
 					/* translators: URL for Jetpack dashboard. */
-					__( 'This site is set to public. <a href="%s">Make private</a>.', 'jetpack' ),
+					__( '<span class="jp-at-a-glance__site-public">This site is set to public.</span> <a href="%s">Make private</a>.', 'jetpack' ),
 					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
 				),
-				array( 'a' => array( 'href' => true ) )
+				array(
+					'a' => array( 'href' => true ),
+					'span' => array( 'class' => true ),
+				)
 			);
 	}
 
