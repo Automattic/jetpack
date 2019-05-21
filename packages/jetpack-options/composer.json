@@ -1,0 +1,10 @@
+{
+	"name": "automattic/jetpack-options",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"minimum-stability": "stable",
+	"require": {},
+	"require-dev": {
+		"phpunit/phpunit": "7.*.*"
+	}
+}
