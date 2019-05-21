@@ -27,7 +27,24 @@
 
 <footer id="colophon" role="contentinfo">
 	<div id="site-generator">
-		<a href="<?php echo esc_url( home_url( add_query_arg('ak_action', 'reject_mobile') ) ); ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a><br />
+
+		<?php
+			/*
+			 * Construct "$target_url", which adds "ak_action=reject_mobile"
+			 * to the current URL.
+			 */
+			global $wp;
+			$url_params = array(
+				'ak_action' => 'reject_mobile',
+			);
+			if ( is_array( $_GET ) && ! empty( $_GET ) ) {
+				$url_params[] = $_GET;
+			}
+			$target_url = home_url( add_query_arg( $url_params, $wp->request ) );
+		?>
+
+		<a href="<?php echo esc_url( $target_url ); ?>"><?php _e( 'View Full Site', 'jetpack' ); ?></a>
+		<br />
 
 		<?php
 			/**
