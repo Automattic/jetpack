@@ -146,6 +146,7 @@ class MembershipsButtonEdit extends Component {
 						},
 					] ),
 				} );
+				// After successful adding of product, we want to select it. Presumably that is the product user wants.
 				this.setMembershipAmount( result.id );
 			},
 			result => {
