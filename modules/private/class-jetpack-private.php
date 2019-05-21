@@ -314,7 +314,7 @@ class Jetpack_Private {
 					/* translators: URL for Jetpack dashboard. */
 					__( '<span class="%1$1s">This site is set to private.</span> <a href="%2$2s">Make public</a>.', 'jetpack' ),
 					esc_attr( 'jp-at-a-glance__site-private' ),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) . '#/security?term=private' )
+					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 				),
 				array(
 					'a'    => array( 'href' => true ),
