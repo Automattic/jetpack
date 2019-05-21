@@ -154,7 +154,7 @@ class Jetpack_Private {
 			wp_kses(
 				printf(
 					/* translators: URL for Jetpack dashboard. */
-					__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ),
+					__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 				),
 				array( 'a' => array( 'href' => true ) )
@@ -196,7 +196,6 @@ class Jetpack_Private {
 		$is_admin_post_request = ( 'admin-post.php' === $pagenow );
 
 		// Make sure we are in the right code path, if not bail now.
-
 		if ( ! is_admin() || ( ! $is_ajax_request && ! $is_admin_post_request ) ) {
 			return;
 		}
@@ -288,7 +287,7 @@ class Jetpack_Private {
 				wp_kses(
 					sprintf(
 						/* translators: URL for Jetpack dashboard. */
-						__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ),
+						__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 					),
 					array( 'a' => array( 'href' => true ) )
