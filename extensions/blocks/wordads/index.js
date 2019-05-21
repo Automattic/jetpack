@@ -49,7 +49,7 @@ export const settings = {
 		},
 	},
 
-	category: 'jetpack',
+	category: 'premium',
 
 	keywords: [ __( 'ads', 'jetpack' ), 'WordAds', __( 'Advertisement', 'jetpack' ) ],
 

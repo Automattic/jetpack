@@ -16,4 +16,9 @@ setCategories( [
 		title: 'Jetpack',
 		icon: <JetpackLogo />,
 	},
+	{
+		slug: 'premium',
+		title: 'Premium',
+		icon: <JetpackLogo />,
+	},
 ] );
