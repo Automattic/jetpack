@@ -1,0 +1,14 @@
+{
+    "name": "automattic/vaultpress",
+    "description": "VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.",
+    "homepage": "https://vaultpress.com/",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "support": {
+    	"issues": "https://github.com/Automattic/vaultpress/issues"
+    },
+    "require": {},
+    "require-dev": {
+    	"automattic/jetpack-standards": "master-dev"
+    }
+}
