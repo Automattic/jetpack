@@ -42,7 +42,7 @@ export const Private = withModuleSettingsFormHelpers(
 						<ModuleToggle
 							slug="private"
 							compact
-							activated={ module_enabled }
+							activated={ this.props.getOptionValue( 'private' ) }
 							toggling={ this.props.isSavingAnyOption( 'private' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
