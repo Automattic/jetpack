@@ -1843,7 +1843,8 @@ class Jetpack {
 
 	/**
 	 * Loads modules from given array, otherwise all the currently active modules.
-	 * @param $modules Array Specific modules to be loaded.
+	 *
+	 * @param array $modules Specific modules to be loaded.
 	 */
 	public static function load_modules( $modules = array() ) {
 		if (
