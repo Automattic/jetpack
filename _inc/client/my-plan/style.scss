@@ -124,8 +124,29 @@
 	margin: 0;
 }
 
-.jp-landing__plan-iconcard-current h3 {
-	font-size: 1.5em;
+.jp-landing__plan-iconcard-current {
+	h3 {
+		font-size: 1.5em;
+		width: 100%;
+	}
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: wrap;
+
+		.jp-landing__plan-features-text {
+			margin-right: 3em;
+		}
+	}
+
+}
+
+.jp-landing__plan-features-header-checklist-cta-container {
+	align-self: center;
+
+	.dops-button {
+		margin-right: 0;
+	}
 }
 
 .jp-landing__plan-features-card {
@@ -279,3 +300,5 @@
 		text-align: center;
 	}
 }
+
+@import './my-plan-header/checklist-progress-card/style.scss';

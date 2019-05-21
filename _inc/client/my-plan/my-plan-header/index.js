@@ -10,9 +10,10 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants/urls';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import ChecklistCta from './checklist-cta';
 import ChecklistProgress from './checklist-progress-card';
+import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
+import { imagePath } from 'constants/urls';
 
 class MyPlanHeader extends React.Component {
 	trackLearnMore = () => {
@@ -24,6 +25,7 @@ class MyPlanHeader extends React.Component {
 	};
 
 	render() {
+		const { siteSlug } = this.props;
 		let planCard = '';
 		switch ( getPlanClass( this.props.plan ) ) {
 			case 'is-free-plan':
@@ -43,6 +45,7 @@ class MyPlanHeader extends React.Component {
 							<p className="jp-landing__plan-features-text">
 								{ __( 'Get started with hassle-free design, stats, and performance tools.' ) }
 							</p>
+							<ChecklistCta siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -71,6 +74,7 @@ class MyPlanHeader extends React.Component {
 									{ __( 'Spam filtering and priority support.' ) }
 								</p>
 							) }
+							<ChecklistCta siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -95,6 +99,7 @@ class MyPlanHeader extends React.Component {
 									'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.'
 								) }
 							</p>
+							<ChecklistCta siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -119,6 +124,7 @@ class MyPlanHeader extends React.Component {
 									'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.'
 								) }
 							</p>
+							<ChecklistCta siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -131,6 +137,7 @@ class MyPlanHeader extends React.Component {
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title is-placeholder"> </h3>
 							<p className="jp-landing__plan-features-text is-placeholder"> </p>
+							<ChecklistCta placeholder />
 						</div>
 					</div>
 				);
@@ -146,6 +153,7 @@ class MyPlanHeader extends React.Component {
 }
 export default connect( state => {
 	return {
+		siteSlug: getSiteRawUrl( state ),
 		showBackups: showBackups( state ),
 		plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
 	};
