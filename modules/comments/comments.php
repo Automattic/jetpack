@@ -462,7 +462,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token
-		if ( ! isset( $post_array['sig'] ) ) {
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
 			unset( $_POST['hc_post_as'] );
 
 			return;
@@ -472,13 +472,17 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
 		}
 
-		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack_Options::get_option( 'blog_token' ) );
+		$blog_token = Jetpack_Data::get_access_token( false, $post_array['token_key'] );
+		if ( ! $blog_token ) {
+			wp_die( __( 'Unknown security token.', 'jetpack' ), 400 );
+		}
+		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, $blog_token->secret );
 		if ( is_wp_error( $check ) ) {
 			wp_die( $check );
 		}
 
 		// Bail if token is expired or not valid
-		if ( $check !== $post_array['sig'] ) {
+		if ( ! hash_equals( $check, $post_array['sig'] ) ) {
 			wp_die( __( 'Invalid security token.', 'jetpack' ), 400 );
 		}
 
