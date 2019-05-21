@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Jetpack">
-	<config name="minimum_supported_wp_version" value="5.0" />
-	<config name="testVersion" value="5.2-"/>
+	<config name="minimum_supported_wp_version" value="5.1" />
+	<config name="testVersion" value="5.3-"/>
 
 	<rule ref="PHPCompatibilityWP"/>
 	<rule ref="WordPress-Core" />
