@@ -11,19 +11,13 @@ import Button from 'components/button';
 
 export default function ChecklistCta( { placeholder, siteSlug } ) {
 	return (
-		<div
-			className={ `jp-landing__plan-features-header-checklist-cta-container${
-				placeholder ? ' is-placeholder' : ''
-			}` }
-		>
-			{ ! placeholder && (
-				<Button
-					primary
-					href={ placeholder ? undefined : `https://wordpress.com/plans/my-plan/${ siteSlug }` }
-				>
-					{ __( 'View your setup checklist' ) }
-				</Button>
-			) }
+		<div className="jp-landing__plan-features-header-checklist-cta-container">
+			<Button
+				primary
+				href={ placeholder ? undefined : `https://wordpress.com/plans/my-plan/${ siteSlug }` }
+			>
+				{ __( 'View your setup checklist' ) }
+			</Button>
 		</div>
 	);
 }

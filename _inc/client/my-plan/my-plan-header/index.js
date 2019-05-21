@@ -137,7 +137,6 @@ class MyPlanHeader extends React.Component {
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title is-placeholder"> </h3>
 							<p className="jp-landing__plan-features-text is-placeholder"> </p>
-							<ChecklistCta placeholder />
 						</div>
 					</div>
 				);
