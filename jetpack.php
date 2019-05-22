@@ -156,9 +156,7 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 
 // Load all the packages.
 $jetpack_autoloader = JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
-if ( is_readable( $jetpack_autoloader ) ) {
-	require $jetpack_autoloader;
-} else {
+if ( ( include $jetpack_autoloader ) === false ) { // include returns false if it can not the file. Otherwise, it returns 1 unless the included file returns a different value.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
 			sprintf(
