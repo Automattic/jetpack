@@ -78,23 +78,10 @@
 	}
 }
 
-.jp-landing-plans__header-title {
-	line-height: 1.5;
-
-	@include breakpoint( ">660px" ) {
-		text-align: center;
-	}
-}
-
-.jp-landing-plans__header-title,
 .jp-landing-plans__header-subtitle {
 	color: $white;
 	font-weight: 400;
 	margin: 0;
-}
-
-.jp-landing-plans__header-title {
-	font-size: rem( 20px );
 }
 
 .jp-landing-plans__header-subtitle {
