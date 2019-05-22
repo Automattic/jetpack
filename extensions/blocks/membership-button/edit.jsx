@@ -146,6 +146,8 @@ class MembershipsButtonEdit extends Component {
 						},
 					] ),
 				} );
+				// After successful adding of product, we want to select it. Presumably that is the product user wants.
+				this.setMembershipAmount( result.id );
 			},
 			result => {
 				this.setState( { addingMembershipAmount: PRODUCT_FORM } );
@@ -190,6 +192,7 @@ class MembershipsButtonEdit extends Component {
 						onChange={ this.handlePriceChange }
 						placeholder={ formatCurrency( 0, this.state.editedProductCurrency ) }
 						required
+						min="5.00"
 						step="1"
 						type="number"
 						value={ this.state.editedProductPrice || '' }
