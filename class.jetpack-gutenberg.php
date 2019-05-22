@@ -493,6 +493,7 @@ class Jetpack_Gutenberg {
 		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
 
 		$script_dependencies = file_exists( $script_deps_path )
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			? json_decode( file_get_contents( $script_deps_path ) )
 			: array();
 		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
@@ -555,9 +556,10 @@ class Jetpack_Gutenberg {
 
 		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.deps.json";
 		$editor_deps      = file_exists( $editor_deps_path )
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			? json_decode( file_get_contents( $editor_deps_path ) )
 			: array();
-		$editor_deps[]    = 'wp-polyfill';
+		$editor_deps[] = 'wp-polyfill';
 
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )

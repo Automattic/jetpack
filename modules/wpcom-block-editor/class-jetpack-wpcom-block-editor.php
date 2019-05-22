@@ -137,7 +137,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function add_login_html() {
 		?>
-		<input type="hidden" name="redirect_to" value="<?php echo esc_url( $_REQUEST['redirect_to'] ); ?>" />
+		<input type="hidden" name="redirect_to" value="<?php echo esc_url( $_REQUEST['redirect_to'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>" />
 		<script type="application/javascript">
 			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
 				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
@@ -151,7 +151,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Does the redirect to the block editor.
 	 */
 	public function do_redirect() {
-		wp_redirect( $GLOBALS['redirect_to'] );
+		wp_safe_redirect( $GLOBALS['redirect_to'] );
 		exit;
 	}
 
