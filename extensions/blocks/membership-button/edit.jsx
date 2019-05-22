@@ -302,6 +302,7 @@ class MembershipsButtonEdit extends Component {
 			</InspectorControls>
 		);
 		const blockClasses = classnames( className, [
+			'wp-block-button__link',
 			'components-button',
 			'is-primary',
 			'is-button',

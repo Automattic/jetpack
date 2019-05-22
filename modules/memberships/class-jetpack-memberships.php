@@ -35,6 +35,13 @@ class Jetpack_Memberships {
 	 * @var string
 	 */
 	private static $button_block_name = 'membership-button';
+
+	/**
+	 * These are defaults for wp_kses ran on the membership button.
+	 *
+	 * @var array
+	 */
+	private static $tags_allowed_in_the_button = array( 'br' => array() );
 	/**
 	 * Classic singleton pattern
 	 *
@@ -202,6 +209,7 @@ class Jetpack_Memberships {
 		);
 
 		$classes = array(
+			'wp-block-button__link',
 			'components-button',
 			'is-primary',
 			'is-button',
@@ -243,7 +251,7 @@ class Jetpack_Memberships {
 			esc_attr( get_locale() ),
 			esc_attr( implode( $classes, ' ' ) ),
 			esc_attr( $button_styles ),
-			esc_html( $data['button_label'] )
+			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button )
 		);
 	}
 
