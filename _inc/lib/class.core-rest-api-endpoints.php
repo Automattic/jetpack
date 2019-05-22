@@ -1394,7 +1394,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
-			return new WP_Error( 'site_id_missing' );
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
 		}
 
 		$response = Jetpack_Client::wpcom_json_api_request_as_user( "/sites/$site_id/activity", '2', array(
