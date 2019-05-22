@@ -133,7 +133,7 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 	return;
 }
 
-// Load all our packages.
+// Load all the packages.
 require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
 
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
