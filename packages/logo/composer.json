@@ -3,7 +3,6 @@
 	"description": "A logo for Jetpack",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "1.0.0",
 	"require": {},
 	"autoload": {
 		"psr-4": {
