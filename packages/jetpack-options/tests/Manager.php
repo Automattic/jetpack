@@ -85,6 +85,25 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( $updated );
 	}
 
+	function test_update_private_option_returns_true_when_successfully_updated() {
+		\WP_Mock::expectAction(
+			'pre_update_jetpack_option_private_name',
+			'private_name',
+			true
+		);
+
+		\WP_Mock::userFunction( 'update_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_private_options', array( 'private_name' => true ) ),
+			'return' => true,
+		) );
+
+		$updated = $this->manager->update_option( 'private_name', true );
+
+		// Did Jetpack_Options::update_option() properly return true?
+		$this->assertTrue( $updated );
+	}
+
 	public function tearDown(): void {
 		\WP_Mock::tearDown();
 	}

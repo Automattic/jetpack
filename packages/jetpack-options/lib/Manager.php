@@ -61,6 +61,16 @@ abstract class Manager {
 		return false;
 	}
 
+	private function update_grouped_option( $group, $name, $value ) {
+		$options = get_option( $this->grouped_options[ $group ] );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+		$options[ $name ] = $value;
+
+		return update_option( $this->grouped_options[ $group ], $options );
+	}
+
 	/**
 	 * Deletes the given option.  May be passed multiple option names as an array.
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
@@ -137,7 +147,7 @@ abstract class Manager {
 			}
 		}
 
-		foreach ( array_keys( self::$grouped_options ) as $_group ) {
+		foreach ( array_keys( $this->grouped_options ) as $_group ) {
 			if ( is_null( $group ) || $group === $_group ) {
 				if ( in_array( $name, $this->get_option_names( $_group ) ) ) {
 					return true;
