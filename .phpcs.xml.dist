@@ -15,6 +15,14 @@
 		</properties>
 	</rule>
 
+	<!-- Temporarily disable some sniffs that conflict with PSR-4. -->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>packages/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>packages/*</exclude-pattern>
+	</rule>
+
 	<!-- Check all PHP files in directory tree by default. -->
 	<arg name="extensions" value="php"/>
 	<file>.</file>

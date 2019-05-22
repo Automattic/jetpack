@@ -1,5 +1,7 @@
 <?php
 
+use Jetpack\Assets\Logo;
+
 class Jetpack_Connection_Banner {
 	/**
 	 * @var Jetpack_Connection_Banner
@@ -50,24 +52,6 @@ class Jetpack_Connection_Banner {
 			$url = add_query_arg( 'ab_connect_banner_green_bar', $ab_test, $url );
 		}
 		return add_query_arg( 'auth_approved', 'true', $url );
-	}
-
-	/**
-	 * Return an img HTML tag pointing to the Jetpack logo. Includes alt text.
-	 *
-	 * @since 7.2
-	 *
-	 * @return string
-	 */
-	public static function get_jetpack_logo() {
-		return sprintf(
-			'<img src="%s" class="jetpack-logo" alt="%s" />',
-			esc_url( plugins_url( 'images/jetpack-logo-green.svg', JETPACK__PLUGIN_FILE ) ),
-			esc_attr__(
-				'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
-				'jetpack'
-			)
-		);
 	}
 
 	/**
@@ -188,7 +172,10 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<?php echo self::get_jetpack_logo(); ?>
+							<?php
+							$logo = new Logo();
+							echo $logo->render();
+							?>
 							<img
 								src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>"
 								class="jp-wpcom-connect__hide-phone-and-smaller"
@@ -257,7 +244,10 @@ class Jetpack_Connection_Banner {
 		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<?php echo self::get_jetpack_logo(); ?>
+					<?php
+					$logo = new Logo();
+					echo $logo->render();
+					?>
 
 					<div class="jp-connect-full__dismiss">
 						<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>

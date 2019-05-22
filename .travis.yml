@@ -61,6 +61,7 @@ git:
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - composer install
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh
