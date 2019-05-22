@@ -90,7 +90,7 @@ class MyPlanHeader extends React.Component {
 								alt={ __( 'Jetpack Premium Plan' ) }
 							/>
 						</div>
-						<div className="jp-landing__plan-iconcard-current">
+						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">
 								{ __( 'Welcome to Jetpack Premium' ) }
 							</h3>
