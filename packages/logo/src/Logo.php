@@ -41,10 +41,7 @@ class Logo {
 		return sprintf(
 			'<img src="%s" class="jetpack-logo" alt="%s" />',
 			esc_url( $this->url ),
-			esc_attr__(
-				'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it',
-				'jetpack'
-			)
+			esc_attr( 'Jetpack.' )
 		);
 	}
 }
