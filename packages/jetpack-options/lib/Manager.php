@@ -23,6 +23,45 @@ abstract class Manager {
 	abstract public function get_option_names( $type );
 
 	/**
+	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
+	 *
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
+	 * @param mixed $value Option value
+	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
+	 *
+	 * @return bool Was the option successfully updated?
+	 */
+	public function update_option( $name, $value, $autoload = null ) {
+		/**
+		 * Fires before Jetpack updates a specific option.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param str $name The name of the option being updated.
+		 * @param mixed $value The new value of the option.
+		 */
+		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
+		if ( $this->is_valid( $name, 'non_compact' ) ) {
+			if ( $this->is_network_option( $name ) ) {
+				return update_site_option( "jetpack_$name", $value );
+			}
+
+			return update_option( "jetpack_$name", $value, $autoload );
+
+		}
+
+		foreach ( array_keys( $this->grouped_options ) as $group ) {
+			if ( $this->is_valid( $name, $group ) ) {
+				return $this->update_grouped_option( $group, $name, $value );
+			}
+		}
+
+		trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
+
+		return false;
+	}
+
+	/**
 	 * Deletes the given option.  May be passed multiple option names as an array.
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
 	 *

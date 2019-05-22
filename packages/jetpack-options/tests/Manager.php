@@ -38,6 +38,30 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( $deleted );
 	}
 
+	function test_update_non_compact_option_returns_true_when_successfully_updated() {
+		\WP_Mock::expectAction(
+			'pre_update_jetpack_option_uncompact_option_name',
+			'uncompact_option_name',
+			true
+		);
+
+		\WP_Mock::userFunction( 'update_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_uncompact_option_name', true, NULL ),
+			'return' => true,
+		) );
+		\WP_Mock::userFunction( 'is_multisite', array(
+			'times' => 1,
+			'args' => array(),
+			'return' => false,
+		) );
+
+		$updated = $this->manager->update_option( 'uncompact_option_name', true );
+
+		// Did Jetpack_Options::delete_option() properly return true?
+		$this->assertTrue( $updated );
+	}
+
 	public function tearDown(): void {
 		\WP_Mock::tearDown();
 	}
