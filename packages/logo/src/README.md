@@ -9,7 +9,8 @@ Display the default Jetpack logo:
 ```php
 use Jetpack\Assets\Logo;
 
-echo Logo::render();
+$logo = new Logo();
+echo $logo->render();
 ```
 
 Display a custom Jetpack logo of your choice:
@@ -18,5 +19,6 @@ Display a custom Jetpack logo of your choice:
 use Jetpack\Assets\Logo;
 
 $url = plugins_url( 'images/jetpack-logo.svg', __DIR__ );
-echo Logo::render( $url );
+$logo = new Logo( $url );
+echo $logo->render();
 ```
