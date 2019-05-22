@@ -141,18 +141,13 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	/**
 	 * Get a status of connection for the site. If this is Jetpack, pass the request to wpcom.
 	 *
-	 * @return array|WP_Error
+	 * @return WP_Error|array ['products','connected_account_id','connect_url','should_upgrade_to_access_memberships','upgrade_url']
 	 */
 	public function get_status() {
-		$connected_account_id = Jetpack_Memberships::get_connected_account_id();
-		$connect_url          = '';
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			if ( ! $connected_account_id ) {
-				$connect_url = get_memberships_connected_account_redirect( get_current_user_id(), $blog_id );
-			}
-			$products = get_memberships_plans( $blog_id );
+			return (array) get_memberships_settings_for_site( $blog_id );
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Jetpack_Client::wpcom_json_api_request_as_user(
@@ -168,16 +163,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-			if ( ! $connected_account_id ) {
-				$connect_url = empty( $data['connect_url'] ) ? '' : $data['connect_url'];
+			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
+				return new WP_Error( $data['code'], $data['message'], 401 );
 			}
-			$products = empty( $data['products'] ) ? array() : $data['products'];
+			return $data;
 		}
-		return array(
-			'connected_account_id' => $connected_account_id,
-			'connect_url'          => $connect_url,
-			'products'             => $products,
-		);
 	}
 }
 
