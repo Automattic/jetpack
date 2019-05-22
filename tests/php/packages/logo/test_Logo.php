@@ -19,12 +19,16 @@ class WP_Test_Logo extends WP_UnitTestCase {
 		$logo = new Logo();
 		$output = $logo->render();
 		$url = home_url( '/wp-content/plugins/jetpack/packages/logo/assets/logo.svg' );
+
 		// Contains only a valid img tag.
 		$this->assertRegExp( '/^<img.*\/>$/', $output );
+
 		// Contains the expected src attribute.
 		$this->assertRegExp( '/.+src="' . preg_quote( $url, '/' ) . '".+/', $output );
+
 		// Contains the expected class attribute.
 		$this->assertRegExp( '/.+class="jetpack-logo".+/', $output );
+
 		// Contains an alt attribute.
 		$this->assertRegExp( '/.+alt="[^"]+".+/', $output );
 	}
