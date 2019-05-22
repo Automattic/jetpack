@@ -158,12 +158,15 @@ gulp.task( 'languages:build', function( done ) {
 
 gulp.task( 'php:module-headings', function( callback ) {
 	const process = spawn( 'wp', [ 'eval-file', 'tools/build-module-headings-translations.php' ] );
-
 	process.stderr.on( 'data', function( data ) {
 		log( data.toString() );
 	} );
 	process.stdout.on( 'data', function( data ) {
 		log( data.toString() );
+	} );
+	process.on( 'error', function( error ) {
+		log.error( 'Error building module headings translations. Code: ' + error.code );
+		callback();
 	} );
 	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
