@@ -43,8 +43,6 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 	. '-----END PUBLIC KEY-----' . "\r\n"
 );
 
-require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
-
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
@@ -134,6 +132,9 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_php_notice' );
 	return;
 }
+
+// Load all our packages
+require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
 
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
