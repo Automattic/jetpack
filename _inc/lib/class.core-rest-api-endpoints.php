@@ -1403,7 +1403,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 			),
 		), null, 'wpcom' );
-		error_log( print_r( $response, true ) );
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
