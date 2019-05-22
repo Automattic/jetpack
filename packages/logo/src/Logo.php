@@ -33,11 +33,11 @@ class Logo {
 	}
 
 	/**
-	 * Build and retrieve an <img /> tag with the Jetpack logo.
+	 * Build and render an <img /> tag with the Jetpack logo.
 	 *
-	 * @return string The Jetpack logo.
+	 * @return string The Jetpack logo in an <img /> tag.
 	 */
-	public function get_image() {
+	public function render() {
 		return sprintf(
 			'<img src="%s" class="jetpack-logo" alt="%s" />',
 			esc_url( $this->url ),
@@ -46,19 +46,5 @@ class Logo {
 				'jetpack'
 			)
 		);
-	}
-
-	/**
-	 * Create a new `Logo` instance and render it.
-	 *
-	 * @static
-	 *
-	 * @param string $url Optional custom URL of a Jetpack logo.
-	 * @return string The Jetpack logo.
-	 */
-	public static function render( $url = '' ) {
-		$logo = new self( $url );
-
-		return $logo->get_image();
 	}
 }
