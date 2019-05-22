@@ -109,15 +109,8 @@
 	line-height: 1.25;
 }
 
-.jp-landing-plans__header-description,
-.jp-landing-plans__header-text {
+.jp-landing-plans__header-description {
 	color: lighten($gray, 10%);
-}
-
-.jp-landing-plans__header-text {
-	font-size: rem( 14px );
-	padding: rem( 24px ) 0;
-	margin: 0;
 }
 
 .jp-landing-plans__header-btn-container {
