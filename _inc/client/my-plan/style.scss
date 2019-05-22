@@ -37,47 +37,6 @@
 	}
 }
 
-// clouds are a little hacky, but works for IE11 -jg
-.jp-landing-plans__clouds {
-	position: relative;
-	overflow: hidden;
-	padding-top: rem( 80px );
-
-	img {
-		position: absolute;
-		bottom: -2px;
-		left: -5%;
-		right: -5%;
-		height: auto;
-		width: 110%;
-	}
-
-	@include breakpoint( "<660px" ) {
-		display: none;
-	}
-}
-// end IE11 cloud hack
-
-.jp-landing-plans__header-col-left {
-	flex-basis: 45%;
-
-	@include breakpoint( ">660px" ) {
-		padding-left: rem( 32px );
-	}
-}
-
-.jp-landing-plans__header-col-right {
-	flex-basis: 55%;
-
-	@include breakpoint( ">660px" ) {
-		padding: 0 rem( 32px );
-	}
-
-	@include breakpoint( "<660px" ) {
-		text-align: center;
-	}
-}
-
 .jp-landing__plan-card-current {
 	h3 {
 		font-size: 1.5em;
