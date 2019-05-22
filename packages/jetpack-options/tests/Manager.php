@@ -10,6 +10,19 @@ class ManagerTest extends TestCase {
 		$this->manager = new Manager_Test();
 	}
 
+	function test_get_non_compact_option_returns_value() {
+		\WP_Mock::userFunction( 'get_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_private_options' ),
+			'return' => array( 'private_name' => true ),
+		) );
+
+		$value = $this->manager->get_option( 'private_name' );
+
+		// Did Jetpack_Options::get_option() properly return true?
+		$this->assertTrue( $value );
+	}
+
 	function test_delete_non_compact_option_returns_true_when_successfully_deleted() {
 		\WP_Mock::userFunction( 'get_option', array(
 			'times' => 1,

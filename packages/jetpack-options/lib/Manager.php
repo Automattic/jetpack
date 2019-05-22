@@ -23,6 +23,43 @@ abstract class Manager {
 	abstract public function get_option_names( $type );
 
 	/**
+	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
+	 *
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
+	 * @param mixed $default (optional)
+	 *
+	 * @return mixed
+	 */
+	public function get_option( $name, $default = false ) {
+		if ( $this->is_valid( $name, 'non_compact' ) ) {
+			if ( $this->is_network_option( $name ) ) {
+				return get_site_option( "jetpack_$name", $default );
+			}
+
+			return get_option( "jetpack_$name", $default );
+		}
+
+		foreach ( array_keys( $this->grouped_options ) as $group ) {
+			if ( $this->is_valid( $name, $group ) ) {
+				return $this->get_grouped_option( $group, $name, $default );
+			}
+		}
+
+		trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
+
+		return $default;
+	}
+
+	protected function get_grouped_option( $group, $name, $default ) {
+		$options = get_option( $this->grouped_options[ $group ] );
+		if ( is_array( $options ) && isset( $options[ $name ] ) ) {
+			return $options[ $name ];
+		}
+
+		return $default;
+	}
+
+	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
@@ -61,7 +98,7 @@ abstract class Manager {
 		return false;
 	}
 
-	private function update_grouped_option( $group, $name, $value ) {
+	protected function update_grouped_option( $group, $name, $value ) {
 		$options = get_option( $this->grouped_options[ $group ] );
 		if ( ! is_array( $options ) ) {
 			$options = array();
