@@ -27,6 +27,13 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	protected $dont_show_if_not_active = true;
 
 	/**
+	 * Anonymous info about a12s. The method fetch_a8c_data() stores the response from wpcom here.
+	 *
+	 * @var array
+	 */
+	private $a8c_data = null;
+
+	/**
 	 * Add a submenu item to the Jetpack admin menu.
 	 *
 	 * @return string
@@ -52,6 +59,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		// Place the Jetpack menu item on top and others in the order they appear.
 		add_filter( 'custom_menu_order', '__return_true' );
 		add_filter( 'menu_order', array( $this, 'submenu_order' ) );
+		$this->a8c_data = $this->fetch_a8c_data();
 	}
 
 	/**
@@ -171,7 +179,17 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							</a>
 						</p>
 						<p>
-							<?php esc_html_e( 'We’re a distributed company with over 875 Automatticians in more than 67 countries speaking at least 83 different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ); ?>
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: first placeholder is the number of Automattic employees. The second is the number of countries of origin*/
+									__( 'We’re a distributed company with over %1$s Automatticians in more than %2$s countries speaking at least %3$s different languages. Our common goal is to democratize publishing so that anyone with a story can tell it, regardless of income, gender, politics, language, or where they live in the world.', 'jetpack' ),
+									$this->a8c_data['a12s'],
+									$this->a8c_data['countries'],
+									$this->a8c_data['languages']
+								)
+							);
+							?>
 						</p>
 						<p>
 							<?php esc_html_e( 'We believe in Open Source and the vast majority of our work is available under the GPL.', 'jetpack' ); ?>
@@ -253,12 +271,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		);
 
 		// slugs for plugins we want to display.
-		$a8c_plugins = array(
-			'woocommerce',
-			'wp-super-cache',
-			'wp-job-manager',
-			'co-authors-plus',
-		);
+		$a8c_plugins = $this->a8c_data['featured_plugins'];
 
 		// need this to access the plugins_api() function.
 		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -433,9 +446,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							/* translators: 1: "Update WordPress" screen URL, 2: "Update PHP" page URL */
 							' ' . wp_kses( __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
 							esc_url( self_admin_url( 'update-core.php' ) ),
-							esc_url( $this->jp_get_update_php_url() )
+							esc_url( wp_get_update_php_url() )
 						);
-						$this->jp_update_php_annotation();
+						wp_update_php_annotation();
 					} elseif ( current_user_can( 'update_core' ) ) {
 						printf(
 							/* translators: %s: "Update WordPress" screen URL */
@@ -446,9 +459,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
 							' ' . wp_kses( __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
-							esc_url( $this->jp_get_update_php_url() )
+							esc_url( wp_get_update_php_url() )
 						);
-						$this->jp_update_php_annotation();
+						wp_update_php_annotation();
 					}
 				} elseif ( ! $compatible_wp ) {
 					esc_html_e( 'This plugin doesn&#8217;t work with your version of WordPress.', 'jetpack' );
@@ -465,9 +478,9 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 						printf(
 							/* translators: %s: "Update PHP" page URL */
 							' ' . wp_kses( __( '<a href="%s">Learn more about updating PHP</a>.', 'jetpack' ), array( 'a' => array( 'href' => true ) ) ),
-							esc_url( $this->jp_get_update_php_url() )
+							esc_url( wp_get_update_php_url() )
 						);
-						$this->jp_update_php_annotation();
+						wp_update_php_annotation();
 					}
 				}
 				echo '</p></div>';
@@ -479,7 +492,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 					<h3>
 						<a href="<?php echo esc_url( $details_link ); ?>" class="jptracks thickbox open-plugin-details-modal" data-jptracks-name="jetpack_about_plugin_modal" data-jptracks-prop="<?php echo esc_attr( $plugin['slug'] ); ?>">
 						<?php echo esc_html( $title ); ?>
-						<img src="<?php echo esc_attr( $plugin_icon_url ); ?>" class="plugin-icon" alt="">
+						<img src="<?php echo esc_url( $plugin_icon_url ); ?>" class="plugin-icon" alt="<?php esc_attr_e( 'Plugin icon', 'jetpack' ); ?>" aria-hidden="true">
 						</a>
 					</h3>
 				</div>
@@ -542,7 +555,43 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Fetch Gravatar hashes for public A12s from wpcom and display them as a list.
+	 * Fetch anonymous data about A12s from wpcom: total count, number of countries, languages spoken.
+	 *
+	 * @since 7.4
+	 *
+	 * @return array $data
+	 */
+	private function fetch_a8c_data() {
+		$data = get_transient( 'jetpack_a8c_data' );
+		if ( false === $data ) {
+			$data = json_decode(
+				wp_remote_retrieve_body(
+					wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/jetpack-about' )
+				),
+				true
+			);
+			if ( ! empty( $data ) && is_array( $data ) ) {
+				set_transient( 'jetpack_a8c_data', $data, DAY_IN_SECONDS );
+			} else {
+				// Fallback if everything fails.
+				$data = array(
+					'a12s'             => 888,
+					'countries'        => 69,
+					'languages'        => 83,
+					'featured_plugins' => array(
+						'woocommerce',
+						'wp-super-cache',
+						'wp-job-manager',
+						'co-authors-plus',
+					),
+				);
+			}
+		}
+		return $data;
+	}
+
+	/**
+	 * Compile and display a list of avatars for A12s that gave their permission.
 	 *
 	 * @since 7.3
 	 */
@@ -579,101 +628,4 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			)
 		);
 	}
-
-	// The following methods jp_get_update_php_url, jp_get_default_update_php_url, and jp_update_php_annotation,
-	// are copies of functions introduced in WP 5.1
-	// At the time of releasing this, we're still supporting WP 5.0, so we needed
-	// to have them here to avoid fatal errors in old installations.
-
-	/**
-	 * Gets the URL to learn more about updating the PHP version the site is running on.
-	 *
-	 * This URL can be overridden by specifying an environment variable `WP_UPDATE_PHP_URL` or by using the
-	 * {@see 'wp_update_php_url'} filter. Providing an empty string is not allowed and will result in the
-	 * default URL being used. Furthermore the page the URL links to should preferably be localized in the
-	 * site language.
-	 *
-	 * @todo: Remove when 5.1 is minimum WP version.
-	 * @since 5.1.0
-	 *
-	 * @return string URL to learn more about updating PHP.
-	 */
-	private function jp_get_update_php_url() {
-		$default_url = $this->jp_get_default_update_php_url();
-
-		$update_url = $default_url;
-		if ( false !== getenv( 'WP_UPDATE_PHP_URL' ) ) {
-			$update_url = getenv( 'WP_UPDATE_PHP_URL' );
-		}
-
-		/**
-		 * Filters the URL to learn more about updating the PHP version the site is running on.
-		 *
-		 * Providing an empty string is not allowed and will result in the default URL being used. Furthermore
-		 * the page the URL links to should preferably be localized in the site language.
-		 *
-		 * @since 5.1.0
-		 *
-		 * @param string $update_url URL to learn more about updating PHP.
-		 */
-		$update_url = apply_filters( 'wp_update_php_url', $update_url );
-
-		if ( empty( $update_url ) ) {
-			$update_url = $default_url;
-		}
-
-		return $update_url;
-	}
-
-	/**
-	 * Gets the default URL to learn more about updating the PHP version the site is running on.
-	 *
-	 * Do not use this function to retrieve this URL. Instead, use {@see wp_get_update_php_url()} when relying on the URL.
-	 * This function does not allow modifying the returned URL, and is only used to compare the actually used URL with the
-	 * default one.
-	 *
-	 * @todo: Remove when 5.1 is minimum WP version.
-	 * @since 5.1.0
-	 * @access private
-	 *
-	 * @return string Default URL to learn more about updating PHP.
-	 */
-	private function jp_get_default_update_php_url() {
-		return _x( 'https://wordpress.org/support/update-php/', 'localized PHP upgrade information page', 'jetpack' );
-	}
-
-	/**
-	 * Prints the default annotation for the web host altering the "Update PHP" page URL.
-	 *
-	 * This function is to be used after {@see wp_get_update_php_url()} to display a consistent
-	 * annotation if the web host has altered the default "Update PHP" page URL.
-	 *
-	 * @todo: Remove when 5.1 is minimum WP version.
-	 * @since 5.1.0
-	 */
-	private function jp_update_php_annotation() {
-		$update_url  = $this->jp_get_update_php_url();
-		$default_url = $this->jp_get_default_update_php_url();
-
-		if ( $update_url === $default_url ) {
-			return;
-		}
-
-		echo '<p class="description">';
-		printf(
-			wp_kses(
-				/* translators: %s: default Update PHP page URL */
-				__( 'This resource is provided by your web host, and is specific to your site. For more information, <a href="%s" target="_blank" rel="noopener noreferrer">see the official WordPress documentation</a>.', 'jetpack' ),
-				array(
-					'a' => array(
-						'href' => true,
-						'rel'  => true,
-					),
-				)
-			),
-			esc_url( $default_url )
-		);
-		echo '</p>';
-	}
-
 }
