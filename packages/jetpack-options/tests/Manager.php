@@ -38,6 +38,29 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( $deleted );
 	}
 
+	function test_delete_private_option_returns_true_when_successfully_deleted() {
+		\WP_Mock::userFunction( 'get_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_options', array() ),
+			'return' => array(),
+		) );
+		\WP_Mock::userFunction( 'get_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_private_options', array() ),
+			'return' => array( 'private_name' => false ),
+		) );
+		\WP_Mock::userFunction( 'update_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_private_options', array() ),
+			'return' => true,
+		) );
+
+		$deleted = $this->manager->delete_option( 'private_name' );
+
+		// Did Jetpack_Options::delete_option() properly return true?
+		$this->assertTrue( $deleted );
+	}
+
 	function test_update_non_compact_option_returns_true_when_successfully_updated() {
 		\WP_Mock::expectAction(
 			'pre_update_jetpack_option_uncompact_option_name',
@@ -85,7 +108,9 @@ class Manager_Test extends Manager {
 			);
 
 		case 'private' :
-			return array();
+			return array(
+				'private_name'
+			);
 
 		case 'network' :
 			return array();
