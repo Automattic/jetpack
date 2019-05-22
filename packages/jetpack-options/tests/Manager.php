@@ -10,7 +10,7 @@ class ManagerTest extends TestCase {
 		$this->manager = new Manager_Test();
 	}
 
-	function test_get_non_compact_option_returns_value() {
+	function test_get_private_option_returns_value() {
 		\WP_Mock::userFunction( 'get_option', array(
 			'times' => 1,
 			'args' => array( 'jetpack_private_options' ),
@@ -18,6 +18,24 @@ class ManagerTest extends TestCase {
 		) );
 
 		$value = $this->manager->get_option( 'private_name' );
+
+		// Did Jetpack_Options::get_option() properly return true?
+		$this->assertTrue( $value );
+	}
+
+	function test_get_non_compact_option_returns_value() {
+		\WP_Mock::userFunction( 'get_option', array(
+			'times' => 1,
+			'args' => array( 'jetpack_uncompact_option_name', false ),
+			'return' => true,
+		) );
+		\WP_Mock::userFunction( 'is_multisite', array(
+			'times' => 1,
+			'args' => array(),
+			'return' => false,
+		) );
+
+		$value = $this->manager->get_option( 'uncompact_option_name' );
 
 		// Did Jetpack_Options::get_option() properly return true?
 		$this->assertTrue( $value );
