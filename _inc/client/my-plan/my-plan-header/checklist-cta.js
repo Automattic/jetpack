@@ -9,13 +9,10 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 
-export default function ChecklistCta( { placeholder, siteSlug } ) {
+export default function ChecklistCta( { siteSlug } ) {
 	return (
 		<div className="jp-landing__plan-features-header-checklist-cta-container">
-			<Button
-				primary
-				href={ placeholder ? undefined : `https://wordpress.com/plans/my-plan/${ siteSlug }` }
-			>
+			<Button primary href={ `https://wordpress.com/plans/my-plan/${ siteSlug }` }>
 				{ __( 'View your setup checklist' ) }
 			</Button>
 		</div>
