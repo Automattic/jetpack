@@ -35,9 +35,9 @@ class MyPlanHeader extends React.Component {
 		);
 
 	render() {
-		const { siteSlug } = this.props;
+		const { plan, siteSlug } = this.props;
 		let planCard = '';
-		switch ( getPlanClass( this.props.plan ) ) {
+		switch ( getPlanClass( plan ) ) {
 			case 'is-free-plan':
 				planCard = (
 					<div className="jp-landing__plan-card">
@@ -155,7 +155,7 @@ class MyPlanHeader extends React.Component {
 		return (
 			<>
 				<div>{ planCard }</div>
-				<ChecklistProgress />
+				<ChecklistProgress plan={ plan } />
 			</>
 		);
 	}
