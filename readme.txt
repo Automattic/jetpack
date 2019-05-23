@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Business Hours Block: Simplify hours format.
 * Comment Form: use HTTP 4xx status codes for comment errors.
 * Contact Form Block: improve styles for better display on mobile devices.
+* General: introduce a new Jetpack Logo package, to make it easier to share and re-use.
 * Memberships Block: automatically add button to the post content once you create it.
 * Memberships Block: improve the display of the renewal frequency in button list.
 * Memberships Block: require a paid plan to use the button.
