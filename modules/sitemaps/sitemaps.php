@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Generate sitemap files in base XML as well as some namespace extensions.
  *
@@ -170,7 +170,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		}
 
-		echo $the_content;
+		echo $the_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All content created by Jetpack.
 
 		die();
 	}
@@ -230,9 +230,9 @@ class Jetpack_Sitemap_Manager {
 					JP_MASTER_SITEMAP_TYPE
 				);
 
-				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404
+				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404.
 				if ( empty( $sitemap_content ) ) {
-					$builder = new Jetpack_Sitemap_Builder();
+					$builder         = new Jetpack_Sitemap_Builder();
 					$sitemap_content = $builder->empty_sitemap_xml();
 				}
 
@@ -437,10 +437,21 @@ class Jetpack_Sitemap_Manager {
 		 *
 		 * @module sitemaps
 		 * @since 3.9.0
+		 * @deprecated 7.4.0
 		 *
 		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
 		 */
-		$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
+		$discover_sitemap = apply_filters_deprecated( 'jetpack_sitemap_generate', true, 'jetpack-7.4.0', 'jetpack_sitemap_include_in_robotstxt' );
+
+		/**
+		 * Filter whether to make the default sitemap discoverable to robots or not. Default true.
+		 *
+		 * @module sitemaps
+		 * @since 7.4.0
+		 *
+		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
+		 */
+		$discover_sitemap = apply_filters( 'jetpack_sitemap_include_in_robotstxt', $discover_sitemap );
 
 		if ( true === $discover_sitemap ) {
 			$sitemap_url = $this->finder->construct_sitemap_url( 'sitemap.xml' );
@@ -452,10 +463,21 @@ class Jetpack_Sitemap_Manager {
 		 *
 		 * @module sitemaps
 		 * @since 3.9.0
+		 * @deprecated 7.4.0
 		 *
 		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
 		 */
-		$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_generate', true );
+		$discover_news_sitemap = apply_filters_deprecated( 'jetpack_news_sitemap_generate', true, 'jetpack-7.4.0', 'jetpack_news_sitemap_include_in_robotstxt' );
+
+		/**
+		 * Filter whether to make the news sitemap discoverable to robots or not. Default true.
+		 *
+		 * @module sitemaps
+		 * @since 7.4.0
+		 *
+		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
+		 */
+		$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_include_in_robotstxt', $discover_news_sitemap );
 
 		if ( true === $discover_news_sitemap ) {
 			$news_sitemap_url = $this->finder->construct_sitemap_url( 'news-sitemap.xml' );
