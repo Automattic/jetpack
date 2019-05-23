@@ -638,8 +638,8 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-reddit a.sd-button {
-	background: #cee3f8;
-	color: #555555 !important;
+	background: #ff4500;
+	color: #fff !important;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-skype a.sd-button {
