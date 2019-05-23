@@ -168,8 +168,8 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 /**
  * Load all the packages.
  *
- * We want to fail gracefully if `composer install` has not been executed yet, so we are including the autoloader.
- * If `include` isn't able to load the autoloader, let's log the failure, pause Jetpack, and display a nice admin notice.
+ * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
+ * If the autoloader is not present, let's log the failure, pause Jetpack, and display a nice admin notice.
  */
 $jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
 if ( is_readable( $jetpack_autoloader ) ) {
