@@ -37,6 +37,8 @@ class Jetpack_Calypsoify {
 
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
+			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
+			add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
 		}
 
 		// Make this always available -- in case calypsoify gets toggled off.
@@ -56,8 +58,6 @@ class Jetpack_Calypsoify {
 		}
 
 		add_action( 'admin_init', array( $this, 'check_page' ) );
-		add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
 		add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
