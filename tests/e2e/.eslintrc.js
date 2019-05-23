@@ -13,6 +13,7 @@ module.exports = {
 		jestPuppeteer: true,
 	},
 	rules: {
-		'arrow-parens': [ 'as-needed' ],
+		'arrow-parens': [ 0, 'as-needed' ],
+		'wpcalypso/import-docblock': 0,
 	},
 };
