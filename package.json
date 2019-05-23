@@ -25,7 +25,7 @@
 		"distclean": "rm -rf node_modules && yarn clean",
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php && yarn build-extensions",
 		"build-client": "gulp",
-		"build-extensions": "webpack --config ./webpack.config.extensions.js",
+		"build-extensions": "yarn clean-extensions && webpack --config ./webpack.config.extensions.js",
 		"build-php": "composer install",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
 		"build-production": "yarn distclean && yarn && yarn build-production-client && yarn build-php && NODE_ENV=production yarn build-extensions && gulp languages:extract",
