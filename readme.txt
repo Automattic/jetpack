@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: add Security Checklist information.
 * Business Hours Block: improve the display of Business Hours.
 * Business Hours Block: Simplify hours format.
+* Comment Form: use HTTP 4xx status codes for comment errors.
 * Contact Form Block: improve styles for better display on mobile devices.
 * Multisite: Use modern `wp_initialize_site` hook when automatically connecting new sites.
 * Search: add new option for cross-site search permissions.
