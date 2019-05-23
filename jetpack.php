@@ -90,6 +90,16 @@ function jetpack_admin_unsupported_wp_notice() { ?>
 }
 
 if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log(
+			sprintf(
+				/* translators: Placeholders are numbers, versions of WordPress in use on the site, and required by WordPress. */
+				esc_html__( 'Your version of WordPress (%1$s) is lower than the version required by Jetpack (%2$s). Please update WordPress to continue enjoying Jetpack.', 'jetpack' ),
+				$GLOBALS['wp_version'],
+				JETPACK__MINIMUM_WP_VERSION
+			)
+		);
+	}
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
 	return;
 }
