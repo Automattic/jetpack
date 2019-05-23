@@ -145,6 +145,9 @@ class A8C_WPCOM_Masterbar {
 		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
 	}
 
+	/**
+	 * Log out from WordPress.com when logging out of the local site.
+	 */
 	public function maybe_logout_user_from_wpcom() {
 		/**
 		 * Whether we should sign out from wpcom too when signing out from the masterbar.
@@ -155,9 +158,10 @@ class A8C_WPCOM_Masterbar {
 		 */
 		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', true );
 		if (
-			isset( $_GET['context'] ) &&
-			'masterbar' === $_GET['context'] &&
-			$masterbar_should_logout_from_wpcom
+			// No need to check for a nonce here, it happens further up.
+			isset( $_GET['context'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& 'masterbar' === $_GET['context'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& $masterbar_should_logout_from_wpcom
 		) {
 			do_action( 'wp_masterbar_logout' );
 		}
@@ -465,6 +469,12 @@ class A8C_WPCOM_Masterbar {
 
 	}
 
+	/**
+	 * Merge 2 menu items together into 2 link tags.
+	 *
+	 * @param array $primary   Array of menu information.
+	 * @param array $secondary Array of menu information.
+	 */
 	public function create_menu_item_pair( $primary, $secondary ) {
 		$primary_class   = 'ab-item ab-primary mb-icon';
 		$secondary_class = 'ab-secondary';
@@ -475,10 +485,23 @@ class A8C_WPCOM_Masterbar {
 		return $primary_anchor . $secondary_anchor;
 	}
 
+	/**
+	 * Create a link tag based on information about a menu item.
+	 *
+	 * @param string $class Menu item CSS class.
+	 * @param string $url   URL you go to when clicking on the menu item.
+	 * @param string $label Menu item title.
+	 * @param string $id    Menu item slug.
+	 */
 	public function create_menu_item_anchor( $class, $url, $label, $id ) {
 		return '<a href="' . $url . '" class="' . $class . '" id="' . $id . '">' . $label . '</a>';
 	}
 
+	/**
+	 * Add Secondary groups for submenu items.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
+	 */
 	public function wpcom_adminbar_add_secondary_groups( $wp_admin_bar ) {
 		$wp_admin_bar->add_group(
 			array(
@@ -523,7 +546,7 @@ class A8C_WPCOM_Masterbar {
 		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
 		$class  = empty( $avatar ) ? 'mb-trackable' : 'with-avatar mb-trackable';
 
-		// Add the 'Me' menu
+		// Add the 'Me' menu.
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'my-account',
@@ -798,7 +821,7 @@ class A8C_WPCOM_Masterbar {
 			);
 		}
 
-		// Site Preview
+		// Site Preview.
 		if ( is_admin() ) {
 			$wp_admin_bar->add_menu(
 				array(
@@ -814,7 +837,7 @@ class A8C_WPCOM_Masterbar {
 			);
 		}
 
-		// Stats
+		// Stats.
 		if ( Jetpack::is_module_active( 'stats' ) ) {
 			$wp_admin_bar->add_menu(
 				array(
@@ -843,7 +866,7 @@ class A8C_WPCOM_Masterbar {
 			);
 		}
 
-		// Add Calypso plans link and plan type indicator
+		// Add Calypso plans link and plan type indicator.
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$plans_url = 'https://wordpress.com/plans/' . esc_attr( $this->primary_site_slug );
 			$label     = esc_html__( 'Plan', 'jetpack' );
@@ -874,7 +897,7 @@ class A8C_WPCOM_Masterbar {
 			);
 		}
 
-		// Publish group
+		// Publish group.
 		$wp_admin_bar->add_group(
 			array(
 				'parent' => 'blog',
@@ -882,7 +905,7 @@ class A8C_WPCOM_Masterbar {
 			)
 		);
 
-		// Publish header
+		// Publish header.
 		$wp_admin_bar->add_menu(
 			array(
 				'parent' => 'publish',
@@ -894,7 +917,7 @@ class A8C_WPCOM_Masterbar {
 			)
 		);
 
-		// Pages
+		// Pages.
 		$pages_title = $this->create_menu_item_pair(
 			array(
 				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
@@ -928,7 +951,7 @@ class A8C_WPCOM_Masterbar {
 			)
 		);
 
-		// Blog Posts
+		// Blog Posts.
 		$posts_title = $this->create_menu_item_pair(
 			array(
 				'url'   => 'https://wordpress.com/posts/' . esc_attr( $this->primary_site_slug ),
@@ -962,13 +985,13 @@ class A8C_WPCOM_Masterbar {
 			)
 		);
 
-		// Comments
+		// Comments.
 		if ( current_user_can( 'moderate_comments' ) ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'publish',
 					'id'     => 'comments',
-					'title'  => __( 'Comments' ),
+					'title'  => __( 'Comments', 'jetpack' ),
 					'href'   => 'https://wordpress.com/comments/' . esc_attr( $this->primary_site_slug ),
 					'meta'   => array(
 						'class' => 'mb-icon',
@@ -977,7 +1000,7 @@ class A8C_WPCOM_Masterbar {
 			);
 		}
 
-		// Testimonials
+		// Testimonials.
 		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
 			$testimonials_title = $this->create_menu_item_pair(
 				array(
@@ -1013,7 +1036,7 @@ class A8C_WPCOM_Masterbar {
 			);
 		}
 
-		// Portfolio
+		// Portfolio.
 		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_portfolio' ) ) {
 			$portfolios_title = $this->create_menu_item_pair(
 				array(
@@ -1050,7 +1073,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		if ( current_user_can( 'edit_theme_options' ) ) {
-			// Look and Feel group
+			// Look and Feel group.
 			$wp_admin_bar->add_group(
 				array(
 					'parent' => 'blog',
@@ -1058,7 +1081,7 @@ class A8C_WPCOM_Masterbar {
 				)
 			);
 
-			// Look and Feel header
+			// Look and Feel header.
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'look-and-feel',
@@ -1071,13 +1094,22 @@ class A8C_WPCOM_Masterbar {
 			);
 
 			if ( is_admin() ) {
-				// In wp-admin the `return` query arg will return to that page after closing the Customizer
-				$customizer_url = add_query_arg( array( 'return' => urlencode( site_url( $_SERVER['REQUEST_URI'] ) ) ), wp_customize_url() );
+				// In wp-admin the `return` query arg will return to that page after closing the Customizer.
+				$customizer_url = add_query_arg(
+					array(
+						'return' => rawurlencode( site_url( $_SERVER['REQUEST_URI'] ) ),
+					),
+					wp_customize_url()
+				);
 			} else {
-				// On the frontend the `url` query arg will load that page in the Customizer and also return to it after closing
-				// non-home URLs won't work unless we undo domain mapping since the Customizer preview is unmapped to always have HTTPS
+				/*
+				 * On the frontend the `url` query arg will load that page in the Customizer
+				 * and also return to it after closing
+				 * non-home URLs won't work unless we undo domain mapping
+				 * since the Customizer preview is unmapped to always have HTTPS.
+				 */
 				$current_page   = '//' . $this->primary_site_slug . $_SERVER['REQUEST_URI'];
-				$customizer_url = add_query_arg( array( 'url' => urlencode( $current_page ) ), wp_customize_url() );
+				$customizer_url = add_query_arg( array( 'url' => rawurlencode( $current_page ) ), wp_customize_url() );
 			}
 
 			$theme_title = $this->create_menu_item_pair(
@@ -1110,7 +1142,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		if ( current_user_can( 'manage_options' ) ) {
-			// Configuration group
+			// Configuration group.
 			$wp_admin_bar->add_group(
 				array(
 					'parent' => 'blog',
@@ -1118,12 +1150,12 @@ class A8C_WPCOM_Masterbar {
 				)
 			);
 
-			// Configuration header
+			// Configuration header.
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'configuration',
 					'id'     => 'configuration-header',
-					'title'  => esc_html__( 'Configure', 'admin bar menu group label', 'jetpack' ),
+					'title'  => esc_html_x( 'Configure', 'admin bar menu group label', 'jetpack' ),
 					'meta'   => array(
 						'class' => 'ab-submenu-header',
 					),
