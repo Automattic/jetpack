@@ -1810,13 +1810,28 @@ class Jetpack {
 
 	/**
 	 * Loads the private module if it has been activated.
+	 * Else, updates the admin dashboard with the site's private status.
 	 */
 	public static function load_private() {
 		if ( self::is_module_active( 'private' ) ) {
 			self::load_modules( array( 'private' ) );
 		} else {
 			add_action( 'update_right_now_text', array( __CLASS__, 'add_public_dashboard_glance_items' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wp_admin_glance_dashboard_style' ) );
 		}
+	}
+
+	/**
+	 * Basic styling for the wp-admin 'At a Glance' dashboard widget.
+	 * This is applied when the private module is inactive.
+	 */
+	public static function wp_admin_glance_dashboard_style() {
+		$custom_css = '
+			.jp-at-a-glance__site-public {
+				color: #46B450;
+			}
+		';
+		wp_add_inline_style( 'dashboard', $custom_css );
 	}
 
 	/**
@@ -1825,14 +1840,14 @@ class Jetpack {
 	 * @param string $content Content of 'At A Glance' wp-admin dashboard widget.
 	 */
 	public static function add_public_dashboard_glance_items( $content ) {
-		wp_enqueue_style( 'private', plugins_url( 'modules/private/private.css', __FILE__ ), array(), '20190521' );
 		return 
 			$content . 
 			'<br><br>' .
 			wp_kses(
 				sprintf(
 					/* translators: URL for Jetpack dashboard. */
-					__( '<span class="jp-at-a-glance__site-public">This site is set to public.</span> <a href="%s">Make private</a>.', 'jetpack' ),
+					__( '<span class="%1$1s">This site is set to public.</span> <a href="%2$2s">Make private</a>.', 'jetpack' ),
+					esc_attr( 'jp-at-a-glance__site-public' ),
 					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 				),
 				array(

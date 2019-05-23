@@ -28,6 +28,7 @@ class Jetpack_Private {
 		add_action( 'jetpack_sync_before_send_queue_full_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( __CLASS__, 'remove_privatize_blog_mask_blog_name_filter' ) );
 		add_action( 'opml_head', array( __CLASS__, 'hide_opml' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wp_admin_glance_dashboard_style' ) );
 	}
 
 	/**
@@ -297,12 +298,23 @@ class Jetpack_Private {
 	}
 
 	/**
+	 * Basic styling for the wp-admin 'At a Glance' dashboard widget.
+	 */
+	public static function wp_admin_glance_dashboard_style() {
+		$custom_css = '
+			.jp-at-a-glance__site-private {
+				color: #DC3232;
+			}
+		';
+		wp_add_inline_style( 'dashboard', $custom_css );
+	}
+
+	/**
 	 * Adds a message to the 'At a Glance' dashboard widget.
 	 *
 	 * @param string $content Content of At A Glance wp-admin dashboard widget.
 	 */
 	public static function add_private_dashboard_glance_items( $content ) {
-		wp_enqueue_style( 'private', plugins_url( 'private.css', __FILE__ ), array(), '20190521' );
 		return $content .
 			'<br><br>' .
 			wp_kses(
