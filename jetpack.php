@@ -173,7 +173,7 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
  * We want to fail gracefully if `composer install` has not been executed yet, so we are including the autoloader.
  * If `include` isn't able to load the autoloader, let's log the failure, pause Jetpack, and display a nice admin notice.
  */
-$jetpack_autoloader = JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
+$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
 if ( ( include $jetpack_autoloader ) === false ) { // include returns false if it can not include the file. Otherwise, it returns 1 or whatever value is returned by the file, if any.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
