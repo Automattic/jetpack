@@ -191,6 +191,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
 		) );
 
+		// Get Activity Log data for this site.
+		register_rest_route( 'jetpack/v4', '/site/activity', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_site_activity',
+			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
+		) );
+
 		// Confirm that a site in identity crisis should be in staging mode
 		register_rest_route( 'jetpack/v4', '/identity-crisis/confirm-safe-mode', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -1374,6 +1381,57 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( $site_data->get_error_code() === 'site_id_missing' ) {
 			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
 		}
+	}
+
+	/**
+	 * Fetch AL data for this site and return it.
+	 *
+	 * @since 7.4
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_site_activity() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error(
+				'site_id_missing',
+				esc_html__( 'Site ID is missing.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_user( "/sites/$site_id/activity", '2', array(
+			'method'  => 'GET',
+			'headers' => array(
+				'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+			),
+		), null, 'wpcom' );
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'activity_fetch_failed',
+				esc_html__( 'Could not retrieve site activity.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( ! isset( $data->current->orderedItems ) ) {
+			return new WP_Error(
+				'activity_not_found',
+				esc_html__( 'No activity found', 'jetpack' ),
+				array( 'status' => 204 ) // no content
+			);
+		}
+
+		return rest_ensure_response( array(
+				'code' => 'success',
+				'data' => $data->current->orderedItems,
+			)
+		);
 	}
 
 	/**
