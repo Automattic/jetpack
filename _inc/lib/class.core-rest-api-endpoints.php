@@ -1339,6 +1339,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$args = array( 'headers' => array() );
 
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
 		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
 			$secret                    = $_COOKIE['store_sandbox'];
 			$args['headers']['Cookie'] = "store_sandbox=$secret;";
