@@ -150,8 +150,6 @@ function jetpack_admin_missing_autoloader() { ?>
  *
  * Lastly, we fire Jetpack::init() to fire up the engines.
  */
-
-
 if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
@@ -174,7 +172,9 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
  * If `include` isn't able to load the autoloader, let's log the failure, pause Jetpack, and display a nice admin notice.
  */
 $jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
-if ( ( include $jetpack_autoloader ) === false ) { // include returns false if it can not include the file. Otherwise, it returns 1 or whatever value is returned by the file, if any.
+if ( is_readable( $jetpack_autoloader ) ) {
+	require $jetpack_autoloader;
+} else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
 			sprintf(
