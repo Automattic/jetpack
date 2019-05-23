@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Display Posts Widget: remove overly opinionated CSS.
+* GIF Block: improve compatibility with the AMP plugin.
 * Shortcodes: bring more of our shortcodes to meet current WordPress Coding Standards to help us maintain these features in the future.
 
 **Bug fixes**
