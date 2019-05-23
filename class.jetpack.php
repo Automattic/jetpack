@@ -6627,19 +6627,19 @@ endif;
 
 		$filter_deprecated_list = array(
 			'can_display_jetpack_manage_notice' => array(
-				'replacement' => false,
+				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
 			'atd_http_post_timeout'             => array(
-				'replacement' => false,
+				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
 			'atd_service_domain'                => array(
-				'replacement' => false,
+				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
 			'atd_load_scripts'                  => array(
-				'replacement' => false,
+				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
 		);
@@ -6650,7 +6650,7 @@ endif;
 
 		$action_deprecated_list = array(
 			'atd_http_post_error' => array(
-				'replacement' => false,
+				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
 		);
