@@ -1,5 +1,13 @@
 ## 7.4
 
+### Blocks
+
+#### Business Hours
+
+We've made some changes to the display of the Business Hours block.
+- Try to view a Business Blocks block that was created before the update; is it still displayed nicely?
+- When adding a new block, are the opening hours displayed nicely?
+
 ### Tiled Galleries
 
 We've made some changes to the editing experience when creating Tiled Galleries in the block editor. To test those changes, try the following:
