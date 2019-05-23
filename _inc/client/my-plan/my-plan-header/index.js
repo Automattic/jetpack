@@ -3,15 +3,15 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import analytics from 'lib/analytics';
-import { getPlanClass } from 'lib/plans/constants';
 import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import ChecklistCta from './checklist-cta';
 import ChecklistProgress from './checklist-progress-card';
+import { getPlanClass } from 'lib/plans/constants';
 import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
 import { imagePath } from 'constants/urls';
 
@@ -23,6 +23,16 @@ class MyPlanHeader extends React.Component {
 			page: 'plans',
 		} );
 	};
+
+	trackChecklistCtaClick = () =>
+		void analytics.tracks.recordEvent(
+			'jetpack_myplan_headerchecklistcta_click',
+			this.props.plan
+				? {
+						plan: this.props.plan,
+				  }
+				: undefined
+		);
 
 	render() {
 		const { siteSlug } = this.props;
@@ -45,7 +55,7 @@ class MyPlanHeader extends React.Component {
 							<p className="jp-landing__plan-features-text">
 								{ __( 'Get started with hassle-free design, stats, and performance tools.' ) }
 							</p>
-							<ChecklistCta siteSlug={ siteSlug } />
+							<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -74,7 +84,7 @@ class MyPlanHeader extends React.Component {
 									{ __( 'Spam filtering and priority support.' ) }
 								</p>
 							) }
-							<ChecklistCta siteSlug={ siteSlug } />
+							<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -99,7 +109,7 @@ class MyPlanHeader extends React.Component {
 									'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.'
 								) }
 							</p>
-							<ChecklistCta siteSlug={ siteSlug } />
+							<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
@@ -124,7 +134,7 @@ class MyPlanHeader extends React.Component {
 									'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.'
 								) }
 							</p>
-							<ChecklistCta siteSlug={ siteSlug } />
+							<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
 						</div>
 					</div>
 				);
