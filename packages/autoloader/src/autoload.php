@@ -26,7 +26,7 @@ if ( ! function_exists( 'jetpack_enqueue_library' ) ) {
 	// add the autoloader
 	spl_autoload_register(
 		function ( $class_name ) {
-				global $jetpack_packages;
+			global $jetpack_packages;
 			if ( isset( $jetpack_packages[ $class_name ] ) ) {
 				if ( ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong( $class_name, 'Not all plugins have loaded yet!', '1' );
