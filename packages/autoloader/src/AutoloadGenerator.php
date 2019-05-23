@@ -219,7 +219,7 @@ EOF;
 	}
 
 	/**
-	 * This function differes from the composer parseAutoloadsType in that beside returning the path.
+	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the name and the version of a package.
 	 *
 	 * @param array            $packageMap
