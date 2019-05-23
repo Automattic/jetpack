@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Multisite: Use modern `wp_initialize_site` hook when automatically connecting new sites.
 * Search: add new option for cross-site search permissions.
 * Sharing: update default sharing settings to include buttons.
+* Sitemaps: rename the `jetpack_sitemap_generate` and `jetpack_news_sitemap_generate` filters to the more accurate `jetpack_sitemap_include_in_robotstxt` and `jetpack_news_sitemap_include_in_robotstxt`.
 * Slideshow Block: depending on viewport, display prev/next arrows.
 * Slideshow Block: remove outline when focussing on the block.
 * Sync: offer posts, comments, and comment meta checksums when providing sync status.
