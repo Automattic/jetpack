@@ -4,8 +4,6 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import SimpleNotice from 'components/notice';
-import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -27,33 +25,6 @@ class DismissableNotices extends React.Component {
 		const notices = this.props.jetpackNotices;
 
 		switch ( notices ) {
-			case 'disconnected':
-				if ( this.props.isDismissed( notices ) ) {
-					return false;
-				}
-				return (
-					<div>
-						<SimpleNotice onDismissClick={ this.dismissJetpackActionNotice }>
-							{ __( 'You have successfully disconnected Jetpack' ) }
-							<br />
-							{ __(
-								'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.',
-								{
-									components: {
-										a: (
-											<a
-												href="https://jetpack.com/survey-disconnected/"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-									},
-								}
-							) }
-						</SimpleNotice>
-					</div>
-				);
-
 			default:
 				return false;
 		}
