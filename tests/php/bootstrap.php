@@ -29,6 +29,9 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } else if ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
 	// VVV
 	$test_root = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
+} else if ( file_exists( '/srv/www/wordpress-trunk/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
+	// VVV 3.0
+	$test_root = '/srv/www/wordpress-trunk/public_html/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-develop/tests/phpunit/includes/bootstrap.php' ) ) {
 	// Manual checkout & Jetpack's docker environment
 	$test_root = '/tmp/wordpress-develop/tests/phpunit';
