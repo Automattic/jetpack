@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
 * Connect Flow: sanitize from parameter when building connection URL.
+* Mobile Themes: fix "View Full Site" and "View Mobile Site" links when WordPress lives in a subdirectory.
 * Related Posts: do not add markup to attachment pages by default.
 * SEO Tools: support taxonomy archive pages in page titles.
 * Sharing: make sure the Whatsapp button works well in all browsers, including Firefox on desktop.
