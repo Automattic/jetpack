@@ -38,6 +38,22 @@ matrix:
   - if: branch !~ /(^branch-.*-built)/
     language: node_js
     env: WP_TRAVISCI="yarn build"
+  - php: "7.3"
+    name: "E2E tests"
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    before_script:
+    - nvm install
+    - yarn && yarn build
+    - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
+    - source ./env-file
+    script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e
+    addons:
+      apt:
+        packages:
+          - nginx
+
+  allow_failures:
+    - name: "E2E tests"
 
 cache:
   directories:
