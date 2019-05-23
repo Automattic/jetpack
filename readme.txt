@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Display Posts Widget: remove overly opinionated CSS.
 * General: Jetpack now requires PHP 5.3.2, and will display a notice if your site uses an older version of PHP.
+* General: display a notice and log an error if your version of WordPress is not supported by Jetpack.
 * GIF Block: improve compatibility with the AMP plugin.
 * Shortcodes: bring more of our shortcodes to meet current WordPress Coding Standards to help us maintain these features in the future.
 * Site Health: improve Jetpack errors' messaging in WordPress' new Site Health tools.
