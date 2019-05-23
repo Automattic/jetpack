@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Slideshow Block: remove outline when focussing on the block.
 * Sync: offer posts, comments, and comment meta checksums when providing sync status.
 * Tiled Galleries: add `srcset` in the editor for an improved editing experience.
+* WordPress.com Block Editor: allow managing reusable blocks in the WordPress.com interface.
 * WordPress.com Toolbar: display hamburger icon in toolbar when in the block editor.
 
 **Improved compatibility**
