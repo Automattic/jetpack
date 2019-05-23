@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Generate sitemap files in base XML as well as some namespace extensions.
  *
@@ -170,7 +170,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		}
 
-		echo $the_content;
+		echo $the_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All content created by Jetpack.
 
 		die();
 	}
@@ -230,9 +230,9 @@ class Jetpack_Sitemap_Manager {
 					JP_MASTER_SITEMAP_TYPE
 				);
 
-				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404
+				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404.
 				if ( empty( $sitemap_content ) ) {
-					$builder = new Jetpack_Sitemap_Builder();
+					$builder         = new Jetpack_Sitemap_Builder();
 					$sitemap_content = $builder->empty_sitemap_xml();
 				}
 
