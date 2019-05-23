@@ -31,7 +31,7 @@ if ( ! function_exists( 'jetpack_enqueue_library' ) ) {
 				if ( ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong( $class_name, 'Not all plugins have loaded yet!', '1' );
 				}
-					require_once $jetpack_packages[ $class_name ]['path'];
+				require_once $jetpack_packages[ $class_name ]['path'];
 			}
 		}
 	);
