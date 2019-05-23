@@ -8,6 +8,14 @@ We've made some changes to the display of the Business Hours block.
 - Try to view a Business Blocks block that was created before the update; is it still displayed nicely?
 - When adding a new block, are the opening hours displayed nicely?
 
+#### Memberships
+
+Following feedback from our Beta testers (thank you!), we've made several changes to the Memberships block. If you have a paid plan on your testing site, we'd recommend that you give the block another try, and let us know of any issues you may find when creating a button:
+- What's the button creation process like?
+- Can you personalize the button?
+
+If you don't have a paid plan on your site, try adding the block and go through the flow of upgrading your site; do things work as expected?
+
 ### Tiled Galleries
 
 We've made some changes to the editing experience when creating Tiled Galleries in the block editor. To test those changes, try the following:
