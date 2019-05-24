@@ -156,6 +156,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Tracks: limit the length of the strings saved for feature searches.
 * Unit Tests: add support for testing using VVV 3.0.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
+* WordPress.com Toolbar: restore the previous layout.
 * WP Cli: ensure that WP Cli commands added by Jetpack include translator comments when necessary, to help with translations.
 
 --------
