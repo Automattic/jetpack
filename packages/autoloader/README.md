@@ -47,3 +47,10 @@ Load the file in your plugin via main plugin file.
 
 In a plugin you will you will also need to include the files like this.
 `require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';`
+
+
+
+Current Limitations
+-----
+
+We currently we only support packages that autoload via psr-4 definition in their package.
