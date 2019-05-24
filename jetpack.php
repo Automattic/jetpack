@@ -129,27 +129,6 @@ function jetpack_admin_unsupported_php_notice() { ?>
 }
 
 /**
- * Outputs an admin notice for folks running Jetpack without having run composer install.
- *
- * @since 7.4.0
- */
-function jetpack_admin_missing_autoloader() { ?>
-	<div class="notice notice-error is-dismissible">
-		<p>
-		<?php
-		printf(
-			/* translators: Placeholder is a link to a support document. */
-			__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack' ),
-			esc_url( 'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md' )
-		);
-		?>
-		</p>
-	</p>
-	</div>
-	<?php
-}
-
-/**
  * This is where the loading of Jetpack begins.
  *
  * First, we check for our supported version of PHP and load our composer autoloader. If either of these fail,
@@ -175,29 +154,9 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 	return;
 }
 
-/**
- * Load all the packages.
- *
- * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
- * If the autoloader is not present, let's log the failure, pause Jetpack, and display a nice admin notice.
- */
-$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
-if ( is_readable( $jetpack_autoloader ) ) {
-	require $jetpack_autoloader;
-} else {
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log(
-			sprintf(
-				/* translators: Placeholder is a link to a support document. */
-				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack' ),
-				esc_url( 'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md' )
-			)
-		);
-	}
-	add_action( 'admin_notices', 'jetpack_admin_missing_autoloader' );
-	return;
-}
-
+require_once( JETPACK__PLUGIN_DIR . 'packages/autoloader-loader/src/AutoloaderLoader.php' );
+$loader = new \Jetpack\Assets\AutoloaderLoader();
+$loader->load_autoloader();
 
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );

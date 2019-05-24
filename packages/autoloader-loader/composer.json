@@ -1,0 +1,12 @@
+{
+	"name": "automattic/jetpack-autoloader-loader",
+	"description": "A loader for the Jetpack ecosystem autoloader",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Jetpack\\Assets\\": "src/"
+		}
+	}
+}
