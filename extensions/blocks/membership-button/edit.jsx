@@ -81,11 +81,13 @@ class MembershipsButtonEdit extends Component {
 					this.onError( Object.values( result.errors )[ 0 ][ 0 ] );
 					return;
 				}
-				const connectURL = result.connect_url;
-				const products = result.products;
-				const shouldUpgrade = result.should_upgrade_to_access_memberships;
-				const upgradeURL = result.upgrade_url;
-				const siteSlug = result.site_slug;
+				const {
+					connect_url: connectURL,
+					products,
+					should_upgrade_to_access_memberships: shouldUpgrade,
+					upgrade_url: upgradeURL,
+					site_slug: siteSlug,
+				} = result;
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
