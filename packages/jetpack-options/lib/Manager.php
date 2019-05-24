@@ -1,16 +1,26 @@
 <?php
+/**
+ * The Jetpack Options manager class file.
+ *
+ * @package jetpack-options
+ */
 
 namespace Jetpack\V7\Options;
 
+/**
+ * The Jetpack Options Manager class that is used as a single gateway between WordPress options API
+ * and Jetpack.
+ */
 abstract class Manager {
 
 	/**
 	 * An array that maps a grouped option type to an option name.
+	 *
 	 * @var array
 	 */
 	protected $grouped_options = array(
 		'compact' => 'jetpack_options',
-		'private' => 'jetpack_private_options'
+		'private' => 'jetpack_private_options',
 	);
 
 	/**
@@ -26,7 +36,7 @@ abstract class Manager {
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
-	 * @param mixed $default (optional)
+	 * @param mixed  $default (optional) the default value.
 	 *
 	 * @return mixed
 	 */
@@ -45,11 +55,19 @@ abstract class Manager {
 			}
 		}
 
-		trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
+		// TODO: throw an exception here?
 
 		return $default;
 	}
 
+	/**
+	 * Returns a single value from a grouped option.
+	 *
+	 * @param String $group   name of the group, i.e., 'private'.
+	 * @param String $name    the name of the option to return.
+	 * @param Mixed  $default a default value in case the option is not found.
+	 * @return Mixed the option value or default if not found.
+	 */
 	protected function get_grouped_option( $group, $name, $default ) {
 		$options = get_option( $this->grouped_options[ $group ] );
 		if ( is_array( $options ) && isset( $options[ $name ] ) ) {
@@ -63,7 +81,7 @@ abstract class Manager {
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
-	 * @param mixed $value Option value
+	 * @param mixed  $value Option value.
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 *
 	 * @return bool Was the option successfully updated?
@@ -93,11 +111,19 @@ abstract class Manager {
 			}
 		}
 
-		trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
+		// TODO: throw an exception here?
 
 		return false;
 	}
 
+	/**
+	 * Updates a single value from a grouped option.
+	 *
+	 * @param String $group name of the group, i.e., 'private'.
+	 * @param String $name  the name of the option to update.
+	 * @param Mixed  $value the to update the option with.
+	 * @return Boolean was the update successful?
+	 */
 	protected function update_grouped_option( $group, $name, $value ) {
 		$options = get_option( $this->grouped_options[ $group ] );
 		if ( ! is_array( $options ) ) {
@@ -121,17 +147,16 @@ abstract class Manager {
 		$names  = (array) $names;
 
 		if ( ! $this->is_valid( $names ) ) {
-			trigger_error( sprintf( 'Invalid Jetpack option names: %s', print_r( $names, 1 ) ), E_USER_WARNING );
+			// TODO: issue a warning here?
 			return false;
 		}
 
 		foreach ( array_intersect( $names, $this->get_option_names( 'non_compact' ) ) as $name ) {
-			if ( self::is_network_option( $name ) ) {
+			if ( $this->is_network_option( $name ) ) {
 				$result = delete_site_option( "jetpack_$name" );
 			} else {
 				$result = delete_option( "jetpack_$name" );
 			}
-
 		}
 
 		foreach ( array_keys( $this->grouped_options ) as $group ) {
@@ -143,6 +168,13 @@ abstract class Manager {
 		return $result;
 	}
 
+	/**
+	 * Deletes a single value from a grouped option.
+	 *
+	 * @param String $group   name of the group, i.e., 'private'.
+	 * @param String $names   the name of the option to delete.
+	 * @return Mixed the option value or default if not found.
+	 */
 	protected function delete_grouped_option( $group, $names ) {
 		$options = get_option( $this->grouped_options[ $group ], array() );
 
@@ -161,7 +193,7 @@ abstract class Manager {
 	/**
 	 * Is the option name valid?
 	 *
-	 * @param string      $name  The name of the option
+	 * @param string      $name  The name of the option.
 	 * @param string|null $group The name of the group that the option is in. Default to null, which will search non_compact.
 	 *
 	 * @return bool Is the option name valid?
@@ -179,14 +211,14 @@ abstract class Manager {
 		}
 
 		if ( is_null( $group ) || 'non_compact' === $group ) {
-			if ( in_array( $name, $this->get_option_names( $group ) ) ) {
+			if ( in_array( $name, $this->get_option_names( $group ), true ) ) {
 				return true;
 			}
 		}
 
 		foreach ( array_keys( $this->grouped_options ) as $_group ) {
 			if ( is_null( $group ) || $group === $_group ) {
-				if ( in_array( $name, $this->get_option_names( $_group ) ) ) {
+				if ( in_array( $name, $this->get_option_names( $_group ), true ) ) {
 					return true;
 				}
 			}
@@ -206,6 +238,6 @@ abstract class Manager {
 		if ( ! is_multisite() ) {
 			return false;
 		}
-		return in_array( $option_name, $this->get_option_names( 'network' ) );
+		return in_array( $option_name, $this->get_option_names( 'network' ), true );
 	}
 }
