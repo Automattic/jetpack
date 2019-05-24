@@ -149,6 +149,17 @@ function jetpack_admin_missing_autoloader() { ?>
 	<?php
 }
 
+/**
+ * This is where the loading of Jetpack begins.
+ *
+ * First, we check for our supported version of PHP and load our composer autoloader. If either of these fail,
+ * we "pause" Jetpack by ending the loading process and displaying an admin_notice to inform the site owner.
+ *
+ * After both those things happen successfully, we require the legacy files, then add on to various hooks that we expect
+ * to always run.
+ *
+ * Lastly, we fire Jetpack::init() to fire up the engines.
+ */
 if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
@@ -164,8 +175,13 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 	return;
 }
 
-// Load all the packages.
-$jetpack_autoloader = JETPACK__PLUGIN_DIR . '/vendor/autoload.php';
+/**
+ * Load all the packages.
+ *
+ * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
+ * If the autoloader is not present, let's log the failure, pause Jetpack, and display a nice admin notice.
+ */
+$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require $jetpack_autoloader;
 } else {
