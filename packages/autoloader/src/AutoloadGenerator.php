@@ -98,8 +98,7 @@ class AutoloadGenerator extends BaseGenerator {
 
 
 EOF;
-		$classmapFile .= 'return ' . $this->classMapToPHPArrayString( $classMap ); // array(
-
+		$classmapFile .= 'return ' . $this->classMapToPHPArrayString( $classMap );
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $classmapFile );
 
 		// Copy over the autoload.php file
@@ -141,13 +140,16 @@ EOF;
 		foreach ( $packageMap as $item ) {
 			list($package, $installPath) = $item;
 			$autoload                    = $package->getAutoload();
+
 			if ( $package === $mainPackage ) {
 				$autoload = array_merge_recursive( $autoload, $package->getDevAutoload() );
 			}
-			// skip packages that are not 'psr-4' since we only support them for now.
+
+			// Skip packages that are not 'psr-4' since we only support them for now.
 			if ( ! isset( $autoload['psr-4'] ) || ! is_array( $autoload['psr-4'] ) ) {
 				continue;
 			}
+
 			if ( null !== $package->getTargetDir() && $package !== $mainPackage ) {
 				$installPath = substr( $installPath, 0, -strlen( '/' . $package->getTargetDir() ) );
 			}
@@ -214,6 +216,7 @@ EOF;
 
 				foreach ( $group['paths'] as $dir ) {
 					$dir = $filesystem->normalizePath( $filesystem->isAbsolutePath( $dir ) ? $dir : $basePath . '/' . $dir );
+
 					if ( ! is_dir( $dir ) ) {
 						continue;
 					}

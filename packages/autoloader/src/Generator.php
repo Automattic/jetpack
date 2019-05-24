@@ -7,15 +7,9 @@
  *
  * These hooks needs to be added to your project's (WordPress plugin or theme) composer.json file.
  * "scripts": {
-	"post-install-cmd": [
-		"Jetpack\\Autoload\\Generator::dump"
-		],
-	"post-update-cmd": [
-		"Jetpack\\Autoload\\Generator::dump"
-		],
-	"post-autoload-dump": [
-		"Jetpack\\Autoload\\Generator::dump"
-		]
+	"post-install-cmd": [ "Jetpack\\Autoload\\Generator::dump" ],
+	"post-update-cmd": [ "Jetpack\\Autoload\\Generator::dump" ],
+	"post-autoload-dump": [ "Jetpack\\Autoload\\Generator::dump" ]
 	}
  */
 
