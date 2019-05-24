@@ -329,12 +329,9 @@ class MembershipsButtonEdit extends Component {
 						} ) ) }
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Your members.', 'jetpack' ) }>
+				<PanelBody title={ __( 'Member Management', 'jetpack' ) }>
 					<ExternalLink href={ `https://wordpress.com/earn/memberships/${ this.state.siteSlug }` }>
-						{ __(
-							'You can find your earnings, subscribers and advanced product management here.',
-							'jetpack'
-						) }
+						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
