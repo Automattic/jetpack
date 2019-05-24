@@ -439,9 +439,9 @@ class Jetpack {
 	/**
 	 * Saves all the currently active modules to options.
 	 * Also fires Action hooks for each newly activated and deactived module.
-	 * 
+	 *
 	 * @param $modules Array Array of active modules to be saved in options.
-	 * 
+	 *
 	 * @return $success bool true for success, false for failure.
 	 */
 	static function update_active_modules( $modules ) {
@@ -452,7 +452,7 @@ class Jetpack {
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
 		$reindexed_modules    = array_values( $new_current_modules );
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
-		
+
 		foreach ( $new_active_modules as $module ) {
 			/**
 			 * Fires when a specific module is activated.
@@ -473,7 +473,7 @@ class Jetpack {
 			 */
 			do_action( "jetpack_activate_module_$module", $module );
 		}
-			
+
 		foreach ( $new_inactive_modules as $module ) {
 			/**
 			 * Fired after a module has been deactivated.
@@ -2452,7 +2452,15 @@ class Jetpack {
 	 * Generate a module's path from its slug.
 	 */
 	public static function get_module_path( $slug ) {
-		return JETPACK__PLUGIN_DIR . "modules/$slug.php";
+		/**
+		 * Filters the path of a modules.
+		 *
+		 * @since 7.4.0
+		 *
+		 * @param array $return The absolute path to a module's root php file
+		 * @param string $slug The module slug
+		 */
+		return apply_filters( 'jetpack_get_module_path', JETPACK__PLUGIN_DIR . "modules/$slug.php", $slug );
 	}
 
 	/**

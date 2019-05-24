@@ -158,7 +158,6 @@ gulp.task( 'languages:build', function( done ) {
 
 gulp.task( 'php:module-headings', function( callback ) {
 	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
-
 	process.stderr.on( 'data', function( data ) {
 		log( data.toString() );
 	} );
