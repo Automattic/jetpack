@@ -7,7 +7,7 @@ import { assign } from 'lodash';
 /**
  * Internal dependencies
  */
-import config from 'config';
+import config from '../../config';
 
 const debug = debugFactory( 'dops:analytics' );
 let _superProps, _user;
