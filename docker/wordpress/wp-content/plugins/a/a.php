@@ -3,6 +3,8 @@
 * Plugin Name: a
 */
 
+use Jetpack\Assets\Logo;
+
 require __DIR__ . '/vendor/autoload.php';
 
 add_action( 'plugins_loaded', function() {
@@ -11,6 +13,3 @@ add_action( 'plugins_loaded', function() {
 		return $logo->render();
 	} );
 } );
-
-
-
