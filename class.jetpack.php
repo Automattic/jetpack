@@ -1824,8 +1824,14 @@ class Jetpack {
 	/**
 	 * Basic styling for the wp-admin 'At a Glance' dashboard widget.
 	 * This is applied when the private module is inactive.
+	 * 
+	 * @param string $hook Page Hook Suffix for the current page.
 	 */
-	public static function wp_admin_glance_dashboard_style() {
+	public static function wp_admin_glance_dashboard_style( $hook ) {
+		if ( 'index.php' !== $hook ) {
+			return;
+		}
+
 		$custom_css = '
 			.jp-at-a-glance__site-public {
 				color: #46B450;
