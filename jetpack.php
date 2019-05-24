@@ -155,7 +155,7 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 }
 
 require_once( JETPACK__PLUGIN_DIR . 'packages/autoloader-loader/src/AutoloaderLoader.php' );
-$loader = new \Jetpack\Assets\AutoloaderLoader("oo");
+$loader = new \Jetpack\Assets\AutoloaderLoader("");
 $loader->load_autoloader();
 
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
