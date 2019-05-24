@@ -3,7 +3,6 @@
 /**
  * Autoloader Generator.
  */
-
 namespace Jetpack\Autoloader;
 
 use Composer\Autoload\AutoloadGenerator as BaseGenerator;
