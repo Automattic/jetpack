@@ -22,7 +22,7 @@ BUILD_FILE := $(NAME)-$(VERSION_STRING).zip
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 GIT_REMOTE_FULL = $(shell git for-each-ref --format='%(upstream:short)' $$(git symbolic-ref -q HEAD))
 GIT_REMOTE_NAME = $(firstword $(subst /, , $(GIT_REMOTE_FULL)))
-GIT_STATUS = $(shell git status -sb --untracked=no | wc -l | awk '{ if($$1 == 1){ print "clean" } else { print "dirty" } }')
+GIT_STATUS = $(shell git status -sb | wc -l | awk '{ if($$1 == 1){ print "clean" } else { print "dirty" } }')
 
 ## checking for clean tree and all changes pushed/pulled
 git.fetch:
