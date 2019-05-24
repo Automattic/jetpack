@@ -159,6 +159,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
 * WordPress.com Interface: make sure navigation menu items match the one available in the WordPress.com interface.
 * WordPress.com Toolbar: restore the previous layout.
+* WordPress.com Toolbar: ensure you are properly logged out of your WordPress.com account when you sign out of your site using the toolbar.
 * WP Cli: ensure that WP Cli commands added by Jetpack include translator comments when necessary, to help with translations.
 
 --------
