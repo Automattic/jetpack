@@ -21,7 +21,7 @@ const sharedWebpackConfig = {
 	...baseWebpackConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
-		modules: [ 'node_modules', path.resolve( __dirname, '_inc/client' ) ],
+		modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
 	},
 	node: {
 		fs: 'empty',
@@ -46,7 +46,11 @@ module.exports = [
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
 		entry: { static: path.join( __dirname, './_inc/client/static.jsx' ) },
-		output: { ...sharedWebpackConfig.output, libraryTarget: 'commonjs2' },
+		output: {
+			...sharedWebpackConfig.output,
+			pathinfo: true,
+			libraryTarget: 'commonjs2',
+		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			new StaticSiteGeneratorPlugin( {
