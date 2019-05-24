@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.18
+ * Version: 2.4.20
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.18' );
+define( 'WPCOMSH_VERSION', '2.4.20' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -826,3 +826,28 @@ function wpcomsh_filter_outgoing_user_agent( $agent ) {
 	return str_replace( "WordPress/$wp_version", 'WordPress.com', $agent );
 }
 add_filter( 'http_headers_useragent', 'wpcomsh_filter_outgoing_user_agent', 999 );
+
+// Limit post revisions
+function wpcomsh_limit_post_revisions( $revisions ) {
+	return 100;
+}
+add_filter( 'wp_revisions_to_keep', 'wpcomsh_limit_post_revisions', 5 );
+
+// log wp_die() calls
+function wpcomsh_wp_die_handler( $message, $title, $args ) {
+	$e = new Exception( 'wp_die was called' );
+	error_log( $e );
+
+	if ( function_exists( '_default_wp_die_handler' ) ) {
+		_default_wp_die_handler( $message, $title, $args ) ;
+		return;
+	}
+	// if the default wp_die handler is not available just die.
+	die();
+}
+function wpcomsh_get_wp_die_handler() {
+	return 'wpcomsh_wp_die_handler';
+}
+add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
+
+
