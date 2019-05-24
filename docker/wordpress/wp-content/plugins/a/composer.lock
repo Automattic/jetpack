@@ -1,0 +1,64 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "20dd577db4670e5aada08d8c064ef63e",
+    "packages": [
+        {
+            "name": "automattic/autoloader",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/autoloader",
+                "reference": "14576480e9ca9aa8240c394c22a9b395d62549d7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "An autoloader for Jetpack packages",
+            "transport-options": {
+                "symlink": false
+            }
+        },
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "dev-try/custom-autoloader",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/logo",
+                "reference": "30319e40b252e1582f5a225763155f3e9185d48a"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\Assets\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "automattic/jetpack-logo": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

@@ -1,0 +1,36 @@
+{
+  "name": "jetpack/a",
+  "description": "a",
+  "type": "wordpress-plugin",
+  "require": {
+    "automattic/jetpack-logo": "dev-try/custom-autoloader",
+    "automattic/autoloader": "1.0.0"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../jetpack/packages/logo",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "../jetpack/packages/autoloader",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
+  "scripts": {
+    "post-install-cmd": [
+      "Jetpack\\Autoloader\\Generator::dump"
+    ],
+    "post-update-cmd": [
+      "Jetpack\\Autoloader\\Generator::dump"
+    ],
+    "post-autoload-dump": [
+      "Jetpack\\Autoloader\\Generator::dump"
+    ]
+  }
+}
