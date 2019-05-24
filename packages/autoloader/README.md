@@ -30,13 +30,13 @@ In your project's `composer.json`, add the following lines:
     },
     "scripts": {
         "post-install-cmd": [
-            "Jetpack\\Autoload\\Generator::dump"
+            "Jetpack\\Autoloader\\Generator::dump"
         ],
         "post-update-cmd": [
-            "Jetpack\\Autoload\\Generator::dump"
+            "Jetpack\\Autoloader\\Generator::dump"
         ],
         "post-autoload-dump": [
-            "Jetpack\\Autoload\\Generator::dump"
+            "Jetpack\\Autoloader\\Generator::dump"
         ]
     }
 }
@@ -45,5 +45,5 @@ In your project's `composer.json`, add the following lines:
 After the next update/install, you will have a `vendor/autoload_packages.php` file. 
 Load the file in your plugin via main plugin file.
 
-In a plugin
+In a plugin you will you will also need to include the files like this.
 `require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';`
