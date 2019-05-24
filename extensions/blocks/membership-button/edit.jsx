@@ -45,6 +45,7 @@ class MembershipsButtonEdit extends Component {
 			shouldUpgrade: false,
 			upgradeURL: '',
 			products: [],
+			siteSlug: '',
 			editedProductCurrency: 'USD',
 			editedProductPrice: 5,
 			editedProductPriceValid: true,
@@ -84,10 +85,11 @@ class MembershipsButtonEdit extends Component {
 				const products = result.products;
 				const shouldUpgrade = result.should_upgrade_to_access_memberships;
 				const upgradeURL = result.upgrade_url;
+				const siteSlug = result.site_slug;
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL, products, shouldUpgrade, upgradeURL } );
+				this.setState( { connected, connectURL, products, shouldUpgrade, upgradeURL, siteSlug } );
 			},
 			result => {
 				const connectURL = null;
@@ -326,6 +328,14 @@ class MembershipsButtonEdit extends Component {
 							key: product.id,
 						} ) ) }
 					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Your members.', 'jetpack' ) }>
+					<ExternalLink href={ `https://wordpress.com/earn/memberships/${ this.state.siteSlug }` }>
+						{ __(
+							'You can find your earnings, subscribers and advanced product management here.',
+							'jetpack'
+						) }
+					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
 		);
