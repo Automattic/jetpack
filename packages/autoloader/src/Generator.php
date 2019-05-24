@@ -1,16 +1,22 @@
 <?php
 
 /**
- * WordPress Custom Autoloader Generator.
+ * Custom Autoloader Generator
+ * Responsible for creating the custom autoloader (autoload_packages.php)
+ * that is required as well as the specific autoload_classmap_packages.php which contains the map of vendor classes.
  *
- * @package   WordPress\ComposerAutoload
- * @author    Alain Schlesser <alain.schlesser@gmail.com>
- * @license   MIT
- * @link      https://www.alainschlesser.com/
- * @copyright 2016 Alain Schlesser
- *
- * Partially based on xrstf/composer-php52 by Christoph Mewes.
- * @see       https://github.com/composer-php52/composer-php52
+ * These hooks needs to be added to your project's (WordPress plugin or theme) composer.json file.
+ * "scripts": {
+	"post-install-cmd": [
+		"Jetpack\\Autoload\\Generator::dump"
+		],
+	"post-update-cmd": [
+		"Jetpack\\Autoload\\Generator::dump"
+		],
+	"post-autoload-dump": [
+		"Jetpack\\Autoload\\Generator::dump"
+		]
+	}
  */
 
 namespace Jetpack\Autoloader;
@@ -20,12 +26,7 @@ use Composer\Script\Event;
 /**
  * Class Generator.
  *
- * Listen to the PostInstallCmd Event to dump an additional WordPress-specific autoloader.
- *
- * @since   1.0.0
- *
- * @package WordPress\ComposerAutoload
- * @author  Alain Schlesser <alain.schlesser@gmail.com>
+ * Listen to the PostInstallCmd Event to generate a custom WordPress-specific autoloader.
  */
 class Generator {
 
@@ -38,11 +39,10 @@ class Generator {
 		$package             = $composer->getPackage();
 		$config              = $composer->getConfig();
 
-		$optimize = true; // Always optimize for now. // $args  = $_SERVER['argv'];  in_array( '-o', $args ) || in_array( '--optimize-autoloader', $args ) || in_array( '--optimize', $args );
-
-		$suffix = $config->get( 'autoloader-suffix' );
-
 		$generator = new AutoloadGenerator( $event->getIO() );
-		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
+
+		$optimize = true;
+
+		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize );
 	}
 }
