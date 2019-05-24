@@ -74,6 +74,16 @@ class A8C_WPCOM_Masterbar {
 	 * Constructor
 	 */
 	public function __construct() {
+		add_action( 'admin_bar_init', array( $this, 'init' ) );
+
+		// Post logout on the site, also log the user out of WordPress.com.
+		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
+	}
+
+	/**
+	 * Initialize our masterbar.
+	 */
+	public function init() {
 		$this->locale  = $this->get_locale();
 		$this->user_id = get_current_user_id();
 
@@ -85,6 +95,14 @@ class A8C_WPCOM_Masterbar {
 		// Don't show the masterbar on WordPress mobile apps.
 		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
 			add_filter( 'show_admin_bar', '__return_false' );
+			return;
+		}
+
+		// Disable the Masterbar on AMP views.
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return;
 		}
 
@@ -141,8 +159,6 @@ class A8C_WPCOM_Masterbar {
 			// Override Notification module to include RTL styles.
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
-
-		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
 	}
 
 	/**
