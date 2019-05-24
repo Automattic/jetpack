@@ -1,5 +1,5 @@
 <?php
-
+// phpcs:ignoreFile -- this is not a core file
 /**
  * Custom Autoloader Generator
  * Responsible for creating the custom autoloader (autoload_packages.php)
