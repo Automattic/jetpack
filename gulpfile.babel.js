@@ -204,7 +204,7 @@ gulp.task( 'languages:cleanup', function( done ) {
 gulp.task( 'languages:extract', function( done ) {
 	const paths = [];
 
-	gulp
+	return gulp
 		.src( [
 			'_inc/client/**/*.js',
 			'_inc/client/**/*.jsx',
