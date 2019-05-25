@@ -229,6 +229,14 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteActivity: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/activity`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => {
+					return body.data;
+				} ),
+
 		fetchRewindStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
 				.then( checkStatus )

@@ -10,6 +10,7 @@ import { globalNotices } from 'components/global-notices/state/notices/reducer';
  */
 import { initialState } from 'state/initial-state/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
+import { default as activity } from 'state/activity/reducer';
 import { default as checklist } from 'state/checklist/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
@@ -26,6 +27,7 @@ import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
 
 const jetpackReducer = combineReducers( {
+	activity,
 	checklist,
 	connection,
 	dashboard,

@@ -43,6 +43,7 @@ import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
+import QuerySiteActivity from 'components/data/query-site-activity';
 import { getRewindStatus } from 'state/rewind';
 
 const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
@@ -285,6 +286,7 @@ class Main extends React.Component {
 				<Masthead route={ this.props.route } />
 				<div className="jp-lower">
 					{ this.props.isSiteConnected && <QueryRewindStatus /> }
+					{ this.props.isSiteConnected && <QuerySiteActivity /> }
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
