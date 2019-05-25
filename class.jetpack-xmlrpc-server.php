@@ -762,7 +762,9 @@ class Jetpack_XMLRPC_Server {
 		if ( $user_id ) {
 			$token_key = false;
 		} else {
-			$token_key = Jetpack::init()->xmlrpc_verification['token_key'];
+			$jetpack   = Jetpack::init();
+			$verified  = $jetpack->verify_xml_rpc_signature();
+			$token_key = $verified['token_key'];
 		}
 
 		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
