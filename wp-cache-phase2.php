@@ -1118,7 +1118,7 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 	}
 
 	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], 'wpsc' );
-	rename( $tmp_config_filename, $tmp_wpcache_filename . ".php" );
+	rename( $tmp_config_filename, $tmp_config_filename. ".php" );
 	$tmp_config_filename .= ".php";
 	wp_cache_debug( 'wp_cache_replace_line: writing to ' . $tmp_config_filename );
 	$fd = fopen( $tmp_config_filename, 'w' );

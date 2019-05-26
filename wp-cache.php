@@ -103,6 +103,9 @@ function wp_super_cache_init_action() {
 
 	wpsc_register_post_hooks();
 
+	if ( is_admin() ) {
+		wpsc_fix_164();
+	}
 }
 add_action( 'init', 'wp_super_cache_init_action' );
 
@@ -4282,4 +4285,27 @@ function wpsc_get_extra_cookies() {
 	} else {
 		return '';
 	}
+}
+
+/*
+ * 1.6.4 created an empty file called wp-admin/.php that must be cleaned up.
+ */
+function wpsc_fix_164() {
+	global $wpsc_fix_164;
+
+	if (
+		isset( $wpsc_fix_164 ) &&
+		$wpsc_fix_164
+	) {
+		return false;
+	}
+
+	if (
+		file_exists( ABSPATH . '/wp-admin/.php' ) &&
+		0 == filesize( ABSPATH . '/wp-admin/.php' )
+	) {
+		@unlink( ABSPATH . '/wp-admin/.php' );
+	}
+
+	wp_cache_setting( 'wpsc_fix_164', 1 );
 }
