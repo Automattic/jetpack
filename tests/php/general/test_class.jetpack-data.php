@@ -9,6 +9,8 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	const DEFINED_MULTI = 'hello.world,foo.bar';
 
 	public function setUp() {
+		parent::setUp();
+
 		Jetpack_Options::update_option( 'blog_token', self::STORED );
 		Jetpack_Options::update_option( 'user_tokens', [
 			1 => 'user-one.uno.1',
