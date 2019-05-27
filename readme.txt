@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Tiled Galleries: add `srcset` in the editor for an improved editing experience.
 * WordPress.com Block Editor: allow managing reusable blocks in the WordPress.com interface.
 * WordPress.com Toolbar: display hamburger icon in toolbar when in the block editor.
+* WordPress.com Toolbar: display a link to exit recovery mode when it is active on the site.
 
 **Improved compatibility**
 
