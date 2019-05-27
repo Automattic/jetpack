@@ -167,7 +167,7 @@ EOF;
 	}
 
 	/**
-	 * Take the Autoloads array and return the classMap that contains the path and the version.
+	 * Take the autoloads array and return the classMap that contains the path and the version for each namespace.
 	 *
 	 * @param array      $autoloads
 	 * @param Filesystem $filesystem

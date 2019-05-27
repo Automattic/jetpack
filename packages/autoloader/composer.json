@@ -1,13 +1,17 @@
 {
-	"name": "automattic/autoloader",
-	"description": "An autoloader for Jetpack packages",
-	"type": "library",
+	"name": "automattic/jetpack-autoloader",
+	"description": "Creates a custom autoloader for a plugin or theme.",
+	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
-	"version": "1.0.0",
-	"require": {},
+	"require": {
+		"composer-plugin-api": "^1.1"
+	},
 	"autoload": {
 		"psr-4": {
 			"Jetpack\\Autoloader\\": "src"
 		}
+	},
+	"extra": {
+		"class": "Jetpack\\Autoloader\\CustomAutoloaderPlugin"
 	}
 }

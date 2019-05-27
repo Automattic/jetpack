@@ -23,19 +23,8 @@ In your project's `composer.json`, add the following lines:
 
 ```json
 {
-    "require": {
-        "automattic/autoloader": "^1"
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "Jetpack\\Autoloader\\Generator::dump"
-        ],
-        "post-update-cmd": [
-            "Jetpack\\Autoloader\\Generator::dump"
-        ],
-        "post-autoload-dump": [
-            "Jetpack\\Autoloader\\Generator::dump"
-        ]
+    "require-dev": {
+        "automattic/jetpack-autoloader": "^1"
     }
 }
 ```
