@@ -10,7 +10,8 @@ In most cases you want to have accessible an WordPress installation for Jetpack 
 
 * Node.js 10
 * Yarn 1.7
-* PHP 7.0 (in case you are running WordPress locally)
+* PHP 7.2 (in case you are running WordPress locally)
+* Composer
 
 ## Script for checking if your environment is ready for contributing to Jetpack
 
