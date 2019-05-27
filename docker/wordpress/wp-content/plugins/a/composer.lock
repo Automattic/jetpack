@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2846c213930b4ba36d6d8de816839ef1",
+    "content-hash": "8bae77aaa538436a280aa46bd5eca300",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
@@ -36,7 +36,7 @@
             "dist": {
                 "type": "path",
                 "url": "../jetpack/packages/autoloader",
-                "reference": "b9e370a1eff9418efb7be2a34b82bf83cb4a3374"
+                "reference": "aa47584d163482dd15f6db553d2f89bfb8cf768e"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -55,7 +55,7 @@
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
             "transport-options": {
-                "symlink": false
+                "symlink": true
             }
         }
     ],
