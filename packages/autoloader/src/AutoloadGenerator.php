@@ -158,7 +158,7 @@ EOF;
 					$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 					$autoloads[ $namespace ][] = array(
 						'path'    => $relativePath,
-						'version' => $package->getVersion(), // Version of the class comes from the package? Should we try to parse t
+						'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
 					);
 				}
 			}
