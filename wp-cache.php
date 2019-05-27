@@ -2585,9 +2585,13 @@ function wp_cache_create_advanced_cache() {
 		return false;
 	}
 
+	$file = file_get_contents( $global_config_file );
 	if (
-		! is_writeable_ACLSafe( $global_config_file ) ||
-		! wp_cache_replace_line( 'define *\( *\'WPCACHEHOME\'', $line, $global_config_file )
+		! strpos( $file, "WPCACHEHOME" ) &&
+		(
+			! is_writeable_ACLSafe( $global_config_file ) ||
+			! wp_cache_replace_line( 'define *\( *\'WPCACHEHOME\'', $line, $global_config_file )
+		)
 	) {
 		echo '<div class="notice notice-error"><h4>' . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( 'Could not update %s!</em> WPCACHEHOME must be set in config file.', 'wp-super-cache' ), $global_config_file ) . "</h4></div>";
 		return false;
