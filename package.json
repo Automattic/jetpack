@@ -61,7 +61,8 @@
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
 		"test-dangerci-and-adminpage-and-extensions": "yarn danger ci && yarn test-adminpage && yarn test-extensions",
-		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\""
+		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
+		"packages:add-textdomain": "wpi18n addtextdomain --textdomain=jetpack --glob-pattern='packages/**/*.php'"
 	},
 	"husky": {
 		"hooks": {
