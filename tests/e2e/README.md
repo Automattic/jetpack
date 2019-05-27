@@ -8,6 +8,7 @@ Automated end-to-end acceptance tests for Jetpack plugin.
   - [Install dependencies](#install-dependencies)
   - [Configuration](#configuration)
     - [Test Configuration](#test-configuration)
+    - [WP Site Configuration](#wp-site-configuration)
     - [Environment Variables](#environment-variables)
 - [Running tests](#running-tests)
   - [How to run tests](#how-to-run-tests)
@@ -27,32 +28,17 @@ yarn
 
 #### Test Configuration
 
-The tests relies on utility functions of [`e2e-test-utils`](https://github.com/WordPress/gutenberg/tree/master/packages/e2e-test-utils) package. Some of these functions related to navigation and login (such as `loginUser()`, `visitAdminPage()` etc) relies environment variables defined in [`config.js`](./config/config.js) file to specify base URL, Admin user details and Test user details (could be different from Admin. For example, customer):
+Gutenpack E2E tests relies on encrypted configuration file, which is included in this repo as [`encrypted.enc`](./config/encrypted.enc). To be able to run tests - that file should be decrypted first.
 
-```js
-const WP_ADMIN_USER = {
-  username: 'wordpress',
-  password: 'wordpress',
-};
+To decrypt the config file (a8c only):
 
-const {
-  WP_USERNAME = WP_ADMIN_USER.username,
-  WP_PASSWORD = WP_ADMIN_USER.password,
-  WP_BASE_URL = 'http://localhost',
-} = process.env;
+- Find a decryption key. Search the `SS` for "E2E Gutenpack CONFIG_KEY"
+- in your terminal run `export CONFIG_KEY=YOUR_KEY`
+- Run `yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
 
-process.env = Object.assign( process.env, {
-  WP_PASSWORD,
-  WP_ADMIN_USER,
-  WP_USERNAME,
-  WP_BASE_URL,
-} );
+#### WP Site Configuration
 
-export { WP_PASSWORD, WP_ADMIN_USER, WP_USERNAME, WP_BASE_URL };
-
-```
-
-As per above, create an Admin user on the site and set its username and password:
+The tests relies on utility functions of [`e2e-test-utils`](https://github.com/WordPress/gutenberg/tree/master/packages/e2e-test-utils) package. Some of these functions related to navigation and login (such as `loginUser()`, `visitAdminPage()` etc) relies on environment variables defined in [`setup.js`](./lib/setup.js) file to specify base URL, Admin user details. To start: create an Admin user on the site and set its username and password:
 
 - username: `wordpress`
 - password: `wordpress`
