@@ -281,9 +281,16 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Prophylactic check: anything else should never happen.
 		if ( $token_key && $token_key !== $blog_token->secret ) {
 			if ( preg_match( '/^;.\d+;\d+;$/', $token_key, $matches ) ) {
+				// The token key for a Special Token is public.
 				$params['token_key'] = $token_key;
 			} else {
-				$params['token_key'] = ';stored;';
+				/*
+				 * The token key for a Normal Token is public but
+				 * looks like sensitive data. Since there can only be
+				 * one Normal Token per site, avoid concern by
+				 * sending the magic "use the Normal Token" token key.
+				 */
+				$params['token_key'] = Jetpack_Data::MAGIC_NORMAL_TOKEN_KEY;
 			}
 		}
 
