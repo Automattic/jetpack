@@ -4,18 +4,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { translate as __, moment } from 'i18n-calypso';
 import { isEmpty, get } from 'lodash';
 import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import DashItem from 'components/dash-item';
 import Card from 'components/card';
-import { getSitePlan } from 'state/site';
-import { isDevMode } from 'state/connection';
+import DashItem from 'components/dash-item';
 import { getSiteActivity } from 'state/activity';
+import { isDevMode } from 'state/connection';
+import { getSitePlan } from 'state/site';
 //import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_VIP } from 'lib/plans/constants';
 
 class DashActivity extends Component {
@@ -50,56 +50,39 @@ class DashActivity extends Component {
 		// 		}
 		// 	} );
 
-		// @todo: update this to use rewind text/CTA when available
-		const months = [
-			__( 'Jan' ),
-			__( 'Feb' ),
-			__( 'Mar' ),
-			__( 'Apr' ),
-			__( 'May' ),
-			__( 'Jun' ),
-			__( 'Jul' ),
-			__( 'Aug' ),
-			__( 'Sep' ),
-			__( 'Oct' ),
-			__( 'Nov' ),
-			__( 'Dec' ),
-		];
 		const activityLogOnlyText = isEmpty( siteActivity ) ? (
 			<p>
-				{ __(
-					'Jetpack keeps a complete record of everything that happens on your site, taking the guesswork out of site management, debugging, and repair.'
+				{ // @todo: update this to use rewind text/CTA when available
+				__(
+					'Jetpack keeps a complete record of everything that happens on your site, ' +
+						'taking the guesswork out of site management, debugging, and repair.'
 				) }
 			</p>
 		) : (
 			<ul className="jp-dash-activity__list">
 				{ siteActivity.map(
-					( { summary, content: { text }, actor: { name, icon }, published }, index ) => {
-						const dateTime = published.split( 'T' );
-						dateTime[ 0 ] = dateTime[ 0 ].split( '-' );
-						return (
-							<li key={ `activity-event-${ index }` }>
-								<time dateTime={ published } className="jp-dash-activity__date-time">
-									<div className="jp-dash-activity__date">{ `${
-										months[ parseInt( dateTime[ 0 ][ 1 ] ) ]
-									} ${ dateTime[ 0 ][ 2 ] }` }</div>
-									<div className="jp-dash-activity__time">
-										{ dateTime[ 1 ].replace( /([:0-9]+):([\.+:0-9]+$)/, '$1' ) }
-									</div>
-								</time>
-								<div className="jp-dash-activity__item">
-									<div className="jp-dash-activity__event">{ text }</div>
-									<div className="jp-dash-activity__details">
-										<div className="jp-dash-activity__actor">
-											{ icon && <img src={ get( icon, 'url', '' ) } alt="" /> }
-											<span className="jp-dash-activity__actor-name">{ name }</span>
-										</div>
-										<div className="jp-dash-activity__summary">{ summary }</div>
-									</div>
+					( { summary, content: { text }, actor: { name, icon }, published }, index ) => (
+						<li key={ `activity-event-${ index }` }>
+							<time dateTime={ published } className="jp-dash-activity__date-time">
+								<div className="jp-dash-activity__date">
+									{ moment( published ).format( 'MMM D' ) }
 								</div>
-							</li>
-						);
-					}
+								<div className="jp-dash-activity__time">
+									{ moment( published ).format( 'HH:mm' ) }
+								</div>
+							</time>
+							<div className="jp-dash-activity__item">
+								<div className="jp-dash-activity__event">{ text }</div>
+								<div className="jp-dash-activity__details">
+									<div className="jp-dash-activity__actor">
+										{ icon && <img src={ get( icon, 'url', '' ) } alt="" /> }
+										<span className="jp-dash-activity__actor-name">{ name }</span>
+									</div>
+									<div className="jp-dash-activity__summary">{ summary }</div>
+								</div>
+							</div>
+						</li>
+					)
 				) }
 			</ul>
 		);
