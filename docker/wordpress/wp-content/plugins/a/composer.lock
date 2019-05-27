@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2846c213930b4ba36d6d8de816839ef1",
+    "content-hash": "499388be638a8468221a228d4af83cc6",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-try/custom-autoloader",
+            "version": "1.0.0",
             "dist": {
                 "type": "path",
                 "url": "../jetpack/packages/logo",
-                "reference": "30319e40b252e1582f5a225763155f3e9185d48a"
+                "reference": "b490a4362ab6850c98434380b55018be09228b1e"
             },
             "type": "library",
             "autoload": {
@@ -32,11 +32,11 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-try/custom-autoloader",
+            "version": "1.0.0",
             "dist": {
                 "type": "path",
                 "url": "../jetpack/packages/autoloader",
-                "reference": "b9e370a1eff9418efb7be2a34b82bf83cb4a3374"
+                "reference": "8284552129d736e9a0425f659376fcb1fd155d69"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -61,10 +61,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "automattic/jetpack-logo": 20,
-        "automattic/jetpack-autoloader": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
