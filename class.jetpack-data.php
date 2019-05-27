@@ -5,7 +5,7 @@ class Jetpack_Data {
 	 * Used internally when we want to look for the Normal Blog Token
 	 * without knowing its token key ahead of time.
 	 */
-	const MAGIC_NORMAL_TOKEN_KEY = ';stored;';
+	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
 
 	/**
 	 * Gets the requested token.
