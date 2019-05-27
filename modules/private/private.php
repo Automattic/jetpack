@@ -39,12 +39,12 @@ if ( is_rtl() ) {
 </head>
 <body class="login <?php echo esc_attr( implode( ' ', $classes ) ); ?>">
 	<div id="login">
-		<h1><a href="<?php echo esc_attr( $login_link ); ?>" tabindex="-1"><?php bloginfo( 'name' ); ?></a></h1>
+		<h1><a href="<?php echo esc_url( $login_link ); ?>" tabindex="-1"><?php bloginfo( 'name' ); ?></a></h1>
 		<div class="message" style="overflow: auto;">
 			<p>
 				<?php esc_html_e( 'You need to be logged in as a user who has permission to view this site.', 'jetpack' ); ?><br>
 				<br>
-				<a class="button-primary" href="<?php echo esc_attr( $login_link ); ?>"><?php is_user_logged_in() ? esc_html_e( 'Switch user', 'jetpack' ) : esc_html_e( 'Log in', 'jetpack' ); ?></a>
+				<a class="button-primary" href="<?php echo esc_url( $login_link ); ?>"><?php is_user_logged_in() ? esc_html_e( 'Switch user', 'jetpack' ) : esc_html_e( 'Log in', 'jetpack' ); ?></a>
 			</p>
 		</div>
 		<?php wp_footer(); ?>

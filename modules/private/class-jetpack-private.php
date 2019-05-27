@@ -155,7 +155,7 @@ class Jetpack_Private {
 			wp_kses(
 				printf(
 					/* translators: URL for Jetpack dashboard. */
-					__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					__( 'This setting is ignored because you <a href="%s">made your site private</a>.', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 				),
 				array( 'a' => array( 'href' => true ) )
@@ -243,7 +243,7 @@ class Jetpack_Private {
 		}
 
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			return new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), 403 );
+			return new WP_Error( 'private_site', __( 'This site is private.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 	}
 
@@ -288,7 +288,7 @@ class Jetpack_Private {
 				wp_kses(
 					sprintf(
 						/* translators: URL for Jetpack dashboard. */
-						__( 'This setting is ignored because you <a href="%s">made your site private</a>', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						__( 'This setting is ignored because you <a href="%s">made your site private</a>.', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 					),
 					array( 'a' => array( 'href' => true ) )
