@@ -4,7 +4,7 @@
   "type": "wordpress-plugin",
   "require": {
     "automattic/jetpack-logo": "dev-try/custom-autoloader",
-    "automattic/autoloader": "1.0.0"
+    "automattic/jetpack-autoloader": "dev-try/custom-autoloader"
   },
   "repositories": [
     {
