@@ -4,6 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
+	"version": "1.0.0",
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\Assets\\": "src/"
