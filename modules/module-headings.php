@@ -131,6 +131,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
 			),
 
+			'private' => array(
+				'name' => _x( 'Private site', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Make your site only visible to you and users you approve.', 'Module Description', 'jetpack' ),
+			),
+
 			'protect' => array(
 				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.', 'Module Description', 'jetpack' ),
@@ -327,6 +332,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php
 			'Mobile' =>_x( 'Mobile', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Private` tag:
+			//  - modules/private.php
+			'Private' =>_x( 'Private', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Traffic` tag:
 			//  - modules/sitemaps.php

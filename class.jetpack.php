@@ -1809,9 +1809,80 @@ class Jetpack {
 	}
 
 	/**
-	 * Loads the currently active modules.
+	 * Loads the private module if it has been activated.
+	 * Else, updates the admin dashboard with the site's private status.
 	 */
-	public static function load_modules() {
+	public static function load_private() {
+		if ( self::is_module_active( 'private' ) ) {
+			self::load_modules( array( 'private' ) );
+		} else {
+			add_action( 'update_right_now_text', array( __CLASS__, 'add_public_dashboard_glance_items' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wp_admin_glance_dashboard_style' ) );
+			add_filter( 'privacy_on_link_text', array( __CLASS__, 'private_site_privacy_on_link_text' ) );
+		}
+	}
+
+	/**
+	 * Adds a line break for the 'Search Engines Discouraged' message
+	 * displayed in the 'At a Glance' dashboard widget.
+	 * 
+	 * @param string $content Content of 'At A Glance' wp-admin dashboard widget.
+	 * @return string The modified content of the 'At a Glance' dashboard widget.
+	 */
+
+	public static function private_site_privacy_on_link_text( $content ) {
+		return '<br>' . $content;
+	}
+
+	/**
+	 * Basic styling for the wp-admin 'At a Glance' dashboard widget.
+	 * This is applied when the private module is inactive.
+	 * 
+	 * @param string $hook Page Hook Suffix for the current page.
+	 */
+	public static function wp_admin_glance_dashboard_style( $hook ) {
+		if ( 'index.php' !== $hook ) {
+			return;
+		}
+
+		$custom_css = '
+			.jp-at-a-glance__site-public {
+				color: #46B450;
+			}
+		';
+		wp_add_inline_style( 'dashboard', $custom_css );
+	}
+
+	/**
+	 * Adds a message to the 'At a Glance' dashboard widget.
+	 *
+	 * @param string $content Content of 'At A Glance' wp-admin dashboard widget.
+	 * @return string The modified content of the 'At a Glance' dashboard widget.
+	 */
+	public static function add_public_dashboard_glance_items( $content ) {
+		return 
+			$content . 
+			'<br><br>' .
+			wp_kses(
+				sprintf(
+					/* translators: URL for Jetpack dashboard. */
+					__( '<span class="%1$1s">This site is set to public.</span> <a href="%2$2s">Make private</a>.', 'jetpack' ),
+					esc_attr( 'jp-at-a-glance__site-public' ),
+					esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
+				),
+				array(
+					'a' => array( 'href' => true ),
+					'span' => array( 'class' => true ),
+				)
+			);
+	}
+
+	/**
+	 * Loads modules from given array, otherwise all the currently active modules.
+	 *
+	 * @param array $modules Specific modules to be loaded.
+	 */
+	public static function load_modules( $modules = array() ) {
 		if (
 			! self::is_active()
 			&& ! self::is_development_mode()
@@ -1831,9 +1902,13 @@ class Jetpack {
 			do_action( 'updating_jetpack_version', $version, false );
 			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
-		list( $version ) = explode( ':', $version );
+		list( $version )            = explode( ':', $version );
+		$fetched_all_active_modules = false;
 
-		$modules = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
+		if ( empty( $modules ) ) {
+			$modules                    = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
+			$fetched_all_active_modules = true;
+		}
 
 		$modules_data = array();
 
@@ -1890,12 +1965,14 @@ class Jetpack {
 			do_action( 'jetpack_module_loaded_' . $module );
 		}
 
-		/**
-		 * Fires when all the modules are loaded.
-		 *
-		 * @since 1.1.0
-		 */
-		do_action( 'jetpack_modules_loaded' );
+		if ( $fetched_all_active_modules ) {
+			/**
+			* Fires when all the modules are loaded.
+			*
+			* @since 1.1.0
+			*/
+			do_action( 'jetpack_modules_loaded' );
+		}
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
 		require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
