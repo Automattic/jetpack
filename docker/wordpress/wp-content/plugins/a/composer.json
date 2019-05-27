@@ -3,7 +3,9 @@
   "description": "a",
   "type": "wordpress-plugin",
   "require": {
-    "automattic/jetpack-logo": "dev-try/custom-autoloader",
+    "automattic/jetpack-logo": "dev-try/custom-autoloader"
+  },
+  "require-dev": {
     "automattic/jetpack-autoloader": "dev-try/custom-autoloader"
   },
   "repositories": [
@@ -21,16 +23,5 @@
         "symlink": false
       }
     }
-  ],
-  "scripts": {
-    "post-install-cmd": [
-      "Jetpack\\Autoloader\\Generator::dump"
-    ],
-    "post-update-cmd": [
-      "Jetpack\\Autoloader\\Generator::dump"
-    ],
-    "post-autoload-dump": [
-      "Jetpack\\Autoloader\\Generator::dump"
-    ]
-  }
+  ]
 }
