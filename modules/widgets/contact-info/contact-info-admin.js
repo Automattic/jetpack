@@ -5,7 +5,7 @@
 
 		$checkbox
 			.closest( '.widget' )
-			.find( '.jp-contact-info-apikey' )
+			.find( '.jp-contact-info-admin-map' )
 			.toggle( isChecked );
 	} );
 } )( window.jQuery );
