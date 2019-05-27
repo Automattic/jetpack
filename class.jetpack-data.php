@@ -38,11 +38,13 @@ class Jetpack_Data {
 				: array();
 
 			$stored_blog_token = Jetpack_Options::get_option( 'blog_token' );
-			if ( empty( $stored_blog_token ) && empty( $possible_tokens ) ) {
-				return false;
+			if ( $stored_blog_token ) {
+				$possible_tokens[] = $stored_blog_token;
 			}
 
-			$possible_tokens[] = $stored_blog_token;
+			if ( ! $possible_tokens ) {
+				return false;
+			}
 		}
 
 		$valid_token = false;
