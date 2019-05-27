@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* This release introduces a new feature, Private Sites, a great option if you're still working on your site and aren't quite ready to show it off to the rest of the internet yet.
 
 **Enhancements**
 
