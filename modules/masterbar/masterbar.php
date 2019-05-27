@@ -329,7 +329,9 @@ class A8C_WPCOM_Masterbar {
 		$this->add_write_button( $wp_admin_bar );
 
 		// Recovery mode exit.
-		wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
+		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
+			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
+		}
 	}
 
 	/**
