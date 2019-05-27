@@ -1,13 +1,38 @@
 <?php
 
 class Jetpack_Data {
+	/*
+	 * Used internally when we want to look for the normal
+	 * token without knowing its token key ahead of time.
+	 */
+	const MAGIC_NORMAL_TOKEN_KEY = ';stored;';
+
 	/**
-	 * Gets locally stored token
+	 * Gets the requested token.
+	 *
+	 * Tokens are one of two types:
+	 * 1. Blog Tokens: These are the "main" tokens. Each site typically has one Blog Token,
+	 *    though some sites can have multiple "Special" Blog Tokens (see below). These tokens
+	 *    are not associated with a user account. They represent the site's connection with
+	 *    the Jetpack servers.
+	 * 2. User Tokens: These are "sub-"tokens. Each connected user account has one User Token.
+	 *
+	 * Blog Tokens can be "Normal" or "Special".
+	 * * Normal: The result of a normal connection flow. They look like
+	 *   "{$random_string_1}.{$random_string_2}"
+	 *   Sites only have one Normal Blog Token.
+	 * * Special: A connection token for sites that have gone through an alternative
+	 *   connection flow. They look like:
+	 *   ";{$special_id};.{$random_string}"
+	 *  Most sites have zero Special Blog Tokens.
+	 *
+	 * In particular, note that Normal Blog Tokens never start with ";" and that
+	 * Special Blog Tokes always do.
 	 *
 	 * @param int|false $user_id false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key: If provided, check that the stored token matches the provided input.
 	 *                                 false           : Use first token. Default.
-	 *                                 ';stored;'      : Use first stored token. (Stored tokens are the normal kind.)
+	 *                                 ';stored;'      : Use first Normal Token.
 	 *                                 non-empty string: Use matching token
 	 * @return object|false
 	 */
@@ -33,7 +58,7 @@ class Jetpack_Data {
 			}
 			$possible_tokens = array( "{$user_token_chunks[0]}.{$user_token_chunks[1]}" );
 		} else {
-			$possible_tokens = Jetpack_Constants::is_defined( 'JETPACK_BLOG_TOKEN' ) && ';stored;' !== $token_key
+			$possible_tokens = Jetpack_Constants::is_defined( 'JETPACK_BLOG_TOKEN' ) && self::MAGIC_NORMAL_TOKEN_KEY !== $token_key
 				? explode( ',', Jetpack_Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) )
 				: array();
 
@@ -52,7 +77,7 @@ class Jetpack_Data {
 		if ( false === $token_key ) {
 			// Use first token.
 			$valid_token = $possible_tokens[0];
-		} elseif ( ';stored;' === $token_key ) {
+		} elseif ( self::MAGIC_NORMAL_TOKEN_KEY === $token_key ) {
 			// Use first stored token.
 			$valid_token = $possible_tokens[0]; // $tokens only contains stored tokens because of earlier check.
 		} else {
