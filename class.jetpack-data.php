@@ -21,57 +21,57 @@ class Jetpack_Data {
 					return false;
 				}
 			}
-			if ( !isset( $user_tokens[$user_id] ) || !$token = $user_tokens[$user_id] ) {
+			if ( !isset( $user_tokens[$user_id] ) || ! $user_tokens[$user_id] ) {
 				return false;
 			}
-			$token_chunks = explode( '.', $token );
-			if ( empty( $token_chunks[1] ) || empty( $token_chunks[2] ) ) {
+			$user_token_chunks = explode( '.', $user_tokens[$user_id] );
+			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
 				return false;
 			}
-			if ( $user_id != $token_chunks[2] ) {
+			if ( $user_id != $user_token_chunks[2] ) {
 				return false;
 			}
-			$tokens = array( "{$token_chunks[0]}.{$token_chunks[1]}" );
+			$possible_tokens = array( "{$user_token_chunks[0]}.{$user_token_chunks[1]}" );
 		} else {
-			$tokens = Jetpack_Constants::is_defined( 'JETPACK_BLOG_TOKEN' ) && ';stored;' !== $token_key
+			$possible_tokens = Jetpack_Constants::is_defined( 'JETPACK_BLOG_TOKEN' ) && ';stored;' !== $token_key
 				? explode( ',', Jetpack_Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) )
 				: array();
 
-			$token = Jetpack_Options::get_option( 'blog_token' );
-			if ( empty( $token ) && empty( $tokens ) ) {
+			$stored_blog_token = Jetpack_Options::get_option( 'blog_token' );
+			if ( empty( $stored_blog_token ) && empty( $possible_tokens ) ) {
 				return false;
 			}
 
-			$tokens[] = $token;
+			$possible_tokens[] = $stored_blog_token;
 		}
+
+		$valid_token = false;
 
 		if ( false === $token_key ) {
 			// Use first token.
-			$token = $tokens[0];
+			$valid_token = $possible_tokens[0];
 		} elseif ( ';stored;' === $token_key ) {
 			// Use first stored token.
-			$token = $tokens[0]; // $tokens only contains stored tokens because of earlier check.
+			$valid_token = $possible_tokens[0]; // $tokens only contains stored tokens because of earlier check.
 		} else {
 			// Use the token matching $token_key or false if none.
 			// Ensure we check the full key.
 			$token_check = rtrim( $token_key, '.' ) . '.';
 
-			$valid_token = false;
-			foreach ( $tokens as $token ) {
-				if ( hash_equals( substr( $token, 0, strlen( $token_check ) ), $token_check ) ) {
-					$valid_token = $token;
+			foreach ( $possible_tokens as $possible_token ) {
+				if ( hash_equals( substr( $possible_token, 0, strlen( $token_check ) ), $token_check ) ) {
+					$valid_token = $possible_token;
+					break;
 				}
 			}
+		}
 
-			if ( ! $valid_token ) {
-				return false;
-			}
-
-			$token = $valid_token;
+		if ( ! $valid_token ) {
+			return false;
 		}
 
 		return (object) array(
-			'secret' => $token,
+			'secret' => $valid_token,
 			'external_user_id' => (int) $user_id,
 		);
 	}
