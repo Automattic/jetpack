@@ -1341,10 +1341,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
-			 new WP_Error( 'site_id_missing' );
+			new WP_Error( 'site_id_missing' );
 		}
 
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1' );
+		$args = array( 'headers' => array() );
+
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
+			$secret                    = $_COOKIE['store_sandbox'];
+			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		}
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1', $args );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'site_data_fetch_failed' );
