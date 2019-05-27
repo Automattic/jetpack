@@ -318,8 +318,11 @@ class Jetpack_Private {
 	 * Adds a message to the 'At a Glance' dashboard widget.
 	 *
 	 * @param string $content Content of At A Glance wp-admin dashboard widget.
+	 * @return string The modified content of the 'At a Glance' dashboard widget.
 	 */
 	public static function add_private_dashboard_glance_items( $content ) {
+		add_filter( 'privacy_on_link_text', '__return_empty_string' );
+
 		return $content .
 			'<br><br>' .
 			wp_kses(
