@@ -3,10 +3,10 @@
   "description": "a",
   "type": "wordpress-plugin",
   "require": {
-    "automattic/jetpack-logo": "dev-try/custom-autoloader"
+    "automattic/jetpack-logo": "1.0.0"
   },
   "require-dev": {
-    "automattic/jetpack-autoloader": "dev-try/custom-autoloader"
+    "automattic/jetpack-autoloader": "1.0.0"
   },
   "repositories": [
     {
