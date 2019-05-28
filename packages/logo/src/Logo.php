@@ -5,7 +5,7 @@
  * @package jetpack-logo
  */
 
-namespace Jetpack\Assets;
+namespace Automattic\Jetpack\Assets;
 
 /**
  * Create and render a Jetpack logo.

@@ -6,7 +6,7 @@
 	"require": {},
 	"autoload": {
 		"psr-4": {
-			"Jetpack\\Assets\\": "src/"
+			"Automattic\\Jetpack\\Assets\\": "src/"
 		}
 	}
 }
