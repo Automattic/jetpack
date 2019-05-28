@@ -1,0 +1,12 @@
+{
+	"name": "automattic/jetpack-logo",
+	"description": "A logo for Jetpack",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Assets\\": "src/"
+		}
+	}
+}
