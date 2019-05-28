@@ -22,8 +22,6 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
-
-
 namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Autoload\AutoloadGenerator as BaseGenerator;
@@ -109,11 +107,8 @@ EOF;
 		$classmapFile .= 'return ' . $this->classMapToPHPArrayString( $classMap );
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $classmapFile );
 
-		// Copy over the autoload.php file.
-		
-		$sourceLoader = fopen( __DIR__ . '/autoload.php', 'r' );
-		$targetLoader = fopen( $vendorPath . '/autoload_packages.php', 'w+' );
-		fwrite( $targetLoader, stream_get_contents( $sourceLoader ) );
+		// Copy over the autoload.php file into autoload_packages.php.
+		copy( __DIR__ . '/autoload.php', $vendorPath . '/autoload_packages.php' );
 
 	}
 
