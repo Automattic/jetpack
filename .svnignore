@@ -59,4 +59,5 @@ extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
+packages
 **/__snapshots__
