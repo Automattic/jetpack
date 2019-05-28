@@ -26,10 +26,7 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "./packages/logo",
-			"options": {
-				"symlink": true
-			}
+			"url": "./packages/logo"
 		}
 	]
 }
