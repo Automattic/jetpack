@@ -110,6 +110,7 @@ EOF;
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $classmapFile );
 
 		// Copy over the autoload.php file.
+		
 		$sourceLoader = fopen( __DIR__ . '/autoload.php', 'r' );
 		$targetLoader = fopen( $vendorPath . '/autoload_packages.php', 'w+' );
 		fwrite( $targetLoader, stream_get_contents( $sourceLoader ) );
