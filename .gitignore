@@ -1,7 +1,12 @@
 ## FOLDERS
 /.sass-cache/
 /node_modules
-/vendor/
+vendor/bin
+vendor/dealerdirect
+vendor/phpcompatibility
+vendor/sirbrillig
+vendor/squizlabs
+vendor/wp-coding-standards
 /wpcom-test-backup/
 /.vscode/
 
@@ -45,4 +50,6 @@ phpcs.xml
 /css
 _inc/jetpack-strings.php
 /modules/**/*/block.js
-
+/vendor/automattic/
+/vendor/composer/
+/vendor/autoload.php

@@ -230,7 +230,7 @@ rm -rf TMP_REMOTE_BUILT_VERSION
 rm -rf TMP_LOCAL_BUILT_VERSION
 
 echo "Rsync'ing everything over from Git except for .git and npm stuffs."
-rsync -r --exclude='*.git*' --exclude=node_modules $DIR/* TMP_LOCAL_BUILT_VERSION
+rsync -r --copy-links --exclude='*.git*' --exclude=node_modules $DIR/* TMP_LOCAL_BUILT_VERSION
 echo "Done!"
 
 echo "Purging paths included in .svnignore"
