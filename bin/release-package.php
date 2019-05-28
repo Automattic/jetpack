@@ -121,7 +121,9 @@ function execute( $command, $error = '', $cleanup_repo = false, $cleanup_remotes
 	if ( $error && 0 !== $status ) {
 		cleanup( $cleanup_repo, $cleanup_remotes );
 
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo( 'Error: ' . $error . PHP_EOL );
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		exit;
 	}
 }
