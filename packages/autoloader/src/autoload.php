@@ -4,6 +4,8 @@
  *
  * From your plugin include this file with:
  * require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+ *
+ * @package Automattic\Jetpack\Autoloader
  */
 
 if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
@@ -16,15 +18,13 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 	 * Adds the version of a package to the $jetpack_packages global array so that
 	 * the autoloader is able to find it.
 	 *
-	 * @param $class_name
-	 * @param $version
-	 * @param $path
+	 * @param string $class_name Name of the class that you want to autoload.
+	 * @param string $version Version of the class.
+	 * @param string $path Absolute path to the class so that we can load it.
 	 */
 	function jetpack_enqueue_package( $class_name, $version, $path ) {
 		global $jetpack_packages;
-		if ( ! isset( $jetpack_packages[ $class_name ] )
-			 || version_compare( $jetpack_packages[ $class_name ]['version'], $version, '<' )
-		) {
+		if ( ! isset( $jetpack_packages[ $class_name ] ) || version_compare( $jetpack_packages[ $class_name ]['version'], $version, '<' ) ) {
 			$jetpack_packages[ $class_name ] = array(
 				'version' => $version,
 				'path'    => $path,
@@ -32,8 +32,9 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 		}
 	}
 
-	// Add the autoloader
+	// Add the autoloader.
 	spl_autoload_register(
+		// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 		function ( $class_name ) {
 			global $jetpack_packages;
 
@@ -53,9 +54,14 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 
 				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
-						$class_name,
-						'Not all plugins have loaded yet but we requested the class ' . $class_name,
-						$jetpack_packages[ $class_name ]['version']
+						esc_html( $class_name ),
+						sprintf(
+							/* translators: %s Name of a PHP Class */
+							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							$class_name
+						),
+						esc_html( $jetpack_packages[ $class_name ]['version'] )
 					);
 				}
 
@@ -69,6 +75,6 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 
 $class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 
-foreach ( $class_map as $class_name => $map ) {
-	jetpack_enqueue_package( $class_name, $map['version'], $map['path'] );
+foreach ( $class_map as $class_name => $class_info ) {
+	jetpack_enqueue_package( $class_name, $class_info['version'], $class_info['path'] );
 }
