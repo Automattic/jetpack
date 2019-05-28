@@ -72,7 +72,7 @@ hash yarn 2>/dev/null || {
     exit 1;
 }
 yarn --cwd $TARGET_DIR cache clean
-yarn --cwd $TARGET_DIR run build
+COMPOSER_MIRROR_PATH_REPOS=1 yarn --cwd $TARGET_DIR run build
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore
