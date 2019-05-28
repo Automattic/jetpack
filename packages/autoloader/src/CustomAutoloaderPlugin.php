@@ -71,7 +71,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Event $event Script event object.
 	 */
 	public function postAutoloadDump( Event $event ) {
-
 		$installationManager = $this->composer->getInstallationManager();
 		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
