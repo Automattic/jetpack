@@ -50,10 +50,11 @@
 
 .jp-landing__plan-features-card {
 	display: flex;
+	flex-basis: 32%;
 	flex-wrap: nowrap;
 	flex-grow: 1;
 	box-sizing: border-box;
-	max-width: 49.5%;
+	margin: 8px;
 	background-color: $white;
 	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
 		0 1px 2px lighten( $gray, 30% );
@@ -111,9 +112,12 @@
 .jp-landing__plan-features {
 	display: flex;
 	flex-wrap: wrap;
+	flex-direction: row;
 	align-items: stretch;
 	justify-content: space-between;
 	margin-bottom: rem( 32px );
+	margin-left: -8px;
+	margin-right: -8px;
 
 	@include breakpoint( "<660px" ) {
 		display: block;
