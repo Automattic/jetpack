@@ -13,6 +13,14 @@
  * - Push the latest contents and history of the package directory to the package repository.
  * - Push a new release in the package repository, with a tag `v1.2.3`.
  *
+ * Pre-requisites and important notes - before running this script, double check all are fulfilled:
+ * - The `automattic/jetpack-example-package` package repository must already exist.
+ * - The `packages/example-package` directory must already exist.
+ * - The user running the script must have permissions to push to:
+ *   - The `automattic/jetpack` repository.
+ *   - The package repository.
+ * - The tag version SHOULD be the next available minor or major version, following the semver standards.
+ *
  * @package jetpack
  */
 
