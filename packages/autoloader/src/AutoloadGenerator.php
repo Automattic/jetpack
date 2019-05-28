@@ -30,7 +30,7 @@ class AutoloadGenerator extends BaseGenerator {
 	private $classMapAuthoritative = false;
 
 	/**
-	 * Instantiate a AutoloadGenerator object.
+	 * Instantiate an AutoloadGenerator object.
 	 *
 	 * @param IOInterface $io
 	 */
