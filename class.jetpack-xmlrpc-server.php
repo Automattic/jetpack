@@ -24,6 +24,7 @@ class Jetpack_XMLRPC_Server {
 		$jetpack_methods = array(
 			'jetpack.jsonAPI'           => array( $this, 'json_api' ),
 			'jetpack.verifyAction'      => array( $this, 'verify_action' ),
+			'jetpack.getUser'           => array( $this, 'get_user' ),
 			'jetpack.remoteRegister'    => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
 		);
@@ -91,6 +92,40 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 			'jetpack.remoteConnect'   => array( $this, 'remote_connect' ),
+		);
+	}
+
+	/**
+	 * This is used to verify whether a local user exists and what role they have,
+	 * for the purposes of verifying that they are still a valid master user.
+	 * @param local_user a local user ID or email address
+	 * @return id the user's ID
+	 * @return role the user's role
+	 * @return email the user's email address
+	 */
+	function get_user( $request ) {
+		// TODO ensure authorize with blog token?
+		$user = $this->fetch_and_verify_local_user( $request, 'jpc_get_user_fail' );
+
+		if ( is_wp_error( $user ) ) {
+			return $user;
+		}
+
+		if ( empty( $user ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'user_unknown',
+					__( 'User not found.', 'jetpack' ),
+					404
+				),
+				'jpc_get_user_fail'
+			);
+		}
+
+		return array(
+			'id' => $user->ID,
+			'email' => $user->user_email,
+			'roles' => $user->roles,
 		);
 	}
 
@@ -352,7 +387,7 @@ class Jetpack_XMLRPC_Server {
 		return Jetpack::is_active();
 	}
 
-	private function fetch_and_verify_local_user( $request ) {
+	private function fetch_and_verify_local_user( $request, $error_slug = 'jpc_remote_provision_fail' ) {
 		if ( empty( $request['local_user'] ) ) {
 			return $this->error(
 				new Jetpack_Error(
@@ -360,7 +395,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_provision_fail'
+				$error_slug
 			);
 		}
 

@@ -47,6 +47,23 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 
+	function test_xmlrpc_get_user() {
+		$user_id = $this->factory->user->create();
+		$user = get_user_by( 'ID', $user_id );
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->get_user( array( 'local_user' => $user_id ) );
+
+		$this->assertEquals( $user_id, $response['id'] );
+		$this->assertEquals( $user->user_email, $response['email'] );
+		$this->assertEquals( sort( $user->roles ), sort( $response['roles'] ) );
+
+		$missing_response = $server->get_user( array( 'local_user' => 999999999 ) );
+
+		$this->assertEquals( 'IXR_Error', get_class( $missing_response ) );
+		$this->assertEquals( 404, $missing_response->code );
+		$this->assertEquals( 'Jetpack: [user_unknown] User not found.', $missing_response->message );
+	}
+
 	function test_xmlrpc_remote_register_fails_no_nonce() {
 		$server = new Jetpack_XMLRPC_Server();
 
