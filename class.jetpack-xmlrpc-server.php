@@ -190,7 +190,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( ! Jetpack_Options::get_option( 'id' ) || ! Jetpack_Options::get_option( 'blog_token' ) || ! empty( $request['force'] ) ) {
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! Jetpack_Data::get_access_token() || ! empty( $request['force'] ) ) {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.
@@ -759,7 +759,15 @@ class Jetpack_XMLRPC_Server {
 		$old_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
-		$token = Jetpack_Data::get_access_token( get_current_user_id() );
+		if ( $user_id ) {
+			$token_key = false;
+		} else {
+			$jetpack   = Jetpack::init();
+			$verified  = $jetpack->verify_xml_rpc_signature();
+			$token_key = $verified['token_key'];
+		}
+
+		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
 		if ( !$token || is_wp_error( $token ) ) {
 			return false;
 		}

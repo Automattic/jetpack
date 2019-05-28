@@ -169,25 +169,20 @@ class Jetpack_Debug_Data {
 		 *
 		 * If a token does not contain a period, then it is malformed and we report it as such.
 		 */
-		$user_id     = get_current_user_id();
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
-		$blog_token  = Jetpack_Options::get_option( 'blog_token' );
-		$user_token  = null;
-		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
-			$user_token = $user_tokens[ $user_id ];
-		}
-		unset( $user_tokens );
+		$user_id    = get_current_user_id();
+		$blog_token = Jetpack_Data::get_access_token();
+		$user_token = Jetpack_Data::get_access_token( $user_id );
 
 		$tokenset = '';
 		if ( $blog_token ) {
 			$tokenset = 'Blog ';
-			$blog_key = substr( $blog_token, 0, strpos( $blog_token, '.' ) );
+			$blog_key = substr( $blog_token->secret, 0, strpos( $blog_token->secret, '.' ) );
 			// Intentionally not translated since this is helpful when sent to Happiness.
 			$blog_key = ( $blog_key ) ? $blog_key : 'Potentially Malformed Token.';
 		}
 		if ( $user_token ) {
 			$tokenset .= 'User';
-			$user_key  = substr( $user_token, 0, strpos( $user_token, '.' ) );
+			$user_key  = substr( $user_token->secret, 0, strpos( $user_token->secret, '.' ) );
 			// Intentionally not translated since this is helpful when sent to Happiness.
 			$user_key = ( $user_key ) ? $user_key : 'Potentially Malformed Token.';
 		}
