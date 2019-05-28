@@ -7,7 +7,7 @@ A simple package that allows you to display a Jetpack logo somewhere.
 Display the default Jetpack logo:
 
 ```php
-use Jetpack\Assets\Logo;
+use Automattic\Jetpack\Assets\Logo;
 
 $logo = new Logo();
 echo $logo->render();
@@ -16,7 +16,7 @@ echo $logo->render();
 Display a custom Jetpack logo of your choice:
 
 ```php
-use Jetpack\Assets\Logo;
+use Automattic\Jetpack\Assets\Logo;
 
 $url = plugins_url( 'images/jetpack-logo.svg', __DIR__ );
 $logo = new Logo( $url );

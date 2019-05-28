@@ -12,12 +12,13 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "b9ada94a1527c54a2daa3c3b7695a6f95e5a9715"
+                "reference": "171601ad9136a28616ef0189895c54dee5e7d2df",
+                "shasum": null
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\Assets\\": "src/"
+                    "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
             "license": [
