@@ -1,0 +1,69 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "49cc77db6ebce51d9691c821a1575936",
+    "packages": [
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "1.0.1",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/logo",
+                "reference": "c202372ba784baf58cb6da18fd8430a7ab752521"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\Assets\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "symlink": false
+            }
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/autoloader",
+                "reference": "c4ec86abe78e6ccae8eadd99d2f75549485b0d8c"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "symlink": true
+            }
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
