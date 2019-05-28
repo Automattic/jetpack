@@ -72,9 +72,3 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 		}
 	);
 }
-
-$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
-
-foreach ( $class_map as $class_name => $class_info ) {
-	jetpack_enqueue_package( $class_name, $class_info['version'], $class_info['path'] );
-}

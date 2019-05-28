@@ -107,8 +107,13 @@ EOF;
 		$classmapFile .= 'return ' . $this->classMapToPHPArrayString( $classMap );
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $classmapFile );
 
+		if ( ! $suffix ) {
+			$suffix = $config->get( 'autoloader-suffix' )
+				? $config->get( 'autoloader-suffix' )
+				: md5( uniqid( '', true ) );
+		}
 		// Copy over the autoload.php file into autoload_packages.php.
-		copy( __DIR__ . '/autoload.php', $vendorPath . '/autoload_packages.php' );
+		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( $suffix ) );
 
 	}
 
@@ -311,4 +316,31 @@ EOF;
 		);
 	}
 
+	/**
+	 * Generate the PHP that will be used in the autoload_packages.php files.
+	 *
+	 * @param string $suffix  Unique suffix added to the jetpack_enqueue_packages function.
+	 *
+	 * @return string
+	 */
+	private function getAutoloadPackageFile( $suffix ) {
+		$sourceLoader   = fopen( __DIR__ . '/autoload.php', 'r' );
+		$file_contents  = stream_get_contents( $sourceLoader );
+		$file_contents .= <<<INCLUDE_FILES
+		/**
+		 * Prepare all the classes for autoloading.
+		 */
+		function jetpack_enqueue_packages_$suffix() {
+			\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
+			foreach ( \$class_map as \$class_name => \$class_info ) {
+				jetpack_enqueue_package( \$class_name, \$class_info['version'], \$class_info['path'] );
+			}
+		}
+		
+		jetpack_enqueue_packages_$suffix();
+		
+INCLUDE_FILES;
+
+		return $file_contents;
+	}
 }
