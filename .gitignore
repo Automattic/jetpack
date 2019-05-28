@@ -62,3 +62,4 @@ _inc/jetpack-strings.php
 /vendor/automattic/
 /vendor/composer/
 /vendor/autoload.php
+vendor/autoload_packages.php
