@@ -41,13 +41,6 @@ use Composer\Util\Filesystem;
 class AutoloadGenerator extends BaseGenerator {
 
 	/**
-	 * IO object.
-	 *
-	 * @var IOInterface IO object.
-	 */
-	private $io;
-
-	/**
 	 * Whether or not generated autoloader considers the class map authoritative.
 	 *
 	 * @var bool Whether or not generated autoloader considers the class map authoritative.
