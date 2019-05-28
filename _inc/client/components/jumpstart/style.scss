@@ -9,7 +9,16 @@
 	display: flex;
 	margin-bottom: 0;
 
-	.jp-jumpstart-card__img,
+	.jp-jumpstart-card__img {
+		@include breakpoint( ">480px" ) {
+			flex: 1 0 rem( 100px );
+		}
+
+		@include breakpoint( ">660px" ) {
+			flex: 1 0 rem( 200px );
+		}
+	}
+
 	.jp-jumpstart-card__img img {
 		display: none;
 
@@ -23,7 +32,9 @@
 		}
 	}
 
+
 	.jp-jumpstart-card__description {
+		margin-left: 0;
 
 		@include breakpoint( ">480px" ) {
 			margin-left: 2rem;
