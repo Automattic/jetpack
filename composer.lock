@@ -29,6 +29,34 @@
     ],
     "packages-dev": [
         {
+            "name": "automattic/jetpack-autoloader",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "./packages/autoloader",
+                "reference": "adfc442325deb8003d421f00b33db41f783cbbc0"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "symlink": true
+            }
+        },
+        {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.5.0",
             "source": {

@@ -41,6 +41,14 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @var Composer Composer object.
 	 */
 	private $composer;
+
+	/**
+	 * Did the generator run already?
+	 *
+	 * @var bool $generated Whether the genrate dumped the files already.
+	 */
+	private $generated = false;
+
 	/**
 	 * Do nothing.
 	 *
@@ -71,6 +79,10 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Event $event Script event object.
 	 */
 	public function postAutoloadDump( Event $event ) {
+		if ( $this->generated ) {
+			return;
+		}
+
 		$installationManager = $this->composer->getInstallationManager();
 		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
@@ -82,6 +94,7 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		$optimize = true;
 
 		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize );
+		$this->generated = true;
 	}
 
 }

@@ -106,6 +106,7 @@ class AutoloadGenerator extends BaseGenerator {
 EOF;
 		$classmapFile .= 'return ' . $this->classMapToPHPArrayString( $classMap );
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $classmapFile );
+		$this->io->writeError( '<info>Generated autoload_classmap_package.php</info>', true );
 
 		if ( ! $suffix ) {
 			$suffix = $config->get( 'autoloader-suffix' )
@@ -114,6 +115,7 @@ EOF;
 		}
 		// Copy over the autoload.php file into autoload_packages.php.
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( $suffix ) );
+		$this->io->writeError( '<info>Generated autoload_packages.php</info>', true );
 
 	}
 
