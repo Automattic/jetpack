@@ -32,8 +32,10 @@ In your project's `composer.json`, add the following lines:
 After the next update/install, you will have a `vendor/autoload_packages.php` file.
 Load the file in your plugin via main plugin file.
 
-In a plugin you will also need to include the files like this.
-`require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';`
+In the main plugin you will also need to include the files like this.
+```php
+require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+```
 
 
 Current Limitations
