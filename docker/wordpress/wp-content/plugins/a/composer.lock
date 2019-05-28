@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8bae77aaa538436a280aa46bd5eca300",
+    "content-hash": "bfa3396d1a3f4fab49b07408e0f08e51",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-try/custom-autoloader",
+            "version": "1.0.0",
             "dist": {
                 "type": "path",
                 "url": "../jetpack/packages/logo",
-                "reference": "30319e40b252e1582f5a225763155f3e9185d48a"
+                "reference": "fc08b104287aa6f72c5704828295b0da5b2a8199"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\Assets\\": "src/"
+                    "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
             "license": [
@@ -32,22 +32,22 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-try/custom-autoloader",
+            "version": "1.0.0",
             "dist": {
                 "type": "path",
                 "url": "../jetpack/packages/autoloader",
-                "reference": "aa47584d163482dd15f6db553d2f89bfb8cf768e"
+                "reference": "adfc442325deb8003d421f00b33db41f783cbbc0"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
             },
             "type": "composer-plugin",
             "extra": {
-                "class": "Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
             },
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\Autoloader\\": "src"
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
                 }
             },
             "license": [
@@ -61,10 +61,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "automattic/jetpack-logo": 20,
-        "automattic/jetpack-autoloader": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

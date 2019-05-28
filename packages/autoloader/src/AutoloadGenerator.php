@@ -1,9 +1,30 @@
 <?php
-// phpcs:ignoreFile -- this is not a core file
 /**
  * Autoloader Generator.
+ *
+ * @package Automattic\Jetpack\Autoloader
  */
-namespace Jetpack\Autoloader;
+
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
+// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
+// phpcs:disable PHPCompatibility.FunctionDeclarations.NewClosure.Found
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
+// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+// phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+
+
+
+namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Autoload\AutoloadGenerator as BaseGenerator;
 use Composer\Autoload\ClassMapGenerator;
@@ -20,44 +41,38 @@ use Composer\Util\Filesystem;
 class AutoloadGenerator extends BaseGenerator {
 
 	/**
-	 * @var IOInterface
+	 * IO object.
+	 *
+	 * @var IOInterface IO object.
 	 */
 	private $io;
 
 	/**
-	 * @var bool
+	 * Whether or not generated autoloader considers the class map authoritative.
+	 *
+	 * @var bool Whether or not generated autoloader considers the class map authoritative.
 	 */
 	private $classMapAuthoritative = false;
 
 	/**
 	 * Instantiate an AutoloadGenerator object.
 	 *
-	 * @param IOInterface $io
+	 * @param IOInterface $io IO object.
 	 */
 	public function __construct( $io ) {
 		$this->io = $io;
 	}
 
 	/**
-	 * Whether or not generated autoloader considers the class map
-	 * authoritative.
-	 *
-	 * @param bool $classMapAuthoritative
-	 */
-	public function setClassMapAuthoritative( $classMapAuthoritative ) {
-		$this->classMapAuthoritative = (bool) $classMapAuthoritative;
-	}
-
-	/**
 	 * Dump the autoloader.
 	 *
-	 * @param Config                       $config
-	 * @param InstalledRepositoryInterface $localRepo
-	 * @param PackageInterface             $mainPackage
-	 * @param InstallationManager          $installationManager
-	 * @param string                       $targetDir
-	 * @param bool                         $scanPsr0Packages
-	 * @param string                       $suffix
+	 * @param Config                       $config Config object.
+	 * @param InstalledRepositoryInterface $localRepo Installed Reposetories object.
+	 * @param PackageInterface             $mainPackage Main Package object.
+	 * @param InstallationManager          $installationManager Manager for installing packages.
+	 * @param string                       $targetDir Path to the current target directory.
+	 * @param bool                         $scanPsr0Packages Whether to search for packages. Currently hard coded to always be false.
+	 * @param string                       $suffix The autoloader suffix ignored since we want our autolaoder to only be included once.
 	 */
 	public function dump(
 		Config $config,
@@ -65,8 +80,8 @@ class AutoloadGenerator extends BaseGenerator {
 		PackageInterface $mainPackage,
 		InstallationManager $installationManager,
 		$targetDir,
-		$scanPsr0Packages = null, // Not used we always optimize
-		$suffix = null // Not used since we create our own autoloader
+		$scanPsr0Packages = null, // Not used we always optimize.
+		$suffix = null // Not used since we create our own autoloader.
 	) {
 
 		$filesystem = new Filesystem();
@@ -87,7 +102,7 @@ class AutoloadGenerator extends BaseGenerator {
 
 		$classMap = $this->getClassMapFromAutoloads( $autoloads, $filesystem, $vendorPath, $basePath );
 
-		// Write out the autoload_classmap_package.php file
+		// Write out the autoload_classmap_package.php file.
 		$classmapFile  = <<<EOF
 <?php
 
@@ -101,7 +116,7 @@ EOF;
 		$classmapFile .= 'return ' . $this->classMapToPHPArrayString( $classMap );
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $classmapFile );
 
-		// Copy over the autoload.php file
+		// Copy over the autoload.php file.
 		$sourceLoader = fopen( __DIR__ . '/autoload.php', 'r' );
 		$targetLoader = fopen( $vendorPath . '/autoload_packages.php', 'w+' );
 		fwrite( $targetLoader, stream_get_contents( $sourceLoader ) );
@@ -111,7 +126,7 @@ EOF;
 	/**
 	 * Takes a classMap and returns the array string representation.
 	 *
-	 * @param array $classMap
+	 * @param array $classMap Map of all the package classes and paths and versions.
 	 *
 	 * @return string
 	 */
@@ -129,9 +144,9 @@ EOF;
 	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the path and the version of a package.
 	 *
-	 * @param array            $packageMap
-	 * @param $type
-	 * @param PackageInterface $mainPackage
+	 * @param array            $packageMap Map of all the packages.
+	 * @param string           $type Type of autoloader to use, currently not used, since we only support psr-4.
+	 * @param PackageInterface $mainPackage Instance of the Package Object.
 	 *
 	 * @return array
 	 */
@@ -169,22 +184,21 @@ EOF;
 	/**
 	 * Take the autoloads array and return the classMap that contains the path and the version for each namespace.
 	 *
-	 * @param array      $autoloads
-	 * @param Filesystem $filesystem
-	 * @param string     $vendorPath
-	 * @param string     $basePath
+	 * @param array      $autoloads Array of autoload settings defined defined by the packages.
+	 * @param Filesystem $filesystem Filesystem class instance.
+	 * @param string     $vendorPath Path to the vendor directory.
+	 * @param string     $basePath Base Path.
 	 *
 	 * @return array $classMap
 	 */
 	private function getClassMapFromAutoloads( $autoloads, $filesystem, $vendorPath, $basePath ) {
 
-		// flatten array
 		$classMap = array();
 
 		$namespacesToScan = array();
 		$blacklist        = null; // not supportered for now.
 
-		// Scan the PSR-4 directories for class files, and add them to the class map
+		// Scan the PSR-4 directories for class files, and add them to the class map.
 		foreach ( $autoloads['psr-4'] as $namespace => $info ) {
 			$version = array_reduce(
 				array_map(
@@ -221,7 +235,7 @@ EOF;
 						continue;
 					}
 
-					$namespaceFilter = $namespace === '' ? null : $namespace;
+					$namespaceFilter = '' === $namespace ? null : $namespace;
 					$classMap        = $this->addClassMapCode(
 						$filesystem,
 						$basePath,
@@ -242,14 +256,14 @@ EOF;
 	/**
 	 * Add a single class map resolution.
 	 *
-	 * @param Filesystem $filesystem
-	 * @param string     $basePath
-	 * @param string     $vendorPath
-	 * @param string     $dir
-	 * @param null       $blacklist
-	 * @param null       $namespaceFilter
-	 * @param string     $version
-	 * @param array      $classMap
+	 * @param Filesystem $filesystem Filesystem class instance.
+	 * @param string     $basePath Base path.
+	 * @param string     $vendorPath Path to the vendor diretory.
+	 * @param string     $dir Direcotry path.
+	 * @param null       $blacklist Blacklist of namespaces set to be ignored currently not used.
+	 * @param null       $namespaceFilter Namespace being used.
+	 * @param string     $version The version of the package.
+	 * @param array      $classMap The current classMap.
 	 *
 	 * @return array
 	 */
@@ -292,10 +306,10 @@ EOF;
 	/**
 	 * Trigger the class map generation.
 	 *
-	 * @param string $dir
-	 * @param null   $blacklist
-	 * @param null   $namespaceFilter
-	 * @param bool   $showAmbiguousWarning
+	 * @param string $dir  Directory path.
+	 * @param null   $blacklist Blacklist of namespaces set to be ignored currently not used.
+	 * @param null   $namespaceFilter Namespace being used.
+	 * @param bool   $showAmbiguousWarning Whether to show a warning in the console.
 	 *
 	 * @return array
 	 */

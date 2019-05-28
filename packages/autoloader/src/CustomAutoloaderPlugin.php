@@ -1,6 +1,18 @@
 <?php
-// phpcs:ignoreFile -- this is not a core file
-namespace Jetpack\Autoloader;
+/**
+ * Custom Autoloader Composer Plugin, hooks into composer events to generate the custom autoloader.
+ *
+ * @package Automattic\Jetpack\Autoloader
+ */
+
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
+// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
+// phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
+// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -9,22 +21,41 @@ use Composer\Script\ScriptEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Class CustomAutoloaderPlugin.
+ *
+ * @package Automattic\Jetpack\Autoloader
+ */
 class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterface {
 
 	/**
+	 * IO object.
+	 *
+	 * @var IOInterface IO object.
+	 */
+	private $io;
+
+	/**
+	 * Composer object.
+	 *
+	 * @var Composer Composer object.
+	 */
+	private $composer;
+	/**
 	 * Do nothing.
 	 *
-	 * @param Composer    $composer
-	 * @param IOInterface $io
+	 * @param Composer    $composer Composer object.
+	 * @param IOInterface $io IO object.
 	 */
-	public function activate( Composer $composer, IOInterface $io ) {
-		// do nothing yet
+	public function activate( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->composer = $composer;
+		$this->io       = $io;
 	}
 
 	/**
 	 * Tell composer to listen for events and do something with them.
 	 *
-	 * @return array
+	 * @return array List of succribed events.
 	 */
 	public static function getSubscribedEvents() {
 		return array(
@@ -37,18 +68,17 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	/**
 	 * Generate the custom autolaoder.
 	 *
-	 * @param Event $event
+	 * @param Event $event Script event object.
 	 */
-	public static function postAutoloadDump( Event $event ) {
+	public function postAutoloadDump( Event $event ) {
 
-		$composer            = $event->getComposer();
-		$installationManager = $composer->getInstallationManager();
-		$repoManager         = $composer->getRepositoryManager();
+		$installationManager = $this->composer->getInstallationManager();
+		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
-		$package             = $composer->getPackage();
-		$config              = $composer->getConfig();
+		$package             = $this->composer->getPackage();
+		$config              = $this->composer->getConfig();
 
-		$generator = new AutoloadGenerator( $event->getIO() );
+		$generator = new AutoloadGenerator( $this->io );
 
 		$optimize = true;
 

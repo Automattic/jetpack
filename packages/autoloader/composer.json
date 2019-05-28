@@ -9,10 +9,10 @@
 	"version": "1.0.0",
 	"autoload": {
 		"psr-4": {
-			"Jetpack\\Autoloader\\": "src"
+			"Automattic\\Jetpack\\Autoloader\\": "src"
 		}
 	},
 	"extra": {
-		"class": "Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
 	}
 }
