@@ -363,7 +363,7 @@ class MembershipsButtonEdit extends Component {
 					>
 						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 							{ __(
-								"You'll need to upgrade your plan to use the Recurring Payment Button.",
+								"You'll need to upgrade your plan to use the Recurring Payments button.",
 								'jetpack'
 							) }
 							<br />
@@ -393,7 +393,7 @@ class MembershipsButtonEdit extends Component {
 						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 								{ __(
-									'In order to start selling Recurring Payment plans, you have to connect to Stripe:',
+									'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
 									'jetpack'
 								) }
 								<br />
@@ -420,7 +420,7 @@ class MembershipsButtonEdit extends Component {
 							notices={ notices }
 						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-								{ __( 'Add your first Recurring Payment plan:', 'jetpack' ) }
+								{ __( 'Add your first Recurring Payments plan:', 'jetpack' ) }
 								<br />
 								<br />
 								{ this.renderAddMembershipAmount() }
