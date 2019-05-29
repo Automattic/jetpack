@@ -75,7 +75,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 			/**
 			 * A way to prevent loading of a package from a particular location or version.
 			 *
-			 * @since 7.4.0
+			 * @since 7.5.0
 			 *
 			 * @param bool false whether to load a particular class package.
 			 * @param string $class_name Name of a particular class to autoload.

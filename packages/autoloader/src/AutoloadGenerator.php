@@ -40,18 +40,11 @@ use Composer\Util\Filesystem;
 class AutoloadGenerator extends BaseGenerator {
 
 	/**
-	 * Whether or not generated autoloader considers the class map authoritative.
-	 *
-	 * @var bool Whether or not generated autoloader considers the class map authoritative.
-	 */
-	private $classMapAuthoritative = false;
-
-	/**
 	 * Instantiate an AutoloadGenerator object.
 	 *
 	 * @param IOInterface $io IO object.
 	 */
-	public function __construct( $io ) {
+	public function __construct( IOInterface $io = null ) {
 		$this->io = $io;
 	}
 
@@ -127,7 +120,7 @@ EOF;
 	 *
 	 * @return string
 	 */
-	private function classMapToPHPArrayString( $classMap ) {
+	private function classMapToPHPArrayString( array $classMap ) {
 		$classmapString = ' array( ';
 		ksort( $classMap );
 		foreach ( $classMap as $class => $code ) {
@@ -188,7 +181,7 @@ EOF;
 	 *
 	 * @return array $classMap
 	 */
-	private function getClassMapFromAutoloads( $autoloads, $filesystem, $vendorPath, $basePath ) {
+	private function getClassMapFromAutoloads( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
 
 		$classMap = array();
 
@@ -270,14 +263,13 @@ EOF;
 	 * @return array
 	 */
 	private function addClassMapCode(
-		$filesystem,
+		Filesystem $filesystem,
 		$basePath,
 		$vendorPath,
 		$dir,
 		$blacklist = null,
 		$namespaceFilter = null,
 		$version,
-
 		array $classMap = array()
 	) {
 
