@@ -63,8 +63,6 @@ hash composer 2>/dev/null || {
     exit 1;
 }
 
-COMPOSER_MIRROR_PATH_REPOS=1 composer install --working-dir $TARGET_DIR
-
 # Checking for yarn
 hash yarn 2>/dev/null || {
     echo >&2 "This script requires you to have yarn package manager installed."
