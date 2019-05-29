@@ -64,7 +64,7 @@ const initializeMembershipButtonBlocks = () => {
 			activateSubscription( block, blogId, planId, poweredText, lang );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem activating Membership Button ' + planId, err );
+			console.error( 'Problem activating Recurring Payments ' + planId, err );
 		}
 	} );
 };
