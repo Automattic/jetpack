@@ -222,7 +222,7 @@ hash yarn 2>/dev/null || {
 
 # Start cleaning the cache.
 yarn cache clean
-yarn run build-production
+COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
