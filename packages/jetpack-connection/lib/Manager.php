@@ -1,17 +1,28 @@
 <?php
+/**
+ * The Jetpack Connection manager class file.
+ *
+ * @package jetpack-connection
+ */
 
 namespace Jetpack\V7\Connection;
 
 use Jetpack\V7\Connection\Manager_Interface;
 
+/**
+ * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
+ * and Jetpack.
+ */
 class Manager implements Manager_Interface {
 
-	const SECRETS_MISSING = 'secrets_missing';
-	const SECRETS_EXPIRED = 'secrets_expired';
-	const SECRETS_OPTION_NAME = 'jetpack_secrets';
+	const SECRETS_MISSING     = 'secrets_missing';
+	const SECRETS_EXPIRED     = 'secrets_expired';
+	const SECRETS_OPTION_NAME = 'secrets';
 
 	/**
 	 * The object for managing options.
+	 *
+	 * @var \Jetpack\V7\Options\Manager
 	 */
 	protected $option_manager;
 
@@ -34,7 +45,7 @@ class Manager implements Manager_Interface {
 	 * @see Jetpack::__construct
 	 */
 	public function initialize( $methods ) {
-		
+		$methods;
 	}
 
 	/**
@@ -43,7 +54,7 @@ class Manager implements Manager_Interface {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-
+		return false;
 	}
 
 	/**
@@ -54,7 +65,7 @@ class Manager implements Manager_Interface {
 	 * @return Boolean is the user connected?
 	 */
 	public function is_user_connected( $user_id ) {
-
+		return $user_id;
 	}
 
 	/**
@@ -64,7 +75,7 @@ class Manager implements Manager_Interface {
 	 * @return Object the user object.
 	 */
 	public function get_connected_user_data( $user_id ) {
-
+		return $user_id;
 	}
 
 	/**
@@ -74,7 +85,7 @@ class Manager implements Manager_Interface {
 	 * @return Boolean is the user the connection owner?
 	 */
 	public function is_connection_owner( $user_id ) {
-
+		return $user_id;
 	}
 
 	/**
@@ -83,7 +94,7 @@ class Manager implements Manager_Interface {
 	 * @param Integer $user_id the user identifier.
 	 */
 	public static function disconnect_user( $user_id ) {
-
+		return $user_id;
 	}
 
 	/**
@@ -118,7 +129,7 @@ class Manager implements Manager_Interface {
 	 * @return Integer zero on success, or a bitmask on failure.
 	 */
 	public function register() {
-
+		return 0;
 	}
 
 	/**
@@ -167,12 +178,15 @@ class Manager implements Manager_Interface {
 	public function generate_secrets( $action, $user_id, $exp ) {
 		$callable = $this->get_secret_callable();
 
-		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
 		$secret_value = array(
-			'secret_1'  => call_user_func( $callable ),
-			'secret_2'  => call_user_func( $callable ),
-			'exp'       => time() + $exp,
+			'secret_1' => call_user_func( $callable ),
+			'secret_2' => call_user_func( $callable ),
+			'exp'      => time() + $exp,
 		);
+
+		// TODO: Make the method actually update the value rather than overwrite it.
+		$secrets = array();
 
 		$secrets[ $secret_name ] = $secret_value;
 
@@ -185,12 +199,11 @@ class Manager implements Manager_Interface {
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
-	 * @param Integer $exp     Expiration time in seconds.
 	 * @return string|array an array of secrets or an error string.
 	 */
-	public function get_secrets( $action, $user_id, $exp ) {
+	public function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
+		$secrets     = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return self::SECRETS_MISSING;
@@ -209,11 +222,10 @@ class Manager implements Manager_Interface {
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
-	 * @return string|array an array of secrets or an error string.
 	 */
-	protected function delete_secrets( $action, $user_id ) {
+	public function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
+		$secrets     = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
 			$this->get_option_manager()->update_option( self::SECRETS_OPTION_NAME, $secrets );
@@ -249,7 +261,7 @@ class Manager implements Manager_Interface {
 	 * @return string Connect URL
 	 */
 	public function build_connect_url( $raw, $redirect, $from, $register ) {
-
+		return array( $raw, $redirect, $from, $register );
 	}
 
 	/**

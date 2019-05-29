@@ -172,7 +172,7 @@ abstract class Manager {
 	 * Deletes a single value from a grouped option.
 	 *
 	 * @param String $group   name of the group, i.e., 'private'.
-	 * @param String $names   the name of the option to delete.
+	 * @param Array  $names   the names of the option to delete.
 	 * @return Mixed the option value or default if not found.
 	 */
 	protected function delete_grouped_option( $group, $names ) {

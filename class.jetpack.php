@@ -22,6 +22,8 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+use \Jetpack\V7\Connection\Manager as Connection_Manager;
+
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
 class Jetpack {
@@ -333,6 +335,11 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
+	 * @var \Jetpack\V7\Connection\Manager
+	 */
+	protected $connection_manager;
+
+	/**
 	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
 	 */
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
@@ -531,6 +538,18 @@ class Jetpack {
 		if ( is_multisite() ) {
 			Jetpack_Network::init();
 		}
+
+		add_filter( 'jetpack_connection_option_manager', function() {
+			return new Jetpack_Options_Manager();
+		} );
+
+		add_filter( 'jetpack_connection_secret_generator', function( $callable ) {
+			return function() {
+				return wp_generate_password( 32, false );
+			};
+		} );
+
+		$this->connection_manager = new Connection_Manager( );
 
 		/**
 		 * Prepare Gutenberg Editor functionality
@@ -4536,6 +4555,7 @@ p {
 				);
 
 				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+
 					// Generating a register URL instead to refresh the existing token
 					return $this->build_connect_url( $raw, $redirect, $from, true );
 				}
@@ -4945,55 +4965,29 @@ p {
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		if ( ! $user_id ) {
+		if ( false === $user_id ) {
 			$user_id = get_current_user_id();
 		}
 
-		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
-		$secrets      = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
-
-		if (
-			isset( $secrets[ $secret_name ] ) &&
-			$secrets[ $secret_name ]['exp'] > time()
-		) {
-			return $secrets[ $secret_name ];
-		}
-
-		$secret_value = array(
-			'secret_1'  => wp_generate_password( 32, false ),
-			'secret_2'  => wp_generate_password( 32, false ),
-			'exp'       => time() + $exp,
-		);
-
-		$secrets[ $secret_name ] = $secret_value;
-
-		Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
-		return $secrets[ $secret_name ];
+		return self::init()->connection_manager->generate_secrets( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {
-		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+		$secrets = self::init()->connection_manager->get_secrets( $action, $user_id );
 
-		if ( ! isset( $secrets[ $secret_name ] ) ) {
+		if ( Connection_Manager::SECRETS_MISSING === $secrets ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
 		}
 
-		if ( $secrets[ $secret_name ]['exp'] < time() ) {
-			self::delete_secrets( $action, $user_id );
+		if ( Connection_Manager::SECRETS_EXPIRED === $secrets ) {
 			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
 		}
 
-		return $secrets[ $secret_name ];
+		return $secrets;
 	}
 
 	public static function delete_secrets( $action, $user_id ) {
-		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
-		if ( isset( $secrets[ $secret_name ] ) ) {
-			unset( $secrets[ $secret_name ] );
-			Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
-		}
+		return self::init()->connection_manager->delete_secrets( $action, $user_id );
 	}
 
 	/**

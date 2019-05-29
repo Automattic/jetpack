@@ -1,4 +1,9 @@
 <?php
+/**
+ * The Jetpack Connection Interface file.
+ *
+ * @package jetpack-connection
+ */
 
 namespace Jetpack\V7\Connection;
 
@@ -100,10 +105,9 @@ interface Manager_Interface {
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
-	 * @param Integer $exp     Expiration time in seconds.
 	 * @return array
 	 */
-	public function get_secrets( $action, $user_id, $exp );
+	public function get_secrets( $action, $user_id );
 
 	/**
 	 * Responds to a WordPress.com call to register the current site.
