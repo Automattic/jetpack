@@ -34,7 +34,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	private static $button_block_name = 'membership-button';
+	private static $button_block_name = 'recurring-payment-button';
 
 	/**
 	 * These are defaults for wp_kses ran on the membership button.
