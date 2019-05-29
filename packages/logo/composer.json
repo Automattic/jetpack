@@ -2,7 +2,6 @@
 	"name": "automattic/jetpack-logo",
 	"description": "A logo for Jetpack",
 	"type": "library",
-	"version": "1.0.0",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"autoload": {
