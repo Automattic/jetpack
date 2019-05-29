@@ -192,7 +192,7 @@ EOF;
 		$classMap = array();
 
 		$namespacesToScan = array();
-		$blacklist        = null; // not supportered for now.
+		$blacklist        = null; // not supported for now.
 
 		// Scan the PSR-4 directories for class files, and add them to the class map.
 		foreach ( $autoloads['psr-4'] as $namespace => $info ) {
