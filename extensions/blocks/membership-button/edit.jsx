@@ -196,7 +196,7 @@ class MembershipsButtonEdit extends Component {
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
-					{ __( 'Add Recurring Payments Plans', 'jetpack' ) }
+					{ __( 'Add a Recurring Payments Plan', 'jetpack' ) }
 				</Button>
 			);
 		}
