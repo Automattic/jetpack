@@ -878,7 +878,7 @@ table.wpsc-settings-table {
 	}
 
 	if ( 'preload' === $curr_tab ) {
-		if ( true === $super_cache_enabled && ! defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
+		if ( true == $super_cache_enabled && ! defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
 			$count = wpsc_post_count();
 			if ( $count > 1000 ) {
