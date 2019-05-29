@@ -50,18 +50,33 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	function test_xmlrpc_get_user() {
 		$user_id = $this->factory->user->create();
 		$user = get_user_by( 'ID', $user_id );
-		$server = new Jetpack_XMLRPC_Server();
-		$response = $server->get_user( array( 'local_user' => $user_id ) );
+		$user->set_role( 'administrator' );
 
-		$this->assertEquals( $user_id, $response['id'] );
-		$this->assertEquals( $user->user_email, $response['email'] );
-		$this->assertEquals( sort( $user->roles ), sort( $response['roles'] ) );
+		$server = new Jetpack_XMLRPC_Server();
+
+		$response = $server->get_user( array( 'local_user' => $user_id ) );
+		$this->assertGetUserEqual( $user, $response );
+
+		$response = $server->get_user( array( 'local_user' => $user->user_login ) );
+		$this->assertGetUserEqual( $user, $response );
+
+		$response = $server->get_user( array( 'local_user' => $user->user_email ) );
+		$this->assertGetUserEqual( $user, $response );
 
 		$missing_response = $server->get_user( array( 'local_user' => 999999999 ) );
 
 		$this->assertEquals( 'IXR_Error', get_class( $missing_response ) );
 		$this->assertEquals( 404, $missing_response->code );
 		$this->assertEquals( 'Jetpack: [user_unknown] User not found.', $missing_response->message );
+	}
+
+	function assertGetUserEqual( $user, $response ) {
+		$this->assertEquals( $user->ID, $response['id'] );
+		$this->assertEquals( $user->user_email, $response['email'] );
+		$this->assertEquals( $user->user_login, $response['login'] );
+		$this->assertEquals( sort( $user->roles ), sort( $response['roles'] ) );
+		$this->assertEquals( sort( $user->caps ), sort( $response['caps'] ) );
+		$this->assertEquals( sort( $user->allcaps ), sort( $response['allcaps'] ) );
 	}
 
 	function test_xmlrpc_remote_register_fails_no_nonce() {

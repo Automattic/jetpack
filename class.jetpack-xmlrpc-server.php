@@ -98,9 +98,10 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * This is used to verify whether a local user exists and what role they have,
 	 * for the purposes of verifying that they are still a valid master user.
-	 * @param local_user a local user ID or email address
+	 * @param local_user a local user ID, username or email address
 	 * @return id the user's ID
 	 * @return role the user's role
+	 * @return username the user's usernamee
 	 * @return email the user's email address
 	 */
 	function get_user( $request ) {
@@ -124,8 +125,11 @@ class Jetpack_XMLRPC_Server {
 
 		return array(
 			'id' => $user->ID,
+			'login' => $user->user_login,
 			'email' => $user->user_email,
 			'roles' => $user->roles,
+			'caps' => $user->caps,
+			'allcaps' => $user->allcaps,
 		);
 	}
 
