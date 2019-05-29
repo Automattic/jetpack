@@ -4,7 +4,7 @@
  * Internal dependencies
  */
 import './view.scss';
-const name = 'membership-button';
+const name = 'recurring-payments';
 const blockClassName = 'wp-block-jetpack-' + name;
 
 /**
