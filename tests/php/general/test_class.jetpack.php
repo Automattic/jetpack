@@ -251,11 +251,11 @@ EXPECTED;
 
 	public function test_active_modules_filter_restores_state() {
 		self::reset_tracking_of_module_activation();
-	
+
 		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
-	
+
 		Jetpack::update_active_modules( array( 'monitor' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor' ) );
 		$this->assertEquals(  self::$deactivated_modules, array() );
@@ -263,32 +263,32 @@ EXPECTED;
 		// Simce we override the 'monitor' module, verify it does not appear in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
 		$this->assertEquals(  $active_modules, array() );
-	
+
 		// Verify that activating a new module does not deactivate 'monitor' module.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor', 'stats') );
 		$this->assertEquals(  self::$deactivated_modules, array() );
-	
+
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
-	
+
 		// With the module override filter removed, verify that monitor module appears in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
 		$this->assertEquals(  $active_modules, array( 'monitor', 'stats' ) );
 	}
-	
+
 	 // This filter overrides the 'monitor' module.
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
-	
+
 		foreach ( $disabled_modules as $module_slug ) {
 			$found = array_search( $module_slug, $modules );
 			if ( false !== $found ) {
 				unset( $modules[ $found ] );
 			}
 		}
-	
+
 		return $modules;
-	}	
+	}
 
 	public function test_get_other_linked_admins_one_admin_returns_false() {
 		delete_transient( 'jetpack_other_linked_admins' );
@@ -820,6 +820,39 @@ EXPECTED;
 				false,
 				'min_path',
 				'non_min_path'
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider get_content_width_data
+	 */
+	public function test_get_content_width( $expected, $content_width ) {
+		$GLOBALS['content_width'] = $content_width;
+		$this->assertSame( $expected, Jetpack::get_content_width() );
+	}
+
+	public function get_content_width_data() {
+		return array(
+			'zero' => array(
+				0,
+				0,
+			),
+			'int' => array(
+				100,
+				100,
+			),
+			'numeric_string' => array(
+				'100',
+				'100',
+			),
+			'non_numeric_string' => array(
+				false,
+				'meh'
+			),
+			'content_width_not_set' => array(
+				false,
+				null,
 			),
 		);
 	}
