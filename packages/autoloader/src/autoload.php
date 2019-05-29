@@ -24,6 +24,17 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 	 */
 	function jetpack_enqueue_package( $class_name, $version, $path ) {
 		global $jetpack_packages;
+
+		// Always favour the @dev version. Since that version is the same as bleeding edge.
+		// We need to make sure that we don't do this in production!
+		if ( ! isset( $jetpack_packages[ $class_name ] ) || '@dev' === $jetpack_packages[ $class_name ]['version'] ) {
+			$jetpack_packages[ $class_name ] = array(
+				'version' => $version,
+				'path'    => $path,
+			);
+			return;
+		}
+
 		if ( ! isset( $jetpack_packages[ $class_name ] ) || version_compare( $jetpack_packages[ $class_name ]['version'], $version, '<' ) ) {
 			$jetpack_packages[ $class_name ] = array(
 				'version' => $version,

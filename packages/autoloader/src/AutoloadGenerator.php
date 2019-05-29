@@ -196,6 +196,7 @@ EOF;
 
 		// Scan the PSR-4 directories for class files, and add them to the class map.
 		foreach ( $autoloads['psr-4'] as $namespace => $info ) {
+
 			$version = array_reduce(
 				array_map(
 					function( $item ) {
@@ -203,6 +204,10 @@ EOF;
 					$info
 				),
 				function( $carry, $version ) {
+					// Are we using a dev version since we assumer that is the latest version.
+					if ( 'dev-' === substr( $version, 0, 4 ) ) {
+						return $version;
+					}
 					return version_compare( $version, $carry, '>' ) ? $version : $carry;
 				},
 				0
@@ -329,17 +334,17 @@ EOF;
 		$sourceLoader   = fopen( __DIR__ . '/autoload.php', 'r' );
 		$file_contents  = stream_get_contents( $sourceLoader );
 		$file_contents .= <<<INCLUDE_FILES
-		/**
-		 * Prepare all the classes for autoloading.
-		 */
-		function jetpack_enqueue_packages_$suffix() {
-			\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
-			foreach ( \$class_map as \$class_name => \$class_info ) {
-				jetpack_enqueue_package( \$class_name, \$class_info['version'], \$class_info['path'] );
-			}
-		}
-		
-		jetpack_enqueue_packages_$suffix();
+/**
+ * Prepare all the classes for autoloading.
+ */
+function jetpack_enqueue_packages_$suffix() {
+	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
+	foreach ( \$class_map as \$class_name => \$class_info ) {
+		jetpack_enqueue_package( \$class_name, \$class_info['version'], \$class_info['path'] );
+	}
+}
+
+jetpack_enqueue_packages_$suffix();
 		
 INCLUDE_FILES;
 
