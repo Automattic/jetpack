@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "167f5c90d0f8c7224fdc8707e1ba107f",
+    "content-hash": "4195a157242402e9452b876d965c0588",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/dont-symlink-packages",
+            "version": "dev-update/composer-glob-packages",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -30,11 +30,12 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "1.0.0",
+            "version": "dev-try/custom-autoloader",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "adfc442325deb8003d421f00b33db41f783cbbc0"
+                "reference": "b7f10b9ef30f077dfacf68c1b797a070b066a62a",
+                "shasum": null
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -51,10 +52,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Creates a custom autoloader for a plugin or theme.",
-            "transport-options": {
-                "symlink": true
-            }
+            "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
@@ -427,7 +425,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "automattic/jetpack-logo": 20
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
