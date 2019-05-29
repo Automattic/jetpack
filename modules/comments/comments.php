@@ -280,6 +280,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
 		// Prophylactic check: anything else should never happen.
 		if ( $token_key && $token_key !== $blog_token->secret ) {
+			// Is the token a Special Token (@see class.jetpack-data.php)?
 			if ( preg_match( '/^;.\d+;\d+;$/', $token_key, $matches ) ) {
 				// The token key for a Special Token is public.
 				$params['token_key'] = $token_key;

@@ -17,15 +17,22 @@ class Jetpack_Data {
 	 *    the Jetpack servers.
 	 * 2. User Tokens: These are "sub-"tokens. Each connected user account has one User Token.
 	 *
+	 * All tokens look like "{$token_key}.{$private}". $token_key is a public ID for the
+	 * token, and $private is a secret that should never be displayed anywhere or sent
+	 * over the network; it's used only for signing things.
+	 *
 	 * Blog Tokens can be "Normal" or "Special".
 	 * * Normal: The result of a normal connection flow. They look like
 	 *   "{$random_string_1}.{$random_string_2}"
+	 *   That is, $token_key and $private are both random strings.
 	 *   Sites only have one Normal Blog Token. Normal Tokens are found in either
 	 *   Jetpack_Options::get_option( 'blog_token' ) (usual) or the JETPACK_BLOG_TOKEN
 	 *   constant (rare).
 	 * * Special: A connection token for sites that have gone through an alternative
 	 *   connection flow. They look like:
-	 *   ";{$special_id};.{$random_string}"
+	 *   ";{$special_id}{$special_version};{$wpcom_blog_id};.{$random_string}"
+	 *   That is, $private is a random string and $token_key has a special structure with
+	 *   lots of semicolons.
 	 *   Most sites have zero Special Blog Tokens. Special tokens are only found in the
 	 *   JETPACK_BLOG_TOKEN constant.
 	 *
