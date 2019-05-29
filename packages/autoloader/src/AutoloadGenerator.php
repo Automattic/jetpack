@@ -272,8 +272,8 @@ EOF;
 		$version,
 		array $classMap = array()
 	) {
-
-		foreach ( $this->generateClassMap( $dir, $blacklist, $namespaceFilter ) as $class => $path ) {
+		$map = ClassMapGenerator::createMap( $dir, null, $this->io, $namespaceFilter );
+		foreach ( $map as $class => $path ) {
 			$pathCode = "array( 'path' => " . $this->getPathCode( $filesystem, $basePath, $vendorPath, $path ) . ", 'version'=>'" . $version . "' ),\n";
 
 			if ( ! isset( $classMap[ $class ] ) ) {
@@ -296,26 +296,7 @@ EOF;
 
 		return $classMap;
 	}
-
-	/**
-	 * Trigger the class map generation.
-	 *
-	 * @param string $dir  Directory path.
-	 * @param null   $blacklist Blacklist of namespaces set to be ignored currently not used.
-	 * @param null   $namespaceFilter Namespace being used.
-	 * @param bool   $showAmbiguousWarning Whether to show a warning in the console.
-	 *
-	 * @return array
-	 */
-	private function generateClassMap( $dir, $blacklist = null, $namespaceFilter = null, $showAmbiguousWarning = true ) {
-		return ClassMapGenerator::createMap(
-			$dir,
-			$blacklist,
-			$showAmbiguousWarning ? $this->io : null,
-			$namespaceFilter
-		);
-	}
-
+	
 	/**
 	 * Generate the PHP that will be used in the autoload_packages.php files.
 	 *
