@@ -22,6 +22,7 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
+
 namespace Automattic\Jetpack\Autoloader;
 
 use Composer\Autoload\AutoloadGenerator as BaseGenerator;
@@ -337,14 +338,14 @@ EOF;
 /**
  * Prepare all the classes for autoloading.
  */
-function jetpack_enqueue_packages_$suffix() {
+function enqueue_packages_$suffix() {
 	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 	foreach ( \$class_map as \$class_name => \$class_info ) {
-		jetpack_enqueue_package( \$class_name, \$class_info['version'], \$class_info['path'] );
+		enqueue_package( \$class_name, \$class_info['version'], \$class_info['path'] );
 	}
 }
 
-jetpack_enqueue_packages_$suffix();
+enqueue_packages_$suffix();
 		
 INCLUDE_FILES;
 

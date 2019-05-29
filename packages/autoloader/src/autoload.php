@@ -8,7 +8,13 @@
  * @package Automattic\Jetpack\Autoloader
  */
 
-if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_ns_cFound
+// phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
+
+namespace Automattic\Jetpack\Autoloader;
+
+if ( ! function_exists( __NAMESPACE__ . '\enqueue_package' ) ) {
 	global $jetpack_packages_classes;
 
 	if ( ! is_array( $jetpack_packages_classes ) ) {
@@ -22,7 +28,7 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 	 * @param string $version Version of the class.
 	 * @param string $path Absolute path to the class so that we can load it.
 	 */
-	function jetpack_enqueue_package( $class_name, $version, $path ) {
+	function enqueue_package( $class_name, $version, $path ) {
 		global $jetpack_packages_classes;
 
 		if ( ! isset( $jetpack_packages_classes[ $class_name ] ) ) {
@@ -43,6 +49,7 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 				'version' => $version,
 				'path'    => $path,
 			);
+
 			return;
 		}
 		// Set the latest version!
@@ -53,44 +60,50 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 			);
 		}
 	}
+}
 
-	// Add the autoloader.
-	spl_autoload_register(
-		// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
-		function ( $class_name ) {
-			global $jetpack_packages_classes;
+if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
+	/**
+	 * Used for autoloading jetpack packages.
+	 *
+	 * @param string $class_name Class Name to load.
+	 */
+	function autoloader( $class_name ) {
+		global $jetpack_packages_classes;
 
-			if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
-				/**
-				 * A way to prevent loading of a package from a particular location or version.
-				 *
-				 * @since 7.4.0
-				 *
-				 * @param bool false whether to load a particular class package.
-				 * @param string $class_name Name of a particular class to autoload.
-				 * @param array $package Array containing the package path and version.
-				 */
-				if ( apply_filters( 'jetpack_autoload_package_block', false, $class_name, $jetpack_packages_classes[ $class_name ] ) ) {
-					return;
-				}
+		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
+			/**
+			 * A way to prevent loading of a package from a particular location or version.
+			 *
+			 * @since 7.4.0
+			 *
+			 * @param bool false whether to load a particular class package.
+			 * @param string $class_name Name of a particular class to autoload.
+			 * @param array $package Array containing the package path and version.
+			 */
+			if ( apply_filters( 'jetpack_autoload_package_block', false, $class_name, $jetpack_packages_classes[ $class_name ] ) ) {
+				return;
+			}
 
-				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
-					_doing_it_wrong(
-						esc_html( $class_name ),
-						sprintf(
-							/* translators: %s Name of a PHP Class */
-							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							$class_name
-						),
-						esc_html( $jetpack_packages_classes[ $class_name ]['version'] )
-					);
-				}
+			if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
+				_doing_it_wrong(
+					esc_html( $class_name ),
+					sprintf(
+						/* translators: %s Name of a PHP Class */
+						esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						$class_name
+					),
+					esc_html( $jetpack_packages_classes[ $class_name ]['version'] )
+				);
+			}
 
-				if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
-					require_once $jetpack_packages_classes[ $class_name ]['path'];
-				}
+			if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
+				require_once $jetpack_packages_classes[ $class_name ]['path'];
 			}
 		}
-	);
+	}
+
+	// Add the jetpack autoloader.
+	spl_autoload_register( __NAMESPACE__ . '\autoloader' );
 }
