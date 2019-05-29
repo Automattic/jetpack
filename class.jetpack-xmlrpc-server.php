@@ -101,11 +101,12 @@ class Jetpack_XMLRPC_Server {
 	 * @param local_user a local user ID, username or email address
 	 * @return id the user's ID
 	 * @return role the user's role
-	 * @return username the user's usernamee
+	 * @return login the user's login, aka username
 	 * @return email the user's email address
+	 * @return caps the user's capabilities
+	 * @return allcaps the user's granular capabilities, merged from role capabilities
 	 */
 	function get_user( $request ) {
-		// TODO ensure authorize with blog token?
 		$user = $this->fetch_and_verify_local_user( $request, 'jpc_get_user_fail' );
 
 		if ( is_wp_error( $user ) ) {
