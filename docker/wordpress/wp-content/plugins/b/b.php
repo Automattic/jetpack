@@ -3,7 +3,7 @@
 * Plugin Name: b
 */
 
-use Jetpack\Assets\Logo;
+use Automattic\Jetpack\Assets\Logo;
 
 require __DIR__ . '/vendor/autoload_packages.php';
 
