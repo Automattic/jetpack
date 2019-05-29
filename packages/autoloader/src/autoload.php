@@ -9,10 +9,10 @@
  */
 
 if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
-	global $jetpack_packages;
+	global $jetpack_packages_classes;
 
-	if ( ! is_array( $jetpack_packages ) ) {
-		$jetpack_packages = array();
+	if ( ! is_array( $jetpack_packages_classes ) ) {
+		$jetpack_packages_classes = array();
 	}
 	/**
 	 * Adds the version of a package to the $jetpack_packages global array so that
@@ -23,26 +23,31 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 	 * @param string $path Absolute path to the class so that we can load it.
 	 */
 	function jetpack_enqueue_package( $class_name, $version, $path ) {
-		global $jetpack_packages;
+		global $jetpack_packages_classes;
 
-		if ( ! isset( $jetpack_packages[ $class_name ] ) ) {
-			$jetpack_packages[ $class_name ] = array(
+		if ( ! isset( $jetpack_packages_classes[ $class_name ] ) ) {
+			$jetpack_packages_classes[ $class_name ] = array(
 				'version' => $version,
 				'path'    => $path,
 			);
 		}
+		// If we have a @dev version set always use that one!
+		if ( 'dev-' === substr( $jetpack_packages_classes[ $class_name ]['version'], 0, 4 ) ) {
+			return;
+		}
+
 		// Always favour the @dev version. Since that version is the same as bleeding edge.
 		// We need to make sure that we don't do this in production!
-		if ( 'dev-' === substr( $jetpack_packages[ $class_name ]['version'], 0, 4 ) ) {
-			$jetpack_packages[ $class_name ] = array(
+		if ( 'dev-' === substr( $version, 0, 4 ) ) {
+			$jetpack_packages_classes[ $class_name ] = array(
 				'version' => $version,
 				'path'    => $path,
 			);
 			return;
 		}
 		// Set the latest version!
-		if ( version_compare( $jetpack_packages[ $class_name ]['version'], $version, '<' ) ) {
-			$jetpack_packages[ $class_name ] = array(
+		if ( version_compare( $jetpack_packages_classes[ $class_name ]['version'], $version, '<' ) ) {
+			$jetpack_packages_classes[ $class_name ] = array(
 				'version' => $version,
 				'path'    => $path,
 			);
@@ -53,9 +58,9 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 	spl_autoload_register(
 		// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 		function ( $class_name ) {
-			global $jetpack_packages;
+			global $jetpack_packages_classes;
 
-			if ( isset( $jetpack_packages[ $class_name ] ) ) {
+			if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
 				/**
 				 * A way to prevent loading of a package from a particular location or version.
 				 *
@@ -65,7 +70,7 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 				 * @param string $class_name Name of a particular class to autoload.
 				 * @param array $package Array containing the package path and version.
 				 */
-				if ( apply_filters( 'jetpack_autoload_package_block', false, $class_name, $jetpack_packages[ $class_name ] ) ) {
+				if ( apply_filters( 'jetpack_autoload_package_block', false, $class_name, $jetpack_packages_classes[ $class_name ] ) ) {
 					return;
 				}
 
@@ -78,12 +83,12 @@ if ( ! function_exists( 'jetpack_enqueue_package' ) ) {
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$class_name
 						),
-						esc_html( $jetpack_packages[ $class_name ]['version'] )
+						esc_html( $jetpack_packages_classes[ $class_name ]['version'] )
 					);
 				}
 
-				if ( file_exists( $jetpack_packages[ $class_name ]['path'] ) ) {
-					require_once $jetpack_packages[ $class_name ]['path'];
+				if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
+					require_once $jetpack_packages_classes[ $class_name ]['path'];
 				}
 			}
 		}
