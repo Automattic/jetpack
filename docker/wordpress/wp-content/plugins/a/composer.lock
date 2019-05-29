@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bfa3396d1a3f4fab49b07408e0f08e51",
+    "content-hash": "3a6032e136cc93750232559715855de0",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "1.0.0",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-logo.git",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8"
+            },
             "dist": {
-                "type": "path",
-                "url": "../jetpack/packages/logo",
-                "reference": "fc08b104287aa6f72c5704828295b0da5b2a8199"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "shasum": ""
             },
             "type": "library",
             "autoload": {
@@ -20,23 +26,22 @@
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack",
-            "transport-options": {
-                "symlink": true
-            }
+            "time": "2019-05-28T16:09:34+00:00"
         }
     ],
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "1.0.0",
+            "version": "dev-try/custom-autoloader",
             "dist": {
                 "type": "path",
                 "url": "../jetpack/packages/autoloader",
-                "reference": "adfc442325deb8003d421f00b33db41f783cbbc0"
+                "reference": "6cf16971382de4d5c00d39abc17d78ffc792430b"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -61,7 +66,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "automattic/jetpack-autoloader": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

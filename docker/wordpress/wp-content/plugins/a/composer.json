@@ -6,19 +6,12 @@
     "automattic/jetpack-logo": "1.0.0"
   },
   "require-dev": {
-    "automattic/jetpack-autoloader": "1.0.0"
+    "automattic/jetpack-autoloader": "@dev"
   },
   "repositories": [
     {
       "type": "path",
-      "url": "../jetpack/packages/logo",
-      "options": {
-        "symlink": true
-      }
-    },
-    {
-      "type": "path",
-      "url": "../jetpack/packages/autoloader",
+      "url": "../jetpack/packages/*",
       "options": {
         "symlink": true
       }

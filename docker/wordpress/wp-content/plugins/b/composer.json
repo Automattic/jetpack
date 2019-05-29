@@ -3,22 +3,15 @@
   "description": "b",
   "type": "wordpress-plugin",
   "require": {
-    "automattic/jetpack-logo": "1.0.1"
+    "automattic/jetpack-logo": "@dev"
   },
   "require-dev": {
-    "automattic/jetpack-autoloader": "1.0.0"
+    "automattic/jetpack-autoloader": "@dev"
   },
   "repositories": [
     {
       "type": "path",
-      "url": "../jetpack/packages/logo",
-      "options": {
-        "symlink": false
-      }
-    },
-    {
-      "type": "path",
-      "url": "../jetpack/packages/autoloader",
+      "url": "../jetpack/packages/*",
       "options": {
         "symlink": true
       }
