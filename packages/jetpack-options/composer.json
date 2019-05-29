@@ -10,7 +10,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Jetpack\\V7\\Options\\": "lib"
+			"Jetpack\\V7\\Options\\": "src"
 		}
 	},
 	"scripts": {

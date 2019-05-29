@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-connection",
-                "reference": "a6596d642ca2b64f7b9ed53553ddd065d7a2719e"
+                "reference": "88bcb0fc2847f294f4cfb3a422d62a2ae194dde0"
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
@@ -21,7 +21,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\V7\\Connection\\": "lib"
+                    "Jetpack\\V7\\Connection\\": "src"
                 }
             },
             "scripts": {
@@ -40,15 +40,16 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-options",
-                "reference": "562014aeeae63c845491e22cd590f3ffa243bfea"
+                "reference": "916bd1f2891549dc3d8afc59161c8529b6e093bb"
             },
             "require-dev": {
+                "10up/wp_mock": "0.4.2",
                 "phpunit/phpunit": "7.*.*"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\V7\\Options\\": "lib"
+                    "Jetpack\\V7\\Options\\": "src"
                 }
             },
             "scripts": {
