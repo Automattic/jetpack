@@ -63,7 +63,7 @@ class AutoloadGenerator extends BaseGenerator {
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
 	 * @param bool                         $scanPsr0Packages Whether to search for packages. Currently hard coded to always be false.
-	 * @param string                       $suffix The autoloader suffix ignored since we want our autolaoder to only be included once.
+	 * @param string                       $suffix The autoloader suffix, ignored since we want our autoloader to only be included once.
 	 */
 	public function dump(
 		Config $config,
