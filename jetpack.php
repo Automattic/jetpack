@@ -181,9 +181,30 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
  * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
  * If the autoloader is not present, let's log the failure, pause Jetpack, and display a nice admin notice.
  */
-$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
-if ( is_readable( $jetpack_autoloader ) ) {
-	require $jetpack_autoloader;
+
+if ( ! function_exists( 'jetpack_register_plugin_classloader' ) ) {
+	function jetpack_register_plugin_classloader( $plugin_dir_path, $loader ) {
+		global $jetpack_autoloaders;
+		if ( is_array( $jetpack_autoloaders ) ) {
+			$jetpack_autoloaders = array();
+		}
+		$jetpack_autoloaders[ $plugin_dir_path ] = $loader;
+	}
+}
+
+if ( ! function_exists( 'jetpack_get_plugin_classloader' ) ) {
+	function jetpack_get_plugin_classloader( $plugin_dir_path ) {
+		global $jetpack_autoloaders;
+		if ( isset( $jetpack_autoloaders[ $plugin_dir_path ] ) ) {
+			return $jetpack_autoloaders[ $plugin_dir_path ];
+		}
+		return null;
+	}
+}
+
+$autoload_path = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
+if ( is_readable( $autoload_path ) ) {
+	jetpack_register_plugin_classloader( JETPACK__PLUGIN_DIR, require( $autoload_path ) );
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
@@ -197,7 +218,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	add_action( 'admin_notices', 'jetpack_admin_missing_autoloader' );
 	return;
 }
-
 
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );

@@ -7,6 +7,8 @@
 
 $json_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/';
 
+$loader = jetpack_get_plugin_classloader( plugin_dir_path( __FILE__ ) );
+
 //abstract endpoints
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-v1-1-endpoint.php' ); // v1.1
@@ -29,7 +31,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-shortcodes-endpoi
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-embed-reversal-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-embed-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-embeds-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-endpoint.php' );
+$loader->loadClass( 'WPCOM_JSON_API_GET_Site_Endpoint' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-term-endpoint.php' );

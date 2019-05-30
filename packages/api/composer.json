@@ -1,0 +1,12 @@
+{
+	"name": "automattic/jetpack-api",
+	"description": "The Jetpack API",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"classmap": [
+			"legacy/"
+		]
+	}
+}

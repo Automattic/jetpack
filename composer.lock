@@ -4,16 +4,37 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "167f5c90d0f8c7224fdc8707e1ba107f",
+    "content-hash": "c37ea8444f2649f8a0b7c6a7aa8f5038",
     "packages": [
         {
+            "name": "automattic/jetpack-api",
+            "version": "dev-try/api-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/api",
+                "reference": "b2e509d06ce7cad77c71bd74bf0b8478812b3a80"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "legacy/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "The Jetpack API",
+            "transport-options": {
+                "symlink": true
+            }
+        },
+        {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/dont-symlink-packages",
+            "version": "dev-try/api-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d",
-                "shasum": null
+                "reference": "c0379bcb8e61d948ab702c05aa0c787a104efe2e"
             },
             "type": "library",
             "autoload": {
@@ -24,7 +45,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
         }
     ],
     "packages-dev": [
@@ -399,7 +423,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "automattic/jetpack-logo": 20
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-api": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
