@@ -157,6 +157,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: add new WP Cli commands to help in monitoring and updating sync settings.
 * Tracks: limit the length of the strings saved for feature searches.
 * Unit Tests: add support for testing using VVV 3.0.
+* Verification Tools: make sure the feature can be disabled by override.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
 * WordPress.com Interface: make sure navigation menu items match the one available in the WordPress.com interface.
 * WordPress.com Toolbar: restore the previous layout.
