@@ -83,29 +83,12 @@ class AutoloadGenerator extends BaseGenerator {
 		$classMap = $this->getClassMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
 		// Generate the files.
-		file_put_contents( $targetDir . '/autoload_classmap_package.php', $this->getAutoloadPackagesClassmapFile( $classMap ) );
-		$this->io->writeError( '<info>Generated autoload_classmap_package.php</info>', true );
+		file_put_contents( $targetDir . '/autoload_classmap_package.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . 'autoload_classmap_package.php</info>', true );
 
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( $suffix ) );
-		$this->io->writeError( '<info>Generated autoload_packages.php</info>', true );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
 
-	}
-
-	/**
-	 * Takes a classMap and returns the array string representation.
-	 *
-	 * @param array $classMap Map of all the package classes and paths and versions.
-	 *
-	 * @return string
-	 */
-	private function classMapToPHPArrayString( array $classMap ) {
-		$classmapString = ' array( ';
-		// ksort( $classMap );
-		foreach ( $classMap as $class => $code ) {
-			$classmapString .= ' ' . var_export( $class, true ) . ' => ' . $code;
-		}
-		$classmapString .= ");\n";
-		return $classmapString;
 	}
 
 	/**
@@ -160,34 +143,46 @@ class AutoloadGenerator extends BaseGenerator {
 	 * @return array $classMap
 	 */
 	private function getClassMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
-		$classMap = array();
-		$blacklist        = null; // not supported for now.
+		$blacklist      = null; // not supported for now.
+		$classmapString = '';
 
 		// Scan the PSR-4 directories for class files, and add them to the class map.
 		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
 			foreach ( $packages_info as $package ) {
-				$dir = $filesystem->normalizePath( $filesystem->isAbsolutePath( $package['path'] )
+				$dir = $filesystem->normalizePath(
+					$filesystem->isAbsolutePath( $package['path'] )
 					? $package['path']
 					: $basePath . '/' . $package['path']
 				);
 				$map = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, $namespace );
 
 				foreach ( $map as $class => $path ) {
-					$classMap[ $class ] = "array( 'path' => " . $this->getPathCode( $filesystem, $basePath, $vendorPath, $path ) . ", 'version'=>'" . $package['version'] . "' ),\n";
+					$classCode       = var_export( $class, true );
+					$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
+					$versionCode     = var_export( $package['version'], true );
+					$classmapString .= <<<CLASS_CODE
+	$classCode => array(
+		'version' => $versionCode,
+		'path'    => $pathCode
+	),
+CLASS_CODE;
+					$classmapString .= PHP_EOL;
 				}
 			}
 		}
 
-		return $classMap;
+		return 'array( ' . PHP_EOL . $classmapString . ');' . PHP_EOL;
+
 	}
 
 	/**
+	 * Generate the PHP that will be used in the autoload_classmap_package.php files.
 	 *
-	 * @param $classMap
+	 * @param srting $classMap class map array string that is to be written out to the file.
 	 *
 	 * @return string
 	 */
-	private function getAutoloadPackagesClassmapFile( $classMap ) {
+	private function getAutoloadClassmapPackagesFile( $classMap ) {
 
 		return <<<INCLUDE_CLASSMAP
 <?php
