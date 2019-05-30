@@ -18,6 +18,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { userCanManageModules } from 'state/initial-state';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { Private } from 'security/private.jsx';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -38,12 +39,16 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			}
 
 			// Only should be features that don't already have a UI, and we want to reveal in search.
-			const whitelist = [ 'contact-form', 'enhanced-distribution', 'json-api', 'notes' ];
+			const whitelist = [ 'contact-form', 'enhanced-distribution', 'json-api', 'notes', 'private' ];
 
 			const allModules = this.props.modules,
 				results = [];
 			forEach( allModules, ( moduleData, slug ) => {
 				if ( this.props.isModuleFound( slug ) && includes( whitelist, slug ) ) {
+					// The Private Sites gets its own card.
+					if ( 'private' === slug ) {
+						return results.push( <Private key={ slug } /> );
+					}
 					// Not available in dev mode
 					if ( this.props.isDevMode && this.props.isUnavailableInDevMode( moduleData.module ) ) {
 						return results.push(
