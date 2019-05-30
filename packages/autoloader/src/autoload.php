@@ -8,9 +8,9 @@
  * @package Automattic\Jetpack\Autoloader
  */
 
-// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_ns_cFound
 // phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
+// phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_ns_cFound
 
 namespace Automattic\Jetpack\Autoloader;
 
@@ -72,34 +72,26 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 		global $jetpack_packages_classes;
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
-			/**
-			 * A way to prevent loading of a package from a particular location or version.
-			 *
-			 * @since 7.5.0
-			 *
-			 * @param bool false whether to load a particular class package.
-			 * @param string $class_name Name of a particular class to autoload.
-			 * @param array $package Array containing the package path and version.
-			 */
-			if ( apply_filters( 'jetpack_autoload_package_block', false, $class_name, $jetpack_packages_classes[ $class_name ] ) ) {
-				return;
-			}
 
-			if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
-				_doing_it_wrong(
-					esc_html( $class_name ),
-					sprintf(
+			if ( defined( WP_DEBUG ) && WP_DEBUG ) {
+				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
+					_doing_it_wrong(
+						esc_html( $class_name ),
+						sprintf(
 						/* translators: %s Name of a PHP Class */
-						esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						$class_name
-					),
-					esc_html( $jetpack_packages_classes[ $class_name ]['version'] )
-				);
+							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							$class_name
+						),
+						esc_html( $jetpack_packages_classes[ $class_name ]['version'] )
+					);
+				}
 			}
 
 			if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
 				require_once $jetpack_packages_classes[ $class_name ]['path'];
+
+				return true;
 			}
 		}
 	}

@@ -8,11 +8,17 @@
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/composer-glob-packages",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-logo.git",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8"
+            },
             "dist": {
-                "type": "path",
-                "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "shasum": ""
             },
             "type": "library",
             "autoload": {
@@ -20,10 +26,12 @@
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "time": "2019-05-28T16:09:34+00:00"
         }
     ],
     "packages-dev": [

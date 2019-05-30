@@ -43,16 +43,9 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	private $composer;
 
 	/**
-	 * Did the generator run already?
-	 *
-	 * @var bool $generated Whether the genrate dumped the files already.
-	 */
-	private $generated = false;
-
-	/**
 	 * Do nothing.
 	 *
-	 * @param Composer    $composer Composer object.
+	 * @param Composer $composer Composer object.
 	 * @param IOInterface $io IO object.
 	 */
 	public function activate( Composer $composer, IOInterface $io ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -67,8 +60,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 */
 	public static function getSubscribedEvents() {
 		return array(
-			ScriptEvents::POST_UPDATE_CMD    => 'postAutoloadDump',
-			ScriptEvents::POST_INSTALL_CMD   => 'postAutoloadDump',
 			ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoloadDump',
 		);
 	}
@@ -79,21 +70,20 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Event $event Script event object.
 	 */
 	public function postAutoloadDump( Event $event ) {
-		if ( $this->generated ) {
-			return;
-		}
 
 		$installationManager = $this->composer->getInstallationManager();
 		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
 		$package             = $this->composer->getPackage();
 		$config              = $this->composer->getConfig();
+		$optimize            = true;
+		$suffix              = $config->get( 'autoloader-suffix' )
+			? $config->get( 'autoloader-suffix' )
+			: md5( uniqid( '', true ) );
 
 		$generator = new AutoloadGenerator( $this->io );
 
-		$optimize = true;
-
-		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize );
+		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
 		$this->generated = true;
 	}
 
