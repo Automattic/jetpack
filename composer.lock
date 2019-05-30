@@ -11,7 +11,7 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "./packages/jetpack-connection",
+                "url": "./packages/connection",
                 "reference": "9dbcf84ab69da7d648e99580533624e2953c9874"
             },
             "require-dev": {
@@ -39,7 +39,7 @@
             "version": "1.0.0",
             "dist": {
                 "type": "path",
-                "url": "./packages/jetpack-options",
+                "url": "./packages/options",
                 "reference": "39599e4816a5bea4fa44c37e33c6ef019aaeeb08"
             },
             "require-dev": {
