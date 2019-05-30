@@ -132,7 +132,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'private' => array(
-				'name' => _x( 'Private site', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Private site (Beta)', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Make your site only visible to you and users you approve.', 'Module Description', 'jetpack' ),
 			),
 

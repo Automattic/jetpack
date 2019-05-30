@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Private site
+ * Module Name: Private site (Beta)
  * Module Description: Make your site only visible to you and users you approve.
  * Sort Order: 9
  * First Introduced: 7.4.0
