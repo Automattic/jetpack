@@ -14,6 +14,32 @@
 // don't call the file directly
 defined( 'ABSPATH' ) or die();
 
+/**
+ * Load all the packages.
+ *
+ * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
+ * If the autoloader is not present, let's log the failure, pause VaultPress, and display a nice admin notice.
+ */
+$loader = dirname( __FILE__ ) . '/vendor/autoload.php';
+if ( is_readable( $loader ) ) {
+	require $loader;
+} else {
+	add_action( 'admin_notices', 'vaultpress_admin_missing_autoloader' );
+	return;
+}
+
+/**
+ * Outputs an admin notice for folks running VaultPress without having run `composer install`.
+ */
+function vaultpress_admin_missing_autoloader() { ?>
+	<div class="notice notice-error is-dismissible">
+		<p>
+			<?php _e( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ); ?>
+		</p>
+	</div>
+	<?php
+}
+
 class VaultPress {
 	var $option_name          = 'vaultpress';
 	var $auto_register_option = 'vaultpress_auto_register';
@@ -571,6 +597,7 @@ class VaultPress {
 		</div><!-- #vp_registration -->
 
         <?php $this->ui_delete_vp_settings_button(); ?>
+        <?php $this->ui_logo(); ?>
     </div><!-- #vp-head -->
 <?php
 	}
@@ -584,6 +611,7 @@ class VaultPress {
 		?>
 
 		<?php $this->ui_delete_vp_settings_button(); ?>
+		<?php $this->ui_logo(); ?>
 	</div>
 <?php
 	}
@@ -595,6 +623,7 @@ class VaultPress {
 
 			<p><?php printf( __( 'Yikes! We&rsquo;ve run into a serious issue and can&rsquo;t connect to %1$s.', 'vaultpress' ), esc_html( $this->get_option( 'hostname' ) ) ); ?></p>
 			<p><?php printf( __( 'Please make sure that your website is accessible via the Internet. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), 'http://vaultpress.com/contact/' ); ?></p>
+			<?php $this->ui_logo(); ?>
 		</div>
 	<?php
 	}
@@ -649,6 +678,14 @@ class VaultPress {
             </div>
         </div><!-- .card-grid -->
 		<?php
+	}
+
+	function ui_logo() {
+		?>
+		<div class="clearfix"></div>
+		<?php
+		$logo = new Automattic\Jetpack\Assets\Logo();
+		echo $logo->render();
 	}
 
 	function get_config( $key ) {

@@ -7,8 +7,10 @@
     "support": {
     	"issues": "https://github.com/Automattic/vaultpress/issues"
     },
-    "require": {},
+    "require": {
+        "automattic/jetpack-logo": "1.0.0"
+    },
     "require-dev": {
-    	"automattic/jetpack-standards": "master-dev"
+        "automattic/jetpack-standards": "master-dev"
     }
 }
