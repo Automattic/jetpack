@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 5.2.1
-* Stable tag: 1.6.6
+* Stable tag: 1.6.7
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -265,6 +265,10 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.6.7 ###
+* wp_cache_setting() can now save boolean values since many of the settings are bools. #676
+* Check if $super_cache_enabled is true in a less strict way because it might be '1' rather than true. #677
 
 ### 1.6.6 ###
 * Fix problems with saving settings. Returns false ONLY when there's an issue with the config file, not when the setting isn't changed. Change other code to cope with that, including updating WPCACHEHOME (#670)
