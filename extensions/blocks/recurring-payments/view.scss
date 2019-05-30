@@ -6,20 +6,37 @@
 }
 #TB_window.jetpack-memberships-modal {
 	background-color: transparent;
-	background-image: url( 'https://s0.wp.com/i/loading/loading-64.gif' );
+	background-image: url( 'https://s0.wp.com/i/loading/transparent-16.gif' );
 	background-repeat: no-repeat;
 	background-position: center 150px;
-	bottom: 0;
-	margin-top: 0 !important;
-	top: 0;
+	margin: 0 !important;
 	box-shadow: none;
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
+	border: none;
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: 100% !important;
+	height: 100%;
 }
 
 .jetpack-memberships-modal #TB_iframeContent {
+	margin: 0 !important;
 	height: 100% !important;
+	width: 100% !important;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
+BODY.modal-open {
+	overflow: hidden;
+}
+
 @media only screen and ( max-width: 480px ) {
 	#TB_window.jetpack-memberships-modal {
 		bottom: 0;

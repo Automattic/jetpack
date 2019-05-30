@@ -34,7 +34,7 @@ function activateSubscription( block, blogId, planId, lang ) {
 				'&lang=' +
 				lang +
 				'&display=alternate' +
-				'TB_iframe=true&height=600&width=410',
+				'TB_iframe=true',
 			null
 		);
 		window.addEventListener( 'message', handleIframeResult, false );
