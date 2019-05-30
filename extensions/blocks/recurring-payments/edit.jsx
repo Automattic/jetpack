@@ -196,7 +196,7 @@ class MembershipsButtonEdit extends Component {
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
-					{ __( 'Add Memberships Amounts', 'jetpack' ) }
+					{ __( 'Add a Recurring Payments Plan', 'jetpack' ) }
 				</Button>
 			);
 		}
@@ -306,8 +306,8 @@ class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://en.support.wordpress.com/memberships/#related-fees">
-					{ __( 'Read more about memberships and related fees.', 'jetpack' ) }
+				<ExternalLink href="https://en.support.wordpress.com/recurring-payments/#related-fees">
+					{ __( 'Read more about Recurring Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		);
@@ -321,7 +321,7 @@ class MembershipsButtonEdit extends Component {
 			<InspectorControls>
 				<PanelBody title={ __( 'Product', 'jetpack' ) }>
 					<SelectControl
-						label={ __( 'Membership plan', 'jetpack' ) }
+						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
 						onChange={ this.setMembershipAmount }
 						options={ this.state.products.map( product => ( {
@@ -331,8 +331,8 @@ class MembershipsButtonEdit extends Component {
 						} ) ) }
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Member Management', 'jetpack' ) }>
-					<ExternalLink href={ `https://wordpress.com/earn/memberships/${ this.state.siteSlug }` }>
+				<PanelBody title={ __( 'Management', 'jetpack' ) }>
+					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
 						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
@@ -358,11 +358,14 @@ class MembershipsButtonEdit extends Component {
 				{ this.state.shouldUpgrade && (
 					<Placeholder
 						icon={ <BlockIcon icon={ icon } /> }
-						label={ __( 'Memberships', 'jetpack' ) }
+						label={ __( 'Recurring Payments', 'jetpack' ) }
 						notices={ notices }
 					>
 						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-							{ __( "You'll need to upgrade your plan to use the Membership Button.", 'jetpack' ) }
+							{ __(
+								"You'll need to upgrade your plan to use the Recurring Payments button.",
+								'jetpack'
+							) }
 							<br />
 							<br />
 							<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
@@ -385,12 +388,12 @@ class MembershipsButtonEdit extends Component {
 					connected === API_STATE_NOTCONNECTED && (
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Memberships', 'jetpack' ) }
+							label={ __( 'Recurring Payments', 'jetpack' ) }
 							notices={ notices }
 						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
 								{ __(
-									'In order to start selling Membership plans, you have to connect to Stripe:',
+									'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
 									'jetpack'
 								) }
 								<br />
@@ -413,11 +416,11 @@ class MembershipsButtonEdit extends Component {
 					products.length === 0 && (
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Memberships', 'jetpack' ) }
+							label={ __( 'Recurring Payments', 'jetpack' ) }
 							notices={ notices }
 						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-								{ __( 'Add your first Membership amount:', 'jetpack' ) }
+								{ __( 'Add your first Recurring Payments plan:', 'jetpack' ) }
 								<br />
 								<br />
 								{ this.renderAddMembershipAmount() }
@@ -432,13 +435,13 @@ class MembershipsButtonEdit extends Component {
 					products.length > 0 && (
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Memberships', 'jetpack' ) }
+							label={ __( 'Recurring Payments', 'jetpack' ) }
 							notices={ notices }
 						>
 							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-								{ __( 'Select payment amount:', 'jetpack' ) }
+								{ __( 'Select payment plan:', 'jetpack' ) }
 								{ this.renderMembershipAmounts() }
-								{ __( 'Or add another membership amount:', 'jetpack' ) }
+								{ __( 'Or add another Recurring Payments plan:', 'jetpack' ) }
 								<br />
 								{ this.renderAddMembershipAmount() }
 								{ this.renderDisclaimer() }

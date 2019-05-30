@@ -34,7 +34,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	private static $button_block_name = 'membership-button';
+	private static $button_block_name = 'recurring-payments';
 
 	/**
 	 * These are defaults for wp_kses ran on the membership button.
@@ -120,7 +120,7 @@ class Jetpack_Memberships {
 		);
 		$order_args   = array(
 			'label'               => esc_html__( 'Plan', 'jetpack' ),
-			'description'         => esc_html__( 'Memberships plans', 'jetpack' ),
+			'description'         => esc_html__( 'Recurring Payments plans', 'jetpack' ),
 			'supports'            => array( 'title', 'custom-fields', 'content' ),
 			'hierarchical'        => false,
 			'public'              => false,
