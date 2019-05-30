@@ -14,7 +14,7 @@
 
 namespace Automattic\Jetpack\Autoloader;
 
-if ( ! function_exists( __NAMESPACE__ . '\enqueue_package' ) ) {
+if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_class' ) ) {
 	global $jetpack_packages_classes;
 
 	if ( ! is_array( $jetpack_packages_classes ) ) {
@@ -28,7 +28,7 @@ if ( ! function_exists( __NAMESPACE__ . '\enqueue_package' ) ) {
 	 * @param string $version Version of the class.
 	 * @param string $path Absolute path to the class so that we can load it.
 	 */
-	function enqueue_package( $class_name, $version, $path ) {
+	function enqueue_package_class( $class_name, $version, $path ) {
 		global $jetpack_packages_classes;
 
 		if ( ! isset( $jetpack_packages_classes[ $class_name ] ) ) {

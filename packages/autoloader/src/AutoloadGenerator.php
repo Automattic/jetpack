@@ -296,7 +296,7 @@ EOF;
 
 		return $classMap;
 	}
-	
+
 	/**
 	 * Generate the PHP that will be used in the autoload_packages.php files.
 	 *
@@ -314,7 +314,7 @@ EOF;
 function enqueue_packages_$suffix() {
 	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 	foreach ( \$class_map as \$class_name => \$class_info ) {
-		enqueue_package( \$class_name, \$class_info['version'], \$class_info['path'] );
+		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
 	}
 }
 
