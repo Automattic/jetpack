@@ -373,7 +373,12 @@ export function maybeHideNavMenuItem( module, values ) {
 }
 
 export function maybeReloadAfterAction( newOptionValue ) {
-	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
+	const reloadForOptionValues = [
+		'masterbar',
+		'jetpack_testimonial',
+		'jetpack_portfolio',
+		'private',
+	];
 
 	if ( some( reloadForOptionValues, optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();
