@@ -4,7 +4,7 @@
  * Internal dependencies
  */
 import './view.scss';
-const name = 'membership-button';
+const name = 'recurring-payments';
 const blockClassName = 'wp-block-jetpack-' + name;
 
 /**
@@ -64,7 +64,7 @@ const initializeMembershipButtonBlocks = () => {
 			activateSubscription( block, blogId, planId, poweredText, lang );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem activating Membership Button ' + planId, err );
+			console.error( 'Problem activating Recurring Payments ' + planId, err );
 		}
 	} );
 };

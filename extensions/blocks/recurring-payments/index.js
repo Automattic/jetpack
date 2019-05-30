@@ -10,7 +10,7 @@ import { __, _x } from '@wordpress/i18n';
 import edit from './edit';
 import './editor.scss';
 
-export const name = 'membership-button';
+export const name = 'recurring-payments';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -22,7 +22,7 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Membership Button', 'jetpack' ),
+	title: __( 'Recurring Payments button', 'jetpack' ),
 	icon,
 	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
 	category: 'jetpack',
