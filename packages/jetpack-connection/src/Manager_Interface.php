@@ -5,7 +5,7 @@
  * @package jetpack-connection
  */
 
-namespace Jetpack\Connection;
+namespace Automattic\Jetpack\Connection;
 
 /**
  * The Connection interface class file.

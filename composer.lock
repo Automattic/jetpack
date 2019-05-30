@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-connection",
-                "reference": "88bcb0fc2847f294f4cfb3a422d62a2ae194dde0"
+                "reference": "9dbcf84ab69da7d648e99580533624e2953c9874"
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
@@ -21,7 +21,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\V7\\Connection\\": "src"
+                    "Automattic\\Jetpack\\Connection\\": "src"
                 }
             },
             "scripts": {
@@ -40,7 +40,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jetpack-options",
-                "reference": "916bd1f2891549dc3d8afc59161c8529b6e093bb"
+                "reference": "39599e4816a5bea4fa44c37e33c6ef019aaeeb08"
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
@@ -49,7 +49,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Jetpack\\V7\\Options\\": "src"
+                    "Automattic\\Jetpack\\Options\\": "src"
                 }
             },
             "scripts": {

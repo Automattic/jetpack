@@ -1,7 +1,7 @@
 <?php
 
 use WP_Mock\Tools\TestCase;
-use Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Manager;
 
 class ManagerTest extends TestCase {
 	public function setUp(): void {
@@ -32,7 +32,7 @@ class ManagerTest extends TestCase {
 
 	function test_class_implements_interface() {
 		$manager = new Manager();
-		$this->assertInstanceOf( 'Jetpack\Connection\Manager_Interface', $manager );
+		$this->assertInstanceOf( 'Automattic\Jetpack\Connection\Manager_Interface', $manager );
 	}
 
 	function test_generate_secrets() {

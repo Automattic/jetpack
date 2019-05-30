@@ -1,7 +1,7 @@
 <?php
 
 use WP_Mock\Tools\TestCase;
-use Jetpack\Options\Manager;
+use Auutomattic\Jetpack\Options\Manager;
 
 class ManagerTest extends TestCase {
 	public function setUp(): void {

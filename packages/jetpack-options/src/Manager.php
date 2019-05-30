@@ -5,7 +5,7 @@
  * @package jetpack-options
  */
 
-namespace Jetpack\Options;
+namespace Automattic\Jetpack\Options;
 
 /**
  * The Jetpack Options Manager class that is used as a single gateway between WordPress options API

@@ -22,7 +22,7 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Jetpack\Connection\Manager as Connection_Manager;
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
@@ -335,7 +335,7 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
-	 * @var \Jetpack\Connection\Manager
+	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
