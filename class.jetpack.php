@@ -1825,7 +1825,7 @@ class Jetpack {
 	/**
 	 * Adds a line break for the 'Search Engines Discouraged' message
 	 * displayed in the 'At a Glance' dashboard widget.
-	 * 
+	 *
 	 * @param string $content Content of 'At A Glance' wp-admin dashboard widget.
 	 * @return string The modified content of the 'At a Glance' dashboard widget.
 	 */
@@ -1837,7 +1837,7 @@ class Jetpack {
 	/**
 	 * Basic styling for the wp-admin 'At a Glance' dashboard widget.
 	 * This is applied when the private module is inactive.
-	 * 
+	 *
 	 * @param string $hook Page Hook Suffix for the current page.
 	 */
 	public static function wp_admin_glance_dashboard_style( $hook ) {
@@ -1860,8 +1860,8 @@ class Jetpack {
 	 * @return string The modified content of the 'At a Glance' dashboard widget.
 	 */
 	public static function add_public_dashboard_glance_items( $content ) {
-		return 
-			$content . 
+		return
+			$content .
 			'<br><br>' .
 			wp_kses(
 				sprintf(
@@ -6003,7 +6003,9 @@ p {
 	 * Get $content_width, but with a <s>twist</s> filter.
 	 */
 	public static function get_content_width() {
-		$content_width = isset( $GLOBALS['content_width'] ) ? $GLOBALS['content_width'] : false;
+		$content_width = ( isset( $GLOBALS['content_width'] ) && is_numeric( $GLOBALS['content_width'] ) )
+			? $GLOBALS['content_width']
+			: false;
 		/**
 		 * Filter the Content Width value.
 		 *
