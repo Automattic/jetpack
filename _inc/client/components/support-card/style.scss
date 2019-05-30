@@ -6,7 +6,6 @@
 .jp-support-card__description {
 	font-size: rem( 14px);
 	line-height: 1.65;
-	color: $blue-text;
 
 	&:first-of-type {
 		margin-top: 4px;
@@ -67,7 +66,6 @@
 }
 
 .jp-support-card__header {
-	color: $blue-heading;
 	font-weight: 400;
 	font-size: rem( 21px );
 	margin: 0;
