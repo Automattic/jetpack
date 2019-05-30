@@ -11,7 +11,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Jetpack\\V7\\Connection\\": "src"
+			"Jetpack\\Connection\\": "src"
 		}
 	},
 	"scripts": {

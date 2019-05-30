@@ -5,9 +5,9 @@
  * @package jetpack-connection
  */
 
-namespace Jetpack\V7\Connection;
+namespace Jetpack\Connection;
 
-use Jetpack\V7\Connection\Manager_Interface;
+use Jetpack\Connection\Manager_Interface;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -22,7 +22,7 @@ class Manager implements Manager_Interface {
 	/**
 	 * The object for managing options.
 	 *
-	 * @var \Jetpack\V7\Options\Manager
+	 * @var \Jetpack\Options\Manager
 	 */
 	protected $option_manager;
 

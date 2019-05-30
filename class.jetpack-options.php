@@ -1,6 +1,6 @@
 <?php
 
-use \Jetpack\V7\Options\Manager as Options_Manager;
+use \Jetpack\Options\Manager as Options_Manager;
 
 /**
  * The option manager class that will eventually replace Jetpack_Options
