@@ -84,8 +84,12 @@ function jetpack_widgets_add_suffix( $widget_name ) {
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
 
+/*
+ * Do not display these links just yet.
+ * The feature is still under development.
+ * See https://github.com/Automattic/jetpack/issues/12499
 add_action( 'blog_privacy_selector', 'jetpack_priv_notice_privacy_selector' );
-
+ */
 /**
  * Echos notice directing site owners to Jetpack's Private Site feature.
  */
@@ -97,7 +101,7 @@ function jetpack_priv_notice_privacy_selector() {
 		wp_kses(
 			printf(
 				/* translators: URL to the Jetpack dashboard. */
-				__( 'You can also make your site completely private by allowing only registered users to see it. <a href="%s">Go to Private Site settings</a>.', 'jetpack' ),
+				__( 'You can also make your site completely private by allowing only registered users to see it. <a href="%s">Go to Private Site settings</a>.', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				esc_url( admin_url( 'admin.php?page=jetpack#/security?term=private' ) )
 			),
 			array( 'a' => array( 'href' => true ) )

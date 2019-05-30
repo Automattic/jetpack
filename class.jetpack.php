@@ -1816,9 +1816,14 @@ class Jetpack {
 		if ( self::is_module_active( 'private' ) ) {
 			self::load_modules( array( 'private' ) );
 		} else {
-			add_action( 'update_right_now_text', array( __CLASS__, 'add_public_dashboard_glance_items' ) );
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wp_admin_glance_dashboard_style' ) );
-			add_filter( 'privacy_on_link_text', array( __CLASS__, 'private_site_privacy_on_link_text' ) );
+			/*
+			 * Do not display these links just yet.
+			 * The feature is still under development.
+			 * See https://github.com/Automattic/jetpack/issues/12499
+			 */
+			//add_action( 'update_right_now_text', array( __CLASS__, 'add_public_dashboard_glance_items' ) );
+			//add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wp_admin_glance_dashboard_style' ) );
+			//add_filter( 'privacy_on_link_text', array( __CLASS__, 'private_site_privacy_on_link_text' ) );
 		}
 	}
 
