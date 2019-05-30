@@ -116,10 +116,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Comment Form: use HTTP 4xx status codes for comment errors.
 * Contact Form Block: improve styles for better display on mobile devices.
 * General: introduce a new Jetpack Logo package, to make it easier to share and re-use.
-* Memberships Block: automatically add button to the post content once you create it.
-* Memberships Block: improve the display of the renewal frequency in button list.
-* Memberships Block: require a paid plan to use the button.
 * Multisite: Use modern `wp_initialize_site` hook when automatically connecting new sites.
+* Recurring Payments Block: automatically add button to the post content once you create it.
+* Recurring Payments Block: improve the display of the renewal frequency in button list.
+* Recurring Payments Block: require a paid plan to use the button.
 * Search: add new option for cross-site search permissions.
 * Sharing: update default sharing settings to include buttons.
 * Sitemaps: rename the `jetpack_sitemap_generate` and `jetpack_news_sitemap_generate` filters to the more accurate `jetpack_sitemap_include_in_robotstxt` and `jetpack_news_sitemap_include_in_robotstxt`.
@@ -145,9 +145,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: make sure the Jetpack Dashboard is displayed properly in IE11.
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
 * Connect Flow: sanitize from parameter when building connection URL.
-* Memberships Block: avoid invalid subscription amounts.
-* Memberships Block: allow line breaks in the payment button.
 * Mobile Themes: fix "View Full Site" and "View Mobile Site" links when WordPress lives in a subdirectory.
+* Recurring Payments Block: avoid invalid subscription amounts.
+* Recurring Payments Block: allow line breaks in the payment button.
 * Related Posts: do not add markup to attachment pages by default.
 * SEO Tools: support taxonomy archive pages in page titles.
 * Sharing: make sure the Whatsapp button works well in all browsers, including Firefox on desktop.
