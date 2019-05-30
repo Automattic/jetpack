@@ -4,9 +4,16 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
+	"require-dev": {
+		"10up/wp_mock": "0.4.2",
+		"phpunit/phpunit": "^7.5"
+	},
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\Assets\\": "src/"
 		}
+	},
+	"scripts": {
+		"phpunit": "./vendor/phpunit/phpunit/phpunit --colors=always"
 	}
 }
