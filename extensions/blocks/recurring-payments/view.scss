@@ -33,20 +33,7 @@
 	right: 0;
 	bottom: 0;
 }
+/* This is a class added by Thickbox on open modals. */
 BODY.modal-open {
 	overflow: hidden;
-}
-
-@media only screen and ( max-width: 480px ) {
-	#TB_window.jetpack-memberships-modal {
-		bottom: 0;
-		left: 0;
-		margin-left: 0 !important;
-		right: 0;
-		top: 0;
-		width: 100% !important;
-	}
-	.jetpack-memberships-modal #TB_iframeContent {
-		width: 100% !important;
-	}
 }
