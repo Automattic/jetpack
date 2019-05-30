@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dada6f50261721f493579b0a19099539",
+    "content-hash": "e2e8018003b3f3fbbd8cf183fbeeeb80",
     "packages": [
         {
             "name": "automattic/jetpack-connection",
@@ -41,7 +41,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -68,8 +68,27 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
+            "name": "automattic/jetpack-jitm",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/jitm",
+                "reference": "3826421ace778af95cb1e3b1e6187adbcffb2c7f"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\JITM\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Just in time messages for Jetpack"
+        },
+        {
             "name": "automattic/jetpack-logo",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -98,7 +117,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -246,7 +265,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -643,6 +662,7 @@
         "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-jitm": 20,
         "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": false,

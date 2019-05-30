@@ -13,7 +13,8 @@
 		"automattic/jetpack-connection": "^1.0",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-constants": "@dev"
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-jitm": "@dev"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",

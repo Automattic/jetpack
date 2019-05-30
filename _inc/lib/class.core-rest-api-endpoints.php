@@ -492,9 +492,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
-
-		$jitm = Jetpack_JITM::init();
+		$jitm = new Automattic\Jetpack\JITM\Manager();
 
 		if ( ! $jitm ) {
 			return array();

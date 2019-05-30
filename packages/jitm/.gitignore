@@ -1,0 +1,2 @@
+## Ignore composer.lock for our library packages
+/**/composer.lock

@@ -230,8 +230,8 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
+	$jitm = new Automattic\Jetpack\JITM\Manager();
 	jetpack_require_lib( 'debugger' );
 }
 
