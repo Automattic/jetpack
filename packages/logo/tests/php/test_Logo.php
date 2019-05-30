@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Assets\Logo;
 use WP_Mock\Tools\TestCase;
 
-class WP_Test_Logo extends TestCase {
+class Test_Logo extends TestCase {
 	var $logo_url = 'https://yourjetpack.blog/wp-content/plugins/jetpack/packages/logo/assets/logo.svg';
 
 	public function setUp(): void {
