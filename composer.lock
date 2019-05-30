@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dad16e2022535a2011137557dac686f0",
+    "content-hash": "2a6b3658e33a86548e8cb2a6a88a1b1c",
     "packages": [
         {
             "name": "automattic/jetpack-connection",
@@ -35,12 +35,53 @@
             "description": "Everything needed to connect to the Jetpack infrastructure"
         },
         {
+            "name": "automattic/jetpack-constants",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/constants",
+                "reference": "b2cebb6eb5d4da90374e17c232168088f76c4c49"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "/legacy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A wrapper for defining constants in a more testable way."
+        },
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/logo",
+                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Assets\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack"
+        },
+        {
             "name": "automattic/jetpack-options",
             "version": "1.0.0",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "39599e4816a5bea4fa44c37e33c6ef019aaeeb08"
+                "reference": "0ff5d88cb668dcb7f8f54dfa4a19c87819e1dc78"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
@@ -579,6 +620,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-constants": 20,
         "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": false,

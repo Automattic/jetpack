@@ -240,4 +240,54 @@ abstract class Manager {
 		}
 		return in_array( $option_name, $this->get_option_names( 'network' ), true );
 	}
+
+	/**
+	 * Gets an option via $wpdb query.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @param string $name Option name.
+	 * @param mixed  $default Default option value if option is not found.
+	 *
+	 * @return mixed Option value, or null if option is not found and default is not specified.
+	 */
+	function get_raw_option( $name, $default = null ) {
+		if ( $this->bypass_raw_option( $name ) ) {
+			return get_option( $name, $default );
+		}
+		global $wpdb;
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				$name
+			)
+		);
+		$value = maybe_unserialize( $value );
+		if ( $value === null && $default !== null ) {
+			return $default;
+		}
+		return $value;
+	}
+	/**
+	 * This function checks for a constant that, if present, will disable direct DB queries Jetpack uses to manage certain options and force Jetpack to always use Options API instead.
+	 * Options can be selectively managed via a blacklist by filtering option names via the jetpack_disabled_raw_option filter.
+	 *
+	 * @param $name Option name
+	 *
+	 * @return bool
+	 */
+	function bypass_raw_option( $name ) {
+		if ( \Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
+			return true;
+		}
+		/**
+		 * Allows to disable particular raw options.
+		 *
+		 * @since 5.5.0
+		 *
+		 * @param array $disabled_raw_options An array of option names that you can selectively blacklist from being managed via direct database queries.
+		 */
+		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_options', array() );
+		return isset( $disabled_raw_options[ $name ] );
+	}
 }

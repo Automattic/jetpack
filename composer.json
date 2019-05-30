@@ -11,7 +11,9 @@
 		"composer/installers": "1.6.0",
 		"ext-openssl": "*",
 		"automattic/jetpack-connection": "^1.0",
-		"automattic/jetpack-options": "^1.0"
+		"automattic/jetpack-options": "^1.0",
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-constants": "@dev"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",

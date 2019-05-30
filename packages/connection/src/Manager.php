@@ -178,15 +178,22 @@ class Manager implements Manager_Interface {
 	public function generate_secrets( $action, $user_id, $exp ) {
 		$callable = $this->get_secret_callable();
 
-		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = $this->get_option_manager()->get_raw_option( 'jetpack_secrets', array() );
+
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+
+		if (
+			isset( $secrets[ $secret_name ] ) &&
+			$secrets[ $secret_name ]['exp'] > time()
+		) {
+			return $secrets[ $secret_name ];
+		}
+
 		$secret_value = array(
 			'secret_1' => call_user_func( $callable ),
 			'secret_2' => call_user_func( $callable ),
 			'exp'      => time() + $exp,
 		);
-
-		// TODO: Make the method actually update the value rather than overwrite it.
-		$secrets = array();
 
 		$secrets[ $secret_name ] = $secret_value;
 
