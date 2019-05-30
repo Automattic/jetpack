@@ -7,6 +7,9 @@
 	"autoload": {
 		"classmap": [
 			"legacy/"
-		]
+		],
+		"psr-4": {
+			"Automattic\\Jetpack\\Api\\": "src/"
+		}
 	}
 }
