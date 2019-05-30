@@ -1,10 +1,10 @@
 <?php
 
 use Automattic\Jetpack\Autoloader as Autoloader;
-use Jetpack\TestCase\className_ABC;
+use Jetpack\TestCase_ABC\className_ABC;
 
 class WP_Test_Autoloader extends WP_UnitTestCase {
-	protected $jetpack_packages_classes;
+	static $jetpack_packages_classes;
 	function setup() {
 		parent::setup();
 		global $jetpack_packages_classes;
@@ -53,11 +53,11 @@ class WP_Test_Autoloader extends WP_UnitTestCase {
 	}
 
 	function test_enqueue_class_to_autoload_works_as_expected() {
-		Autoloader\enqueue_package_class( 'Jetpack\TestCase\className_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
+		Autoloader\enqueue_package_class( 'Jetpack\TestCase_ABC\className_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
 
 		$class = new className_ABC();
 
-		$this->assertTrue( $class->is_true() );
+		$this->assertTrue( $class->return_true() );
 	}
 
 }
