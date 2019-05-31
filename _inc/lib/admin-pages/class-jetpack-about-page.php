@@ -605,7 +605,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			'https://1.gravatar.com/avatar/c510e69d83c7d10be4df64feeff4e46a',
 			'https://0.gravatar.com/avatar/88ec0dcadea38adf5f30a17e54e9b248',
 			'https://1.gravatar.com/avatar/bc45834430c5b0936d76e3f468f9ca57',
-			'https://0.gravatar.com/avatar/032677e4115f3a38dc7785529e8cc4d9',
+			'https://0.gravatar.com/avatar/0619d4de8aef78c81b2194ff1d164d85',
 			'https://0.gravatar.com/avatar/72a638c2520ea177976e8eafb201a82f',
 			'https://0.gravatar.com/avatar/b3618d70c63bbc5cc7caee0beded5ff0',
 			'https://1.gravatar.com/avatar/4d346581a3340e32cf93703c9ce46bd4',
