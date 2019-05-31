@@ -130,7 +130,7 @@ class Slideshow extends Component {
 					className="wp-block-jetpack-slideshow_container swiper-container"
 					ref={ this.slideshowRef }
 				>
-					<ul className="wp-block-jetpack-slideshow_swiper-wrappper swiper-wrapper">
+					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
 						{ images.map( ( { alt, caption, id, url } ) => (
 							<li
 								className={ classnames(
