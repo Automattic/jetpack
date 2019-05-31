@@ -144,6 +144,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: make sure the Jetpack Dashboard is displayed properly in IE11.
+* Admin Page: do not show Plugin Autoupdates card on admin searches.
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
 * Connect Flow: sanitize from parameter when building connection URL.
 * Mobile Themes: fix "View Full Site" and "View Mobile Site" links when WordPress lives in a subdirectory.
