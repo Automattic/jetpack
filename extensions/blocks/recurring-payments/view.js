@@ -23,7 +23,7 @@ function handleIframeResult( eventFromIframe ) {
 	}
 }
 
-function activateSubscription( block, blogId, planId, poweredText, lang ) {
+function activateSubscription( block, blogId, planId, lang ) {
 	block.addEventListener( 'click', () => {
 		tb_show(
 			null,
@@ -33,16 +33,13 @@ function activateSubscription( block, blogId, planId, poweredText, lang ) {
 				planId +
 				'&lang=' +
 				lang +
-				'TB_iframe=true&height=600&width=400',
+				'&display=alternate' +
+				'TB_iframe=true',
 			null
 		);
 		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
-		const footer = document.createElement( 'DIV' );
-		footer.classList.add( 'TB_footer' );
-		footer.innerHTML = poweredText;
-		tbWindow.appendChild( footer );
 	} );
 }
 
@@ -54,14 +51,8 @@ const initializeMembershipButtonBlocks = () => {
 		const blogId = block.getAttribute( 'data-blog-id' );
 		const planId = block.getAttribute( 'data-plan-id' );
 		const lang = block.getAttribute( 'data-lang' );
-		const poweredText = block
-			.getAttribute( 'data-powered-text' )
-			.replace(
-				'WordPress.com',
-				'<a href="https://wordpress.com" target="_blank" rel="noreferrer noopener">WordPress.com</a>'
-			);
 		try {
-			activateSubscription( block, blogId, planId, poweredText, lang );
+			activateSubscription( block, blogId, planId, lang );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Problem activating Recurring Payments ' + planId, err );
