@@ -43,9 +43,6 @@ class Manager {
 	 * Jetpack_JITM constructor.
 	 */
 	public function __construct() {
-		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
-			return;
-		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
@@ -55,7 +52,7 @@ class Manager {
 	 * @return string The Jetpack emblem
 	 */
 	function get_emblem() {
-		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
+		return '<div class="jp-emblem">' . \Jetpack::get_jp_emblem() . '</div>';
 	}
 
 	/**
