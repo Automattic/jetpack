@@ -37,8 +37,6 @@ phpcs.xml
 /docker/wordpress-develop/*
 !/docker/wordpress-develop/.gitkeep
 /docker/wordpress/*
-!/docker/wordpress/wp-content
-/docker/wordpress/wp-content/*
 
 !/docker/wordpress/.gitkeep
 
