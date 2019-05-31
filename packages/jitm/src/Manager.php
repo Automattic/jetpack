@@ -20,8 +20,6 @@ class Manager {
 	 * @return Jetpack_JITM | false
 	 */
 	static function init() {
-
-		l("HELLO!");
 		/**
 		 * Filter to turn off all just in time messages
 		 *
@@ -70,11 +68,14 @@ class Manager {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		if ( ! in_array( $screen->id, array(
-			'jetpack_page_stats',
-			'jetpack_page_akismet-key-config',
-			'admin_page_jetpack_modules'
-		) ) ) {
+		if ( ! in_array(
+			$screen->id,
+			array(
+				'jetpack_page_stats',
+				'jetpack_page_akismet-key-config',
+				'admin_page_jetpack_modules',
+			)
+		) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
@@ -117,9 +118,15 @@ class Manager {
 	 * @return string The new CTA
 	 */
 	static function jitm_jetpack_woo_services_install( $CTA ) {
-		return wp_nonce_url( add_query_arg( array(
-			'wc-services-action' => 'install'
-		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'wc-services-action' => 'install',
+				),
+				admin_url( 'admin.php?page=wc-settings' )
+			),
+			'wc-services-install'
+		);
 	}
 
 	/**
@@ -130,24 +137,30 @@ class Manager {
 	 * @return string The new CTA
 	 */
 	static function jitm_jetpack_woo_services_activate( $CTA ) {
-		return wp_nonce_url( add_query_arg( array(
-			'wc-services-action' => 'activate'
-		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'wc-services-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=wc-settings' )
+			),
+			'wc-services-install'
+		);
 	}
 
 	/**
 	 * Injects the dom to show a JITM inside of
 	 */
 	function ajax_message() {
-		$message_path = $this->get_message_path();
-		$query_string = _http_build_query( $_GET, '', ',' );
+		$message_path   = $this->get_message_path();
+		$query_string   = _http_build_query( $_GET, '', ',' );
 		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
 		?>
 		<div class="jetpack-jitm-message"
-		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
-		     data-message-path="<?php echo esc_attr( $message_path ) ?>"
-		     data-query="<?php echo urlencode_deep( $query_string ) ?>"
-		     data-redirect="<?php echo urlencode_deep( $current_screen ) ?>"
+			 data-nonce="<?php echo wp_create_nonce( 'wp_rest' ); ?>"
+			 data-message-path="<?php echo esc_attr( $message_path ); ?>"
+			 data-query="<?php echo urlencode_deep( $query_string ); ?>"
+			 data-redirect="<?php echo urlencode_deep( $current_screen ); ?>"
 		></div>
 		<?php
 	}
@@ -186,12 +199,16 @@ class Manager {
 			JETPACK__VERSION,
 			true
 		);
-		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
-			'api_root'               => esc_url_raw( rest_url() ),
-			'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
-			'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
-			'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
-		) );
+		wp_localize_script(
+			'jetpack-jitm-new',
+			'jitm_config',
+			array(
+				'api_root'               => esc_url_raw( rest_url() ),
+				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
+				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
+				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+			)
+		);
 	}
 
 	/**
@@ -203,11 +220,13 @@ class Manager {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		\JetpackTracking::record_user_event( 'jitm_dismiss_client', array(
-			'jitm_id' => $id,
-			'feature_class' => $feature_class,
-		) );
-
+		\JetpackTracking::record_user_event(
+			'jitm_dismiss_client',
+			array(
+				'jitm_id'       => $id,
+				'feature_class' => $feature_class,
+			)
+		);
 
 		$hide_jitm = \Jetpack_Options::get_option( 'hide_jitm' );
 		if ( ! is_array( $hide_jitm ) ) {
@@ -216,15 +235,24 @@ class Manager {
 
 		if ( isset( $hide_jitm[ $feature_class ] ) ) {
 			if ( ! is_array( $hide_jitm[ $feature_class ] ) ) {
-				$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
+				$hide_jitm[ $feature_class ] = array(
+					'last_dismissal' => 0,
+					'number'         => 0,
+				);
 			}
 		} else {
-			$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
+			$hide_jitm[ $feature_class ] = array(
+				'last_dismissal' => 0,
+				'number'         => 0,
+			);
 		}
 
 		$number = $hide_jitm[ $feature_class ]['number'];
 
-		$hide_jitm[ $feature_class ] = array( 'last_dismissal' => time(), 'number' => $number + 1 );
+		$hide_jitm[ $feature_class ] = array(
+			'last_dismissal' => time(),
+			'number'         => $number + 1,
+		);
 
 		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
 
@@ -243,10 +271,13 @@ class Manager {
 		// custom filters go here
 		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
 		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
-		add_filter( 'jitm_jetpack_woo_services_activate', array(
-			'Jetpack_JITM',
-			'jitm_jetpack_woo_services_activate'
-		) );
+		add_filter(
+			'jitm_jetpack_woo_services_activate',
+			array(
+				'Jetpack_JITM',
+				'jitm_jetpack_woo_services_activate',
+			)
+		);
 
 		$user = wp_get_current_user();
 
@@ -255,17 +286,20 @@ class Manager {
 			return array();
 		}
 
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client.php';
 
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		// build our jitm request
-		$path = add_query_arg( array(
-			'external_user_id' => urlencode_deep( $user->ID ),
-			'query_string'     => urlencode_deep( $query ),
-			'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
-			'_locale'          => get_user_locale(),
-		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
+		$path = add_query_arg(
+			array(
+				'external_user_id' => urlencode_deep( $user->ID ),
+				'query_string'     => urlencode_deep( $query ),
+				'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
+				'_locale'          => get_user_locale(),
+			),
+			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
+		);
 
 		// attempt to get from cache
 		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
@@ -341,16 +375,19 @@ class Manager {
 				continue;
 			}
 
-			\JetpackTracking::record_user_event( 'jitm_view_client', array(
-				'jitm_id' => $envelope->id,
-			) );
+			\JetpackTracking::record_user_event(
+				'jitm_view_client',
+				array(
+					'jitm_id' => $envelope->id,
+				)
+			);
 
 			$normalized_site_url = \Jetpack::build_raw_urls( get_home_url() );
 
 			$url_params = array(
 				'source' => "jitm-$envelope->id",
-				'site' => $normalized_site_url,
-				'u' => $user->ID,
+				'site'   => $normalized_site_url,
+				'u'      => $user->ID,
 			);
 
 			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
