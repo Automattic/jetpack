@@ -74,13 +74,21 @@ export class Security extends Component {
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
 			foundMonitor = this.props.isModuleFound( 'monitor' ),
-			foundPrivateSites = this.props.isModuleFound( 'private' );
+			foundPrivateSites = this.props.isModuleFound( 'private' ),
+			isSearchTerm = this.props.searchTerm;
 
-		if ( ! this.props.searchTerm && ! this.props.active ) {
+		if ( ! isSearchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor && ! foundPrivateSites ) {
+		if (
+			! foundSso &&
+			! foundProtect &&
+			! foundAkismet &&
+			! foundBackups &&
+			! foundMonitor &&
+			! foundPrivateSites
+		) {
 			return null;
 		}
 
@@ -89,7 +97,7 @@ export class Security extends Component {
 				<QuerySite />
 				<Card
 					title={
-						this.props.searchTerm
+						isSearchTerm
 							? __( 'Security' )
 							: __(
 									'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
@@ -105,7 +113,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</div>
 				) }
-				<ManagePlugins { ...commonProps } />
+				{ ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 				{ foundPrivateSites && <Private { ...commonProps } /> }
