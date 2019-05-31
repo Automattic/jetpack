@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Recurring Payments Block: automatically add button to the post content once you create it.
 * Recurring Payments Block: improve the display of the renewal frequency in button list.
 * Recurring Payments Block: require a paid plan to use the button.
+* Recurring Payments Block: improve the look of the payment modal on mobile devices.
 * Search: add new option for cross-site search permissions.
 * Sharing: update default sharing settings to include buttons.
 * Sitemaps: rename the `jetpack_sitemap_generate` and `jetpack_news_sitemap_generate` filters to the more accurate `jetpack_sitemap_include_in_robotstxt` and `jetpack_news_sitemap_include_in_robotstxt`.
