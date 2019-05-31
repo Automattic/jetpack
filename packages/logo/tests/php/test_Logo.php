@@ -1,17 +1,19 @@
 <?php
+namespace Automattic\Jetpack\Assets;
 
-use Automattic\Jetpack\Assets\Logo;
-use WP_Mock\Tools\TestCase;
+use PHPUnit\Framework\TestCase;
+use phpmock\phpunit\PHPMock;
 
 class Test_Logo extends TestCase {
-	var $logo_url = 'https://yourjetpack.blog/wp-content/plugins/jetpack/packages/logo/assets/logo.svg';
+	use PHPMock;
 
-	public function setUp(): void {
-		\WP_Mock::setUp();
-	}
+	protected $logo_url = 'https://yourjetpack.blog/wp-content/plugins/jetpack/packages/logo/assets/logo.svg';
 
-	public function tearDown(): void {
-		\WP_Mock::tearDown();
+	public function setUp() {
+		parent::setUp();
+
+		$this->mock_with_identity( 'esc_url' );
+		$this->mock_with_identity( 'esc_attr' );
 	}
 
 	public function test_constructor_default_logo() {
@@ -47,13 +49,22 @@ class Test_Logo extends TestCase {
 	}
 
 	protected function mock_plugins_url() {
-		\WP_Mock::userFunction( 'plugins_url', array(
-			'times' => 1,
-			'args' => array(
+		$this->getFunctionMock( __NAMESPACE__, 'plugins_url' )
+			->expects( $this->once() )
+			->with(
 				'assets/logo.svg',
 				dirname( dirname( __DIR__ ) ) . DIRECTORY_SEPARATOR . 'src'
-			),
-			'return' => $this->logo_url,
-		) );
+			)
+			->willReturn( $this->logo_url );
+	}
+
+	public function mock_with_identity( $function_name ) {
+		$this->getFunctionMock( __NAMESPACE__, $function_name )
+			->expects( $this->any() )
+			->willReturnCallback( array( $this, 'identity' ) );
+	}
+
+	public function identity( $value ) {
+		return $value;
 	}
 }

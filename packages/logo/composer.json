@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"10up/wp_mock": "0.4.2",
-		"phpunit/phpunit": "^7.5"
+		"phpunit/phpunit": "^7.5",
+		"php-mock/php-mock-phpunit": "^2.3"
 	},
 	"autoload": {
 		"psr-4": {
