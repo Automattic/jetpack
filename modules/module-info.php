@@ -912,22 +912,3 @@ function jetpack_more_info_copy_post() {
 	esc_html_e( 'Create a new post based on an existing post.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_copy-post', 'jetpack_more_info_copy_post' );
-
-/**
- * Private sites support link.
- */
-function jetpack_private_more_link() {
-	echo 'https://jetpack.com/support/private';
-}
-add_action( 'jetpack_learn_more_button_private', 'jetpack_private_more_link' );
-
-/**
- * Private sites description.
- */
-function jetpack_private_more_info() {
-	esc_html_e(
-		'Make your site private. It will only be visible to registered users.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_private', 'jetpack_private_more_info' );
