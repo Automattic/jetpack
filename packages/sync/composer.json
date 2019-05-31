@@ -1,0 +1,12 @@
+{
+	"name": "automattic/jetpack-sync",
+	"description": "A library that allows syncing to the WP.com infrastructure.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Sync\\": "src/"
+		}
+	}
+}
