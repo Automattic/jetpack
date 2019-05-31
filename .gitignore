@@ -37,6 +37,15 @@ phpcs.xml
 /docker/wordpress-develop/*
 !/docker/wordpress-develop/.gitkeep
 /docker/wordpress/*
+!/docker/wordpress/wp-content
+/docker/wordpress/wp-content/*
+!/docker/wordpress/wp-content/plugins
+/docker/wordpress/wp-content/plugins/*
+!/docker/wordpress/wp-content/plugins/a
+/docker/wordpress/wp-content/plugins/a/vendor
+!/docker/wordpress/wp-content/plugins/b
+/docker/wordpress/wp-content/plugins/b/vendor
+
 !/docker/wordpress/.gitkeep
 
 # Don't list files below this comment if they need to be ignored for bundling the Jetpack release.
@@ -53,3 +62,4 @@ _inc/jetpack-strings.php
 /vendor/automattic/
 /vendor/composer/
 /vendor/autoload.php
+/vendor/autoload_packages.php

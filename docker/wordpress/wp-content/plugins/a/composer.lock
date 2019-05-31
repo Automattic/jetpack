@@ -1,0 +1,76 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3a6032e136cc93750232559715855de0",
+    "packages": [
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-logo.git",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Assets\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "time": "2019-05-28T16:09:34+00:00"
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-try/custom-autoloader",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/autoloader",
+                "reference": "6cf16971382de4d5c00d39abc17d78ffc792430b"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "symlink": true
+            }
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "automattic/jetpack-autoloader": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

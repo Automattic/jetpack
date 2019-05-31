@@ -4,16 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "167f5c90d0f8c7224fdc8707e1ba107f",
+    "content-hash": "254aebf32be452ab169d10927a20164f",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/dont-symlink-packages",
+            "version": "dev-try/custom-autoloader",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d",
-                "shasum": null
+                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d"
             },
             "type": "library",
             "autoload": {
@@ -28,6 +27,31 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-try/custom-autoloader",
+            "dist": {
+                "type": "path",
+                "url": "./packages/autoloader",
+                "reference": "b7f10b9ef30f077dfacf68c1b797a070b066a62a"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme."
+        },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.5.0",
@@ -399,7 +423,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "automattic/jetpack-logo": 20
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

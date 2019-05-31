@@ -1,0 +1,72 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "08c018263a42f06ec2f383eec64ff06a",
+    "packages": [
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "dev-try/custom-autoloader",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/logo",
+                "reference": "c0379bcb8e61d948ab702c05aa0c787a104efe2e"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Assets\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-try/custom-autoloader",
+            "dist": {
+                "type": "path",
+                "url": "../jetpack/packages/autoloader",
+                "reference": "6cf16971382de4d5c00d39abc17d78ffc792430b"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "symlink": true
+            }
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-autoloader": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

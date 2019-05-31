@@ -1,0 +1,20 @@
+{
+  "name": "jetpack/b",
+  "description": "b",
+  "type": "wordpress-plugin",
+  "require": {
+    "automattic/jetpack-logo": "@dev"
+  },
+  "require-dev": {
+    "automattic/jetpack-autoloader": "@dev"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../jetpack/packages/*",
+      "options": {
+        "symlink": true
+      }
+    }
+  ]
+}
