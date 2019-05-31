@@ -1,0 +1,64 @@
+/**
+ * Header
+ */
+.jetpack-admin-page__header {
+    background-color: #fff;
+    text-align: center;
+    box-shadow: 0 1px 0 rgba(213,213,213,0.5),0 1px 2px #eee;
+}
+.jetpack-admin-page__logo {
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: .6875rem 0 0;
+}
+
+.jetpack-admin-page__container {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 65rem;
+    padding-bottom: .375rem;
+}
+
+.jetpack-admin-page__container .jp-lower {
+    padding-right: 0;
+    padding-left: 0;
+    max-width: 100%;
+}
+@media (max-width: 1250px) {
+    .jetpack-admin-page__container {
+        max-width: 95%;
+        padding-left:1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+/**
+ * Page
+ */
+/**
+ * Footer
+ */
+.jetpack-admin-page__footer {
+    margin: 2rem 0 1.5rem;
+    text-align: center;
+}
+
+.jetpack-admin-page__footer-links {
+    border-top: 1px #e1e1e1 solid;
+    border-bottom: 1px #e1e1e1 solid;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.jetpack-admin-page__footer-link-item {
+    display: inline-block;
+    margin-bottom: 0;
+}
+
+.jetpack-admin-page__footer-link {
+    padding: 1rem .5rem;
+    color: #888;
+    display: inline-block;
+    cursor: pointer;
+}

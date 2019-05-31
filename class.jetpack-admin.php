@@ -2,6 +2,8 @@
 
 
 // Build the Jetpack admin menu as a whole
+use Automattic\Jetpack\AdminPage\Page as AdminPage;
+
 class Jetpack_Admin {
 
 	/**
@@ -266,6 +268,7 @@ class Jetpack_Admin {
 			array( $this, 'wrap_debugger_page' )
 		);
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
+		$this->admin_page = new AdminPage( $debugger_hook );
 	}
 
 	function wrap_debugger_page( ) {
@@ -273,7 +276,7 @@ class Jetpack_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ) );
+		echo $this->admin_page->render( array( $this, 'debugger_page' ) );
 	}
 
 	function debugger_page() {

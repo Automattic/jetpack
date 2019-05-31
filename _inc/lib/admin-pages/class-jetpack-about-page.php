@@ -5,6 +5,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\AdminPage\Page as AdminPage;
+
 /**
  * Disable direct access and execution.
  */
@@ -48,6 +50,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			'jetpack_about',
 			array( $this, 'render' )
 		);
+
 	}
 
 	/**
@@ -80,13 +83,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 */
 	public function additional_styles() {
 		Jetpack_Admin_Page::load_wrapper_styles();
-	}
-
-	/**
-	 * Render the page with a common top and bottom part, and page specific content
-	 */
-	public function render() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'page_render' ), array( 'show-nav' => false ) );
 	}
 
 	/**

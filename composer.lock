@@ -4,16 +4,43 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "167f5c90d0f8c7224fdc8707e1ba107f",
+    "content-hash": "c72b38f72b3eee1546c02e7c69276752",
     "packages": [
         {
-            "name": "automattic/jetpack-logo",
-            "version": "dev-update/dont-symlink-packages",
+            "name": "automattic/jetpack-admin-page",
+            "version": "dev-add/admin-page-package",
             "dist": {
                 "type": "path",
-                "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d",
-                "shasum": null
+                "url": "./packages/admin-page",
+                "reference": "52b25f103bd40c64f5ca832dc55593646296cc59"
+            },
+            "require": {
+                "automattic/jetpack-logo": "@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\AdminPage\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "An admin page ui tool"
+        },
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-logo.git",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "shasum": ""
             },
             "type": "library",
             "autoload": {
@@ -21,10 +48,12 @@
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "time": "2019-05-28T16:09:34+00:00"
         }
     ],
     "packages-dev": [
@@ -399,7 +428,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "automattic/jetpack-logo": 20
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-admin-page": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

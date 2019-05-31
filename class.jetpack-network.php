@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\AdminPage\Page as AdminPage;
+
 /**
  * Used to manage Jetpack installation on Multisite Network installs
  *
@@ -38,6 +40,8 @@ class Jetpack_Network {
 		'sub-site-connection-override'  => 1,
 		//'manage_auto_activated_modules' => 0,
 	);
+
+	private $admin_page;
 
 	/**
 	 * Constructor
@@ -270,11 +274,14 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
+		$page = add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
+
 		$jetpack_sites_page_hook = add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'wrap_network_admin_page' ) );
 		$jetpack_settings_page_hook = add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'wrap_render_network_admin_settings_page' ) );
 		add_action( "admin_print_styles-$jetpack_sites_page_hook",  array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
 		add_action( "admin_print_styles-$jetpack_settings_page_hook",  array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
+
+		$this->admin_page = new AdminPage( array( $page, $jetpack_sites_page_hook, $jetpack_settings_page_hook ) );
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
 		 * the hook may have already fired by this point.
@@ -562,7 +569,7 @@ class Jetpack_Network {
 	}
 
 	function wrap_network_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'network_admin_page' ) );
+	    echo $this->admin_page->render( array( $this, 'network_admin_page' ) );
 	}
 
 	/**
@@ -709,7 +716,7 @@ class Jetpack_Network {
 	}
 
 	public function wrap_render_network_admin_settings_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'render_network_admin_settings_page' ) );
+	    echo $this->admin_page->render( array( $this, 'render_network_admin_settings_page' ) );
 	}
 
 	public function render_network_admin_settings_page() {

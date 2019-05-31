@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\AdminPage\Page as AdminPage;
+
 /**
 * Only user facing pieces of Publicize are found here.
 */
@@ -14,6 +16,8 @@ class Publicize_UI {
 	 * @var string URL to Sharing settings page in wordpress.com
 	 */
 	protected $publicize_settings_url = '';
+
+	private $admin_page;
 
 	/**
 	* Hooks into WordPress to display the various pieces of UI and load our assets
@@ -50,7 +54,7 @@ class Publicize_UI {
 	 * If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
 	 */
 	function sharing_menu() {
-		add_submenu_page(
+		$page = add_submenu_page(
 			'options-general.php',
 			esc_html__( 'Sharing Settings', 'jetpack' ),
 			esc_html__( 'Sharing', 'jetpack' ),
@@ -58,10 +62,11 @@ class Publicize_UI {
 			'sharing',
 			array( $this, 'wrapper_admin_page' )
 		);
+		$this->admin_page = new AdminPage( $page );
 	}
 
 	function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+	    echo $this->admin_page->render( array( $this, 'management_page' ) );
 	}
 
 	/**
