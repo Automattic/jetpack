@@ -61,7 +61,7 @@ class VerificationServicesComponent extends React.Component {
 	render() {
 		const verification = this.props.getModule( 'verification-tools' );
 
-		if ( 'inactive' === this.props.getModuleOverride( 'google-analytics' ) ) {
+		if ( 'inactive' === this.props.getModuleOverride( 'verification-tools' ) ) {
 			return (
 				<JetpackBanner
 					title={ verification.name }
