@@ -2,6 +2,8 @@
 
 use \Automattic\Jetpack\Options\Manager as Options_Manager;
 
+if ( class_exists( '\Automattic\Jetpack\Options\Manager' ) ) :
+
 /**
  * The option manager class that will eventually replace Jetpack_Options
  */
@@ -30,6 +32,8 @@ class Jetpack_Options_Manager extends Options_Manager {
 		return array();
 	}
 }
+
+endif;
 
 class Jetpack_Options {
 
