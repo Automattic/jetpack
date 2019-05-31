@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Functions;
+
 /**
  * Base class for working with plugins.
  */
@@ -200,7 +202,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$reasons_can_not_autoupdate = array();
 		$reasons_can_not_modify_files = array();
 
-		$has_file_system_write_access = Jetpack_Sync_Functions::file_system_write_access();
+		$has_file_system_write_access = Functions::file_system_write_access();
 		if ( ! $has_file_system_write_access ) {
 			$reasons_can_not_modify_files['has_no_file_system_write_access'] =  __( 'The file permissions on this host prevent editing files.', 'jetpack' );
 		}
@@ -315,7 +317,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function get_plugin_action_links( $plugin_file ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-		return Jetpack_Sync_Functions::get_plugins_action_links( $plugin_file );
+		return Functions::get_plugins_action_links( $plugin_file );
 	}
 }

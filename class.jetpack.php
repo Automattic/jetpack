@@ -22,6 +22,10 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Users;
+
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
 class Jetpack {
@@ -1449,8 +1453,8 @@ class Jetpack {
 	 * @return string ( '1' | '0' )
 	 **/
 	public static function is_version_controlled() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Functions::is_version_controlled' );
-		return (string) (int) Jetpack_Sync_Functions::is_version_controlled();
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Functions::is_version_controlled' );
+		return (string) (int) Functions::is_version_controlled();
 	}
 
 	/**
@@ -1804,8 +1808,8 @@ class Jetpack {
 	 * Synchronize connected user role changes
 	 */
 	function user_role_change( $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Users::user_role_change()' );
-		Jetpack_Sync_Users::user_role_change( $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Users::user_role_change()' );
+		Users::user_role_change( $user_id );
 	}
 
 	/**
@@ -3357,8 +3361,7 @@ p {
 		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-		Jetpack_Sync_Sender::get_instance()->uninstall();
+		Sender::get_instance()->uninstall();
 
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();
@@ -6209,10 +6212,9 @@ p {
 		// in a transient to allow for autoloading and caching on subsequent views.
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
-			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 			$local_options = array(
-				'home'    => Jetpack_Sync_Functions::home_url(),
-				'siteurl' => Jetpack_Sync_Functions::site_url(),
+				'home'    => Functions::home_url(),
+				'siteurl' => Functions::site_url(),
 			);
 			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
 		}

@@ -1,5 +1,10 @@
 <?php
 
+use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Queue;
+use Automattic\Jetpack\Sync\Settings;
+
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
@@ -823,7 +828,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'status':
-				$status = Jetpack_Sync_Actions::get_sync_status();
+				$status = Actions::get_sync_status();
 				$collection = array();
 				foreach ( $status as $key => $item ) {
 					$collection[]  = array(
@@ -836,7 +841,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'settings':
 				WP_CLI::log( __( 'Sync Settings:', 'jetpack' ) );
-				foreach( Jetpack_Sync_Settings::get_settings() as $setting => $item ) {
+				foreach( Settings::get_settings() as $setting => $item ) {
 					$settings[]  = array(
 						'setting' => $setting,
 						'value' => is_scalar( $item ) ? $item : json_encode( $item )
@@ -845,24 +850,23 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
 
 			case 'disable':
-				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				// Don't set it via the Settings since that also resets the queues.
 				update_option( 'jetpack_sync_settings_disable', 1 );
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'enable':
-				Jetpack_Sync_Settings::update_settings( array( 'disable' => 0 ) );
+				Settings::update_settings( array( 'disable' => 0 ) );
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Enabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'reset':
-				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				// Don't set it via the Settings since that also resets the queues.
 				update_option( 'jetpack_sync_settings_disable', 1 );
 
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
-				require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-listener.php';
-				$listener = Jetpack_Sync_Listener::get_instance();
+				$listener = Listener::get_instance();
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
 					$listener->get_full_sync_queue()->reset();
@@ -891,8 +895,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				break;
 			case 'start':
-				if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
-					if( ! Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+				if ( ! Actions::sync_allowed() ) {
+					if( ! Settings::get_setting( 'disable' ) ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
 						return;
 					}
@@ -911,11 +915,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				}
 				// Get the original settings so that we can restore them later
-				$original_settings = Jetpack_Sync_Settings::get_settings();
+				$original_settings = Settings::get_settings();
 
 				// Initialize sync settigns so we can sync as quickly as possible
 				$sync_settings = wp_parse_args(
-					array_intersect_key( $assoc_args, Jetpack_Sync_Settings::$valid_settings ),
+					array_intersect_key( $assoc_args, Settings::$valid_settings ),
 					array(
 						'sync_wait_time' => 0,
 						'enqueue_wait_time' => 0,
@@ -923,7 +927,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'max_queue_size_full_sync' => 100000
 					)
 				);
-				Jetpack_Sync_Settings::update_settings( $sync_settings );
+				Settings::update_settings( $sync_settings );
 
 				// Convert comma-delimited string of modules to an array
 				if ( ! empty( $assoc_args['modules'] ) ) {
@@ -954,7 +958,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Kick off a full sync
-				if ( Jetpack_Sync_Actions::do_full_sync( $modules ) ) {
+				if ( Actions::do_full_sync( $modules ) ) {
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), join( ', ', array_keys( $modules ) ) ) );
@@ -964,7 +968,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				} else {
 
 					// Reset sync settings to original.
-					Jetpack_Sync_Settings::update_settings( $original_settings );
+					Settings::update_settings( $original_settings );
 
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
@@ -977,7 +981,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// Keep sending to WPCOM until there's nothing to send
 				$i = 1;
 				do {
-					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
+					$result = Actions::$sender->do_full_sync();
 					if ( is_wp_error( $result ) ) {
 						$queue_empty_error = ( 'empty_queue_full_sync' == $result->get_error_code() );
 						if ( ! $queue_empty_error || ( $queue_empty_error && ( 1 == $i ) ) ) {
@@ -995,7 +999,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				} while ( $result && ! is_wp_error( $result ) );
 
 				// Reset sync settings to original.
-				Jetpack_Sync_Settings::update_settings( $original_settings );
+				Settings::update_settings( $original_settings );
 
 				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
 				break;
@@ -1016,7 +1020,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @synopsis <incremental|full_sync> <peek>
 	 */
 	public function sync_queue( $args, $assoc_args ) {
-		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+		if ( ! Actions::sync_allowed() ) {
 			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
 		}
 
@@ -1033,8 +1037,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch( $action ) {
 			case 'peek':
-				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
-				$queue = new Jetpack_Sync_Queue( $mapped_queue_name );
+				$queue = new Queue( $mapped_queue_name );
 				$items = $queue->peek( 100 );
 
 				if ( empty( $items ) ) {

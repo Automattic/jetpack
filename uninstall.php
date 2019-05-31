@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Sender;
+
 if (
 	!defined( 'WP_UNINSTALL_PLUGIN' )
 	||
@@ -32,5 +34,4 @@ delete_transient( 'jetpack_register'    );
 add_filter( 'jetpack_sync_modules', '__return_empty_array', 100 );
 
 // Jetpack Sync
-require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-Jetpack_Sync_Sender::get_instance()->uninstall();
+Sender::get_instance()->uninstall();

@@ -1,5 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Sender;
+
 /**
  * Just a sack of functions.  Not actually an IXR_Server
  */
@@ -634,11 +638,9 @@ class Jetpack_XMLRPC_Server {
 	function sync_object( $args ) {
 		// e.g. posts, post, 5
 		list( $module_name, $object_type, $id ) = $args;
-		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-modules.php';
-		require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-sender.php';
 
-		$sync_module = Jetpack_Sync_Modules::get_module( $module_name );
-		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$sync_module = Modules::get_module( $module_name );
+		$codec = Sender::get_instance()->get_codec();
 
 		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
 	}
@@ -651,10 +653,9 @@ class Jetpack_XMLRPC_Server {
 	 * @return array
 	 */
 	function validate_urls_for_idc_mitigation() {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 		return array(
-			'home'    => Jetpack_Sync_Functions::home_url(),
-			'siteurl' => Jetpack_Sync_Functions::site_url(),
+			'home'    => Functions::home_url(),
+			'siteurl' => Functions::site_url(),
 		);
 	}
 
