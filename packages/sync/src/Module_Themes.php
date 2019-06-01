@@ -295,7 +295,7 @@ class Module_Themes extends Module {
 
 		if ( 'install' === $details['action'] ) {
 			$theme = $upgrader->theme_info();
-			if ( ! $theme instanceof WP_Theme ) {
+			if ( ! $theme instanceof \WP_Theme ) {
 				return;
 			}
 			$theme_info = array(
@@ -326,7 +326,7 @@ class Module_Themes extends Module {
 			foreach ( $details['themes'] as $theme_slug ) {
 				$theme = wp_get_theme( $theme_slug );
 
-				if ( ! $theme instanceof WP_Theme ) {
+				if ( ! $theme instanceof \WP_Theme ) {
 					continue;
 				}
 

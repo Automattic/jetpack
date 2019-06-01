@@ -143,7 +143,7 @@ class Functions {
 	 **/
 	public static function is_version_controlled() {
 
-		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
+		if ( ! class_exists( '\\WP_Automatic_Updater' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		}
 		$updater = new \WP_Automatic_Updater();
@@ -328,7 +328,7 @@ class Functions {
 	 */
 	public static function get_plugins_action_links( $plugin_file_singular = null ) {
 		// Some sites may have DOM disabled in PHP fail early
-		if ( ! class_exists( 'DOMDocument' ) ) {
+		if ( ! class_exists( '\\DOMDocument' ) ) {
 			return array();
 		}
 		$plugins_action_links = get_option( 'jetpack_plugin_api_action_links', array() );

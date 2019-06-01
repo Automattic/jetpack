@@ -318,7 +318,7 @@ class Actions {
 	}
 
 	static function initialize_woocommerce() {
-		if ( false === class_exists( 'WooCommerce' ) ) {
+		if ( false === class_exists( '\\WooCommerce' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( 'Actions', 'add_woocommerce_sync_module' ) );

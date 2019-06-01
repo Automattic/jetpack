@@ -83,7 +83,7 @@ class WP_Replicastore implements Replicastore {
 		global $wpdb;
 
 		// reject the post if it's not a WP_Post
-		if ( ! $post instanceof WP_Post ) {
+		if ( ! $post instanceof \WP_Post ) {
 			return;
 		}
 

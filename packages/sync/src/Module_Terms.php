@@ -60,8 +60,8 @@ class Module_Terms extends Module {
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
-		if ( class_exists( 'WP_Term' ) ) {
-			$term_object = WP_Term::get_instance( $term_id, $taxonomy );
+		if ( class_exists( '\\WP_Term' ) ) {
+			$term_object = \WP_Term::get_instance( $term_id, $taxonomy );
 		} else {
 			$term_object = get_term_by( 'id', $term_id, $taxonomy );
 		}
@@ -101,16 +101,16 @@ class Module_Terms extends Module {
 	public function expand_term_taxonomy_id( $args ) {
 		list( $term_taxonomy_ids,  $previous_end ) = $args;
 
-		return
-			array( 'terms' => get_terms(
+		return array(
+			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,
 					'term_taxonomy_id' => $term_taxonomy_ids,
 					'orderby'          => 'term_taxonomy_id',
-					'order'            => 'DESC'
+					'order'            => 'DESC',
 				)
 			),
-			'previous_end' => $previous_end
+			'previous_end' => $previous_end,
 		);
 	}
 }

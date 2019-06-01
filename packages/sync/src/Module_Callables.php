@@ -127,7 +127,7 @@ class Module_Callables extends Module {
 
 	public function set_plugin_action_links() {
 		if (
-			! class_exists( 'DOMDocument' ) ||
+			! class_exists( '\\DOMDocument' ) ||
 			! function_exists( 'libxml_use_internal_errors' ) ||
 			! function_exists( 'mb_convert_encoding' )
 		) {

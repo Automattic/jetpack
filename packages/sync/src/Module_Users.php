@@ -82,7 +82,7 @@ class Module_Users extends Module {
 		if ( is_numeric( $user ) ) {
 			$user = get_user_by( 'id', $user );
 		}
-		if ( $user instanceof WP_User ) {
+		if ( $user instanceof \WP_User ) {
 			return $user;
 		}
 		return null;
@@ -203,7 +203,7 @@ class Module_Users extends Module {
 		}
 
 		// We are only interested in successful authentication events.
-		if ( is_wp_error( $user ) || ! ( $user instanceof WP_User ) ) {
+		if ( is_wp_error( $user ) || ! ( $user instanceof \WP_User ) ) {
 			return $user;
 		}
 
