@@ -54,12 +54,12 @@ class Module_Full_Sync extends Module {
 
 		$enqueue_status   = array();
 		$full_sync_config = array();
-		$include_empty = false;
-		$empty = array();
+		$include_empty    = false;
+		$empty            = array();
 		// default value is full sync
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
-			$include_empty = true;
+			$include_empty  = true;
 			foreach ( Modules::get_modules() as $module ) {
 				$module_configs[ $module->name() ] = true;
 			}
@@ -90,7 +90,7 @@ class Module_Full_Sync extends Module {
 					0,              // queued
 					false,          // current state
 				);
-			} else if ( $include_empty && $total_items === 0 ) {
+			} elseif ( $include_empty && $total_items === 0 ) {
 				$empty[ $module_name ] = true;
 			}
 		}

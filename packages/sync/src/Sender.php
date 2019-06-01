@@ -201,7 +201,7 @@ class Sender {
 		}
 
 		/* Don't make the request block till we finish, if possible. */
-		if ( \Jetpack_Constants::is_true( 'REST_REQUEST' ) || \Jetpack_Constants::is_true('XMLRPC_REQUEST' ) ) {
+		if ( \Jetpack_Constants::is_true( 'REST_REQUEST' ) || \Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			$this->fastcgi_finish_request();
 		}
 

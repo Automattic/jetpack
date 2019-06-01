@@ -143,8 +143,7 @@ class Listener {
 
 		foreach ( $args_array as $args ) {
 			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
-			$args = isset( $args['ids'] ) ? $args['ids'] : $args;
-
+			$args         = isset( $args['ids'] ) ? $args['ids'] : $args;
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
@@ -155,7 +154,7 @@ class Listener {
 			 *
 			 * @param array The action parameters
 			 */
-			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
+			$args        = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
 			$action_data = array( $args );
 			if ( ! is_null( $previous_end ) ) {
 				$action_data[] = $previous_end;

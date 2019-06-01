@@ -425,7 +425,7 @@ class Module_Posts extends Module {
 			$posts,
 			$this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) ),
 			$this->get_term_relationships( $post_ids ),
-			$previous_interval_end
+			$previous_interval_end,
 		);
 	}
 }

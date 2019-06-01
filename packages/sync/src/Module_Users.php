@@ -174,7 +174,7 @@ class Module_Users extends Module {
 	 * @param String  $user_login the user login.
 	 * @param WP_User $user       the user object.
 	 */
-	 function wp_login_handler( $user_login, $user ) {
+	function wp_login_handler( $user_login, $user ) {
 		/**
 		 * Fires when a user is logged into a site.
 		 *
@@ -220,8 +220,8 @@ class Module_Users extends Module {
 		$this->add_flags(
 			$user->ID,
 			array(
-				'warning'          => 'The password failed at least one strength test.',
-				'failures'         => $test_results['test_results']['failed'],
+				'warning'  => 'The password failed at least one strength test.',
+				'failures' => $test_results['test_results']['failed'],
 			)
 		);
 
@@ -434,14 +434,17 @@ class Module_Users extends Module {
 		list( $user_ids, $previous_end ) = $args;
 
 		return array(
-			'users' => array_map( array( $this, 'sanitize_user_and_expand' ), get_users(
-				array(
-					'include' => $user_ids,
-					'orderby' => 'ID',
-					'order' => 'DESC'
+			'users'        => array_map(
+				array( $this, 'sanitize_user_and_expand' ),
+				get_users(
+					array(
+						'include' => $user_ids,
+						'orderby' => 'ID',
+						'order'   => 'DESC',
+					)
 				)
-			) ),
-			'previous_end' => $previous_end
+			),
+			'previous_end' => $previous_end,
 		);
 	}
 

@@ -565,7 +565,7 @@ class Defaults {
 
 	static function get_default_setting( $setting ) {
 		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-		return Defaults::$$default_name;
+		return self::$$default_name;
 	}
 
 	static $default_network_options_whitelist = array(
