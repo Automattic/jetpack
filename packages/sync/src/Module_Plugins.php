@@ -67,7 +67,7 @@ class Module_Plugins extends Module {
 		switch ( $details['action'] ) {
 			case 'update':
 				$state  = array(
-					'is_autoupdate' => Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
+					'is_autoupdate' => \Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
 				);
 				$errors = $this->get_errors( $upgrader->skin );
 				if ( $errors ) {

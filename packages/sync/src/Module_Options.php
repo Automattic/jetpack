@@ -159,9 +159,9 @@ class Module_Options extends Module {
 		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
 		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
 			// This is the option that is synced with dotcom
-			Jetpack_Options::update_option( 'site_icon_url', $url );
+			\Jetpack_Options::update_option( 'site_icon_url', $url );
 		} elseif ( empty( $url ) ) {
-			Jetpack_Options::delete_option( 'site_icon_url' );
+			\Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
 

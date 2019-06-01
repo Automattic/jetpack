@@ -80,7 +80,7 @@ class Module_Callables extends Module {
 	public function get_all_callables() {
 		// get_all_callables should run as the master user always.
 		$current_user_id = get_current_user_id();
-		wp_set_current_user( Jetpack_Options::get_option( 'master_user' ) );
+		wp_set_current_user( \Jetpack_Options::get_option( 'master_user' ) );
 		$callables = array_combine(
 			array_keys( $this->get_callable_whitelist() ),
 			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_whitelist() ) )
@@ -203,7 +203,7 @@ class Module_Callables extends Module {
 			'home_url',
 			'site_url',
 		);
-		if ( in_array( $name, $idc_override_callables ) && Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
+		if ( in_array( $name, $idc_override_callables ) && \Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
 			return true;
 		}
 
@@ -229,7 +229,7 @@ class Module_Callables extends Module {
 			return;
 		}
 
-		$callable_checksums = (array) Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
+		$callable_checksums = (array) \Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 		$has_changed = false;
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
@@ -252,7 +252,7 @@ class Module_Callables extends Module {
 			}
 		}
 		if ( $has_changed ) {
-			Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 		}
 
 	}
@@ -264,7 +264,7 @@ class Module_Callables extends Module {
 			foreach ( $callables as $name => $value ) {
 				$callables_checksums[ $name ] = $this->get_check_sum( $value );
 			}
-			Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callables_checksums );
+			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callables_checksums );
 			return $callables;
 		}
 

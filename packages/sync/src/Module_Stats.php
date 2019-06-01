@@ -25,6 +25,6 @@ class Module_Stats extends Module {
 	}
 
 	public function add_stats() {
-		return array( Jetpack::get_stat_data( false, false ) );
+		return array( \Jetpack::get_stat_data( false, false ) );
 	}
 }

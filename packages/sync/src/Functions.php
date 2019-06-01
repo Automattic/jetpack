@@ -93,7 +93,7 @@ class Functions {
 
 	public static function expand_synced_post_type( $sanitized_post_type, $post_type ) {
 		$post_type        = sanitize_key( $post_type );
-		$post_type_object = new WP_Post_Type( $post_type, $sanitized_post_type );
+		$post_type_object = new \WP_Post_Type( $post_type, $sanitized_post_type );
 		$post_type_object->add_supports();
 		$post_type_object->add_rewrite_rules();
 		$post_type_object->add_hooks();
@@ -195,8 +195,8 @@ class Functions {
 			: 'site_url';
 
 		if (
-			! Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
-			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
+			! \Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
+			\Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$scheme = is_ssl() ? 'https' : 'http';
 			$url    = self::get_raw_url( $url_type );
@@ -271,12 +271,12 @@ class Functions {
 
 		// Since we disregard the constant for multisites in ms-default-filters.php,
 		// let's also use the db value if this is a multisite.
-		if ( ! is_multisite() && Jetpack_Constants::is_defined( $constant ) ) {
-			$value = Jetpack_Constants::get_constant( $constant );
+		if ( ! is_multisite() && \Jetpack_Constants::is_defined( $constant ) ) {
+			$value = \Jetpack_Constants::get_constant( $constant );
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
 			// ensure that we get more uniform values.
-			$value = Jetpack_Options::get_raw_option( $option_name );
+			$value = \Jetpack_Options::get_raw_option( $option_name );
 		}
 
 		return $value;

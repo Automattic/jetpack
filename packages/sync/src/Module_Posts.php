@@ -318,7 +318,7 @@ class Module_Posts extends Module {
 			false;
 
 		$state = array(
-			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
+			'is_auto_save'                 => (bool) \Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
 			'previous_status'              => $previous_status,
 			'just_published'               => $just_published,
 			'is_gutenberg_meta_box_update' => $this->is_gutenberg_meta_box_update(),

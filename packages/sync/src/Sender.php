@@ -48,9 +48,9 @@ class Sender {
 	}
 
 	public function maybe_set_user_from_token() {
-		$jetpack       = Jetpack::init();
+		$jetpack       = \Jetpack::init();
 		$verified_user = $jetpack->verify_xml_rpc_signature();
-		if ( Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) &&
+		if ( \Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user
 		) {
@@ -201,7 +201,7 @@ class Sender {
 		}
 
 		/* Don't make the request block till we finish, if possible. */
-		if ( Jetpack_Constants::is_true( 'REST_REQUEST' ) || Jetpack_Constants::is_true('XMLRPC_REQUEST' ) ) {
+		if ( \Jetpack_Constants::is_true( 'REST_REQUEST' ) || \Jetpack_Constants::is_true('XMLRPC_REQUEST' ) ) {
 			$this->fastcgi_finish_request();
 		}
 

@@ -208,7 +208,7 @@ class Module_Users extends Module {
 		}
 
 		jetpack_require_lib( 'class.jetpack-password-checker' );
-		$password_checker = new Jetpack_Password_Checker( $user->ID );
+		$password_checker = new \Jetpack_Password_Checker( $user->ID );
 
 		$test_results = $password_checker->test( $password, true );
 
@@ -248,7 +248,7 @@ class Module_Users extends Module {
 			return;
 		}
 
-		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+		if ( \Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
@@ -269,7 +269,7 @@ class Module_Users extends Module {
 			return;
 		}
 
-		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+		if ( \Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**

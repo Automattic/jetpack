@@ -267,7 +267,7 @@ class Listener {
 			$user = wp_get_current_user();
 		}
 
-		$translated_role = Jetpack::translate_user_to_role( $user );
+		$translated_role = \Jetpack::translate_user_to_role( $user );
 
 		$actor = array(
 			'wpcom_user_id'    => null,

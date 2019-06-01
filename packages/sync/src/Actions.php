@@ -75,7 +75,7 @@ class Actions {
 	}
 
 	static function should_initialize_sender() {
-		if ( Jetpack_Constants::is_true( 'DOING_CRON' ) ) {
+		if ( \Jetpack_Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
 
@@ -106,13 +106,13 @@ class Actions {
 		if ( ! Settings::is_sync_enabled() ) {
 			return false;
 		}
-		if ( Jetpack::is_development_mode() ) {
+		if ( \Jetpack::is_development_mode() ) {
 			return false;
 		}
-		if ( Jetpack::is_staging_site() ) {
+		if ( \Jetpack::is_staging_site() ) {
 			return false;
 		}
-		if ( ! Jetpack::is_active() ) {
+		if ( ! \Jetpack::is_active() ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}
@@ -138,7 +138,7 @@ class Actions {
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
-		Jetpack::load_xml_rpc_client();
+		\Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
 			'sync'      => '1',             // add an extra parameter to the URL so we can tell it's a sync action
@@ -152,11 +152,11 @@ class Actions {
 		);
 
 		// Has the site opted in to IDC mitigation?
-		if ( Jetpack::sync_idc_optin() ) {
+		if ( \Jetpack::sync_idc_optin() ) {
 			$query_args['idc'] = true;
 		}
 
-		if ( Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
 		}
 
@@ -171,9 +171,9 @@ class Actions {
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
-		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
+		$url = add_query_arg( $query_args, \Jetpack::xmlrpc_api_url() );
 
-		$rpc = new Jetpack_IXR_Client(
+		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
 				'user_id' => JETPACK_MASTER_USER,
@@ -199,9 +199,9 @@ class Actions {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
-				Jetpack_Options::update_option(
+				\Jetpack_Options::update_option(
 					'sync_error_idc',
-					Jetpack::get_sync_error_idc_option( $response )
+					\Jetpack::get_sync_error_idc_option( $response )
 				);
 			}
 
