@@ -199,6 +199,7 @@ class Jetpack_RelatedPosts {
 	 * @uses esc_html__, apply_filters
 	 * @returns string
 	 */
+	public function get_target_html() {
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
