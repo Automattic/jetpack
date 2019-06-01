@@ -243,7 +243,7 @@ class Defaults {
 		'sso_bypass_default_login_form'    => array( '\\Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( __NAMESPACE__ . '\\Functions', 'wp_version' ),
 		'get_plugins'                      => array( __NAMESPACE__ . '\\Functions', 'get_plugins' ),
-		'get_plugins_action_links'         => array( 'functions', 'get_plugins_action_links' ),
+		'get_plugins_action_links'         => array( __NAMESPACE__ . '\\Functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( '\\Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( __NAMESPACE__ . '\\Functions', 'get_hosting_provider' ),
 		'locale'                           => '\\get_locale',
