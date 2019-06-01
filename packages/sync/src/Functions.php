@@ -146,7 +146,7 @@ class Functions {
 		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		}
-		$updater = new WP_Automatic_Updater();
+		$updater = new \WP_Automatic_Updater();
 
 		return (bool) strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
 	}

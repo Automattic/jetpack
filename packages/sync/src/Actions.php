@@ -205,7 +205,7 @@ class Actions {
 				);
 			}
 
-			return new WP_Error(
+			return new \WP_Error(
 				'sync_error_idc',
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);

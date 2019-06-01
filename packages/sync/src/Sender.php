@@ -103,12 +103,12 @@ class Sender {
 	public function do_sync_and_set_delays( $queue ) {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			return new WP_Error( 'is_importing' );
+			return new \WP_Error( 'is_importing' );
 		}
 
 		// don't sync if we are throttled
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
-			return new WP_Error( 'sync_throttled' );
+			return new \WP_Error( 'sync_throttled' );
 		}
 
 		$start_time = microtime( true );
@@ -191,7 +191,7 @@ class Sender {
 	public function do_sync_for_queue( $queue ) {
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
-			return new WP_Error( 'empty_queue_' . $queue->id );
+			return new \WP_Error( 'empty_queue_' . $queue->id );
 		}
 		// now that we're sure we are about to sync, try to
 		// ignore user abort so we can avoid getting into a
@@ -211,7 +211,7 @@ class Sender {
 
 		if ( ! $buffer ) {
 			// buffer has no items
-			return new WP_Error( 'empty_buffer' );
+			return new \WP_Error( 'empty_buffer' );
 		}
 
 		if ( is_wp_error( $buffer ) ) {
@@ -249,11 +249,11 @@ class Sender {
 				$queue->force_checkin();
 			}
 			if ( is_wp_error( $processed_item_ids ) ) {
-				return new WP_Error( 'wpcom_error', $processed_item_ids->get_error_code() );
+				return new \WP_Error( 'wpcom_error', $processed_item_ids->get_error_code() );
 			}
 			// returning a WP_Error('wpcom_error') is a sign to the caller that we should wait a while
 			// before syncing again
-			return new WP_Error( 'wpcom_error', 'jetpack_sync_send_data_false' );
+			return new \WP_Error( 'wpcom_error', 'jetpack_sync_send_data_false' );
 		} else {
 			// detect if the last item ID was an error
 			$had_wp_error = is_wp_error( end( $processed_item_ids ) );
@@ -278,7 +278,7 @@ class Sender {
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
 			if ( $had_wp_error ) {
-				return new WP_Error( 'wpcom_error', $wp_error->get_error_code() );
+				return new \WP_Error( 'wpcom_error', $wp_error->get_error_code() );
 			}
 		}
 		return true;

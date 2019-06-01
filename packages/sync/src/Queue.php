@@ -54,7 +54,7 @@ class Queue {
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
 
 		if ( count( $items ) === $rows_added ) {
-			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
+			return new \WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 	}
 
@@ -134,7 +134,7 @@ class Queue {
 
 	function checkout( $buffer_size ) {
 		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			return new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
 		$buffer_id = uniqid();
@@ -163,7 +163,7 @@ class Queue {
 	// exceeds the memory limit, but in that case it will send that item by itself.
 	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			return new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
 		$buffer_id = uniqid();
@@ -293,11 +293,11 @@ class Queue {
 		}
 
 		if ( $tries === 30 ) {
-			return new WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
+			return new \WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
 		}
 
 		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			return new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
 		// hopefully this means we can acquire a checkout?
@@ -418,17 +418,17 @@ class Queue {
 
 	private function validate_checkout( $buffer ) {
 		if ( ! $buffer instanceof Queue_Buffer ) {
-			return new WP_Error( 'not_a_buffer', 'You must checkin an instance of Queue_Buffer' );
+			return new \WP_Error( 'not_a_buffer', 'You must checkin an instance of Queue_Buffer' );
 		}
 
 		$checkout_id = $this->get_checkout_id();
 
 		if ( ! $checkout_id ) {
-			return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
+			return new \WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
 		}
 
 		if ( $checkout_id != $buffer->id ) {
-			return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
+			return new \WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
 		}
 
 		return true;
