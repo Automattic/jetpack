@@ -19,6 +19,8 @@ class Test_Logo extends TestCase {
 		$this->esc_url_mock->disable();
 		$this->esc_attr_mock->disable();
 		$this->plugins_url_mock->disable();
+
+		parent::tearDown();
 	}
 
 	public function test_constructor_default_logo() {
