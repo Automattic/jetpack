@@ -12,8 +12,10 @@
  * Domain Path: /languages/
  */
 
+require plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.1' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.3.2' );
+
 
 define( 'JETPACK__VERSION',            '7.4-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
@@ -224,7 +226,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );

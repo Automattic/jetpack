@@ -1,5 +1,40 @@
 <?php
 
+use \Automattic\Jetpack\Options\Manager as Options_Manager;
+
+if ( class_exists( '\Automattic\Jetpack\Options\Manager' ) ) :
+
+/**
+ * The option manager class that will eventually replace Jetpack_Options
+ */
+class Jetpack_Options_Manager extends Options_Manager {
+
+	/**
+	 * Returns an array of option names for a given type.
+	 *
+	 * @param string $type The type of option to return. Defaults to 'compact'.
+	 *
+	 * @return array
+	 */
+	public function get_option_names( $type = 'compact' ) {
+		switch ( $type ) {
+			case 'non-compact':
+			case 'non_compact':
+				return array( 'secrets' );
+
+			case 'private':
+				return array();
+
+			case 'network':
+				return array();
+		}
+
+		return array();
+	}
+}
+
+endif;
+
 class Jetpack_Options {
 
 	/**
