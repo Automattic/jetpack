@@ -356,25 +356,27 @@ class MembershipsButtonEdit extends Component {
 			<Fragment>
 				{ this.props.noticeUI }
 				{ this.state.shouldUpgrade && (
-					<Placeholder
-						icon={ <BlockIcon icon={ icon } /> }
-						label={ __( 'Recurring Payments', 'jetpack' ) }
-						notices={ notices }
-					>
-						<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
-							{ __(
-								"You'll need to upgrade your plan to use the Recurring Payments button.",
-								'jetpack'
-							) }
-							<br />
-							<br />
-							<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
-								{ __( 'Upgrade Your Plan', 'jetpack' ) }
-							</Button>
-							<br />
-							{ this.renderDisclaimer() }
-						</div>
-					</Placeholder>
+					<div className='recurring-payments'>
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Recurring Payments', 'jetpack' ) }
+							notices={ notices }
+						>
+							<div className="components-placeholder__instructions wp-block-jetpack-membership-button">
+								{ __(
+									"You'll need to upgrade your plan to use the Recurring Payments button.",
+									'jetpack'
+								) }
+								<br />
+								<br />
+								<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
+									{ __( 'Upgrade Your Plan', 'jetpack' ) }
+								</Button>
+								<br />
+								{ this.renderDisclaimer() }
+							</div>
+						</Placeholder>
+					</div>
 				) }
 				{ ( connected === API_STATE_LOADING ||
 					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
