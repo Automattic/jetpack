@@ -65,7 +65,7 @@ class Test_Logo extends TestCase {
 		return $mock;
 	}
 
-	public function mock_with_identity( $function_name ) {
+	protected function mock_with_identity( $function_name ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
