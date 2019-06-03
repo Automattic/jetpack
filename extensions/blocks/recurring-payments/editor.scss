@@ -29,17 +29,6 @@
 		}
 	}
 
-	.membership-button__price-container {
-		display: flex;
-		flex-wrap: wrap;
-	}
-	.membership-button__field-price {
-		margin-left: 10px;
-	}
-	.wp-block-jetpack-membership-button_notification {
-		display: block;
-	}
-
 	.editor-rich-text__inline-toolbar {
 		pointer-events: none;
 		.components-toolbar {
@@ -47,21 +36,43 @@
 		}
 	}
 
-	.membership-button__field-button {
-		margin: 4px;
-	}
+	.membership-button {
+		
+		&__add-amount {
+			margin-right: 4px;
+		}
 
-	.membership-button__field-error .components-text-control__input {
-		border: 1px solid;
-		border-color: var( --color-error );
-	}
+		&__field-currency {
+			width: 30%;
+		}
 
-	.membership-button__disclaimer {
-		color: var( --color-gray-200 );
-		margin: 0;
-		font-style: italic;
-		a {
-			color: var( --color-gray-400 );
+		&__disclaimer {
+			color: var( --color-gray-200 );
+			margin: 0;
+			font-style: italic;
+			a {
+				color: var( --color-gray-400 );
+			}
+		}
+
+		&__field-error .components-text-control__input {
+			border: 1px solid;
+			border-color: var( --color-error );
+		}
+
+		&__field-price {
+			margin: 0 0 0 5%;
+			width: 65%;
+		}
+
+		&__price-container {
+			display: flex;
+			flex-wrap: wrap;
 		}
 	}
+
+	.wp-block-jetpack-membership-button_notification {
+		display: block;
+	}
+
 }

@@ -259,12 +259,11 @@ class MembershipsButtonEdit extends Component {
 					<Button
 						isDefault
 						isLarge
-						className="membership-button__field-button"
+						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
 						{ __( 'Add Amount', 'jetpack' ) }
 					</Button>
-					<br />
 					<Button
 						isLarge
 						className="membership-button__field-button"
