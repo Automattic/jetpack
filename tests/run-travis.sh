@@ -6,13 +6,17 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	if [ "$SCOPE" == "packages" ]; then
 		export WP_TRAVISCI="composer phpunit"
-		cd "packages/logo"
-		if $WP_TRAVISCI; then
-			# Everything is fine
-			:
-		else
-			exit 1
-		fi
+		export PACKAGES='./packages/**'
+		for PACKAGE in $PACKAGES
+		do
+			cd $PACKAGE
+			if $WP_TRAVISCI; then
+				# Everything is fine
+				:
+			else
+				exit 1
+			fi
+		done
 	else
 		# Run a external-html group tests
 		if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
