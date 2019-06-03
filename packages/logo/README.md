@@ -13,6 +13,13 @@ $logo = new Logo();
 echo $logo->render();
 ```
 
+Display the gray Jetpack logo:
+
+```php
+$logo = new Automattic\Jetpack\Assets\Logo();
+echo $logo->render( 'gray' );
+```
+
 Display a custom Jetpack logo of your choice:
 
 ```php
