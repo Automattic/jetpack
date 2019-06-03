@@ -67,9 +67,9 @@ branches:
   only:
     - master
     - master-stable
+    - feature/jetpack-packages
     - /^branch-.*$/
     - /^feature\/.*$/
-    - feature/jetpack-packages
 
 # Git clone depth
 # By default Travis CI clones repositories to a depth of 50 commits
