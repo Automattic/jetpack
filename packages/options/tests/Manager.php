@@ -205,7 +205,7 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( $updated );
 	}
 
-	public function tearDown(): void {
+	public function tearDown() {
 		\WP_Mock::tearDown();
 	}
 }
