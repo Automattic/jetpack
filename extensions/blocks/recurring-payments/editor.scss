@@ -7,8 +7,15 @@
 		text-align: left;
 	}
 
+	.components-button {
+		display: inline-block;
+		margin-bottom: 20px;
+	}
+
 	.components-placeholder {
+		min-height: 150px;
 		padding: 24px;
+
 		&__fieldset {
 			max-width: 500px;
 			p {
@@ -16,6 +23,7 @@
 				margin: 0 0 20px;
 			}
 		}
+
 		&__instructions {
 			margin-bottom: 0;
 		}
@@ -49,7 +57,11 @@
 	}
 
 	.membership-button__disclaimer {
-		margin-top: 20px;
+		color: var( --color-gray-200 );
+		margin: 0;
 		font-style: italic;
+		a {
+			color: var( --color-gray-400 );
+		}
 	}
 }

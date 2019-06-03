@@ -264,6 +264,7 @@ class MembershipsButtonEdit extends Component {
 					>
 						{ __( 'Add Amount', 'jetpack' ) }
 					</Button>
+					<br />
 					<Button
 						isLarge
 						className="membership-button__field-button"
@@ -395,13 +396,16 @@ class MembershipsButtonEdit extends Component {
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
-									{ __(
-										'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
-										'jetpack'
-									) }
+									<p>
+										{ __(
+											'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
+											'jetpack'
+										) }
+									</p>
 									<Button isDefault isLarge href={ connectURL } target="_blank">
 										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
 									</Button>
+									<br />
 									<Button isLink onClick={ this.apiCall }>
 										{ __( 'Re-check Connection', 'jetpack' ) }
 									</Button>
