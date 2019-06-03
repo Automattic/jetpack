@@ -36,7 +36,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-fix/composer-repositories",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -55,7 +55,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-fix/composer-repositories",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -226,7 +226,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-fix/composer-repositories",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
