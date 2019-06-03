@@ -101,10 +101,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: June 4, 2019
 * Release post: https://wp.me/p1moTy-jgZ
 
-**Major Enhancements**
-
-* This release introduces a new feature, Private Sites, a great option if you're still working on your site and aren't quite ready to show it off to the rest of the internet yet.
-
 **Enhancements**
 
 * About Page: remove submenu and add link to page in the footer of Jetpack's dashboard.
