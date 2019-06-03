@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "167f5c90d0f8c7224fdc8707e1ba107f",
+    "content-hash": "c97d2e3fbf0c921fd8e3254277b5b2b8",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
@@ -12,8 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d",
-                "shasum": null
+                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d"
             },
             "type": "library",
             "autoload": {
