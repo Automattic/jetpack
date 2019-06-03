@@ -1,5 +1,7 @@
 <?php
 
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 require_once dirname( __FILE__ ) . '/../../../../modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 
 /**
@@ -79,7 +81,8 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->user_id );
+			$connection_manager = new Connection_Manager();
+			$token = $connection_manager->get_access_token( $this->user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;

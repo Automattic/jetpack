@@ -1,5 +1,7 @@
 <?php
 
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 class Jetpack_Client {
 	const WPCOM_JSON_API_VERSION = '1.1';
 
@@ -30,8 +32,8 @@ class Jetpack_Client {
 		if ( 'header' != $args['auth_location'] ) {
 			$args['auth_location'] = 'query_string';
 		}
-
-		$token = Jetpack_Data::get_access_token( $args['user_id'] );
+		$connection_manager = new Connection_Manager();
+		$token = $connection_manager->get_access_token( $args['user_id'] );
 		if ( !$token ) {
 			return new Jetpack_Error( 'missing_token' );
 		}

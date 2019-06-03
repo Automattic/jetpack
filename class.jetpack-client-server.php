@@ -1,5 +1,7 @@
 <?php
 
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Client = Plugin
  * Client Server = API Methods the Plugin must respond to
@@ -181,8 +183,8 @@ class Jetpack_Client_Server {
 		if ( ! $role ) {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
-
-		$client_secret = Jetpack_Data::get_access_token();
+		$connection_manager = new Connection_Manager();
+		$client_secret = $connection_manager->get_access_token();
 		if ( ! $client_secret ) {
 			return new Jetpack_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}

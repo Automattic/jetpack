@@ -7,6 +7,7 @@
  * @package Jetpack
  */
 
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 /**
  * WordPress.com Block editor for Jetpack
  */
@@ -196,8 +197,8 @@ class Jetpack_WPCOM_Block_Editor {
 		if ( ! $this->nonce_user_id ) {
 			return false;
 		}
-
-		$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
+		$connection_manager = new Connection_Manager();
+		$token              = $connection_manager->get_access_token( $this->nonce_user_id );
 		if ( ! $token ) {
 			return false;
 		}
@@ -241,7 +242,8 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
+			$connection_manager = new Connection_Manager();
+			$token              = $connection_manager->get_access_token( $this->nonce_user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;

@@ -1,5 +1,7 @@
 <?php //phpcs:ignore
 
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 class Jetpack_Provision { //phpcs:ignore
 
 	/**
@@ -47,8 +49,9 @@ class Jetpack_Provision { //phpcs:ignore
 			);
 		}
 
-		$blog_id    = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Data::get_access_token();
+		$connection_manager = new Connection_Manager();
+		$blog_id            = Jetpack_Options::get_option( 'id' );
+		$blog_token         = $connection_manager->get_access_token();
 
 		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.

@@ -1552,9 +1552,13 @@ class Jetpack {
 
 	/**
 	 * Is Jetpack active?
+     *
+     * @deprecated 7.5 Use Connection_Manager instead.
 	 */
 	public static function is_active() {
-		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+	    _deprecated_function( __METHOD__, '7.5', 'Connection_Manager' );
+	    $connection_manager = new Connection_Manager();
+	    return $connection_manager->is_active();
 	}
 
 	/**
@@ -1706,14 +1710,12 @@ class Jetpack {
 
 	/**
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
+     *
+     * @deprecated Use Conncection_Manager instead.
 	 */
 	public static function is_user_connected( $user_id = false ) {
-		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		return (bool) Jetpack_Data::get_access_token( $user_id );
+	    $connection_manager = new Connection_Manager();
+	    return $connection_manager->is_user_connected( $user_id );
 	}
 
 	/**
@@ -1774,7 +1776,7 @@ class Jetpack {
 	}
 
 	function current_user_is_connection_owner() {
-		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		$user_token = self::init()->connection_manager()->get_access_token( JETPACK_MASTER_USER );
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
 	}
 
@@ -3433,7 +3435,8 @@ p {
 				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
 			) );
 			foreach ( $domains_to_check as $domain ) {
-				$result = Jetpack_Data::is_usable_domain( $domain );
+			    $connection_manager = new Connection_Manager();
+				$result = $connection_manager->is_usable_domain( $domain );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
@@ -3790,7 +3793,7 @@ p {
 
 		$media_keys = array_keys( $_FILES['media'] );
 
-		$token = Jetpack_Data::get_access_token( get_current_user_id() );
+		$token = self::init()->connection_manager->get_access_token( get_current_user_id() );
 		if ( ! $token || is_wp_error( $token ) ) {
 			return new Jetpack_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
@@ -4501,7 +4504,7 @@ p {
 			return false;
 		}
 
-		$token = Jetpack_Data::get_access_token();
+		$token = self::init()->connection_manager->get_access_token();
 		if ( ! $token || is_wp_error( $token ) ) {
 			return false;
 		}
@@ -4525,7 +4528,7 @@ p {
 	 */
 	function build_connect_url( $raw = false, $redirect = false, $from = false, $register = false ) {
 		$site_id = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Data::get_access_token();
+		$blog_token = self::init()->connection_manager->get_access_token();
 
 		if ( $register || ! $blog_token || ! $site_id ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
@@ -5266,7 +5269,7 @@ p {
 			}
 		}
 
-		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
+		$token = self::init()->connection_manager->get_access_token( $user_id, $token_key );
 		if ( ! $token ) {
 			return false;
 		}
@@ -5889,7 +5892,7 @@ p {
 			: $environment;
 
 		list( $envToken, $envVersion, $envUserId ) = explode( ':', $environment['token'] );
-		$token = Jetpack_Data::get_access_token( $envUserId, $envToken );
+		$token = self::init()->connection_manager->get_access_token( $envUserId, $envToken );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.' , 'jetpack' ) );
 		}
