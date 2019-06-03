@@ -425,7 +425,7 @@ class MembershipsButtonEdit extends Component {
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
-									{ __( 'Add your first Recurring Payments plan:', 'jetpack' ) }
+									<p>{ __( 'Add your first Recurring Payments plan:', 'jetpack' ) }</p>
 									{ this.renderAddMembershipAmount() }
 									{ this.renderDisclaimer() }
 								</div>
