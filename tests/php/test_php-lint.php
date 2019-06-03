@@ -17,13 +17,7 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 			'./_inc/class.jetpack-provision.php',
 			'./_inc/lib/debugger/debug-functions-for-php53.php',
 		);
-
-		if ( version_compare( PHP_VERSION, '5.6', '<=' ) ) {
-
-			// PHP 5.6 linting fails in packages folder, so we are ignoring it.
-			$exclude_paths[] = './packages';
-		}
-
+		
 		// use -prune to prevent traversal of that path.
 		// use -print0 and read -d '' to support filenames containing funny characters.
 		$find = 'find . -path ' . join( ' -prune -o -path ', array_map( 'escapeshellarg', $exclude_paths ) ) . " -prune -o -name '*.php' -print0";
