@@ -9,7 +9,7 @@ class Test_Logo extends TestCase {
 
 	protected $logo_url = 'https://yourjetpack.blog/wp-content/plugins/jetpack/packages/logo/assets/logo.svg';
 
-	public function setUp(): void {
+	public function setUp() {
 		parent::setUp();
 
 		$this->mock_with_identity( 'esc_url' );
