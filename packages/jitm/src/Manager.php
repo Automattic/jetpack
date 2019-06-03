@@ -17,7 +17,7 @@ class Manager {
 	/**
 	 * Initializes the class, or returns the singleton
 	 *
-	 * @return Jetpack_JITM | false
+	 * @return Manager | false
 	 */
 	static function init() {
 		/**
@@ -33,7 +33,7 @@ class Manager {
 		}
 
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new JITM();
+			self::$instance = new Manager();
 		}
 
 		return self::$instance;
