@@ -367,12 +367,9 @@ class MembershipsButtonEdit extends Component {
 									"You'll need to upgrade your plan to use the Recurring Payments button.",
 									'jetpack'
 								) }
-								<br />
-								<br />
 								<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
 									{ __( 'Upgrade Your Plan', 'jetpack' ) }
 								</Button>
-								<br />
 								{ this.renderDisclaimer() }
 							</div>
 						</Placeholder>
@@ -399,13 +396,9 @@ class MembershipsButtonEdit extends Component {
 										'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
 										'jetpack'
 									) }
-									<br />
-									<br />
 									<Button isDefault isLarge href={ connectURL } target="_blank">
 										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
 									</Button>
-									<br />
-									<br />
 									<Button isLink onClick={ this.apiCall }>
 										{ __( 'Re-check Connection', 'jetpack' ) }
 									</Button>
@@ -426,8 +419,6 @@ class MembershipsButtonEdit extends Component {
 							>
 								<div className="components-placeholder__instructions">
 									{ __( 'Add your first Recurring Payments plan:', 'jetpack' ) }
-									<br />
-									<br />
 									{ this.renderAddMembershipAmount() }
 									{ this.renderDisclaimer() }
 								</div>
@@ -449,7 +440,6 @@ class MembershipsButtonEdit extends Component {
 									{ __( 'Select payment plan:', 'jetpack' ) }
 									{ this.renderMembershipAmounts() }
 									{ __( 'Or add another Recurring Payments plan:', 'jetpack' ) }
-									<br />
 									{ this.renderAddMembershipAmount() }
 									{ this.renderDisclaimer() }
 								</div>
