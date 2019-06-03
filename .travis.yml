@@ -67,7 +67,6 @@ branches:
   only:
     - master
     - master-stable
-    - try/independent-logo-package-tests
     - /^branch-.*$/
     - /^feature\/.*$/
 
