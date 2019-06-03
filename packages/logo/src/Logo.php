@@ -35,13 +35,19 @@ class Logo {
 	/**
 	 * Build and render an <img /> tag with the Jetpack logo.
 	 *
+	 * @param string $type If empty, the color version is used. If it's 'gray', a gray version of the logo will be displayed.
+	 *                     The gray it's actually the blueish gray version used in Calypso's colophon found in Stats.
+	 *
 	 * @return string The Jetpack logo in an <img /> tag.
 	 */
-	public function render() {
+	public function render( $type = '' ) {
 		return sprintf(
-			'<img src="%s" class="jetpack-logo" alt="%s" />',
-			esc_url( $this->url ),
-			esc_attr( 'Jetpack.' )
+			'<img src="%s" class="jetpack-logo" alt="Jetpack" />',
+			esc_url(
+				empty( $type )
+					? $this->url
+					: str_replace( 'logo.svg', "logo-$type.svg", $this->url )
+			)
 		);
 	}
 }
