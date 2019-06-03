@@ -1,11 +1,14 @@
 @import './view.scss';
 
-.wp-block-jetpack-membership-button {
-	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell,
-	Helvetica Neue, sans-serif;
+.wp-block-jetpack-recurring-payments {
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
 
 	.components-base-control__label {
 		text-align: left;
+	}
+
+	.components-placeholder {
+		padding: 24px;
 	}
 
 	.membership-button__price-container {
@@ -38,12 +41,5 @@
 	.membership-button__disclaimer {
 		margin-top: 20px;
 		font-style: italic;
-	}
-}
-
-
-.recurring-payments {
-	.components-placeholder {
-		padding: 24px;
 	}
 }
