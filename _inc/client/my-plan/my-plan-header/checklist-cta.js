@@ -13,7 +13,7 @@ export default function ChecklistCta( { onClick, siteSlug } ) {
 	return (
 		<div className="jp-landing__plan-features-header-checklist-cta-container">
 			<Button
-				href={ `https://wordpress.com/plans/my-plan/${ siteSlug }` }
+				href={ `https://wordpress.com/plans/my-plan/${ siteSlug }?checklist` }
 				onClick={ onClick }
 				primary
 			>
