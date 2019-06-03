@@ -45,9 +45,9 @@ export const registerSlackReporter = () => {
 		specDone: async result => {
 			tests.push( result );
 
-			// if ( result.status === 'failed' ) {
-			await sendFailureMessage( `FAILED TEST: ${ result.fullName }` );
-			// }
+			if ( result.status === 'failed' ) {
+				await sendFailureMessage( `FAILED TEST: ${ result.fullName }` );
+			}
 		},
 	} );
 };
