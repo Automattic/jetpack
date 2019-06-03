@@ -42,10 +42,6 @@
 			margin-right: 4px;
 		}
 
-		&__field-currency {
-			width: 30%;
-		}
-
 		&__disclaimer {
 			color: var( --color-gray-200 );
 			margin: 0;
@@ -53,6 +49,14 @@
 			a {
 				color: var( --color-gray-400 );
 			}
+		}
+
+		&__field-button {
+			margin-right: 4px;
+		}
+	
+		&__field-currency {
+			width: 30%;
 		}
 
 		&__field-error .components-text-control__input {
