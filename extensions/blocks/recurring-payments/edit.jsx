@@ -363,10 +363,12 @@ class MembershipsButtonEdit extends Component {
 							notices={ notices }
 						>
 							<div className="components-placeholder__instructions">
-								{ __(
-									"You'll need to upgrade your plan to use the Recurring Payments button.",
-									'jetpack'
-								) }
+								<p>
+									{ __(
+										"You'll need to upgrade your plan to use the Recurring Payments button.",
+										'jetpack'
+									) }
+								</p>
 								<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
 									{ __( 'Upgrade Your Plan', 'jetpack' ) }
 								</Button>

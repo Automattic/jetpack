@@ -9,6 +9,16 @@
 
 	.components-placeholder {
 		padding: 24px;
+		&__fieldset {
+			max-width: 500px;
+			p {
+				font-size: 13px;
+				margin: 0 0 20px;
+			}
+		}
+		&__instructions {
+			margin-bottom: 0;
+		}
 	}
 
 	.membership-button__price-container {
