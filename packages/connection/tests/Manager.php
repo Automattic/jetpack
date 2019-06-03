@@ -4,7 +4,7 @@ use WP_Mock\Tools\TestCase;
 use Automattic\Jetpack\Connection\Manager;
 
 class ManagerTest extends TestCase {
-	public function setUp(): void {
+	public function setUp() {
 		\WP_Mock::setUp();
 
 		$this->mock = $this->getMockBuilder( 'stdClass' )
@@ -26,7 +26,7 @@ class ManagerTest extends TestCase {
 			->reply( array( $this->generator, 'generate' ) );
 	}
 
-	public function tearDown(): void {
+	public function tearDown() {
 		\WP_Mock::tearDown();
 	}
 
