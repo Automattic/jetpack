@@ -6,10 +6,11 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	if [ "$SCOPE" == "packages" ]; then
 		export WP_TRAVISCI="composer phpunit"
-		export PACKAGES='./packages/**'
+		export PACKAGES='./packages/**/tests'
 		for PACKAGE in $PACKAGES
 		do
-			cd $PACKAGE
+			cd "$PACKAGE/../"
+
 			if $WP_TRAVISCI; then
 				# Everything is fine
 				:
