@@ -69,8 +69,21 @@ const webpackConfig = getBaseWebpackConfig(
 	}
 );
 
+const transpileConfig = webpackConfig.module.rules.find( rule =>
+	rule.use.some( loader => loader.options.presets )
+);
+
 module.exports = {
 	...webpackConfig,
+	// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
+	// @TODO Remove once there's a fix in `@automattic/calypso-build`
+	module: {
+		...webpackConfig.module,
+		rules: [
+			{ ...transpileConfig, exclude: /node_modules\/(?!punycode)/ },
+			..._.without( webpackConfig.module.rules, transpileConfig ),
+		],
+	},
 	plugins: [
 		...webpackConfig.plugins,
 		new CopyWebpackPlugin( [
