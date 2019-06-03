@@ -6,7 +6,7 @@
 	"require": {},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"php-mock/php-mock-phpunit": "^2.3"
+		"php-mock/php-mock": "^2.1"
 	},
 	"autoload": {
 		"psr-4": {

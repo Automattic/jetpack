@@ -2,23 +2,26 @@
 namespace Automattic\Jetpack\Assets;
 
 use PHPUnit\Framework\TestCase;
-use phpmock\phpunit\PHPMock;
+use phpmock\MockBuilder;
 
 class Test_Logo extends TestCase {
-	use PHPMock;
-
 	protected $logo_url = 'https://yourjetpack.blog/wp-content/plugins/jetpack/packages/logo/assets/logo.svg';
 
 	public function setUp() {
 		parent::setUp();
 
-		$this->mock_with_identity( 'esc_url' );
-		$this->mock_with_identity( 'esc_attr' );
+		$this->esc_url_mock = $this->mock_with_identity( 'esc_url' );
+		$this->esc_attr_mock = $this->mock_with_identity( 'esc_attr' );
+		$this->plugins_url_mock = $this->mock_plugins_url();
+	}
+
+	public function tearDown() {
+		$this->esc_url_mock->disable();
+		$this->esc_attr_mock->disable();
+		$this->plugins_url_mock->disable();
 	}
 
 	public function test_constructor_default_logo() {
-		$this->mock_plugins_url();
-
 		$logo = new Logo();
 		$this->assertContains( $this->logo_url, $logo->render() );
 	}
@@ -30,8 +33,6 @@ class Test_Logo extends TestCase {
 	}
 
 	public function test_render_img_tag() {
-		$this->mock_plugins_url();
-
 		$logo = new Logo();
 		$output = $logo->render();
 
@@ -49,19 +50,31 @@ class Test_Logo extends TestCase {
 	}
 
 	protected function mock_plugins_url() {
-		$this->getFunctionMock( __NAMESPACE__, 'plugins_url' )
-			->expects( $this->once() )
-			->with(
-				'assets/logo.svg',
-				dirname( dirname( __DIR__ ) ) . DIRECTORY_SEPARATOR . 'src'
-			)
-			->willReturn( $this->logo_url );
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'plugins_url' )
+			->setFunction(
+				function () {
+					return $this->logo_url;
+				}
+			);
+
+		$mock = $builder->build();
+		$mock->enable();
+
+		return $mock;
 	}
 
 	public function mock_with_identity( $function_name ) {
-		$this->getFunctionMock( __NAMESPACE__, $function_name )
-			->expects( $this->any() )
-			->willReturnCallback( array( $this, 'identity' ) );
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( $function_name )
+			->setFunction( array( $this, 'identity' ) );
+
+		$mock = $builder->build();
+		$mock->enable();
+
+		return $mock;
 	}
 
 	public function identity( $value ) {
