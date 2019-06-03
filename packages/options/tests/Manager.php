@@ -4,7 +4,7 @@ use WP_Mock\Tools\TestCase;
 use Auutomattic\Jetpack\Options\Manager;
 
 class ManagerTest extends TestCase {
-	public function setUp(): void {
+	public function setUp() {
 		\WP_Mock::setUp();
 
 		$this->manager = new Manager_Test();
