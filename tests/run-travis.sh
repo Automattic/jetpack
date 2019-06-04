@@ -7,10 +7,10 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	if [ "$SCOPE" == "packages" ]; then
 	    echo "Running \`$WP_TRAVISCI\` for Packages:"
 		export WP_TRAVISCI="composer phpunit"
-		export PACKAGES='./packages/**/tests'
+		export PACKAGES='./packages/**/tests/php'
 		for PACKAGE in $PACKAGES
 		do
-			cd "$PACKAGE/../"
+			cd "$PACKAGE/../.."
 	    	echo "Running \`$WP_TRAVISCI\` for package \`$PACKAGE\` "
 
 			if $WP_TRAVISCI; then
