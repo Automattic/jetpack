@@ -3435,8 +3435,8 @@ p {
 				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
 			) );
 			foreach ( $domains_to_check as $domain ) {
-			    $connection_manager = new Connection_Manager();
-				$result = $connection_manager->is_usable_domain( $domain );
+				$connection_manager = new Connection_Manager();
+				$result             = $connection_manager->is_usable_domain( $domain );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
