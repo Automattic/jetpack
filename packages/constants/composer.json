@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"autoload": {
-		"classmap": [
-			"/legacy"
-		]
+		"psr-4": {
+			"Automattic\\Jetpack\\Constants\\": "src/"
+		}
 	}
 }
