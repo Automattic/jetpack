@@ -62,6 +62,10 @@ class Manager implements Manager_Interface {
 		return (bool) $this->get_access_token( self::MASTER_USER );
 	}
 
+	public function get_magic_normal_token_key() {
+		return self::MAGIC_NORMAL_TOKEN_KEY;
+	}
+
 	/**
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
