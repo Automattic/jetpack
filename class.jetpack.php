@@ -1552,7 +1552,6 @@ class Jetpack {
      * @deprecated 7.5 Use Connection_Manager instead.
 	 */
 	public static function is_active() {
-	    _deprecated_function( __METHOD__, '7.5', 'Connection_Manager' );
 	    $connection_manager = new Connection_Manager();
 	    return $connection_manager->is_active();
 	}
