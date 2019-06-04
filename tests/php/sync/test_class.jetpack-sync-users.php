@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 
 /**
  * Testing CRUD on Users
@@ -710,12 +711,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_invite_user_sync_invite_event() {
 		$this->server_event_storage->reset();
 		// Fake it till you make it
-		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+		Constants_Manager::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_constants();
+		Constants_Manager::clear_constants();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
@@ -729,12 +730,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_invite_user_sync_invite_event_false() {
 		$this->server_event_storage->reset();
 		// Fake it till we make it
-		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
+		Constants_Manager::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_constants();
+		Constants_Manager::clear_constants();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );

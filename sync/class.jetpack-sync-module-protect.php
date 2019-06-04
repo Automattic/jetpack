@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 /**
  * logs bruteprotect failed logins via sync
  */
@@ -16,7 +18,7 @@ class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
 
 	function maybe_log_failed_login_attempt( $failed_attempt ) {
 		$protect = Jetpack_Protect_Module::instance();
-		if ( $protect->has_login_ability() && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
+		if ( $protect->has_login_ability() && ! Constants_Manager::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}
 	}

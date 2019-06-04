@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 use \Automattic\Jetpack\Options\Manager as Options_Manager;
 
 if ( class_exists( '\Automattic\Jetpack\Options\Manager' ) ) :
@@ -480,7 +481,7 @@ class Jetpack_Options {
 	 */
 	static function bypass_raw_option( $name ) {
 
-		if ( Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
+		if ( Constants_Manager::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
 			return true;
 		}
 		/**

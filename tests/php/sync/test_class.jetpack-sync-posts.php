@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 /**
  * Testing CRUD on Posts
  */
@@ -45,7 +47,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertFalse( $event->args[3]['is_auto_save'] );
 
-		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );
+		Constants_Manager::set_constant( 'DOING_AUTOSAVE', true );
 
 		//Performing sync here (even though setup() does it) to sync REQUEST_URI
 		$user_id = $this->factory->user->create();

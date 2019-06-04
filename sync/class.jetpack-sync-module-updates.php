@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
@@ -102,7 +104,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		// Core was autoudpated
 		if (
 			'update-core.php' !== $pagenow &&
-			! Jetpack_Constants::is_true( 'REST_API_REQUEST' ) // wp.com rest api calls should never be marked as a core autoupdate
+			! Constants_Manager::is_true( 'REST_API_REQUEST' ) // wp.com rest api calls should never be marked as a core autoupdate
 		) {
 			/**
 			 * Sync event that fires when core autoupdate was successful

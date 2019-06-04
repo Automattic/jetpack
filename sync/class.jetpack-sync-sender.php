@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
@@ -56,7 +58,7 @@ class Jetpack_Sync_Sender {
 	public function maybe_set_user_from_token() {
 		$jetpack       = Jetpack::init();
 		$verified_user = $jetpack->verify_xml_rpc_signature();
-		if ( Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) &&
+		if ( Constants_Manager::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user
 		) {
@@ -207,7 +209,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		/* Don't make the request block till we finish, if possible. */
-		if ( Jetpack_Constants::is_true( 'REST_REQUEST' ) || Jetpack_Constants::is_true('XMLRPC_REQUEST' ) ) {
+		if ( Constants_Manager::is_true( 'REST_REQUEST' ) || Constants_Manager::is_true('XMLRPC_REQUEST' ) ) {
 			$this->fastcgi_finish_request();
 		}
 

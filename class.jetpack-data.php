@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 class Jetpack_Data {
 	/*
 	 * Used internally when we want to look for the Normal Blog Token
@@ -82,8 +84,8 @@ class Jetpack_Data {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}
 
-			$defined_tokens = Jetpack_Constants::is_defined( 'JETPACK_BLOG_TOKEN' )
-				? explode( ',', Jetpack_Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) )
+			$defined_tokens = Constants_Manager::is_defined( 'JETPACK_BLOG_TOKEN' )
+				? explode( ',', Constants_Manager::get_constant( 'JETPACK_BLOG_TOKEN' ) )
 				: array();
 
 			foreach ( $defined_tokens as $defined_token ) {

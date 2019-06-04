@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	private $action_handler;
@@ -65,7 +67,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		switch ( $details['action'] ) {
 			case 'update':
 				$state  = array(
-					'is_autoupdate' => Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
+					'is_autoupdate' => Constants_Manager::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
 				);
 				$errors = $this->get_errors( $upgrader->skin );
 				if ( $errors ) {
