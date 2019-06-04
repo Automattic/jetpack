@@ -192,7 +192,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_option( self::SECRETS_OPTION_NAME, array() );
+		$secrets     = \Jetpack_Options::get_raw_option( self::SECRETS_OPTION_NAME, array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return self::SECRETS_MISSING;
