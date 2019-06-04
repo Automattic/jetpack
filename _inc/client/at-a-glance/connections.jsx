@@ -23,6 +23,7 @@ import {
 } from 'state/initial-state';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
+import MobileMagicLink from 'components/mobile-magic-link';
 
 export class DashConnections extends Component {
 	/*
@@ -146,6 +147,7 @@ export class DashConnections extends Component {
 						</div>
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+					<MobileMagicLink />
 				</div>
 			) : (
 				<div>
