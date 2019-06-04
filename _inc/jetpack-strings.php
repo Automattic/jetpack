@@ -346,8 +346,8 @@ __( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/secu
 _x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:237
 __( "Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.", "jetpack" ), // _inc/client/security/backups-scan.jsx:245
 __( "Configure your Security Scans", "jetpack" ), // _inc/client/security/backups-scan.jsx:261
-__( "Security", "jetpack" ), // _inc/client/security/index.jsx:93
-__( "Keep your site safe with state-of-the-art security and receive notifications of technical problems.", "jetpack" ), // _inc/client/security/index.jsx:94
+__( "Security", "jetpack" ), // _inc/client/security/index.jsx:92
+__( "Keep your site safe with state-of-the-art security and receive notifications of technical problems.", "jetpack" ), // _inc/client/security/index.jsx:93
 __( "Manage your plugins", "jetpack" ), // _inc/client/security/manage-plugins.jsx:45
 _x( "Plugin autoupdates", "Settings header", "jetpack" ), // _inc/client/security/manage-plugins.jsx:55
 __( "When a plugin update is released, the best practice is to update that plugin right away. Choose which plugins you'd like to autoupdate so that your site stays secure.", "jetpack" ), // _inc/client/security/manage-plugins.jsx:60
@@ -355,9 +355,6 @@ _x( "Downtime monitoring", "Settings header", "jetpack" ), // _inc/client/securi
 __( "Jetpack will continuously monitor your site, and alert you the moment downtime is detected.", "jetpack" ), // _inc/client/security/monitor.jsx:38
 __( "Monitor your site's downtime", "jetpack" ), // _inc/client/security/monitor.jsx:52
 __( "Configure your notification settings", "jetpack" ), // _inc/client/security/monitor.jsx:63
-__( "This option is great if you're still working on your site  and aren't quite ready to show it off to the rest of the internet yet.", "jetpack" ), // _inc/client/security/private.jsx:24
-__( "Private sites can only be seen by you and other users who are members of this site.", "jetpack" ), // _inc/client/security/private.jsx:32
-__( "Make your site private", "jetpack" ), // _inc/client/security/private.jsx:45
 _x( "Brute force attack protection", "Settings header", "jetpack" ), // _inc/client/security/protect.jsx:96
 __( "Protects your site from traditional and distributed brute force login attacks.", "jetpack" ), // _inc/client/security/protect.jsx:109
 __( "Your current IP: %(ip)s", "jetpack" ), // _inc/client/security/protect.jsx:119

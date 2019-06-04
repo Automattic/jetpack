@@ -101,10 +101,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: June 4, 2019
 * Release post: https://wp.me/p1moTy-jgZ
 
-**Major Enhancements**
-
-* This release introduces a new feature, Private Sites, a great option if you're still working on your site and aren't quite ready to show it off to the rest of the internet yet.
-
 **Enhancements**
 
 * About Page: remove submenu and add link to page in the footer of Jetpack's dashboard.
@@ -116,10 +112,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Comment Form: use HTTP 4xx status codes for comment errors.
 * Contact Form Block: improve styles for better display on mobile devices.
 * General: introduce a new Jetpack Logo package, to make it easier to share and re-use.
-* Memberships Block: automatically add button to the post content once you create it.
-* Memberships Block: improve the display of the renewal frequency in button list.
-* Memberships Block: require a paid plan to use the button.
 * Multisite: Use modern `wp_initialize_site` hook when automatically connecting new sites.
+* Recurring Payments Block: automatically add button to the post content once you create it.
+* Recurring Payments Block: improve the display of the renewal frequency in button list.
+* Recurring Payments Block: require a paid plan to use the button.
+* Recurring Payments Block: improve the look of the payment modal on mobile devices.
 * Search: add new option for cross-site search permissions.
 * Sharing: update default sharing settings to include buttons.
 * Sitemaps: rename the `jetpack_sitemap_generate` and `jetpack_news_sitemap_generate` filters to the more accurate `jetpack_sitemap_include_in_robotstxt` and `jetpack_news_sitemap_include_in_robotstxt`.
@@ -136,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Display Posts Widget: remove overly opinionated CSS.
 * General: Jetpack now requires PHP 5.3.2, and will display a notice if your site uses an older version of PHP.
 * General: display a notice and log an error if your version of WordPress is not supported by Jetpack.
+* General: Update `Jetpack::get_content_width()` to ensure that only numeric values are used.
 * GIF Block: improve compatibility with the AMP plugin.
 * Shortcodes: bring more of our shortcodes to meet current WordPress Coding Standards to help us maintain these features in the future.
 * Site Health: improve Jetpack errors' messaging in WordPress' new Site Health tools.
@@ -143,11 +141,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: make sure the Jetpack Dashboard is displayed properly in IE11.
+* Admin Page: do not show Plugin Autoupdates card on admin searches.
 * Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
 * Connect Flow: sanitize from parameter when building connection URL.
-* Memberships Block: avoid invalid subscription amounts.
-* Memberships Block: allow line breaks in the payment button.
 * Mobile Themes: fix "View Full Site" and "View Mobile Site" links when WordPress lives in a subdirectory.
+* Recurring Payments Block: avoid invalid subscription amounts.
+* Recurring Payments Block: allow line breaks in the payment button.
 * Related Posts: do not add markup to attachment pages by default.
 * SEO Tools: support taxonomy archive pages in page titles.
 * Sharing: make sure the Whatsapp button works well in all browsers, including Firefox on desktop.
@@ -157,6 +156,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: add new WP Cli commands to help in monitoring and updating sync settings.
 * Tracks: limit the length of the strings saved for feature searches.
 * Unit Tests: add support for testing using VVV 3.0.
+* Verification Tools: make sure the feature can be disabled by override.
 * WooCommerce Analytics: remove duplicate self-executing anonymous function.
 * WordPress.com Interface: make sure navigation menu items match the one available in the WordPress.com interface.
 * WordPress.com Toolbar: restore the previous layout.
