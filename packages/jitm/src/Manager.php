@@ -2,12 +2,18 @@
 
 namespace Automattic\Jetpack\JITM;
 
+use Automattic\Jetpack\Assets as Asset_Manager;
+use Automattic\Jetpack\Connection as Jetpack_Connection;
+use Automattic\Jetpack\Logo as Jetpack_Logo;
+
 /**
  * Jetpack just in time messaging through out the admin
  *
- * @since 3.7.0
+ * @since 5.6.0
  */
 class Manager {
+
+	const PACKAGE_VERSION = '1.0';
 
 	/**
 	 * @var Jetpack_JITM
@@ -43,6 +49,10 @@ class Manager {
 	 * Jetpack_JITM constructor.
 	 */
 	public function __construct() {
+		$jetpack_connection = new Jetpack_Connection();
+		if ( ! $jetpack_connection->is_active() || $jetpack_connection->is_development_mode() ) {
+			return;
+		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
@@ -52,7 +62,8 @@ class Manager {
 	 * @return string The Jetpack emblem
 	 */
 	function get_emblem() {
-		return '<div class="jp-emblem">' . \Jetpack::get_jp_emblem() . '</div>';
+		$jetpack_logo = new Jetpack_Logo();
+		return '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
 	}
 
 	/**
@@ -177,12 +188,13 @@ class Manager {
 	 * Function to enqueue jitm css and js
 	 */
 	function jitm_enqueue_files() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$asset_manager = new Asset_Manager();
+		$min           = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
-			plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ),
+			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
 			false,
-			JETPACK__VERSION .
+			self::PACKAGE_VERSION .
 			'-201243242'
 		);
 		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
@@ -191,9 +203,9 @@ class Manager {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			\Jetpack::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			$asset_manager->get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
 			array( 'jquery' ),
-			JETPACK__VERSION,
+			self::PACKAGE_VERSION, // TODO: Keep in sync with version specified in composer.json
 			true
 		);
 		wp_localize_script(
@@ -417,7 +429,8 @@ class Manager {
 
 			switch ( $envelope->content->icon ) {
 				case 'jetpack':
-					$envelope->content->icon = '<div class="jp-emblem">' . \Jetpack::get_jp_emblem() . '</div>';
+					$jetpack_logo            = new Jetpack_Logo();
+					$envelope->content->icon = '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
 					break;
 				case 'woocommerce':
 					$envelope->content->icon = '<div class="jp-emblem"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 168 100" xml:space="preserve" enable-background="new 0 0 168 100" width="50" height="30"><style type="text/css">

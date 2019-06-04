@@ -3,10 +3,19 @@
 	"description": "Just in time messages for Jetpack",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "^1.0",
+		"automattic/jetpack-logo": "@dev"
+	},
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\JITM\\": "src/"
 		}
-	}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	]
 }

@@ -233,9 +233,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
-	if ( ! Jetpack::is_active() || Jetpack::is_development_mode() ) {
-		add_filter( 'jetpack_just_in_time_msgs', '__return_false' ) ;
-	}
 	$jitm = new JITM_Manager();
 	jetpack_require_lib( 'debugger' );
 }
