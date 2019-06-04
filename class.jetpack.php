@@ -25,7 +25,7 @@ jetpack_do_activate (bool)
 */
 
 use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use \Automattic\Jetpack\Logo as Jetpack_Logo;
+use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
