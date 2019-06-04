@@ -36,7 +36,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-try/jetpack-connection-is-active",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -55,17 +55,27 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-try/jetpack-connection-is-active",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d"
+                "reference": "aa3d128c9280d6186210a86b10f8bf5403f44be7"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -78,7 +88,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "0ff5d88cb668dcb7f8f54dfa4a19c87819e1dc78"
+                "reference": "43fc44d3adc959b2eebdf7971ba9c5fbca1aa3dd"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -89,9 +99,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Options\\": "src"
-                }
+                "classmap": [
+                    "legacy"
+                ]
             },
             "scripts": {
                 "test": [
@@ -226,7 +236,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-try/jetpack-connection-is-active",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
