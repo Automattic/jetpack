@@ -5,11 +5,13 @@ echo "Travis CI command: $WP_TRAVISCI"
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	if [ "$SCOPE" == "packages" ]; then
+	    echo "Running \`$WP_TRAVISCI\` for Packages:"
 		export WP_TRAVISCI="composer phpunit"
 		export PACKAGES='./packages/**/tests'
 		for PACKAGE in $PACKAGES
 		do
 			cd "$PACKAGE/../"
+	    	echo "Running \`$WP_TRAVISCI\` for package \`$PACKAGE\` "
 
 			if $WP_TRAVISCI; then
 				# Everything is fine
