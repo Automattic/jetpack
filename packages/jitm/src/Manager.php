@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\JITM;
 
-use Automattic\Jetpack\Assets as Asset_Manager;
+use Automattic\Jetpack\Assets\Manager as Asset_Manager;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Logo as Jetpack_Logo;
 
@@ -53,6 +53,7 @@ class Manager {
 		if ( ! $jetpack_connection->is_active() || $jetpack_connection->is_development_mode() ) {
 			return;
 		}
+
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
