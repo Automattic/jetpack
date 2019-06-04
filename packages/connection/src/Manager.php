@@ -339,11 +339,11 @@ class Manager implements Manager_Interface {
 		$possible_normal_tokens  = array();
 
 		if ( $user_id ) {
-			if ( ! $user_tokens = $this->option_manager->get_option( 'user_tokens' ) ) {
+			if ( ! $user_tokens = $this->get_option_manager()->get_option( 'user_tokens' ) ) {
 				return false;
 			}
 			if ( self::MASTER_USER === $user_id ) {
-				if ( ! $user_id = $this->option_manager->get_option( 'master_user' ) ) {
+				if ( ! $user_id = $this->get_option_manager()->get_option( 'master_user' ) ) {
 					return false;
 				}
 			}
@@ -359,7 +359,7 @@ class Manager implements Manager_Interface {
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
-			$stored_blog_token = $this->option_manager->get_option( 'blog_token' );
+			$stored_blog_token = $this->get_option_manager()->get_option( 'blog_token' );
 			if ( $stored_blog_token ) {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}
