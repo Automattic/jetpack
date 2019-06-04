@@ -22,22 +22,6 @@
 		"phpcompatibility/phpcompatibility-wp": "2.0.0",
 		"automattic/jetpack-autoloader": "@dev"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "./packages/jetpack-connection",
-			"options": {
-				"symlink": true
-			}
-		},
-		{
-			"type": "path",
-			"url": "./packages/jetpack-options",
-			"options": {
-				"symlink": true
-			}
-		}
-	],
 	"scripts": {
 		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
 		"php:lint": "composer install && vendor/bin/phpcs -p -s",
