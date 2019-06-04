@@ -15,6 +15,9 @@
 		}
 	},
 	"scripts": {
-		"test": "phpunit"
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		]
 	}
 }
