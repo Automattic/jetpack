@@ -1,4 +1,9 @@
 <?php
+/**
+ * A constant manager for Jetpack.
+ *
+ * @package jetpack-constants
+ */
 
 namespace Automattic\Jetpack\Constants;
 
@@ -18,13 +23,21 @@ namespace Automattic\Jetpack\Constants;
  * }
  */
 class Manager {
-	static $set_constants = array();
+	/**
+	 * A container for all defined constants.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var array.
+	 */
+	public static $set_constants = array();
 
 	/**
 	 * Checks if a "constant" has been set in constants Manager, and if not,
 	 * checks if the constant was defined with define( 'name', 'value ).
 	 *
-	 * @param $name string The name of the constant
+	 * @param string $name The name of the constant.
 	 *
 	 * @return bool
 	 */
@@ -37,7 +50,7 @@ class Manager {
 	 * Checks if a "constant" has been set in constants Manager
 	 * and has the value of true
 	 *
-	 * @param $name string The name of the constant
+	 * @param string $name The name of the constant.
 	 *
 	 * @return bool
 	 */
@@ -49,7 +62,7 @@ class Manager {
 	 * Attempts to retrieve the "constant" from constants Manager, and if it hasn't been set,
 	 * then attempts to get the constant with the constant() function.
 	 *
-	 * @param $name
+	 * @param string $name The name of the constant.
 	 *
 	 * @return mixed null if the constant does not exist or the value of the constant.
 	 */
@@ -64,8 +77,8 @@ class Manager {
 	/**
 	 * Sets the value of the "constant" within constants Manager.
 	 *
-	 * @param $name  string The name of the "constant"
-	 * @param $value string The value of the "constant"
+	 * @param string $name  The name of the constant.
+	 * @param string $value The value of the constant.
 	 */
 	public static function set_constant( $name, $value ) {
 		self::$set_constants[ $name ] = $value;
@@ -74,7 +87,7 @@ class Manager {
 	/**
 	 * Will unset a "constant" from constants Manager if the constant exists.
 	 *
-	 * @param $name string The name of the "constant"
+	 * @param string $name The name of the constant.
 	 *
 	 * @return bool Whether the constant was removed.
 	 */
