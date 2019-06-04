@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\JITM;
 
 use Automattic\Jetpack\Assets as Asset_Manager;
-use Automattic\Jetpack\Connection as Jetpack_Connection;
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Logo as Jetpack_Logo;
 
 /**
