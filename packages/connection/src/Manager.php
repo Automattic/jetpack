@@ -15,9 +15,8 @@ use Automattic\Jetpack\Connection\Manager_Interface;
  */
 class Manager implements Manager_Interface {
 
-	const SECRETS_MISSING     = 'secrets_missing';
-	const SECRETS_EXPIRED     = 'secrets_expired';
-	const SECRETS_OPTION_NAME = 'secrets';
+	const SECRETS_MISSING = 'secrets_missing';
+	const SECRETS_EXPIRED = 'secrets_expired';
 
 	/**
 	 * The object for managing options.
@@ -161,7 +160,7 @@ class Manager implements Manager_Interface {
 		$callable = $this->get_secret_callable();
 
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( $secret_name, array() );
+		$secrets     = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
@@ -178,7 +177,7 @@ class Manager implements Manager_Interface {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_raw_option( $secret_name, $secrets );
+		\Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
 		return $secrets[ $secret_name ];
 	}
 
@@ -191,7 +190,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( $secret_name, array() );
+		$secrets     = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return self::SECRETS_MISSING;
@@ -213,10 +212,10 @@ class Manager implements Manager_Interface {
 	 */
 	public function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( $secret_name, array() );
+		$secrets     = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			\Jetpack_Options::update_raw_option( $secret_name, $secrets );
+			\Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
 		}
 	}
 
