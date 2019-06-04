@@ -36,7 +36,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-fix/composer-repositories",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
