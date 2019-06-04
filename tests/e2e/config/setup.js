@@ -2,6 +2,10 @@
  * WordPress dependencies
  */
 import { setBrowserViewport } from '@wordpress/e2e-test-utils';
+/**
+ * Internal dependencies
+ */
+import { registerSlackReporter } from '../reporters/slack';
 
 /**
  * Environment variables
@@ -10,6 +14,8 @@ const { PUPPETEER_TIMEOUT } = process.env;
 
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( PUPPETEER_TIMEOUT || 100000 );
+
+registerSlackReporter();
 
 async function setupBrowser() {
 	await setBrowserViewport( 'large' );
