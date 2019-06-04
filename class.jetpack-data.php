@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 class Jetpack_Data {
 	/**
 	 * @deprecated 7.5 Use Connection_Manager instead
@@ -12,7 +14,6 @@ class Jetpack_Data {
 	 * @return object|false
 	 */
 	public static function get_access_token( $user_id = false, $token_key = false ) {
-		_deprecated_function( __METHOD__, '7.5', 'Connection_Manager' );
 		$connection_manager = new Connection_Manager();
 		return $connection_manager->get_access_token( $user_id, $token_key );
 	}
