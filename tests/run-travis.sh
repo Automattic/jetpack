@@ -10,14 +10,17 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export PACKAGES='./packages/**/tests/php'
 		for PACKAGE in $PACKAGES
 		do
-			cd "$PACKAGE/../.."
-	    	echo "Running \`$WP_TRAVISCI\` for package \`$PACKAGE\` "
+			if [ -d "$PACKAGE" ]; then
+				cd "$PACKAGE/../.."
+				echo "Running \`$WP_TRAVISCI\` for package \`$PACKAGE\` "
 
-			if $WP_TRAVISCI; then
-				# Everything is fine
-				:
-			else
-				exit 1
+				if $WP_TRAVISCI; then
+					# Everything is fine
+					:
+				else
+					exit 1
+				fi
+				cd ../..
 			fi
 		done
 	else
