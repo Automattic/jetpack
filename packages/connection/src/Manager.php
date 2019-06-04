@@ -160,9 +160,8 @@ class Manager implements Manager_Interface {
 	public function generate_secrets( $action, $user_id, $exp ) {
 		$callable = $this->get_secret_callable();
 
-		$secrets = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
-
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets     = \Jetpack_Options::get_raw_option( $secret_name, array() );
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
@@ -179,7 +178,7 @@ class Manager implements Manager_Interface {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
+		\Jetpack_Options::update_raw_option( $secret_name, $secrets );
 		return $secrets[ $secret_name ];
 	}
 
@@ -192,7 +191,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( self::SECRETS_OPTION_NAME, array() );
+		$secrets     = \Jetpack_Options::get_raw_option( $secret_name, array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return self::SECRETS_MISSING;
@@ -214,10 +213,10 @@ class Manager implements Manager_Interface {
 	 */
 	public function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_option( self::SECRETS_OPTION_NAME, array() );
+		$secrets     = \Jetpack_Options::get_raw_option( $secret_name, array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			\Jetpack_Options::update_option( self::SECRETS_OPTION_NAME, $secrets );
+			\Jetpack_Options::update_raw_option( $secret_name, $secrets );
 		}
 	}
 
