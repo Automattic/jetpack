@@ -55,7 +55,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-fix/composer-repositories",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
