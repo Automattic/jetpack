@@ -25,6 +25,7 @@ function handleIframeResult( eventFromIframe ) {
 
 function activateSubscription( block, blogId, planId, lang ) {
 	block.addEventListener( 'click', () => {
+		window.scrollTop( 0, 0 );
 		tb_show(
 			null,
 			'https://subscribe.wordpress.com/memberships/?blog=' +
