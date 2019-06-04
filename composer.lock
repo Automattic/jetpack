@@ -40,13 +40,13 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "b2cebb6eb5d4da90374e17c232168088f76c4c49"
+                "reference": "75e0a6ac5dc5e0af8d1de1ae1106260f1b12cc33"
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "/legacy"
-                ]
+                "psr-4": {
+                    "Automattic\\Jetpack\\Constants\\": "src/"
+                }
             },
             "license": [
                 "GPL-2.0-or-later"
