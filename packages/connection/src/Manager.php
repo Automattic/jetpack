@@ -179,7 +179,7 @@ class Manager implements Manager_Interface {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_option( self::SECRETS_OPTION_NAME, $secrets );
+		\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
 		return $secrets[ $secret_name ];
 	}
 
