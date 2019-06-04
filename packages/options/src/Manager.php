@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Options;
  * The Jetpack Options Manager class that is used as a single gateway between WordPress options API
  * and Jetpack.
  */
-abstract class Manager {
+class Manager {
 
 	/**
 	 * An array that maps a grouped option type to an option name.
@@ -30,7 +30,9 @@ abstract class Manager {
 	 *
 	 * @return array
 	 */
-	abstract public function get_option_names( $type );
+	public function get_option_names( $type ) {
+		return array();
+	}
 
 	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.

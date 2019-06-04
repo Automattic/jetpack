@@ -22,7 +22,7 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
@@ -538,10 +538,6 @@ class Jetpack {
 		if ( is_multisite() ) {
 			Jetpack_Network::init();
 		}
-
-		add_filter( 'jetpack_connection_option_manager', function() {
-			return new Jetpack_Options_Manager();
-		} );
 
 		add_filter( 'jetpack_connection_secret_generator', function( $callable ) {
 			return function() {
