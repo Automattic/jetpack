@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\JITM;
 
 use Automattic\Jetpack\Assets\Manager as Asset_Manager;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -49,11 +49,12 @@ class Manager {
 	 * Jetpack_JITM constructor.
 	 */
 	public function __construct() {
+		/*
 		$jetpack_connection = new Jetpack_Connection();
 		if ( ! $jetpack_connection->is_active() || $jetpack_connection->is_development_mode() ) {
 			return;
 		}
-
+		*/
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
@@ -190,7 +191,7 @@ class Manager {
 	 */
 	function jitm_enqueue_files() {
 		$asset_manager = new Asset_Manager();
-		$min           = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min           = ''; // ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
 			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),

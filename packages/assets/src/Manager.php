@@ -17,7 +17,7 @@ class Manager {
 	 * @return string The URL to the file
 	 */
 	public function get_file_url_for_environment( $min_path, $non_min_path ) {
-		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
+		$path = ( \Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && \Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
 			? $non_min_path
 			: $min_path;
 		return plugins_url( $path, JETPACK__PLUGIN_FILE );
