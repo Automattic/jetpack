@@ -306,9 +306,8 @@ class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				{ __( 'Read more about ', 'jetpack' ) }
 				<ExternalLink href="https://en.support.wordpress.com/recurring-payments-button/#related-fees">
-					{ __( 'Recurring Payments and related fees.', 'jetpack' ) }
+					{ __( 'Read more about Recurring Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		);
