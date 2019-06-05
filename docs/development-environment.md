@@ -163,6 +163,8 @@ Jetpack includes a number of packages such as the `jetpack-logo` and to use this
 
 It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
 
+### Installing Composer on macOS
+
 Composer can be installed using [Homebrew](https://brew.sh/). If you still don't have Homebrew, install it with
 
 ```
@@ -174,6 +176,13 @@ And then install Composer:
 ```
 brew install composer
 ```
+
+### Installing Composer on other systems
+
+We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems than macOS. 
+
+Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
+Note that we do recommend using the Windows Subsystem for Linux to run composer and PHP.
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
 
