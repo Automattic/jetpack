@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack\Assets;
+namespace Automattic\Jetpack\Asset_Tools;
 
 use Automattic\Jetpack\Constants\Manager as Jetpack_Constants;
 

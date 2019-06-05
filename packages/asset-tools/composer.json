@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-assets",
+	"name": "automattic/jetpack-asset-tools",
 	"description": "Asset management utilities for Jetpack ecosystem packages",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
@@ -8,7 +8,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Automattic\\Jetpack\\Assets\\": "src/"
+			"Automattic\\Jetpack\\Asset_Tools\\": "src/"
 		}
 	},
 	"repositories": [
