@@ -11,9 +11,9 @@
 		"10up/wp_mock": "0.4.2"
 	},
 	"autoload": {
-		"classmap": [
-			"legacy"
-		]
+		"psr-4": {
+			"Automattic\\Jetpack\\Options\\": "src"
+		}
 	},
 	"scripts": {
 		"test": "phpunit"
