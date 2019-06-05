@@ -17,5 +17,11 @@
 	},
 	"scripts": {
 		"test": "phpunit"
-	}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	]
 }
