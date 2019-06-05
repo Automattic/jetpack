@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\JITM\Manager as Jetpack_JITM;
 
 //require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 

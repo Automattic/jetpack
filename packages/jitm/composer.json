@@ -6,7 +6,8 @@
 	"require": {
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "^1.0",
-		"automattic/jetpack-logo": "@dev"
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-constants": "@dev"
 	},
 	"autoload": {
 		"psr-4": {
