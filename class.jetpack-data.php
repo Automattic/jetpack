@@ -199,28 +199,4 @@ class Jetpack_Data {
 
 		return true;
 	}
-
-	/**
-	 * Returns true if the IP address passed in should not be in a reserved range, even if PHP says that it is.
-	 * See: https://bugs.php.net/bug.php?id=66229 and https://github.com/php/php-src/commit/d1314893fd1325ca6aa0831101896e31135a2658
-	 *
-	 * This function mirrors Jetpack_Data::php_bug_66229_check() in the WPCOM codebase.
-	 */
-	public static function php_bug_66229_check( $ip ) {
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-			return false;
-		}
-
-		$ip_arr = array_map( 'intval', explode( '.', $ip ) );
-
-		if ( 128 == $ip_arr[0] && 0 == $ip_arr[1] ) {
-			return true;
-		}
-
-		if ( 191 == $ip_arr[0] && 255 == $ip_arr[1] ) {
-			return true;
-		}
-
-		return false;
-	}
 }
