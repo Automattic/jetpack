@@ -6,7 +6,9 @@
 	"require": {},
 	"autoload": {
 		"classmap": [
-			"/legacy"
+			"./legacy"
 		]
-	}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }

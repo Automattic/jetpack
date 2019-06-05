@@ -24,7 +24,9 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../*"
+			"url": "./../*"
 		}
-	]
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
