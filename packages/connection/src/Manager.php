@@ -15,8 +15,9 @@ use Automattic\Jetpack\Connection\Manager_Interface;
  */
 class Manager implements Manager_Interface {
 
-	const SECRETS_MISSING = 'secrets_missing';
-	const SECRETS_EXPIRED = 'secrets_expired';
+	const SECRETS_MISSING     = 'secrets_missing';
+	const SECRETS_EXPIRED     = 'secrets_expired';
+	const SECRETS_OPTION_NAME = 'secrets';
 
 	/**
 	 * The object for managing options.
@@ -150,6 +151,24 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Returns the object that is to be used for all option manipulation.
+	 *
+	 * @return Object $manager an option manager object.
+	 */
+	protected function get_option_manager() {
+		if ( ! isset( $this->option_manager ) ) {
+			/**
+			 * Allows modification of the object that is used to manipulate stored data.
+			 *
+			 * @param Jetpack_Options an option manager object.
+			 */
+			$this->option_manager = apply_filters( 'jetpack_connection_option_manager', false );
+		}
+
+		return $this->option_manager;
+	}
+
+	/**
 	 * Generates two secret tokens and the end of life timestamp for them.
 	 *
 	 * @param String  $action  The action name.
@@ -159,8 +178,9 @@ class Manager implements Manager_Interface {
 	public function generate_secrets( $action, $user_id, $exp ) {
 		$callable = $this->get_secret_callable();
 
+		$secrets = $this->get_option_manager()->get_raw_option( 'jetpack_secrets', array() );
+
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
@@ -177,7 +197,7 @@ class Manager implements Manager_Interface {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
+		$this->get_option_manager()->update_option( self::SECRETS_OPTION_NAME, $secrets );
 		return $secrets[ $secret_name ];
 	}
 
@@ -190,7 +210,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+		$secrets     = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return self::SECRETS_MISSING;
@@ -212,10 +232,10 @@ class Manager implements Manager_Interface {
 	 */
 	public function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+		$secrets     = $this->get_option_manager()->get_option( self::SECRETS_OPTION_NAME, array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			\Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
+			$this->get_option_manager()->update_option( self::SECRETS_OPTION_NAME, $secrets );
 		}
 	}
 
