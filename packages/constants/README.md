@@ -11,7 +11,7 @@ Retrieve the value of a constant `CONSTANT_NAME` (returns `null` if it's not def
 ```php
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 
-$constant_name = Constants_Manager::get_constant( 'CONSTANT_NAME' );
+$constant_value = Constants_Manager::get_constant( 'CONSTANT_NAME' );
 ```
 
 Set the value of a constant `CONSTANT_NAME` to a partcular value:
