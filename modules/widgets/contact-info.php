@@ -259,10 +259,17 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			</p>
 
 			<?php
-			if ( ! is_customize_preview() ) {
+			if (
+				! is_customize_preview()
+				&& $instance['showmap']
+				&& ! empty( $instance['address'] )
+				&& ! empty( $apikey )
+			) {
 				?>
-				<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
-					<?php echo $this->build_map( $instance['address'], $apikey ); ?>
+				<p class="jp-contact-info-admin-map">
+					<?php
+						echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					?>
 				</p>
 				<?php
 			}
