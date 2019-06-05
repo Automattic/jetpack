@@ -1,8 +1,8 @@
 {
 	"name": "automattic/jetpack-options",
+	"description": "A wrapper for wp-options to manage specific Jetpack options.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "1.0.0",
 	"require": {
 		"automattic/jetpack-constants": "@dev"
 	},
@@ -11,11 +11,14 @@
 		"10up/wp_mock": "0.4.2"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\Options\\": "src"
-		}
+		"classmap": [
+			"legacy"
+		]
 	},
-	"scripts": {
-		"test": "phpunit"
-	}
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	]
 }
