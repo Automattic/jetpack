@@ -157,6 +157,24 @@ To use a custom reporter, pass the argument `-R, --reporter <name>`:
 $ yarn test-client -R 'my_reporter'
 ```
 
+## Installing Composer
+
+Jetpack includes a number of packages such as the `jetpack-logo` and to use this packages in Jetpack itself or other projects, you need Composer, the PHP package manager.
+
+It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
+
+Composer can be installed using [Homebrew](https://brew.sh/). If you still don't have Homebrew, install it with
+
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+And then install Composer:
+
+```
+brew install composer
+```
+
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
@@ -166,7 +184,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 ### Linting Jetpack's PHP
 
-You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code:
+You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code. You need Composer to run this tool so check how to [install Composer](#installing-composer) if you don't have it yet.
 
 This will install all the CodeSniffer rulesets we need for linting Jetpack's PHP code. You may need to do this only once.
 

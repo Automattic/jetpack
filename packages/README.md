@@ -4,18 +4,7 @@ These Composer packages offer a unified codebase that we will share among projec
 
 ## Installing Composer
 
-Composer can be installed using [Homebrew](https://brew.sh/). If you still don't have Homebrew, install it with
-
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-```
-
-And then install Composer:
-
-```
-brew install composer
-```
+You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#installing-composer) and then continue here.
 
 ## Defining required packages
 
