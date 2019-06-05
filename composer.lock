@@ -4,19 +4,22 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a6b3658e33a86548e8cb2a6a88a1b1c",
+    "content-hash": "71318fbdf71a58c06d0105e814840e64",
     "packages": [
         {
             "name": "automattic/jetpack-connection",
-            "version": "1.0.0",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "9dbcf84ab69da7d648e99580533624e2953c9874"
+                "reference": "254adf2ffee57d2a414ae2b5d26248255ea73899"
+            },
+            "require": {
+                "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
-                "10up/wp_mock": "0.4.2",
-                "phpunit/phpunit": "7.*.*"
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
@@ -25,8 +28,9 @@
                 }
             },
             "scripts": {
-                "test": [
-                    "phpunit"
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ]
             },
             "license": [
@@ -36,16 +40,16 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-try/jetpack-connection-is-active",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "b2cebb6eb5d4da90374e17c232168088f76c4c49"
+                "reference": "b0ae55c9ff24bd1445057a1a9033eebc091dde90"
             },
             "type": "library",
             "autoload": {
                 "classmap": [
-                    "/legacy"
+                    "./legacy"
                 ]
             },
             "license": [
@@ -55,11 +59,11 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-try/jetpack-connection-is-active",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "aa3d128c9280d6186210a86b10f8bf5403f44be7"
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -84,11 +88,11 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "1.0.0",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "43fc44d3adc959b2eebdf7971ba9c5fbca1aa3dd"
+                "reference": "f49df83b4c73f6896a7ca21fcca2538d61a8c87a"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -236,11 +240,11 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-try/jetpack-connection-is-active",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "b7f10b9ef30f077dfacf68c1b797a070b066a62a"
+                "reference": "8c7dc6036bf6125c31a574c14c6b0521247410ed"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -628,13 +632,15 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-connection": 20,
+        "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-autoloader": 20
     },
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "ext-openssl": "*"
