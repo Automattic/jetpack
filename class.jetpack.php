@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 /*
 Options:
 jetpack_options (array)
@@ -1700,7 +1702,7 @@ class Jetpack {
 		 */
 		return (bool) apply_filters(
 			'jetpack_development_version',
-			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
+			! preg_match( '/^\d+(\.\d+)+$/', Constants_Manager::get_constant( 'JETPACK__VERSION' ) )
 		);
 	}
 
@@ -6163,10 +6165,10 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
+		if ( Constants_Manager::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = Constants_Manager::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
-			$default = ! Jetpack_Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
+			$default = ! Constants_Manager::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
 
 		/**
@@ -6959,7 +6961,7 @@ p {
 	 * @return string The URL to the file
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
-		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
+		$path = ( Constants_Manager::is_defined( 'SCRIPT_DEBUG' ) && Constants_Manager::get_constant( 'SCRIPT_DEBUG' ) )
 			? $non_min_path
 			: $min_path;
 

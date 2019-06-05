@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
@@ -246,7 +248,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+		if ( Constants_Manager::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
@@ -267,7 +269,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+		if ( Constants_Manager::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**

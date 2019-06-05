@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 
 /**
@@ -78,7 +80,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function should_initialize_sender() {
-		if ( Jetpack_Constants::is_true( 'DOING_CRON' ) ) {
+		if ( Constants_Manager::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
 

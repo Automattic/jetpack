@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
 	public function __construct() {
@@ -13,7 +15,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	public function tearDown() {
 		parent::tearDown();
-		Jetpack_Constants::clear_constants();
+		Constants_Manager::clear_constants();
 	}
 
 	/**
@@ -379,17 +381,17 @@ EXPECTED;
 	}
 
 	function test_idc_optin_true_when_constant_true() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		Constants_Manager::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
 	}
 
 	function test_idc_optin_false_when_constant_false() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		Constants_Manager::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 	}
 
 	function test_idc_optin_filter_overrides_constant() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		Constants_Manager::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
@@ -429,7 +431,7 @@ EXPECTED;
 
 	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		Constants_Manager::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
@@ -507,27 +509,27 @@ EXPECTED;
 	}
 
 	function test_is_dev_version_true_with_alpha() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
+		Constants_Manager::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_true_with_beta() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
+		Constants_Manager::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_true_with_rc() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
+		Constants_Manager::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_false_with_number_dot_number() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3' );
+		Constants_Manager::set_constant( 'JETPACK__VERSION', '4.3' );
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_false_with_number_dot_number_dot_number() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
+		Constants_Manager::set_constant( 'JETPACK__VERSION', '4.3.1' );
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
@@ -798,7 +800,7 @@ EXPECTED;
 	 * @dataProvider get_file_url_for_environment_data_provider
 	 */
 	function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
-		Jetpack_Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
+		Constants_Manager::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
 		$this->assertContains( $$expected, $file_url );

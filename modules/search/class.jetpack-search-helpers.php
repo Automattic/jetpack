@@ -7,6 +7,8 @@
  * @since      5.8.0
  */
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  *
@@ -659,8 +661,8 @@ class Jetpack_Search_Helpers {
 	 */
 	public static function site_has_vip_index() {
 		$has_vip_index = (
-			Jetpack_Constants::is_defined( 'JETPACK_SEARCH_VIP_INDEX' ) &&
-			Jetpack_Constants::get_constant( 'JETPACK_SEARCH_VIP_INDEX' )
+			Constants_Manager::is_defined( 'JETPACK_SEARCH_VIP_INDEX' ) &&
+			Constants_Manager::get_constant( 'JETPACK_SEARCH_VIP_INDEX' )
 		);
 
 		/**

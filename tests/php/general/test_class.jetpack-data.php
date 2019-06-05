@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 /**
  * @covers Jetpack_Data
  */
@@ -28,7 +30,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'user_tokens' );
 		Jetpack_Options::delete_option( 'master_user' );
 
-		Jetpack_Constants::clear_constants();
+		Constants_Manager::clear_constants();
 
 		parent::tearDown();
 	}
@@ -48,7 +50,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	}
 
 	public function test_get_access_token_with_no_args_returns_defined_blog_token_when_constant_set() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
 		$token = Jetpack_Data::get_access_token();
 
@@ -58,7 +60,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_no_args_returns_defined_blog_token_when_constant_set_and_no_stored_token() {
 		Jetpack_Options::delete_option( 'blog_token' );
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
 		$token = Jetpack_Data::get_access_token();
 
@@ -68,7 +70,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 
 	public function test_get_access_token_with_stored_key_returns_stored_blog_token() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
 		$token = Jetpack_Data::get_access_token( false, '12345' );
 
@@ -77,7 +79,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	}
 
 	public function test_get_access_token_with_magic_key_returns_stored_blog_token() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
 		$token = Jetpack_Data::get_access_token( false, Jetpack_Data::MAGIC_NORMAL_TOKEN_KEY );
 
@@ -88,7 +90,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_magic_key_returns_defined_blog_token_if_it_looks_like_a_stored_token_and_no_stored_token() {
 		Jetpack_Options::delete_option( 'blog_token' );
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::STORED );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::STORED );
 
 		$token = Jetpack_Data::get_access_token( false, Jetpack_Data::MAGIC_NORMAL_TOKEN_KEY );
 
@@ -97,7 +99,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	}
 
 	public function test_get_access_token_with_no_args_returns_first_defined_blog_token_when_constant_multi_set() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token();
 
@@ -107,7 +109,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_no_args_returns_first_defined_blog_token_when_constant_multi_set_and_no_stored_token() {
 		Jetpack_Options::delete_option( 'blog_token' );
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token();
 
@@ -116,7 +118,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	}
 
 	public function test_get_access_token_with_token_key_returns_matching_token_when_constant_multi_set() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token( false, ';foo;' );
 
@@ -126,7 +128,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_token_key_returns_matching_token_when_constant_multi_set_and_no_stored_token() {
 		Jetpack_Options::delete_option( 'blog_token' );
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token( false, ';foo;' );
 
@@ -135,7 +137,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	}
 
 	public function test_get_access_token_with_magic_key_returns_stored_token_when_constant_multi_set() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token( false, Jetpack_Data::MAGIC_NORMAL_TOKEN_KEY );
 
@@ -145,7 +147,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_magic_key_returns_matching_token_when_constant_multi_set_and_no_stored_token() {
 		Jetpack_Options::delete_option( 'blog_token' );
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token( false, Jetpack_Data::MAGIC_NORMAL_TOKEN_KEY );
 
@@ -154,7 +156,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	}
 
 	public function test_get_access_token_with_token_key_requires_full_key() {
-		Jetpack_Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
+		Constants_Manager::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
 		$token = Jetpack_Data::get_access_token( false, ';fo' );
 

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Options;
 
+use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+
 /**
  * The Jetpack Options Manager class that is used as a single gateway between WordPress options API
  * and Jetpack.
@@ -277,7 +279,7 @@ abstract class Manager {
 	 * @return bool
 	 */
 	function bypass_raw_option( $name ) {
-		if ( \Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
+		if ( Constants_Manager::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
 			return true;
 		}
 		/**
