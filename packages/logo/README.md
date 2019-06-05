@@ -1,6 +1,6 @@
 # Jetpack logo
 
-A simple package that allows you to display a Jetpack logo somewhere.
+A package that allows you to obtain a Jetpack logo in SVG format.
 
 ### Usage
 
@@ -13,19 +13,19 @@ $logo = new Logo();
 echo $logo->render();
 ```
 
-Display the gray Jetpack logo:
+### Styling
 
-```php
-$logo = new Automattic\Jetpack\Assets\Logo();
-echo $logo->render( 'gray' );
-```
+The Jetpack logo SVG string includes CSS classes to stylize it:
+- `jetpack-logo`: the wrapper <svg> tag.
+- `jetpack-logo__icon-circle`: the circle of the Jetpack mark.
+- `jetpack-logo__icon-triangle`: two shapes that correspond to each triangle in the Jetpack mark.
+- `jetpack-logo__icon-text`: the Jetpack lettering.
 
-Display a custom Jetpack logo of your choice:
+These shapes can be stylized using CSS. For example, to give the circle and text a blue gray color, we can do:
 
-```php
-use Automattic\Jetpack\Assets\Logo;
-
-$url = plugins_url( 'images/jetpack-logo.svg', __DIR__ );
-$logo = new Logo( $url );
-echo $logo->render();
+```css
+.jetpack-logo__icon-circle,
+.jetpack-logo__text {
+	fill: #636d75;
+}
 ```
