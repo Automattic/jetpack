@@ -12,9 +12,10 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "445c8d96e746dc1d8c80db3f4c87b560666112ba"
+                "reference": "ca7edb2022bf0c5b1e045a2ad5d2c5229c364a4f"
             },
             "require": {
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
@@ -101,7 +102,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "e53aab6622245326e243d5fac1ccea7de8bd65c9"
+                "reference": "72953c0a7a0df12029486bb73ac05814b51b2db0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
