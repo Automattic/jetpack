@@ -46,9 +46,10 @@ $ yarn distclean
 	$ cd jetpack
 	```
 
-3. Install yarn. Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
+3. [Install Composer](#installing-composer).
+4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
 
-4. Make sure the Jetpack plugin is active and run
+5. Make sure the Jetpack plugin is active and run
 
 	```
 	$ yarn build
@@ -56,7 +57,7 @@ $ yarn distclean
 
 	This will install npm dependencies and then build the files.
 
-5. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+6. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
 ## Development build
 
