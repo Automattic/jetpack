@@ -4,8 +4,30 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dada6f50261721f493579b0a19099539",
+    "content-hash": "b711e37a57a39e3470c4af334eab9c50",
     "packages": [
+        {
+            "name": "automattic/jetpack-asset-tools",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/asset-tools",
+                "reference": "c2e508601f86fcb02162e7e260e05a8c0bd0fd1c"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Asset_Tools\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Asset management utilities for Jetpack ecosystem packages"
+        },
         {
             "name": "automattic/jetpack-connection",
             "version": "1.0.0",
@@ -41,7 +63,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -68,8 +90,33 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
+            "name": "automattic/jetpack-jitm",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/jitm",
+                "reference": "de0110b1cce11fd0728ec3d8fcd03d457239354a"
+            },
+            "require": {
+                "automattic/jetpack-asset-tools": "@dev",
+                "automattic/jetpack-connection": "^1.0",
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-logo": "@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\JITM\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Just in time messages for Jetpack"
+        },
+        {
             "name": "automattic/jetpack-logo",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -98,7 +145,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -246,7 +293,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-add/jetpack-options-package-03",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -640,9 +687,12 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "automattic/jetpack-connection": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-jitm": 20,
+        "automattic/jetpack-asset-tools": 20,
         "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": false,

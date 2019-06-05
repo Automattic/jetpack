@@ -1,11 +1,19 @@
 <?php
 
+namespace Automattic\Jetpack\JITM;
+
+use Automattic\Jetpack\Asset_Tools\Manager as Asset_Manager;
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+
 /**
  * Jetpack just in time messaging through out the admin
  *
- * @since 3.7.0
+ * @since 5.6.0
  */
-class Jetpack_JITM {
+class Manager {
+
+	const PACKAGE_VERSION = '1.0';
 
 	/**
 	 * @var Jetpack_JITM
@@ -15,7 +23,7 @@ class Jetpack_JITM {
 	/**
 	 * Initializes the class, or returns the singleton
 	 *
-	 * @return Jetpack_JITM | false
+	 * @return Manager | false
 	 */
 	static function init() {
 		/**
@@ -31,7 +39,7 @@ class Jetpack_JITM {
 		}
 
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_JITM;
+			self::$instance = new Manager();
 		}
 
 		return self::$instance;
@@ -40,10 +48,13 @@ class Jetpack_JITM {
 	/**
 	 * Jetpack_JITM constructor.
 	 */
-	private function __construct() {
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() ) {
+	public function __construct() {
+		/*
+		$jetpack_connection = new Jetpack_Connection();
+		if ( ! $jetpack_connection->is_active() || $jetpack_connection->is_development_mode() ) {
 			return;
 		}
+		*/
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
@@ -53,7 +64,8 @@ class Jetpack_JITM {
 	 * @return string The Jetpack emblem
 	 */
 	function get_emblem() {
-		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
+		$jetpack_logo = new Jetpack_Logo();
+		return '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
 	}
 
 	/**
@@ -66,11 +78,14 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		if ( ! in_array( $screen->id, array(
-			'jetpack_page_stats',
-			'jetpack_page_akismet-key-config',
-			'admin_page_jetpack_modules'
-		) ) ) {
+		if ( ! in_array(
+			$screen->id,
+			array(
+				'jetpack_page_stats',
+				'jetpack_page_akismet-key-config',
+				'admin_page_jetpack_modules',
+			)
+		) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
@@ -113,9 +128,15 @@ class Jetpack_JITM {
 	 * @return string The new CTA
 	 */
 	static function jitm_jetpack_woo_services_install( $CTA ) {
-		return wp_nonce_url( add_query_arg( array(
-			'wc-services-action' => 'install'
-		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'wc-services-action' => 'install',
+				),
+				admin_url( 'admin.php?page=wc-settings' )
+			),
+			'wc-services-install'
+		);
 	}
 
 	/**
@@ -126,24 +147,30 @@ class Jetpack_JITM {
 	 * @return string The new CTA
 	 */
 	static function jitm_jetpack_woo_services_activate( $CTA ) {
-		return wp_nonce_url( add_query_arg( array(
-			'wc-services-action' => 'activate'
-		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'wc-services-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=wc-settings' )
+			),
+			'wc-services-install'
+		);
 	}
 
 	/**
 	 * Injects the dom to show a JITM inside of
 	 */
 	function ajax_message() {
-		$message_path = $this->get_message_path();
-		$query_string = _http_build_query( $_GET, '', ',' );
+		$message_path   = $this->get_message_path();
+		$query_string   = _http_build_query( $_GET, '', ',' );
 		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
 		?>
 		<div class="jetpack-jitm-message"
-		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
-		     data-message-path="<?php echo esc_attr( $message_path ) ?>"
-		     data-query="<?php echo urlencode_deep( $query_string ) ?>"
-		     data-redirect="<?php echo urlencode_deep( $current_screen ) ?>"
+			 data-nonce="<?php echo wp_create_nonce( 'wp_rest' ); ?>"
+			 data-message-path="<?php echo esc_attr( $message_path ); ?>"
+			 data-query="<?php echo urlencode_deep( $query_string ); ?>"
+			 data-redirect="<?php echo urlencode_deep( $current_screen ); ?>"
 		></div>
 		<?php
 	}
@@ -163,12 +190,13 @@ class Jetpack_JITM {
 	 * Function to enqueue jitm css and js
 	 */
 	function jitm_enqueue_files() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$asset_manager = new Asset_Manager();
+		$min           = ''; // ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
-			plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ),
+			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
 			false,
-			JETPACK__VERSION .
+			self::PACKAGE_VERSION .
 			'-201243242'
 		);
 		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
@@ -177,17 +205,21 @@ class Jetpack_JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			Jetpack::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			$asset_manager->get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
 			array( 'jquery' ),
-			JETPACK__VERSION,
+			self::PACKAGE_VERSION, // TODO: Keep in sync with version specified in composer.json
 			true
 		);
-		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
-			'api_root'               => esc_url_raw( rest_url() ),
-			'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
-			'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
-			'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
-		) );
+		wp_localize_script(
+			'jetpack-jitm-new',
+			'jitm_config',
+			array(
+				'api_root'               => esc_url_raw( rest_url() ),
+				'activate_module_text'   => esc_html__( 'Activate', 'jetpack' ),
+				'activated_module_text'  => esc_html__( 'Activated', 'jetpack' ),
+				'activating_module_text' => esc_html__( 'Activating', 'jetpack' ),
+			)
+		);
 	}
 
 	/**
@@ -199,30 +231,41 @@ class Jetpack_JITM {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		JetpackTracking::record_user_event( 'jitm_dismiss_client', array(
-			'jitm_id' => $id,
-			'feature_class' => $feature_class,
-		) );
+		\JetpackTracking::record_user_event(
+			'jitm_dismiss_client',
+			array(
+				'jitm_id'       => $id,
+				'feature_class' => $feature_class,
+			)
+		);
 
-
-		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+		$hide_jitm = \Jetpack_Options::get_option( 'hide_jitm' );
 		if ( ! is_array( $hide_jitm ) ) {
 			$hide_jitm = array();
 		}
 
 		if ( isset( $hide_jitm[ $feature_class ] ) ) {
 			if ( ! is_array( $hide_jitm[ $feature_class ] ) ) {
-				$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
+				$hide_jitm[ $feature_class ] = array(
+					'last_dismissal' => 0,
+					'number'         => 0,
+				);
 			}
 		} else {
-			$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
+			$hide_jitm[ $feature_class ] = array(
+				'last_dismissal' => 0,
+				'number'         => 0,
+			);
 		}
 
 		$number = $hide_jitm[ $feature_class ]['number'];
 
-		$hide_jitm[ $feature_class ] = array( 'last_dismissal' => time(), 'number' => $number + 1 );
+		$hide_jitm[ $feature_class ] = array(
+			'last_dismissal' => time(),
+			'number'         => $number + 1,
+		);
 
-		Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
+		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
 
 		return true;
 	}
@@ -239,10 +282,13 @@ class Jetpack_JITM {
 		// custom filters go here
 		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
 		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
-		add_filter( 'jitm_jetpack_woo_services_activate', array(
-			'Jetpack_JITM',
-			'jitm_jetpack_woo_services_activate'
-		) );
+		add_filter(
+			'jitm_jetpack_woo_services_activate',
+			array(
+				'Jetpack_JITM',
+				'jitm_jetpack_woo_services_activate',
+			)
+		);
 
 		$user = wp_get_current_user();
 
@@ -251,17 +297,20 @@ class Jetpack_JITM {
 			return array();
 		}
 
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client.php';
 
-		$site_id = Jetpack_Options::get_option( 'id' );
+		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		// build our jitm request
-		$path = add_query_arg( array(
-			'external_user_id' => urlencode_deep( $user->ID ),
-			'query_string'     => urlencode_deep( $query ),
-			'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
-			'_locale'          => get_user_locale(),
-		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
+		$path = add_query_arg(
+			array(
+				'external_user_id' => urlencode_deep( $user->ID ),
+				'query_string'     => urlencode_deep( $query ),
+				'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
+				'_locale'          => get_user_locale(),
+			),
+			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
+		);
 
 		// attempt to get from cache
 		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
@@ -283,7 +332,7 @@ class Jetpack_JITM {
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
-			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			$wpcom_response = \Jetpack_Client::wpcom_json_api_request_as_blog(
 				$path,
 				'2',
 				array(
@@ -315,7 +364,7 @@ class Jetpack_JITM {
 			}
 		}
 
-		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
+		$hidden_jitms = \Jetpack_Options::get_option( 'hide_jitm' );
 		unset( $envelopes['last_response_time'] );
 
 		/**
@@ -337,29 +386,32 @@ class Jetpack_JITM {
 				continue;
 			}
 
-			JetpackTracking::record_user_event( 'jitm_view_client', array(
-				'jitm_id' => $envelope->id,
-			) );
+			\JetpackTracking::record_user_event(
+				'jitm_view_client',
+				array(
+					'jitm_id' => $envelope->id,
+				)
+			);
 
-			$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
+			$normalized_site_url = \Jetpack::build_raw_urls( get_home_url() );
 
 			$url_params = array(
 				'source' => "jitm-$envelope->id",
-				'site' => $normalized_site_url,
-				'u' => $user->ID,
+				'site'   => $normalized_site_url,
+				'u'      => $user->ID,
 			);
 
 			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
 				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 			}
 			// Get affiliate code and add it to the array of URL parameters
-			if ( '' !== ( $aff = Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
+			if ( '' !== ( $aff = \Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
 				$url_params['aff'] = $aff;
 			}
 
 			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
 
-			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
+			$envelope->jitm_stats_url = \Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			if ( $envelope->CTA->hook ) {
 				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url );
@@ -379,7 +431,8 @@ class Jetpack_JITM {
 
 			switch ( $envelope->content->icon ) {
 				case 'jetpack':
-					$envelope->content->icon = '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
+					$jetpack_logo            = new Jetpack_Logo();
+					$envelope->content->icon = '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
 					break;
 				case 'woocommerce':
 					$envelope->content->icon = '<div class="jp-emblem"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 168 100" xml:space="preserve" enable-background="new 0 0 168 100" width="50" height="30"><style type="text/css">
@@ -397,7 +450,7 @@ class Jetpack_JITM {
 					break;
 			}
 
-			$jetpack = Jetpack::init();
+			$jetpack = \Jetpack::init();
 			$jetpack->stat( 'jitm', $envelope->id . '-viewed-' . JETPACK__VERSION );
 			$jetpack->do_stats( 'server_side' );
 		}
@@ -405,5 +458,3 @@ class Jetpack_JITM {
 		return $envelopes;
 	}
 }
-
-add_action( 'admin_init', array( 'Jetpack_JITM', 'init' ) );

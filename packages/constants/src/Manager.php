@@ -107,3 +107,4 @@ class Manager {
 		self::$set_constants = array();
 	}
 }
+

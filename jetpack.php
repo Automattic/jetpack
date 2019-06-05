@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\JITM\Manager as JITM_Manager;
+
 /*
  * Plugin Name: Jetpack by WordPress.com
  * Plugin URI: https://jetpack.com
@@ -230,8 +232,8 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
+	$jitm = new JITM_Manager();
 	jetpack_require_lib( 'debugger' );
 }
 

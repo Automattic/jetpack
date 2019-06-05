@@ -1,6 +1,6 @@
 <?php
 
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
+use Automattic\Jetpack\JITM\Manager as Jetpack_JITM;
 
 class WP_Test_Jetpack_JITM extends WP_UnitTestCase {
 	function test_jitm_disabled_by_filter() {
