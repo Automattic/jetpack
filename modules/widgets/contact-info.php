@@ -103,7 +103,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$showmap = $instance['showmap'];
 				$goodmap = isset( $instance['goodmap'] ) ? $instance['goodmap'] : $this->has_good_map( $instance );
 
-				if ( $showmap && $goodmap ) {
+				if ( $showmap && true === $goodmap ) {
 					/**
 					 * Set a Google Maps API Key.
 					 *
@@ -260,22 +260,25 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				</label>
 			</p>
 
-			<?php
-			if (
-				! is_customize_preview()
-				&& $instance['showmap']
-				&& ! empty( $instance['address'] )
-				&& ! empty( $apikey )
-			) {
-				?>
-				<p class="jp-contact-info-admin-map">
-					<?php
-						echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-				</p>
+			<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<?php
-			}
-			?>
+				if (
+					! is_customize_preview()
+					&& $instance['showmap']
+					&& ! empty( $instance['address'] )
+					&& ! empty( $apikey )
+				) {
+					if ( true === $this->has_good_map( $instance ) ) {
+						echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					} else {
+						printf(
+							'<span class="notice notice-warning" style="display: block;">%s</span>',
+							esc_html( $this->has_good_map( $instance ) )
+						);
+					}
+				}
+				?>
+			</p>
 
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
@@ -373,25 +376,29 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 *
 		 * @param array $instance Widget instance configuration.
 		 *
-		 * @return bool Whether or not there is a valid map.
+		 * @return bool|string Whether or not there is a valid map. If not, return an error message.
 		 */
 		function has_good_map( $instance ) {
 			/** This filter is documented in modules/widgets/contact-info.php */
 			$api_key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
 			if ( ! empty( $api_key ) ) {
-				$path          = add_query_arg(
+				$path     = add_query_arg(
 					array(
 						'q'   => rawurlencode( $instance['address'] ),
 						'key' => $api_key,
 					),
 					'https://www.google.com/maps/embed/v1/place'
 				);
-				$response_code = wp_remote_retrieve_response_code( wp_remote_get( esc_url_raw( $path ) ) );
+				$response = wp_remote_get( esc_url_raw( $path ) );
 
-				return 200 === $response_code;
+				if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+					return true;
+				} else {
+					return wp_remote_retrieve_body( $response );
+				}
 			}
 
-			return false;
+			return __( 'Please enter a valid Google API Key.', 'jetpack' );
 		}
 
 	}
