@@ -2,8 +2,6 @@
 
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published  = array();
@@ -427,7 +425,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$posts,
 			$this->get_metadata( $post_ids, 'post', Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ),
 			$this->get_term_relationships( $post_ids ),
-			$previous_interval_end
+			$previous_interval_end,
 		);
 	}
 }

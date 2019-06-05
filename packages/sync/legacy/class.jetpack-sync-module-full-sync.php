@@ -52,12 +52,12 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		$enqueue_status   = array();
 		$full_sync_config = array();
-		$include_empty = false;
-		$empty = array();
+		$include_empty    = false;
+		$empty            = array();
 		// default value is full sync
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
-			$include_empty = true;
+			$include_empty  = true;
 			foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 				$module_configs[ $module->name() ] = true;
 			}
@@ -88,7 +88,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 					0,              // queued
 					false,          // current state
 				);
-			} else if ( $include_empty && $total_items === 0 ) {
+			} elseif ( $include_empty && $total_items === 0 ) {
 				$empty[ $module_name ] = true;
 			}
 		}
@@ -398,7 +398,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	public function reset_data() {
 		$this->clear_status();
 		$this->delete_config();
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+
 		$listener = Jetpack_Sync_Listener::get_instance();
 		$listener->get_full_sync_queue()->reset();
 	}

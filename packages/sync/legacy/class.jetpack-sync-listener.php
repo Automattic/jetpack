@@ -1,10 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-actions.php';
-
 /**
  * This class monitors actions and logs them to the queue to be sent
  */
@@ -146,8 +141,7 @@ class Jetpack_Sync_Listener {
 
 		foreach ( $args_array as $args ) {
 			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
-			$args = isset( $args['ids'] ) ? $args['ids'] : $args;
-
+			$args         = isset( $args['ids'] ) ? $args['ids'] : $args;
 
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
@@ -158,7 +152,7 @@ class Jetpack_Sync_Listener {
 			 *
 			 * @param array The action parameters
 			 */
-			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
+			$args        = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
 			$action_data = array( $args );
 			if ( ! is_null( $previous_end ) ) {
 				$action_data[] = $previous_end;

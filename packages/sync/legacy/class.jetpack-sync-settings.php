@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
-
 class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
@@ -60,7 +58,7 @@ class Jetpack_Sync_Settings {
 				$value = get_site_option( self::SETTINGS_OPTION_PREFIX . $setting );
 			} else {
 				// On single sites just return the default setting
-				$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+				$value                            = Jetpack_Sync_Defaults::get_default_setting( $setting );
 				self::$settings_cache[ $setting ] = $value;
 				return $value;
 			}
@@ -126,7 +124,6 @@ class Jetpack_Sync_Settings {
 
 			// if we set the disabled option to true, clear the queues
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
-				require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
