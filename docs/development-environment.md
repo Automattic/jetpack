@@ -159,7 +159,7 @@ $ yarn test-client -R 'my_reporter'
 
 ## Installing Composer
 
-Jetpack includes a number of packages such as the `jetpack-logo` and to use this packages in Jetpack itself or other projects, you need Composer, the PHP package manager.
+Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
 
 It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
 
