@@ -262,4 +262,99 @@ class Manager implements Manager_Interface {
 	public function disconnect_site() {
 
 	}
+
+	/**
+	 * This function mirrors Jetpack_Data::is_usable_domain() in the WPCOM codebase.
+	 *
+	 * @param string $domain The domain to check.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function is_usable_domain( $domain ) {
+
+		// If it's empty, just fail out.
+		if ( ! $domain ) {
+			return new WP_Error(
+				'fail_domain_empty',
+				/* translators: %1$s is a domain name. */
+				sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain )
+			);
+		}
+
+		/**
+		 * Skips the usuable domain check when connecting a site.
+		 *
+		 * Allows site administrators with domains that fail gethostname-based checks to pass the request to WP.com
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param bool If the check should be skipped. Default false.
+		 */
+		if ( apply_filters( 'jetpack_skip_usuable_domain_check', false ) ) {
+			return true;
+		}
+
+		// None of the explicit localhosts.
+		$forbidden_domains = array(
+			'wordpress.com',
+			'localhost',
+			'localhost.localdomain',
+			'127.0.0.1',
+			'local.wordpress.test',         // VVV pattern.
+			'local.wordpress-trunk.test',   // VVV pattern.
+			'src.wordpress-develop.test',   // VVV pattern.
+			'build.wordpress-develop.test', // VVV pattern.
+		);
+		if ( in_array( $domain, $forbidden_domains, true ) ) {
+			return new WP_Error(
+				'fail_domain_forbidden',
+				sprintf(
+					/* translators: %1$s is a domain name. */
+					__(
+						'Domain `%1$s` just failed is_usable_domain check as it is in the forbidden array.',
+						'jetpack'
+					),
+					$domain
+				)
+			);
+		}
+
+		// No .test or .local domains.
+		if ( preg_match( '#\.(test|local)$#i', $domain ) ) {
+			return new WP_Error(
+				'fail_domain_tld',
+				sprintf(
+					/* translators: %1$s is a domain name. */
+					__(
+						'Domain `%1$s` just failed is_usable_domain check as it uses an invalid top level domain.',
+						'jetpack'
+					),
+					$domain
+				)
+			);
+		}
+
+		// No WPCOM subdomains.
+		if ( preg_match( '#\.WordPress\.com$#i', $domain ) ) {
+			return new WP_Error(
+				'fail_subdomain_wpcom',
+				sprintf(
+					/* translators: %1$s is a domain name. */
+					__(
+						'Domain `%1$s` just failed is_usable_domain check as it is a subdomain of WordPress.com.',
+						'jetpack'
+					),
+					$domain
+				)
+			);
+		}
+
+		// If PHP was compiled without support for the Filter module (very edge case).
+		if ( ! function_exists( 'filter_var' ) ) {
+			// Just pass back true for now, and let wpcom sort it out.
+			return true;
+		}
+
+		return true;
+	}
 }
