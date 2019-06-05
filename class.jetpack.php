@@ -541,10 +541,6 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
-		add_filter( 'jetpack_connection_option_manager', function() {
-			return new Jetpack_Options_Manager();
-		} );
-
 		add_filter( 'jetpack_connection_secret_generator', function( $callable ) {
 			return function() {
 				return wp_generate_password( 32, false );
