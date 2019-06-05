@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a6b3658e33a86548e8cb2a6a88a1b1c",
+    "content-hash": "dada6f50261721f493579b0a19099539",
     "packages": [
         {
             "name": "automattic/jetpack-connection",
@@ -12,11 +12,14 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "9dbcf84ab69da7d648e99580533624e2953c9874"
+                "reference": "445c8d96e746dc1d8c80db3f4c87b560666112ba"
+            },
+            "require": {
+                "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
-                "10up/wp_mock": "0.4.2",
-                "phpunit/phpunit": "7.*.*"
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
@@ -25,8 +28,9 @@
                 }
             },
             "scripts": {
-                "test": [
-                    "phpunit"
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ]
             },
             "license": [
@@ -36,17 +40,26 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-options-package-03",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "75e0a6ac5dc5e0af8d1de1ae1106260f1b12cc33"
+                "reference": "461a313ded5bee847833e210dfade7c879c01b3a"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\Constants\\": "src/"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -55,17 +68,27 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-options-package-03",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "9e99ef65b2600e06f2eaeaf435771194a174f40d"
+                "reference": "aa3d128c9280d6186210a86b10f8bf5403f44be7"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -74,11 +97,11 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "1.0.0",
+            "version": "dev-add/jetpack-options-package-03",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "0ff5d88cb668dcb7f8f54dfa4a19c87819e1dc78"
+                "reference": "e53aab6622245326e243d5fac1ccea7de8bd65c9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -89,18 +112,14 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Options\\": "src"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
+                "classmap": [
+                    "legacy"
                 ]
             },
             "license": [
                 "GPL-2.0-or-later"
-            ]
+            ],
+            "description": "A wrapper for wp-options to manage specific Jetpack options."
         },
         {
             "name": "composer/installers",
@@ -226,7 +245,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-options-package-03",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -620,6 +639,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-autoloader": 20
