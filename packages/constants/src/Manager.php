@@ -1,6 +1,6 @@
 <?php
 /**
- * A constant manager for Jetpack.
+ * A constants manager for Jetpack.
  *
  * @package jetpack-constants
  */
