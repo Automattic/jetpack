@@ -861,7 +861,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
-				require_once dirname( __FILE__ ) . '/sync/class.jetpack-sync-listener.php';
 				$listener = Jetpack_Sync_Listener::get_instance();
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
@@ -1033,7 +1032,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch( $action ) {
 			case 'peek':
-				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
 				$queue = new Jetpack_Sync_Queue( $mapped_queue_name );
 				$items = $queue->peek( 100 );
 

@@ -22,7 +22,6 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 		}
 		$this->site_option = isset( $query_args['site_option'] ) ? $query_args['site_option'] : false;
 
-		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-defaults.php';
 		/**
 		 * Filter the list of options that are manageable via the JSON API.
 		 *
