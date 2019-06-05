@@ -370,8 +370,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			/** This filter is documented in modules/widgets/contact-info.php */
 			$api_key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
 			if ( ! empty( $api_key ) ) {
-				$path          = add_query_arg( 'q', rawurlencode( $instance['address'] ), 'https://www.google.com/maps/embed/v1/place' );
-				$path          = add_query_arg( 'key', $api_key, $path );
+				$path          = add_query_arg(
+					array(
+						'q'   => rawurlencode( $instance['address'] ),
+						'key' => $api_key,
+					),
+					'https://www.google.com/maps/embed/v1/place'
+				);
 				$response_code = wp_remote_retrieve_response_code( wp_remote_get( esc_url_raw( $path ) ) );
 
 				return 200 === $response_code;
