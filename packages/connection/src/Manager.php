@@ -153,7 +153,10 @@ class Manager implements Manager_Interface {
 	public function generate_secrets( $action, $user_id, $exp ) {
 		$callable = $this->get_secret_callable();
 
-		$secrets = \Jetpack_Options::get_raw_option( self::SECRETS_OPTION_NAME, array() );
+		$secrets = \Jetpack_Options::get_raw_option(
+			self::SECRETS_OPTION_NAME,
+			array()
+		);
 
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 
