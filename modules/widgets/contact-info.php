@@ -180,19 +180,28 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$instance['showmap'] = intval( $new_instance['showmap'] );
 			}
 
+			/*
+			 * If there have been any changes that may impact the map in the widget
+			 * (adding an address, address changes, new API key, API key change )
+			 * then we want to check whether our map can be displayed again.
+			 */
 			$update_goodmap = false;
 			if (
-				! isset( $instance['goodmap'] ) ||
-				! isset( $old_instance['address'] ) ||
-				$this->urlencode_address( $old_instance['address'] ) != $this->urlencode_address( $new_instance['address'] ) ||
-				! isset( $old_instance['apikey'] ) ||
-				$old_instance['apikey'] != $new_instance['apikey']
+				! isset( $instance['goodmap'] )
+				|| ! isset( $old_instance['address'] )
+				|| $this->urlencode_address( $old_instance['address'] ) !== $this->urlencode_address( $new_instance['address'] )
+				|| ! isset( $old_instance['apikey'] )
+				|| $old_instance['apikey'] !== $new_instance['apikey']
 			) {
 				$update_goodmap = true;
 			}
 
-			if ( empty( $instance['address'] ) || $instance['showmap'] === 0) {
-					$update_goodmap = false;
+			/*
+			 * If we have no address or don't want to show a map,
+			 * no need to check if the map is valid
+			 */
+			if ( empty( $instance['address'] ) || 0 === $instance['showmap'] ) {
+					$update_goodmap      = false;
 					$instance['goodmap'] = false;
 			}
 
