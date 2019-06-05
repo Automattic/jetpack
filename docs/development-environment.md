@@ -160,13 +160,13 @@ $ yarn test-client -R 'my_reporter'
 
 ## Installing Composer
 
-Jetpack includes a number of packages such as the `jetpack-logo` and to use this packages in Jetpack itself or other projects, you need Composer, the PHP package manager.
+Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
 
 It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
 
 ### Installing Composer on macOS
 
-Composer can be installed using [Homebrew](https://brew.sh/). If you still don't have Homebrew, install it with
+Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
 
 ```
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -180,10 +180,10 @@ brew install composer
 
 ### Installing Composer on other systems
 
-We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems than macOS. 
+We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
 
 Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
-Note that we do recommend using the Windows Subsystem for Linux to run composer and PHP.
+Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
 
