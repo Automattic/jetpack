@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\JITM\Manager as JITM_Manager;
+use Automattic\Jetpack\Tracking\Manager as Tracking_Manager;
 
 /*
  * Plugin Name: Jetpack by WordPress.com
@@ -222,7 +223,6 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );

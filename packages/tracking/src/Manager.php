@@ -3,13 +3,15 @@
  * Nosara Tracks for Jetpack
  */
 
-require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
+namespace Automattic\Jetpack\Tracking;
 
-class JetpackTracking {
+require_once( dirname( __FILE__ ) . '/../../../_inc/lib/tracks/client.php' );
+
+class Manager {
 	static $product_name = 'jetpack';
 
 	static function track_jetpack_usage() {
-		if ( ! Jetpack::jetpack_tos_agreed() ) {
+		if ( ! \Jetpack::jetpack_tos_agreed() ) {
 			return;
 		}
 
@@ -76,7 +78,7 @@ class JetpackTracking {
 		$data['_via_ip']  = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 		$data['_lg']      = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : '';
 		$data['blog_url'] = $site_url;
-		$data['blog_id']  = Jetpack_Options::get_option( 'id' );
+		$data['blog_id']  = \Jetpack_Options::get_option( 'id' );
 
 		// Top level events should not be namespaced
 		if ( '_aliasUser' != $event_type ) {
