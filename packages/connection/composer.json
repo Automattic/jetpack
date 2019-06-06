@@ -3,7 +3,6 @@
 	"description": "Everything needed to connect to the Jetpack infrastructure",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "1.0.0",
 	"require": {
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev"
@@ -28,5 +27,7 @@
 			"type": "path",
 			"url": "../*"
 		}
-	]
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }

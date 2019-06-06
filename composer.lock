@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b711e37a57a39e3470c4af334eab9c50",
+    "content-hash": "49dfae78b865b05e4de33278963c050b",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
@@ -30,11 +30,11 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "1.0.0",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "ca7edb2022bf0c5b1e045a2ad5d2c5229c364a4f"
+                "reference": "eb2ab1a317d710fbe651a20fa580d523e303d848"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -95,19 +95,28 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "de0110b1cce11fd0728ec3d8fcd03d457239354a"
+                "reference": "853d6934703fce515f16d5f3450cbb51ed05d09e"
             },
             "require": {
                 "automattic/jetpack-asset-tools": "@dev",
-                "automattic/jetpack-connection": "^1.0",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-logo": "@dev"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\JITM\\": "src/"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -122,21 +131,11 @@
                 "url": "./packages/logo",
                 "reference": "aa3d128c9280d6186210a86b10f8bf5403f44be7"
             },
-            "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
-            },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -708,7 +707,7 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-options": 20,
@@ -719,7 +718,7 @@
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-autoloader": 20
     },
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "ext-openssl": "*"
