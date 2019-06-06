@@ -9,6 +9,9 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-constants": "@dev"
 	},
+	"require-dev": {
+		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+	},
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\JITM\\": "src/"
@@ -19,5 +22,11 @@
 			"type": "path",
 			"url": "../*"
 		}
-	]
+	],
+	"scripts": {
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		]
+	}
 }
