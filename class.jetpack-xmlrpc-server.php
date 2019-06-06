@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
 /**
  * Just a sack of functions.  Not actually an IXR_Server
  */

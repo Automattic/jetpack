@@ -4,15 +4,16 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49dfae78b865b05e4de33278963c050b",
+    "content-hash": "0fa9992a37eabfa1d53bee78a855ce7a",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
-                "reference": "c2e508601f86fcb02162e7e260e05a8c0bd0fd1c"
+                "reference": "d425ff2ef48f7e4c323507ca583e4065f7f107a6",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -30,11 +31,12 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "eb2ab1a317d710fbe651a20fa580d523e303d848"
+                "reference": "eb2ab1a317d710fbe651a20fa580d523e303d848",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -63,11 +65,12 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "461a313ded5bee847833e210dfade7c879c01b3a"
+                "reference": "8dd7ab7dfd00b73455dd9d5b61c7c1f825967993",
+                "shasum": null
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -91,19 +94,23 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "853d6934703fce515f16d5f3450cbb51ed05d09e"
+                "reference": "38af4dd23b02753405d0f718f87df55259979591",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-asset-tools": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-logo": "@dev"
+                "automattic/jetpack-logo": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
+                "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
@@ -125,17 +132,28 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "aa3d128c9280d6186210a86b10f8bf5403f44be7"
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610",
+                "shasum": null
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -144,11 +162,12 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "72953c0a7a0df12029486bb73ac05814b51b2db0"
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -170,11 +189,12 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-feature/jetpack-packages",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "b6c34729a2a37b5a485add5d357ff018654e3e35"
+                "reference": "b6c34729a2a37b5a485add5d357ff018654e3e35",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -190,6 +210,39 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure."
+        },
+        {
+            "name": "automattic/jetpack-tracking",
+            "version": "dev-dna-jitm-deps",
+            "dist": {
+                "type": "path",
+                "url": "./packages/tracking",
+                "reference": "bf2c5cf51eec2e1ad21955c05c692ef2815875b9",
+                "shasum": null
+            },
+            "require": {
+                "automattic/jetpack-options": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Tracking\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tracking for Jetpack"
         },
         {
             "name": "composer/installers",
@@ -315,11 +368,12 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-dna-jitm-deps",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "b7f10b9ef30f077dfacf68c1b797a070b066a62a"
+                "reference": "8c7dc6036bf6125c31a574c14c6b0521247410ed",
+                "shasum": null
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -716,6 +770,7 @@
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-asset-tools": 20,
         "automattic/jetpack-sync": 20,
+        "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": true,

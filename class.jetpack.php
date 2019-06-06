@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
 
 /*
 Options:
