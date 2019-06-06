@@ -113,22 +113,8 @@ class ProStatus extends React.Component {
 				break;
 			case 'free':
 			case 'personal':
-				type = 'upgrade';
-				status = 'is-warning';
-				if ( ! this.props.isCompact ) {
-					message = __( 'No scanning', {
-						context: 'Short warning message about site having no security scan.',
-					} );
-				}
-				action = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
-				actionUrl = this.props.paidFeatureUpgradeUrl;
-				break;
 			case 'pro':
-				type = 'upgrade';
-				status = 'is-warning';
-				action = __( 'Upgrade', { context: 'Caption for a button to purchase a pro plan.' } );
-				actionUrl = this.props.planProUpgradeUrl;
-				break;
+				return;
 			case 'secure':
 				status = 'is-success';
 				message = __( 'Secure', {
