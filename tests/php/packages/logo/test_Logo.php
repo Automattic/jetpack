@@ -10,10 +10,10 @@ class WP_Test_Logo extends WP_UnitTestCase {
 	function test_constructor_default_logo() {
 		$logo = new Logo();
 		$logo_render = $logo->render();
+		$this->assertContains( '<svg xmlns="http://www.w3.org/2000/svg"', $logo_render );
 		$this->assertContains( 'class="jetpack-logo"', $logo_render );
 		$this->assertContains( 'class="jetpack-logo__icon-circle"', $logo_render );
-		$this->assertContains( 'class="jetpack-logo__icon-triangle" points="15,19 7,19 15,3"', $logo_render );
-		$this->assertContains( 'class="jetpack-logo__icon-triangle" points="17,29 17,13 25,13"', $logo_render );
+		$this->assertEquals( 2, preg_match_all( '/class="jetpack-logo__icon-triangle"/', $logo_render ) );
 		$this->assertContains( 'class="jetpack-logo__text"', $logo_render );
 	}
 
