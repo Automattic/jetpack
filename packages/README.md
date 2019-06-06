@@ -54,7 +54,7 @@ $logo = new Logo();
 If you need to rule out conflicts, you can alias it:
 
 ```php
-use Automattic\Jetpack\Assets\Jetpack_Logo;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 // other code...
 
