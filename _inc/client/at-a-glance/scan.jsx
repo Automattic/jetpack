@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import { getPlanClass } from 'lib/plans/constants';
+import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -20,6 +20,7 @@ import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { showBackups } from 'state/initial-state';
+import JetpackBanner from 'components/jetpack-banner';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -136,37 +137,40 @@ class DashScan extends Component {
 		const planClass = getPlanClass( get( sitePlan, 'product_slug', '' ) );
 		const hasPremium = 'is-premium-plan' === planClass;
 		const hasBusiness = 'is-business-plan' === planClass;
-
+		const scanContent =
+			hasPremium || hasBusiness || scanEnabled ? (
+				<p className="jp-dash-item__description" key="inactive-scanning">
+					{ __(
+						'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
+						{
+							components: {
+								a: (
+									<a
+										href="https://wordpress.com/plugins/vaultpress"
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							},
+						}
+					) }
+				</p>
+			) : (
+				<JetpackBanner
+					callToAction={ __( 'Upgrade' ) }
+					title={ __(
+						"Jetpack's comprehensive security scanning finds issues early so we can help fix them fast."
+					) }
+					disableHref="false"
+					href={ UpgradeLink }
+					event="track_event" // TODO: change this event name
+					plan={ PLAN_JETPACK_PREMIUM }
+				/>
+			);
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			status: hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive',
-			content: [
-				<p className="jp-dash-item__description" key="inactive-scanning">
-					{ hasPremium || hasBusiness || scanEnabled
-						? __(
-								'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
-								{
-									components: {
-										a: (
-											<a
-												href="https://wordpress.com/plugins/vaultpress"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-									},
-								}
-						  )
-						: __(
-								'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.',
-								{
-									components: {
-										a: <UpgradeLink source="aag-scan" />,
-									},
-								}
-						  ) }
-				</p>,
-			],
+			content: [ scanContent ],
 		} );
 	}
 
