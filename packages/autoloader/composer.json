@@ -13,5 +13,7 @@
 	},
 	"extra": {
 		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
-	}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }

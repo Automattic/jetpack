@@ -35,5 +35,7 @@
 			"type": "path",
 			"url": "./packages/*"
 		}
-	]
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
