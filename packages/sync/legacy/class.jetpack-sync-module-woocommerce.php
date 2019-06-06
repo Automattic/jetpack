@@ -1,7 +1,5 @@
 <?php
 
-require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-module.php';
-
 class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
 	private $order_item_meta_whitelist = array(

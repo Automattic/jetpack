@@ -317,7 +317,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function get_plugin_action_links( $plugin_file ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 		return Jetpack_Sync_Functions::get_plugins_action_links( $plugin_file );
 	}
 }

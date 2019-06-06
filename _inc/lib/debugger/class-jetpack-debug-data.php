@@ -268,13 +268,6 @@ class Jetpack_Debug_Data {
 		);
 
 		/** Sync Debug Information */
-		/** Load Sync modules */
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
-		/** Load Sync sender */
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-		/** Load Sync functions */
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		if ( $sync_module ) {
 			$sync_statuses              = $sync_module->get_status();

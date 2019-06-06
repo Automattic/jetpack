@@ -2,8 +2,6 @@
 
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
-
 require_once 'test_class.jetpack-sync-base.php';
 
 function jetpack_foo_is_callable() {

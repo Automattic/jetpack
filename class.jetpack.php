@@ -3298,7 +3298,6 @@ p {
 		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		Jetpack_Sync_Sender::get_instance()->uninstall();
 
 		// Disable the Heartbeat cron
@@ -6125,7 +6124,6 @@ p {
 		// in a transient to allow for autoloading and caching on subsequent views.
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
-			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 			$local_options = array(
 				'home'    => Jetpack_Sync_Functions::home_url(),
 				'siteurl' => Jetpack_Sync_Functions::site_url(),

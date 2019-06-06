@@ -211,7 +211,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
@@ -229,6 +228,8 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
+
+Jetpack_Sync_Main::init();
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );

@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
-
 /**
  * Simple version of a Jetpack Sync Server - just receives arrays of events and
  * issues them locally with the 'jetpack_sync_remote_action' action.

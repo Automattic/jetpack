@@ -1,13 +1,8 @@
 <?php
 
-$sync_dir        = dirname( __FILE__ ) . '/../../../sync/';
-$sync_server_dir = dirname( __FILE__ ) . '/server/';
+Jetpack_Sync_Main::init();
 
-require_once $sync_dir . 'class.jetpack-sync-server.php';
-require_once $sync_dir . 'class.jetpack-sync-users.php';
-require_once $sync_dir . 'class.jetpack-sync-listener.php';
-require_once $sync_dir . 'class.jetpack-sync-sender.php';
-require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
+$sync_server_dir = dirname( __FILE__ ) . '/server/';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';

@@ -5,26 +5,6 @@
  * of sync modules
  */
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-posts.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-import.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-comments.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-constants.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-callables.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-options.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-network-options.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-updates.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-users.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-themes.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-menus.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-attachments.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-meta.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-terms.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-plugins.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-full-sync.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-stats.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-protect.php';
-
 class Jetpack_Sync_Modules {
 
 	private static $default_sync_modules = array(

@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
-
 /**
  * An implementation of iJetpack_Sync_Codec that uses gzip's DEFLATE
  * algorithm to compress objects serialized using json_encode

@@ -2,8 +2,6 @@
 
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
-
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
  * when to send, when to perform a full sync, etc.
@@ -17,7 +15,6 @@ class Jetpack_Sync_Actions {
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
 	static function init() {
-
 		// everything below this point should only happen if we're a valid sync site
 		if ( ! self::sync_allowed() ) {
 			return;
@@ -32,7 +29,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
 		// Sync connected user role changes to .com
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
+		Jetpack_Sync_Users::init();
 
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
@@ -107,7 +104,6 @@ class Jetpack_Sync_Actions {
 		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
 			return true;
 		}
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
@@ -127,12 +123,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sync_via_cron_allowed() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		return ( Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
@@ -141,12 +135,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function set_is_importing_true() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 		Jetpack_Sync_Settings::set_importing( true );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 		Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
@@ -316,12 +308,10 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_listener() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
 		self::$listener = Jetpack_Sync_Listener::get_instance();
 	}
 
 	static function initialize_sender() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-sender.php';
 		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
@@ -336,7 +326,6 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
 		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
 		return $sync_modules;
 	}
@@ -349,7 +338,6 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function add_wp_super_cache_sync_module( $sync_modules ) {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-wp-super-cache.php';
 		$sync_modules[] = 'Jetpack_Sync_Module_WP_Super_Cache';
 		return $sync_modules;
 	}
@@ -447,7 +435,6 @@ class Jetpack_Sync_Actions {
 
 		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
 		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
-			require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 			self::clear_sync_cron_jobs();
 			Jetpack_Sync_Settings::update_settings(
 				array(
@@ -475,7 +462,6 @@ class Jetpack_Sync_Actions {
 		$checksums = array();
 
 		if ( ! empty( $fields ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-wp-replicastore.php';
 			$store         = new Jetpack_Sync_WP_Replicastore();
 			$fields_params = array_map( 'trim', explode( ',', $fields ) );
 
@@ -511,21 +497,3 @@ class Jetpack_Sync_Actions {
 		);
 	}
 }
-
-// Check for WooCommerce support
-add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
-
-// Check for WP Super Cache
-add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_wp_super_cache' ), 5 );
-
-/*
- * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
- * with a high priority or sites that use alternate cron.
- */
-add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
-
-
-
-// We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
-add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );

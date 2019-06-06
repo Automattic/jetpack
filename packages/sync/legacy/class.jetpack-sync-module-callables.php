@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
-
 class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
@@ -230,7 +228,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		}
 
 		$callable_checksums = (array) Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
-		$has_changed = false;
+		$has_changed        = false;
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
@@ -246,7 +244,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 				 */
 				do_action( 'jetpack_sync_callable', $name, $value );
 				$callable_checksums[ $name ] = $checksum;
-				$has_changed = true;
+				$has_changed                 = true;
 			} else {
 				$callable_checksums[ $name ] = $checksum;
 			}

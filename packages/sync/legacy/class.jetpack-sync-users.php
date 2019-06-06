@@ -77,5 +77,3 @@ class Jetpack_Sync_Users {
 		}
 	}
 }
-
-Jetpack_Sync_Users::init();

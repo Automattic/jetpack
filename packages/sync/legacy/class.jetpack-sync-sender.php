@@ -2,13 +2,6 @@
 
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-json-deflate-array-codec.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-simple-codec.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-
 /**
  * This class grabs pending actions from the queue and sends them
  */
@@ -209,7 +202,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		/* Don't make the request block till we finish, if possible. */
-		if ( Constants_Manager::is_true( 'REST_REQUEST' ) || Constants_Manager::is_true('XMLRPC_REQUEST' ) ) {
+		if ( Constants_Manager::is_true( 'REST_REQUEST' ) || Constants_Manager::is_true( 'XMLRPC_REQUEST' ) ) {
 			$this->fastcgi_finish_request();
 		}
 
@@ -312,7 +305,6 @@ class Jetpack_Sync_Sender {
 	}
 
 	function send_checksum() {
-		require_once 'class.jetpack-sync-wp-replicastore.php';
 		$store = new Jetpack_Sync_WP_Replicastore();
 		do_action( 'jetpack_sync_checksum', $store->checksum_all() );
 	}
