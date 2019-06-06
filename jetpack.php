@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\JITM\Manager as JITM_Manager;
-use Automattic\Jetpack\Tracking\Manager as Tracking_Manager;
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
 
 /*
  * Plugin Name: Jetpack by WordPress.com
