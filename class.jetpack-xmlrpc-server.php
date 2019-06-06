@@ -97,7 +97,7 @@ class Jetpack_XMLRPC_Server {
 
 	function remote_authorize( $request ) {
 		$user = get_user_by( 'id', $request['state'] );
-		Jetpack_Tracking::record_user_event( 'jpc_remote_authorize_begin', array(), $user );
+		JetpackTracking::record_user_event( 'jpc_remote_authorize_begin', array(), $user );
 
 		foreach( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
 			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
