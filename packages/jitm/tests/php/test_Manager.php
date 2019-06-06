@@ -59,6 +59,7 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->apply_filters_mock = $builder->build();
 		$this->apply_filters_mock->enable();
 	}
+
 	protected function clear_mock_filters() {
 		$this->apply_filters_mock->disable();
 		unset( $this->mocked_filters );
