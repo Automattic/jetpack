@@ -4879,8 +4879,8 @@ p {
 	}
 
 	public static function connection() {
-	    return self::init()->connection_manager;
-    }
+		return self::init()->connection_manager;
+	}
 
 	/**
 	 * Creates two secret tokens and the end of life timestamp for them.
@@ -4913,7 +4913,8 @@ p {
 	}
 
 	/**
-     * @deprecated 7.5
+	 * @deprecated 7.5 Use Connection_Manager instead.
+	 *
 	 * @param $action
 	 * @param $user_id
 	 */
