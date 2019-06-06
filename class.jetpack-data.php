@@ -3,8 +3,6 @@
 use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 class Jetpack_Data {
-	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
-
 	/**
 	 * @deprecated 7.5 Use Connection_Manager instead.
 	 */
