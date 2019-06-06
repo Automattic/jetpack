@@ -25,6 +25,7 @@ class Jetpack_Sync_Listener {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
+		Jetpack_Sync_Main::init();
 		$this->set_defaults();
 		$this->init();
 	}

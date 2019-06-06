@@ -229,6 +229,8 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 
+Jetpack_Sync_Main::init();
+
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
