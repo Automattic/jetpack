@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\Client;
 
-use Automattic\Jetpack\Options\Manager as Jetpack_Options;
-
 class Manager {
 	const WPCOM_JSON_API_VERSION = '1.1';
 
@@ -35,7 +33,7 @@ class Manager {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = Jetpack_Data::get_access_token( $args['user_id'] );
+		$token = \Jetpack_Data::get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new Jetpack_Error( 'missing_token' );
 		}
@@ -60,8 +58,8 @@ class Manager {
 
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
-		$time_diff         = (int) Jetpack_Options::get_option( 'time_diff' );
-		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
+		$time_diff         = (int) \Jetpack_Options::get_option( 'time_diff' );
+		$jetpack_signature = new \Jetpack_Signature( $token->secret, $time_diff );
 
 		$timestamp = time() + $time_diff;
 
@@ -90,7 +88,7 @@ class Manager {
 			}
 
 			if ( ! is_string( $body_to_hash ) ) {
-				return new Jetpack_Error( 'invalid_body', 'Body is malformed.' );
+				return new \Jetpack_Error( 'invalid_body', 'Body is malformed.' );
 			}
 
 			$body_hash = jetpack_sha1_base64( $body_to_hash );
@@ -106,7 +104,7 @@ class Manager {
 		if ( false !== strpos( $args['url'], 'xmlrpc.php' ) ) {
 			$url_args = array(
 				'for'           => 'jetpack',
-				'wpcom_blog_id' => Jetpack_Options::get_option( 'id' ),
+				'wpcom_blog_id' => \Jetpack_Options::get_option( 'id' ),
 			);
 		} else {
 			$url_args = array();
@@ -117,7 +115,7 @@ class Manager {
 		}
 
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
-		$url = Jetpack::fix_url_for_bad_hosts( $url );
+		$url = \Jetpack::fix_url_for_bad_hosts( $url );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
@@ -143,7 +141,7 @@ class Manager {
 			$url = add_query_arg( 'signature', urlencode( $signature ), $url );
 		}
 
-		return Jetpack_Client::_wp_remote_request( $url, $request );
+		return self::_wp_remote_request( $url, $request );
 	}
 
 	/**
@@ -177,9 +175,9 @@ class Manager {
 			return wp_remote_request( $url, $args );
 		}
 
-		$fallback = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
 		if ( false === $fallback ) {
-			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
 		}
 
 		if ( (int) $fallback ) {
@@ -196,7 +194,7 @@ class Manager {
 			||
 			! is_wp_error( $response )                          // Let it ride
 		) {
-			Jetpack_Client::set_time_diff( $response, $set_fallback );
+			self::set_time_diff( $response, $set_fallback );
 			return $response;
 		}
 
@@ -228,8 +226,8 @@ class Manager {
 
 		if ( ! is_wp_error( $response ) ) {
 			// The request went through this time, flag for future fallbacks
-			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', time() );
-			Jetpack_Client::set_time_diff( $response, $set_fallback );
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', time() );
+			self::set_time_diff( $response, $set_fallback );
 		}
 
 		return $response;
@@ -254,11 +252,11 @@ class Manager {
 		$time_diff = $time - time();
 
 		if ( $force_set ) { // during register
-			Jetpack_Options::update_option( 'time_diff', $time_diff );
+			\Jetpack_Options::update_option( 'time_diff', $time_diff );
 		} else { // otherwise
-			$old_diff = Jetpack_Options::get_option( 'time_diff' );
+			$old_diff = \Jetpack_Options::get_option( 'time_diff' );
 			if ( false === $old_diff || abs( $time_diff - (int) $old_diff ) > 10 ) {
-				Jetpack_Options::update_option( 'time_diff', $time_diff );
+				\Jetpack_Options::update_option( 'time_diff', $time_diff );
 			}
 		}
 	}
@@ -343,12 +341,12 @@ class Manager {
 			$filtered_args,
 			array(
 				'url'     => $url,
-				'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
+				'blog_id' => (int) \Jetpack_Options::get_option( 'id' ),
 				'method'  => $request_method,
 			)
 		);
 
-		return Jetpack_Client::remote_request( $validated_args, $body );
+		return self::remote_request( $validated_args, $body );
 	}
 
 	/**
