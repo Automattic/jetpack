@@ -202,11 +202,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		/* Don't make the request block till we finish, if possible. */
-<<<<<<< HEAD
-		if ( Constants_Manager::is_true( 'REST_REQUEST' ) || Constants_Manager::is_true('XMLRPC_REQUEST' ) ) {
-=======
-		if ( Jetpack_Constants::is_true( 'REST_REQUEST' ) || Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
->>>>>>> Remove some sync file requiring in sync package
+		if ( Constants_Manager::is_true( 'REST_REQUEST' ) || Constants_Manager::is_true( 'XMLRPC_REQUEST' ) ) {
 			$this->fastcgi_finish_request();
 		}
 
