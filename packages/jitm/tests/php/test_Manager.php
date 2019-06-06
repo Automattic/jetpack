@@ -47,7 +47,7 @@ class Test_Jetpack_JITM extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'apply_filters' )
 			->setFunction(
-				function () {
+				function() {
 					$current_args = func_get_args();
 					foreach ( $this->mocked_filters as $filter ) {
 						if ( array_slice( $filter, 0, -1 ) === $current_args ) {
