@@ -3354,7 +3354,7 @@ p {
 				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
 			) );
 			foreach ( $domains_to_check as $domain ) {
-				$result = Jetpack_Data::is_usable_domain( $domain );
+				$result = self::connection()->is_usable_domain( $domain );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
@@ -4877,6 +4877,10 @@ p {
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}
 
+	public static function connection() {
+		return self::init()->connection_manager;
+	}
+
 	/**
 	 * Creates two secret tokens and the end of life timestamp for them.
 	 *
@@ -4890,11 +4894,11 @@ p {
 			$user_id = get_current_user_id();
 		}
 
-		return self::init()->connection_manager->generate_secrets( $action, $user_id, $exp );
+		return self::connection()->generate_secrets( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {
-		$secrets = self::init()->connection_manager->get_secrets( $action, $user_id );
+		$secrets = self::connection()->get_secrets( $action, $user_id );
 
 		if ( Connection_Manager::SECRETS_MISSING === $secrets ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
@@ -4907,8 +4911,14 @@ p {
 		return $secrets;
 	}
 
+	/**
+	 * @deprecated 7.5 Use Connection_Manager instead.
+	 *
+	 * @param $action
+	 * @param $user_id
+	 */
 	public static function delete_secrets( $action, $user_id ) {
-		return self::init()->connection_manager->delete_secrets( $action, $user_id );
+		return self::connection()->delete_secrets( $action, $user_id );
 	}
 
 	/**
