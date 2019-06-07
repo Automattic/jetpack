@@ -438,7 +438,7 @@ class Jetpack {
 
 	/**
 	 * Saves all the currently active modules to options.
-	 * Also fires Action hooks for each newly activated and deactived module.
+	 * Also fires Action hooks for each newly activated and deactivated module.
 	 *
 	 * @param $modules Array Array of active modules to be saved in options.
 	 *
