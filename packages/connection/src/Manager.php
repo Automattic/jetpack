@@ -267,6 +267,14 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * @param $text
+	 * @return string
+	 */
+	function sha1_base64( $text ) {
+		return base64_encode( sha1( $text, true ) );
+	}
+
+	/**
 	 * This function mirrors Jetpack_Data::is_usable_domain() in the WPCOM codebase.
 	 *
 	 * @param string $domain The domain to check.

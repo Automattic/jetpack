@@ -14,7 +14,10 @@
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\Connection\\": "src"
-		}
+		},
+		"classmap": [
+			"legacy"
+		]
 	},
 	"scripts": {
 		"phpunit": [
