@@ -275,7 +275,7 @@ class Manager implements Manager_Interface {
 	 * @param $text
 	 * @return string
 	 */
-	function jetpack_sha1_base64( $text ) {
+	function sha1_base64( $text ) {
 		return base64_encode( sha1( $text, true ) );
 	}
 

@@ -194,7 +194,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->jetpack_sha1_base64( '{"modules":[]}' );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( '{"modules":[]}' );
 		$_GET['signature'] = 'abc';
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
@@ -219,7 +219,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 			$_GET['token'],
 			$_GET['timestamp'],
 			$_GET['nonce'],
-			Jetpack::connection()->jetpack_sha1_base64( '{"modules":[]}' ),
+			Jetpack::connection()->sha1_base64( '{"modules":[]}' ),
 			'GET',
 			'example.org',
 			'80',
@@ -249,7 +249,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->jetpack_sha1_base64( $body );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],
@@ -289,7 +289,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->jetpack_sha1_base64( $body );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],
@@ -339,7 +339,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->jetpack_sha1_base64( $body );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],

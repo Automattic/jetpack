@@ -160,7 +160,7 @@ class Jetpack_Signature {
 			}
 		} else {
 			$connection = new Connection_Manager();
-			if ( $verify_body_hash && $connection->jetpack_sha1_base64( $body ) !== $body_hash ) {
+			if ( $verify_body_hash && $connection->sha1_base64( $body ) !== $body_hash ) {
 				return new WP_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
 		}
@@ -265,8 +265,4 @@ class Jetpack_Signature {
 		}
 		return "{$name}={$value}";
 	}
-}
-
-function rocco() {
-	return 'foo';
 }

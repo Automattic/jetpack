@@ -87,7 +87,7 @@ class Jetpack_Client {
 				return new Jetpack_Error( 'invalid_body', 'Body is malformed.' );
 			}
 
-			$body_hash = Jetpack::connection()->jetpack_sha1_base64( $body_to_hash );
+			$body_hash = Jetpack::connection()->sha1_base64( $body_to_hash );
 		}
 
 		$auth = array(
