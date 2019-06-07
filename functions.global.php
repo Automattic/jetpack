@@ -9,7 +9,6 @@
  *
  * @package Jetpack
  */
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Disable direct access.
@@ -226,12 +225,4 @@ function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 	}
 
 	return $any;
-}
-
-/**
- * @deprecated 7.5 Use Connection_Manager instead.
- */
-function jetpack_sha1_base64( $text ) {
-	$connection = new Connection_Manager();
-	return $connection->sha1_base64( $text );
 }
