@@ -5,6 +5,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
+
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */
