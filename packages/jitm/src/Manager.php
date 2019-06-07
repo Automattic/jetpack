@@ -50,12 +50,10 @@ class Manager {
 	 * Jetpack_JITM constructor.
 	 */
 	public function __construct() {
-		/*
-		$jetpack_connection = new Jetpack_Connection();
-		if ( ! $jetpack_connection->is_active() || $jetpack_connection->is_development_mode() ) {
+		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
 			return;
 		}
-		*/
+
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
