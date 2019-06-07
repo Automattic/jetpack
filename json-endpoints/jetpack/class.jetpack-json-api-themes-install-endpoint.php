@@ -3,6 +3,8 @@
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
+
 class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 
 	// POST  /sites/%s/themes/%s/install

@@ -1,4 +1,6 @@
 <?php
+
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
 /**
  * VideoPress edit attachment screen
  *

@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
+
 /**
  * This is the endpoint class for `/site` endpoints.
  *
