@@ -47,6 +47,9 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 	. '-----END PUBLIC KEY-----' . "\r\n"
 );
 
+defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
+defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().

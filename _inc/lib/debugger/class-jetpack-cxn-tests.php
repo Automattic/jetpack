@@ -286,8 +286,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$http_ports  = array( 80 );
 		$https_ports = array( 80, 443 );
 
-		$http_ports[]  = Connection_Manager::JETPACK_SIGNATURE__HTTP_PORT;
-		$https_ports[] = Connection_Manager::JETPACK_SIGNATURE__HTTPS_PORT;
+		if ( defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ) {
+			$http_ports[] = JETPACK_SIGNATURE__HTTP_PORT;
+		}
+
+		if ( defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ) {
+			$https_ports[] = JETPACK_SIGNATURE__HTTPS_PORT;
+		}
 
 		if ( $site_port ) {
 			return self::skipped_test( $name ); // Not currently testing for this situation.
