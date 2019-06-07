@@ -1,25 +1,33 @@
 <?php
+namespace Automattic\Jetpack\Partners;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	// Exit if accessed directly
-	exit;
+use Jetpack;
+
+if ( ! defined( 'ABSPATH' ) || ! is_admin() ) {
+	exit; // Exit if accessed directly or not in admin.
 }
 
 /**
  * This class introduces routines to get an affiliate code, that might be obtained from:
- * - an `jetpack_affiliate_code` option in the WP database
+ * - a `jetpack_affiliate_code` option in the WP database
  * - an affiliate code returned by a filter bound to the `jetpack_affiliate_code` filter hook
  *
  * @since 6.9.0
  */
-class Jetpack_Affiliate {
+class Affiliate {
 
 	/**
+	 * Class instance
+	 *
 	 * @since 6.9.0
-	 * @var Jetpack_Affiliate This class instance.
+	 *
+	 * @var Affiliate This class instance.
 	 **/
 	private static $instance = null;
 
+	/**
+	 * Affiliate constructor.
+	 */
 	private function __construct() {
 		if ( Jetpack::is_development_mode() ) {
 			return;
@@ -31,11 +39,11 @@ class Jetpack_Affiliate {
 	 *
 	 * @since 6.9.0
 	 *
-	 * @return Jetpack_Affiliate | false
+	 * @return Affiliate | false
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Affiliate;
+			self::$instance = new Affiliate();
 		}
 		return self::$instance;
 	}
@@ -68,11 +76,13 @@ class Jetpack_Affiliate {
 	 * @return string The passed URL with the code added.
 	 */
 	public function add_code_as_query_arg( $url ) {
-		if ( '' !== ( $aff = $this->get_affiliate_code() ) ) {
+		$aff = $this->get_affiliate_code();
+		if ( '' !== $aff ) {
 			$url = add_query_arg( 'aff', $aff, $url );
 		}
 		return $url;
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Affiliate', 'init' ) );
+add_action( 'init', array( 'Automattic\Jetpack\Partners\Affiliate', 'init' ) );
+

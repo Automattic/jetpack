@@ -11,6 +11,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Partners\Affiliate as Affiliate;
 
 /*
 Options:
@@ -4561,12 +4562,8 @@ p {
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
-		// Ensure that class to get the affiliate code is loaded
-		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-		}
 		// Get affiliate code and add it to the URL
-		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
+		$url = Affiliate::init()->add_code_as_query_arg( $url );
 
 		$calypso_env = $this->get_calypso_env();
 

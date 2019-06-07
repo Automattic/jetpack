@@ -9,7 +9,8 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-tracking": "@dev"
+		"automattic/jetpack-tracking": "@dev",
+		"automattic/jetpack-affiliate": "@dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
