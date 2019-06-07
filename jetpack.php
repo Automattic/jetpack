@@ -47,6 +47,9 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 	. '-----END PUBLIC KEY-----' . "\r\n"
 );
 
+// These constants can be set in wp-config.php to ensure sites behind proxies will still work.
+// Setting these constants, though, is *not* the preferred method. It's better to configure
+// the proxy to send the X-Forwarded-Port header.
 defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
