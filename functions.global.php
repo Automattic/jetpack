@@ -137,7 +137,7 @@ function jetpack_render_tos_blurb() {
  *
  * @since 5.3
  *
- * @param bool   $preempt Whether to preempt an HTTP request's return value. Default false.
+ * @param bool   $preempt Whether to preempt an HTTP requests return value. Default false.
  * @param array  $r       HTTP request arguments.
  * @param string $url     The request URL.
  *
