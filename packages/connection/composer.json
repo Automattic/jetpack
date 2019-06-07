@@ -16,7 +16,7 @@
 			"Automattic\\Jetpack\\Connection\\": "src"
 		},
 		"classmap": [
-			"/legacy"
+			"legacy"
 		]
 	},
 	"scripts": {

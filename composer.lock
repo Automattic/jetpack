@@ -34,7 +34,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "d4e75faa7f22c0c940a07728b4388fcfcaeb376d"
+                "reference": "0a0e293d73c17d59376590d56e5667b169d26877"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -50,7 +50,7 @@
                     "Automattic\\Jetpack\\Connection\\": "src"
                 },
                 "classmap": [
-                    "/legacy"
+                    "legacy"
                 ]
             },
             "scripts": {
