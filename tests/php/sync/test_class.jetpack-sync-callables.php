@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 require_once 'test_class.jetpack-sync-base.php';
 

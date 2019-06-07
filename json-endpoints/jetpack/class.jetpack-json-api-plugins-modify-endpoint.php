@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(

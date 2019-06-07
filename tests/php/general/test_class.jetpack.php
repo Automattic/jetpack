@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {

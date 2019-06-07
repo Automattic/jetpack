@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 /*
  * Utility functions to generate data synced to wpcom

@@ -5,7 +5,7 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 /**
  * Class Jetpack_Debug_Data

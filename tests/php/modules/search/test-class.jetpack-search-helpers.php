@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
 require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );

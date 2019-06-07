@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
 
 class Test_Manager extends TestCase {

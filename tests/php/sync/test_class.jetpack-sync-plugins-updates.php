@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 if ( ! class_exists( 'WP_Test_Jetpack_Sync_Plugins' ) ) {
 	$sync_dir        = dirname( __FILE__ );

@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Manager_Interface;
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com

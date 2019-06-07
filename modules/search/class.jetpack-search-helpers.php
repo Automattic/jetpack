@@ -7,7 +7,7 @@
  * @since      5.8.0
  */
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.

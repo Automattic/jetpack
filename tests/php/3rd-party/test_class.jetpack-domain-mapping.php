@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/domain-mapping.php';
 

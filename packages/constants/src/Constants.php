@@ -5,7 +5,7 @@
  * @package jetpack-constants
  */
 
-namespace Automattic\Jetpack\Constants;
+namespace Automattic\Jetpack;
 
 /**
  * Class Automattic\Jetpack\Constants

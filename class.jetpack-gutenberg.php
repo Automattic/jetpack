@@ -6,7 +6,7 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 /**
  * Wrapper function to safely register a gutenberg block type

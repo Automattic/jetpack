@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 

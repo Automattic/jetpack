@@ -18,7 +18,7 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Constants\Constants;
+use Automattic\Jetpack\Constants;
 
 // Keep compatibility with the PollDaddy plugin.
 if (

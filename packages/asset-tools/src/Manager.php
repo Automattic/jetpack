@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Asset_Tools;
 
-use Automattic\Jetpack\Constants\Constants as Jetpack_Constants;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 class Manager {
 	/**
