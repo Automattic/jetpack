@@ -5203,8 +5203,6 @@ p {
 			return false;
 		}
 
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
-
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
 			$post_data   = $_POST;
@@ -5814,8 +5812,6 @@ p {
 	 * @param null|array $environment
 	 */
 	function verify_json_api_authorization_request( $environment = null ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
-
 		$environment = is_null( $environment )
 			? $_REQUEST
 			: $environment;

@@ -54,8 +54,6 @@ class Jetpack_Client {
 
 		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
 
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
-
 		$time_diff = (int) Jetpack_Options::get_option( 'time_diff' );
 		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
 
@@ -89,7 +87,7 @@ class Jetpack_Client {
 				return new Jetpack_Error( 'invalid_body', 'Body is malformed.' );
 			}
 
-			$body_hash = jetpack_sha1_base64( $body_to_hash );
+			$body_hash = Jetpack::connection()->jetpack_sha1_base64( $body_to_hash );
 		}
 
 		$auth = array(

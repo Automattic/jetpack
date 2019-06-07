@@ -21,6 +21,11 @@ class Manager implements Manager_Interface {
 	const SECRETS_OPTION_NAME    = 'jetpack_secrets';
 	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
 	const JETPACK_MASTER_USER    = true;
+	// These constants can be set in wp-config.php to ensure sites behind proxies will still work.
+	// Setting these constants, though, is *not* the preferred method.
+	// It's better to configure the proxy to send the X-Forwarded-Port header.
+	const JETPACK_SIGNATURE__HTTP_PORT  = 80;
+	const JETPACK_SIGNATURE__HTTPS_PORT = 443;
 
 	/**
 	 * The procedure that should be run to generate secrets.
@@ -264,6 +269,14 @@ class Manager implements Manager_Interface {
 	 */
 	public function disconnect_site() {
 
+	}
+
+	/**
+	 * @param $text
+	 * @return string
+	 */
+	function jetpack_sha1_base64( $text ) {
+		return base64_encode( sha1( $text, true ) );
 	}
 
 	/**

@@ -1,10 +1,6 @@
 <?php
 
-// These constants can be set in wp-config.php to ensure sites behind proxies will still work.
-// Setting these constants, though, is *not* the preferred method. It's better to configure
-// the proxy to send the X-Forwarded-Port header.
-defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
-defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
+use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 class Jetpack_Signature {
 	public $token;
@@ -36,6 +32,7 @@ class Jetpack_Signature {
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
 
+		$connection = new Connection_Manager();
 		/**
 		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
 		 * Please update the test if any changes are made in this logic.
@@ -50,14 +47,14 @@ class Jetpack_Signature {
 			//                                if the site is behind a proxy running on port 443 without
 			//                                X-Forwarded-Port and the back end's port is *not* 80. It's better,
 			//                                though, to configure the proxy to send X-Forwarded-Port.
-			$port = in_array( $host_port, array( 443, 80, JETPACK_SIGNATURE__HTTPS_PORT ) ) ? '' : $host_port;
+			$port = in_array( $host_port, array( 443, 80, $connection::JETPACK_SIGNATURE__HTTPS_PORT ) ) ? '' : $host_port;
 		} else {
 			// 80: Standard Port
 			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
 			//                                if the site is behind a proxy running on port 80 without
 			//                                X-Forwarded-Port. It's better, though, to configure the proxy to
 			//                                send X-Forwarded-Port.
-			$port = in_array( $host_port, array( 80, JETPACK_SIGNATURE__HTTP_PORT ) ) ? '' : $host_port;
+			$port = in_array( $host_port, array( 80, $connection::JETPACK_SIGNATURE__HTTP_PORT ) ) ? '' : $host_port;
 		}
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
@@ -155,7 +152,8 @@ class Jetpack_Signature {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
 		} else {
-			if ( $verify_body_hash && jetpack_sha1_base64( $body ) !== $body_hash ) {
+			$connection = new Connection_Manager();
+			if ( $verify_body_hash && $connection->jetpack_sha1_base64( $body ) !== $body_hash ) {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
 		}
@@ -259,8 +257,4 @@ class Jetpack_Signature {
 		}
 		return "{$name}={$value}";
 	}
-}
-
-function jetpack_sha1_base64( $text ) {
-	return base64_encode( sha1( $text, true ) );
 }
