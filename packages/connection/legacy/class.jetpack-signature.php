@@ -48,9 +48,7 @@ class Jetpack_Signature {
 			// if the site is behind a proxy running on port 443 without
 			// X-Forwarded-Port and the back end's port is *not* 80. It's better,
 			// though, to configure the proxy to send X-Forwarded-Port.
-			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ?
-				JETPACK_SIGNATURE__HTTPS_PORT :
-				$connection::JETPACK_SIGNATURE__HTTPS_PORT;
+			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? JETPACK_SIGNATURE__HTTPS_PORT : 443;
 			$port       = in_array( $host_port, array( 443, 80, $https_port ) ) ? '' : $host_port;
 		} else {
 			// 80: Standard Port
@@ -58,9 +56,7 @@ class Jetpack_Signature {
 			// if the site is behind a proxy running on port 80 without
 			// X-Forwarded-Port. It's better, though, to configure the proxy to
 			// send X-Forwarded-Port.
-			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ?
-				JETPACK_SIGNATURE__HTTP_PORT :
-				$connection::JETPACK_SIGNATURE__HTTP_PORT;
+			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? JETPACK_SIGNATURE__HTTP_PORT : 80;
 			$port      = in_array( $host_port, array( 80, $http_port ) ) ? '' : $host_port;
 		}
 
