@@ -1,4 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
+
 /**
  * Handles fetching of the site's plan from WordPress.com and caching the value locally.
  *
