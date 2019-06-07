@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(
@@ -294,7 +294,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function update() {
 		$query_args = $this->query_args();
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
-			Constants_Manager::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		}
 		wp_clean_plugins_cache();
 		ob_start();

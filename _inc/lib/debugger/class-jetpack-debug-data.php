@@ -5,7 +5,7 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 /**
  * Class Jetpack_Debug_Data
@@ -318,8 +318,8 @@ class Jetpack_Debug_Data {
 		$idc_urls = array(
 			'home'       => Jetpack_Sync_Functions::home_url(),
 			'siteurl'    => Jetpack_Sync_Functions::site_url(),
-			'WP_HOME'    => Constants_Manager::is_defined( 'WP_HOME' ) ? Constants_Manager::get_constant( 'WP_HOME' ) : '',
-			'WP_SITEURL' => Constants_Manager::is_defined( 'WP_SITEURL' ) ? Constants_Manager::get_constant( 'WP_SITEURL' ) : '',
+			'WP_HOME'    => Constants::is_defined( 'WP_HOME' ) ? Constants::get_constant( 'WP_HOME' ) : '',
+			'WP_SITEURL' => Constants::is_defined( 'WP_SITEURL' ) ? Constants::get_constant( 'WP_SITEURL' ) : '',
 		);
 
 		$debug_info['idc_urls']         = array(

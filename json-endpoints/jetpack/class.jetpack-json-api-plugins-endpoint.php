@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 /**
  * Base class for working with plugins.
@@ -207,12 +207,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$reasons_can_not_modify_files['has_no_file_system_write_access'] =  __( 'The file permissions on this host prevent editing files.', 'jetpack' );
 		}
 
-		$disallow_file_mods = Constants_Manager::get_constant('DISALLOW_FILE_MODS' );
+		$disallow_file_mods = Constants::get_constant('DISALLOW_FILE_MODS' );
 		if ( $disallow_file_mods ) {
 			$reasons_can_not_modify_files['disallow_file_mods'] =  __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
 		}
 
-		$automatic_updater_disabled = Constants_Manager::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+		$automatic_updater_disabled = Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
 		if ( $automatic_updater_disabled ) {
 			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack' );
 		}

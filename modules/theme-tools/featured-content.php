@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
@@ -716,7 +716,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		return $request;
 	}
 
-	if ( Constants_Manager::is_true( 'IS_WPCOM' ) && Constants_Manager::is_true( 'REST_API_REQUEST' ) ) {
+	if ( Constants::is_true( 'IS_WPCOM' ) && Constants::is_true( 'REST_API_REQUEST' ) ) {
 		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks');
 	}
 

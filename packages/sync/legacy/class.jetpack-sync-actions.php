@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -77,7 +77,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function should_initialize_sender() {
-		if ( Constants_Manager::is_true( 'DOING_CRON' ) ) {
+		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
 

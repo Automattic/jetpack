@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 /**
  * Subscribers: Get subscriber count
@@ -43,7 +43,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 */
 	public function get_subscriber_count( $request ) {
 		// Get the most up to date subscriber count when request is not a test
-		if ( ! Constants_Manager::is_defined( 'TESTING_IN_JETPACK' ) ) {
+		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
 			delete_transient( 'wpcom_subscribers_total' );
 		}
 
@@ -58,7 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 
 if (
 	Jetpack::is_module_active( 'subscriptions' ) ||
-	( Constants_Manager::is_defined( 'TESTING_IN_JETPACK' ) && Constants_Manager::get_constant( 'TESTING_IN_JETPACK' ) )
+	( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) )
 ) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Subscribers' );
 }

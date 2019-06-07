@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 
@@ -36,7 +36,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		$query_args = $this->query_args();
 		if ( isset( $query_args['invite_accepted'] ) && $query_args['invite_accepted'] ) {
-			Constants_Manager::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+			Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
 		}
 
 		if ( ! $user ) {

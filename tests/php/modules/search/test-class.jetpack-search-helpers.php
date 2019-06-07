@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
 require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		unset( $GLOBALS['wp_customize'] );
 
-		Constants_Manager::clear_constants();
+		Constants::clear_constants();
 		remove_all_filters( 'jetpack_search_has_vip_index' );
 	}
 
@@ -409,7 +409,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_site_has_vip_index( $expected, $constant = null, $filter = false ) {
 		if ( ! is_null( $constant ) ) {
-			Constants_Manager::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
+			Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
 		}
 
 		if ( $filter ) {
@@ -423,7 +423,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 * @dataProvider get_max_posts_per_page_data
 	 */
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
-		Constants_Manager::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
+		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_max_posts_per_page() );
 	}
 
@@ -431,7 +431,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 * @dataProvider get_max_offset_data
 	 */
 	public function test_get_max_offset( $expected, $has_vip_index ) {
-		Constants_Manager::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
+		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_max_offset() );
 	}
 

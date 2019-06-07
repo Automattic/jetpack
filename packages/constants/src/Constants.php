@@ -8,21 +8,21 @@
 namespace Automattic\Jetpack\Constants;
 
 /**
- * Class Automattic\Jetpack\Constants\Manager
+ * Class Automattic\Jetpack\Constants
  *
  * Testing constants is hard. Once you define a constant, it's defined. Constants Manager is an
  * abstraction layer so that unit tests can set "constants" for tests.
  *
- * To test your code, you'll need to swap out `defined( 'CONSTANT' )` with `Automattic\Jetpack\Constants\Manager::is_defined( 'CONSTANT' )`
- * and replace `CONSTANT` with `Automattic\Jetpack\Constants\Manager::get_constant( 'CONSTANT' )`. Then in the unit test, you can set the
- * constant with `Automattic\Jetpack\Constants\Manager::set_constant( 'CONSTANT', $value )` and then clean up after each test with something like
+ * To test your code, you'll need to swap out `defined( 'CONSTANT' )` with `Automattic\Jetpack\Constants::is_defined( 'CONSTANT' )`
+ * and replace `CONSTANT` with `Automattic\Jetpack\Constants::get_constant( 'CONSTANT' )`. Then in the unit test, you can set the
+ * constant with `Automattic\Jetpack\Constants::set_constant( 'CONSTANT', $value )` and then clean up after each test with something like
  * this:
  *
  * function tearDown() {
- *     Automattic\Jetpack\Constants\Manager::clear_constants();
+ *     Automattic\Jetpack\Constants::clear_constants();
  * }
  */
-class Manager {
+class Constants {
 	/**
 	 * A container for all defined constants.
 	 *
@@ -32,6 +32,18 @@ class Manager {
 	 * @var array.
 	 */
 	public static $set_constants = array();
+
+	/**
+	 * Checks if a "constant" has been set in constants Manager
+	 * and has the value of true
+	 *
+	 * @param string $name The name of the constant.
+	 *
+	 * @return bool
+	 */
+	public static function is_true( $name ) {
+		return self::is_defined( $name ) && self::get_constant( $name );
+	}
 
 	/**
 	 * Checks if a "constant" has been set in constants Manager, and if not,
@@ -45,17 +57,6 @@ class Manager {
 		return array_key_exists( $name, self::$set_constants )
 			? true
 			: defined( $name );
-	}
-	/**
-	 * Checks if a "constant" has been set in constants Manager
-	 * and has the value of true
-	 *
-	 * @param string $name The name of the constant.
-	 *
-	 * @return bool
-	 */
-	public static function is_true( $name ) {
-		return self::is_defined( $name ) && self::get_constant( $name );
 	}
 
 	/**
@@ -77,7 +78,7 @@ class Manager {
 	/**
 	 * Sets the value of the "constant" within constants Manager.
 	 *
-	 * @param string $name  The name of the constant.
+	 * @param string $name The name of the constant.
 	 * @param string $value The value of the constant.
 	 */
 	public static function set_constant( $name, $value ) {
@@ -97,6 +98,7 @@ class Manager {
 		}
 
 		unset( self::$set_constants[ $name ] );
+
 		return true;
 	}
 
@@ -107,4 +109,3 @@ class Manager {
 		self::$set_constants = array();
 	}
 }
-

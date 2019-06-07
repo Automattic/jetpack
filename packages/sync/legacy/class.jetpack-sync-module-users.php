@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
@@ -174,7 +174,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	 * @param String  $user_login the user login.
 	 * @param WP_User $user       the user object.
 	 */
-	 function wp_login_handler( $user_login, $user ) {
+	function wp_login_handler( $user_login, $user ) {
 		/**
 		 * Fires when a user is logged into a site.
 		 *
@@ -220,8 +220,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		$this->add_flags(
 			$user->ID,
 			array(
-				'warning'          => 'The password failed at least one strength test.',
-				'failures'         => $test_results['test_results']['failed'],
+				'warning'  => 'The password failed at least one strength test.',
+				'failures' => $test_results['test_results']['failed'],
 			)
 		);
 
@@ -248,7 +248,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( Constants_Manager::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+		if ( Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
@@ -269,7 +269,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( Constants_Manager::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+		if ( Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
@@ -434,14 +434,17 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		list( $user_ids, $previous_end ) = $args;
 
 		return array(
-			'users' => array_map( array( $this, 'sanitize_user_and_expand' ), get_users(
-				array(
-					'include' => $user_ids,
-					'orderby' => 'ID',
-					'order' => 'DESC'
+			'users'        => array_map(
+				array( $this, 'sanitize_user_and_expand' ),
+				get_users(
+					array(
+						'include' => $user_ids,
+						'orderby' => 'ID',
+						'order'   => 'DESC',
+					)
 				)
-			) ),
-			'previous_end' => $previous_end
+			),
+			'previous_end' => $previous_end,
 		);
 	}
 

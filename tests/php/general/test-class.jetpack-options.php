@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants\Constants;
 
 class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 
 	function test_raw_option_with_constant_does_not_by_pass_wp_cache_filters() {
-		Constants_Manager::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true);
+		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true);
 		$option_name = 'test_option_with_constant';
 		add_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		add_filter( 'option_' . $option_name, array( $this, 'get_test_option_from_cache' ) );
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 		remove_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		remove_filter( 'option_'. $option_name, array( $this, 'get_test_option_from_cache' ) );
-		Constants_Manager::clear_single_constant( 'JETPACK_DISABLE_RAW_OPTIONS' );
+		Constants::clear_single_constant( 'JETPACK_DISABLE_RAW_OPTIONS' );
 	}
 
 	function test_raw_option_with_filter_does_not_by_pass_wp_cache_filters() {
