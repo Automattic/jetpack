@@ -25,7 +25,7 @@ function die_error( $message ) {
  * Converts GlotPress URL into a GlotPress API URL
  *
  * @param sring $url URL
- * @return sstring API URL
+ * @return sring API URL
  */
 function apize_url( $url ) {
 	if ( false !== strpos( $url, '/api' ) ) {
