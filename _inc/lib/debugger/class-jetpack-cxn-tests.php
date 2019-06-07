@@ -5,7 +5,6 @@
  * @package Jetpack
  */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
