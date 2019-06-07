@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants\Manager as Constants_Manager;
 use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
 
 /*
 Options:
