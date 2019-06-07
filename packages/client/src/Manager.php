@@ -35,7 +35,7 @@ class Manager {
 
 		$token = \Jetpack_Data::get_access_token( $args['user_id'] );
 		if ( ! $token ) {
-			return new Jetpack_Error( 'missing_token' );
+			return new \Jetpack_Error( 'missing_token' );
 		}
 
 		$method = strtoupper( $args['method'] );
@@ -51,7 +51,7 @@ class Manager {
 
 		@list( $token_key, $secret ) = explode( '.', $token->secret );
 		if ( empty( $token ) || empty( $secret ) ) {
-			return new Jetpack_Error( 'malformed_token' );
+			return new \Jetpack_Error( 'malformed_token' );
 		}
 
 		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
