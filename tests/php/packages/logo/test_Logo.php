@@ -3,18 +3,33 @@
 use Automattic\Jetpack\Assets\Logo;
 
 class WP_Test_Logo extends WP_UnitTestCase {
-
-	/**
-	 * Ensure the rendered logo has all the CSS classes needed for styling.
-	 */
 	function test_constructor_default_logo() {
 		$logo = new Logo();
-		$logo_render = $logo->render();
-		$this->assertContains( '<svg xmlns="http://www.w3.org/2000/svg"', $logo_render );
-		$this->assertContains( 'class="jetpack-logo"', $logo_render );
-		$this->assertContains( 'class="jetpack-logo__icon-circle"', $logo_render );
-		$this->assertEquals( 2, preg_match_all( '/class="jetpack-logo__icon-triangle"/', $logo_render ) );
-		$this->assertContains( 'class="jetpack-logo__text"', $logo_render );
+		$expected = home_url( '/wp-content/plugins/jetpack/packages/logo/assets/logo.svg' );
+		$this->assertContains( $expected, $logo->render() );
 	}
 
+	function test_constructor_custom_logo() {
+		$example_logo = 'https://wordpress.com/logo.png';
+		$logo = new Logo( $example_logo );
+		$this->assertContains( $example_logo, $logo->render() );
+	}
+
+	function test_render_img_tag() {
+		$logo = new Logo();
+		$output = $logo->render();
+		$url = home_url( '/wp-content/plugins/jetpack/packages/logo/assets/logo.svg' );
+
+		// Contains only a valid img tag.
+		$this->assertRegExp( '/^<img.*\/>$/', $output );
+
+		// Contains the expected src attribute.
+		$this->assertRegExp( '/.+src="' . preg_quote( $url, '/' ) . '".+/', $output );
+
+		// Contains the expected class attribute.
+		$this->assertRegExp( '/.+class="jetpack-logo".+/', $output );
+
+		// Contains an alt attribute.
+		$this->assertRegExp( '/.+alt="[^"]+".+/', $output );
+	}
 }
