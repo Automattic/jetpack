@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
@@ -31,7 +31,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -65,11 +65,11 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "8dd7ab7dfd00b73455dd9d5b61c7c1f825967993",
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95",
                 "shasum": null
             },
             "require-dev": {
@@ -78,7 +78,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Automattic\\Jetpack\\Constants\\": "src/"
+                    "Automattic\\Jetpack\\": "src/"
                 }
             },
             "scripts": {
@@ -94,7 +94,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -132,7 +132,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -162,7 +162,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -189,7 +189,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -213,7 +213,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -368,7 +368,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-dna-jitm-deps",
+            "version": "dev-update/bye-constants-manager",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",

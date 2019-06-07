@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * Class Jetpack_3rd_Party_Domain_Mapping
@@ -41,7 +41,7 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 * to try and hook a domain mapping plugin to the Jetpack sync filters for the home_url and site_url callables.
 	 */
 	function attempt_to_hook_domain_mapping_plugins() {
-		if ( ! Constants_Manager::is_defined( 'SUNRISE' ) ) {
+		if ( ! Constants::is_defined( 'SUNRISE' ) ) {
 			return;
 		}
 
@@ -60,7 +60,7 @@ class Jetpack_3rd_Party_Domain_Mapping {
 	 * @return bool
 	 */
 	function hook_wordpress_mu_domain_mapping() {
-		if ( ! Constants_Manager::is_defined( 'SUNRISE_LOADED' ) || ! $this->function_exists( 'domain_mapping_siteurl' ) ) {
+		if ( ! Constants::is_defined( 'SUNRISE_LOADED' ) || ! $this->function_exists( 'domain_mapping_siteurl' ) ) {
 			return false;
 		}
 

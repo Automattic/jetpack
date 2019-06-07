@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Manager_Interface;
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -436,8 +436,8 @@ class Manager implements Manager_Interface {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}
 
-			$defined_tokens = Constants_Manager::is_defined( 'JETPACK_BLOG_TOKEN' )
-				? explode( ',', Constants_Manager::get_constant( 'JETPACK_BLOG_TOKEN' ) )
+			$defined_tokens = Constants::is_defined( 'JETPACK_BLOG_TOKEN' )
+				? explode( ',', Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) )
 				: array();
 
 			foreach ( $defined_tokens as $defined_token ) {

@@ -9,7 +9,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Automattic\\Jetpack\\Constants\\": "src/"
+			"Automattic\\Jetpack\\": "src/"
 		}
 	},
 	"scripts": {

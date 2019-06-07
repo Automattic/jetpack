@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /*
  * Utility functions to generate data synced to wpcom
@@ -195,8 +195,8 @@ class Jetpack_Sync_Functions {
 			: 'site_url';
 
 		if (
-			! Constants_Manager::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
-			Constants_Manager::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
+			! Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
+			Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$scheme = is_ssl() ? 'https' : 'http';
 			$url    = self::get_raw_url( $url_type );
@@ -271,8 +271,8 @@ class Jetpack_Sync_Functions {
 
 		// Since we disregard the constant for multisites in ms-default-filters.php,
 		// let's also use the db value if this is a multisite.
-		if ( ! is_multisite() && Constants_Manager::is_defined( $constant ) ) {
-			$value = Constants_Manager::get_constant( $constant );
+		if ( ! is_multisite() && Constants::is_defined( $constant ) ) {
+			$value = Constants::get_constant( $constant );
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
 			// ensure that we get more uniform values.

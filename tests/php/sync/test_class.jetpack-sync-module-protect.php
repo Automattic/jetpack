@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * Test pluggable functionality for bruteprotect
@@ -28,9 +28,9 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 		$user_id = $this->factory->user->create();
 
 		$user = get_userdata( $user_id );
-		Constants_Manager::set_constant( 'XMLRPC_REQUEST', true ); // fake xmlrpc request
+		Constants::set_constant( 'XMLRPC_REQUEST', true ); // fake xmlrpc request
 		Jetpack_Protect_Module::instance()->log_failed_attempt( $user->user_email );
-		Constants_Manager::clear_single_constant( 'XMLRPC_REQUEST' );
+		Constants::clear_single_constant( 'XMLRPC_REQUEST' );
 		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_valid_failed_login_attempt' );

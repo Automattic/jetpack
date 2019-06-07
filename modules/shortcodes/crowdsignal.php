@@ -18,7 +18,7 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 // Keep compatibility with the PollDaddy plugin.
 if (
@@ -215,7 +215,7 @@ if (
 			);
 
 			$inline = ! in_the_loop()
-				&& ! Constants_Manager::is_defined( 'TESTING_IN_JETPACK' );
+				&& ! Constants::is_defined( 'TESTING_IN_JETPACK' );
 
 			$no_script       = false;
 			$infinite_scroll = false;

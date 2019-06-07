@@ -6,7 +6,7 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -222,7 +222,7 @@ class Jetpack_Gutenberg {
 		 * @param boolean
 		 */
 		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
-			Constants_Manager::set_constant( 'JETPACK_BETA_BLOCKS', true );
+			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
 		}
 
 		/**
@@ -320,7 +320,7 @@ class Jetpack_Gutenberg {
 
 		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array();
 
-		if ( Constants_Manager::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
 			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
 		}
@@ -550,7 +550,7 @@ class Jetpack_Gutenberg {
 		}
 
 		$rtl        = is_rtl() ? '.rtl' : '';
-		$beta       = Constants_Manager::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
+		$beta       = Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
 		$blocks_dir = self::get_blocks_directory();
 
 		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );

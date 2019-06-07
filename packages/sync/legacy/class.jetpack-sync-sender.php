@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * This class grabs pending actions from the queue and sends them
@@ -51,7 +51,7 @@ class Jetpack_Sync_Sender {
 	public function maybe_set_user_from_token() {
 		$jetpack       = Jetpack::init();
 		$verified_user = $jetpack->verify_xml_rpc_signature();
-		if ( Constants_Manager::is_true( 'XMLRPC_REQUEST' ) &&
+		if ( Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user
 		) {
@@ -202,7 +202,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		/* Don't make the request block till we finish, if possible. */
-		if ( Constants_Manager::is_true( 'REST_REQUEST' ) || Constants_Manager::is_true( 'XMLRPC_REQUEST' ) ) {
+		if ( Constants::is_true( 'REST_REQUEST' ) || Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			$this->fastcgi_finish_request();
 		}
 

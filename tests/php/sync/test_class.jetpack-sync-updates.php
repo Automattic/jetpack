@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 /**
  * Testing Updates Sync
@@ -247,11 +247,11 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		global $wp_version, $pagenow;
 
 		$this->assertFalse( $pagenow === 'update-core.php' );
-		Constants_Manager::set_constant( 'REST_API_REQUEST', true );
+		Constants::set_constant( 'REST_API_REQUEST', true );
 		Jetpack_Sync_Modules::get_module( "updates" )->update_core( 'new_version' );
 		$this->sender->do_sync();
 
-		Constants_Manager::clear_single_constant( 'REST_API_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		$autoupdate_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_autoupdated_successfully' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );

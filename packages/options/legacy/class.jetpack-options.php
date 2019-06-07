@@ -1,16 +1,17 @@
 <?php
 
-use Automattic\Jetpack\Constants\Manager as Constants_Manager;
+use Automattic\Jetpack\Constants;
 
 class Jetpack_Options {
 
 	/**
 	 * An array that maps a grouped option type to an option name.
+	 *
 	 * @var array
 	 */
 	private static $grouped_options = array(
 		'compact' => 'jetpack_options',
-		'private' => 'jetpack_private_options'
+		'private' => 'jetpack_private_options',
 	);
 
 	/**
@@ -22,59 +23,59 @@ class Jetpack_Options {
 	 */
 	public static function get_option_names( $type = 'compact' ) {
 		switch ( $type ) {
-		case 'non-compact' :
-		case 'non_compact' :
-			return array(
-				'activated',
-				'active_modules',
-				'allowed_xsite_search_ids', // (array) Array of WP.com blog ids that are allowed to search the content of this site
-				'available_modules',
-				'do_activate',
-				'edit_links_calypso_redirect', // (bool) Whether post/page edit links on front end should point to Calypso.
-				'log',
-				'slideshow_background_color',
-				'widget_twitter',
-				'wpcc_options',
-				'relatedposts',
-				'file_data',
-				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
-				'autoupdate_plugins_translations', // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated translation files.
-				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
-				'autoupdate_themes_translations', // (array)  An array of theme ids ( eg. twentyfourteen ) that should autoupdated translation files.
-				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
-				'autoupdate_translations',     // (bool)   Whether or not to autoupdate all translations
-				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
-				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
-				'site_icon_url',               // (string) url to the full site icon
-				'site_icon_id',                // (int)    Attachment id of the site icon file
-				'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
-				'restapi_stats_cache',         // (array) Stats Cache data.
-				'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
-				'protect_whitelist',           // (array) IP Address for the Protect module to ignore
-				'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
-				'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
-				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
-				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
-				'ab_connect_banner_green_bar', // (int) Version displayed of the A/B test for the green bar at the top of the connect banner.
-				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
-				'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
-				'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
-				'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
-				'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
-			);
+			case 'non-compact':
+			case 'non_compact':
+				return array(
+					'activated',
+					'active_modules',
+					'allowed_xsite_search_ids', // (array) Array of WP.com blog ids that are allowed to search the content of this site
+					'available_modules',
+					'do_activate',
+					'edit_links_calypso_redirect', // (bool) Whether post/page edit links on front end should point to Calypso.
+					'log',
+					'slideshow_background_color',
+					'widget_twitter',
+					'wpcc_options',
+					'relatedposts',
+					'file_data',
+					'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
+					'autoupdate_plugins_translations', // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated translation files.
+					'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
+					'autoupdate_themes_translations', // (array)  An array of theme ids ( eg. twentyfourteen ) that should autoupdated translation files.
+					'autoupdate_core',             // (bool)   Whether or not to autoupdate core
+					'autoupdate_translations',     // (bool)   Whether or not to autoupdate all translations
+					'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
+					'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
+					'site_icon_url',               // (string) url to the full site icon
+					'site_icon_id',                // (int)    Attachment id of the site icon file
+					'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
+					'restapi_stats_cache',         // (array) Stats Cache data.
+					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
+					'protect_whitelist',           // (array) IP Address for the Protect module to ignore
+					'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
+					'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
+					'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
+					'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
+					'ab_connect_banner_green_bar', // (int) Version displayed of the A/B test for the green bar at the top of the connect banner.
+					'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
+					'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
+					'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
+					'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
+					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
+				);
 
-		case 'private' :
-			return array(
-				'blog_token',  // (string) The Client Secret/Blog Token of this site.
-				'user_token',  // (string) The User Token of this site. (deprecated)
-				'user_tokens'  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
-			);
+			case 'private':
+				return array(
+					'blog_token',  // (string) The Client Secret/Blog Token of this site.
+					'user_token',  // (string) The User Token of this site. (deprecated)
+					'user_tokens',  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
+				);
 
-		case 'network' :
-			return array(
-				'onboarding',                   // (string) Auth token to be used in the onboarding connection flow
-				'file_data'                     // (array) List of absolute paths to all Jetpack modules
-			);
+			case 'network':
+				return array(
+					'onboarding',                   // (string) Auth token to be used in the onboarding connection flow
+					'file_data',                     // (array) List of absolute paths to all Jetpack modules
+				);
 		}
 
 		return array(
@@ -158,7 +159,7 @@ class Jetpack_Options {
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
-	 * @param mixed $default (optional)
+	 * @param mixed  $default (optional)
 	 *
 	 * @return mixed
 	 */
@@ -187,7 +188,7 @@ class Jetpack_Options {
 	 * This does _not_ adjust the prefix in any way (does not prefix jetpack_%)
 	 *
 	 * @param string $name Option name
-	 * @param mixed $default (optional)
+	 * @param mixed  $default (optional)
 	 *
 	 * @return mixed
 	 */
@@ -195,9 +196,9 @@ class Jetpack_Options {
 		// In this function the name is not adjusted by prefixing jetpack_
 		// so if it has already prefixed, we'll replace it and then
 		// check if the option name is a network option or not
-		$jetpack_name = preg_replace( '/^jetpack_/', '', $name, 1 );
+		$jetpack_name      = preg_replace( '/^jetpack_/', '', $name, 1 );
 		$is_network_option = self::is_network_option( $jetpack_name );
-		$value = $is_network_option ? get_site_option( $name ) : get_option( $name );
+		$value             = $is_network_option ? get_site_option( $name ) : get_option( $name );
 
 		if ( false === $value && false !== $default ) {
 			if ( $is_network_option ) {
@@ -225,7 +226,7 @@ class Jetpack_Options {
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
 	 *
 	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
-	 * @param mixed $value Option value
+	 * @param mixed  $value Option value
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 *
 	 * @return bool Was the option successfully updated?
@@ -301,7 +302,6 @@ class Jetpack_Options {
 			} else {
 				$result = delete_option( "jetpack_$name" );
 			}
-
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {
@@ -361,8 +361,8 @@ class Jetpack_Options {
 	 * Updates an option via $wpdb query.
 	 *
 	 * @param string $name Option name.
-	 * @param mixed $value Option value.
-	 * @param bool $autoload Specifying whether to autoload or not.
+	 * @param mixed  $value Option value.
+	 * @param bool   $autoload Specifying whether to autoload or not.
 	 *
 	 * @return bool Is the option updated?
 	 */
@@ -412,7 +412,7 @@ class Jetpack_Options {
 	 * @since 5.4.0
 	 *
 	 * @param string $name Option name.
-	 * @param mixed $default Default option value if option is not found.
+	 * @param mixed  $default Default option value if option is not found.
 	 *
 	 * @return mixed Option value, or null if option is not found and default is not specified.
 	 */
@@ -447,11 +447,12 @@ class Jetpack_Options {
 	 */
 	static function bypass_raw_option( $name ) {
 
-		if ( Constants_Manager::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
+		if ( Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
 			return true;
 		}
 		/**
 		 * Allows to disable particular raw options.
+		 *
 		 * @since 5.5.0
 		 *
 		 * @param array $disabled_raw_options An array of option names that you can selectively blacklist from being managed via direct database queries.
@@ -490,7 +491,7 @@ class Jetpack_Options {
 				'register',
 				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
 				'user_token',                  // (string) The User Token of this site. (deprecated)
-				'user_tokens'
+				'user_tokens',
 			);
 
 			// Remove the unsafe Jetpack options
@@ -575,7 +576,7 @@ class Jetpack_Options {
 
 		$options = array(
 			'jp_options' => $all_jp_options,
-			'wp_options' => $wp_options
+			'wp_options' => $wp_options,
 		);
 
 		return $options;
@@ -596,7 +597,7 @@ class Jetpack_Options {
 
 		// Delete all non-compact Jetpack options
 		foreach ( (array) self::get_option_names( 'non-compact' ) as $option_name ) {
-			Jetpack_Options::delete_option( $option_name );
+			self::delete_option( $option_name );
 		}
 
 		// Delete all options that can be reset via CLI, that aren't Jetpack options
