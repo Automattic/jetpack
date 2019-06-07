@@ -2,6 +2,8 @@
 
 defined( 'ABSPATH' ) or die( 'No direct access, please.' );
 
+use Automattic\Jetpack\Client\Manager as Jetpack_Client;
+
 require_once( ABSPATH . WPINC . '/class-IXR.php' );
 
 /**
