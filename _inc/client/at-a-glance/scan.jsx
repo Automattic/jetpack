@@ -165,6 +165,7 @@ class DashScan extends Component {
 					href={ UpgradeLink }
 					event="track_event" // TODO: change this event name
 					plan={ PLAN_JETPACK_PREMIUM }
+					icon="lock"
 				/>
 			);
 		return renderCard( {
