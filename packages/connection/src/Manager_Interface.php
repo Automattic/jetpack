@@ -112,6 +112,8 @@ interface Manager_Interface {
 	/**
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
+	 *
+	 * @param array $registration_data Array of [ secret_1, user_id ].
 	 */
 	public function handle_registration( $registration_data );
 

@@ -230,8 +230,10 @@ class Manager implements Manager_Interface {
 	/**
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
+	 *
+	 * @param array $registration_data Array of [ secret_1, user_id ].
 	 */
-	public function handle_registration( $registration_data ) {
+	public function handle_registration( array $registration_data ) {
 		list( $registration_secret_1, $registration_user_id ) = $registration_data;
 		if ( empty( $registration_user_id ) ) {
 			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack' ), 400 );
@@ -240,9 +242,16 @@ class Manager implements Manager_Interface {
 		return $this->verify_secrets( 'register', $registration_secret_1, (int) $registration_user_id );
 	}
 
+	/**
+	 * Verify a Previously Generated Secret.
+	 *
+	 * @param string $action   The type of secret to verify.
+	 * @param string $secret_1 The secret string to compare to what is stored.
+	 * @param int    $user_id  The user ID of the owner of the secret.
+	 */
 	protected function verify_secrets( $action, $secret_1, $user_id ) {
 		$allowed_actions = array( 'register', 'authorize', 'publicize' );
-		if ( ! in_array( $action, $allowed_actions ) ) {
+		if ( ! in_array( $action, $allowed_actions, true ) ) {
 			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
 		}
 
@@ -270,6 +279,7 @@ class Manager implements Manager_Interface {
 			return $return_error(
 				new \WP_Error(
 					'verify_secret_1_missing',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'secret_1' ),
 					400
 				)
@@ -278,6 +288,7 @@ class Manager implements Manager_Interface {
 			return $return_error(
 				new \WP_Error(
 					'verify_secret_1_malformed',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'secret_1' ),
 					400
 				)
@@ -287,6 +298,7 @@ class Manager implements Manager_Interface {
 			return $return_error(
 				new \WP_Error(
 					'state_missing',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'state' ),
 					400
 				)
@@ -295,6 +307,7 @@ class Manager implements Manager_Interface {
 			return $return_error(
 				new \WP_Error(
 					'verify_secret_1_malformed',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
 					400
 				)
@@ -368,11 +381,13 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * @param $text
+	 * The Base64 Encoding of the SHA1 Hash of the Input.
+	 *
+	 * @param string $text The string to hash.
 	 * @return string
 	 */
-	function sha1_base64( $text ) {
-		return base64_encode( sha1( $text, true ) );
+	public function sha1_base64( $text ) {
+		return base64_encode( sha1( $text, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
 
 	/**
@@ -535,7 +550,7 @@ class Manager implements Manager_Interface {
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
 				return false;
 			}
-			if ( $user_id != $user_token_chunks[2] ) {
+			if ( $user_token_chunks[2] !== (string) $user_id ) {
 				return false;
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";

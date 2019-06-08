@@ -1,19 +1,40 @@
 <?php
 /**
+ * Sets up the Connection XML-RPC methods.
+ *
  * @package jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
 
+/**
+ * Registers the XML-RPC methods for Connections.
+ */
 class XMLRPC_Connector {
+	/**
+	 * The Connection Manager.
+	 *
+	 * @var Manager
+	 */
 	private $connection;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param Manager $connection The Connection Manager.
+	 */
 	public function __construct( Manager $connection ) {
 		$this->connection = $connection;
 
 		add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 	}
 
+	/**
+	 * Attached to the `xmlrpc_methods` filter.
+	 *
+	 * @param array $methods The already registered XML-RPC methods.
+	 * @return array
+	 */
 	public function xmlrpc_methods( $methods ) {
 		return array_merge(
 			$methods,
@@ -23,10 +44,23 @@ class XMLRPC_Connector {
 		);
 	}
 
+	/**
+	 * Handles verification that a site is registered.
+	 *
+	 * @param array $registration_data The data sent by the XML-RPC client:
+	 *                                 [ $secret_1, $user_id ].
+	 *
+	 * @return string|IXR_Error
+	 */
 	public function verify_registration( $registration_data ) {
 		return $this->output( $this->connection->handle_registration( $registration_data ) );
 	}
 
+	/**
+	 * Normalizes output for XML-RPC.
+	 *
+	 * @param mixed $data The data to output.
+	 */
 	private function output( $data ) {
 		if ( is_wp_error( $data ) ) {
 			$code = $data->get_error_data();
