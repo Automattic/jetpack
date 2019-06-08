@@ -26,6 +26,8 @@ jetpack_do_activate (bool)
 */
 
 use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use \Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
+use \Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
@@ -598,6 +600,8 @@ class Jetpack {
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
 				}
 			} else {
+				new XMLRPC_Connector( $this->connection_manager );
+
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
 				$signed = $this->verify_xml_rpc_signature();
@@ -622,6 +626,8 @@ class Jetpack {
 			if ( Jetpack::is_active() ) {
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
+			} else {
+				add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
 			}
 		}
 
@@ -726,6 +732,10 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+	}
+
+	function initialize_rest_api_registration_connector() {
+		new REST_Connector( $this->connection_manager );
 	}
 
 	/**

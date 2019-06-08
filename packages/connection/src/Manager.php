@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -230,8 +231,108 @@ class Manager implements Manager_Interface {
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
 	 */
-	public function handle_registration() {
+	public function handle_registration( $registration_data ) {
+		list( $registration_secret_1, $registration_user_id ) = $registration_data;
+		if ( empty( $registration_user_id ) ) {
+			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack' ), 400 );
+		}
 
+		return $this->verify_secrets( 'register', $registration_secret_1, (int) $registration_user_id );
+	}
+
+	protected function verify_secrets( $action, $secret_1, $user_id ) {
+		$allowed_actions = array( 'register', 'authorize', 'publicize' );
+		if ( ! in_array( $action, $allowed_actions ) ) {
+			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
+		}
+
+		$user = get_user_by( 'id', $user_id );
+
+		JetpackTracking::record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+
+		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
+			JetpackTracking::record_user_event(
+				"jpc_verify_{$action}_fail",
+				array(
+					'error_code'    => $error->get_error_code(),
+					'error_message' => $error->get_error_message(),
+				),
+				$user
+			);
+
+			return $error;
+		};
+
+		$stored_secrets = $this->get_secrets( $action, $user_id );
+		$this->delete_secrets( $action, $user_id );
+
+		if ( empty( $secret_1 ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secret_1_missing',
+					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'secret_1' ),
+					400
+				)
+			);
+		} elseif ( ! is_string( $secret_1 ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secret_1_malformed',
+					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'secret_1' ),
+					400
+				)
+			);
+		} elseif ( empty( $user_id ) ) {
+			// $user_id is passed around during registration as "state".
+			return $return_error(
+				new \WP_Error(
+					'state_missing',
+					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'state' ),
+					400
+				)
+			);
+		} elseif ( ! ctype_digit( (string) $user_id ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secret_1_malformed',
+					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
+					400
+				)
+			);
+		}
+
+		if ( ! $stored_secrets ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_missing',
+					__( 'Verification secrets not found', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( is_wp_error( $stored_secrets ) ) {
+			$stored_secrets->add_data( 400 );
+			return $return_error( $stored_secrets );
+		} elseif ( empty( $stored_secrets['secret_1'] ) || empty( $stored_secrets['secret_2'] ) || empty( $stored_secrets['exp'] ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_incomplete',
+					__( 'Verification secrets are incomplete', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( ! hash_equals( $secret_1, $stored_secrets['secret_1'] ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_mismatch',
+					__( 'Secret mismatch', 'jetpack' ),
+					400
+				)
+			);
+		}
+
+		JetpackTracking::record_user_event( "jpc_verify_{$action}_success", array(), $user );
+
+		return $stored_secrets['secret_2'];
 	}
 
 	/**
@@ -285,7 +386,7 @@ class Manager implements Manager_Interface {
 
 		// If it's empty, just fail out.
 		if ( ! $domain ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_domain_empty',
 				/* translators: %1$s is a domain name. */
 				sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain )
@@ -317,7 +418,7 @@ class Manager implements Manager_Interface {
 			'build.wordpress-develop.test', // VVV pattern.
 		);
 		if ( in_array( $domain, $forbidden_domains, true ) ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_domain_forbidden',
 				sprintf(
 					/* translators: %1$s is a domain name. */
@@ -332,7 +433,7 @@ class Manager implements Manager_Interface {
 
 		// No .test or .local domains.
 		if ( preg_match( '#\.(test|local)$#i', $domain ) ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_domain_tld',
 				sprintf(
 					/* translators: %1$s is a domain name. */
@@ -347,7 +448,7 @@ class Manager implements Manager_Interface {
 
 		// No WPCOM subdomains.
 		if ( preg_match( '#\.WordPress\.com$#i', $domain ) ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_subdomain_wpcom',
 				sprintf(
 					/* translators: %1$s is a domain name. */

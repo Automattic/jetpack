@@ -113,7 +113,7 @@ interface Manager_Interface {
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
 	 */
-	public function handle_registration();
+	public function handle_registration( $registration_data );
 
 	/**
 	 * Responds to a WordPress.com call to authorize the current user.
