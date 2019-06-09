@@ -115,7 +115,7 @@ interface Manager_Interface {
 	 *
 	 * @param array $registration_data Array of [ secret_1, user_id ].
 	 */
-	public function handle_registration( $registration_data );
+	public function handle_registration( array $registration_data );
 
 	/**
 	 * Responds to a WordPress.com call to authorize the current user.
