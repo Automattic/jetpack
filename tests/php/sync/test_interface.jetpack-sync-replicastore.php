@@ -990,13 +990,15 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		$store->update_object_terms( $replica_post->ID, $taxonomy, array( 22 ), true );
 
-		$terms = $store->get_the_terms( $replica_post->ID, $taxonomy );
+		$terms            = get_the_terms( $replica_post->ID, $taxonomy );
+		$replicator_terms = $store->get_the_terms( $replica_post->ID, $taxonomy );
 
 		$this->assertEquals( 1, $terms[0]->count );
 		$this->assertEquals( 22, $terms[0]->term_id );
 		$this->assertEquals( 22, $terms[0]->term_taxonomy_id );
 		$this->assertEquals( 'female', $terms[0]->slug );
 		$this->assertEquals( 'Female', $terms[0]->name );
+		$this->assertEquals( $terms, $replicator_terms );
 	}
 
 	/**

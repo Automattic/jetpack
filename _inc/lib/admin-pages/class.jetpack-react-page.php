@@ -1,6 +1,5 @@
 <?php
 include_once( 'class.jetpack-admin-page.php' );
-require_once( JETPACK__PLUGIN_DIR . '/_inc/lib/tracks/class.tracks-client.php' );
 
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {

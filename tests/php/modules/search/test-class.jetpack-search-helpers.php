@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Constants;
-
 require_jetpack_file( 'modules/search/class.jetpack-search.php' );
 require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
 
@@ -51,7 +49,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		unset( $GLOBALS['wp_customize'] );
 
-		Constants::clear_constants();
+		Jetpack_Constants::clear_constants();
 		remove_all_filters( 'jetpack_search_has_vip_index' );
 	}
 
@@ -409,7 +407,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_site_has_vip_index( $expected, $constant = null, $filter = false ) {
 		if ( ! is_null( $constant ) ) {
-			Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
+			Jetpack_Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
 		}
 
 		if ( $filter ) {
@@ -423,7 +421,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 * @dataProvider get_max_posts_per_page_data
 	 */
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
-		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
+		Jetpack_Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_max_posts_per_page() );
 	}
 
@@ -431,7 +429,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	 * @dataProvider get_max_offset_data
 	 */
 	public function test_get_max_offset( $expected, $has_vip_index ) {
-		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
+		Jetpack_Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Jetpack_Search_Helpers::get_max_offset() );
 	}
 

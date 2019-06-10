@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Logo as Jetpack_Logo;
-
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
  *
@@ -314,7 +312,7 @@ class Jetpack_IDC {
 	function render_notice_header() { ?>
 		<div class="jp-idc-notice__header">
 			<div class="jp-idc-notice__header__emblem">
-				<?php $jetpack_logo = new Jetpack_Logo(); echo $jetpack_logo->get_jp_emblem(); ?>
+				<?php echo Jetpack::get_jp_emblem(); ?>
 			</div>
 			<p class="jp-idc-notice__header__text">
 				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>
