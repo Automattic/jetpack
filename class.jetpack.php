@@ -29,6 +29,7 @@ use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
+require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -689,7 +690,8 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
+		add_filter( 'jetpack_just_in_time_msgs', array( $this, 'is_active_and_not_development_mode' ), 9 );
+
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
 		// If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
@@ -7103,5 +7105,12 @@ p {
 				delete_user_meta( $user_id, $meta_key );
 			}
 		}
+	}
+
+	function is_active_and_not_development_mode( $maybe ) {
+		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
+			return false;
+		}
+		return true;
 	}
 }

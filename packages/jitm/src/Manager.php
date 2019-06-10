@@ -16,17 +16,7 @@ class Manager {
 
 	const PACKAGE_VERSION = '1.0';
 
-	/**
-	 * @var Jetpack_JITM
-	 **/
-	private static $instance = null;
-
-	/**
-	 * Initializes the class, or returns the singleton
-	 *
-	 * @return Manager | false
-	 */
-	static function init() {
+	public function register() {
 		/**
 		 * Filter to turn off all just in time messages
 		 *
@@ -38,25 +28,8 @@ class Manager {
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
 			return false;
 		}
-
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new Manager();
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Jetpack_JITM constructor.
-	 */
-	public function __construct() {
-		/*
-		$jetpack_connection = new Jetpack_Connection();
-		if ( ! $jetpack_connection->is_active() || $jetpack_connection->is_development_mode() ) {
-			return;
-		}
-		*/
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+		return true;
 	}
 
 	/**
