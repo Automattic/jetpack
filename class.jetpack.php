@@ -689,7 +689,13 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
+		add_filter( 'jetpack_just_in_time_msgs', function( $display ) {
+			if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
+				return false;
+			}
+            return true;
+		}, 9 );
+
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
 		// If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.

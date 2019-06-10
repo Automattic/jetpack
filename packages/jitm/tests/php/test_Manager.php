@@ -26,7 +26,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, false ),
 		) );
 
-		$this->assertFalse( Jetpack_JITM::init() );
+		$this->assertFalse( new Jetpack_JITM() );
 
 		$this->clear_mock_filters();
 	}
@@ -36,7 +36,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, true ),
 		) );
 
-		$this->assertTrue( ! ! Jetpack_JITM::init() );
+		$this->assertTrue( ! ! new Jetpack_JITM() );
 
 		$this->clear_mock_filters();
 	}
