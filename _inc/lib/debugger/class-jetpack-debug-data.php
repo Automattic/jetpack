@@ -5,6 +5,8 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Class Jetpack_Debug_Data
  *
@@ -266,13 +268,6 @@ class Jetpack_Debug_Data {
 		);
 
 		/** Sync Debug Information */
-		/** Load Sync modules */
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
-		/** Load Sync sender */
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-		/** Load Sync functions */
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-
 		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
 		if ( $sync_module ) {
 			$sync_statuses              = $sync_module->get_status();
@@ -323,8 +318,8 @@ class Jetpack_Debug_Data {
 		$idc_urls = array(
 			'home'       => Jetpack_Sync_Functions::home_url(),
 			'siteurl'    => Jetpack_Sync_Functions::site_url(),
-			'WP_HOME'    => Jetpack_Constants::is_defined( 'WP_HOME' ) ? Jetpack_Constants::get_constant( 'WP_HOME' ) : '',
-			'WP_SITEURL' => Jetpack_Constants::is_defined( 'WP_SITEURL' ) ? Jetpack_Constants::get_constant( 'WP_SITEURL' ) : '',
+			'WP_HOME'    => Constants::is_defined( 'WP_HOME' ) ? Constants::get_constant( 'WP_HOME' ) : '',
+			'WP_SITEURL' => Constants::is_defined( 'WP_SITEURL' ) ? Constants::get_constant( 'WP_SITEURL' ) : '',
 		);
 
 		$debug_info['idc_urls']         = array(

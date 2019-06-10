@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
+use Automattic\Jetpack\Constants;
 
 require_once 'test_class.jetpack-sync-base.php';
 
@@ -654,8 +654,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_get_raw_url_by_constant_bypasses_filters() {
-		Jetpack_Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
-		Jetpack_Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
+		Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
+		Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
@@ -669,7 +669,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 	}
 
 	function test_get_raw_url_returns_with_http_if_is_ssl() {
@@ -688,7 +688,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_raw_home_url_is_https_when_is_ssl() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
+		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
 
 		$home_option = get_option( 'home' );
 
@@ -715,9 +715,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::home_url() );
 
 		// Now, without, which should return the filtered URL
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
+		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
 		$this->assertEquals( $this->__return_filtered_url(), Jetpack_Sync_Functions::home_url() );
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
@@ -940,7 +940,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize , 'secret', true ) );
 
 		// call one of the authenticated endpoints
-		Jetpack_Constants::set_constant( 'XMLRPC_REQUEST', true );
+		Constants::set_constant( 'XMLRPC_REQUEST', true );
 		$jetpack = Jetpack::init();
 		$jetpack->xmlrpc_methods( array() );
 		$jetpack->require_jetpack_authentication();
@@ -948,7 +948,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 
 		unset( $_GET['token'] );
