@@ -3,9 +3,10 @@
  * Tests for Jetpack_Affiliate
  */
 
+use Automattic\Jetpack\JITM\Manager as JITM_Manager;
+
 // Load required class to get the affiliate code
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 
 class WP_Test_Jetpack_Affiliate extends WP_UnitTestCase {

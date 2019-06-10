@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+
 if ( ! class_exists( 'WP_Test_Jetpack_Sync_Plugins' ) ) {
 	$sync_dir        = dirname( __FILE__ );
 	require_once $sync_dir . '/test_class.jetpack-sync-plugins.php';
@@ -30,7 +32,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 
 	public function tearDown() {
 		parent::tearDown();
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 	}
 
 	public static function setUpBeforeClass() {
@@ -159,7 +161,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 			'api'    => '',
 		);
 
-		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 
 		$this->set_error();
 		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( $plugin_defaults ) );
@@ -179,7 +181,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 			'api'    => '',
 		);
 
-		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( $plugin_defaults ) );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
