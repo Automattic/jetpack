@@ -1,3 +1,2 @@
-## Ignore composer.lock and vendor folders for our library packages
+## Ignore composer.lock for our library packages
 /**/composer.lock
-/**/vendor/

@@ -1,8 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
-
 /*
 Options:
 jetpack_options (array)
@@ -25,11 +22,7 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -340,11 +333,6 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
-	 * @var \Automattic\Jetpack\Connection\Manager
-	 */
-	protected $connection_manager;
-
-	/**
 	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
 	 */
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
@@ -544,14 +532,6 @@ class Jetpack {
 			Jetpack_Network::init();
 		}
 
-		add_filter( 'jetpack_connection_secret_generator', function( $callable ) {
-			return function() {
-				return wp_generate_password( 32, false );
-			};
-		} );
-
-		$this->connection_manager = new Connection_Manager( );
-
 		/**
 		 * Prepare Gutenberg Editor functionality
 		 */
@@ -690,8 +670,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', array( $this, 'is_active_and_not_development_mode' ), 9 );
-
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
 		// If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
@@ -1702,7 +1681,7 @@ class Jetpack {
 		 */
 		return (bool) apply_filters(
 			'jetpack_development_version',
-			! preg_match( '/^\d+(\.\d+)+$/', Constants::get_constant( 'JETPACK__VERSION' ) )
+			! preg_match( '/^\d+(\.\d+)+$/', Jetpack_Constants::get_constant( 'JETPACK__VERSION' ) )
 		);
 	}
 
@@ -3301,6 +3280,7 @@ p {
 		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 		Jetpack_Sync_Sender::get_instance()->uninstall();
 
 		// Disable the Heartbeat cron
@@ -3357,7 +3337,7 @@ p {
 				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
 			) );
 			foreach ( $domains_to_check as $domain ) {
-				$result = self::connection()->is_usable_domain( $domain );
+				$result = Jetpack_Data::is_usable_domain( $domain );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
@@ -4479,7 +4459,6 @@ p {
 				);
 
 				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-
 					// Generating a register URL instead to refresh the existing token
 					return $this->build_connect_url( $raw, $redirect, $from, true );
 				}
@@ -4880,10 +4859,6 @@ p {
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}
 
-	public static function connection() {
-		return self::init()->connection_manager;
-	}
-
 	/**
 	 * Creates two secret tokens and the end of life timestamp for them.
 	 *
@@ -4893,35 +4868,55 @@ p {
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		if ( false === $user_id ) {
+		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
 		}
 
-		return self::connection()->generate_secrets( $action, $user_id, $exp );
+		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
+		$secrets      = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+
+		if (
+			isset( $secrets[ $secret_name ] ) &&
+			$secrets[ $secret_name ]['exp'] > time()
+		) {
+			return $secrets[ $secret_name ];
+		}
+
+		$secret_value = array(
+			'secret_1'  => wp_generate_password( 32, false ),
+			'secret_2'  => wp_generate_password( 32, false ),
+			'exp'       => time() + $exp,
+		);
+
+		$secrets[ $secret_name ] = $secret_value;
+
+		Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
+		return $secrets[ $secret_name ];
 	}
 
 	public static function get_secrets( $action, $user_id ) {
-		$secrets = self::connection()->get_secrets( $action, $user_id );
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 
-		if ( Connection_Manager::SECRETS_MISSING === $secrets ) {
+		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
 		}
 
-		if ( Connection_Manager::SECRETS_EXPIRED === $secrets ) {
+		if ( $secrets[ $secret_name ]['exp'] < time() ) {
+			self::delete_secrets( $action, $user_id );
 			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
 		}
 
-		return $secrets;
+		return $secrets[ $secret_name ];
 	}
 
-	/**
-	 * @deprecated 7.5 Use Connection_Manager instead.
-	 *
-	 * @param $action
-	 * @param $user_id
-	 */
 	public static function delete_secrets( $action, $user_id ) {
-		return self::connection()->delete_secrets( $action, $user_id );
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+		if ( isset( $secrets[ $secret_name ] ) ) {
+			unset( $secrets[ $secret_name ] );
+			Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
+		}
 	}
 
 	/**
@@ -5204,6 +5199,8 @@ p {
 		if ( ! $token ) {
 			return false;
 		}
+
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
@@ -5814,6 +5811,8 @@ p {
 	 * @param null|array $environment
 	 */
 	function verify_json_api_authorization_request( $environment = null ) {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
+
 		$environment = is_null( $environment )
 			? $_REQUEST
 			: $environment;
@@ -6133,6 +6132,7 @@ p {
 		// in a transient to allow for autoloading and caching on subsequent views.
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
+			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 			$local_options = array(
 				'home'    => Jetpack_Sync_Functions::home_url(),
 				'siteurl' => Jetpack_Sync_Functions::site_url(),
@@ -6169,10 +6169,10 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		if ( Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			$default = Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
+		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
 		} else {
-			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
+			$default = ! Jetpack_Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
 		}
 
 		/**
@@ -6699,14 +6699,13 @@ p {
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
-			$jetpack_logo = new Jetpack_Logo();
 			$widget_title = sprintf(
 				wp_kses(
 					/* translators: Placeholder is a Jetpack logo. */
 					__( 'Stats <span>by %s</span>', 'jetpack' ),
 					array( 'span' => array() )
 				),
-				$jetpack_logo->get_jp_emblem( true )
+				Jetpack::get_jp_emblem( true )
 			);
 
 			wp_add_dashboard_widget(
@@ -6801,6 +6800,34 @@ p {
 		<?php
 	}
 
+	/**
+	 * Return string containing the Jetpack logo.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @param bool $logotype Should we use the full logotype (logo + text). Default to false.
+	 *
+	 * @return string
+	 */
+	public static function get_jp_emblem( $logotype = false ) {
+		$logo = '<path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/>';
+		$text = '
+<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
+<path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z" />
+<path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z" />
+<path d="M93,22h-3v-1.5c-0.9,0.7-1.9,1.5-3.5,1.5c-1.5,0-3.1-1.1-3.1-3.2c0-2.9,2.5-3.4,4.2-3.7l2.4-0.3v-0.3c0-1.5-0.5-2.3-2-2.3 c-0.7,0-2.3,0.5-3.7,1.1L84,11c1.2-0.4,3-1,4.4-1c2.7,0,4.6,1.4,4.6,4.7L93,22z M90,16.4l-2.2,0.4c-0.7,0.1-1.4,0.5-1.4,1.6 c0,0.9,0.5,1.4,1.3,1.4s1.5-0.5,2.3-1V16.4z" />
+<path d="M104.5,21.3c-1.1,0.4-2.2,0.6-3.5,0.6c-4.2,0-5.9-2.4-5.9-5.9c0-3.7,2.3-6,6.1-6c1.4,0,2.3,0.2,3.2,0.5V13 c-0.8-0.3-2-0.6-3.2-0.6c-1.7,0-3.2,0.9-3.2,3.6c0,2.9,1.5,3.8,3.3,3.8c0.9,0,1.9-0.2,3.2-0.7V21.3z" />
+<path d="M110,15.2c0.2-0.3,0.2-0.8,3.8-5.2h3.7l-4.6,5.7l5,6.3h-3.7l-4.2-5.8V22h-3V6h3V15.2z" />
+<path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z" />
+		';
+
+		return sprintf(
+			'<svg id="jetpack-logo__icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 %1$s 32">%2$s</svg>',
+			( true === $logotype ? '118' : '32' ),
+			( true === $logotype ? $logo . $text : $logo )
+		);
+	}
+
 	/*
 	 * Adds a "blank" column in the user admin table to display indication of user connection.
 	 */
@@ -6814,11 +6841,10 @@ p {
 	 */
 	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
 		if ( 'user_jetpack' == $col && Jetpack::is_user_connected( $user_id ) ) {
-			$jetpack_logo = new Jetpack_Logo();
 			$emblem_html = sprintf(
 				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',
 				esc_attr__( 'This user is linked and ready to fly with Jetpack.', 'jetpack' ),
-				$jetpack_logo->get_jp_emblem()
+				Jetpack::get_jp_emblem()
 			);
 			return $emblem_html;
 		}
@@ -6939,7 +6965,7 @@ p {
 	 * @return string The URL to the file
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
-		$path = ( Constants::is_defined( 'SCRIPT_DEBUG' ) && Constants::get_constant( 'SCRIPT_DEBUG' ) )
+		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
 			? $non_min_path
 			: $min_path;
 
@@ -7105,12 +7131,5 @@ p {
 				delete_user_meta( $user_id, $meta_key );
 			}
 		}
-	}
-
-	function is_active_and_not_development_mode( $maybe ) {
-		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
-			return false;
-		}
-		return true;
 	}
 }

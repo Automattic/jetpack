@@ -1,7 +1,5 @@
 <?php
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
-
 /**
 * Required for class.media-extractor.php to match expected function naming convention.
 *
@@ -90,11 +88,3 @@ if ( ! function_exists( 'wp_in' ) ) :
 		return false !== strpos( $haystack, $needle );
 	}
 endif;
-
-/**
- * @deprecated 7.5 Use Connection_Manager instead.
- */
-function jetpack_sha1_base64( $text ) {
-	$connection = new Connection_Manager();
-	return $connection->sha1_base64( $text );
-}

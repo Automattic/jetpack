@@ -382,13 +382,12 @@
 		display: block;
 		margin: 0 auto;
 
-	}
+		&.jetpack-logo {
+			margin-bottom: rem(36px);
 
-	.jetpack-logo {
-		margin-bottom: rem(36px);
-
-		@include breakpoint(large-phone) {
-			margin-left: 0;
+			@include breakpoint(large-phone) {
+				margin-left: 0;
+			}
 		}
 	}
 
