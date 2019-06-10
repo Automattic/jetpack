@@ -18,7 +18,7 @@ engines:
     enabled: true
   eslint:
     enabled: true
-    channel: "eslint-2"
+    channel: "eslint-5"
   scss-lint:
     enabled: true
   markdownlint:
