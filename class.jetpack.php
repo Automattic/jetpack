@@ -29,6 +29,7 @@ use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
+require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
