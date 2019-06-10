@@ -50,6 +50,10 @@ class Manager {
 	 * Jetpack_JITM constructor.
 	 */
 	public function __construct() {
+		if ( ! class_exists( '\Jetpack' ) ) {
+			// Package tests run in isolation, so provide /Jetpack until it is a proper package
+			require_once dirname( __FILE__ ) . '/../../../class.jetpack.php';
+		}
 		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
 			return;
 		}
