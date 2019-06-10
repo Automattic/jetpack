@@ -5,7 +5,6 @@
  * @package Jetpack
  */
 
-
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */

@@ -46,10 +46,9 @@ $ yarn distclean
 	$ cd jetpack
 	```
 
-3. [Install Composer](#installing-composer).
-4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
+3. Install yarn. Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
 
-5. Make sure the Jetpack plugin is active and run
+4. Make sure the Jetpack plugin is active and run
 
 	```
 	$ yarn build
@@ -57,7 +56,7 @@ $ yarn distclean
 
 	This will install npm dependencies and then build the files.
 
-6. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+5. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
 ## Development build
 
@@ -158,33 +157,6 @@ To use a custom reporter, pass the argument `-R, --reporter <name>`:
 $ yarn test-client -R 'my_reporter'
 ```
 
-## Installing Composer
-
-Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
-
-It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
-
-### Installing Composer on macOS
-
-Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
-
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-
-And then install Composer:
-
-```
-brew install composer
-```
-
-### Installing Composer on other systems
-
-We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
-
-Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
-Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
-
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
@@ -194,7 +166,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 ### Linting Jetpack's PHP
 
-You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code. You need Composer to run this tool so check how to [install Composer](#installing-composer) if you don't have it yet.
+You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code:
 
 This will install all the CodeSniffer rulesets we need for linting Jetpack's PHP code. You may need to do this only once.
 

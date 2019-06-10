@@ -8,23 +8,14 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"composer/installers": "1.6.0",
 		"ext-openssl": "*",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-asset-tools": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-tracking": "@dev"
+		"automattic/jetpack-logo": "@dev"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
 		"wp-coding-standards/wpcs": "2.1.1",
 		"sirbrillig/phpcs-variable-analysis": "2.6.4",
-		"phpcompatibility/phpcompatibility-wp": "2.0.0",
-		"automattic/jetpack-autoloader": "@dev"
+		"phpcompatibility/phpcompatibility-wp": "2.0.0"
 	},
 	"scripts": {
 		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
@@ -37,7 +28,5 @@
 			"type": "path",
 			"url": "./packages/*"
 		}
-	],
-	"minimum-stability": "dev",
-	"prefer-stable": true
+	]
 }

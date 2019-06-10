@@ -269,6 +269,7 @@ class Jetpack_Likes_Settings {
 	 * similar logic and filters apply here, too.
 	 */
 	function is_likes_visible() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
 		if ( Jetpack_Sync_Settings::is_syncing() ) {
 			return false;
 		}

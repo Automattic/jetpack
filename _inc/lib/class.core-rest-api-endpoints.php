@@ -1,7 +1,4 @@
 <?php
-
-use Automattic\Jetpack\JITM\Manager as JITM_Manager;
-
 /**
  * Register WP REST API endpoints for Jetpack.
  *
@@ -495,9 +492,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
-		$jitm = new JITM_Manager();
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
-		if ( ! $jitm->register() ) {
+		$jitm = Jetpack_JITM::init();
+
+		if ( ! $jitm ) {
 			return array();
 		}
 
@@ -511,9 +510,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Always True
 	 */
 	public static function delete_jitm_message( $request ) {
-		$jitm = new JITM_Manager();
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
-		if ( ! $jitm->register() ) {
+		$jitm = Jetpack_JITM::init();
+
+		if ( ! $jitm ) {
 			return true;
 		}
 
