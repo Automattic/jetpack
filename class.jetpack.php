@@ -690,12 +690,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', function( $display ) {
-			if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
-				return false;
-			}
-            return true;
-		}, 9 );
+		add_filter( 'jetpack_just_in_time_msgs', array( $this, 'should_suppress_jitms' ), 9 );
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
@@ -7110,5 +7105,12 @@ p {
 				delete_user_meta( $user_id, $meta_key );
 			}
 		}
+	}
+
+	function should_suppress_jitms( $maybe ) {
+		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
+			return false;
+		}
+		return true;
 	}
 }
