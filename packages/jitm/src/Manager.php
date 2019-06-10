@@ -28,7 +28,8 @@ class Manager {
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
 			return false;
 		}
-		return add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+		return true;
 	}
 
 	/**
