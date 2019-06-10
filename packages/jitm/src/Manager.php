@@ -16,18 +16,19 @@ class Manager {
 
 	const PACKAGE_VERSION = '1.0';
 
-	private $is_prepare_jitms_callback_added;
-
-	/**
-	 * Jetpack_JITM constructor.
-	 */
-	public function __construct() {
+	public function register() {
+		/**
+		 * Filter to turn off all just in time messages
+		 *
+		 * @since 3.7.0
+		 * @since 5.4.0 Correct docblock to reflect default arg value
+		 *
+		 * @param bool false Whether to show just in time messages.
+		 */
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
-			$this->is_prepare_jitms_callback_added = false;
 			return false;
 		}
-		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
-		$this->is_prepare_jitms_callback_added = true;
+		return add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
 	/**
@@ -428,9 +429,5 @@ class Manager {
 		}
 
 		return $envelopes;
-	}
-
-	public function is_prepare_jitms_callback_added() {
-		return $this->is_prepare_jitms_callback_added;
 	}
 }
