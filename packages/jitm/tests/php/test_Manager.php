@@ -27,7 +27,7 @@ class Test_Jetpack_JITM extends TestCase {
 		) );
 
 		$jitm = new Jetpack_JITM();
-		$this->assertFalse( $jitm->is_prepare_jitms_callback_added() );
+		$this->assertFalse( $jitm->register() );
 
 		$this->clear_mock_filters();
 	}
@@ -38,7 +38,7 @@ class Test_Jetpack_JITM extends TestCase {
 		) );
 
 		$jitm = new Jetpack_JITM();
-		$this->assertTrue( $jitm->is_prepare_jitms_callback_added() );
+		$this->assertTrue( $jitm->register() );
 
 		$this->clear_mock_filters();
 	}

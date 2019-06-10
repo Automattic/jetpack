@@ -497,7 +497,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_jitm_message( $request ) {
 		$jitm = new JITM_Manager();
 
-		if ( ! $jitm ) {
+		if ( ! $jitm->register() ) {
 			return array();
 		}
 
@@ -513,7 +513,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function delete_jitm_message( $request ) {
 		$jitm = new JITM_Manager();
 
-		if ( ! $jitm ) {
+		if ( ! $jitm->register() ) {
 			return true;
 		}
 

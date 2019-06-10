@@ -241,6 +241,7 @@ if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
 	$jitm = new JITM_Manager();
+	$jitm->register();
 	jetpack_require_lib( 'debugger' );
 }
 
