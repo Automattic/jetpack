@@ -16,12 +16,6 @@ class Manager {
 
 	const PACKAGE_VERSION = '1.0';
 
-	/**
-	 * Jetpack_JITM constructor.
-	 */
-	public function __construct() {
-	}
-
 	public function register() {
 		/**
 		 * Filter to turn off all just in time messages
@@ -435,9 +429,5 @@ class Manager {
 		}
 
 		return $envelopes;
-	}
-
-	public function is_prepare_jitms_callback_added() {
-		return $this->is_prepare_jitms_callback_added;
 	}
 }
