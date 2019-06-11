@@ -7113,4 +7113,23 @@ p {
 		}
 		return true;
 	}
+
+	/**
+	 * Initialize and hook up external filters and actions that Sync needs.
+	 *
+	 * @since 7.5.0
+	 *
+	 * @static
+	 * @access public
+	 */
+	public static function initialize_sync() {
+		// Let Sync know if the site is in development mode.
+		add_filter( 'jetpack_sync_is_development_mode', array( 'Jetpack', 'is_development_mode' ) );
+
+		// Let Sync know if this is a staging site.
+		add_filter( 'jetpack_sync_is_staging_site', array( 'Jetpack', 'is_staging_site' ) );
+
+		// Let Sync know if Jetpack is active.
+		add_filter( 'jetpack_sync_jetpack_is_active', array( 'Jetpack', 'is_active' ) );
+	}
 }
