@@ -93,8 +93,8 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 
 				return true;
 			}
-			return false;
 		}
+		return false;
 	}
 
 	// Add the jetpack autoloader.
