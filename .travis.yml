@@ -76,6 +76,7 @@ git:
   depth: 1
 
 before_script:
+  - phpenv config-rm xdebug.ini
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - composer install
