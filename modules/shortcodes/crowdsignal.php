@@ -18,6 +18,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Constants;
+
 // Keep compatibility with the PollDaddy plugin.
 if (
 	! class_exists( 'CrowdsignalShortcode' )
@@ -213,7 +215,7 @@ if (
 			);
 
 			$inline = ! in_the_loop()
-				&& ! Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' );
+				&& ! Constants::is_defined( 'TESTING_IN_JETPACK' );
 
 			$no_script       = false;
 			$infinite_scroll = false;

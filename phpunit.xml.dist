@@ -75,9 +75,6 @@
 		<testsuite name="idc">
 			<file>tests/php/test_class.jetpack-idc.php</file>
 		</testsuite>
-		<testsuite name="jitm">
-			<file>tests/php/test_class.jetpack-jitm.php</file>
-		</testsuite>
 		<testsuite name="affiliate">
 			<file>tests/php/test_class.jetpack-affiliate.php</file>
 		</testsuite>
@@ -95,9 +92,6 @@
 		</testsuite>
 		<testsuite name="geo-location">
 			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
-		</testsuite>
-		<testsuite name="packages">
-			<directory prefix="test" suffix=".php">tests/php/packages</directory>
 		</testsuite>
 	</testsuites>
 	<groups>
