@@ -3,7 +3,7 @@
  * Tests for Jetpack_Affiliate
  */
 
-use Automattic\Jetpack\JITM\Manager as JITM_Manager;
+use Automattic\Jetpack\JITM;
 
 // Load required class to get the affiliate code
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack.php';
