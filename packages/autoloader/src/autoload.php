@@ -83,7 +83,8 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Jetpack_Options',
 						'Jetpack_Sync_Main',
 						'Automattic\Jetpack\Constants',
-					)
+					),
+					true
 				);
 				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
