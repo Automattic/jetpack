@@ -6,15 +6,6 @@
  * @requires PHP 5.3
  */
 
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	$sync_dir = ABSPATH . 'wp-content/mu-plugins/jetpack/sync/';
-} else {
-	$sync_dir = dirname( __FILE__ ) . '/../../../sync/';
-}
-
-require_once $sync_dir . 'class.jetpack-sync-json-deflate-array-codec.php';
-require_once $sync_dir . 'class.jetpack-sync-simple-codec.php';
-
 class WP_Test_iJetpack_Sync_Codec extends PHPUnit_Framework_TestCase {
 
 	static $all_codecs;

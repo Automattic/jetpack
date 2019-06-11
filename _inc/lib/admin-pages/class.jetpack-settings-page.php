@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Tracking;
+
 include_once( 'class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 
@@ -117,7 +120,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		</div><!-- /.content -->
 		<?php
 
-		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
+		Tracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
 	}
 
 	/**

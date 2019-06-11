@@ -14,6 +14,11 @@ elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
 	composer global require "phpunit/phpunit=4.8.*" --no-suggest
 fi
 
+# If testing packages we don't need a developer WordPress checkout
+if [ "$SCOPE" == "packages" ]; then
+	exit 0;
+fi
+
 mysql -e "set global wait_timeout = 3600;"
 
 # Prepare a developer checkout of WordPress

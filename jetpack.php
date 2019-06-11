@@ -1,5 +1,6 @@
 <?php
 
+
 /*
  * Plugin Name: Jetpack by WordPress.com
  * Plugin URI: https://jetpack.com
@@ -43,6 +44,12 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) or define(
 	. '-----END PUBLIC KEY-----' . "\r\n"
 );
 
+// These constants can be set in wp-config.php to ensure sites behind proxies will still work.
+// Setting these constants, though, is *not* the preferred method. It's better to configure
+// the proxy to send the X-Forwarded-Port header.
+defined( 'JETPACK_SIGNATURE__HTTP_PORT'  ) or define( 'JETPACK_SIGNATURE__HTTP_PORT' , 80  );
+defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) or define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
+
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied
  * in require_lib().
@@ -77,18 +84,6 @@ function jetpack_should_use_minified_assets() {
 	return true;
 }
 
-/**
- * Outputs for an admin notice about running Jetpack on outdated WordPress.
- *
- * @since 7.2.0
- */
-function jetpack_admin_unsupported_wp_notice() { ?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
-	</div>
-	<?php
-}
-
 if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log(
@@ -100,53 +95,21 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 			)
 		);
 	}
+
+	/**
+	 * Outputs for an admin notice about running Jetpack on outdated WordPress.
+	 *
+	 * @since 7.2.0
+	 */
+	function jetpack_admin_unsupported_wp_notice() { ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+        </div>
+		<?php
+	}
+
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
 	return;
-}
-
-/**
- * Outputs an admin notice for folks running an outdated version of PHP.
- * @todo: Remove once WP 5.2 is the minimum version.
- *
- * @since 7.4.0
- */
-function jetpack_admin_unsupported_php_notice() { ?>
-	<div class="notice notice-error is-dismissible">
-		<p><?php esc_html_e( 'Jetpack requires a more recent version of PHP and has been paused. Please update PHP to continue enjoying Jetpack.', 'jetpack' ); ?></p>
-		<p class="button-container">
-		<?php
-		printf(
-			'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
-			esc_url( wp_get_update_php_url() ),
-			__( 'Learn more about updating PHP' ),
-			/* translators: accessibility text */
-			__( '(opens in a new tab)' )
-		);
-		?>
-	</p>
-	</div>
-	<?php
-}
-
-/**
- * Outputs an admin notice for folks running Jetpack without having run composer install.
- *
- * @since 7.4.0
- */
-function jetpack_admin_missing_autoloader() { ?>
-	<div class="notice notice-error is-dismissible">
-		<p>
-		<?php
-		printf(
-			/* translators: Placeholder is a link to a support document. */
-			__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack' ),
-			esc_url( 'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md' )
-		);
-		?>
-		</p>
-	</p>
-	</div>
-	<?php
 }
 
 /**
@@ -171,6 +134,31 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 			)
 		);
 	}
+
+	/**
+	 * Outputs an admin notice for folks running an outdated version of PHP.
+	 * @todo: Remove once WP 5.2 is the minimum version.
+	 *
+	 * @since 7.4.0
+	 */
+	function jetpack_admin_unsupported_php_notice() { ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php esc_html_e( 'Jetpack requires a more recent version of PHP and has been paused. Please update PHP to continue enjoying Jetpack.', 'jetpack' ); ?></p>
+            <p class="button-container">
+				<?php
+				printf(
+					'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+					esc_url( wp_get_update_php_url() ),
+					__( 'Learn more about updating PHP' ),
+					/* translators: accessibility text */
+					__( '(opens in a new tab)' )
+				);
+				?>
+            </p>
+        </div>
+		<?php
+	}
+
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_php_notice' );
 	return;
 }
@@ -181,7 +169,7 @@ if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
  * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
  * If the autoloader is not present, let's log the failure, pause Jetpack, and display a nice admin notice.
  */
-$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload.php';
+$jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	require $jetpack_autoloader;
 } else {
@@ -194,6 +182,28 @@ if ( is_readable( $jetpack_autoloader ) ) {
 			)
 		);
 	}
+
+	/**
+	 * Outputs an admin notice for folks running Jetpack without having run composer install.
+	 *
+	 * @since 7.4.0
+	 */
+	function jetpack_admin_missing_autoloader() { ?>
+        <div class="notice notice-error is-dismissible">
+            <p>
+				<?php
+				printf(
+				/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack' ),
+					esc_url( 'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md' )
+				);
+				?>
+            </p>
+            </p>
+        </div>
+		<?php
+	}
+
 	add_action( 'admin_notices', 'jetpack_admin_missing_autoloader' );
 	return;
 }
@@ -208,8 +218,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
@@ -221,18 +229,19 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 
+Jetpack_Sync_Main::init();
+
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
-	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php'      );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
+	$jitm = new Automattic\Jetpack\JITM();
+	$jitm->register();
 	jetpack_require_lib( 'debugger' );
 }
 
