@@ -60,7 +60,7 @@ matrix:
 cache:
   directories:
    - vendor
-   - $HOME/.composer/cache/files
+   - $HOME/.composer/cache
    - $HOME/.cache/yarn
    - $HOME/.phpbrew
 
