@@ -1,10 +1,10 @@
 <?php
 
-namespace Automattic\Jetpack\Asset_Tools;
+namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
-class Manager {
+class Asset_Tools {
 	/**
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.

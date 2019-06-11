@@ -14,6 +14,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
 }

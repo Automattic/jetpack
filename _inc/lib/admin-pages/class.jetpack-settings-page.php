@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+
 include_once( 'class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 

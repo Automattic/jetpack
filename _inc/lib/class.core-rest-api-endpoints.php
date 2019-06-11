@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\JITM\Manager as JITM_Manager;
+use Automattic\Jetpack\JITM;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -489,7 +489,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
-		$jitm = new JITM_Manager();
+		$jitm = new JITM();
 
 		if ( ! $jitm->register() ) {
 			return array();
@@ -505,7 +505,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Always True
 	 */
 	public static function delete_jitm_message( $request ) {
-		$jitm = new JITM_Manager();
+		$jitm = new JITM();
 
 		if ( ! $jitm->register() ) {
 			return true;

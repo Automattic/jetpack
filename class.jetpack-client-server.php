@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+
 /**
  * Client = Plugin
  * Client Server = API Methods the Plugin must respond to

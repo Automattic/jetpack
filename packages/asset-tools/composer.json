@@ -8,7 +8,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Automattic\\Jetpack\\Asset_Tools\\": "src/"
+			"Automattic\\Jetpack\\": "src/"
 		}
 	},
 	"repositories": [

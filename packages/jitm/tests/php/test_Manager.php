@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\Jetpack\JITM;
+namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\JITM\Manager as Jetpack_JITM;
+use Automattic\Jetpack\JITM;
 use phpmock\functions\FunctionProvider;
 use phpmock\Mock;
 use phpmock\MockBuilder;
@@ -26,7 +26,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, false ),
 		) );
 
-		$jitm = new Jetpack_JITM();
+		$jitm = new JITM();
 		$this->assertFalse( $jitm->register() );
 
 		$this->clear_mock_filters();
@@ -37,7 +37,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, true ),
 		) );
 
-		$jitm = new Jetpack_JITM();
+		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
 
 		$this->clear_mock_filters();
