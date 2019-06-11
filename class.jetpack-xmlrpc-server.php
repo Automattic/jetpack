@@ -75,7 +75,6 @@ class Jetpack_XMLRPC_Server {
 	 */
 	function bootstrap_xmlrpc_methods() {
 		return array(
-			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
 			'jetpack.remoteRegister' => array( $this, 'remote_register' ),
 		);
@@ -395,14 +394,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $error;
-	}
-
-	/**
-	* Verifies that Jetpack.WordPress.com received a registration request from this site
-	*/
-	function verify_registration( $data ) {
-		// failure modes will be recorded in tracks in the verify_action method
-		return $this->verify_action( array( 'register', $data[0], $data[1] ) );
 	}
 
 	/**
