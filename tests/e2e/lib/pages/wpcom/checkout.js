@@ -6,7 +6,7 @@ import { waitAndType, waitForSelector, waitAndClick, isEventuallyVisible } from 
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.checkout__secure-payment-form,.secure-payment-form';
+		const expectedSelector = '.checkout__secure-payment-form';
 		super( page, { expectedSelector } );
 	}
 
@@ -43,7 +43,7 @@ export default class CheckoutPage extends Page {
 
 	async waitForPaymentProcessing() {
 		const paymentButtonSelector = '.credit-card-payment-box button.is-primary:not([disabled])';
-		const progressBarSelector = '.credit-card-payment-box__progress-bar';
+		const progressBarSelector = '.checkout__credit-card-payment-box-progress-bar';
 		await waitForSelector( this.page, progressBarSelector, { hidden: true, timeout: 3 * 30000 } );
 		// For some reason first purchase attempt fails quite often. Going to try for a second time.
 		if ( ! this.paymentFailed && this.page.$( paymentButtonSelector ) ) {

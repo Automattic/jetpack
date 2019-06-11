@@ -6,7 +6,7 @@ import { waitForSelector, waitAndClick } from '../../page-helper';
 
 export default class ThankYouPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.current-plan-thank-you-card__content';
+		const expectedSelector = '.current-plan-thank-you';
 		super( page, { expectedSelector } );
 	}
 
@@ -16,9 +16,6 @@ export default class ThankYouPage extends Page {
 			timeout: 60000,
 		} );
 
-		return await waitAndClick(
-			this.page,
-			".current-plan-thank-you-card__content a.button[href*='my-plan']"
-		);
+		return await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']" );
 	}
 }
