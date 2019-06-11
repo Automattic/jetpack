@@ -4,21 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75844dc20c7eb329113e10ef7ae18e8a",
+    "content-hash": "906d05621f125dc5854e38b812ae1440",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "v1.0.0",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8"
+                "reference": "c02750b6af95d114ba08562a7df74bab98235fef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/722d65b607f63d2720ac44f5eb38aae3af642ec8",
-                "reference": "722d65b607f63d2720ac44f5eb38aae3af642ec8",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/c02750b6af95d114ba08562a7df74bab98235fef",
+                "reference": "c02750b6af95d114ba08562a7df74bab98235fef",
                 "shasum": ""
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
@@ -31,7 +35,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack",
-            "time": "2019-05-28T16:09:34+00:00"
+            "time": "2019-06-10T21:57:07+00:00"
         }
     ],
     "packages-dev": [
