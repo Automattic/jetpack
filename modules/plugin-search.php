@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+
 /**
  * Disable direct access and execution.
  */
