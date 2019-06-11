@@ -4,5 +4,6 @@
 	"prHourlyLimit": 1,
 	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
-	"schedule": [ "every weekend" ]
+	"schedule": [ "every weekend" ],
+	"updateNotScheduled": false
 }
