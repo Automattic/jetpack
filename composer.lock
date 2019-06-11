@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
-                "reference": "d425ff2ef48f7e4c323507ca583e4065f7f107a6",
+                "reference": "5733de68bc0616f37ed3813b092908767df2cf68",
                 "shasum": null
             },
             "require": {
@@ -21,7 +21,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Automattic\\Jetpack\\Asset_Tools\\": "src/"
+                    "Automattic\\Jetpack\\": "src/"
                 }
             },
             "license": [

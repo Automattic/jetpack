@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\JITM;
 
-use Automattic\Jetpack\Asset_Tools\Manager as Asset_Manager;
+use Automattic\Jetpack\Asset_Tools;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
@@ -164,7 +164,7 @@ class Manager {
 	 * Function to enqueue jitm css and js
 	 */
 	function jitm_enqueue_files() {
-		$asset_manager = new Asset_Manager();
+		$asset_manager = new Asset_Tools();
 		$min           = ''; // ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
