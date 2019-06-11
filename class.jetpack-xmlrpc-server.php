@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking;
 /**
  * Just a sack of functions.  Not actually an IXR_Server
  */
@@ -96,7 +96,7 @@ class Jetpack_XMLRPC_Server {
 
 	function remote_authorize( $request ) {
 		$user = get_user_by( 'id', $request['state'] );
-		JetpackTracking::record_user_event( 'jpc_remote_authorize_begin', array(), $user );
+		Tracking::record_user_event( 'jpc_remote_authorize_begin', array(), $user );
 
 		foreach( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
 			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
@@ -127,7 +127,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( $result, 'jpc_remote_authorize_fail' );
 		}
 
-		JetpackTracking::record_user_event( 'jpc_remote_authorize_success' );
+		Tracking::record_user_event( 'jpc_remote_authorize_success' );
 
 		return array(
 			'result' => $result,
@@ -143,7 +143,7 @@ class Jetpack_XMLRPC_Server {
 	 * @return WP_Error|array
 	 */
 	public function remote_register( $request ) {
-		JetpackTracking::record_user_event( 'jpc_remote_register_begin', array() );
+		Tracking::record_user_event( 'jpc_remote_register_begin', array() );
 
 		$user = $this->fetch_and_verify_local_user( $request );
 
@@ -210,7 +210,7 @@ class Jetpack_XMLRPC_Server {
 			}
 		}
 
-		JetpackTracking::record_user_event( 'jpc_remote_register_success' );
+		Tracking::record_user_event( 'jpc_remote_register_success' );
 
 		return array(
 			'client_id' => Jetpack_Options::get_option( 'id' )
@@ -382,12 +382,12 @@ class Jetpack_XMLRPC_Server {
 
 	private function tracks_record_error( $name, $error, $user = null ) {
 		if ( is_wp_error( $error ) ) {
-			JetpackTracking::record_user_event( $name, array(
+			Tracking::record_user_event( $name, array(
 				'error_code' => $error->get_error_code(),
 				'error_message' => $error->get_error_message()
 			), $user );
 		} elseif( is_a( $error, 'IXR_Error' ) ) {
-			JetpackTracking::record_user_event( $name, array(
+			Tracking::record_user_event( $name, array(
 				'error_code' => $error->code,
 				'error_message' => $error->message
 			), $user );
@@ -428,16 +428,16 @@ class Jetpack_XMLRPC_Server {
 
 		if ( 'authorize' === $action ) {
 			$tracks_failure_event_name = 'jpc_verify_authorize_fail';
-			JetpackTracking::record_user_event( 'jpc_verify_authorize_begin', array(), $user );
+			Tracking::record_user_event( 'jpc_verify_authorize_begin', array(), $user );
 		}
 		if ( 'publicize' === $action ) {
 			// This action is used on a response from a direct XML-RPC done from WordPress.com
 			$tracks_failure_event_name = 'jpc_verify_publicize_fail';
-			JetpackTracking::record_user_event( 'jpc_verify_publicize_begin', array(), $user );
+			Tracking::record_user_event( 'jpc_verify_publicize_begin', array(), $user );
 		}
 		if ( 'register' === $action ) {
 			$tracks_failure_event_name = 'jpc_verify_register_fail';
-			JetpackTracking::record_user_event( 'jpc_verify_register_begin', array(), $user );
+			Tracking::record_user_event( 'jpc_verify_register_begin', array(), $user );
 		}
 
 		if ( empty( $verify_secret ) ) {
@@ -475,13 +475,13 @@ class Jetpack_XMLRPC_Server {
 		Jetpack::delete_secrets( $action, $state );
 
 		if ( 'authorize' === $action ) {
-			JetpackTracking::record_user_event( 'jpc_verify_authorize_success', array(), $user );
+			Tracking::record_user_event( 'jpc_verify_authorize_success', array(), $user );
 		}
 		if ( 'publicize' === $action ) {
-			JetpackTracking::record_user_event( 'jpc_verify_publicize_success', array(), $user );
+			Tracking::record_user_event( 'jpc_verify_publicize_success', array(), $user );
 		}
 		if ( 'register' === $action ) {
-			JetpackTracking::record_user_event( 'jpc_verify_register_success', array(), $user );
+			Tracking::record_user_event( 'jpc_verify_register_success', array(), $user );
 		}
 
 		return $secrets['secret_2'];

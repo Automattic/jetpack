@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking;
 
 /*
 Options:
@@ -923,7 +923,7 @@ class Jetpack {
 			}
 		}
 
-		JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
+		Tracking::record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
 		wp_send_json_success();
 		wp_die();
 	}
@@ -3263,7 +3263,7 @@ p {
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
-			JetpackTracking::record_user_event( 'disconnect_site', array() );
+			Tracking::record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister' );
@@ -4030,7 +4030,7 @@ p {
 					$error = $registered->get_error_code();
 					Jetpack::state( 'error', $error );
 					Jetpack::state( 'error', $registered->get_error_message() );
-					JetpackTracking::record_user_event( 'jpc_register_fail', array(
+					Tracking::record_user_event( 'jpc_register_fail', array(
 						'error_code' => $error,
 						'error_message' => $registered->get_error_message()
 					) );
@@ -4040,7 +4040,7 @@ p {
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
-				JetpackTracking::record_user_event( 'jpc_register_success', array(
+				Tracking::record_user_event( 'jpc_register_success', array(
 					'from' => $from
 				) );
 
@@ -5032,7 +5032,7 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		JetpackTracking::record_user_event( 'jpc_register_begin' );
+		Tracking::record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
@@ -5838,7 +5838,7 @@ p {
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
-			JetpackTracking::record_user_event( 'error_double_encode' );
+			Tracking::record_user_event( 'error_double_encode' );
 
 			$die_error = sprintf(
 				/* translators: %s is a URL */

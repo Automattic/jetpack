@@ -5,7 +5,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Asset_Tools;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -205,7 +205,7 @@ class JITM {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		JetpackTracking::record_user_event(
+		Tracking::record_user_event(
 			'jitm_dismiss_client',
 			array(
 				'jitm_id'       => $id,
@@ -360,7 +360,7 @@ class JITM {
 				continue;
 			}
 
-			JetpackTracking::record_user_event(
+			Tracking::record_user_event(
 				'jitm_view_client',
 				array(
 					'jitm_id' => $envelope->id,

@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Client = Plugin
@@ -22,7 +22,7 @@ class Jetpack_Client_Server {
 		$result = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
-			JetpackTracking::record_user_event( 'jpc_client_authorize_fail', array(
+			Tracking::record_user_event( 'jpc_client_authorize_fail', array(
 				'error_code' => $result->get_error_code(),
 				'error_message' => $result->get_error_message()
 			) );
@@ -45,7 +45,7 @@ class Jetpack_Client_Server {
 			wp_safe_redirect( Jetpack::admin_url() );
 		}
 
-		JetpackTracking::record_user_event( 'jpc_client_authorize_success' );
+		Tracking::record_user_event( 'jpc_client_authorize_success' );
 
 		$this->do_exit();
 	}

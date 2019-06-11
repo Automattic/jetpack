@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Disable direct access and execution.
@@ -310,7 +310,7 @@ class Jetpack_Plugin_Search {
 
 			// Record event when user searches for a term over 3 chars (less than 3 is not very useful.)
 			if ( strlen( $args->search ) >= 3 ) {
-				JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+				Tracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
 			}
 
 			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
@@ -340,7 +340,7 @@ class Jetpack_Plugin_Search {
 
 			if ( isset( $matching_module ) && $this->should_display_hint( $matching_module ) ) {
 				// Record event when a matching feature is found
-				JetpackTracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
+				Tracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
 				$inject = (array) self::get_jetpack_plugin_data();
 				$image_url = plugins_url( 'modules/plugin-search/psh', JETPACK__PLUGIN_FILE );
