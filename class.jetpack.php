@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking as JetpackTracking;
 
 /*
 Options:

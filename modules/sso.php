@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking as JetpackTracking;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );

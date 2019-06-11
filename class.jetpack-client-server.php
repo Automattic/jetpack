@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking as JetpackTracking;
 
 /**
  * Client = Plugin

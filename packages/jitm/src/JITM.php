@@ -5,7 +5,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Asset_Tools;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking as JetpackTracking;
 
 /**
  * Jetpack just in time messaging through out the admin
