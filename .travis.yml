@@ -55,6 +55,7 @@ matrix:
 
   allow_failures:
     - name: "E2E tests"
+  fast_finish: true
 
 cache:
   directories:
