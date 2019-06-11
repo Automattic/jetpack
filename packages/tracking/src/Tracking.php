@@ -101,4 +101,4 @@ class Tracking {
 	}
 }
 
-add_action( 'init', array( 'JetpackTracking', 'track_jetpack_usage' ) );
+add_action( 'init', array( 'Tracking', 'track_jetpack_usage' ) );
