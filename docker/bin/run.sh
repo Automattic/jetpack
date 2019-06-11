@@ -80,6 +80,9 @@ if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
 
+# Add a PsySH dependency to wp-cli
+echo 'require: /usr/local/bin/psysh' >> /var/www/html/wp-cli.yml
+
 WP_HOST_PORT=":$HOST_PORT"
 
 if [ 80 -eq "$HOST_PORT" ]; then
