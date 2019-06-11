@@ -240,7 +240,7 @@ Jetpack_Sync_Main::init();
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php' );
-	$jitm = new Automattic\Jetpack\JITM\Manager();
+	$jitm = new Automattic\Jetpack\JITM();
 	$jitm->register();
 	jetpack_require_lib( 'debugger' );
 }

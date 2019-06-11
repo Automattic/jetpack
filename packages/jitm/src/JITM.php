@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack\JITM;
+namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Asset_Tools;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
@@ -12,7 +12,7 @@ use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
  *
  * @since 5.6.0
  */
-class Manager {
+class JITM {
 
 	const PACKAGE_VERSION = '1.0';
 
