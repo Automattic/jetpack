@@ -13,7 +13,7 @@ import { registerScreenshotReporter } from './reporters/screenshot';
 const { PUPPETEER_TIMEOUT } = process.env;
 
 // The Jest timeout is increased because these tests are a bit slow
-jest.setTimeout( PUPPETEER_TIMEOUT || 100000 );
+jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );
 
 async function setupBrowser() {
 	await setBrowserViewport( 'large' );
