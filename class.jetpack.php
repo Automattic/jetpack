@@ -5455,7 +5455,7 @@ p {
 
 			unset( $error_data['signature_details'] );
 
-			$error_without_signature_details = new WP_Error(
+			return new WP_Error(
 				$this->rest_authentication_status->get_error_code(),
 				$this->rest_authentication_status->get_error_message(),
 				$error_data
