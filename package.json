@@ -138,7 +138,7 @@
 		"enzyme-adapter-react-16": "1.11.2",
 		"enzyme-to-json": "3.3.5",
 		"eslint": "5.16.0",
-		"eslint-config-prettier": "4.2.0",
+		"eslint-config-prettier": "4.3.0",
 		"eslint-config-wpcalypso": "4.0.1",
 		"eslint-loader": "2.1.2",
 		"eslint-plugin-jest": "22.5.1",
