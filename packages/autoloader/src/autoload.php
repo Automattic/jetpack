@@ -73,7 +73,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
 
-			if ( defined( WP_DEBUG ) && WP_DEBUG ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
 						esc_html( $class_name ),
@@ -93,6 +93,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 
 				return true;
 			}
+			return false;
 		}
 	}
 
