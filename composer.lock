@@ -233,7 +233,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Automattic\\Jetpack\\Tracking\\": "src/"
+                    "Automattic\\Jetpack\\": "src/"
                 }
             },
             "scripts": {
