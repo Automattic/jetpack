@@ -1,5 +1,6 @@
 <?php
 
+Jetpack::initialize_sync();
 Jetpack_Sync_Main::init();
 
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
