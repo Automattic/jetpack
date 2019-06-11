@@ -107,13 +107,13 @@ class Jetpack_Sync_Actions {
 		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
-		if ( Jetpack::is_development_mode() ) {
+		if ( apply_filters( 'jetpack_sync_is_development_mode', false ) ) {
 			return false;
 		}
-		if ( Jetpack::is_staging_site() ) {
+		if ( apply_filters( 'jetpack_sync_is_staging_site', false ) ) {
 			return false;
 		}
-		if ( ! Jetpack::is_active() ) {
+		if ( ! apply_filters( 'jetpack_sync_jetpack_is_active', false ) ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}
