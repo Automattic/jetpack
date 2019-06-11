@@ -72,9 +72,21 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 		global $jetpack_packages_classes;
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
-
-			if ( defined( WP_DEBUG ) && WP_DEBUG ) {
-				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// TODO ideally we shouldn't skip any of these, see: https://github.com/Automattic/jetpack/pull/12646
+				$ignore = in_array(
+					$class_name,
+					array(
+						'Automattic\Jetpack\JITM',
+						'Automattic\Jetpack\Connection\Manager',
+						'Automattic\Jetpack\Connection\Manager_Interface',
+						'Jetpack_Options',
+						'Jetpack_Sync_Main',
+						'Automattic\Jetpack\Constants',
+					),
+					true
+				);
+				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
 						esc_html( $class_name ),
 						sprintf(
@@ -94,6 +106,8 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 				return true;
 			}
 		}
+
+		return false;
 	}
 
 	// Add the jetpack autoloader.
