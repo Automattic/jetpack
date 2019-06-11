@@ -220,7 +220,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "bf2c5cf51eec2e1ad21955c05c692ef2815875b9",
+                "reference": "aabd3d202f67a9ab62b6e4a524ce26a891369326",
                 "shasum": null
             },
             "require": {
@@ -233,7 +233,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Automattic\\Jetpack\\Tracking\\": "src/"
+                    "Automattic\\Jetpack\\": "src/"
                 }
             },
             "scripts": {

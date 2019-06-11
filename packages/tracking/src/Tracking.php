@@ -3,11 +3,11 @@
  * Nosara Tracks for Jetpack
  */
 
-namespace Automattic\Jetpack\Tracking;
+namespace Automattic\Jetpack;
 
 require_once dirname( dirname( dirname( __DIR__ ) ) ) . '/_inc/lib/tracks/client.php';
 
-class Manager {
+class Tracking {
 	static $product_name = 'jetpack';
 
 	static function track_jetpack_usage() {
@@ -101,4 +101,4 @@ class Manager {
 	}
 }
 
-add_action( 'init', array( 'JetpackTracking', 'track_jetpack_usage' ) );
+add_action( 'init', array( 'Tracking', 'track_jetpack_usage' ) );
