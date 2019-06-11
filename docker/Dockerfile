@@ -54,10 +54,8 @@ RUN curl -o /usr/local/bin/wp -SL https://raw.githubusercontent.com/wp-cli/build
 	&& chmod +x /usr/local/bin/wp
 
 # Install PsySH to use in wp-cli shell
-RUN curl https://git.io/psysh -o psysh \
-	&& chmod +x psysh \
-	&& mv psysh /usr/local/bin \
-	&& echo "require: psysh" >> /var/www/html/wp-cli.yml
+RUN curl https://psysh.org/psysh -L -o /usr/local/bin/psysh \
+	&& chmod +x /usr/local/bin/psysh
 
 # Install PHPUnit
 RUN curl https://phar.phpunit.de/phpunit-7.phar -L -o phpunit.phar \
