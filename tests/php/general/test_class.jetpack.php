@@ -129,6 +129,35 @@ EXPECTED;
 	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url(){
 		return 'http://bjk.staging.wpengine.com';
 	}
+
+	/**
+	 * @dataProvider get_is_staging_site_known_hosting_providers_data
+	 */
+	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
+		$original_site_url = get_option( 'siteurl' );
+		update_option( 'siteurl', $site_url );
+		$result = MockJetpack::is_staging_site();
+		update_option( 'siteurl', $original_site_url );
+		$this->assertTrue(
+			$result,
+			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
+		);
+	}
+
+	public function get_is_staging_site_known_hosting_providers_data() {
+		return array(
+			'wpengine' => array(
+				'http://bjk.staging.wpengine.com',
+			),
+			'kinsta' => array(
+				'http://test.staging.kinsta.com',
+			),
+			'dreampress' => array(
+				'http://ebinnion.stage.site',
+			),
+		);
+	}
+
 	/*
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
