@@ -15,7 +15,7 @@ class Jetpack_Sync_Actions {
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
-	static function init() {
+	public function __construct( Connection_Manager $connection ) {
 		// everything below this point should only happen if we're a valid sync site
 		if ( ! self::sync_allowed() ) {
 			return;
@@ -30,7 +30,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
 		// Sync connected user role changes to .com
-		Jetpack_Sync_Users::init();
+		new Jetpack_Sync_Users( $connection );
 
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );

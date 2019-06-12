@@ -347,6 +347,11 @@ class Jetpack {
 	protected $connection_manager;
 
 	/**
+	 * @var \Jetpack_Sync_Main
+	 */
+	protected $sync_main;
+
+	/**
 	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
 	 */
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
@@ -553,7 +558,7 @@ class Jetpack {
 		} );
 
 		$this->connection_manager = new Connection_Manager( );
-		Jetpack_Sync_Main::init()->set_connection_manager( $this->connection_manager );
+		$this->sync_main = new Jetpack_Sync_Main( $this->connection_manager );
 
 		/**
 		 * Prepare Gutenberg Editor functionality
