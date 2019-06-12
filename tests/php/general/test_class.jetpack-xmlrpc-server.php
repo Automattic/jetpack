@@ -3,6 +3,17 @@
 require_once dirname( __FILE__ ) . '/../../../class.jetpack-xmlrpc-server.php';
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
+	static $xmlrpc_admin = 0;
+
+	public static function wpSetupBeforeClass( $factory ) {
+		$user_id = $factory->user->create();
+		$user = get_user_by( 'ID', $user_id );
+		$user->set_role( 'administrator' );
+		Jetpack::update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
+
+		self::$xmlrpc_admin = $user_id;
+	}
+
 	function test_xmlrpc_features_available() {
 		$server = new Jetpack_XMLRPC_Server();
 		$response = $server->features_available();
@@ -47,32 +58,56 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 
-	function test_xmlrpc_get_user() {
-		$user_id = $this->factory->user->create();
-		$user = get_user_by( 'ID', $user_id );
-		$user->set_role( 'administrator' );
-
+	function test_xmlrpc_get_user_by_id() {
+		$user = get_user_by( 'id', self::$xmlrpc_admin );
 		$server = new Jetpack_XMLRPC_Server();
 
-		$response = $server->get_user( array( 'local_user' => $user_id ) );
+		$response = $server->get_user( $user->ID );
 		$this->assertGetUserEqual( $user, $response );
+		$this->assertEquals( 'key', $response['token_key'] );
+	}
 
-		$response = $server->get_user( array( 'local_user' => $user->user_login ) );
+	function test_xmlrpc_get_user_by_user_login() {
+		$user = get_user_by( 'id', self::$xmlrpc_admin );
+		$server = new Jetpack_XMLRPC_Server();
+
+		$response = $server->get_user( $user->user_login );
 		$this->assertGetUserEqual( $user, $response );
+		$this->assertEquals( 'key', $response['token_key'] );
+	}
 
-		$response = $server->get_user( array( 'local_user' => $user->user_email ) );
+	function test_xmlrpc_get_user_by_user_email() {
+		$user = get_user_by( 'id', self::$xmlrpc_admin );
+		$server = new Jetpack_XMLRPC_Server();
+
+		$response = $server->get_user( $user->user_email );
 		$this->assertGetUserEqual( $user, $response );
+		$this->assertEquals( 'key', $response['token_key'] );
+	}
 
-		$missing_response = $server->get_user( array( 'local_user' => 999999999 ) );
+	function test_xmlrpc_get_user_invalid_input() {
+		$server = new Jetpack_XMLRPC_Server();
+
+		$missing_response = $server->get_user( '' );
+
+		$this->assertEquals( 'IXR_Error', get_class( $missing_response ) );
+		$this->assertEquals( 400, $missing_response->code );
+		$this->assertEquals( 'Jetpack: [invalid_user] Invalid user identifier.', $missing_response->message );
+	}
+
+	function test_xmlrpc_get_user_no_matching_user() {
+		$server = new Jetpack_XMLRPC_Server();
+
+		$missing_response = $server->get_user( 'nope@nope.nope' );
 
 		$this->assertEquals( 'IXR_Error', get_class( $missing_response ) );
 		$this->assertEquals( 404, $missing_response->code );
 		$this->assertEquals( 'Jetpack: [user_unknown] User not found.', $missing_response->message );
 	}
 
-	function assertGetUserEqual( $user, $response ) {
+	protected function assertGetUserEqual( $user, $response ) {
 		$this->assertEquals( $user->ID, $response['id'] );
-		$this->assertEquals( $user->user_email, $response['email'] );
+		$this->assertEquals( md5( strtolower( trim( $user->user_email ) ) ), $response['email_hash'] );
 		$this->assertEquals( $user->user_login, $response['login'] );
 		$this->assertEquals( sort( $user->roles ), sort( $response['roles'] ) );
 		$this->assertEquals( sort( $user->caps ), sort( $response['caps'] ) );

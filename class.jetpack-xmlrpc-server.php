@@ -92,28 +92,38 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 			'jetpack.remoteConnect'   => array( $this, 'remote_connect' ),
+			'jetpack.getUser'         => array( $this, 'get_user' ),
 		);
 	}
 
 	/**
-	 * This is used to verify whether a local user exists and what role they have,
-	 * for the purposes of verifying that they are still a valid master user.
-	 * @param local_user a local user ID, username or email address
-	 * @return id the user's ID
-	 * @return role the user's role
-	 * @return login the user's login, aka username
-	 * @return email the user's email address
-	 * @return caps the user's capabilities
-	 * @return allcaps the user's granular capabilities, merged from role capabilities
+	 * Used to verify whether a local user exists and what role they have.
+	 *
+	 * @param int|string $user_id The local User's ID, username, or email address.
+	 *
+	 * @return array|IXR_Error Information about the user, or error if no such user found:
+	 *                         roles:     string[] The user's rols.
+	 *                         login:     string   The user's username.
+	 *                         email_hash string[] The MD5 hash of the user's normalized email address.
+	 *                         caps       string[] The user's capabilities.
+	 *                         allcaps    string[] The user's granular capabilities, merged from role capabilities.
+	 *                         token_key  string   The Token Key of the user's Jetpack token. Empty string if none.
 	 */
-	function get_user( $request ) {
-		$user = $this->fetch_and_verify_local_user( $request, 'jpc_get_user_fail' );
-
-		if ( is_wp_error( $user ) ) {
-			return $user;
+	function get_user( $user_id ) {
+		if ( ! $user_id ) {
+			return $this->error(
+				new Jetpack_Error(
+					'invalid_user',
+					__( 'Invalid user identifier.', 'jetpack' ),
+					400
+				),
+				'jpc_get_user_fail'
+			);
 		}
 
-		if ( empty( $user ) ) {
+		$user = $this->get_user_by_anything( $user_id );
+
+		if ( ! $user ) {
 			return $this->error(
 				new Jetpack_Error(
 					'user_unknown',
@@ -124,13 +134,26 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
+		$connection = Jetpack::connection();
+		$user_token = $connection->get_access_token( $user->ID );
+
+		if ( $user_token ) {
+			list( $user_token_key, $user_token_private ) = explode( '.', $user_token->secret );
+			if ( $user_token_key === $user_token->secret ) {
+				$user_token_key = '';
+			}
+		} else {
+			$user_token_key = '';
+		}
+
 		return array(
-			'id' => $user->ID,
-			'login' => $user->user_login,
-			'email' => $user->user_email,
-			'roles' => $user->roles,
-			'caps' => $user->caps,
-			'allcaps' => $user->allcaps,
+			'id'         => $user->ID,
+			'login'      => $user->user_login,
+			'email_hash' => md5( strtolower( trim( $user->user_email ) ) ),
+			'roles'      => $user->roles,
+			'caps'       => $user->caps,
+			'allcaps'    => $user->allcaps,
+			'token_key'  => $user_token_key,
 		);
 	}
 
@@ -392,7 +415,7 @@ class Jetpack_XMLRPC_Server {
 		return Jetpack::is_active();
 	}
 
-	private function fetch_and_verify_local_user( $request, $error_slug = 'jpc_remote_provision_fail' ) {
+	private function fetch_and_verify_local_user( $request ) {
 		if ( empty( $request['local_user'] ) ) {
 			return $this->error(
 				new Jetpack_Error(
@@ -400,21 +423,25 @@ class Jetpack_XMLRPC_Server {
 					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
 					400
 				),
-				$error_slug
+				'jpc_remote_provision_fail'
 			);
 		}
 
 		// local user is used to look up by login, email or ID
 		$local_user_info = $request['local_user'];
 
-		$user = get_user_by( 'login', $local_user_info );
+		return $this->get_user_by_anything( $local_user_info );
+	}
+
+	private function get_user_by_anything( $user_id ) {
+		$user = get_user_by( 'login', $user_id );
 
 		if ( ! $user ) {
-			$user = get_user_by( 'email', $local_user_info );
+			$user = get_user_by( 'email', $user_id );
 		}
 
 		if ( ! $user ) {
-			$user = get_user_by( 'ID', $local_user_info );
+			$user = get_user_by( 'ID', $user_id );
 		}
 
 		return $user;
