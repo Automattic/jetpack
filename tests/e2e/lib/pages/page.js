@@ -4,13 +4,13 @@
 import { waitForSelector } from '../page-helper';
 
 export default class Page {
-	constructor( page, { expectedSelector, url = null } ) {
+	constructor( page, { expectedSelector, url = null, expectedWaitMC = 2000 } ) {
 		this.page = page;
 		this.expectedSelector = expectedSelector;
 		this.visit = false;
 		this.url = url;
 		this.name = this.constructor.name;
-		this.explicitWaitMS = 25000;
+		this.explicitWaitMS = expectedWaitMC;
 	}
 
 	/**
@@ -46,7 +46,10 @@ export default class Page {
 	 * Waits for `this.expectedSelector` to become visible on the page.
 	 */
 	async waitForPage() {
-		return await waitForSelector( this.page, this.expectedSelector, { visible: true } );
+		return await waitForSelector( this.page, this.expectedSelector, {
+			visible: true,
+			timeout: this.explicitWaitMS,
+		} );
 	}
 
 	/**

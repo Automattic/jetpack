@@ -8,6 +8,7 @@ export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
 		super( page, { expectedSelector } );
+		this.explicitWaitMS = 45000;
 	}
 
 	async login( wpcomUser ) {
