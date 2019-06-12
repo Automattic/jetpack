@@ -10,14 +10,6 @@ use phpmock\MockBuilder;
 class Test_Manager extends TestCase {
 	private $site_url = 'https://yourjetpack.blog';
 
-	public function setUp() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'add_filter' )
-			->setFunction( function() {} );
-		$builder->build()->enable();
-	}
-
 	public function tearDown() {
 		Mock::disableAll();
 	}
@@ -77,12 +69,12 @@ class Test_Manager extends TestCase {
 		unset( $this->mocked_filters );
 	}
 
-	protected function mock_function( $function_name, $return ) {
+	protected function mock_function( $function_name, $return_value = null ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
 			->setFunction( function() {
-				return $return;
+				return $return_value;
 			} );
 		return $builder->build()->enable();
 	}
