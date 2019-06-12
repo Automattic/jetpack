@@ -80,6 +80,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Automattic\Jetpack\JITM',
 						'Automattic\Jetpack\Connection\Manager',
 						'Automattic\Jetpack\Connection\Manager_Interface',
+						'Automattic\Jetpack\Connection\XMLRPC_Connector',
 						'Jetpack_Options',
 						'Jetpack_Signature',
 						'Jetpack_Sync_Main',
