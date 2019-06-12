@@ -10,7 +10,6 @@ class WPCOM_REST_API_V2_Endpoint_Id_Range {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_range' ),
-				'permission_callback' => array( $this, 'permission_callback' ),
 				'description'         => 'An endpoint to retrieve the minimum and maximum ID from the database table corresponding to the given object type.',
 				'args'                => array(
 					'object_type' => array(
@@ -29,11 +28,6 @@ class WPCOM_REST_API_V2_Endpoint_Id_Range {
 				),
 			),
 		) );
-	}
-
-	public function permission_callback( $request ) {
-		return true;
-		return current_user_can( 'manage_posts' );
 	}
 
 	public function get_range( $request ) {
@@ -75,3 +69,5 @@ class WPCOM_REST_API_V2_Endpoint_Id_Range {
 		return $results;
 	}
 }
+
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Id_Range' );
