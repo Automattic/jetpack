@@ -30,12 +30,15 @@ env:
 matrix:
   include:
   - if: branch !~ /(^branch-.*-built)/
+    name: "JavaScript & CSS lint"
     language: node_js
     env: WP_TRAVISCI="yarn lint"
   - if: branch !~ /(^branch-.*-built)/
+    name: "Danger CI, test dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
   - if: branch !~ /(^branch-.*-built)/
+    name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
   - php: "7.3"
