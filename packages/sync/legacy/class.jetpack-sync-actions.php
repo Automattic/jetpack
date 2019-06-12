@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -113,7 +114,9 @@ class Jetpack_Sync_Actions {
 		if ( Jetpack::is_staging_site() ) {
 			return false;
 		}
-		if ( ! Jetpack::is_active() ) {
+
+		$connection_manager = new Connection_Manager();
+		if ( ! $connection_manager->is_active() ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}

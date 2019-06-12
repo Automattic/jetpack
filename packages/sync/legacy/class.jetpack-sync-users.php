@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Class Jetpack_Sync_Users
  *
@@ -9,7 +11,8 @@ class Jetpack_Sync_Users {
 	static $user_roles = array();
 
 	static function init() {
-		if ( Jetpack::is_active() ) {
+		$connection_manager = new Connection_Manager();
+		if ( $connection_manager->is_active() ) {
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}
