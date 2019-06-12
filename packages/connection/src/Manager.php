@@ -51,7 +51,7 @@ class Manager implements Manager_Interface {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-		return false;
+		return (bool) $this->get_access_token( self::JETPACK_MASTER_USER );
 	}
 
 	/**
