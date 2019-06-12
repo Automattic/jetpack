@@ -16,7 +16,7 @@ export default class JetpackPage extends Page {
 
 		return await Promise.all( [
 			this.page.waitForNavigation( { waitFor: 'networkidle2' } ),
-			waitAndClick( this.page, connectButtonSelector ),
+			this.page.click( connectButtonSelector ),
 		] );
 	}
 
