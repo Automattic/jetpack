@@ -206,11 +206,19 @@ export const Ads = withModuleSettingsFormHelpers(
 								<p>
 									{ isAdsActive &&
 										__(
-											'Jetpack automatically generates a custom {{link}}ads.txt{{/link}} tailored for your site. ' +
-												'If you need to add additional entries for other networks please add them in the space below, one per line.',
+											'Jetpack automatically generates a custom {{link1}}ads.txt{{/link1}} tailored for your site. ' +
+												'If you need to add additional entries for other networks please add them in the space below, one per line. ' +
+												'{{link2}}Check here for more details{{/link2}}.',
 											{
 												components: {
-													link: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
+													link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
+													link2: (
+														<a
+															href="https://jetpack.com/2018/11/09/how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt/"
+															target="_blank"
+															rel="noopener noreferrer"
+														/>
+													),
 												},
 											}
 										) }
