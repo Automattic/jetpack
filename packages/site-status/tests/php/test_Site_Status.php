@@ -73,7 +73,7 @@ class Test_Manager extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
-			->setFunction( function() {
+			->setFunction( function() use ( &$return_value ) {
 				return $return_value;
 			} );
 		return $builder->build()->enable();
