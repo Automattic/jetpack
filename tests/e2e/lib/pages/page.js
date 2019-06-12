@@ -43,7 +43,7 @@ export default class Page {
 	}
 
 	/**
-	 * Waits for `this.expectedSelector` to become visible on the page.
+	 * Waits for `this.expectedSelector` to become visible on the page. In debug session logs page HTML if element not found.
 	 */
 	async waitForPage() {
 		try {
@@ -52,11 +52,11 @@ export default class Page {
 				timeout: this.explicitWaitMS,
 			} );
 		} catch ( e ) {
-			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
-			// eslint-disable-next-line no-console
-			console.log( 'waitForPage failed!' );
-			// eslint-disable-next-line no-console
-			console.log( bodyHTML );
+			if ( process.env.E2E_DEBUG ) {
+				const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
+				// eslint-disable-next-line no-console
+				console.log( bodyHTML );
+			}
 			throw e;
 		}
 	}

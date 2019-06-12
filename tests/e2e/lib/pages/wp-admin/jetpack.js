@@ -12,14 +12,7 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-
-		// For some reason connectButtonSelector not being clicked in CI. Trying to wait, hope it helps :)
 		await waitAndClick( this.page, connectButtonSelector );
-
-		// return await Promise.all( [
-		// 	this.page.waitForNavigation( { waitFor: 'networkidle2' } ),
-		// 	waitAndClick( this.page, connectButtonSelector ),
-		// ] );
 	}
 
 	async jumpstartDisplayed() {

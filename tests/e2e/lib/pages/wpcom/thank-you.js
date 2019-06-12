@@ -13,7 +13,7 @@ export default class ThankYouPage extends Page {
 	async waitForSetupAndProceed() {
 		await waitForSelector( this.page, '.progress-bar.is-pulsing', {
 			hidden: true,
-			timeout: 60000,
+			timeout: 90000,
 		} );
 
 		return await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']" );
