@@ -13,7 +13,7 @@ export default class CheckoutPage extends Page {
 	async processPurchase( cardDetails ) {
 		await this.payWithStoredCardIfPossible( cardDetails );
 		await this.submitPaymentDetails();
-		return this.waitToDisappear();
+		return await this.waitToDisappear();
 	}
 
 	async enterTestCreditCardDetails( {

@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
+import { waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
 
 export default class ThankYouPage extends Page {
 	constructor( page ) {
@@ -11,6 +11,10 @@ export default class ThankYouPage extends Page {
 	}
 
 	async waitForSetupAndProceed() {
+		// Wait for progress bar to appear first
+		isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
+
+		// Then wait it to disappear
 		await waitForSelector( this.page, '.progress-bar.is-pulsing', {
 			hidden: true,
 			timeout: 90000,
