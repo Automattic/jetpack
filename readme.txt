@@ -57,6 +57,11 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 
 * Dashboard: redesign the main VaultPress dashboard.
 
+**Compatibility**
+
+* General: VaultPress now requires PHP 5.3.2, and will display a notice if your site uses an older version of PHP.
+
+
 = 1.9.10 =
 
 * Release date: April 4, 2019
