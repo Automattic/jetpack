@@ -115,7 +115,7 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
-		$connection_manager = new Connection_Manager();
+		$connection_manager = Jetpack_Sync_Main::init()->get_connection_manager();
 		if ( ! $connection_manager->is_active() ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
