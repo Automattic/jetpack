@@ -50,11 +50,13 @@ function vimeo_shortcode( $atts ) {
 		'intval',
 		shortcode_atts(
 			array(
-				'id'       => 0,
-				'width'    => 0,
-				'height'   => 0,
-				'autoplay' => 0,
-				'loop'     => 0,
+				'id'         => 0,
+				'width'      => 0,
+				'height'     => 0,
+				'autoplay'   => 0,
+				'loop'       => 0,
+				'background' => 0,
+				'muted'      => 0,
 			),
 			$atts
 		)
@@ -147,6 +149,22 @@ function vimeo_shortcode( $atts ) {
 		|| in_array( 'loop', $atts, true )              // Catch the argument passed without a value.
 	) {
 		$url = add_query_arg( 'loop', 1, $url );
+	}
+
+	if (
+		isset( $args['background'] ) && '1' === $args['background'] // Parsed from the embedded URL.
+		|| $attr['background']                                    // Parsed from shortcode arguments.
+		|| in_array( 'background', $atts )                        // Catch the argument passed without a value.
+	) {
+		$url = add_query_arg( 'background', 1, $url );
+	}
+
+	if (
+		isset( $args['muted'] ) && '1' === $args['muted'] // Parsed from the embedded URL.
+		|| $attr['muted']                                    // Parsed from shortcode arguments.
+		|| in_array( 'muted', $atts )                        // Catch the argument passed without a value.
+	) {
+		$url = add_query_arg( 'muted', 1, $url );
 	}
 
 	$html = sprintf(
