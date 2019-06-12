@@ -4,6 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev"
 	},
@@ -11,5 +12,13 @@
 		"classmap": [
 			"/legacy"
 		]
-	}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
