@@ -19,7 +19,7 @@ import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glan
 import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 
 /**
@@ -62,6 +62,7 @@ class DashScan extends Component {
 		isDevMode: PropTypes.bool.isRequired,
 		isPluginInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -162,7 +163,7 @@ class DashScan extends Component {
 						"Jetpack's comprehensive security scanning finds issues early so we can help fix them fast."
 					) }
 					disableHref="false"
-					href={ UpgradeLink }
+					href={ this.props.upgradeUrl }
 					event="track_event" // TODO: change this event name
 					plan={ PLAN_JETPACK_PREMIUM }
 					icon="lock"
@@ -255,7 +256,7 @@ class DashScan extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state, { source } ) => {
 	return {
 		vaultPressData: getVaultPressData( state ),
 		scanThreats: getVaultPressScanThreatCount( state ),
@@ -264,5 +265,6 @@ export default connect( state => {
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		showBackups: showBackups( state ),
+		upgradeUrl: getUpgradeUrl( state, source ),
 	};
 } )( DashScan );
