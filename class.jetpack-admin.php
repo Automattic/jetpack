@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {

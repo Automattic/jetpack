@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack;
 
 /**
  * Notify user that VaultPress has been disabled. Hide VaultPress notice that requested attention.

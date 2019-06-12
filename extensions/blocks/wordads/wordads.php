@@ -44,7 +44,7 @@ class Jetpack_WordAds_Gutenblock {
 	 */
 	public static function register() {
 		if ( self::is_available() ) {
-			jetpack_register_block(
+			\Automattic\Jetpack\jetpack_register_block(
 				self::BLOCK_NAME,
 				array(
 					'render_callback' => array( 'Jetpack_WordAds_Gutenblock', 'gutenblock_render' ),

@@ -247,7 +247,7 @@ class Jetpack_Sync_Defaults {
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
 		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
-		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
+		'available_jetpack_blocks'         => array( 'Automattic\Jetpack\Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
 		'paused_themes'                    => array( 'Jetpack_Sync_Functions', 'get_paused_themes' ),
 		'paused_plugins'                   => array( 'Jetpack_Sync_Functions', 'get_paused_plugins' ),
 	);
@@ -562,7 +562,7 @@ class Jetpack_Sync_Defaults {
 
 	static function get_default_setting( $setting ) {
 		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-		return Jetpack_Sync_Defaults::$$default_name;
+		return self::$$default_name;
 	}
 
 	static $default_network_options_whitelist = array(

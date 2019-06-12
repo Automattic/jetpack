@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack;
 
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {

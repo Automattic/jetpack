@@ -243,52 +243,52 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	private static function register_contact_form_blocks() {
-		jetpack_register_block( 'jetpack/contact-form', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/contact-form', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
 		) );
 
 		// Field render methods.
-		jetpack_register_block( 'jetpack/field-text', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-text', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
 		) );
-		jetpack_register_block( 'jetpack/field-name', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-name', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
 		) );
-		jetpack_register_block( 'jetpack/field-email', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-email', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
 		) );
-		jetpack_register_block( 'jetpack/field-url', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-url', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
 		) );
-		jetpack_register_block( 'jetpack/field-date', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-date', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
 		) );
-		jetpack_register_block( 'jetpack/field-telephone', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-telephone', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
 		) );
-		jetpack_register_block( 'jetpack/field-textarea', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-textarea', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 		) );
-		jetpack_register_block( 'jetpack/field-checkbox', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-checkbox', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
 		) );
-		jetpack_register_block( 'jetpack/field-checkbox-multiple', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-checkbox-multiple', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
 		) );
-		jetpack_register_block( 'jetpack/field-radio', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-radio', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
 		) );
-		jetpack_register_block( 'jetpack/field-select', array(
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/field-select', array(
 			'parent'          => array( 'jetpack/contact-form' ),
 			'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 		) );

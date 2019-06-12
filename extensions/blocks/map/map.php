@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
+\Automattic\Jetpack\jetpack_register_block(
 	'jetpack/map',
 	array(
 		'render_callback' => 'jetpack_map_block_load_assets',

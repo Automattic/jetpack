@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Jetpack_Options;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -71,8 +71,31 @@ class Manager implements Manager_Interface {
 	 * @param Integer $user_id the user identifier.
 	 * @return Object the user object.
 	 */
-	public function get_connected_user_data( $user_id ) {
-		return $user_id;
+	public function get_connected_user_data( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$transient_key = "jetpack_connected_user_data_$user_id";
+
+		if ( $cached_user_data = get_transient( $transient_key ) ) {
+			return $cached_user_data;
+		}
+
+		\Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'user_id' => $user_id,
+			)
+		);
+		$xml->query( 'wpcom.getUser' );
+		if ( ! $xml->isError() ) {
+			$user_data = $xml->getResponse();
+			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
+			return $user_data;
+		}
+
+		return false;
 	}
 
 	/**
@@ -157,7 +180,7 @@ class Manager implements Manager_Interface {
 	public function generate_secrets( $action, $user_id, $exp ) {
 		$callable = $this->get_secret_callable();
 
-		$secrets = \Jetpack_Options::get_raw_option(
+		$secrets = Jetpack_Options::get_raw_option(
 			self::SECRETS_OPTION_NAME,
 			array()
 		);
@@ -179,7 +202,7 @@ class Manager implements Manager_Interface {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
+		Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
 		return $secrets[ $secret_name ];
 	}
 
@@ -192,7 +215,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option(
+		$secrets     = Jetpack_Options::get_raw_option(
 			self::SECRETS_OPTION_NAME,
 			array()
 		);
@@ -217,13 +240,13 @@ class Manager implements Manager_Interface {
 	 */
 	public function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option(
+		$secrets     = Jetpack_Options::get_raw_option(
 			self::SECRETS_OPTION_NAME,
 			array()
 		);
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
+			Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
 		}
 	}
 
@@ -531,14 +554,14 @@ class Manager implements Manager_Interface {
 	public function get_access_token( $user_id = false, $token_key = false ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
-		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
+		$user_tokens             = Jetpack_Options::get_option( 'user_tokens' );
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
 				return false;
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
-				$user_id = \Jetpack_Options::get_option( 'master_user' );
+				$user_id = Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
 					return false;
 				}
@@ -555,7 +578,7 @@ class Manager implements Manager_Interface {
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
-			$stored_blog_token = \Jetpack_Options::get_option( 'blog_token' );
+			$stored_blog_token = Jetpack_Options::get_option( 'blog_token' );
 			if ( $stored_blog_token ) {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}

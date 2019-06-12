@@ -266,7 +266,7 @@ add_filter( 'is_jetpack_site', '__return_true' );
  *
  * See: http://jetpack.com/2013/07/11/photon-and-themes/
  */
-if ( Jetpack::is_module_active( 'photon' ) ) {
+if ( \Automattic\Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 }
 
@@ -276,4 +276,4 @@ if ( JETPACK__SANDBOX_DOMAIN ) {
 
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
 
-Jetpack::init();
+\Automattic\Jetpack::init();

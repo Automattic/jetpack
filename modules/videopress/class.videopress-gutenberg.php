@@ -105,7 +105,7 @@ class VideoPress_Gutenberg {
 	 * It defines a server-side rendering that adds VideoPress support to the core video block.
 	 */
 	public function register_video_block_with_videopress() {
-		jetpack_register_block(
+		\Automattic\Jetpack\jetpack_register_block(
 			'core/video',
 			array(
 				'render_callback' => array( $this, 'render_video_block_with_videopress' ),

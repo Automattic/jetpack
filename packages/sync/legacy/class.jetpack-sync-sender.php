@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack;
 use Automattic\Jetpack\Constants;
 
 /**

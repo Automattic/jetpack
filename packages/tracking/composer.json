@@ -4,7 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-options": "@dev"
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
@@ -12,7 +13,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Automattic\\Jetpack\\": "src/"
+			"Automattic\\Jetpack\\": "src/",
+			"Automattic\\Jetpack\\Tracks\\": "src/lib"
 		}
 	},
 	"repositories": [

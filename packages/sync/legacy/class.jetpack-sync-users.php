@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack;
 /**
  * Class Jetpack_Sync_Users
  *

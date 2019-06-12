@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack\Jetpack_Data;
 
 class Jetpack_Client {
 	const WPCOM_JSON_API_VERSION = '1.1';

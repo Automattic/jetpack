@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack\Jetpack_Options;
 
 class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';

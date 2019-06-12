@@ -1,7 +1,13 @@
 <?php
 
+namespace Automattic;
+
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Jetpack_Data;
+use Automattic\Jetpack\Jetpack_Options;
+use Automattic\Jetpack\Jetpack_Gutenberg;
+
 
 /*
 Options:
@@ -31,7 +37,6 @@ use \Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -344,7 +349,7 @@ class Jetpack {
 	/**
 	 * @var \Automattic\Jetpack\Connection\Manager
 	 */
-	protected $connection_manager;
+	public $connection_manager;
 
 	/**
 	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
@@ -633,7 +638,7 @@ class Jetpack {
 		}
 
 		if ( Jetpack::is_active() ) {
-			Jetpack_Heartbeat::init();
+			\Jetpack_Heartbeat::init();
 			if ( Jetpack::is_module_active( 'stats' ) && Jetpack::is_module_active( 'search' ) ) {
 				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
 				Jetpack_Search_Performance_Logger::init();
@@ -1200,10 +1205,10 @@ class Jetpack {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// WP.com: get_locale() returns 'it'
-			$locale = GP_Locales::by_slug( $lang );
+			$locale = \GP_Locales::by_slug( $lang );
 		} else {
 			// Jetpack: get_locale() returns 'it_IT';
-			$locale = GP_Locales::by_field( 'facebook_locale', $lang );
+			$locale = \GP_Locales::by_field( 'facebook_locale', $lang );
 		}
 
 		if ( ! $locale ) {
@@ -1732,28 +1737,7 @@ class Jetpack {
 	 * Get the wpcom user data of the current|specified connected user.
 	 */
 	public static function get_connected_user_data( $user_id = null ) {
-		if ( ! $user_id ) {
-			$user_id = get_current_user_id();
-		}
-
-		$transient_key = "jetpack_connected_user_data_$user_id";
-
-		if ( $cached_user_data = get_transient( $transient_key ) ) {
-			return $cached_user_data;
-		}
-
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $user_id,
-		) );
-		$xml->query( 'wpcom.getUser' );
-		if ( ! $xml->isError() ) {
-			$user_data = $xml->getResponse();
-			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
-			return $user_data;
-		}
-
-		return false;
+		return self::init()->connection_manager->get_connected_user_data( $user_id );
 	}
 
 	/**
@@ -4526,7 +4510,7 @@ p {
 			 */
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
-			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+			$tracks_identity = Tracking::jetpack_tracks_get_identity( get_current_user_id(), $this->connection_manager );
 
 			$args = urlencode_deep(
 				array(
@@ -6970,7 +6954,7 @@ p {
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
 		if ( false === $rewind_enabled ) {
 			jetpack_require_lib( 'class.core-rest-api-endpoints' );
-			$rewind_data = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
+			$rewind_data = (array) \Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
 				&& ! empty( $rewind_data['state'] )
 				&& 'active' === $rewind_data['state'] )
@@ -7119,7 +7103,7 @@ p {
 	}
 
 	function is_active_and_not_development_mode( $maybe ) {
-		if ( ! \Jetpack::is_active() || \Jetpack::is_development_mode() ) {
+		if ( ! self::is_active() || self::is_development_mode() ) {
 			return false;
 		}
 		return true;

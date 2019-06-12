@@ -1,4 +1,5 @@
 <?php
+namespace Automattic\Jetpack\Tracks;
 
 /**
  * @autounit nosara tracks-client
@@ -36,9 +37,7 @@
 ```
  */
 
-require_once( dirname(__FILE__) . '/class.tracks-client.php' );
-
-class Jetpack_Tracks_Event {
+class Event {
 	const EVENT_NAME_REGEX = '/^(([a-z0-9]+)_){2}([a-z0-9_]+)$/';
 	const PROP_NAME_REGEX = '/^[a-z_][a-z0-9_]*$/';
 	public $error;
@@ -56,7 +55,7 @@ class Jetpack_Tracks_Event {
 	}
 
 	function record() {
-		return Jetpack_Tracks_Client::record_event( $this );
+		return Client::record_event( $this );
 	}
 
 	/**
@@ -78,8 +77,8 @@ class Jetpack_Tracks_Event {
 		}
 
 		$validated = array(
-			'browser_type'      => Jetpack_Tracks_Client::BROWSER_TYPE,
-			'_aua'              => Jetpack_Tracks_Client::get_user_agent(),
+			'browser_type'      => Client::BROWSER_TYPE,
+			'_aua'              => Client::get_user_agent(),
 		);
 
 		$_event = (object) array_merge( (array) $event, $validated );
@@ -88,7 +87,7 @@ class Jetpack_Tracks_Event {
 
 		// Make sure we have an event timestamp.
 		if ( ! isset( $_event->_ts ) ) {
-			$_event->_ts = Jetpack_Tracks_Client::build_timestamp();
+			$_event->_ts = Client::build_timestamp();
 		}
 
 		return $_event;
@@ -116,19 +115,19 @@ class Jetpack_Tracks_Event {
 		if ( is_wp_error( $validated ) )
 			return '';
 
-		return Jetpack_Tracks_Client::PIXEL . '?' . http_build_query( $validated );
+		return Client::PIXEL . '?' . http_build_query( $validated );
 	}
 
 	static function event_name_is_valid( $name ) {
-		return preg_match( Jetpack_Tracks_Event::EVENT_NAME_REGEX, $name );
+		return preg_match( Event::EVENT_NAME_REGEX, $name );
 	}
 
 	static function prop_name_is_valid( $name ) {
-		return preg_match( Jetpack_Tracks_Event::PROP_NAME_REGEX, $name );
+		return preg_match( Event::PROP_NAME_REGEX, $name );
 	}
 
 	static function scrutinize_event_names( $event ) {
-		if ( ! Jetpack_Tracks_Event::event_name_is_valid( $event->_en ) ) {
+		if ( ! Event::event_name_is_valid( $event->_en ) ) {
 			return;
 		}
 
@@ -141,7 +140,7 @@ class Jetpack_Tracks_Event {
 			if ( in_array( $key, $whitelisted_key_names ) ) {
 				continue;
 			}
-			if ( ! Jetpack_Tracks_Event::prop_name_is_valid( $key ) ) {
+			if ( ! Event::prop_name_is_valid( $key ) ) {
 				return;
 			}
 		}

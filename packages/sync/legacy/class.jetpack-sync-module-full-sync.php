@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack\Jetpack_Options;
 
 /**
  * This class does a full resync of the database by

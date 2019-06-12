@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack;
 
 /**
  * Subscribers: Get subscriber count

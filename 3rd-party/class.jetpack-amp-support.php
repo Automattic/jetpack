@@ -1,4 +1,5 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack;
 /**
  * Manages compatibility with the amp-wp plugin
  *

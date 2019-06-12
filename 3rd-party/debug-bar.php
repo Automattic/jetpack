@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack;
 /**
  * Checks if the search module is active, and if so, will initialize the singleton instance
  * of Jetpack_Search_Debug_Bar and add it to the array of debug bar panels.

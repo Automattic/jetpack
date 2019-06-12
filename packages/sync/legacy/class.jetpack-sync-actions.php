@@ -1,6 +1,8 @@
 <?php
 
+use Automattic\Jetpack;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Jetpack_Options;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,

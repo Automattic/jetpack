@@ -23,7 +23,7 @@ class Jetpack_Tiled_Gallery_Block {
 	 * Register the block
 	 */
 	public static function register() {
-		jetpack_register_block(
+		\Automattic\Jetpack\jetpack_register_block(
 			'jetpack/tiled-gallery',
 			array(
 				'render_callback' => array( __CLASS__, 'render' ),
@@ -165,7 +165,7 @@ class Jetpack_Tiled_Gallery_Block {
 
 if (
 	( defined( 'IS_WPCOM' ) && IS_WPCOM )
-	|| class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
+	|| class_exists( 'Jetpack_Photon' ) && \Automattic\Jetpack::is_module_active( 'photon' )
 ) {
 	Jetpack_Tiled_Gallery_Block::register();
 }

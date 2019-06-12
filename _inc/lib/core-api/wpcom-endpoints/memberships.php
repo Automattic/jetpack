@@ -1,4 +1,5 @@
 <?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack;
 /**
  * Memberships: API to communicate with "product" database.
  *

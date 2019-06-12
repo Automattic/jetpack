@@ -1,12 +1,13 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+namespace Automattic\Jetpack;
+
+use Automattic\Jetpack;
 /**
  * Handles server-side registration and use of all blocks and plugins available in Jetpack for the block editor, aka Gutenberg.
  * Works in tandem with client-side block registration via `index.json`
  *
  * @package Jetpack
  */
-
-use Automattic\Jetpack\Constants;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -128,7 +129,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a block
 	 *
-	 * @deprecated 7.1.0 Use jetpack_register_block() instead
+	 * @deprecated 7.1.0 Use \Automattic\Jetpack\jetpack_register_block() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into register_block_type().
@@ -136,7 +137,7 @@ class Jetpack_Gutenberg {
 	public static function register_block( $slug, $args ) {
 		_deprecated_function( __METHOD__, '7.1', 'jetpack_register_block' );
 
-		jetpack_register_block( 'jetpack/' . $slug, $args );
+		\Automattic\Jetpack\jetpack_register_block( 'jetpack/' . $slug, $args );
 	}
 
 	/**
@@ -155,7 +156,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Register a block
 	 *
-	 * @deprecated 7.0.0 Use jetpack_register_block() instead
+	 * @deprecated 7.0.0 Use \Automattic\Jetpack\jetpack_register_block() instead
 	 *
 	 * @param string $slug Slug of the block.
 	 * @param array  $args Arguments that are passed into the register_block_type.
@@ -351,7 +352,7 @@ class Jetpack_Gutenberg {
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
-		 * In the function call you supply, use `jetpack_register_block()` to set a block as available.
+		 * In the function call you supply, use `\Automattic\Jetpack\jetpack_register_block()` to set a block as available.
 		 * Alternatively, use `Jetpack_Gutenberg::set_extension_available()` (for a non-block plugin), and
 		 * `Jetpack_Gutenberg::set_extension_unavailable()` (if the block or plugin should not be registered
 		 * but marked as unavailable).
@@ -389,7 +390,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function is_registered( $slug ) {
-		return WP_Block_Type_Registry::get_instance()->is_registered( $slug );
+		return \WP_Block_Type_Registry::get_instance()->is_registered( $slug );
 	}
 
 	/**

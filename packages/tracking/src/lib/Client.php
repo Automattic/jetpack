@@ -1,4 +1,5 @@
 <?php
+namespace Automattic\Jetpack\Tracks;
 
 /**
  * Jetpack_Tracks_Client
@@ -38,9 +39,7 @@
 ```
  */
 
-require_once( dirname(__FILE__).'/class.tracks-client.php' );
-
-class Jetpack_Tracks_Client {
+class Client {
 	const PIXEL = 'https://pixel.wp.com/t.gif';
 	const BROWSER_TYPE = 'php-agent';
 	const USER_AGENT_SLUG = 'tracks-client';
@@ -57,8 +56,8 @@ class Jetpack_Tracks_Client {
 			return false;
 		}
 		
-		if ( ! $event instanceof Jetpack_Tracks_Event ) {
-			$event = new Jetpack_Tracks_Event( $event );
+		if ( ! $event instanceof Event ) {
+			$event = new Event( $event );
 		}
 		if ( is_wp_error( $event ) ) {
 			return $event;
@@ -102,7 +101,7 @@ class Jetpack_Tracks_Client {
 	}
 
 	static function get_user_agent() {
-		return Jetpack_Tracks_Client::USER_AGENT_SLUG . '-v' . Jetpack_Tracks_Client::VERSION;
+		return Client::USER_AGENT_SLUG . '-v' . Client::VERSION;
 	}
 
 	/**
@@ -112,7 +111,7 @@ class Jetpack_Tracks_Client {
 	 * @return string       URL of a tracking pixel
 	 */
 	static function build_pixel_url( $event ) {
-		$_event = new Jetpack_Tracks_Event( $event );
+		$_event = new Event( $event );
 		return $_event->build_pixel_url();
 	}
 
@@ -123,7 +122,7 @@ class Jetpack_Tracks_Client {
 	 * @return mixed        Validated keys and values or WP_Error on failure
 	 */
 	private static function validate_and_sanitize( $event ) {
-		$_event = new Jetpack_Tracks_Event( $event );
+		$_event = new Event( $event );
 		if ( is_wp_error( $_event ) ) {
 			return $_event;
 		}
@@ -171,22 +170,5 @@ class Jetpack_Tracks_Client {
 		}
 
 		return $anon_id;
-	}
-
-	/**
-	 * Gets the WordPress.com user's Tracks identity, if connected.
-	 *
-	 * @return array|bool
-	 */
-	static function get_connected_user_tracks_identity() {
-		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
-			return false;
-		}
-
-		return array(
-			'blogid' => Jetpack_Options::get_option( 'id', 0 ),
-			'userid' => $user_data['ID'],
-			'username' => $user_data['login'],
-		);
 	}
 }

@@ -37,7 +37,6 @@ class Jetpack_Plugin_Search {
 		static $instance = null;
 
 		if ( ! $instance ) {
-			jetpack_require_lib( 'tracks/client' );
 			$instance = new Jetpack_Plugin_Search();
 		}
 

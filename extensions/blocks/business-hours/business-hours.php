@@ -6,8 +6,7 @@
  *
  * @package Jetpack
  */
-
-jetpack_register_block(
+\Automattic\Jetpack\jetpack_register_block(
 	'jetpack/business-hours',
 	array( 'render_callback' => 'jetpack_business_hours_render' )
 );

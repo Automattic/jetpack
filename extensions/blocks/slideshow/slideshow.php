@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
+\Automattic\Jetpack\jetpack_register_block(
 	'jetpack/slideshow',
 	array(
 		'render_callback' => 'jetpack_slideshow_block_load_assets',

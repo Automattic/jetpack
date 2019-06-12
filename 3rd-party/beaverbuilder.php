@@ -1,4 +1,6 @@
 <?php
+use Automattic\Jetpack;
+
 /**
  * Beaverbuilder Compatibility.
  */

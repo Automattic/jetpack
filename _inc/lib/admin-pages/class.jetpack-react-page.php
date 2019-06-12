@@ -1,6 +1,9 @@
 <?php
 include_once( 'class.jetpack-admin-page.php' );
-require_once( JETPACK__PLUGIN_DIR . '/_inc/lib/tracks/class.tracks-client.php' );
+
+use \Automattic\Jetpack;
+use \Automattic\Jetpack\Tracking;
+use \Automattic\Jetpack\Jetpack_Options;
 
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {
@@ -293,7 +296,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorCode' => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
-			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'tracksUserData' => Tracking::get_connected_user_tracks_identity( $this->jetpack->connection_manager ),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl' => esc_url( $last_post ),
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls()

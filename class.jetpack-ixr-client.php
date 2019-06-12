@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack;
 
 defined( 'ABSPATH' ) or die( 'No direct access, please.' );
 

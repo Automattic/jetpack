@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

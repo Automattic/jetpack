@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack;
 
 class Jetpack_Heartbeat {
 

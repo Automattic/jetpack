@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
+\Automattic\Jetpack\jetpack_register_block(
 	'jetpack/repeat-visitor',
 	array(
 		'render_callback' => 'jetpack_repeat_visitor_block_render',

@@ -67,7 +67,7 @@ class Jetpack_RelatedPosts {
 		// Add Related Posts to the REST API Post response.
 		add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
 
-		jetpack_register_block(
+		\Automattic\Jetpack\jetpack_register_block(
 			'jetpack/related-posts',
 			array(
 				'render_callback' => array( $this, 'render_block' ),

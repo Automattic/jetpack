@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack;
 
 /**
  * This class monitors actions and logs them to the queue to be sent

@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack;
 /**
  * Add per-post Publicize Connection data.
  *
