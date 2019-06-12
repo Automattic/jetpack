@@ -21,7 +21,7 @@ async function setupBrowser() {
 
 function enableDebug() {
 	if ( ! process.env.E2E_DEBUG ) {
-		return;
+		// return;
 	}
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 
@@ -38,12 +38,12 @@ function enableDebug() {
 		} );
 	};
 }
+enableDebug();
 
 // Before every test suite run, delete all content created by the test. This ensures
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
 // each other's side-effects.
 beforeAll( async () => {
-	enableDebug();
 	registerScreenshotReporter();
 	registerSlackReporter();
 	await setupBrowser();
