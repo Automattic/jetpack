@@ -17,7 +17,7 @@ export default class JetpackPage extends Page {
 		await this.page.waitFor( 5000 );
 
 		await this.page.evaluate( () => {
-			document.querySelector( connectButtonSelector ).scrollIntoView();
+			document.querySelector( '.jp-connect-full__button-container a' ).scrollIntoView();
 		} );
 
 		return await Promise.all( [
