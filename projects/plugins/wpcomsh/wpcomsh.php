@@ -65,6 +65,10 @@ const WPCOM_CORE_ATOMIC_PLUGINS = [
 	'jetpack/jetpack.php',
 	'akismet/akismet.php',
 ];
+const WPCOM_FEATURE_PLUGINS = [
+	'full-site-editing/full-site-editing-plugin.php',
+	'gutenberg/gutenberg.php',
+];
 
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
@@ -230,8 +234,15 @@ function wpcomsh_managed_plugins_action_links() {
 				"after_plugin_row_{$plugin}",
 				'wpcomsh_show_plugin_auto_managed_notice', 10, 2
 			);
-        }
-    }
+		}
+	}
+
+	foreach ( WPCOM_FEATURE_PLUGINS as $plugin ) {
+		add_action(
+			"after_plugin_row_{$plugin}",
+			'wpcomsh_show_plugin_auto_managed_notice', 10, 2
+		);
+	}
 }
 add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
@@ -284,6 +295,7 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 
 function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 	$plugin_name = 'The plugin';
+	$active      = is_plugin_active( $file ) ? ' active' : '';
 
 	if ( array_key_exists( 'Name', $plugin_data ) ) {
 		$plugin_name = $plugin_data['Name'];
@@ -291,8 +303,12 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 
 	$message = sprintf( __( '%s is automatically managed for you.' ), $plugin_name );
 
+	if ( in_array( $file, WPCOM_FEATURE_PLUGINS, true ) ) {
+		$message = esc_html__( 'This plugin was installed by WordPress.com and provides features offered in your plan subscription.' );
+	}
+
 	echo
-		'<tr class="plugin-update-tr active">' .
+		'<tr class="plugin-update-tr' . $active . '">' .
 			'<td colspan="4" class="plugin-update colspanchange">' .
 				'<div class="notice inline notice-success notice-alt">' .
 					"<p>{$message}</p>" .
@@ -300,6 +316,42 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 			'</td>' .
 		'</tr>';
 }
+
+/**
+ * Filters whether Starter Page Templates should be disabled.
+ *
+ * @param bool $should_disable Whether the feature should be disabled.
+ * @return bool
+ */
+function wpcomsh_maybe_disable_spt( $should_disable ) {
+	$enabled_themes = [
+		'business',
+		'business-wpcom',
+		'calm-business',
+		'calm-business-wpcom',
+		'elegant-business',
+		'elegant-business-wpcom',
+		'friendly-business',
+		'friendly-business-wpcom',
+		'modern-business',
+		'modern-business-wpcom',
+		'professional-business',
+		'professional-business-wpcom',
+		'sophisticated-business',
+		'sophisticated-business-wpcom',
+	];
+
+	if ( ! in_array( get_stylesheet(), $enabled_themes, true ) ) {
+		return true;
+	}
+
+	return $should_disable;
+}
+add_filter( 'a8c_disable_starter_page_templates', 'wpcomsh_maybe_disable_spt' );
+
+// Disable until they're ready for prime time.
+add_filter( 'a8c_disable_full_site_editing', '__return_true', 99 );
+add_filter( 'a8c_disable_starter_page_templates', '__return_true', 99 );
 
 function wpcomsh_register_theme_hooks() {
 	add_filter(
@@ -473,7 +525,7 @@ add_action( 'wp_dashboard_setup', 'wpcomsh_remove_dashboard_widgets' );
 
 /**
  * Pressable only
- * 
+ *
  * Filter attachment URLs if the 'wpcom_attachment_subdomain' option is present.
  * Local image files will be unaffected, as they will pass a file_exists check.
  * Files stored remotely will be filtered to have the correct URL.

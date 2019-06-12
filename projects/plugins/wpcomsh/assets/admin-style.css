@@ -32,13 +32,17 @@
 /************* Plugins Page **************/
 
 .wp-list-table tr[data-slug="akismet"] > *,
+.wp-list-table tr[data-slug="full-site-editing"] > *,
+.wp-list-table tr[data-slug="gutenberg"] > *,
 .wp-list-table tr[data-slug="jetpack"] > *,
 .wp-list-table tr[data-slug="amp"] > * {
-	-webkit-box-shadow: none;
-	box-shadow: none;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important; /* Can otherwise be overridden by https://core.trac.wordpress.org/browser/tags/5.2.1/src/wp-admin/css/list-tables.css#L1217 */
 }
 
 .wp-list-table #akismet-update,
+.wp-list-table #full-site-editing-update,
+.wp-list-table #gutenberg-update,
 .wp-list-table #jetpack-update,
 .wp-list-table #amp-update {
 	display: none;

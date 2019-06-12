@@ -79,6 +79,11 @@ We also hide the bulk plugins deactivation on the wp-admin/plugins page for all 
 
 We show a similar message to the update one under Akismet, Jetpack and VaultPress telling users that those plugins are auto-managed for them (an explanation why they can’t deactivate or edit them).
 
+### Denoting Plugins to enable WP.com features
+
+Plugins that bridge the gap between WP.com and Atomic, enabling WP.com-only features that are part of users' plans, receive a green banner with that information.
+This allows users to make an informed decision when enabling/disabling these plugins. 
+
 ### Symlinking WP.com pub (free) and premium themes
 
 We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into  Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
