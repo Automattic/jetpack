@@ -12,11 +12,12 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container a';
-		await waitForSelector( this.page, connectButtonSelector, { visible: true } );
 
+		// For some reason connectButtonSelector not being clicked in CI. Trying to wait, hope it helps :)
+		await this.page.waitFor( 2000 );
 		return await Promise.all( [
 			this.page.waitForNavigation( { waitFor: 'networkidle2' } ),
-			this.page.click( connectButtonSelector ),
+			waitAndClick( this.page, connectButtonSelector ),
 		] );
 	}
 
