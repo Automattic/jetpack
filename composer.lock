@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fa9992a37eabfa1d53bee78a855ce7a",
+    "content-hash": "f7f4d24fecec777607cdaa851e72d8ba",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
@@ -462,6 +462,67 @@
             "time": "2018-10-26T13:21:45+00:00"
         },
         {
+            "name": "php-mock/php-mock",
+            "version": "2.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-mock/php-mock.git",
+                "reference": "35379d7b382b787215617f124662d9ead72c15e3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-mock/php-mock/zipball/35379d7b382b787215617f124662d9ead72c15e3",
+                "reference": "35379d7b382b787215617f124662d9ead72c15e3",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 || ^7.0",
+                "phpunit/php-text-template": "^1"
+            },
+            "replace": {
+                "malkusch/php-mock": "*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^8.0"
+            },
+            "suggest": {
+                "php-mock/php-mock-phpunit": "Allows integration into PHPUnit testcase with the trait PHPMock."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "phpmock\\": [
+                        "classes/",
+                        "tests/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "WTFPL"
+            ],
+            "authors": [
+                {
+                    "name": "Markus Malkusch",
+                    "email": "markus@malkusch.de",
+                    "homepage": "http://markus.malkusch.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP-Mock can mock built-in PHP functions (e.g. time()). PHP-Mock relies on PHP's namespace fallback policy. No further extension is needed.",
+            "homepage": "https://github.com/php-mock/php-mock",
+            "keywords": [
+                "BDD",
+                "TDD",
+                "function",
+                "mock",
+                "stub",
+                "test",
+                "test double"
+            ],
+            "time": "2019-06-05T20:10:01+00:00"
+        },
+        {
             "name": "phpcompatibility/php-compatibility",
             "version": "9.1.1",
             "source": {
@@ -618,6 +679,47 @@
                 "wordpress"
             ],
             "time": "2018-10-07T18:31:37+00:00"
+        },
+        {
+            "name": "phpunit/php-text-template",
+            "version": "1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-text-template.git",
+                "reference": "31f8b717e51d9a2afca6c9f046f5d69fc27c8686"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/31f8b717e51d9a2afca6c9f046f5d69fc27c8686",
+                "reference": "31f8b717e51d9a2afca6c9f046f5d69fc27c8686",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Bergmann",
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
+                }
+            ],
+            "description": "Simple template engine.",
+            "homepage": "https://github.com/sebastianbergmann/php-text-template/",
+            "keywords": [
+                "template"
+            ],
+            "time": "2015-06-21T13:50:34+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
