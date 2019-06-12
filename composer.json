@@ -24,7 +24,8 @@
 		"wp-coding-standards/wpcs": "2.1.1",
 		"sirbrillig/phpcs-variable-analysis": "2.6.4",
 		"phpcompatibility/phpcompatibility-wp": "2.0.0",
-		"automattic/jetpack-autoloader": "@dev"
+		"automattic/jetpack-autoloader": "@dev",
+		"php-mock/php-mock": "^2.1"
 	},
 	"scripts": {
 		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
