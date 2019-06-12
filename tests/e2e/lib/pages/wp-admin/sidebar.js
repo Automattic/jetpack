@@ -15,7 +15,10 @@ export default class Sidebar extends Page {
 		const menuItemSelector =
 			'#toplevel_page_jetpack a[href$="jetpack#/dashboard"], #toplevel_page_jetpack a[href$="jetpack"]';
 
-		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+		return await Promise.all( [
+			this.page.waitForNavigation( { waitFor: 'networkidle2' } ),
+			this._selectMenuItem( jetpackMenuSelector, menuItemSelector ),
+		] );
 	}
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
