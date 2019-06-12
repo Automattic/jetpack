@@ -553,6 +553,7 @@ class Jetpack {
 		} );
 
 		$this->connection_manager = new Connection_Manager( );
+		Jetpack_Sync_Main::init()->set_connection_manager( $this->connection_manager );
 
 		/**
 		 * Prepare Gutenberg Editor functionality
