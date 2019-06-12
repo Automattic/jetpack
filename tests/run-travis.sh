@@ -25,7 +25,11 @@ echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
-	run_packages_tests
+	# Run package tests only for the latest WordPress branch, because the
+	# tests are independent of the version.
+	if [ "latest" == "$WP_BRANCH" ]; then
+		run_packages_tests
+	fi
 
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
@@ -37,7 +41,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	echo "Running \`$WP_TRAVISCI\` with:"
 	echo " - $(phpunit --version)"
 	echo " - WordPress branch: $WP_BRANCH"
-	if [ "$WP_BRANCH" == "master" ]; then
+	if [ "master" == "$WP_BRANCH" ]; then
 		echo " - Because WordPress is in master branch, will also attempt to test multisite."
 	fi
 
