@@ -19,7 +19,7 @@ env:
   - WP_TRAVISCI=phpunit
   # Run phpunit in Travis matrix for these combinations
   matrix:
-  - WP_MODE=single WP_BRANCH=master   SCOPE=full
+  - WP_MODE=single WP_BRANCH=master   SCOPE=full PHP_LINT=1
   - WP_MODE=single WP_BRANCH=latest   SCOPE=full
   - WP_MODE=single WP_BRANCH=previous SCOPE=full
   - WP_MODE=multi  WP_BRANCH=master   SCOPE=full
