@@ -63,11 +63,11 @@ class WPCOM_REST_API_V2_Endpoint_Id_Range {
 				)
 			);
 			if ( empty( $result->min ) && empty( $result->max ) ) {
-				$current_max = $total->max;
+				$current_max = (int) $total->max;
 				$result      = (object) array( 'min' => $current_min, 'max' => $current_max );
 			} else {
-				$current_min = $result->min;
-				$current_max = $result->max;
+				$current_min = (int) $result->min;
+				$current_max = (int) $result->max;
 			}
 			$results[] = $result;
 		}
@@ -75,5 +75,3 @@ class WPCOM_REST_API_V2_Endpoint_Id_Range {
 		return $results;
 	}
 }
-
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Id_Range' );
