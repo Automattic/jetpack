@@ -17,6 +17,5 @@
 .eslintrc.js
 .jshintrc
 .npmrc
-.nvmrc
 .phpcs.xml.dist
 .prettierrc

@@ -15,7 +15,7 @@
 		"automattic/jetpack-autoloader": "1.0.0"
 	},
 	"scripts": {
-		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:compatibility": "composer install && vendor/bin/phpcs -p -s -n --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
 		"php:lint": "composer install && vendor/bin/phpcs -p -s",
 		"php:autofix": "composer install && vendor/bin/phpcbf",
 		"php:lint:errors": "composer install && vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
