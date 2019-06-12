@@ -6,6 +6,8 @@
  * [vimeo 141358]
  * [vimeo http://vimeo.com/141358]
  * [vimeo 141358 h=500&w=350]
+ * [vimeo 141358 muted=1&autoplay=1]
+ * [vimeo 18427511 background=1&muted=1&autoplay=1]
  * [vimeo id=141358 width=350 height=500]
  *
  * <iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo 'We Got More' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>
