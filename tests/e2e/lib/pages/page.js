@@ -4,7 +4,7 @@
 import { waitForSelector } from '../page-helper';
 
 export default class Page {
-	constructor( page, { expectedSelector, url = null, expectedWaitMC = 2000 } ) {
+	constructor( page, { expectedSelector, url = null, expectedWaitMC = 25000 } ) {
 		this.page = page;
 		this.expectedSelector = expectedSelector;
 		this.visit = false;
@@ -46,10 +46,19 @@ export default class Page {
 	 * Waits for `this.expectedSelector` to become visible on the page.
 	 */
 	async waitForPage() {
-		return await waitForSelector( this.page, this.expectedSelector, {
-			visible: true,
-			timeout: this.explicitWaitMS,
-		} );
+		try {
+			await waitForSelector( this.page, this.expectedSelector, {
+				visible: true,
+				timeout: this.explicitWaitMS,
+			} );
+		} catch ( e ) {
+			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
+			// eslint-disable-next-line no-console
+			console.log( 'waitForPage failed!' );
+			// eslint-disable-next-line no-console
+			console.log( bodyHTML );
+			throw e;
+		}
 	}
 
 	/**
