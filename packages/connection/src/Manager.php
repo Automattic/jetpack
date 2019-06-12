@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking\Manager as JetpackTracking;
+use Automattic\Jetpack\Tracking;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -257,10 +257,10 @@ class Manager implements Manager_Interface {
 
 		$user = get_user_by( 'id', $user_id );
 
-		JetpackTracking::record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+		Tracking::record_user_event( "jpc_verify_{$action}_begin", array(), $user );
 
 		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
-			JetpackTracking::record_user_event(
+			Tracking::record_user_event(
 				"jpc_verify_{$action}_fail",
 				array(
 					'error_code'    => $error->get_error_code(),
@@ -343,7 +343,7 @@ class Manager implements Manager_Interface {
 			);
 		}
 
-		JetpackTracking::record_user_event( "jpc_verify_{$action}_success", array(), $user );
+		Tracking::record_user_event( "jpc_verify_{$action}_success", array(), $user );
 
 		return $stored_secrets['secret_2'];
 	}
