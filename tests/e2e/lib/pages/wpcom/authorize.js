@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector } from '../../page-helper';
+import { waitForSelector, waitAndClick } from '../../page-helper';
 
 export default class AuthorizePage extends Page {
 	constructor( page ) {
@@ -12,7 +12,7 @@ export default class AuthorizePage extends Page {
 
 	async approve() {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
-		await ( await waitForSelector( this.page, authorizeButtonSelector ) ).click();
+		await waitAndClick( this.page, authorizeButtonSelector );
 		return await this.waitToDisappear();
 	}
 

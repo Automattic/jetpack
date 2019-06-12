@@ -21,7 +21,7 @@ async function setupBrowser() {
 
 function enableDebug() {
 	if ( ! process.env.E2E_DEBUG ) {
-		// return;
+		return;
 	}
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 

@@ -16,6 +16,13 @@ export default class ThankYouPage extends Page {
 			timeout: 90000,
 		} );
 
-		return await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']" );
+		await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']" );
+		return await this.waitToDisappear();
+	}
+
+	async waitToDisappear() {
+		return await waitForSelector( this.page, this.expectedSelector, {
+			hidden: true,
+		} );
 	}
 }
