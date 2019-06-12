@@ -20,24 +20,38 @@ defined( 'ABSPATH' ) or die();
  * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
  * If the autoloader is not present, let's log the failure, pause VaultPress, and display a nice admin notice.
  */
-$loader = dirname( __FILE__ ) . '/vendor/autoload.php';
+$loader = plugin_dir_path(__FILE__ ) . 'vendor/autoload_packages.php';
+
 if ( is_readable( $loader ) ) {
 	require $loader;
 } else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log(
+			wp_kses(
+				__( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ),
+				array( 'code' => true )
+			)
+		);
+	}
+	/**
+	 * Outputs an admin notice for folks running VaultPress without having run `composer install`.
+	 */
+	function vaultpress_admin_missing_autoloader() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+					echo wp_kses(
+						__( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ),
+						array( 'code' => true )
+					);
+				?>
+			</p>
+		</div>
+		<?php
+	}
 	add_action( 'admin_notices', 'vaultpress_admin_missing_autoloader' );
 	return;
-}
-
-/**
- * Outputs an admin notice for folks running VaultPress without having run `composer install`.
- */
-function vaultpress_admin_missing_autoloader() { ?>
-	<div class="notice notice-error is-dismissible">
-		<p>
-			<?php _e( 'Your installation of VaultPress is incomplete. If you installed it from GitHub, please run <code>composer install</code>.', 'vaultpress' ); ?>
-		</p>
-	</div>
-	<?php
 }
 
 class VaultPress {

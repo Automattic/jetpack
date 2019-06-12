@@ -11,6 +11,7 @@
         "automattic/jetpack-logo": "1.1.0"
     },
     "require-dev": {
-        "automattic/jetpack-standards": "master-dev"
+        "automattic/jetpack-standards": "master-dev",
+        "automattic/jetpack-autoloader": "1.0.0"
     }
 }
