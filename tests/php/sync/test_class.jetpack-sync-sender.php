@@ -1,11 +1,34 @@
 <?php
 
-class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
+namespace Automattic\Jetpack\Tests\Sync;
+
+use phpmock\environment\SleepEnvironmentBuilder;
+
+class WP_Test_Jetpack_Sync_Sender extends \WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
 	protected $action_codec;
 	protected $action_timestamp;
 	protected $encoded_data;
 	protected $filter_ran;
+
+	function setUp() {
+		parent::setUp();
+
+		$current_time = time();
+		$builder = new SleepEnvironmentBuilder();
+		$builder->addNamespace( __NAMESPACE__ )
+		        ->setTimestamp( $current_time );
+
+		$this->sleep_environment = $builder->build();
+		$this->sleep_environment->enable();
+	}
+
+	function tearDown() {
+		$this->sleep_environment->disable();
+		unset( $this->sleep_environment );
+
+		parent::tearDown();
+	}
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
 		// some trivial action so that there's an item in the queue
@@ -262,7 +285,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_reset_module_also_resets_full_sync_lock() {
-		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$full_sync = \Jetpack_Sync_Modules::get_module( 'full-sync' );
 		$full_sync->start();
 		$status = $full_sync->get_status();
 		$this->assertTrue( $full_sync->is_started() );
@@ -297,7 +320,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$processed_item_ids = $this->server->receive( $data, null, $sent_timestamp );
 
 		// add an error at the end
-		$processed_item_ids[] = new WP_Error( 'an_error', 'An Error Occurred' );
+		$processed_item_ids[] = new \WP_Error( 'an_error', 'An Error Occurred' );
 
 		return $processed_item_ids;
 	}
@@ -313,7 +336,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function serverReceiveWithError( $data, $codec, $sent_timestamp ) {
-		return new WP_Error( 'an_error', 'An Error Occurred' );
+		return new \WP_Error( 'an_error', 'An Error Occurred' );
 	}
 
 	function test_delays_next_send_if_exceeded_sync_wait_threshold() {
@@ -335,21 +358,21 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// test with strings, non-strings, 0 and null
 
 		ini_set( 'max_execution_time', '30' );
-		$this->assertEquals( 10, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 10, \Jetpack_Sync_Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', 65 );
-		$this->assertEquals( 21, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 21, \Jetpack_Sync_Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', '0' );
-		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 20, \Jetpack_Sync_Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', null );
-		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 20, \Jetpack_Sync_Defaults::get_max_sync_execution_time() );
 	}
 
 	function test_limits_execution_time_of_do_sync() {
 		// disable sync callables
-		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( \Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->sender->get_sync_queue()->size() );
