@@ -5266,6 +5266,9 @@ p {
 		);
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
+		// Be careful about what you do with this debugging data.
+		// If a malicious requester has access to the expected signature,
+		// bad things will happen.
 		$signature_details['expected'] = $signature;
 
 		if ( ! $signature ) {
