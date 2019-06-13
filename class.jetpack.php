@@ -4532,7 +4532,7 @@ p {
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
 
-			$tracks = new Automattic\Jetpack\Tracking();
+			$tracks = new Tracking();
 			$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 			$args = urlencode_deep(
