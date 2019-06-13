@@ -5171,10 +5171,10 @@ p {
 	 */
 	function verify_xml_rpc_signature() {
 		if ( is_null( $this->xmlrpc_verification ) ) {
-			$this->verify_xml_rpc_signature = $this->internal_verify_xml_rpc_signature();
+			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
 
-			if ( is_wp_error( $this->verify_xml_rpc_signature ) ) {
-				do_action( 'jetpack_verify_signature_error', $this->verify_xml_rpc_signature );
+			if ( is_wp_error( $this->xmlrpc_verification ) ) {
+				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
 			}
 		}
 
