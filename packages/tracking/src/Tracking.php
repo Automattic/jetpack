@@ -47,19 +47,44 @@ class Tracking {
 	}
 
 	/**
+	 * Record an event in Tracks - this is the preferred way to record events from PHP.
+	 *
+	 * @param mixed $identity username, user_id, or WP_user object
+	 * @param string $event_name The name of the event
+	 * @param array $properties Custom properties to send with the event
+	 * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
+	 *
+	 * @return bool true for success | \WP_Error if the event pixel could not be fired
+	 */
+	function tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+
+		// We don't want to track user events during unit tests/CI runs.
+		if ( $user instanceof \WP_User && 'wptests_capabilities' === $user->cap_key ) {
+			return false;
+		}
+
+		$event_obj = $this->tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
+
+		if ( is_wp_error( $event_obj->error ) ) {
+			return $event_obj->error;
+		}
+
+		return $event_obj->record();
+	}
+
+	/**
 	 * Procedurally build a Tracks Event Object.
-	 * NOTE: Use this only when the simpler \Automattic\Jetpack\Tracking->jetpack_tracks_record_event() function won't work for you.
+	 * NOTE: Use this only when the simpler Automattic\Jetpack\Tracking->jetpack_tracks_record_event() function won't work for you.
 	 *
 	 * @param $identity WP_user object
-	 * @param string                  $event_name The name of the event
-	 * @param array                   $properties Custom properties to send with the event
-	 * @param int                     $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
+	 * @param string $event_name The name of the event
+	 * @param array $properties Custom properties to send with the event
+	 * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
+	 *
 	 * @return \Jetpack_Tracks_Event|\WP_Error
 	 */
 	function tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
-
-		$tracks   = new \Automattic\Jetpack\Tracking();
-		$identity = $tracks->tracks_get_identity( $user->ID );
+		$identity = $this->tracks_get_identity( $user->ID );
 
 		$properties['user_lang'] = $user->get( 'WPLANG' );
 
@@ -83,10 +108,11 @@ class Tracking {
 		);
 	}
 
-	/*
+	/**
 	 * Get the identity to send to tracks.
 	 *
 	 * @param int $user_id The user id of the local user
+	 *
 	 * @return array $identity
 	 */
 	function tracks_get_identity( $user_id ) {
@@ -127,30 +153,5 @@ class Tracking {
 			'_ui' => $anon_id,
 		);
 
-	}
-
-	/**
-	 * Record an event in Tracks - this is the preferred way to record events from PHP.
-	 *
-	 * @param mixed  $identity username, user_id, or WP_user object
-	 * @param string $event_name The name of the event
-	 * @param array  $properties Custom properties to send with the event
-	 * @param int    $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
-	 * @return bool true for success | \WP_Error if the event pixel could not be fired
-	 */
-	function tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
-
-		// We don't want to track user events during unit tests/CI runs.
-		if ( $user instanceof WP_User && 'wptests_capabilities' === $user->cap_key ) {
-			return false;
-		}
-
-		$event_obj = $this->tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
-
-		if ( is_wp_error( $event_obj->error ) ) {
-			return $event_obj->error;
-		}
-
-		return $event_obj->record();
 	}
 }

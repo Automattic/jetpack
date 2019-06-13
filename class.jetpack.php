@@ -4532,7 +4532,7 @@ p {
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
 
-			$tracks = new \Automattic\Jetpack\Tracking();
+			$tracks = new Automattic\Jetpack\Tracking();
 			$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 			$args = urlencode_deep(
@@ -5063,7 +5063,7 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$tracks = new \Automattic\Jetpack\Tracking();
+		$tracks = new Automattic\Jetpack\Tracking();
 		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$args = array(

@@ -452,7 +452,7 @@ class Jetpack_Network {
 		$stat_id = $stat_options = isset( $stats_options['blog_id'] ) ? $stats_options['blog_id'] : null;
 		$user_id = get_current_user_id();
 
-		$tracks = new \Automattic\Jetpack\Tracking();
+		$tracks = new Automattic\Jetpack\Tracking();
 		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		/*

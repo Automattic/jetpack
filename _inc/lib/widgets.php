@@ -558,7 +558,7 @@ class Jetpack_Widgets {
 		// Add a Tracks event for non-Headstart activity.
 		if ( ! defined( 'HEADSTART' ) ) {
 			jetpack_require_lib( 'tracks/client' );
-			$tracking = new \Automattic\Jetpack\Tracking();
+			$tracking = new Automattic\Jetpack\Tracking();
 			$tracking->jetpack_tracks_record_event( wp_get_current_user(), 'wpcom_widgets_activate_widget', array(
 				'widget' => $id_base,
 				'settings' => json_encode( $settings ),
