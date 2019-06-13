@@ -12,12 +12,10 @@ export default class ThankYouPage extends Page {
 
 	async waitForSetupAndProceed() {
 		// Wait for progress bar to appear first
-		isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
+		await isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
 
 		// Click on "Hide Message"
-		await waitAndClick( this.page, ".current-plan-thank-you a[href*='my-plan']", {
-			timeout: 60000 * 3, // 3 min
-		} );
+		await waitAndClick( this.page, ".current-plan-thank-you a[href*='my-plan']" );
 		return await this.waitToDisappear();
 	}
 

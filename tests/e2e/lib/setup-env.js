@@ -14,6 +14,8 @@ if ( E2E_DEBUG ) {
 }
 
 async function setupBrowser() {
+	const userAgent = await browser.userAgent();
+	await page.setUserAgent( userAgent + ' wp-e2e-tests' );
 	await setBrowserViewport( 'large' );
 }
 
