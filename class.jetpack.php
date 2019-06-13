@@ -3267,7 +3267,8 @@ p {
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
-			$this->tracking->record_user_event( 'disconnect_site', array() );
+		    $tracking = new Tracking();
+			$tracking->record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister' );
@@ -5038,7 +5039,8 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		$this->tracking->record_user_event( 'jpc_register_begin' );
+		$tracking = new Tracking();
+		$tracking->tracking->record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
