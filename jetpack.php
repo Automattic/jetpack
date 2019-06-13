@@ -144,7 +144,6 @@ function jetpack_admin_missing_autoloader() { ?>
 		);
 		?>
 		</p>
-	</p>
 	</div>
 	<?php
 }
