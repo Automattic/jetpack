@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
@@ -31,7 +31,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -68,7 +68,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -97,7 +97,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -135,7 +135,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -165,7 +165,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -192,7 +192,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -216,7 +216,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -374,7 +374,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-update/package-tracks-move-more-things-into-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
