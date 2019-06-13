@@ -39,7 +39,7 @@ class Jetpack {
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
-	public $tracking;
+	private $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
