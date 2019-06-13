@@ -5064,7 +5064,7 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$tracks = new Automattic\Jetpack\Tracking();
+		$tracks = new Tracking();
 		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$args = array(
