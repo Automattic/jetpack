@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 class Jetpack_Comic {
 	const POST_TYPE = 'jetpack-comic';
 
@@ -172,9 +174,10 @@ class Jetpack_Comic {
 		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
 		wp_style_add_data( 'jetpack-comics-style', 'rtl', 'replace' );
 
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-comics',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/custom-post-types/comics/comics.min.js',
 				'modules/custom-post-types/comics/comics.js'
 			),

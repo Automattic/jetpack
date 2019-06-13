@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
 
 /**
  * Hide or show widgets conditionally.
@@ -23,9 +24,10 @@ class Jetpack_Widget_Conditions {
 	public static function widget_admin_setup() {
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'widget-conditions',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/widget-visibility/widget-conditions/widget-conditions.min.js',
 				'modules/widget-visibility/widget-conditions/widget-conditions.js'
 			),

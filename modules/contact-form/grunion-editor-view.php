@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 /*
  * A prototype to allow inline editing / editor views for contact forms.\
  *
@@ -39,7 +41,8 @@ class Grunion_Editor_View {
 	}
 
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] = Jetpack::get_file_url_for_environment(
+		$asset_tools = new Asset_Tools();
+		$plugin_array['grunion_form'] = $asset_tools->get_file_url_for_environment(
 			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
 			'modules/contact-form/js/tinymce-plugin-form-button.js'
 		);
@@ -67,9 +70,10 @@ class Grunion_Editor_View {
 
 		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ) );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'grunion-editor-view',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/contact-form/js/editor-view.min.js',
 				'modules/contact-form/js/editor-view.js'
 			),

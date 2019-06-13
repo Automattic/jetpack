@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack\Asset_Tools;
 /*
 Plugin Name: Jetpack Carousel
 Plugin URL: https://wordpress.com/
@@ -227,9 +227,10 @@ class Jetpack_Carousel {
 
 	function enqueue_assets() {
 		if ( $this->first_run ) {
+			$asset_tools = new Asset_Tools();
 			wp_enqueue_script(
 				'jetpack-carousel',
-				Jetpack::get_file_url_for_environment(
+				$asset_tools->get_file_url_for_environment(
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),

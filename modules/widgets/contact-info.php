@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 	//register Contact_Info_Widget widget
@@ -15,6 +17,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 	 * @package WordPress
 	 */
 	class Jetpack_Contact_Info_Widget extends WP_Widget {
+
+		/**
+		 * @var Asset_Tools
+		 */
+		protected $asset_tools;
 
 		/**
 		 * Constructor
@@ -36,6 +43,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			}
+
+			$this->asset_tools = new Asset_Tools();
 		}
 
 		/**
@@ -245,7 +254,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			wp_enqueue_script(
 				'contact-info-admin',
-				Jetpack::get_file_url_for_environment(
+				$this->asset_tools->get_file_url_for_environment(
 					'_inc/build/widgets/contact-info/contact-info-admin.min.js',
 					'modules/widgets/contact-info/contact-info-admin.js'
 				),

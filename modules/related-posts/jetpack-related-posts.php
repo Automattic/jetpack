@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Asset_Tools;
+
 class Jetpack_RelatedPosts {
 	const VERSION   = '20190204';
 	const SHORTCODE = 'jetpack-related-posts';
@@ -1649,9 +1652,10 @@ EOT;
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
+			$asset_tools = new Asset_Tools();
 			wp_enqueue_script(
 				'jetpack_related-posts',
-				Jetpack::get_file_url_for_environment(
+				$asset_tools->get_file_url_for_environment(
 					'_inc/build/related-posts/related-posts.min.js',
 					'modules/related-posts/related-posts.js'
 				),

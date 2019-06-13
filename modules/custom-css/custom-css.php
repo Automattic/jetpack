@@ -930,9 +930,11 @@ class Jetpack_Custom_CSS {
 			return;
 
 		wp_enqueue_script( 'postbox' );
+
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'custom-css-editor',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/css-editor.min.js',
 				'modules/custom-css/custom-css/js/css-editor.js'
 			),
@@ -949,7 +951,7 @@ class Jetpack_Custom_CSS {
 			wp_register_script( 'jetpack-css-codemirror', plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
 			wp_enqueue_script(
 				'jetpack-css-use-codemirror',
-				Jetpack::get_file_url_for_environment(
+				$asset_tools->get_file_url_for_environment(
 					'_inc/build/custom-css/custom-css/js/use-codemirror.min.js',
 					'modules/custom-css/custom-css/js/use-codemirror.js'
 				),

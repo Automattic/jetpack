@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Asset_Tools;
+
 /**
  * Alternate Custom CSS source for 4.7 compat.
  *
@@ -57,7 +60,9 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_style( 'jetpack-codemirror',      plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array(), '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-		$src  = Jetpack::get_file_url_for_environment(
+
+		$asset_tools = new Asset_Tools();
+		$src  = $asset_tools->get_file_url_for_environment(
 			'_inc/build/custom-css/custom-css/js/core-customizer-css.core-4.9.min.js',
 			'modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js'
 		);
@@ -65,7 +70,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 		wp_register_script(
 			'jetpack-customizer-css-preview',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
 				'modules/custom-css/custom-css/js/core-customizer-css-preview.js'
 			),

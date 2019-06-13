@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 /*
  * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
@@ -47,6 +49,11 @@ class Nova_Restaurant {
 	protected $menu_item_loop_last_term_id = false;
 	protected $menu_item_loop_current_term = false;
 
+	/**
+	 * @var Asset_Tools;
+	 */
+	protected $asset_tools;
+
 	static function init( $menu_item_loop_markup = array() ) {
 		static $instance = false;
 
@@ -85,6 +92,8 @@ class Nova_Restaurant {
 		add_filter( 'enter_title_here',       array( $this, 'change_default_title' ) );
 		add_filter( 'post_updated_messages',  array( $this, 'updated_messages'     ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'add_to_dashboard'     ) );
+
+		$this->asset_tools = new Asset_Tools();
 	}
 
 	/**
@@ -439,7 +448,7 @@ class Nova_Restaurant {
 
 		wp_register_script(
 			'nova-menu-checkboxes',
-			Jetpack::get_file_url_for_environment(
+			$this->asset_tools->get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
 				'modules/custom-post-types/js/menu-checkboxes.js'
 			),
@@ -616,7 +625,7 @@ class Nova_Restaurant {
 
 		wp_enqueue_script(
 			'nova-drag-drop',
-			Jetpack::get_file_url_for_environment(
+			$this->asset_tools->get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
 				'modules/custom-post-types/js/nova-drag-drop.js'
 			),
@@ -863,7 +872,7 @@ class Nova_Restaurant {
 	function enqueue_many_items_scripts() {
 		wp_enqueue_script(
 			'nova-many-items',
-			Jetpack::get_file_url_for_environment(
+			$this->asset_tools->get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/many-items.min.js',
 				'modules/custom-post-types/js/many-items.js'
 			),
