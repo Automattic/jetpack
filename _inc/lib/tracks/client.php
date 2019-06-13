@@ -64,7 +64,7 @@ function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array
  * @param int $user_id The user id of the local user
  * @return array $identity
  *
- * @deprecated 7.5 use Tracking->tracks_get_identity instead
+ * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_get_identity instead
  */
 function jetpack_tracks_get_identity( $user_id ) {
 
