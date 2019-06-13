@@ -4021,7 +4021,7 @@ p {
 					 *
 					 * @param \WP_Error $error The error object.
 					 */
-					do_action( 'jpc_register_fail', $error );
+					do_action( 'jetpack_connection_register_fail', $error );
 					break;
 				}
 
@@ -4035,7 +4035,7 @@ p {
 				 *
 				 * @param string $from 'from' get parameter;
 				 */
-				do_action( 'jpc_register_success', $from );
+				do_action( 'jetpack_connection_register_success', $from );
 
 				$url = $this->build_connect_url( true, $redirect, $from );
 
