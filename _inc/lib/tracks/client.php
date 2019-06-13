@@ -25,6 +25,7 @@
  * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_record_event_raw instead
  */
 function jetpack_tracks_record_event_raw( $event ) {
+	_doing_it_wrong( 'jetpack_tracks_record_event_raw', 'Use Automattic\Jetpack\Tracking::tracks_record_event instead.', '7.5.0' );
 	return Jetpack_Tracks_Client::record_event( $event );
 }
 
@@ -40,6 +41,7 @@ function jetpack_tracks_record_event_raw( $event ) {
  * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_build_event_obj instead
  */
 function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+	_doing_it_wrong( 'jetpack_tracks_build_event_obj', 'Use Automattic\Jetpack\Tracking::tracks_build_event_obj instead.', '7.5.0' );
 
 	$identity = jetpack_tracks_get_identity( $user->ID );
 
@@ -67,6 +69,7 @@ function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array
  * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_get_identity instead
  */
 function jetpack_tracks_get_identity( $user_id ) {
+	_doing_it_wrong( 'jetpack_tracks_get_identity', 'Use Automattic\Jetpack\Tracking::tracks_get_identity instead.', '7.5.0' );
 
 	// Meta is set, and user is still connected.  Use WPCOM ID
 	$wpcom_id = get_user_meta( $user_id, 'jetpack_tracks_wpcom_id', true );
@@ -118,6 +121,7 @@ function jetpack_tracks_get_identity( $user_id ) {
  * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_record_event instead
  */
 function jetpack_tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+	_doing_it_wrong( 'jetpack_tracks_record_event', 'Use Automattic\Jetpack\Tracking::tracks_record_event instead.', '7.5.0' );
 
 	// We don't want to track user events during unit tests/CI runs.
 	if ( $user instanceof WP_User && 'wptests_capabilities' === $user->cap_key ) {
