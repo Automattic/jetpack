@@ -199,7 +199,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				);
 				?>
             </p>
-            </p>
         </div>
 		<?php
 	}
