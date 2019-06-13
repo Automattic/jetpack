@@ -29,7 +29,7 @@ export async function waitForSelector(
 		console.log( `Found element by locator: ${ selector }` );
 		return el;
 	} catch ( e ) {
-		if ( ! options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
+		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
 			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
 			console.log( bodyHTML );
 		}
@@ -46,8 +46,8 @@ export async function waitForSelector(
  * @param {Object} options Custom options to modify function behavior.
  */
 export async function waitAndClick( page, selector, options = { visible: true } ) {
-	const el = await waitForSelector( page, selector, options );
-	return await el.click( options );
+	await waitForSelector( page, selector, options );
+	return await page.click( selector, options );
 }
 
 /**
