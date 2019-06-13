@@ -120,7 +120,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		</div><!-- /.content -->
 		<?php
 
-        $tracking = new Tracking();
+		$tracking = new Tracking();
 		$tracking->record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
 	}
 
