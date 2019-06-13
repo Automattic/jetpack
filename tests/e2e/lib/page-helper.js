@@ -54,12 +54,12 @@ export async function waitAndClick( page, selector, options = { visible: true } 
  * @param {string} value Value to type into
  * @param {Object} options Custom options to modify function behavior. The same object passes in two different functions. Use with caution!
  */
-export async function waitAndType( page, selector, value, options = {} ) {
+export async function waitAndType( page, selector, value, options = { visible: true } ) {
 	const el = await waitForSelector( page, selector, options );
 	await el.focus( selector );
 	await pressKeyWithModifier( 'primary', 'a' );
 	// await el.click( { clickCount: 3 } );
-	await page.waitFor( 100 );
+	await page.waitFor( 300 );
 	await el.type( value, options );
 }
 

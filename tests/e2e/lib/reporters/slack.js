@@ -12,24 +12,30 @@ const {
 	TRAVIS_BUILD_WEB_URL,
 } = process.env;
 
-const getMessage = testName => {
+const getMessage = testResult => {
 	if ( ! CI ) {
-		return testName;
+		return testResult.fullName;
 	}
+	let testFailure = '';
+	if ( testResult.failedExpectations && testResult.failedExpectations[ 0 ] ) {
+		testFailure = testResult.failedExpectations[ 0 ].message;
+	}
+	const testFullName = testResult.fullName;
 	const branchName = TRAVIS_PULL_REQUEST_BRANCH !== '' ? TRAVIS_PULL_REQUEST_BRANCH : TRAVIS_BRANCH;
 	const ccBrbrr = 'cc <@U6NSPV1LY>';
 	let message;
-	message = `TEST FAILED: ${ testName }\n`;
+	message = `TEST FAILED: ${ testFullName }\n`;
+	message += `Failure reason: ${ testFailure }\n`;
 	message += `Travis build: ${ TRAVIS_BUILD_WEB_URL }\n`;
 	message += `Github branch: https://github.com/${ TRAVIS_REPO_SLUG }/${ branchName }\n`;
 	message += ccBrbrr + '\n';
 	return message;
 };
 
-export const sendFailureMessage = async test => {
+export const sendFailureMessage = async testResult => {
 	const message = {
 		icon_emoji: ':gutenpack:',
-		text: getMessage( test ),
+		text: getMessage( testResult ),
 		username: 'Gutenpack testbot',
 	};
 
@@ -64,10 +70,11 @@ export const registerSlackReporter = () => {
 	 */
 	jasmine.getEnv().addReporter( {
 		specDone: async result => {
+			console.log( result );
 			tests.push( result );
 
 			if ( result.status === 'failed' ) {
-				await sendFailureMessage( `FAILED TEST: ${ result.fullName }` );
+				await sendFailureMessage( result );
 			}
 		},
 	} );
