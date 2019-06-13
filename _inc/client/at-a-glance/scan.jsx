@@ -12,7 +12,6 @@ import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
  */
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import UpgradeLink from 'components/upgrade-link';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
