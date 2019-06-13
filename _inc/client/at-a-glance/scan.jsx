@@ -161,7 +161,7 @@ class DashScan extends Component {
 								'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.',
 								{
 									components: {
-										a: <UpgradeLink source="aag-scan" />,
+										a: <UpgradeLink source="aag-scan" target="at-a-glance" feature="scan" />,
 									},
 								}
 						  ) }

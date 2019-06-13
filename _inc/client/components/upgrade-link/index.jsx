@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import { getUpgradeUrl } from 'state/initial-state';
 
 /**
@@ -16,14 +17,39 @@ import { getUpgradeUrl } from 'state/initial-state';
 class UpgradeLink extends PureComponent {
 	static propTypes = {
 		source: PropTypes.string.isRequired,
+		target: PropTypes.string.isRequired,
+		feature: PropTypes.string.isRequired,
 
 		// Connected
 		upgradeUrl: PropTypes.string.isRequired,
 	};
 
+	constructor() {
+		super( ...arguments );
+
+		this.trackClick = this.trackClick.bind( this );
+	}
+
+	trackClick() {
+		const { target, feature } = this.props;
+
+		if ( target && feature ) {
+			analytics.tracks.recordJetpackClick( {
+				type: 'upgrade-link',
+				target,
+				feature,
+			} );
+		}
+	}
+
 	render() {
 		return (
-			<a href={ this.props.upgradeUrl } target="_blank" rel="noopener noreferrer">
+			<a
+				href={ this.props.upgradeUrl }
+				target="_blank"
+				rel="noopener noreferrer"
+				onClick={ this.trackClick }
+			>
 				{ this.props.children }
 			</a>
 		);

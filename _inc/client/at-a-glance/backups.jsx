@@ -130,7 +130,7 @@ class DashBackups extends Component {
 					'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.',
 					{
 						components: {
-							a: <UpgradeLink source="aag-backups" />,
+							a: <UpgradeLink source="aag-backups" target="at-a-glance" feature="backups" />,
 						},
 					}
 				),
