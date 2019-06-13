@@ -52,7 +52,6 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 			);
 		}
 
-
 		private function get_first_product() {
 			$product_posts = get_posts(
 				array(
@@ -79,7 +78,7 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 		function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			$plan = Jetpack_Memberships::product_post_to_array( $instance['product_post_id'] );
-			if( ! $plan ) {
+			if ( ! $plan ) {
 				return;
 			}
 
@@ -117,32 +116,6 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 			return ! empty( $new_instance[ $field ] )
 				? sanitize_text_field( $new_instance[ $field ] )
 				: $old_instance[ $field ];
-		}
-
-		/**
-		 * Record a Track event and bump a MC stat.
-		 *
-		 * @param string $stat_name
-		 * @param string $event_action
-		 * @param array $event_properties
-		 */
-		private function record_event( $stat_name, $event_action, $event_properties = array() ) {
-			$current_user = wp_get_current_user();
-
-			// `bumps_stats_extra` only exists on .com
-			if ( function_exists( 'bump_stats_extras' ) ) {
-				require_lib( 'tracks/client' );
-				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
-				/** This action is documented in modules/widgets/social-media-icons.php */
-				do_action( 'jetpack_bump_stats_extra', 'jetpack-simple_payments', $stat_name );
-				return;
-			}
-
-			jetpack_tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
-			$jetpack = Jetpack::init();
-			// $jetpack->stat automatically prepends the stat group with 'jetpack-'
-			$jetpack->stat( 'simple_payments', $stat_name );
-			$jetpack->do_stats( 'server_side' );
 		}
 
 		/**
