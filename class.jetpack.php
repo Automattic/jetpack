@@ -589,12 +589,7 @@ class Jetpack {
 				// Hack to preserve $HTTP_RAW_POST_DATA
 				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-				$signed = $this->verify_xml_rpc_signature();
-				if ( is_wp_error( $signed ) ) {
-					$this->send_signature_error_header( $signed );
-				}
-
-				if ( $signed && ! is_wp_error( $signed ) ) {
+				if ( $this->verify_xml_rpc_signature() ) {
 					// The actual API methods.
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
 				} else {
@@ -605,12 +600,8 @@ class Jetpack {
 			} else {
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
-				$signed = $this->verify_xml_rpc_signature();
-				if ( is_wp_error( $signed ) ) {
-					$this->send_signature_error_header( $signed );
-				}
 
-				if ( $signed && ! is_wp_error( $signed ) ) {
+				if ( $this->verify_xml_rpc_signature() ) {
 					// the jetpack Provision method is available for blog-token-signed requests
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
 				}
@@ -5173,33 +5164,53 @@ p {
 		$this->rest_authentication_status = null;
 	}
 
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * @return false|array
+	 */
 	function verify_xml_rpc_signature() {
-		if ( $this->xmlrpc_verification ) {
-			return $this->xmlrpc_verification;
+		if ( is_null( $this->xmlrpc_verification ) ) {
+			$this->verify_xml_rpc_signature = $this->internal_verify_xml_rpc_signature();
+
+			if ( is_wp_error( $this->verify_xml_rpc_signature ) ) {
+				do_action( 'jetpack_verify_signature_error', $this->verify_xml_rpc_signature );
+			}
 		}
 
+		return is_wp_error( $this->xmlrpc_verification ) ? false : $this->xmlrpc_verification;
+	}
+
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * This function has side effects and should not be used. Instead,
+	 * use the memoized version `->verify_xml_rpc_signature()`.
+	 *
+	 * @internal
+	 */
+	private function internal_verify_xml_rpc_signature() {
 		// It's not for us
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
 		}
 
 		$signature_details = array(
-			'token'     => $_GET['token'],
-			'timestamp' => $_GET['timestamp'],
-			'nonce'     => $_GET['nonce'],
-			'body_hash' => isset( $_GET['body-hash'] ) ? $_GET['body-hash'] : '',
-			'method'    => $_SERVER['REQUEST_METHOD'],
-			'url'       => $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], // Temp - will get real signature URL later.
+			'token'     => wp_unslash( $_GET['token'] ),
+			'timestamp' => wp_unslash( $_GET['timestamp'] ),
+			'nonce'     => wp_unslash( $_GET['nonce'] ),
+			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
+			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
+			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
 		);
 
-		@list( $token_key, $version, $user_id ) = explode( ':', $_GET['token'] );
+		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		if (
 			empty( $token_key )
 		||
 			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
 		) {
-			$this->xmlrpc_verification = new WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
-			return $this->xmlrpc_verification;
+			return new WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -5208,22 +5219,19 @@ p {
 		} else {
 			$token_type = 'user';
 			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
-				$this->xmlrpc_verification = new WP_Error( 'malformed_user_id', 'Malformed user_id in request', compact( 'signature_details' ) );
-				return $this->xmlrpc_verification;
+				return new WP_Error( 'malformed_user_id', 'Malformed user_id in request', compact( 'signature_details' ) );
 			}
 			$user_id = (int) $user_id;
 
 			$user = new WP_User( $user_id );
 			if ( ! $user || ! $user->exists() ) {
-				$this->xmlrpc_verification = new WP_Error( 'unknown_user', sprintf( 'User %d does not exist', $user_id ), compact( 'signature_details' ) );
-				return $this->xmlrpc_verification;
+				return new WP_Error( 'unknown_user', sprintf( 'User %d does not exist', $user_id ), compact( 'signature_details' ) );
 			}
 		}
 
 		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
 		if ( ! $token ) {
-			$this->xmlrpc_verification = new WP_Error( 'unknown_token', sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ), compact( 'signature_details' ) );
-			return $this->xmlrpc_verification;
+			return new WP_Error( 'unknown_token', sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ), compact( 'signature_details' ) );
 		}
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
@@ -5259,22 +5267,18 @@ p {
 		$signature_details['url'] = $signature->current_request_url;
 
 		if ( ! $signature ) {
-			$this->xmlrpc_verification = new WP_Error( 'could_not_sign', 'Unknown signature error', compact( 'signature_details' ) );
-			return $this->xmlrpc_verification;
+			return new WP_Error( 'could_not_sign', 'Unknown signature error', compact( 'signature_details' ) );
 		} else if ( is_wp_error( $signature ) ) {
-			$this->xmlrpc_verification = $signature;
 			return $signature;
 		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
-			$this->xmlrpc_verification = new WP_Error( 'signature_mismatch', 'Signature mismatch', compact( 'signature_details' ) );
-			return $this->xmlrpc_verification;
+			return new WP_Error( 'signature_mismatch', 'Signature mismatch', compact( 'signature_details' ) );
 		}
 
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
-			$this->xmlrpc_verification = new WP_Error( 'invalid_nonce', 'Could not add nonce', compact( 'signature_details' ) );
-			return $this->xmlrpc_verification;
+			returnnew WP_Error( 'invalid_nonce', 'Could not add nonce', compact( 'signature_details' ) );
 		}
 
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
@@ -5308,13 +5312,11 @@ p {
 			}
 		}
 
-		$this->xmlrpc_verification = array(
+		return array(
 			'type'      => $token_type,
 			'token_key' => $token_key,
 			'user_id'   => $token->external_user_id,
 		);
-
-		return $this->xmlrpc_verification;
 	}
 
 	/**
@@ -5327,7 +5329,7 @@ p {
 
 		$token_details = $this->verify_xml_rpc_signature();
 
-		if ( ! $token_details || is_wp_error( $token_details ) ) {
+		if ( ! $token_details ) {
 			return $user;
 		}
 
@@ -5397,11 +5399,6 @@ p {
 
 		$verified = $this->verify_xml_rpc_signature();
 
-		if ( is_wp_error( $verified ) ) {
-			$this->rest_authentication_status = $verified;
-			return null;
-		}
-
 		if (
 			$verified &&
 			isset( $verified['type'] ) &&
@@ -5422,18 +5419,6 @@ p {
 		return null;
 	}
 
-	protected function send_signature_error_header( $error ) {
-		$error_data = $error->get_error_data();
-		if ( ! isset( $error_data['signature_details'] ) ) {
-			return;
-		}
-
-		header( sprintf(
-			'X-Jetpack-Signature-Error: %s',
-			base64_encode( json_encode( $error_data['signature_details'] ) )
-		) );
-	}
-
 	/**
 	 * Report authentication status to the WP REST API.
 	 *
@@ -5443,24 +5428,6 @@ p {
 	public function wp_rest_authentication_errors( $value ) {
 		if ( $value !== null ) {
 			return $value;
-		}
-
-		if ( is_wp_error( $this->rest_authentication_status ) ) {
-			$error_data = $this->rest_authentication_status->get_error_data();
-			if ( ! isset( $error_data['signature_details'] ) ) {
-				return $this->rest_authentication_status;
-			}
-
-			$this->send_signature_error_header( $this->rest_authentication_status );
-
-			unset( $error_data['signature_details'] );
-
-			return new WP_Error(
-				$this->rest_authentication_status->get_error_code(),
-				$this->rest_authentication_status->get_error_message(),
-				$error_data
-			);
-
 		}
 		return $this->rest_authentication_status;
 	}
