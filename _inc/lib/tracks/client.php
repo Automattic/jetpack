@@ -37,7 +37,7 @@ function jetpack_tracks_record_event_raw( $event ) {
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
  * @return \Jetpack_Tracks_Event|\WP_Error
  *
- * @deprecated 7.5 use Tracking->tracks_build_event_obj instead
+ * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_build_event_obj instead
  */
 function jetpack_tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 
