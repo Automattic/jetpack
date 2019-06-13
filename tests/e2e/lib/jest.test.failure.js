@@ -28,7 +28,7 @@ global.it = async ( name, func ) => {
 			await func();
 		} catch ( error ) {
 			// If running tests in CI
-			if ( ! CI ) {
+			if ( CI ) {
 				const filePath = await takeScreenshot( currentBlock, name );
 				await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 				await sendFailedTestScreenshotToSlack( filePath );
