@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Constants;
+
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(
 		'description'          => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
@@ -291,7 +294,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function update() {
 		$query_args = $this->query_args();
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
-			Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		}
 		wp_clean_plugins_cache();
 		ob_start();

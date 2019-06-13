@@ -19,10 +19,9 @@ env:
   - WP_TRAVISCI=phpunit
   # Run phpunit in Travis matrix for these combinations
   matrix:
-  - WP_MODE=single WP_BRANCH=master
-  - WP_MODE=single WP_BRANCH=latest
-  - WP_MODE=single WP_BRANCH=previous
-  - WP_MODE=multi  WP_BRANCH=master
+  - WP_BRANCH=master PHP_LINT=1
+  - WP_BRANCH=latest
+  - WP_BRANCH=previous
 
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
@@ -30,12 +29,15 @@ env:
 matrix:
   include:
   - if: branch !~ /(^branch-.*-built)/
+    name: "JavaScript & CSS lint"
     language: node_js
     env: WP_TRAVISCI="yarn lint"
   - if: branch !~ /(^branch-.*-built)/
+    name: "Danger CI, test dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
   - if: branch !~ /(^branch-.*-built)/
+    name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
   - php: "7.3"

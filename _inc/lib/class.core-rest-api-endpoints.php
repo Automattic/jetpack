@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\JITM;
+
 /**
  * Register WP REST API endpoints for Jetpack.
  *
@@ -85,12 +88,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::CREATABLE,
 			'callback' => __CLASS__ . '::delete_jitm_message'
-		) );
-
-		// Register a site
-		register_rest_route( 'jetpack/v4', '/verify_registration', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::verify_registration',
 		) );
 
 		// Authorize a remote user
@@ -492,11 +489,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
+		$jitm = new JITM();
 
-		$jitm = Jetpack_JITM::init();
-
-		if ( ! $jitm ) {
+		if ( ! $jitm->register() ) {
 			return array();
 		}
 
@@ -510,38 +505,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Always True
 	 */
 	public static function delete_jitm_message( $request ) {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
+		$jitm = new JITM();
 
-		$jitm = Jetpack_JITM::init();
-
-		if ( ! $jitm ) {
+		if ( ! $jitm->register() ) {
 			return true;
 		}
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}
-
-	/**
-	 * Handles verification that a site is registered
-	 *
-	 * @since 5.4.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|wp-error
-	 */
-	public static function verify_registration( $request ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
-		$xmlrpc_server = new Jetpack_XMLRPC_Server();
-		$result = $xmlrpc_server->verify_registration( array( $request['secret_1'], $request['state'] ) );
-
-		if ( is_a( $result, 'IXR_Error' ) ) {
-			$result = new WP_Error( $result->code, $result->message );
-		}
-
-		return $result;
-	}
-
 
 	/**
 	 * Checks if this site has been verified using a service - only 'google' supported at present - and a specfic
