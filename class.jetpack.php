@@ -5840,7 +5840,7 @@ p {
 			 *
 			 * @since 7.5.0
 			 *
-             */
+			 */
 			do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
 			$die_error = sprintf(
 				/* translators: %s is a URL */
