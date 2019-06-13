@@ -38,7 +38,9 @@ class Jetpack_Calypsoify {
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
 			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-			add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
+			if ( $_GET[ 'post_type' ] != 'feedback' ) {
+				add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
+			}
 		}
 
 		// Make this always available -- in case calypsoify gets toggled off.
@@ -202,10 +204,14 @@ class Jetpack_Calypsoify {
 	}
 
 	public function remove_core_menus() {
+		if ( $_GET[ 'post_type' ] != 'feedback' ) {
+			remove_menu_page( 'edit.php?post_type=feedback' );
+		} else {
+			remove_menu_page( 'options-general.php' );
+		}
 		remove_menu_page( 'index.php' );
 		remove_menu_page( 'jetpack' );
 		remove_menu_page( 'edit.php' );
-		remove_menu_page( 'edit.php?post_type=feedback' );
 		remove_menu_page( 'upload.php' );
 		remove_menu_page( 'edit.php?post_type=page' );
 		remove_menu_page( 'edit-comments.php' );
@@ -274,13 +280,15 @@ class Jetpack_Calypsoify {
 		);
 	}
 
-	public function insert_sidebar_html() { ?>
+	public function insert_sidebar_html() { 
+		$heading = ( $_GET[ 'post_type' ] == 'feedback' ) ? 'Feedback' : 'Plugins';
+		?>
 		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
 			<ul>
 				<li id="calypso-sitename"><?php bloginfo( 'name' ); ?></li>
-				<li id="calypso-plugins"><?php esc_html_e( 'Plugins' ); ?></li>
+				<li id="calypso-plugins"><?php esc_html_e( $heading ); ?></li>
 			</ul>
 		</a>
 		<?php
