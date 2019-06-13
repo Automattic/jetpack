@@ -1184,9 +1184,10 @@ class Jetpack_Photon {
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-photon',
-			$this->asset_tools->get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),
