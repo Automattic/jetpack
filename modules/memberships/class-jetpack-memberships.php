@@ -180,6 +180,24 @@ class Jetpack_Memberships {
 		return $map['meta'];
 	}
 	/**
+	 * Transform WP CPT post into array representing a memberships product.
+	 *
+	 * @param WP_Post $product_post - CPT representing the product.
+	 * @return array
+	 */
+	public static function product_post_to_array( $product_post ) {
+		$data    = array();
+		$mapping = self::get_plan_property_mapping();
+		foreach ( $mapping as $key => $map ) {
+			$data[ $key ] = get_post_meta( $product_post->ID, $map['meta'], true );
+		}
+		$data['title']       = $product_post->post_title;
+		$data['description'] = $product_post->post_content;
+		$data['id']          = $product_post->ID;
+		return $data;
+	}
+
+	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
 	 * @param array $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
