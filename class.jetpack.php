@@ -5202,6 +5202,7 @@ p {
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
 			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
 			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
+			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
@@ -5265,6 +5266,7 @@ p {
 		);
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
+		$signature_details['expected'] = $signature;
 
 		if ( ! $signature ) {
 			return new WP_Error( 'could_not_sign', 'Unknown signature error', compact( 'signature_details' ) );
