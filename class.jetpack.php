@@ -1,5 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
+use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
 
@@ -25,11 +29,6 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use \Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
-use \Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
-use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 
 class Jetpack {
@@ -40,7 +39,7 @@ class Jetpack {
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
-    public $tracking;
+	public $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
