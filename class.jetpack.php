@@ -5040,7 +5040,7 @@ p {
 	 */
 	public static function register() {
 		$tracking = new Tracking();
-		$tracking->tracking->record_user_event( 'jpc_register_begin' );
+		$tracking->record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
