@@ -18,6 +18,11 @@ class Jetpack_Usage {
 		add_action( 'jetpack_user_authorized', array( $this, 'track_user_linked' ) );
 		add_action( 'wp_login_failed', array( $this, 'track_failed_login_attempts' ) );
 
+		// Track that we've begun verifying the previously generated secret.
+		add_action( 'jetpack_verify_secrets_begin', array( $this, 'track_jetpack_verify_secrets_begin' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_success', array( $this, 'track_jetpack_verify_secrets_success' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_fail', array( $this, 'track_jetpack_verify_secrets_fail' ), 10, 3 );
+
 		// Universal ajax callback for all tracking events triggered via js
 		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
 

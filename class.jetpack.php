@@ -6,6 +6,8 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Tracking\Jetpack_Usage;
+
 
 /*
 Options:
@@ -536,11 +538,10 @@ class Jetpack {
 		}
 
 		if ( ! self::jetpack_tos_agreed() ) {
-			add_action( 'init', array( $this, 'track_jetpack_usage' ) );
+			$tracking = new Jetpack_Usage();
+			add_action( 'init', array( $tracking, 'track_jetpack_usage' ) );
 			return;
 		}
-
-
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -740,10 +741,6 @@ class Jetpack {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
 
-		// Track that we've begun verifying the previously generated secret.
-		add_action( 'jetpack_verify_secrets_begin', array( $this, 'track_jetpack_verify_secrets_begin' ), 10, 2 );
-		add_action( 'jetpack_verify_secrets_success', array( $this, 'track_jetpack_verify_secrets_success' ), 10, 2 );
-		add_action( 'jetpack_verify_secrets_fail', array( $this, 'track_jetpack_verify_secrets_fail' ), 10, 3 );
 	}
 
 	function initialize_rest_api_registration_connector() {
