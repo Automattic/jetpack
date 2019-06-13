@@ -14,13 +14,8 @@ export default class ThankYouPage extends Page {
 		// Wait for progress bar to appear first
 		isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
 
-		// // Then wait it to disappear
-		// await waitForSelector( this.page, '.progress-bar.is-pulsing', {
-		// 	hidden: true,
-		// 	timeout: 90000,
-		// } );
-
-		await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']", {
+		// Click on "Hide Message"
+		await waitAndClick( this.page, ".current-plan-thank-you a[href*='my-plan']", {
 			timeout: 60000 * 3, // 3 min
 		} );
 		return await this.waitToDisappear();
