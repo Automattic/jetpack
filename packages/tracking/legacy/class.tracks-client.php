@@ -38,8 +38,6 @@
 ```
  */
 
-require_once( dirname(__FILE__).'/class.tracks-client.php' );
-
 class Jetpack_Tracks_Client {
 	const PIXEL = 'https://pixel.wp.com/t.gif';
 	const BROWSER_TYPE = 'php-agent';

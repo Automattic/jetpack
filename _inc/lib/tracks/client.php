@@ -14,10 +14,6 @@
 ```
  */
 
-// Load the client classes
-require_once( dirname(__FILE__) . '/class.tracks-event.php' );
-require_once( dirname(__FILE__) . '/class.tracks-client.php' );
-
 // Now, let's export a sprinkling of syntactic sugar!
 
 /**
