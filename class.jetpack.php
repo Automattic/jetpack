@@ -5278,7 +5278,7 @@ p {
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
-			returnnew WP_Error( 'invalid_nonce', 'Could not add nonce', compact( 'signature_details' ) );
+			return new WP_Error( 'invalid_nonce', 'Could not add nonce', compact( 'signature_details' ) );
 		}
 
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
