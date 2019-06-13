@@ -5196,9 +5196,9 @@ p {
 		}
 
 		$signature_details = array(
-			'token'     => wp_unslash( $_GET['token'] ),
-			'timestamp' => wp_unslash( $_GET['timestamp'] ),
-			'nonce'     => wp_unslash( $_GET['nonce'] ),
+			'token'     => isset( $_GET['token'] )     ? wp_unslash( $_GET['token'] )     : '',
+			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
+			'nonce'     => isset( $_GET['nonce'] )     ? wp_unslash( $_GET['nonce'] )     : '',
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
 			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
 			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
