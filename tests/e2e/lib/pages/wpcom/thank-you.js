@@ -12,15 +12,17 @@ export default class ThankYouPage extends Page {
 
 	async waitForSetupAndProceed() {
 		// Wait for progress bar to appear first
-		isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
+		// isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
 
-		// Then wait it to disappear
-		await waitForSelector( this.page, '.progress-bar.is-pulsing', {
-			hidden: true,
+		// // Then wait it to disappear
+		// await waitForSelector( this.page, '.progress-bar.is-pulsing', {
+		// 	hidden: true,
+		// 	timeout: 90000,
+		// } );
+
+		await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']", {
 			timeout: 90000,
 		} );
-
-		await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']" );
 		return await this.waitToDisappear();
 	}
 

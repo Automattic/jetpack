@@ -3,31 +3,26 @@
  */
 import path from 'path';
 import mkdirp from 'mkdirp';
+import { writeFile } from 'fs';
 
 const screenshotsPath = path.resolve( __dirname, '../../reports/screenshots' );
-
 const toFilename = s => s.replace( /[^a-z0-9.-]+/gi, '_' );
+let currentTest = '';
+let currentScreenshot = null;
 
-export const takeScreenshot = ( testName, pageInstance = page ) => {
-	mkdirp.sync( screenshotsPath );
-	const filePath = path.join(
-		screenshotsPath,
-		toFilename( `${ new Date().toISOString() }_${ testName }.png` )
-	);
-	return pageInstance.screenshot( {
-		path: filePath,
-	} );
+const saveScreenshot = async ( screenshot, testName ) => {
+	await mkdirp( screenshotsPath );
+	const fileName = toFilename( `${ new Date().toISOString() }_${ testName }_screenshot.png` );
+	const filePath = path.join( screenshotsPath, fileName );
+	await writeFile( filePath, screenshot );
+	return filePath;
 };
 
-export const registerScreenshotReporter = () => {
-	/**
-	 * jasmine reporter does not support async.
-	 * So we store the screenshot promise and wait for it before each test
-	 */
-	let screenshotPromise = Promise.resolve();
-	beforeEach( () => screenshotPromise );
-	afterAll( () => screenshotPromise );
+afterEach( async () => {
+	currentScreenshot = await page.screenshot();
+} );
 
+export const registerScreenshotReporter = () => {
 	/**
 	 * Take a screenshot on Failed test.
 	 * Jest standard reporters run in a separate process so they don't have
@@ -35,11 +30,22 @@ export const registerScreenshotReporter = () => {
 	 * have access to the test result, test name and page instance at the same time.
 	 */
 	jasmine.getEnv().addReporter( {
-		specDone: async result => {
-			if ( result.status === 'failed' ) {
-				screenshotPromise = screenshotPromise
-					.catch()
-					.then( () => takeScreenshot( result.fullName ) );
+		specStarted: ( { fullName } ) => {
+			currentTest = fullName;
+			currentScreenshot = null;
+		},
+		specDone: async ( { status, fullName } ) => {
+			if ( status === 'failed' ) {
+				if ( currentScreenshot ) {
+					try {
+						const filePath = await saveScreenshot( currentScreenshot, currentTest );
+						console.error( `FAILED ${ fullName }: screenshot @ ${ filePath }` );
+					} catch ( e ) {
+						console.error( `FAILED ${ fullName }: could not save screenshot.`, e );
+					}
+				} else {
+					console.error( `FAILED ${ fullName }: sadly, no screenshot could be taken.` );
+				}
 			}
 		},
 	} );
