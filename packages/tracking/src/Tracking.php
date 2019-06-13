@@ -6,20 +6,10 @@
 namespace Automattic\Jetpack;
 
 class Tracking {
-	static $product_name = 'jetpack';
+	public $product_name;
 
-	static function track_jetpack_usage() {
-		if ( ! \Jetpack::jetpack_tos_agreed() ) {
-			return;
-		}
-
-		// For tracking stuff via js/ajax
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_scripts' ) );
-
-		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activate_module' ), 1, 1 );
-		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivate_module' ), 1, 1 );
-		add_action( 'jetpack_user_authorized', array( __CLASS__, 'track_user_linked' ) );
-		add_action( 'wp_login_failed', array( __CLASS__, 'track_failed_login_attempts' ) );
+	function __construct( $product_name = 'jetpack' ) {
+		$this->product_name = $product_name;
 	}
 
 	static function enqueue_tracks_scripts() {
@@ -30,47 +20,6 @@ class Tracking {
 			array(
 				'ajaxurl'            => admin_url( 'admin-ajax.php' ),
 				'jpTracksAJAX_nonce' => wp_create_nonce( 'jp-tracks-ajax-nonce' ),
-			)
-		);
-	}
-
-	/* User has linked their account */
-	static function track_user_linked() {
-		$user_id = get_current_user_id();
-		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
-
-		if ( $anon_id ) {
-			self::record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
-			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
-			if ( ! headers_sent() ) {
-				setcookie( 'tk_ai', 'expired', time() - 1000 );
-			}
-		}
-
-		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
-		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
-
-		self::record_user_event( 'wpa_user_linked', array() );
-	}
-
-	/* Activated module */
-	static function track_activate_module( $module ) {
-		self::record_user_event( 'module_activated', array( 'module' => $module ) );
-	}
-
-	/* Deactivated module */
-	static function track_deactivate_module( $module ) {
-		self::record_user_event( 'module_deactivated', array( 'module' => $module ) );
-	}
-
-	/* Failed login attempts */
-	static function track_failed_login_attempts( $login ) {
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-		self::record_user_event(
-			'failed_login',
-			array(
-				'origin_ip' => jetpack_protect_get_ip(),
-				'login'     => $login,
 			)
 		);
 	}

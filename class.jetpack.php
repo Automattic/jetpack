@@ -40,6 +40,8 @@ class Jetpack {
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
+    public $tracking;
+
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
 	 *
@@ -523,7 +525,6 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
-		add_action( 'init', array( 'Automattic\Jetpack\Tracking', 'track_jetpack_usage' ) );
 
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
@@ -533,6 +534,9 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+
+			$this->tracking = new Tracking( 'jetpack' );
+			add_action( 'init', array( $this, 'track_jetpack_usage' ) );
 		}
 
 		/*
@@ -724,6 +728,7 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+
 
 		/**
 		 * These are sync actions that we need to keep track of for jitms
@@ -7127,4 +7132,61 @@ p {
 		}
 		return true;
 	}
+
+	/* Activated module */
+	function track_activate_module( $module ) {
+		$this->tracking->record_user_event( 'module_activated', array( 'module' => $module ) );
+	}
+
+	/* Deactivated module */
+	function track_deactivate_module( $module ) {
+		$this->tracking->record_user_event( 'module_deactivated', array( 'module' => $module ) );
+	}
+
+	/* User has linked their account */
+	function track_user_linked() {
+		$user_id = get_current_user_id();
+		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
+
+		if ( $anon_id ) {
+			self::record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
+			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
+			if ( ! headers_sent() ) {
+				setcookie( 'tk_ai', 'expired', time() - 1000 );
+			}
+		}
+
+		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
+		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
+
+		self::record_user_event( 'wpa_user_linked', array() );
+	}
+
+	/* Failed login attempts */
+	function track_failed_login_attempts( $login ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+		self::record_user_event(
+			'failed_login',
+			array(
+				'origin_ip' => jetpack_protect_get_ip(),
+				'login'     => $login,
+			)
+		);
+	}
+
+	function track_jetpack_usage() {
+		if ( ! self::jetpack_tos_agreed() ) {
+			return;
+		}
+
+		// For tracking stuff via js/ajax
+		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
+
+		add_action( 'jetpack_activate_module', array( $this, 'track_activate_module' ), 1, 1 );
+		add_action( 'jetpack_deactivate_module', array( $this, 'track_deactivate_module' ), 1, 1 );
+		add_action( 'jetpack_user_authorized', array( $this, 'track_user_linked' ) );
+		add_action( 'wp_login_failed', array( $this, 'track_failed_login_attempts' ) );
+	}
+
+
 }
