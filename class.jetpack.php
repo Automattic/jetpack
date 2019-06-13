@@ -7160,7 +7160,7 @@ p {
 		$wpcom_user_data = Jetpack::get_connected_user_data( $user_id );
 		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
 
-		self::record_user_event( 'wpa_user_linked', array() );
+		$this->tracking->record_user_event( 'wpa_user_linked', array() );
 	}
 
 	/* Failed login attempts */
