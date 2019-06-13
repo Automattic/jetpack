@@ -738,6 +738,11 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+
+		// Track that we've begun verifying the previously generated secret.
+		add_action( 'jetpack_verify_secrets_begin', array( $this, 'track_jetpack_verify_secrets_begin' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_success', array( $this, 'track_jetpack_verify_secrets_success' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_fail', array( $this, 'track_jetpack_verify_secrets_fail' ), 10, 3 );
 	}
 
 	function initialize_rest_api_registration_connector() {
@@ -7161,6 +7166,50 @@ p {
 		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
 
 		$this->tracking->record_user_event( 'wpa_user_linked', array() );
+	}
+
+	/**
+	 * Track that we've begun verifying the secrets.
+	 *
+	 * @access public
+	 *
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User $user   The user object.
+	 */
+	public function track_jetpack_verify_secrets_begin( $action, $user ) {
+		$this->tracking->record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+	}
+
+	/**
+	 * Track that we've succeeded in verifying the secrets.
+	 *
+	 * @access public
+	 *
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User $user   The user object.
+	 */
+	public function track_jetpack_verify_secrets_success( $action, $user ) {
+		$this->tracking->record_user_event( "jpc_verify_{$action}_success", array(), $user );
+	}
+
+	/**
+	 * Track that we've failed verifying the secrets.
+	 *
+	 * @access public
+	 *
+	 * @param string    $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User  $user   The user object.
+	 * @param \WP_Error $error  Error object.
+	 */
+	public function track_jetpack_verify_secrets_fail( $action, $user, $error ) {
+		$this->tracking->record_user_event(
+			"jpc_verify_{$action}_fail",
+			array(
+				'error_code'    => $error->get_error_code(),
+				'error_message' => $error->get_error_message(),
+			),
+			$user
+		);
 	}
 
 	/* Failed login attempts */
