@@ -533,10 +533,10 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
-
-			$this->tracking = new Tracking( 'jetpack' );
-			add_action( 'init', array( $this, 'track_jetpack_usage' ) );
 		}
+
+		$this->tracking = new Tracking( 'jetpack' );
+		add_action( 'init', array( $this, 'track_jetpack_usage' ) );
 
 		/*
 		 * Load things that should only be in Network Admin.
