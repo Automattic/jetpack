@@ -1763,7 +1763,7 @@ class Jetpack_Search {
 		}
 
 		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->jetpack_tracks_record_event(
+		$tracking->tracks_record_event(
 			wp_get_current_user(),
 			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
 			$event['widget']
