@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 /**
  * Renders extra controls in the Gallery Settings section of the new media UI.
  */
@@ -57,9 +59,10 @@ class Jetpack_Gallery_Settings {
 			 * This only happens if we're not in Jetpack, but on WPCOM instead.
 			 * This is the correct path for WPCOM.
 			 */
+			$asset_tools = new Asset_Tools();
 			wp_register_script(
 				'jetpack-gallery-settings',
-				Jetpack::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				$asset_tools->get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
 				array( 'media-views' ),
 				'20121225'
 			);

@@ -11,6 +11,8 @@
  * Additional Search Queries: like widget, like button, like, likes
  */
 
+use Automattic\Jetpack\Asset_Tools;
+
 Jetpack::dns_prefetch(
 	array(
 		'//widgets.wp.com',
@@ -32,11 +34,12 @@ class Jetpack_Comment_Likes {
 	}
 
 	private function __construct() {
-		$this->settings  = new Jetpack_Likes_Settings();
-		$this->blog_id   = Jetpack_Options::get_option( 'id' );
-		$this->url       = home_url();
-		$this->url_parts = parse_url( $this->url );
-		$this->domain    = $this->url_parts['host'];
+		$this->settings    = new Jetpack_Likes_Settings();
+		$this->blog_id     = Jetpack_Options::get_option( 'id' );
+		$this->url         = home_url();
+		$this->url_parts   = parse_url( $this->url );
+		$this->domain      = $this->url_parts['host'];
+		$this->asset_tools = new Asset_Tools();
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -101,7 +104,7 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
 			'comment-like-count',
-			Jetpack::get_file_url_for_environment(
+			$this->asset_tools->get_file_url_for_environment(
 				'_inc/build/comment-likes/comment-like-count.min.js',
 				'modules/comment-likes/comment-like-count.js'
 			),
@@ -132,14 +135,14 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
 		wp_enqueue_script(
 			'postmessage',
-			Jetpack::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			$this->asset_tools->get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_script(
 			'jetpack_resize',
-			Jetpack::get_file_url_for_environment(
+			$this->asset_tools->get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),

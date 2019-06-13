@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 // Exit if file is accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -266,9 +268,10 @@ class Jetpack_Related_Posts_Customize {
 	 * @since 4.4.0
 	 */
 	function customize_controls_enqueue_scripts() {
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack_related-posts-customizer',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/related-posts/related-posts-customizer.min.js',
 				'modules/related-posts/related-posts-customizer.js'
 			),

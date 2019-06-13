@@ -1,4 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Asset_Tools;
+
 /**
  * Crowdsignal (PollDaddy) shortcode.
  *
@@ -62,16 +65,17 @@ if (
 		 * Register scripts that may be enqueued later on by the shortcode.
 		 */
 		public static function register_scripts() {
+			$asset_tools = new Asset_Tools();
 			wp_register_script(
 				'crowdsignal-shortcode',
-				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
+				$asset_tools->get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
 				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
 			wp_register_script(
 				'crowdsignal-survey',
-				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
+				$asset_tools->get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
 				array(),
 				JETPACK__VERSION,
 				true
@@ -429,12 +433,13 @@ if (
 							add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
 							wp_enqueue_script( 'crowdsignal-shortcode' );
+							$asset_tools = new Asset_Tools();
 							wp_localize_script(
 								'crowdsignal-shortcode',
 								'crowdsignal_shortcode_options',
 								array(
 									'script_url' => esc_url_raw(
-										Jetpack::get_file_url_for_environment(
+										$asset_tools->get_file_url_for_environment(
 											'_inc/build/polldaddy-shortcode.min.js',
 											'_inc/polldaddy-shortcode.js'
 										)
@@ -707,12 +712,13 @@ if (
 			// only try to load if a shortcode has been called and theme supports infinite scroll.
 			if ( self::$add_script ) {
 				wp_enqueue_script( 'crowdsignal-shortcode' );
+				$asset_tools = new Asset_Tools();
 				wp_localize_script(
 					'crowdsignal-shortcode',
 					'crowdsignal_shortcode_options',
 					array(
 						'script_url' => esc_url_raw(
-							Jetpack::get_file_url_for_environment(
+							$asset_tools->get_file_url_for_environment(
 								'_inc/build/polldaddy-shortcode.min.js',
 								'_inc/polldaddy-shortcode.js'
 							)

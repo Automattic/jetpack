@@ -1,4 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileNam
+
+use Automattic\Jetpack\Asset_Tools;
+
 /**
  * Quiz shortcode.
  *
@@ -79,9 +82,10 @@ class Quiz_Shortcode {
 	 */
 	private static function enqueue_scripts() {
 		wp_enqueue_style( 'quiz', plugins_url( 'css/quiz.css', __FILE__ ), array(), JETPACK__VERSION );
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'quiz',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/quiz.min.js', 'modules/shortcodes/js/quiz.js' ),
+			$asset_tools->get_file_url_for_environment( '_inc/build/shortcodes/js/quiz.min.js', 'modules/shortcodes/js/quiz.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

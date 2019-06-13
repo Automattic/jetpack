@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 include_once dirname( __FILE__ ) . '/sharing-sources.php';
 
 define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
@@ -893,9 +895,11 @@ function sharing_display( $text = '', $echo = false ) {
 			} else {
 				$ver = '20141212';
 			}
+
+			$asset_tools = new Asset_Tools();
 			wp_register_script(
 				'sharing-js',
-				Jetpack::get_file_url_for_environment(
+				$asset_tools->get_file_url_for_environment(
 					'_inc/build/sharedaddy/sharing.min.js',
 					'modules/sharedaddy/sharing.js'
 				),

@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets\Logo;
+use Automattic\Jetpack\Asset_Tools;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -103,9 +104,10 @@ class Jetpack_Connection_Banner {
 	 * @since 4.4.0
 	 */
 	public static function enqueue_banner_scripts() {
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-connection-banner-js',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/jetpack-connection-banner.min.js',
 				'_inc/jetpack-connection-banner.js'
 			),

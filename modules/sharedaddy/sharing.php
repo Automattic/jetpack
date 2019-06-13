@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Asset_Tools;
+
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -22,9 +25,10 @@ class Sharing_Admin {
 	}
 
 	public function sharing_head() {
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'sharing-js',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/sharedaddy/admin-sharing.min.js',
 				'modules/sharedaddy/admin-sharing.js'
 			),

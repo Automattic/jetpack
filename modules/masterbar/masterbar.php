@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Asset_Tools;
+
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
 /**
@@ -238,16 +240,17 @@ class A8C_WPCOM_Masterbar {
 			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 		}
 
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-accessible-focus',
-			Jetpack::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
+			$asset_tools->get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
 			array(),
 			JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_script(
 			'a8c_wpcom_masterbar_tracks_events',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/masterbar/tracks-events.min.js',
 				'modules/masterbar/tracks-events.js'
 			),

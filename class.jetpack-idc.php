@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Asset_Tools;
 
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
@@ -253,10 +254,10 @@ class Jetpack_IDC {
 	 * Enqueue scripts for the notice
 	 */
 	function enqueue_idc_notice_files() {
-
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
+			$asset_tools->get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

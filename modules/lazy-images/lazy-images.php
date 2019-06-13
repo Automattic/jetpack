@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 class Jetpack_Lazy_Images {
 	private static $__instance = null;
 
@@ -339,9 +341,10 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
+		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/lazy-images/js/lazy-images.min.js',
 				'modules/lazy-images/js/lazy-images.js'
 			),

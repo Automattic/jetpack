@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Asset_Tools;
+
 /*
 Plugin Name: The Neverending Home Page.
 Plugin URI: http://automattic.com/
@@ -430,9 +432,10 @@ class The_Neverending_Home_Page {
 			return;
 
 		// Add our scripts.
+		$asset_tools = new Asset_Tools();
 		wp_register_script(
 			'the-neverending-homepage',
-			Jetpack::get_file_url_for_environment(
+			$asset_tools->get_file_url_for_environment(
 				'_inc/build/infinite-scroll/infinity.min.js',
 				'modules/infinite-scroll/infinity.js'
 			),
