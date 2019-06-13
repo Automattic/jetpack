@@ -163,7 +163,8 @@ class DashScan extends Component {
 					) }
 					disableHref="false"
 					href={ this.props.upgradeUrl }
-					event="track_event" // TODO: change this event name
+					eventFeature="scan"
+					path="dashboard"
 					plan={ PLAN_JETPACK_PREMIUM }
 					icon="lock"
 				/>
