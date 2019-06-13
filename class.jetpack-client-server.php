@@ -199,7 +199,8 @@ class Jetpack_Client_Server {
 			), menu_page_url( 'jetpack', false ) );
 
 		// inject identity for analytics
-		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+		$tracks = new \Automattic\Jetpack\Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),

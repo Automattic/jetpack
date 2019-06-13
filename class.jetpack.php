@@ -31,7 +31,6 @@ use \Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -524,6 +523,7 @@ class Jetpack {
 		 * Check for and alert any deprecated hooks
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
+		add_action( 'init', array( 'Automattic\Jetpack\Tracking', 'track_jetpack_usage' ) );
 
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
@@ -4526,7 +4526,9 @@ p {
 			 */
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
-			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
+			$tracks = new \Automattic\Jetpack\Tracking();
+			$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 			$args = urlencode_deep(
 				array(
@@ -5056,7 +5058,8 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+		$tracks = new \Automattic\Jetpack\Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$args = array(
 			'method'  => 'POST',

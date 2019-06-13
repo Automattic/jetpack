@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
 

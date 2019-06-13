@@ -448,11 +448,12 @@ class Jetpack_Network {
 		 *
 		 * @todo Find out if sending the stats_id is necessary
 		 */
-		$stat_options = get_option( 'stats_options' );
+		$stats_options = get_option( 'stats_options' );
 		$stat_id = $stat_options = isset( $stats_options['blog_id'] ) ? $stats_options['blog_id'] : null;
 		$user_id = get_current_user_id();
 
-		$tracks_identity = jetpack_tracks_get_identity( $user_id );
+		$tracks = new \Automattic\Jetpack\Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		/*
 		 * Use the subsite's registration date as the site creation date.

@@ -435,7 +435,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				return;
 			}
 
-			jetpack_tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
+			\Automattic\Jetpack\Tracking::jetpack_tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
 			$jetpack = Jetpack::init();
 			// $jetpack->stat automatically prepends the stat group with 'jetpack-'
 			$jetpack->stat( 'simple_payments', $stat_name );
