@@ -5174,6 +5174,7 @@ p {
 			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
 
 			if ( is_wp_error( $this->xmlrpc_verification ) ) {
+				// Action for logging signature verification errors. This data is sensitive.
 				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
 			}
 		}
@@ -5266,24 +5267,28 @@ p {
 		);
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
-		// Be careful about what you do with this debugging data.
-		// If a malicious requester has access to the expected signature,
-		// bad things will happen.
-		$signature_details['expected'] = $signature;
 
 		if ( ! $signature ) {
 			return new WP_Error( 'could_not_sign', 'Unknown signature error', compact( 'signature_details' ) );
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
-			return new WP_Error( 'signature_mismatch', 'Signature mismatch', compact( 'signature_details' ) );
 		}
 
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
+		// Use up the nonce regardless of whether the signature matches.
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			return new WP_Error( 'invalid_nonce', 'Could not add nonce', compact( 'signature_details' ) );
+		}
+
+		// Be careful about what you do with this debugging data.
+		// If a malicious requester has access to the expected signature,
+		// bad things might be possible.
+		$signature_details['expected'] = $signature;
+
+		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+			return new WP_Error( 'signature_mismatch', 'Signature mismatch', compact( 'signature_details' ) );
 		}
 
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
