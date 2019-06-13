@@ -1,6 +1,6 @@
 <?php
 /**
- * Display the Simple Payments Form.
+ * Display the Recurring Payments widget Form.
  *
  * @package Jetpack
  */
@@ -12,17 +12,17 @@
 	</label>
 	<input
 		type="text"
-		class="widefat jetpack-simple-payments-widget-title"
+		class="widefat jetpack-recurring-payments-widget-title"
 		id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
 		name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
 		value="<?php echo esc_attr( $instance['title'] ); ?>" />
 </p>
-<p class="jetpack-simple-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
+<p class="jetpack-recurring-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>">
-		<?php esc_html_e( 'Select a Simple Payments Button:', 'jetpack' ); ?>
+		<?php esc_html_e( 'Select previously created Recurring Payments plan:', 'jetpack' ); ?>
 	</label>
 	<select
-		class="widefat jetpack-simple-payments-products"
+		class="widefat jetpack-recurring-payments-products"
 		id="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>"
 		name="<?php echo esc_attr( $this->get_field_name( 'product_post_id' ) ); ?>">
 		<?php foreach ( $product_posts as $product ) { ?>
@@ -32,16 +32,19 @@
 		<?php } ?>
 	</select>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'text' ) ); ?>">
-		<?php esc_html_e( 'Button Text', 'jetpack' ); ?>
+		<?php esc_html_e( 'Choose a text to display on your button:', 'jetpack' ); ?>
 	</label>
 	<input
 		type="text"
-		class="widefat jetpack-simple-payments-widget-title"
-		id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
-		name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
-		value="<?php echo esc_attr( $instance['title'] ); ?>" />
+		class="widefat jetpack-recurring-payments-widget-title"
+		id="<?php echo esc_attr( $this->get_field_id( 'text' ) ); ?>"
+		name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>"
+		value="<?php echo esc_attr( $instance['text'] ); ?>" />
 </p>
-<p class="jetpack-simple-payments-products-warning" <?php if ( ! empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
-	<?php esc_html_e( "Looks like you don't have any products. You can create one using the Add New button below.", 'jetpack' ); ?>
+<p class="jetpack-recurring-payments-products-warning">
+	<?php echo wp_kses( sprintf(
+			__( '<a %s>You can configure Recurring Payments, manage and create new plans on WordPress.com</a>', 'jetpack' ),
+			"target='_blank' rel='noopener noreferer' href='https://wordpress.com/earn/payments/$blog_id'"
+	), array( 'a' => array( 'href' => array(), 'target' => array() , 'rel' => array() ) ) ); ?>
 </p>
 

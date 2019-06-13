@@ -161,6 +161,7 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 			$product_posts = array_map( function( $post ) {
 				return Jetpack_Memberships::product_post_to_array( $post );
 			}, $product_posts );
+			$blog_id = Jetpack_Memberships::get_blog_id();
 			require dirname( __FILE__ ) . '/recurring-payments/form.php';
 		}
 	}
