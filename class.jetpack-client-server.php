@@ -19,10 +19,12 @@ class Jetpack_Client_Server {
 
 		check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
+		$tracking = new Tracking();
 		$result = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
-			Tracking::record_user_event( 'jpc_client_authorize_fail', array(
+
+			$tracking->record_user_event( 'jpc_client_authorize_fail', array(
 				'error_code' => $result->get_error_code(),
 				'error_message' => $result->get_error_message()
 			) );
@@ -45,7 +47,7 @@ class Jetpack_Client_Server {
 			wp_safe_redirect( Jetpack::admin_url() );
 		}
 
-		Tracking::record_user_event( 'jpc_client_authorize_success' );
+		$tracking->record_user_event( 'jpc_client_authorize_success' );
 
 		$this->do_exit();
 	}

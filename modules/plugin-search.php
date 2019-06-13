@@ -287,6 +287,7 @@ class Jetpack_Plugin_Search {
 		// Looks like a search query; it's matching time
 		if ( ! empty( $args->search ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
+			$tracking = new Tracking();
 			$jetpack_modules_list = array_intersect_key(
 				array_merge( $this->get_extra_features(), Jetpack_Admin::init()->get_modules() ),
 				array_flip( array(
@@ -309,7 +310,7 @@ class Jetpack_Plugin_Search {
 
 			// Record event when user searches for a term over 3 chars (less than 3 is not very useful.)
 			if ( strlen( $args->search ) >= 3 ) {
-				Tracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+				$tracking->record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
 			}
 
 			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
@@ -339,7 +340,7 @@ class Jetpack_Plugin_Search {
 
 			if ( isset( $matching_module ) && $this->should_display_hint( $matching_module ) ) {
 				// Record event when a matching feature is found
-				Tracking::record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
+				$tracking->record_user_event( 'wpa_plugin_search_match_found', array( 'feature' => $matching_module ) );
 
 				$inject = (array) self::get_jetpack_plugin_data();
 				$image_url = plugins_url( 'modules/plugin-search/psh', JETPACK__PLUGIN_FILE );

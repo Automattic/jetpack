@@ -256,10 +256,11 @@ class Manager implements Manager_Interface {
 
 		$user = get_user_by( 'id', $user_id );
 
-		Tracking::record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+		$tracking = new Tracking();
+		$tracking->record_user_event( "jpc_verify_{$action}_begin", array(), $user );
 
-		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
-			Tracking::record_user_event(
+		$return_error = function( \WP_Error $error ) use ( $action, $user, $tracking ) {
+			$tracking->record_user_event(
 				"jpc_verify_{$action}_fail",
 				array(
 					'error_code'    => $error->get_error_code(),
@@ -342,7 +343,7 @@ class Manager implements Manager_Interface {
 			);
 		}
 
-		Tracking::record_user_event( "jpc_verify_{$action}_success", array(), $user );
+		$tracking->record_user_event( "jpc_verify_{$action}_success", array(), $user );
 
 		return $stored_secrets['secret_2'];
 	}
