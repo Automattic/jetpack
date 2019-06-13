@@ -1,5 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
+use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
 
@@ -25,13 +29,7 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use \Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
-use \Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
-use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -40,6 +38,8 @@ class Jetpack {
 	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
+
+	private $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -535,6 +535,9 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
+		$this->tracking = new Tracking( 'jetpack' );
+		add_action( 'init', array( $this, 'track_jetpack_usage' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -725,6 +728,7 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
+
 		/**
 		 * These are sync actions that we need to keep track of for jitms
 		 */
@@ -734,6 +738,11 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+
+		// Track that we've begun verifying the previously generated secret.
+		add_action( 'jetpack_verify_secrets_begin', array( $this, 'track_jetpack_verify_secrets_begin' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_success', array( $this, 'track_jetpack_verify_secrets_success' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_fail', array( $this, 'track_jetpack_verify_secrets_fail' ), 10, 3 );
 	}
 
 	function initialize_rest_api_registration_connector() {
@@ -923,7 +932,7 @@ class Jetpack {
 			}
 		}
 
-		Tracking::record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
+		$this->tracking->record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
 		wp_send_json_success();
 		wp_die();
 	}
@@ -3263,7 +3272,8 @@ p {
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
-			Tracking::record_user_event( 'disconnect_site', array() );
+			$tracking = new Tracking();
+			$tracking->record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister' );
@@ -4030,7 +4040,7 @@ p {
 					$error = $registered->get_error_code();
 					Jetpack::state( 'error', $error );
 					Jetpack::state( 'error', $registered->get_error_message() );
-					Tracking::record_user_event( 'jpc_register_fail', array(
+					$this->tracking->record_user_event( 'jpc_register_fail', array(
 						'error_code' => $error,
 						'error_message' => $registered->get_error_message()
 					) );
@@ -4040,7 +4050,7 @@ p {
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
-				Tracking::record_user_event( 'jpc_register_success', array(
+				$this->tracking->record_user_event( 'jpc_register_success', array(
 					'from' => $from
 				) );
 
@@ -4526,7 +4536,9 @@ p {
 			 */
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
-			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
+			$tracks = new Tracking();
+			$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 			$args = urlencode_deep(
 				array(
@@ -5032,7 +5044,8 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		Tracking::record_user_event( 'jpc_register_begin' );
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
@@ -5056,7 +5069,8 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+		$tracks = new Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$args = array(
 			'method'  => 'POST',
@@ -5838,7 +5852,7 @@ p {
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
-			Tracking::record_user_event( 'error_double_encode' );
+			$this->tracking->record_user_event( 'error_double_encode' );
 
 			$die_error = sprintf(
 				/* translators: %s is a URL */
@@ -7124,4 +7138,105 @@ p {
 		}
 		return true;
 	}
+
+	/* Activated module */
+	function track_activate_module( $module ) {
+		$this->tracking->record_user_event( 'module_activated', array( 'module' => $module ) );
+	}
+
+	/* Deactivated module */
+	function track_deactivate_module( $module ) {
+		$this->tracking->record_user_event( 'module_deactivated', array( 'module' => $module ) );
+	}
+
+	/* User has linked their account */
+	function track_user_linked() {
+		$user_id = get_current_user_id();
+		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
+
+		if ( $anon_id ) {
+			$this->tracking->record_user_event( '_aliasUser', array( 'anonId' => $anon_id ) );
+			delete_user_meta( $user_id, 'jetpack_tracks_anon_id' );
+			if ( ! headers_sent() ) {
+				setcookie( 'tk_ai', 'expired', time() - 1000 );
+			}
+		}
+
+		$wpcom_user_data = self::get_connected_user_data( $user_id );
+		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
+
+		$this->tracking->record_user_event( 'wpa_user_linked', array() );
+	}
+
+	/**
+	 * Track that we've begun verifying the secrets.
+	 *
+	 * @access public
+	 *
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User $user   The user object.
+	 */
+	public function track_jetpack_verify_secrets_begin( $action, $user ) {
+		$this->tracking->record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+	}
+
+	/**
+	 * Track that we've succeeded in verifying the secrets.
+	 *
+	 * @access public
+	 *
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User $user   The user object.
+	 */
+	public function track_jetpack_verify_secrets_success( $action, $user ) {
+		$this->tracking->record_user_event( "jpc_verify_{$action}_success", array(), $user );
+	}
+
+	/**
+	 * Track that we've failed verifying the secrets.
+	 *
+	 * @access public
+	 *
+	 * @param string    $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User  $user   The user object.
+	 * @param \WP_Error $error  Error object.
+	 */
+	public function track_jetpack_verify_secrets_fail( $action, $user, $error ) {
+		$this->tracking->record_user_event(
+			"jpc_verify_{$action}_fail",
+			array(
+				'error_code'    => $error->get_error_code(),
+				'error_message' => $error->get_error_message(),
+			),
+			$user
+		);
+	}
+
+	/* Failed login attempts */
+	function track_failed_login_attempts( $login ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+		$this->tracking->record_user_event(
+			'failed_login',
+			array(
+				'origin_ip' => jetpack_protect_get_ip(),
+				'login'     => $login,
+			)
+		);
+	}
+
+	function track_jetpack_usage() {
+		if ( ! self::jetpack_tos_agreed() ) {
+			return;
+		}
+
+		// For tracking stuff via js/ajax
+		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
+
+		add_action( 'jetpack_activate_module', array( $this, 'track_activate_module' ), 1, 1 );
+		add_action( 'jetpack_deactivate_module', array( $this, 'track_deactivate_module' ), 1, 1 );
+		add_action( 'jetpack_user_authorized', array( $this, 'track_user_linked' ) );
+		add_action( 'wp_login_failed', array( $this, 'track_failed_login_attempts' ) );
+	}
+
+
 }

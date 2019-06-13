@@ -220,7 +220,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "aabd3d202f67a9ab62b6e4a524ce26a891369326",
+                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85",
                 "shasum": null
             },
             "require": {
@@ -234,7 +234,10 @@
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\": "src/"
-                }
+                },
+                "classmap": [
+                    "legacy"
+                ]
             },
             "scripts": {
                 "phpunit": [

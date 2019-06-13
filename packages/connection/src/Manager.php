@@ -7,9 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -257,17 +255,27 @@ class Manager implements Manager_Interface {
 
 		$user = get_user_by( 'id', $user_id );
 
-		Tracking::record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+		/**
+		 * We've begun verifying the previously generated secret.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param string   $action The type of secret to verify.
+		 * @param \WP_User $user The user object.
+		 */
+		do_action( 'jetpack_verify_secrets_begin', $action, $user );
 
 		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
-			Tracking::record_user_event(
-				"jpc_verify_{$action}_fail",
-				array(
-					'error_code'    => $error->get_error_code(),
-					'error_message' => $error->get_error_message(),
-				),
-				$user
-			);
+			/**
+			 * Verifying of the previously generated secret has failed.
+			 *
+			 * @since 7.5.0
+			 *
+			 * @param string    $action  The type of secret to verify.
+			 * @param \WP_User  $user The user object.
+			 * @param \WP_Error $error The error object.
+			 */
+			do_action( 'jetpack_verify_secrets_fail', $action, $user, $error );
 
 			return $error;
 		};
@@ -343,7 +351,15 @@ class Manager implements Manager_Interface {
 			);
 		}
 
-		Tracking::record_user_event( "jpc_verify_{$action}_success", array(), $user );
+		/**
+		 * We've succeeded at verifying the previously generated secret.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param string   $action The type of secret to verify.
+		 * @param \WP_User $user The user object.
+		 */
+		do_action( 'jetpack_verify_secrets_success', $action, $user );
 
 		return $stored_secrets['secret_2'];
 	}
