@@ -55,7 +55,7 @@ export class MobileMagicLink extends React.Component {
 					role="button"
 					tabIndex="0"
 				>
-					{ __( 'Connect to mobile WordPress app' ) }
+					{ __( 'Log in to the WordPress mobile app' ) }
 				</a>
 				{ showModal && (
 					<Modal className="mobile-magic-link__modal" onRequestClose={ this.toggleModalVisibility }>
