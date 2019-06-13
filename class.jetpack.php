@@ -537,10 +537,9 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		if ( ! self::jetpack_tos_agreed() ) {
+		if ( self::jetpack_tos_agreed() ) {
 			$tracking = new Jetpack_Usage();
 			add_action( 'init', array( $tracking, 'init' ) );
-			return;
 		}
 
 		/*
