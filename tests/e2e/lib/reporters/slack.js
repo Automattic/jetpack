@@ -3,18 +3,39 @@
  */
 import { IncomingWebhook } from '@slack/webhook';
 
+const {
+	E2E_WEBHOOK,
+	CI,
+	TRAVIS_BRANCH,
+	TRAVIS_REPO_SLUG,
+	TRAVIS_PULL_REQUEST_BRANCH,
+	TRAVIS_BUILD_WEB_URL,
+} = process.env;
+
+const getMessage = testName => {
+	if ( ! CI ) {
+		return testName;
+	}
+	const branchName = TRAVIS_PULL_REQUEST_BRANCH !== '' ? TRAVIS_PULL_REQUEST_BRANCH : TRAVIS_BRANCH;
+	const ccBrbrr = 'cc <@U6NSPV1LY>';
+	let message;
+	message = `TEST FAILED: ${ testName }\n`;
+	message += `Travis build: ${ TRAVIS_BUILD_WEB_URL }\n`;
+	message += `Github branch: https://github.com/${ TRAVIS_REPO_SLUG }/${ branchName }\n`;
+	message += ccBrbrr + '\n';
+	return message;
+};
+
 export const sendFailureMessage = async test => {
 	const message = {
 		icon_emoji: ':gutenpack:',
-		text: test + ' cc <@U6NSPV1LY>',
+		text: getMessage( test ),
 		username: 'Gutenpack testbot',
 	};
 
-	const { E2E_WEBHOOK } = process.env;
-
 	if ( ! E2E_WEBHOOK ) {
-		// eslint-disable-next-line no-console
 		console.log( 'Slack URL is not set' );
+		console.log( JSON.stringify( message ) );
 		return false;
 	}
 

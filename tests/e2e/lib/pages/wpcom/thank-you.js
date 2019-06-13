@@ -12,7 +12,7 @@ export default class ThankYouPage extends Page {
 
 	async waitForSetupAndProceed() {
 		// Wait for progress bar to appear first
-		// isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
+		isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
 
 		// // Then wait it to disappear
 		// await waitForSelector( this.page, '.progress-bar.is-pulsing', {

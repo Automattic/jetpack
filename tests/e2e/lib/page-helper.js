@@ -39,8 +39,8 @@ export async function waitForSelector( page, selector, options = {} ) {
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
-export async function waitAndClick( page, selector, options = {} ) {
-	const el = await waitForSelector( page, selector, { visible: true } );
+export async function waitAndClick( page, selector, options = { visible: true } ) {
+	const el = await waitForSelector( page, selector, options );
 	return await el.click( options );
 }
 
