@@ -5264,7 +5264,7 @@ p {
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
 
-		$signature_details['url'] = $signature->current_request_url;
+		$signature_details['url'] = $jetpack_signature->current_request_url;
 
 		if ( ! $signature ) {
 			return new WP_Error( 'could_not_sign', 'Unknown signature error', compact( 'signature_details' ) );
