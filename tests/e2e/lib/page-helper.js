@@ -18,15 +18,18 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
-export async function waitForSelector( page, selector, options = {} ) {
-	const timeout = options.timeout || 30000; // 30 sec
-	const el = await page.waitForSelector( selector, options );
-
-	// Throw a error if element not found while looking for element to become visible
-	if ( ! options.hidden && el === null ) {
-		throw new Error( `ElementNotFoundException after waiting: ${ timeout } sec.` );
+export async function waitForSelector( page, selector, options = { timeout: 30000 } ) {
+	let el;
+	try {
+		el = await page.waitForSelector( selector, options );
+	} catch ( e ) {
+		if ( process.env.PUPPETEER_HEADLESS !== 'false' ) {
+			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
+			console.log( bodyHTML );
+		}
+		throw e;
 	}
-	// eslint-disable-next-line no-console
+
 	console.log( `Found element by locator: ${ selector }` );
 	return el;
 }
