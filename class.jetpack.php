@@ -7166,7 +7166,7 @@ p {
 	/* Failed login attempts */
 	function track_failed_login_attempts( $login ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-		self::record_user_event(
+		$this->tracking->record_user_event(
 			'failed_login',
 			array(
 				'origin_ip' => jetpack_protect_get_ip(),
