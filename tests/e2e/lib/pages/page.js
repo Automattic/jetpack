@@ -46,19 +46,10 @@ export default class Page {
 	 * Waits for `this.expectedSelector` to become visible on the page. In debug session logs page HTML if element not found.
 	 */
 	async waitForPage() {
-		try {
-			await waitForSelector( this.page, this.expectedSelector, {
-				visible: true,
-				timeout: this.explicitWaitMS,
-			} );
-		} catch ( e ) {
-			if ( process.env.E2E_DEBUG ) {
-				const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
-				// eslint-disable-next-line no-console
-				console.log( bodyHTML );
-			}
-			throw e;
-		}
+		await waitForSelector( this.page, this.expectedSelector, {
+			visible: true,
+			timeout: this.explicitWaitMS,
+		} );
 	}
 
 	/**

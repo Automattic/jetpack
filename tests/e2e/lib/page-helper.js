@@ -18,17 +18,23 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
-export async function waitForSelector( page, selector, options = {} ) {
-	const timeout = options.timeout || 30000; // 30 sec
-	const el = await page.waitForSelector( selector, options );
-
-	// Throw a error if element not found while looking for element to become visible
-	if ( ! options.hidden && el === null ) {
-		throw new Error( `ElementNotFoundException after waiting: ${ timeout } sec.` );
+export async function waitForSelector(
+	page,
+	selector,
+	options = { timeout: 30000, logHTML: true }
+) {
+	let el;
+	try {
+		el = await page.waitForSelector( selector, options );
+		console.log( `Found element by locator: ${ selector }` );
+		return el;
+	} catch ( e ) {
+		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
+			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
+			console.log( bodyHTML );
+		}
+		throw e;
 	}
-	// eslint-disable-next-line no-console
-	console.log( `Found element by locator: ${ selector }` );
-	return el;
 }
 
 /**
@@ -39,9 +45,9 @@ export async function waitForSelector( page, selector, options = {} ) {
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
-export async function waitAndClick( page, selector, options = {} ) {
-	const el = await waitForSelector( page, selector, { visible: true } );
-	return await el.click( options );
+export async function waitAndClick( page, selector, options = { visible: true } ) {
+	await waitForSelector( page, selector, options );
+	return await page.click( selector, options );
 }
 
 /**
@@ -51,12 +57,12 @@ export async function waitAndClick( page, selector, options = {} ) {
  * @param {string} value Value to type into
  * @param {Object} options Custom options to modify function behavior. The same object passes in two different functions. Use with caution!
  */
-export async function waitAndType( page, selector, value, options = {} ) {
+export async function waitAndType( page, selector, value, options = { visible: true } ) {
 	const el = await waitForSelector( page, selector, options );
 	await el.focus( selector );
 	await pressKeyWithModifier( 'primary', 'a' );
 	// await el.click( { clickCount: 3 } );
-	await page.waitFor( 100 );
+	await page.waitFor( 300 );
 	await el.type( value, options );
 }
 
@@ -71,7 +77,11 @@ export async function waitAndType( page, selector, value, options = {} ) {
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
 	try {
-		return !! ( await waitForSelector( page, selector, { visible: true, timeout } ) );
+		return !! ( await waitForSelector( page, selector, {
+			visible: true,
+			timeout,
+			logHTML: false,
+		} ) );
 	} catch ( e ) {
 		// eslint-disable-next-line no-console
 		console.log( `Element is not visible by locator: ${ selector }` );
