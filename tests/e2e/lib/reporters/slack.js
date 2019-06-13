@@ -13,7 +13,6 @@ const {
 	E2E_SLACK_TOKEN,
 	E2E_CHANNEL_NAME,
 } = process.env;
-
 const token = E2E_SLACK_TOKEN || config.get( 'slackToken' );
 const conversationId = E2E_CHANNEL_NAME || config.get( 'slackChannel' );
 const webCli = new WebClient( token );
