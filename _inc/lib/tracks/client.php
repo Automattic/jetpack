@@ -115,7 +115,7 @@ function jetpack_tracks_get_identity( $user_id ) {
  * @param int $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
  * @return bool true for success | \WP_Error if the event pixel could not be fired
  *
- * @deprecated 7.5 use Tracking->tracks_record_event instead
+ * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_record_event instead
  */
 function jetpack_tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 
