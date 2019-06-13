@@ -99,7 +99,10 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Used to verify whether a local user exists and what role they have.
 	 *
-	 * @param int|string $user_id The local User's ID, username, or email address.
+	 * @param int|string|array $request One of:
+	 *                         int|string The local User's ID, username, or email address.
+	 *                         array      A request array containing:
+	 *                                    0: int|string The local User's ID, username, or email address.
 	 *
 	 * @return array|IXR_Error Information about the user, or error if no such user found:
 	 *                         roles:     string[] The user's rols.
@@ -109,7 +112,9 @@ class Jetpack_XMLRPC_Server {
 	 *                         allcaps    string[] The user's granular capabilities, merged from role capabilities.
 	 *                         token_key  string   The Token Key of the user's Jetpack token. Empty string if none.
 	 */
-	function get_user( $user_id ) {
+	function get_user( $request ) {
+		$user_id = is_array( $request ) ? $request[0] : $request;
+
 		if ( ! $user_id ) {
 			return $this->error(
 				new Jetpack_Error(
