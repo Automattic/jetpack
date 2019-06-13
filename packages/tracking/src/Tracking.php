@@ -12,7 +12,7 @@ class Tracking {
 		$this->product_name = $product_name;
 	}
 
-	static function enqueue_tracks_scripts() {
+	function enqueue_tracks_scripts() {
 		wp_enqueue_script( 'jptracks', plugins_url( '_inc/lib/tracks/tracks-ajax.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 		wp_localize_script(
 			'jptracks',
@@ -24,7 +24,7 @@ class Tracking {
 		);
 	}
 
-	static function record_user_event( $event_type, $data = array(), $user = null ) {
+	function record_user_event( $event_type, $data = array(), $user = null ) {
 		if ( ! $user ) {
 			$user = wp_get_current_user();
 		}
@@ -38,17 +38,17 @@ class Tracking {
 
 		// Top level events should not be namespaced
 		if ( '_aliasUser' != $event_type ) {
-			$event_type = self::$product_name . '_' . $event_type;
+			$event_type = $this->product_name . '_' . $event_type;
 		}
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
 
-		return self::jetpack_tracks_record_event( $user, $event_type, $data );
+		return $this->jetpack_tracks_record_event( $user, $event_type, $data );
 	}
 
 	/**
 	 * Procedurally build a Tracks Event Object.
-	 * NOTE: Use this only when the simpler \Automattic\Jetpack\Tracking::jetpack_tracks_record_event() function won't work for you.
+	 * NOTE: Use this only when the simpler \Automattic\Jetpack\Tracking->jetpack_tracks_record_event() function won't work for you.
 	 *
 	 * @param $identity WP_user object
 	 * @param string                  $event_name The name of the event
@@ -145,7 +145,7 @@ class Tracking {
 			return false;
 		}
 
-		$event_obj = self::tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
+		$event_obj = $this->tracks_build_event_obj( $user, $event_name, $properties, $event_timestamp_millis );
 
 		if ( is_wp_error( $event_obj->error ) ) {
 			return $event_obj->error;
