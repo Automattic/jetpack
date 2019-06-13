@@ -18,20 +18,23 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
-export async function waitForSelector( page, selector, options = { timeout: 30000 } ) {
+export async function waitForSelector(
+	page,
+	selector,
+	options = { timeout: 30000, logHTML: true }
+) {
 	let el;
 	try {
 		el = await page.waitForSelector( selector, options );
+		console.log( `Found element by locator: ${ selector }` );
+		return el;
 	} catch ( e ) {
-		if ( process.env.PUPPETEER_HEADLESS !== 'false' ) {
+		if ( ! options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
 			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
 			console.log( bodyHTML );
 		}
 		throw e;
 	}
-
-	console.log( `Found element by locator: ${ selector }` );
-	return el;
 }
 
 /**
@@ -74,7 +77,11 @@ export async function waitAndType( page, selector, value, options = { visible: t
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
 	try {
-		return !! ( await waitForSelector( page, selector, { visible: true, timeout } ) );
+		return !! ( await waitForSelector( page, selector, {
+			visible: true,
+			timeout,
+			logHTML: false,
+		} ) );
 	} catch ( e ) {
 		// eslint-disable-next-line no-console
 		console.log( `Element is not visible by locator: ${ selector }` );

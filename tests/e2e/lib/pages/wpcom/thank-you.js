@@ -21,7 +21,7 @@ export default class ThankYouPage extends Page {
 		// } );
 
 		await waitAndClick( this.page, ".current-plan-thank-you a.button[href*='my-plan']", {
-			timeout: 90000,
+			timeout: 60000 * 3, // 3 min
 		} );
 		return await this.waitToDisappear();
 	}
