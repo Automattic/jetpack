@@ -1,10 +1,15 @@
 <?php
 /**
  * Nosara Tracks for Jetpack
+ *
+ * @package jetpack-tracking
  */
 
 namespace Automattic\Jetpack;
 
+/**
+ * The Tracking class, used to record events in wpcom
+ */
 class Tracking {
 	private $product_name;
 	private $connection;
@@ -45,7 +50,7 @@ class Tracking {
 
 		$data['jetpack_version'] = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '0';
 
-		return $this->jetpack_tracks_record_event( $user, $event_type, $data );
+		return $this->tracks_record_event( $user, $event_type, $data );
 	}
 
 	/**
