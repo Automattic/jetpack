@@ -4017,6 +4017,14 @@ p {
 					$error = $registered->get_error_code();
 					Jetpack::state( 'error', $error );
 					Jetpack::state( 'error', $registered->get_error_message() );
+
+					/**
+					 * Jetpack registration Error.
+					 *
+					 * @since 7.5.0
+					 *
+					 * @param \WP_Error $error The error object.
+					 */
 					do_action( 'jpc_register_fail', $error );
 					break;
 				}
@@ -4024,6 +4032,13 @@ p {
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
+				/**
+				 * Jetpack registration Success.
+				 *
+				 * @since 7.5.0
+				 *
+				 * @param string $from 'from' get parameter;
+				 */
 				do_action( 'jpc_register_success', $from );
 
 				$url = $this->build_connect_url( true, $redirect, $from );
@@ -5824,7 +5839,13 @@ p {
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
-		    do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
+			/**
+			 * Jetpack authorisation request Error.
+			 *
+			 * @since 7.5.0
+			 *
+             */
+			do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
