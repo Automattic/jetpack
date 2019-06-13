@@ -22,7 +22,7 @@
  * @param \Jetpack_Tracks_Event $event The event object.
  * @return \Jetpack_Tracks_Event|\WP_Error
  *
- * @deprecated 7.5 use Tracking->tracks_record_event_raw instead
+ * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_record_event_raw instead
  */
 function jetpack_tracks_record_event_raw( $event ) {
 	return Jetpack_Tracks_Client::record_event( $event );
