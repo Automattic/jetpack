@@ -16,6 +16,22 @@ class JITM {
 
 	const PACKAGE_VERSION = '1.0';
 
+	/**
+	 * Tracking object.
+	 *
+	 * @var Automattic\Jetpack\Tracking
+	 *
+	 * @access private
+	 */
+	private $tracking;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->tracking = new Tracking();
+	}
+
 	public function register() {
 		/**
 		 * Filter to turn off all just in time messages
@@ -205,7 +221,7 @@ class JITM {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		Tracking::record_user_event(
+		$this->tracking->record_user_event(
 			'jitm_dismiss_client',
 			array(
 				'jitm_id'       => $id,
@@ -360,7 +376,7 @@ class JITM {
 				continue;
 			}
 
-			Tracking::record_user_event(
+			$this->tracking->record_user_event(
 				'jitm_view_client',
 				array(
 					'jitm_id' => $envelope->id,
