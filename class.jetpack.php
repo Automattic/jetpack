@@ -539,7 +539,7 @@ class Jetpack {
 
 		if ( ! self::jetpack_tos_agreed() ) {
 			$tracking = new Jetpack_Usage();
-			add_action( 'init', array( $tracking, 'track_jetpack_usage' ) );
+			add_action( 'init', array( $tracking, 'init' ) );
 			return;
 		}
 
