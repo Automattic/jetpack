@@ -20,18 +20,18 @@ class Tracking {
 		// For tracking stuff via js/ajax
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
 
-		add_action( 'jetpack_activate_module', array( $this, 'track_activate_module' ), 1, 1 );
-		add_action( 'jetpack_deactivate_module', array( $this, 'track_deactivate_module' ), 1, 1 );
-		add_action( 'jetpack_user_authorized', array( $this, 'track_user_linked' ) );
-		add_action( 'wp_login_failed', array( $this, 'track_failed_login_attempts' ) );
+		add_action( 'jetpack_activate_module', array( $this, 'jetpack_activate_module' ), 1, 1 );
+		add_action( 'jetpack_deactivate_module', array( $this, 'jetpack_deactivate_module' ), 1, 1 );
+		add_action( 'jetpack_user_authorized', array( $this, 'jetpack_user_authorized' ) );
+		add_action( 'wp_login_failed', array( $this, 'wp_login_failed' ) );
 
 		// Track that we've begun verifying the previously generated secret.
-		add_action( 'jetpack_verify_secrets_begin', array( $this, 'track_jetpack_verify_secrets_begin' ), 10, 2 );
-		add_action( 'jetpack_verify_secrets_success', array( $this, 'track_jetpack_verify_secrets_success' ), 10, 2 );
-		add_action( 'jetpack_verify_secrets_fail', array( $this, 'track_jetpack_verify_secrets_fail' ), 10, 3 );
+		add_action( 'jetpack_verify_secrets_begin', array( $this, 'jetpack_verify_secrets_begin' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_success', array( $this, 'jetpack_verify_secrets_success' ), 10, 2 );
+		add_action( 'jetpack_verify_secrets_fail', array( $this, 'jetpack_verify_secrets_fail' ), 10, 3 );
 
 		// Universal ajax callback for all tracking events triggered via js
-		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
+		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'wp_ajax_jetpack_tracks' ) );
 
 		add_action( 'jetpack_verify_api_authorization_request_error_double_encode', array( $this, 'jetpack_verify_api_authorization_request_error_double_encode' ) );
 		add_action( 'jetpack_connection_register_fail', array( $this, 'jetpack_connection_register_fail' ), 10, 2 );
@@ -45,7 +45,7 @@ class Tracking {
 	 *
 	 * @param string $module Module slug.
 	 */
-	public function track_activate_module( $module ) {
+	public function jetpack_activate_module( $module ) {
 		$this->tracking->record_user_event( 'module_activated', array( 'module' => $module ) );
 	}
 
@@ -56,7 +56,7 @@ class Tracking {
 	 *
 	 * @param string $module Module slug.
 	 */
-	public function track_deactivate_module( $module ) {
+	public function jetpack_deactivate_module( $module ) {
 		$this->tracking->record_user_event( 'module_deactivated', array( 'module' => $module ) );
 	}
 
@@ -65,7 +65,7 @@ class Tracking {
 	 *
 	 * @access public
 	 */
-	public function track_user_linked() {
+	public function jetpack_user_authorized() {
 		$user_id = get_current_user_id();
 		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
 
@@ -92,7 +92,7 @@ class Tracking {
 	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
 	 * @param \WP_User $user The user object.
 	 */
-	public function track_jetpack_verify_secrets_begin( $action, $user ) {
+	public function jetpack_verify_secrets_begin( $action, $user ) {
 		$this->tracking->record_user_event( "jpc_verify_{$action}_begin", array(), $user );
 	}
 
@@ -104,7 +104,7 @@ class Tracking {
 	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
 	 * @param \WP_User $user The user object.
 	 */
-	public function track_jetpack_verify_secrets_success( $action, $user ) {
+	public function jetpack_verify_secrets_success( $action, $user ) {
 		$this->tracking->record_user_event( "jpc_verify_{$action}_success", array(), $user );
 	}
 
@@ -117,7 +117,7 @@ class Tracking {
 	 * @param \WP_User $user The user object.
 	 * @param \WP_Error $error Error object.
 	 */
-	public function track_jetpack_verify_secrets_fail( $action, $user, $error ) {
+	public function jetpack_verify_secrets_fail( $action, $user, $error ) {
 		$this->tracking->record_user_event(
 			"jpc_verify_{$action}_fail",
 			array(
@@ -135,7 +135,7 @@ class Tracking {
 	 *
 	 * @param string $login Username or email address.
 	 */
-	public function track_failed_login_attempts( $login ) {
+	public function wp_login_failed( $login ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 		$this->tracking->record_user_event(
 			'failed_login',
@@ -183,7 +183,7 @@ class Tracking {
 		$this->tracking->record_user_event( 'error_double_encode' );
 	}
 
-	function jetpack_admin_ajax_tracks_callback() {
+	function wp_ajax_jetpack_tracks() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
 			wp_die( 'Permissions check failed.' );
