@@ -34,7 +34,7 @@ class Jetpack_Usage {
 		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
 
 		add_action( 'jetpack_verify_api_authorization_request_error_double_encode', array( $this, 'jetpack_verify_api_authorization_request_error_double_encode' ) );
-		add_action( 'jetpack_connection_register_fail', array( $this, 'jetpack_connection_register_fail' ) );
+		add_action( 'jetpack_connection_register_fail', array( $this, 'jetpack_connection_register_fail' ), 10, 2 );
 		add_action( 'jetpack_connection_register_success', array( $this, 'jetpack_connection_register_success' ) );
 	}
 
