@@ -5,7 +5,6 @@ use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 class Jetpack_Usage {
-
 	/**
 	 * Tracking object.
 	 *
