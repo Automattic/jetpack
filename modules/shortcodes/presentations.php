@@ -495,5 +495,5 @@ if ( ! class_exists( 'Presentations' ) ) :
 		}
 	}
 
-	$GLOBALS['presentations'] = new Presentations();
+	$GLOBALS['presentations'] = new Presentations( Assets::get_instance() );
 endif;
