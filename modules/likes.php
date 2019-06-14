@@ -29,16 +29,21 @@ class Jetpack_Likes {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Likes;
+			$instance = new Jetpack_Likes( Assets::get_instance() );
 		}
 
 		return $instance;
 	}
 
-	function __construct() {
+	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	function __construct( Assets $assets ) {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings = new Jetpack_Likes_Settings();
-		$this->asset_tools = new Asset_Tools();
+		$this->assets = new Assets();
 
 		// We need to run on wp hook rather than init because we check is_amp_endpoint()
 		// when bootstrapping hooks
@@ -294,14 +299,14 @@ class Jetpack_Likes {
 	function register_scripts() {
 		wp_register_script(
 			'postmessage',
-			$this->asset_tools->get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			$this->assets->get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			false
 		);
 		wp_register_script(
 			'jetpack_resize',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),
@@ -311,7 +316,7 @@ class Jetpack_Likes {
 		);
 		wp_register_script(
 			'jetpack_likes_queuehandler',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/likes/queuehandler.min.js',
 				'modules/likes/queuehandler.js'
 			),
@@ -372,7 +377,7 @@ class Jetpack_Likes {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
-					$this->asset_tools->get_file_url_for_environment(
+					$this->assets->get_file_url_for_environment(
 						'_inc/build/likes/post-count.min.js',
 						'modules/likes/post-count.js'
 					),
@@ -381,7 +386,7 @@ class Jetpack_Likes {
 				);
 				wp_enqueue_script(
 					'likes-post-count-jetpack',
-					$this->asset_tools->get_file_url_for_environment(
+					$this->assets->get_file_url_for_environment(
 						'_inc/build/likes/post-count-jetpack.min.js',
 						'modules/likes/post-count-jetpack.js'
 					),
