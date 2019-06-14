@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Tracking;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -146,6 +147,18 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Returns the requested Jetpack API URL.
+	 *
+	 * @param String $relative_url the relative API path.
+	 * @return String API URL.
+	 */
+	public function api_url( $relative_url ) {
+
+		// TODO: rely on constants to override the default
+		return rtrim( 'https://jetpack.wordpress.com/jetpack.' . $relative_url, '/\\' ) . '/1/';
+	}
+
+	/**
 	 * Attempts Jetpack registration which sets up the site for connection. Should
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
@@ -153,7 +166,281 @@ class Manager implements Manager_Interface {
 	 * @return Integer zero on success, or a bitmask on failure.
 	 */
 	public function register() {
-		return 0;
+		// TODO: Tracking can't yet function without static Jetpack methods.
+
+		add_action( 'pre_update_jetpack_option_register', array( '\Jetpack_Options', 'delete_option' ) );
+		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
+
+		if (
+			empty( $secrets['secret_1'] ) ||
+			empty( $secrets['secret_2'] ) ||
+			empty( $secrets['exp'] )
+		) {
+			return new \WP_Error( 'missing_secrets' );
+		}
+
+		// better to try (and fail) to set a higher timeout than this system
+		// supports than to have register fail for more users than it should
+		$timeout = $this->set_min_time_limit( 60 ) / 2;
+
+		$gmt_offset = get_option( 'gmt_offset' );
+		if ( ! $gmt_offset ) {
+			$gmt_offset = 0;
+		}
+
+		$stats_options = get_option( 'stats_options' );
+		$stats_id      = isset( $stats_options['blog_id'] )
+				  ? $stats_options['blog_id']
+				  : null;
+
+		$args = array(
+			'method'  => 'POST',
+			'body'    => array(
+				'siteurl'         => site_url(),
+				'home'            => home_url(),
+				'gmt_offset'      => $gmt_offset,
+				'timezone_string' => (string) get_option( 'timezone_string' ),
+				'site_name'       => (string) get_option( 'blogname' ),
+				'secret_1'        => $secrets['secret_1'],
+				'secret_2'        => $secrets['secret_2'],
+				'site_lang'       => get_locale(),
+				'timeout'         => $timeout,
+				'stats_id'        => $stats_id,
+				'state'           => get_current_user_id(),
+				'site_created'    => $this->get_assumed_site_creation_date(),
+				'jetpack_version' => JETPACK__VERSION,
+			),
+			'headers' => array(
+				'Accept' => 'application/json',
+			),
+			'timeout' => $timeout,
+		);
+
+		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
+
+		// TODO: fix URLs for bad hosts
+		$response = \Jetpack_Client::_wp_remote_request(
+			$this->api_url( 'register' ),
+			$args,
+			true
+		);
+
+		// Make sure the response is valid and does not contain any Jetpack errors
+		$registration_details = $this->validate_remote_register_response( $response );
+
+		if ( is_wp_error( $registration_details ) ) {
+			return $registration_details;
+		} elseif ( ! $registration_details ) {
+			return new \WP_Error(
+				'unknown_error',
+				'',
+				wp_remote_retrieve_response_code( $response )
+			);
+		}
+
+		if ( empty( $registration_details->jetpack_secret ) || ! is_string( $registration_details->jetpack_secret ) ) {
+			return new \WP_Error(
+				'jetpack_secret',
+				'',
+				wp_remote_retrieve_response_code( $response )
+			);
+		}
+
+		if ( isset( $registration_details->jetpack_public ) ) {
+			$jetpack_public = (int) $registration_details->jetpack_public;
+		} else {
+			$jetpack_public = false;
+		}
+
+		\Jetpack_Options::update_options(
+			array(
+				'id'         => (int) $registration_details->jetpack_id,
+				'blog_token' => (string) $registration_details->jetpack_secret,
+				'public'     => $jetpack_public,
+			)
+		);
+
+		/**
+		 * Fires when a site is registered on WordPress.com.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param int $json->jetpack_id Jetpack Blog ID.
+		 * @param string $json->jetpack_secret Jetpack Blog Token.
+		 * @param int|bool $jetpack_public Is the site public.
+		 */
+		do_action(
+			'jetpack_site_registered',
+			$registration_details->jetpack_id,
+			$registration_details->jetpack_secret,
+			$jetpack_public
+		);
+
+		// TODO: Make jumpstart run on jetpack_site_registered action.
+
+		return true;
+	}
+
+	/**
+	 * Takes the response from the Jetpack register new site endpoint and
+	 * verifies it worked properly.
+	 *
+	 * @since 2.6
+	 * @return string|Jetpack_Error A JSON object on success or Jetpack_Error on failures
+	 **/
+	protected function validate_remote_register_response( $response ) {
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error(
+				'register_http_request_failed',
+				$response->get_error_message()
+			);
+		}
+
+		$code   = wp_remote_retrieve_response_code( $response );
+		$entity = wp_remote_retrieve_body( $response );
+
+		if ( $entity ) {
+			$registration_response = json_decode( $entity );
+		} else {
+			$registration_response = false;
+		}
+
+		$code_type = intval( $code / 100 );
+		if ( 5 == $code_type ) {
+			return new \WP_Error( 'wpcom_5??', $code );
+		} elseif ( 408 == $code ) {
+			return new \WP_Error( 'wpcom_408', $code );
+		} elseif ( ! empty( $registration_response->error ) ) {
+			if (
+				'xml_rpc-32700' == $registration_response->error
+				&& ! function_exists( 'xml_parser_create' )
+			) {
+				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
+			} else {
+				$error_description = isset( $registration_response->error_description )
+								   ? (string) $registration_response->error_description
+								   : '';
+			}
+
+			return new \WP_Error(
+				(string) $registration_response->error,
+				$error_description,
+				$code
+			);
+		} elseif ( 200 != $code ) {
+			return new \WP_Error( 'wpcom_bad_response', $code );
+		}
+
+		// Jetpack ID error block
+		if ( empty( $registration_response->jetpack_id ) ) {
+			return new \WP_Error(
+				'jetpack_id',
+				sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
+				$entity
+			);
+		} elseif ( ! is_scalar( $registration_response->jetpack_id ) ) {
+			return new \WP_Error(
+				'jetpack_id',
+				sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
+				$entity
+			);
+		} elseif ( preg_match( '/[^0-9]/', $registration_response->jetpack_id ) ) {
+			return new \WP_Error(
+				'jetpack_id',
+				sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
+				$entity
+			);
+		}
+
+		return $registration_response;
+	}
+
+	/**
+	 * Builds the timeout limit for queries talking with the wpcom servers.
+	 *
+	 * Based on local php max_execution_time in php.ini
+	 *
+	 * @since 5.4
+	 * @return int
+	 **/
+	public function get_max_execution_time() {
+		$timeout = (int) ini_get( 'max_execution_time' );
+
+		// Ensure exec time set in php.ini
+		if ( ! $timeout ) {
+			$timeout = 30;
+		}
+		return $timeout;
+	}
+
+	/**
+	 * Sets a minimum request timeout, and returns the current timeout
+	 *
+	 * @since 5.4
+	 **/
+	public function set_min_time_limit( $min_timeout ) {
+		$timeout = $this->get_max_execution_time();
+		if ( $timeout < $min_timeout ) {
+			$timeout = $min_timeout;
+			set_time_limit( $timeout );
+		}
+		return $timeout;
+	}
+
+	/**
+	 * Get our assumed site creation date.
+	 * Calculated based on the earlier date of either:
+	 * - Earliest admin user registration date.
+	 * - Earliest date of post of any post type.
+	 *
+	 * @since 7.2.0
+	 *
+	 * @return string Assumed site creation date and time.
+	 */
+	public function get_assumed_site_creation_date() {
+		$earliest_registered_users  = get_users(
+			array(
+				'role'    => 'administrator',
+				'orderby' => 'user_registered',
+				'order'   => 'ASC',
+				'fields'  => array( 'user_registered' ),
+				'number'  => 1,
+			)
+		);
+		$earliest_registration_date = $earliest_registered_users[0]->user_registered;
+
+		$earliest_posts = get_posts(
+			array(
+				'posts_per_page' => 1,
+				'post_type'      => 'any',
+				'post_status'    => 'any',
+				'orderby'        => 'date',
+				'order'          => 'ASC',
+			)
+		);
+
+		// If there are no posts at all, we'll count only on user registration date.
+		if ( $earliest_posts ) {
+			$earliest_post_date = $earliest_posts[0]->post_date;
+		} else {
+			$earliest_post_date = PHP_INT_MAX;
+		}
+
+		return min( $earliest_registration_date, $earliest_post_date );
+	}
+
+	public static function apply_activation_source_to_args( $args ) {
+		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+
+		if ( $activation_source_name ) {
+			$args['_as'] = urlencode( $activation_source_name );
+		}
+
+		if ( $activation_source_keyword ) {
+			$args['_ak'] = urlencode( $activation_source_keyword );
+		}
+
+		return $args;
 	}
 
 	/**

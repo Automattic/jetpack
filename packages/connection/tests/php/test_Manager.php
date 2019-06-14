@@ -49,6 +49,17 @@ class ManagerTest extends TestCase {
 		$this->assertFalse( $this->manager->is_active() );
 	}
 
+	public function test_api_url_defaults() {
+		$this->assertEquals(
+			'https://jetpack.wordpress.com/jetpack.something/1/',
+			$this->manager->api_url( 'something' )
+		);
+		$this->assertEquals(
+			'https://jetpack.wordpress.com/jetpack.another_thing/1/',
+			$this->manager->api_url( 'another_thing/' )
+		);
+	}
+
 	/**
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
