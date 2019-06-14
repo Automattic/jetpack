@@ -126,7 +126,7 @@ class Jetpack_Usage {
 	}
 
 	function jetpack_connection_register_fail( $error, $registered ) {
-		$this->tracking->record_user_event( 'jetpack_connection_register_fail', array(
+		$this->tracking->record_user_event( 'jpc_register_fail', array(
 			'error_code'    => $error,
 			'error_message' => $registered->get_error_message()
 		) );
