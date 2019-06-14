@@ -67,6 +67,7 @@ class Card extends React.Component {
 		style: PropTypes.object,
 		className: PropTypes.string,
 		href: PropTypes.string,
+		onClick: PropTypes.func,
 		title: PropTypes.string,
 		tagName: PropTypes.string,
 		target: PropTypes.string,
@@ -78,6 +79,7 @@ class Card extends React.Component {
 		iconColor: '#787878',
 		className: '',
 		tagName: 'div',
+		onClick: () => {},
 	};
 
 	render() {

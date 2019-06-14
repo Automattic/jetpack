@@ -12,6 +12,7 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
@@ -25,6 +26,20 @@ class DashPluginUpdates extends Component {
 		siteAdminUrl: PropTypes.string.isRequired,
 		pluginUpdates: PropTypes.any.isRequired,
 	};
+
+	constructor() {
+		super( ...arguments );
+
+		this.trackManagePlugins = this.trackManagePlugins.bind( this );
+	}
+
+	trackManagePlugins() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'link',
+			target: 'at-a-glance',
+			feature: 'manage-plugins',
+		} );
+	}
 
 	getContent() {
 		const labelName = __( 'Plugin Updates' );
@@ -86,6 +101,7 @@ class DashPluginUpdates extends Component {
 					className="jp-dash-item__manage-in-wpcom"
 					compact
 					href={ managePluginsUrl }
+					onClick={ this.trackManagePlugins }
 					target="_blank"
 				>
 					{ __( 'Manage your plugins' ) }
