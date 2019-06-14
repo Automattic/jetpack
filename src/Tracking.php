@@ -1,21 +1,21 @@
 <?php
-namespace Automattic\Jetpack\Tracking;
+namespace Automattic\Jetpack\Plugin;
 
-use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Tracking as Tracks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
-class Jetpack_Usage {
+class Tracking {
 	/**
 	 * Tracking object.
 	 *
-	 * @var Automattic\Jetpack\Tracking
+	 * @var Tracks
 	 *
 	 * @access private
 	 */
 	private $tracking;
 
 	function init() {
-		$this->tracking = new Tracking( 'jetpack' );
+		$this->tracking = new Tracks( 'jetpack' );
 
 		// For tracking stuff via js/ajax
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );

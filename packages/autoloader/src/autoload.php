@@ -86,7 +86,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Jetpack_Sync_Main',
 						'Automattic\Jetpack\Constants',
 						'Automattic\Jetpack\Tracking',
-						'Automattic\Jetpack\Tracking\Jetpack_Usage',
+						'Automattic\Jetpack\Plugin\Tracking',
 					),
 					true
 				);

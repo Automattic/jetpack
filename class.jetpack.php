@@ -537,7 +537,7 @@ class Jetpack {
 		}
 
 		if ( self::jetpack_tos_agreed() ) {
-			$tracking = new Jetpack_Usage();
+			$tracking = new Automattic\Jetpack\Plugin\Tracking();
 			add_action( 'init', array( $tracking, 'init' ) );
 		}
 
