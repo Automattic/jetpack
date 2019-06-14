@@ -17,6 +17,8 @@ use Automattic\Jetpack\Constants;
 class Status {
 	/**
 	 * Is Jetpack in development (offline) mode?
+	 *
+	 * @return bool Whether Jetpack's development mode is active.
 	 */
 	public static function is_development_mode() {
 		$development_mode = false;
