@@ -8,7 +8,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Tracking\Jetpack_Usage;
 
-
 /*
 Options:
 jetpack_options (array)
