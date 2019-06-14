@@ -48,16 +48,11 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	private $pde_email_address = '';
 
-	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
 	static function init() {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new Grunion_Contact_Form_Plugin( Assets::get_instance() );
+			$instance = new Grunion_Contact_Form_Plugin();
 
 			// Schedule our daily cleanup
 			add_action( 'wp_scheduled_delete', array( $instance, 'daily_akismet_meta_cleanup' ) );
@@ -130,7 +125,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Class uses singleton pattern; use Grunion_Contact_Form_Plugin::init() to initialize.
 	 */
-	protected function __construct( Assets $assets ) {
+	protected function __construct() {
 		$this->add_shortcode();
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
@@ -245,8 +240,6 @@ class Grunion_Contact_Form_Plugin {
 		 */
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
-
-		$this->assets = $assets;
 
 		self::register_contact_form_blocks();
 	}
@@ -3003,6 +2996,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public $error = false;
 
 	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	/**
 	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts()
 	 * @param null|string          $content Null for selfclosing shortcodes.  The inner content otherwise.
 	 * @param Grunion_Contact_Form $form The parent form
@@ -3073,6 +3071,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		// Store parent form
 		$this->form = $form;
+
+		// TODO: Look into passing this in via constructor injection, notwithstanding existing args
+		$this->assets = Assets::get_instance();
 	}
 
 	/**
