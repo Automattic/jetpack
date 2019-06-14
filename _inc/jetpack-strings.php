@@ -36,6 +36,9 @@ __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
+__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:30
+__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:44
+__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:61
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:87
 __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/actions.js:107
 __( "%(slug)s failed to activate. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:130
@@ -48,9 +51,6 @@ __( "Error updating %(slug)s settings. %(error)s", "jetpack" ), // _inc/client/s
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:294
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:318
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:339
-__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:30
-__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:44
-__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:61
 __( "Updating settings…", "jetpack" ), // _inc/client/state/settings/actions.js:91
 __( "Updated settings.", "jetpack" ), // _inc/client/state/settings/actions.js:92
 __( "Error updating settings. %(error)s", "jetpack" ), // _inc/client/state/settings/actions.js:97
@@ -587,13 +587,6 @@ __( "By disconnecting %(siteName)s from WordPress.com you will no longer have ac
 _x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:159
 _x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:164
 __( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:169
-__( "Activating recommended features…", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:33
-__( "Activate recommended features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:34
-__( "{{a}}Skip, and explore features individually.{{/a}}", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:40
-__( "Person with laptop", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:57
-__( "Your Jetpack site is ready to go!", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:61
-__( "We’re now collecting stats and securing your site. Welcome aboard.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:64
-__( "Next, activate Jetpack's recommended features. We've picked the features most useful for maximizing your site's security and performance, like secure authentication, downtime monitoring, image hosting, and lazy loading images. Activate them all with a click, and they'll make sure your site is safe and speedy. {{a}}Learn more about our recommended features.{{/a}}", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:67
 __( "What would you like to see on your Jetpack Dashboard?", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:33
 __( "Let us know!", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:35
 __( "You are currently running a development version of Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:37
@@ -625,6 +618,13 @@ __( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // 
 __( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:213
 __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:217
 __( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:223
+__( "Activating recommended features…", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:33
+__( "Activate recommended features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:34
+__( "{{a}}Skip, and explore features individually.{{/a}}", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:40
+__( "Person with laptop", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:57
+__( "Your Jetpack site is ready to go!", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:61
+__( "We’re now collecting stats and securing your site. Welcome aboard.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:64
+__( "Next, activate Jetpack's recommended features. We've picked the features most useful for maximizing your site's security and performance, like secure authentication, downtime monitoring, image hosting, and lazy loading images. Activate them all with a click, and they'll make sure your site is safe and speedy. {{a}}Learn more about our recommended features.{{/a}}", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:67
 __( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:113
 __( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:121
 __( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:52
@@ -647,13 +647,13 @@ __( "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}", "jetp
 __( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:199
 __( "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:224
 __( "Display an ad unit at the top of your site.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:233
+__( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:78
+__( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:83
+__( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:88
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:53
 _x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:61
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:70
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:82
-__( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:78
-__( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:83
-__( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:88
 __( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:70
 _x( "Security", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:120
 _x( "Performance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:129
