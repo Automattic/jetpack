@@ -183,6 +183,11 @@ class Tracking {
 		$this->tracking->record_user_event( 'error_double_encode' );
 	}
 
+	/**
+	 * Universal method for for all tracking events triggered via the JavaScript client.
+	 *
+	 * @access public
+	 */
 	function wp_ajax_jetpack_tracks() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
