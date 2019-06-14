@@ -4034,7 +4034,7 @@ p {
 				 *
 				 * @since 7.5.0
 				 *
-				 * @param string $from 'from' get parameter;
+				 * @param string $from 'from' GET parameter;
 				 */
 				do_action( 'jetpack_connection_register_success', $from );
 
