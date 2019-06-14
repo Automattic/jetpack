@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 class Jetpack_Photon {
 	/**
@@ -21,6 +21,11 @@ class Jetpack_Photon {
 	protected static $image_sizes = null;
 
 	/**
+	 * @var Assets;
+	 */
+	protected $assets;
+
+	/**
 	 * Singleton implementation
 	 *
 	 * @return object
@@ -28,7 +33,7 @@ class Jetpack_Photon {
 	public static function instance() {
 		if ( ! is_a( self::$__instance, 'Jetpack_Photon' ) ) {
 			self::$__instance = new Jetpack_Photon;
-			self::$__instance->setup();
+			self::$__instance->setup( Assets::get_instance() );
 		}
 
 		return self::$__instance;
@@ -46,7 +51,7 @@ class Jetpack_Photon {
 	 * @uses add_action, add_filter
 	 * @return null
 	 */
-	private function setup() {
+	private function setup( Assets $assets ) {
 		if ( ! function_exists( 'jetpack_photon_url' ) ) {
 			return;
 		}
@@ -80,6 +85,8 @@ class Jetpack_Photon {
 		if ( apply_filters( 'jetpack_photon_noresize_mode', false ) ) {
 			$this->enable_noresize_mode();
 		}
+
+		$this->assets = $assets;
 	}
 
 	/**
@@ -1184,10 +1191,9 @@ class Jetpack_Photon {
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
-		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-photon',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),

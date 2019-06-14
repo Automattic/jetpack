@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Tracking;
@@ -26,9 +26,17 @@ class JITM {
 	private $tracking;
 
 	/**
-	 * Constructor.
+	 * @var Automattic\Jetpack\Assets
 	 */
-	public function __construct() {
+	private $assets;
+
+	/**
+	 * JITM constructor.
+	 *
+	 * @param \Automattic\Jetpack\Assets $assets
+	 */
+	public function __construct( Assets $assets ) {
+		$this->assets   = $assets;
 		$this->tracking = new Tracking();
 	}
 
@@ -180,8 +188,7 @@ class JITM {
 	 * Function to enqueue jitm css and js
 	 */
 	function jitm_enqueue_files() {
-		$asset_manager = new Asset_Tools();
-		$min           = ''; // ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = ''; // ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
 			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
@@ -195,7 +202,7 @@ class JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			$asset_manager->get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			$this->assets->get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
 			array( 'jquery' ),
 			self::PACKAGE_VERSION, // TODO: Keep in sync with version specified in composer.json
 			true

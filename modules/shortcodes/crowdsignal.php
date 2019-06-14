@@ -1,7 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-use Automattic\Jetpack\Asset_Tools;
-
 /**
  * Crowdsignal (PollDaddy) shortcode.
  *
@@ -21,6 +19,7 @@ use Automattic\Jetpack\Asset_Tools;
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 
 // Keep compatibility with the PollDaddy plugin.
@@ -48,9 +47,14 @@ if (
 		private static $scripts = false;
 
 		/**
+		 * @var Assets
+		 */
+		protected $assets;
+
+		/**
 		 * Add all the actions & register the shortcode.
 		 */
-		public function __construct() {
+		public function __construct( Assets $assets ) {
 			add_action( 'init', array( $this, 'register_scripts' ) );
 
 			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
@@ -59,23 +63,25 @@ if (
 			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 			add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
+
+			$this->assets = $assets;
 		}
 
 		/**
 		 * Register scripts that may be enqueued later on by the shortcode.
 		 */
 		public static function register_scripts() {
-			$asset_tools = new Asset_Tools();
+			$assets = Assets::get_instance();
 			wp_register_script(
 				'crowdsignal-shortcode',
-				$asset_tools->get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
+				$assets->get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
 				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
 			wp_register_script(
 				'crowdsignal-survey',
-				$asset_tools->get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
+				$assets->get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
 				array(),
 				JETPACK__VERSION,
 				true
@@ -433,13 +439,12 @@ if (
 							add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
 							wp_enqueue_script( 'crowdsignal-shortcode' );
-							$asset_tools = new Asset_Tools();
 							wp_localize_script(
 								'crowdsignal-shortcode',
 								'crowdsignal_shortcode_options',
 								array(
 									'script_url' => esc_url_raw(
-										$asset_tools->get_file_url_for_environment(
+										$this->assets->get_file_url_for_environment(
 											'_inc/build/polldaddy-shortcode.min.js',
 											'_inc/polldaddy-shortcode.js'
 										)
@@ -712,13 +717,12 @@ if (
 			// only try to load if a shortcode has been called and theme supports infinite scroll.
 			if ( self::$add_script ) {
 				wp_enqueue_script( 'crowdsignal-shortcode' );
-				$asset_tools = new Asset_Tools();
 				wp_localize_script(
 					'crowdsignal-shortcode',
 					'crowdsignal_shortcode_options',
 					array(
 						'script_url' => esc_url_raw(
-							$asset_tools->get_file_url_for_environment(
+							$this->assets->get_file_url_for_environment(
 								'_inc/build/polldaddy-shortcode.min.js',
 								'_inc/polldaddy-shortcode.js'
 							)
@@ -730,7 +734,7 @@ if (
 	}
 
 	// Kick it all off.
-	new CrowdsignalShortcode();
+	new CrowdsignalShortcode( new Assets() );
 
 	if ( ! function_exists( 'crowdsignal_link' ) ) {
 		/**

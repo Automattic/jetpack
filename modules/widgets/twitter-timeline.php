@@ -8,7 +8,7 @@
  *  - https://dev.twitter.com/docs/embedded-timelines
  */
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -20,6 +20,12 @@ function jetpack_twitter_timeline_widget_init() {
 }
 
 class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
+
+	/**
+	 * @var Assets;
+	 */
+	protected $assets;
+
 	/**
 	 * Register widget with WordPress.
 	 */
@@ -40,6 +46,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+
+		$this->assets = Assets::get_instance();
 	}
 
 	/**
@@ -65,10 +73,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	public function admin_scripts( $hook ) {
 		// This is still 'widgets.php' when managing widgets via the Customizer.
 		if ( 'widgets.php' === $hook ) {
-			$asset_tools = new Asset_Tools();
 			wp_enqueue_script(
 				'twitter-timeline-admin',
-				$asset_tools->get_file_url_for_environment(
+				$this->assets->get_file_url_for_environment(
 					'_inc/build/widgets/twitter-timeline-admin.min.js',
 					'modules/widgets/twitter-timeline-admin.js'
 				)

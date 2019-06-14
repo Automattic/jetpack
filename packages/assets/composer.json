@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-asset-tools",
+	"name": "automattic/jetpack-assets",
 	"description": "Asset management utilities for Jetpack ecosystem packages",
 	"type": "library",
 	"license": "GPL-2.0-or-later",

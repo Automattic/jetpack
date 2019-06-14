@@ -4,7 +4,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
-class Asset_Tools {
+class Assets {
 	/**
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
@@ -23,5 +23,16 @@ class Asset_Tools {
 			? $non_min_path
 			: $min_path;
 		return plugins_url( $path, JETPACK__PLUGIN_FILE );
+	}
+
+	/**
+	 * Use only when we can't instantiate a client object with
+	 * this as a constructor argument because we can't modify the call
+	 * to the constructor.
+	 *
+	 * @return Assets
+	 */
+	public static function get_instance() {
+		return new Assets();
 	}
 }

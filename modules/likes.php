@@ -11,7 +11,7 @@
  * Additional Search Queries: like, likes, wordpress.com
  */
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 Jetpack::dns_prefetch( array(
 	'//widgets.wp.com',

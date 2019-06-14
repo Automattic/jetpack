@@ -1,6 +1,6 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileNam
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /**
  * Quiz shortcode.

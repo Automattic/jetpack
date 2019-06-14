@@ -1,5 +1,5 @@
 <?php
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 /*
 Plugin Name: Jetpack Carousel
 Plugin URL: https://wordpress.com/

@@ -8,7 +8,7 @@ Author URI: http://automattic.com/
 License: GPLv2 or later
 */
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 function jetpack_register_widget_milestone() {
 	register_widget( 'Milestone_Widget' );

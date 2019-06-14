@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 class Jetpack_Connection_Banner {
 	/**
