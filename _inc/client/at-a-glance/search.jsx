@@ -10,6 +10,7 @@ import { noop } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import DashItem from 'components/dash-item';
 import Card from 'components/card';
 import { isModuleFound } from 'state/search';
@@ -55,6 +56,20 @@ class DashSearch extends Component {
 		isDevMode: false,
 	};
 
+	constructor() {
+		super( ...arguments );
+
+		this.trackSearchLink = this.trackSearchLink.bind( this );
+	}
+
+	trackSearchLink() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'upgrade-link',
+			target: 'at-a-glance',
+			feature: 'search',
+		} );
+	}
+
 	activateSearch = () => this.props.updateOptions( { search: true } );
 
 	render() {
@@ -81,6 +96,7 @@ class DashSearch extends Component {
 							a: (
 								<a
 									href={ 'https://jetpack.com/features/design/elasticsearch-powered-search/' }
+									onClick={ this.trackSearchLink }
 									target="_blank"
 									rel="noopener noreferrer"
 								/>
