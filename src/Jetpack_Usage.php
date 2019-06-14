@@ -60,7 +60,11 @@ class Jetpack_Usage {
 		$this->tracking->record_user_event( 'module_deactivated', array( 'module' => $module ) );
 	}
 
-	/* User has linked their account */
+	/**
+	 * Track that the user has successfully received an auth token.
+	 *
+	 * @access public
+	 */
 	public function track_user_linked() {
 		$user_id = get_current_user_id();
 		$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
