@@ -187,10 +187,9 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	// URL points to the entire gist, including the file name if there was one.
 	$id = ( ! empty( $file ) ? $id . '?file=' . $file : $id );
 
-	$asset_tools = new Asset_Tools();
 	wp_enqueue_script(
 		'jetpack-gist-embed',
-		$asset_tools->get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
+		Assets::get_instance()->get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
 		array( 'jquery' ),
 		JETPACK__VERSION,
 		true
