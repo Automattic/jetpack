@@ -146,6 +146,13 @@ class Jetpack_Usage {
 		) );
 	}
 
+	/**
+	 * Track that the registration step of the connection has been successful.
+	 *
+	 * @access public
+	 *
+	 * @param string $from The 'from' GET parameter.
+	 */
 	function jetpack_connection_register_success( $from ) {
 		$this->tracking->record_user_event( 'jpc_register_success', array(
 			'from' => $from
