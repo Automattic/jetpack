@@ -8,12 +8,23 @@ use phpmock\Mock;
 use phpmock\MockBuilder;
 
 class Test_Status extends TestCase {
+	/**
+	 * Default site URL.
+	 *
+	 * @var string
+	 */
 	private $site_url = 'https://yourjetpack.blog';
 
+	/**
+	 * Test setup.
+	 */
 	public function setUp() {
 		$this->status = new Status();
 	}
 
+	/**
+	 * Test teardown.
+	 */
 	public function tearDown() {
 		Mock::disableAll();
 	}
@@ -100,6 +111,13 @@ class Test_Status extends TestCase {
 		$filters_mock->disable();
 	}
 
+	/**
+	 * Mock a global function with particular arguments and make it return a certain value.
+	 *
+	 * @param string $function_name Name of the function.
+	 * @param array  $args          Array of argument sets, last value of each set is used as a return value.
+	 * @return phpmock\Mock The mock object.
+	 */
 	protected function mock_function_with_args( $function_name, $args = array() ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
@@ -122,10 +140,22 @@ class Test_Status extends TestCase {
 		return $mock;
 	}
 
+	/**
+	 * Mock a set of filters.
+	 *
+	 * @param array $args Array of filters with their arguments.
+	 * @return phpmock\Mock The mock object.
+	 */
 	protected function mock_filters( $filters = array() ) {
 		return $this->mock_function_with_args( 'apply_filters', $filters );
 	}
 
+	/**
+	 * Mock a set of constants.
+	 *
+	 * @param array $args Array of sets with constants and their respective values.
+	 * @return phpmock\Mock The mock object.
+	 */
 	protected function mock_constants( $constants = array() ) {
 		$prepare_constant = function( $constant ) {
 			return array( $constant[0], true );
@@ -137,6 +167,13 @@ class Test_Status extends TestCase {
 		];
 	}
 
+	/**
+	 * Mock a global function and make it return a certain value.
+	 *
+	 * @param string $function_name Name of the function.
+	 * @param mixed  $return_value  Return value of the function.
+	 * @return phpmock\Mock The mock object.
+	 */
 	protected function mock_function( $function_name, $return_value = null ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
