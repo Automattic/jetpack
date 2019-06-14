@@ -37,6 +37,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			$widget_ops
 		);
 
+		$this->assets = Assets::get_instance();
+
 		if ( is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 
@@ -45,17 +47,16 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			}
 
 			if ( class_exists( 'Jetpack_Slideshow_Shortcode' ) ) {
-				$slideshow = new Jetpack_Slideshow_Shortcode();
+				$slideshow = new Jetpack_Slideshow_Shortcode( Assets::get_instance() );
 				add_action( 'wp_enqueue_scripts', array( $slideshow, 'enqueue_scripts' ) );
 			}
 
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
-				$carousel = new Jetpack_Carousel();
+				$carousel = new Jetpack_Carousel( $this->assets );
 				add_action( 'wp_enqueue_scripts', array( $carousel, 'enqueue_assets' ) );
 			}
 		}
 
-		$this->assets = Assets::get_instance();
 	}
 
 	/**
@@ -93,7 +94,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
 				// Create new carousel so we can use the enqueue_assets() method. Not ideal, but there is a decent amount
 				// of logic in that method that shouldn't be duplicated.
-				$carousel = new Jetpack_Carousel();
+				$carousel = new Jetpack_Carousel( $this->assets );
 
 				// First parameter is $output, which comes from filters, and causes bypass of the asset enqueuing. Passing null is correct.
 				$carousel->enqueue_assets( null );
@@ -256,7 +257,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 		}
 
-		$slideshow = new Jetpack_Slideshow_Shortcode();
+		$slideshow = new Jetpack_Slideshow_Shortcode( Assets::get_instance() );
 
 		$slideshow->enqueue_scripts();
 

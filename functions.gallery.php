@@ -6,8 +6,15 @@ use Automattic\Jetpack\Assets;
  * Renders extra controls in the Gallery Settings section of the new media UI.
  */
 class Jetpack_Gallery_Settings {
-	function __construct() {
+
+	/**
+	 * @var Assets;
+	 */
+	protected $assets;
+
+	function __construct( Assets $assets ) {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		$this->assets = $assets;
 	}
 
 	function admin_init() {
@@ -59,10 +66,9 @@ class Jetpack_Gallery_Settings {
 			 * This only happens if we're not in Jetpack, but on WPCOM instead.
 			 * This is the correct path for WPCOM.
 			 */
-			$asset_tools = new Asset_Tools();
 			wp_register_script(
 				'jetpack-gallery-settings',
-				$asset_tools->get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				$this->assets->get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
 				array( 'media-views' ),
 				'20121225'
 			);
@@ -101,4 +107,4 @@ class Jetpack_Gallery_Settings {
 		<?php
 	}
 }
-new Jetpack_Gallery_Settings;
+new Jetpack_Gallery_Settings( Assets::get_instance() );

@@ -6,13 +6,18 @@ class Jetpack_Lazy_Images {
 	private static $__instance = null;
 
 	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	/**
 	 * Singleton implementation
 	 *
 	 * @return object
 	 */
 	public static function instance() {
 		if ( is_null( self::$__instance ) ) {
-			self::$__instance = new Jetpack_Lazy_Images();
+			self::$__instance = new Jetpack_Lazy_Images( Assets::get_instance() );
 		}
 
 		return self::$__instance;
@@ -21,7 +26,7 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Registers actions
 	 */
-	private function __construct() {
+	private function __construct( Assets $assets ) {
 		if ( is_admin() ) {
 			return;
 		}
@@ -54,6 +59,8 @@ class Jetpack_Lazy_Images {
 
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_lazy_attributes' ) );
 		add_action( 'wp_head', array( $this, 'add_nojs_fallback' ) );
+
+		$this->assets = $assets;
 	}
 
 	public function setup_filters() {
@@ -341,10 +348,9 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
-		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/lazy-images/js/lazy-images.min.js',
 				'modules/lazy-images/js/lazy-images.js'
 			),

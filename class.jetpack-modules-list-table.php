@@ -7,7 +7,12 @@ if ( ! class_exists( 'WP_List_Table' ) )
 
 class Jetpack_Modules_List_Table extends WP_List_Table {
 
-	function __construct() {
+	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	function __construct( Assets $assets ) {
 		parent::__construct();
 
 		Jetpack::init();
@@ -29,10 +34,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$this->_column_headers = array( $this->get_columns(), array(), array(), 'name' );
 		$modal_info = isset( $_GET['info'] ) ? $_GET['info'] : false;
 
-		$asset_tools = new Asset_Tools();
+		$this->assets = $assets;;
 		wp_register_script(
 			'models.jetpack-modules',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/jetpack-modules.models.min.js',
 				'_inc/jetpack-modules.models.js'
 			),
@@ -41,7 +46,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		);
 		wp_register_script(
 			'views.jetpack-modules',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/jetpack-modules.views.min.js',
 				'_inc/jetpack-modules.views.js'
 			),
@@ -50,7 +55,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/jetpack-modules.min.js',
 				'_inc/jetpack-modules.js'
 			),

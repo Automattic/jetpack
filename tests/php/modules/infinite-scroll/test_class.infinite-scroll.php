@@ -6,7 +6,7 @@ class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->infinite_scroll = new The_Neverending_Home_Page;
+		$this->infinite_scroll = new The_Neverending_Home_Page( \Automattic\Jetpack\Assets::get_instance() );
 	}
 
 	public function test_body_class() {
