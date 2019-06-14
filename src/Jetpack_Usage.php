@@ -38,7 +38,13 @@ class Jetpack_Usage {
 		add_action( 'jetpack_connection_register_success', array( $this, 'jetpack_connection_register_success' ) );
 	}
 
-	/* Activated module */
+	/**
+	 * Track that a specific module has been activated.
+	 *
+	 * @access public
+	 *
+	 * @param string $module Module slug.
+	 */
 	public function track_activate_module( $module ) {
 		$this->tracking->record_user_event( 'module_activated', array( 'module' => $module ) );
 	}
