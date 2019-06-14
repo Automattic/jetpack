@@ -131,6 +131,14 @@ class Jetpack_Usage {
 		);
 	}
 
+	/**
+	 * Track a connection failure at the registration step.
+	 *
+	 * @access public
+	 *
+	 * @param string|int $error      The error code.
+	 * @param \WP_Error  $registered The error object.
+	 */
 	function jetpack_connection_register_fail( $error, $registered ) {
 		$this->tracking->record_user_event( 'jpc_register_fail', array(
 			'error_code'    => $error,
