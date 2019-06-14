@@ -18,7 +18,7 @@ class Status {
 	 *
 	 * @return bool Whether Jetpack's development mode is active.
 	 */
-	public static function is_development_mode() {
+	public function is_development_mode() {
 		$development_mode = false;
 		$site_url         = site_url();
 

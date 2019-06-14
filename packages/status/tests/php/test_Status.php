@@ -10,12 +10,16 @@ use phpmock\MockBuilder;
 class Test_Status extends TestCase {
 	private $site_url = 'https://yourjetpack.blog';
 
+	public function setUp() {
+		$this->status = new Status();
+	}
+
 	public function tearDown() {
 		Mock::disableAll();
 	}
 
 	/**
-	 * @covers Automattic\Jetpack::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_default() {
 		$this->mock_function( 'site_url', $this->site_url );
@@ -24,13 +28,13 @@ class Test_Status extends TestCase {
 			array( 'jetpack_development_mode', true, true ),
 		) );
 
-		$this->assertFalse( Status::is_development_mode() );
+		$this->assertFalse( $this->status->is_development_mode() );
 
 		$filters_mock->disable();
 	}
 
 	/**
-	 * @covers Automattic\Jetpack::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_filter_true() {
 		$this->mock_function( 'site_url', $this->site_url );
@@ -38,13 +42,13 @@ class Test_Status extends TestCase {
 			array( 'jetpack_development_mode', false, true ),
 		) );
 
-		$this->assertTrue( Status::is_development_mode() );
+		$this->assertTrue( $this->status->is_development_mode() );
 
 		$filters_mock->disable();
 	}
 
 	/**
-	 * @covers Automattic\Jetpack::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_filter_bool() {
 		$this->mock_function( 'site_url', $this->site_url );
@@ -52,13 +56,13 @@ class Test_Status extends TestCase {
 			array( 'jetpack_development_mode', false, 0 ),
 		) );
 
-		$this->assertFalse( Status::is_development_mode() );
+		$this->assertFalse( $this->status->is_development_mode() );
 		
 		$filters_mock->disable();
 	}
 
 	/**
-	 * @covers Automattic\Jetpack::is_development_mode
+	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_localhost() {
 		$this->mock_function( 'site_url', 'localhost' );
@@ -68,13 +72,13 @@ class Test_Status extends TestCase {
 			array( 'jetpack_development_mode', true, true ),
 		) );
 
-		$this->assertTrue( Status::is_development_mode() );
+		$this->assertTrue( $this->status->is_development_mode() );
 
 		$filters_mock->disable();
 	}
 
     /**
-     * @covers Automattic\Jetpack::is_development_mode
+     * @covers Automattic\Jetpack\Status::is_development_mode
      *
      * @runInSeparateProcess
      */	
@@ -88,7 +92,7 @@ class Test_Status extends TestCase {
 			array( '\\JETPACK_DEV_DEBUG', true ),
 		) );
 
-		$this->assertTrue( Status::is_development_mode() );
+		$this->assertTrue( $this->status->is_development_mode() );
 
 		array_map( function( $mock ) {
 			$mock->disable();
