@@ -133,7 +133,7 @@ class Jetpack_Usage {
 	}
 
 	function jetpack_connection_register_success( $from ) {
-		$this->tracking->record_user_event( 'jetpack_connection_register_success', array(
+		$this->tracking->record_user_event( 'jpc_register_success', array(
 			'from' => $from
 		) );
 	}
