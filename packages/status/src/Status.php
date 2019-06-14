@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Class Automattic\Jetpack\Status
  *
