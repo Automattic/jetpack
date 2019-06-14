@@ -4022,7 +4022,7 @@ p {
 					 * @param string|int $error The error code.
 					 * @param \WP_Error $registered The error object.
 					 */
-					do_action( 'jetpack_connection_register_fail', $error );
+					do_action( 'jetpack_connection_register_fail', $error, $registered );
 					break;
 				}
 
