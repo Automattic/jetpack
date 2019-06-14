@@ -35,7 +35,31 @@ class Jetpack_Memberships {
 	 * @var string
 	 */
 	private static $button_block_name = 'recurring-payments';
-
+	/**
+	 * The prefix for transients storing cached subscriber statuses.
+	 *
+	 * @var string
+	 */
+	private static $subscriber_transient_prefix = 'jetpack-payments-subscriber-';
+	/**
+	 * Cookie name for subscriber session token.
+	 * The tokens are identifying WPCOM user_id on WPCOM side.
+	 *
+	 * @var string
+	 */
+	private static $subscriber_cookie_name = 'jetpack-payments-subscriber-token';
+	/**
+	 * Subscriber session token. This value should come from cookie or a redirect.
+	 *
+	 * @var string
+	 */
+	private $subscriber_token_value = '';
+	/**
+	 * Cache for the subscriber data for the current session.
+	 *
+	 * @var array
+	 */
+	private $subscriber_data = array();
 	/**
 	 * These are defaults for wp_kses ran on the membership button.
 	 *
@@ -94,12 +118,93 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * This reads the user cookie or a redirect value and sets the user session token.
+	 * User session tokens correspond to a WPCOM user id.
+	 */
+	private function setup_session_token() {
+		global $_GET, $_COOKIE;
+		if ( isset( $_GET[ self::$subscriber_cookie_name ] ) ) {
+			$this->subscriber_token_value = $_GET[ self::$subscriber_cookie_name ];
+			setcookie( self::$subscriber_cookie_name, $this->subscriber_token_value, time() + 90 * 24 * 3600 );
+		} elseif ( isset( $_COOKIE[ self::$subscriber_cookie_name ] ) ) {
+			$this->subscriber_token_value = $_COOKIE[ self::$subscriber_cookie_name ];
+		}
+	}
+
+	/**
+	 * Get current subscriber data. Tries to get from cache whenever possible, only in last resort does a WPCOM call to get data.
+	 * Cache expires every hour per user.
+	 *
+	 * @return array
+	 */
+	public function get_subscriber_data() {
+		// If we have stored data that we read previously, we return it.
+		if ( $this->subscriber_data ) {
+			return $this->subscriber_data;
+		}
+		// If we don't know the token of the current customer, return false.
+		if ( ! $this->subscriber_token_value ) {
+			return array(
+				'type'       => 'anon',
+				'subscribed' => false,
+			);
+		}
+		// If we have this data cached in the transient.
+		$transient_data = get_transient( self::$subscriber_transient_prefix . $this->subscriber_token_value );
+		if ( $transient_data ) {
+			$this->subscriber_data = $transient_data;
+			return $transient_data;
+		}
+		// Ok, looks like we have no data cached on either side. Let us get this data.
+		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		if ( is_wp_error( $response ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log(
+					sprintf(
+						/* translators: 1- error code, 2 - error message */
+						__( 'We have encountered an error [%1$s] while communicating with WordPress.com servers: %2$s', 'jetpack' ),
+						$response->get_error_code(),
+						$response->get_error_message()
+					)
+				);
+			}
+			$this->subscriber_data = array(
+				'type'       => 'error',
+				'subscribed' => false,
+			);
+		}
+		$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
+		if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log(
+					sprintf(
+						/* translators: 1- error code, 2 - error message */
+						__( 'We have encountered an error [%1$s] after communicating with WordPress.com servers: %2$s', 'jetpack' ),
+						$data['code'],
+						$data['message']
+					)
+				);
+			}
+			$this->subscriber_data = array(
+				'type'       => 'error',
+				'subscribed' => false,
+			);
+		} else {
+			$this->subscriber_data = $data;
+		}
+		// We want a transient also in case of an error. We don't want to spam servers in case of errors.
+		set_transient( self::$subscriber_transient_prefix . $this->subscriber_token_value, $data, time() + 3600 );
+		return $this->subscriber_data;
+	}
+	/**
 	 * Actual hooks initializing on init.
 	 */
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
+		$this->setup_session_token();
 	}
 
 	/**
