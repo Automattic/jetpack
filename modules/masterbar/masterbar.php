@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 

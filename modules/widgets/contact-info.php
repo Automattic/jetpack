@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
@@ -19,9 +19,9 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 	class Jetpack_Contact_Info_Widget extends WP_Widget {
 
 		/**
-		 * @var Asset_Tools
+		 * @var Automattic\Jetpack\Assets
 		 */
-		protected $asset_tools;
+		protected $assets;
 
 		/**
 		 * Constructor
@@ -44,7 +44,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			}
 
-			$this->asset_tools = new Asset_Tools();
+			// Constructor DI impossible here because core WP file instantiates
+			$this->assets = Assets::get_instance();
 		}
 
 		/**
@@ -254,7 +255,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			wp_enqueue_script(
 				'contact-info-admin',
-				$this->asset_tools->get_file_url_for_environment(
+				$this->assets->get_file_url_for_environment(
 					'_inc/build/widgets/contact-info/contact-info-admin.min.js',
 					'modules/widgets/contact-info/contact-info-admin.js'
 				),

@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /**
  * Plugin Name: Google Translate Widget for WordPress.com
@@ -26,6 +26,11 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 	var $default_title;
 
 	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	/**
 	 * Register widget with WordPress.
 	 */
 	function __construct() {
@@ -41,16 +46,17 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		$this->default_title = esc_html__( 'Translate', 'jetpack' );
+
+		$this->assets = Assets::get_instance();
 	}
 
 	/**
 	 * Enqueue frontend JS scripts.
 	 */
 	public function enqueue_scripts() {
-		$asset_tools = new Asset_Tools;
 		wp_register_script(
 			'google-translate-init',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/widgets/google-translate/google-translate.min.js',
 				'modules/widgets/google-translate/google-translate.js'
 			)

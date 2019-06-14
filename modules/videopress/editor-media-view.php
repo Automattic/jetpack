@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /**
  * WordPress Shortcode Editor View JS Code

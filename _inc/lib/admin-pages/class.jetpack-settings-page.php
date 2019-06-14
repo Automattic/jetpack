@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 include_once( 'class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );

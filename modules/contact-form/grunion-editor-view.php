@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /*
  * A prototype to allow inline editing / editor views for contact forms.\

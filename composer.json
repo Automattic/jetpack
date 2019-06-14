@@ -15,7 +15,7 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-asset-tools": "@dev",
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-tracking": "@dev"
 	},

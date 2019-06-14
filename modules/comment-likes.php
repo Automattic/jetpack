@@ -11,7 +11,7 @@
  * Additional Search Queries: like widget, like button, like, likes
  */
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 Jetpack::dns_prefetch(
 	array(

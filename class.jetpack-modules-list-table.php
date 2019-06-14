@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 if ( ! class_exists( 'WP_List_Table' ) )
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';

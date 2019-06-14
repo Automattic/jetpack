@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 class Jetpack_RelatedPosts {
 	const VERSION   = '20190204';
@@ -19,7 +19,7 @@ class Jetpack_RelatedPosts {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
-				self::$instance = new Jetpack_RelatedPosts();
+				self::$instance = new Jetpack_RelatedPosts( Assets::get_instance() );
 			}
 		}
 
@@ -54,9 +54,11 @@ class Jetpack_RelatedPosts {
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
 	 * @uses get_option, add_action, apply_filters
+	 * @param Assets $assets
+	 *
 	 * @return null
 	 */
-	public function __construct() {
+	public function __construct( Assets $assets ) {
 		$this->_blog_charset = get_option( 'blog_charset' );
 		$this->_convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->_blog_charset ) );
 
@@ -76,6 +78,8 @@ class Jetpack_RelatedPosts {
 				'render_callback' => array( $this, 'render_block' ),
 			)
 		);
+
+		$this->assets = $assets;
 	}
 
 	protected function get_blog_id() {
@@ -1652,10 +1656,9 @@ EOT;
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
-			$asset_tools = new Asset_Tools();
 			wp_enqueue_script(
 				'jetpack_related-posts',
-				$asset_tools->get_file_url_for_environment(
+				$this->assets->get_file_url_for_environment(
 					'_inc/build/related-posts/related-posts.min.js',
 					'modules/related-posts/related-posts.js'
 				),

@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /**
  * Disable direct access/execution to/of the widget code.
@@ -75,9 +75,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		);
 
 		/**
-		 * @var Asset_Tools
+		 * @var Assets
 		 */
-		protected $asset_tools;
+		protected $assets;
 
 		/**
 		 * Constructor.
@@ -98,7 +98,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 			}
 
-			$this->asset_tools = new Asset_Tools();
+			$this->assets = Assets::get_instance();
 		}
 
 		/**
@@ -108,7 +108,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			wp_enqueue_style( 'eu-cookie-law-style', plugins_url( 'eu-cookie-law/style.css', __FILE__ ), array(), '20170403' );
 			wp_enqueue_script(
 				'eu-cookie-law-script',
-				$this->asset_tools->get_file_url_for_environment(
+				$this->assets->get_file_url_for_environment(
 					'_inc/build/widgets/eu-cookie-law/eu-cookie-law.min.js',
 					'modules/widgets/eu-cookie-law/eu-cookie-law.js'
 				),
@@ -198,7 +198,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 
 			wp_enqueue_script(
 				'eu-cookie-law-widget-admin',
-				$this->asset_tools->get_file_url_for_environment(
+				$this->assets->get_file_url_for_environment(
 					'_inc/build/widgets/eu-cookie-law/eu-cookie-law-admin.min.js',
 					'modules/widgets/eu-cookie-law/eu-cookie-law-admin.js'
 				),

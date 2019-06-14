@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /**
  * Alternate Custom CSS source for 4.7 compat.
@@ -14,6 +14,7 @@ use Automattic\Jetpack\Asset_Tools;
  * Class Jetpack_Custom_CSS_Enhancements
  */
 class Jetpack_Custom_CSS_Enhancements {
+
 	/**
 	 * Set up the actions and filters needed for our compatability layer on top of core's Custom CSS implementation.
 	 */
@@ -61,16 +62,19 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array(), '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
 
-		$asset_tools = new Asset_Tools();
-		$src  = $asset_tools->get_file_url_for_environment(
+		$assets = Assets::get_instance();
+		$src    = $assets->get_file_url_for_environment(
 			'_inc/build/custom-css/custom-css/js/core-customizer-css.core-4.9.min.js',
 			'modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js'
 		);
-		wp_register_script( 'jetpack-customizer-css', $src, array( 'customize-controls', 'underscore' ), JETPACK__VERSION, true );
+		wp_register_script( 'jetpack-customizer-css', $src, array(
+			'customize-controls',
+			'underscore'
+		), JETPACK__VERSION, true );
 
 		wp_register_script(
 			'jetpack-customizer-css-preview',
-			$asset_tools->get_file_url_for_environment(
+			$assets->get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
 				'modules/custom-css/custom-css/js/core-customizer-css-preview.js'
 			),

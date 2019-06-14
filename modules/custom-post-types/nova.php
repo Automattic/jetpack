@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Asset_Tools;
+use Automattic\Jetpack\Assets;
 
 /*
  * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.

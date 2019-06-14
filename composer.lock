@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fa9992a37eabfa1d53bee78a855ce7a",
+    "content-hash": "8fddc369a4314c842ebeb34ae87791aa",
     "packages": [
         {
-            "name": "automattic/jetpack-asset-tools",
-            "version": "dev-master",
+            "name": "automattic/jetpack-assets",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
-                "url": "./packages/asset-tools",
-                "reference": "5733de68bc0616f37ed3813b092908767df2cf68",
+                "url": "./packages/assets",
+                "reference": "dad2e54f006f64ab7daae7753ef9179aaaddcc47",
                 "shasum": null
             },
             "require": {
@@ -31,7 +31,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -68,7 +68,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -97,15 +97,15 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "4b1cb00db6b55a600855ed7a1300736b6e09e818",
+                "reference": "0a1342f1c50e4155285fe8d3327d3819f6f81e32",
                 "shasum": null
             },
             "require": {
-                "automattic/jetpack-asset-tools": "@dev",
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-logo": "@dev",
@@ -135,7 +135,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -165,7 +165,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -192,7 +192,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -220,7 +220,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -378,7 +378,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-use-asset-tools-package-everywhere",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -787,7 +787,7 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-jitm": 20,
-        "automattic/jetpack-asset-tools": 20,
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20
