@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Site_Status;
+use Automattic\Jetpack\Status;
 use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
@@ -18,7 +18,7 @@ class Test_Manager extends TestCase {
 		$this->mock_function( 'site_url', $this->site_url );
 		$this->mock_filters();
 
-		$this->assertFalse( Site_Status::is_development_mode() );
+		$this->assertFalse( Status::is_development_mode() );
 
 		$this->clear_mock_filters();
 	}
@@ -29,7 +29,7 @@ class Test_Manager extends TestCase {
 			array( 'jetpack_development_mode', false, true ),
 		) );
 
-		$this->assertTrue( Site_Status::is_development_mode() );
+		$this->assertTrue( Status::is_development_mode() );
 
 		$this->clear_mock_filters();
 	}
@@ -40,7 +40,7 @@ class Test_Manager extends TestCase {
 			array( 'jetpack_development_mode', false, 0 ),
 		) );
 
-		$this->assertFalse( Site_Status::is_development_mode() );
+		$this->assertFalse( Status::is_development_mode() );
 		
 		$this->clear_mock_filters();
 	}

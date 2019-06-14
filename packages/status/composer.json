@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-site-status",
-	"description": "Used to retrieve information about the current status of the site.",
+	"name": "automattic/jetpack-status",
+	"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {

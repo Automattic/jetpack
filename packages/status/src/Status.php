@@ -1,8 +1,8 @@
 <?php
 /**
- * A site status class for Jetpack.
+ * A status class for Jetpack.
  *
- * @package jetpack-site-status
+ * @package jetpack-status
  */
 
 namespace Automattic\Jetpack;
@@ -10,11 +10,11 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Constants;
 
 /**
- * Class Automattic\Jetpack\Site_Status
+ * Class Automattic\Jetpack\Status
  *
- * Used to retrieve information about the current status of the site.
+ * Used to retrieve information about the current status of Jetpack and the site overall.
  */
-class Site_Status {
+class Status {
 	/**
 	 * Is Jetpack in development (offline) mode?
 	 */
