@@ -9,6 +9,7 @@ import { numberFormat, translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryAkismetData from 'components/data/query-akismet-data';
@@ -32,6 +33,29 @@ class DashAkismet extends Component {
 		akismetData: 'N/A',
 		isDevMode: '',
 	};
+
+	constructor() {
+		super( ...arguments );
+
+		this.trackInstallClick = this.trackInstallClick.bind( this );
+		this.trackActivateClick = this.trackActivateClick.bind( this );
+	}
+
+	trackInstallClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'install-link',
+			target: 'at-a-glance',
+			feature: 'akismet',
+		} );
+	}
+
+	trackActivateClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'activate-link',
+			target: 'at-a-glance',
+			feature: 'akismet',
+		} );
+	}
 
 	getContent() {
 		const akismetData = this.props.akismetData;
@@ -71,6 +95,7 @@ class DashAkismet extends Component {
 								a: (
 									<a
 										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+										onClick={ this.trackInstallClick }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -98,6 +123,7 @@ class DashAkismet extends Component {
 								a: (
 									<a
 										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+										onClick={ this.trackActivateClick }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
