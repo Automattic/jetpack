@@ -4020,7 +4020,8 @@ p {
 					 *
 					 * @since 7.5.0
 					 *
-					 * @param \WP_Error $error The error object.
+					 * @param string|int $error The error code.
+					 * @param \WP_Error $registered The error object.
 					 */
 					do_action( 'jetpack_connection_register_fail', $error );
 					break;
