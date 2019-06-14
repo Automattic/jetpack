@@ -287,8 +287,6 @@ class JITM {
 			return array();
 		}
 
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client.php';
-
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		// build our jitm request
