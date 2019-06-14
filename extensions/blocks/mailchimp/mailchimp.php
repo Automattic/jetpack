@@ -79,6 +79,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
 			<form
+				aria-describedby="wp-block-jetpack-mailchimp_consent-text"
 				<?php if ( $is_amp_request ) : ?>
 					action-xhr="<?php echo esc_url( $amp_form_action ); ?>"
 					method="post"
@@ -106,33 +107,35 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 				<p id="wp-block-jetpack-mailchimp_consent-text" name="wp-block-jetpack-mailchimp_consent-text">
 					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
+
+				<?php if ( $is_amp_request ) : ?>
+
+					<div submit-success>
+						<template type="amp-mustache">
+							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success wp-block-jetpack-mailchimp__is-amp">
+								<?php echo esc_html( $values['successLabel'] ); ?>
+							</div>
+						</template>
+					</div>
+					<div submit-error>
+						<template type="amp-mustache">
+							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error wp-block-jetpack-mailchimp__is-amp">
+								<?php echo esc_html( $values['errorLabel'] ); ?>
+							</div>
+						</template>
+					</div>
+					<div submitting>
+						<template type="amp-mustache">
+							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing wp-block-jetpack-mailchimp__is-amp" role="status">
+								<?php echo esc_html( $values['processingLabel'] ); ?>
+							</div>
+						</template>
+					</div>
+
+				<?php endif; ?>
+
 			</form>
-
-			<?php if ( $is_amp_request ) : ?>
-
-				<div submit-success>
-					<template type="amp-mustache">
-						<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success wp-block-jetpack-mailchimp__is-amp">
-							<?php echo esc_html( $values['successLabel'] ); ?>
-						</div>
-					</template>
-				</div>
-				<div submit-error>
-					<template type="amp-mustache>
-						<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error wp-block-jetpack-mailchimp__is-amp">
-							<?php echo esc_html( $values['errorLabel'] ); ?>
-						</div>
-					</template>
-				</div>
-				<div submitting>
-					<template type="amp-mustache">
-						<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
-							<?php echo esc_html( $values['processingLabel'] ); ?>
-						</div>
-					</template>
-				</div>
-
-			<?php else : ?>
+			<?php if ( ! $is_amp_request ) : ?>
 
 				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
 					<?php echo esc_html( $values['processingLabel'] ); ?>
