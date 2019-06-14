@@ -6,7 +6,6 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Tracking\Jetpack_Usage;
 
 /*
 Options:
