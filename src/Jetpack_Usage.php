@@ -49,7 +49,13 @@ class Jetpack_Usage {
 		$this->tracking->record_user_event( 'module_activated', array( 'module' => $module ) );
 	}
 
-	/* Deactivated module */
+	/**
+	 * Track that a specific module has been deactivated.
+	 *
+	 * @access public
+	 *
+	 * @param string $module Module slug.
+	 */
 	public function track_deactivate_module( $module ) {
 		$this->tracking->record_user_event( 'module_deactivated', array( 'module' => $module ) );
 	}
