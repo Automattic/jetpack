@@ -107,6 +107,13 @@ class Jetpack_Usage {
 	}
 
 	/* Failed login attempts */
+	/**
+	 * Track a failed login attempt.
+	 *
+	 * @access public
+	 *
+	 * @param string $login Username or email address.
+	 */
 	public function track_failed_login_attempts( $login ) {
 		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 		$this->tracking->record_user_event(
