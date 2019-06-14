@@ -57,15 +57,15 @@ class Milestone_Widget extends WP_Widget {
 		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) || is_customize_preview() ) {
 			add_action( 'wp_head', array( __class__, 'styles_template' ) );
 		}
+
 	}
 
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
-			$asset_tools = new Asset_Tools();
 			wp_enqueue_script(
 				'milestone-admin-js',
-				$asset_tools->get_file_url_for_environment(
+				Assets::get_instance()->get_file_url_for_environment(
 					'_inc/build/widgets/milestone/admin.min.js',
 					'modules/widgets/milestone/admin.js'
 				),
@@ -81,10 +81,9 @@ class Milestone_Widget extends WP_Widget {
 			return;
 		}
 
-		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'milestone',
-			$asset_tools->get_file_url_for_environment(
+			Assets::get_instance()->get_file_url_for_environment(
 				'_inc/build/widgets/milestone/milestone.min.js',
 				'modules/widgets/milestone/milestone.js'
 			),
