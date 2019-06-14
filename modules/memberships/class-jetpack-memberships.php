@@ -156,7 +156,7 @@ class Jetpack_Memberships {
 			return $transient_data;
 		}
 		// Ok, looks like we have no data cached on either side. Let us get this data.
-		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
+		$request  = sprintf( '/sites/%s/memberships/reader_token/%s/', Jetpack_Options::get_option( 'id' ), $this->subscriber_token_value );
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 		if ( is_wp_error( $response ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
