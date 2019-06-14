@@ -27,8 +27,8 @@ export class MobileMagicLink extends React.Component {
 	};
 
 	handleOpenModal = e => {
-		analytics.tracks.recordJetpackClick( 'connect_mobile_app' );
 		e.preventDefault();
+		analytics.tracks.recordJetpackClick( 'login_to_mobile_app_modal' );
 		this.toggleModalVisibility();
 	};
 
@@ -40,9 +40,40 @@ export class MobileMagicLink extends React.Component {
 
 	clickSendLoginEmail = e => {
 		e.preventDefault();
+		analytics.tracks.recordJetpackClick( 'login_to_mobile_send_link' );
 		this.toggleModalVisibility();
 		this.props.sendMobileLoginEmail();
 	};
+
+	renderModal() {
+		return (
+			<Modal className="mobile-magic-link__modal" onRequestClose={ this.toggleModalVisibility }>
+				<Card className="mobile-magic-link__modal__body">
+					<h2>{ __( 'Email me a link to log in to the app' ) }</h2>
+					<h4>
+						{ __(
+							"Easily log in to the WordPress.com app by clicking the link we'll send to the email address on your account."
+						) }
+					</h4>
+					<div className="mobile-magic-link__modal-actions">
+						<Button
+							className="mobile-magic-link__modal-cancel"
+							onClick={ this.toggleModalVisibility }
+						>
+							{ __( 'Cancel', {
+								context: 'A caption for a button to cancel an action.',
+							} ) }
+						</Button>
+						<Button onClick={ this.clickSendLoginEmail } primary>
+							{ __( 'Send link', {
+								context: 'A caption for a button to log in to the WordPress mobile app.',
+							} ) }
+						</Button>
+					</div>
+				</Card>
+			</Modal>
+		);
+	}
 
 	render() {
 		const { showModal } = this.state;
@@ -57,33 +88,7 @@ export class MobileMagicLink extends React.Component {
 				>
 					{ __( 'Log in to the WordPress mobile app' ) }
 				</a>
-				{ showModal && (
-					<Modal className="mobile-magic-link__modal" onRequestClose={ this.toggleModalVisibility }>
-						<Card className="mobile-magic-link__modal__body">
-							<h2>{ __( 'Email me a link to log in to the app' ) }</h2>
-							<h4>
-								{ __(
-									"Easily log in to the WordPress.com app by clicking the link we'll send to the email address on your account."
-								) }
-							</h4>
-							<div className="mobile-magic-link__modal-actions">
-								<Button
-									className="mobile-magic-link__modal-cancel"
-									onClick={ this.toggleModalVisibility }
-								>
-									{ __( 'Cancel', {
-										context: 'A caption for a button to cancel an action.',
-									} ) }
-								</Button>
-								<Button onClick={ this.clickSendLoginEmail } primary>
-									{ __( 'Send link', {
-										context: 'A caption for a button to log in to the WordPress mobile app.',
-									} ) }
-								</Button>
-							</div>
-						</Card>
-					</Modal>
-				) }
+				{ showModal && this.renderModal() }
 			</div>
 		);
 	}
