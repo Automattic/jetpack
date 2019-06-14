@@ -16,55 +16,58 @@ class Test_Manager extends TestCase {
 
 	public function test_is_development_mode_default() {
 		$this->mock_function( 'site_url', $this->site_url );
-		$this->mock_filters();
+		$filters_mock = $this->mock_filters();
 
 		$this->assertFalse( Status::is_development_mode() );
 
-		$this->clear_mock_filters();
+		$filters_mock->disable();
 	}
 
 	public function test_is_development_mode_filter() {
 		$this->mock_function( 'site_url', $this->site_url );
-		$this->mock_filters( array(
+		$filters_mock = $this->mock_filters( array(
 			array( 'jetpack_development_mode', false, true ),
 		) );
 
 		$this->assertTrue( Status::is_development_mode() );
 
-		$this->clear_mock_filters();
+		$filters_mock->disable();
 	}
 
 	public function test_is_development_mode_bool() {
 		$this->mock_function( 'site_url', $this->site_url );
-		$this->mock_filters( array(
+		$filters_mock = $this->mock_filters( array(
 			array( 'jetpack_development_mode', false, 0 ),
 		) );
 
 		$this->assertFalse( Status::is_development_mode() );
 		
-		$this->clear_mock_filters();
+		$filters_mock->disable();
 	}
 
-	protected function mock_filters( $filters = array() ) {
+	protected function mock_function_multi( $function_name, $args = array() ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'apply_filters' )
+			->setName( $function_name )
 			->setFunction(
-				function() use ( &$filters ) {
+				function() use ( &$args ) {
 					$current_args = func_get_args();
-					foreach ( $filters as $filter ) {
-						if ( array_slice( $filter, 0, -1 ) === $current_args ) {
-							return array_pop( $filter );
+					foreach ( $args as $arg ) {
+						if ( array_slice( $arg, 0, -1 ) === $current_args ) {
+							return array_pop( $arg );
 						}
 					}
 				}
 			);
-		$this->apply_filters_mock = $builder->build();
-		$this->apply_filters_mock->enable();
+
+		$mock = $builder->build();
+		$mock->enable();
+
+		return $mock;
 	}
 
-	protected function clear_mock_filters() {
-		$this->apply_filters_mock->disable();
+	protected function mock_filters( $filters = array() ) {
+		return $this->mock_function_multi( 'apply_filters', $filters );
 	}
 
 	protected function mock_function( $function_name, $return_value = null ) {
