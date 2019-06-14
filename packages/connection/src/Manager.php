@@ -69,8 +69,31 @@ class Manager implements Manager_Interface {
 	 * @param Integer $user_id the user identifier.
 	 * @return Object the user object.
 	 */
-	public function get_connected_user_data( $user_id ) {
-		return $user_id;
+	public function get_connected_user_data( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$transient_key = "jetpack_connected_user_data_$user_id";
+
+		if ( $cached_user_data = get_transient( $transient_key ) ) {
+			return $cached_user_data;
+		}
+
+		\Jetpack::load_xml_rpc_client();
+		$xml = new \Jetpack_IXR_Client(
+			array(
+				'user_id' => $user_id,
+			)
+		);
+		$xml->query( 'wpcom.getUser' );
+		if ( ! $xml->isError() ) {
+			$user_data = $xml->getResponse();
+			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
+			return $user_data;
+		}
+
+		return false;
 	}
 
 	/**

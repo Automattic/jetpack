@@ -1714,6 +1714,7 @@ class Jetpack {
 	 * Get the wpcom user data of the current|specified connected user.
 	 */
 	public static function get_connected_user_data( $user_id = null ) {
+	    // TODO: remove in favour of Connection_Manager->get_connected_user_data
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
 		}

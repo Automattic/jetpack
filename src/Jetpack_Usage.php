@@ -2,6 +2,7 @@
 namespace Automattic\Jetpack\Tracking;
 
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 class Jetpack_Usage {
 
@@ -54,7 +55,8 @@ class Jetpack_Usage {
 			}
 		}
 
-		$wpcom_user_data = self::get_connected_user_data( $user_id );
+		$connection_manager = new Connection_Manager();
+		$wpcom_user_data = $connection_manager->get_connected_user_data( $user_id );
 		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
 
 		$this->tracking->record_user_event( 'wpa_user_linked', array() );
