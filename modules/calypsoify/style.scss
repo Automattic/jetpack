@@ -144,8 +144,13 @@ body,
 }
 
 #toplevel_page_plugins div.wp-menu-image.svg,
-#toplevel_page_plugin-install div.wp-menu-image.svg {
+#toplevel_page_plugin-install div.wp-menu-image.svg,
+#toplevel_page_edit-post_type-feedback div.wp-menu-image.svg {
 	background-size: 24px auto;
+}
+
+#toplevel_page_edit-post_type-feedback div.wp-menu-image {
+	height: 40px;
 }
 
 #toplevel_page_plugins div.wp-menu-image.svg {

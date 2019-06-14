@@ -38,9 +38,7 @@ class Jetpack_Calypsoify {
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
 			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-			if ( $_GET[ 'post_type' ] != 'feedback' ) {
-				add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
-			}
+			add_action( 'admin_menu', array( $this, 'add_custom_menus' ), 101 );
 		}
 
 		// Make this always available -- in case calypsoify gets toggled off.
@@ -204,11 +202,8 @@ class Jetpack_Calypsoify {
 	}
 
 	public function remove_core_menus() {
-		if ( $_GET[ 'post_type' ] != 'feedback' ) {
-			remove_menu_page( 'edit.php?post_type=feedback' );
-		} else {
-			remove_menu_page( 'options-general.php' );
-		}
+		remove_menu_page( 'edit.php?post_type=feedback' );
+		remove_menu_page( 'options-general.php' );
 		remove_menu_page( 'index.php' );
 		remove_menu_page( 'jetpack' );
 		remove_menu_page( 'edit.php' );
@@ -232,21 +227,25 @@ class Jetpack_Calypsoify {
 		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
-	public function add_plugin_menus() {
+	public function add_custom_menus() {
 		global $menu, $submenu;
 
-		add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
-
-		// // Count the settings page submenus, if it's zero then don't show this.
-		if ( empty( $submenu['options-general.php'] ) ) {
-			remove_menu_page( 'options-general.php' );
+		if ( $_GET[ 'post_type' ] == 'feedback' ) {
+			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', $this->feedback_icon(), 1 );
+			remove_submenu_page( 'edit.php?post_type=feedback', 'feedback-export');
 		} else {
-			// Rename and make sure the plugin settings menu is always last.
-			// Sneaky plugins seem to override this otherwise.
-			// Settings is always key 80.
-			$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
-			$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
-			unset( $menu[80] );
+			add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
+			// Count the settings page submenus, if it's zero then don't show this.
+			if ( empty( $submenu['options-general.php'] ) ) {
+				remove_menu_page( 'options-general.php' );
+			} else {
+			    // Rename and make sure the plugin settings menu is always last.
+				// Sneaky plugins seem to override this otherwise.
+				// Settings is always key 80.
+				$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
+				$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
+				unset( $menu[80] );
+			}
 		}
 	}
 
@@ -313,6 +312,12 @@ class Jetpack_Calypsoify {
 
 	private function installed_plugins_icon() {
 		$svg = '<svg class="gridicon gridicons-plugins" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 24"><g><path d="M16 8V3c0-.552-.448-1-1-1s-1 .448-1 1v5h-4V3c0-.552-.448-1-1-1s-1 .448-1 1v5H5v4c0 2.79 1.637 5.193 4 6.317V22h6v-3.683c2.363-1.124 4-3.527 4-6.317V8h-3z" fill="black"></path></g></svg>';
+
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
+	}
+
+	private function feedback_icon() {
+		$svg = '<svg class="gridicon gridicons-feedback" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M2 2h16c.55 0 1 .45 1 1v14c0 .55-.45 1-1 1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1zm15 14V7H3v9h14zM4 8v1h3V8H4zm4 0v3h8V8H8zm-4 4v1h3v-1H4zm4 0v3h8v-3H8z"/></g></svg>';
 
 		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
