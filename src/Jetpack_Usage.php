@@ -112,7 +112,6 @@ class Jetpack_Usage {
 		);
 	}
 
-	/* Failed login attempts */
 	/**
 	 * Track a failed login attempt.
 	 *
