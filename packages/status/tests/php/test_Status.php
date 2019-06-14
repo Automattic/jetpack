@@ -46,14 +46,13 @@ class Test_Manager extends TestCase {
 	}
 
 	protected function mock_filters( $filters = array() ) {
-		$this->mocked_filters = $filters;
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'apply_filters' )
 			->setFunction(
-				function() {
+				function() use ( &$filters ) {
 					$current_args = func_get_args();
-					foreach ( $this->mocked_filters as $filter ) {
+					foreach ( $filters as $filter ) {
 						if ( array_slice( $filter, 0, -1 ) === $current_args ) {
 							return array_pop( $filter );
 						}
@@ -66,7 +65,6 @@ class Test_Manager extends TestCase {
 
 	protected function clear_mock_filters() {
 		$this->apply_filters_mock->disable();
-		unset( $this->mocked_filters );
 	}
 
 	protected function mock_function( $function_name, $return_value = null ) {
