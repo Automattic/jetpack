@@ -23,23 +23,29 @@ require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
 
 class Jetpack_Comment_Likes {
+
+	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
 	public static function init() {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Comment_Likes;
+			$instance = new Jetpack_Comment_Likes( Assets::get_instance() );
 		}
 
 		return $instance;
 	}
 
-	private function __construct() {
-		$this->settings    = new Jetpack_Likes_Settings();
-		$this->blog_id     = Jetpack_Options::get_option( 'id' );
-		$this->url         = home_url();
-		$this->url_parts   = parse_url( $this->url );
-		$this->domain      = $this->url_parts['host'];
-		$this->asset_tools = new Asset_Tools();
+	private function __construct( Assets $assets ) {
+		$this->settings  = new Jetpack_Likes_Settings();
+		$this->blog_id   = Jetpack_Options::get_option( 'id' );
+		$this->url       = home_url();
+		$this->url_parts = parse_url( $this->url );
+		$this->domain    = $this->url_parts['host'];
+		$this->assets    = $assets;
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -104,7 +110,7 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
 			'comment-like-count',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/comment-likes/comment-like-count.min.js',
 				'modules/comment-likes/comment-like-count.js'
 			),
@@ -135,14 +141,14 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
 		wp_enqueue_script(
 			'postmessage',
-			$this->asset_tools->get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			$this->assets->get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_script(
 			'jetpack_resize',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),

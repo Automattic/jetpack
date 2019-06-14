@@ -15,10 +15,9 @@ function videopress_handle_editor_view_js() {
 	add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' );
 
 	wp_enqueue_style( 'videopress-editor-ui', plugins_url( 'css/editor.css', __FILE__ ) );
-	$asset_tools = new Asset_Tools();
 	wp_enqueue_script(
 		'videopress-editor-view',
-		$asset_tools->get_file_url_for_environment(
+		Assets::get_instance()->get_file_url_for_environment(
 			'_inc/build/videopress/js/editor-view.min.js',
 			'modules/videopress/js/editor-view.js'
 		),

@@ -896,10 +896,9 @@ function sharing_display( $text = '', $echo = false ) {
 				$ver = '20141212';
 			}
 
-			$asset_tools = new Asset_Tools();
 			wp_register_script(
 				'sharing-js',
-				$asset_tools->get_file_url_for_environment(
+				Assets::get_instance()->get_file_url_for_environment(
 					'_inc/build/sharedaddy/sharing.min.js',
 					'modules/sharedaddy/sharing.js'
 				),

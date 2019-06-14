@@ -81,11 +81,9 @@ function minileven_scripts() {
 	global $post;
 
 	wp_enqueue_style( 'style', get_stylesheet_uri() );
-
-	$asset_tools = new Asset_Tools();
 	wp_enqueue_script(
 		'small-menu',
-		$asset_tools->get_file_url_for_environment(
+		Assets::get_instance()->get_file_url_for_environment(
 			'_inc/build/minileven/theme/pub/minileven/js/small-menu.min.js',
 			'modules/minileven/theme/pub/minileven/js/small-menu.js'
 		),

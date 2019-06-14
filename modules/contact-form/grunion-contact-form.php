@@ -48,11 +48,16 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	private $pde_email_address = '';
 
+	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
 	static function init() {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new Grunion_Contact_Form_Plugin;
+			$instance = new Grunion_Contact_Form_Plugin( Assets::get_instance() );
 
 			// Schedule our daily cleanup
 			add_action( 'wp_scheduled_delete', array( $instance, 'daily_akismet_meta_cleanup' ) );
@@ -125,7 +130,7 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Class uses singleton pattern; use Grunion_Contact_Form_Plugin::init() to initialize.
 	 */
-	protected function __construct() {
+	protected function __construct( Assets $assets ) {
 		$this->add_shortcode();
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
@@ -240,6 +245,8 @@ class Grunion_Contact_Form_Plugin {
 		 */
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
+
+		$this->assets = $assets;
 
 		self::register_contact_form_blocks();
 	}
@@ -3367,10 +3374,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field = $this->render_label( 'date', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 
-		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'grunion-frontend',
-			$asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/contact-form/js/grunion-frontend.min.js',
 				'modules/contact-form/js/grunion-frontend.js'
 			),

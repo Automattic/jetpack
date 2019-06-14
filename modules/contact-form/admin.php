@@ -804,10 +804,9 @@ function grunion_enable_spam_recheck() {
 	}
 
 	// Add the scripts that handle the spam check event.
-	$asset_tools = new Asset_Tools();
 	wp_register_script(
 		'grunion-admin',
-		$asset_tools->get_file_url_for_environment(
+		Assets::get_instance()->get_file_url_for_environment(
 			'_inc/build/contact-form/js/grunion-admin.min.js',
 			'modules/contact-form/js/grunion-admin.js'
 		),

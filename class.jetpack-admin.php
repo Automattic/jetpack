@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Assets;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -37,7 +38,7 @@ class Jetpack_Admin {
 		$this->jetpack_react = new Jetpack_React_Page;
 
 		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
-		$this->fallback_page = new Jetpack_Settings_Page;
+		$this->fallback_page = new Jetpack_Settings_Page( Assets::get_instance() );
 
 		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
 		$this->jetpack_about = new Jetpack_About_Page;

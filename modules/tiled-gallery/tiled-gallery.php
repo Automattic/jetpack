@@ -127,10 +127,9 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	public static function default_scripts_and_styles() {
-		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'tiled-gallery',
-			$asset_tools->get_file_url_for_environment(
+			Assets::get_instance()->get_file_url_for_environment(
 				'_inc/build/tiled-gallery/tiled-gallery/tiled-gallery.min.js',
 				'modules/tiled-gallery/tiled-gallery/tiled-gallery.js'
 			),

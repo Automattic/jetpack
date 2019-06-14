@@ -50,15 +50,15 @@ class Nova_Restaurant {
 	protected $menu_item_loop_current_term = false;
 
 	/**
-	 * @var Asset_Tools;
+	 * @var Assets
 	 */
-	protected $asset_tools;
+	protected $assets;
 
 	static function init( $menu_item_loop_markup = array() ) {
 		static $instance = false;
 
 		if ( !$instance ) {
-			$instance = new Nova_Restaurant;
+			$instance = new Nova_Restaurant( Assets::get_instance() );
 		}
 
 		if ( $menu_item_loop_markup ) {
@@ -68,7 +68,7 @@ class Nova_Restaurant {
 		return $instance;
 	}
 
-	function __construct() {
+	function __construct( Assets $assets ) {
 		if ( ! $this->site_supports_nova() )
 			return;
 
@@ -93,7 +93,7 @@ class Nova_Restaurant {
 		add_filter( 'post_updated_messages',  array( $this, 'updated_messages'     ) );
 		add_filter( 'dashboard_glance_items', array( $this, 'add_to_dashboard'     ) );
 
-		$this->asset_tools = new Asset_Tools();
+		$this->assets = $assets;
 	}
 
 	/**
@@ -448,7 +448,7 @@ class Nova_Restaurant {
 
 		wp_register_script(
 			'nova-menu-checkboxes',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
 				'modules/custom-post-types/js/menu-checkboxes.js'
 			),
@@ -625,7 +625,7 @@ class Nova_Restaurant {
 
 		wp_enqueue_script(
 			'nova-drag-drop',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
 				'modules/custom-post-types/js/nova-drag-drop.js'
 			),
@@ -872,7 +872,7 @@ class Nova_Restaurant {
 	function enqueue_many_items_scripts() {
 		wp_enqueue_script(
 			'nova-many-items',
-			$this->asset_tools->get_file_url_for_environment(
+			$this->assets->get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/many-items.min.js',
 				'modules/custom-post-types/js/many-items.js'
 			),

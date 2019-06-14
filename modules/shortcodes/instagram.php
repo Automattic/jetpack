@@ -208,10 +208,9 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	}
 
 	if ( ! empty( $response_body->html ) ) {
-		$asset_tools = new Asset_Tools();
 		wp_enqueue_script(
 			'jetpack-instagram-embed',
-			$asset_tools->get_file_url_for_environment( '_inc/build/shortcodes/js/instagram.min.js', 'modules/shortcodes/js/instagram.js' ),
+			Assets::get_instance()->get_file_url_for_environment( '_inc/build/shortcodes/js/instagram.min.js', 'modules/shortcodes/js/instagram.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

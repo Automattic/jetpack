@@ -28,8 +28,14 @@ class Jetpack_Carousel {
 
 	public $single_image_gallery_enabled_media_file = false;
 
-	function __construct() {
+	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	function __construct( Assets $assets ) {
 		add_action( 'init', array( $this, 'init' ) );
+		$this->assets = $assets;
 	}
 
 	function init() {
@@ -227,10 +233,9 @@ class Jetpack_Carousel {
 
 	function enqueue_assets() {
 		if ( $this->first_run ) {
-			$asset_tools = new Asset_Tools();
 			wp_enqueue_script(
 				'jetpack-carousel',
-				$asset_tools->get_file_url_for_environment(
+				$this->assets->get_file_url_for_environment(
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
@@ -830,4 +835,4 @@ class Jetpack_Carousel {
 	}
 }
 
-new Jetpack_Carousel;
+new Jetpack_Carousel( Assets::get_instance() );
