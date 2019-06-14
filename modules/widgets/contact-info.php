@@ -182,34 +182,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				$instance['showmap'] = intval( $new_instance['showmap'] );
 			}
 
-			/*
-			 * If there have been any changes that may impact the map in the widget
-			 * (adding an address, address changes, new API key, API key change )
-			 * then we want to check whether our map can be displayed again.
-			 */
-			$update_goodmap = false;
-			if (
-				! isset( $instance['goodmap'] )
-				|| ! isset( $old_instance['address'] )
-				|| $this->urlencode_address( $old_instance['address'] ) !== $this->urlencode_address( $new_instance['address'] )
-				|| ! isset( $old_instance['apikey'] )
-				|| $old_instance['apikey'] !== $new_instance['apikey']
-			) {
-				$update_goodmap = true;
-			}
-
-			/*
-			 * If we have no address or don't want to show a map,
-			 * no need to check if the map is valid
-			 */
-			if ( empty( $instance['address'] ) || 0 === $instance['showmap'] ) {
-					$update_goodmap      = false;
-					$instance['goodmap'] = false;
-			}
-
-			if ( $update_goodmap ) {
-				$instance['goodmap'] = $this->has_good_map( $instance );
-			}
+			$instance['goodmap'] = $this->update_goodmap( $old_instance, $instance );
 
 			return $instance;
 		}
@@ -262,20 +235,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<?php
-				if (
-					! is_customize_preview()
-					&& $instance['showmap']
-					&& ! empty( $instance['address'] )
-					&& ! empty( $apikey )
-				) {
-					if ( true === $this->has_good_map( $instance ) ) {
-						echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					} else {
-						printf(
-							'<span class="notice notice-warning" style="display: block;">%s</span>',
-							esc_html( $this->has_good_map( $instance ) )
-						);
-					}
+				if ( ! is_customize_preview() && true === $instance['goodmap'] ) {
+					echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				} elseif ( true !== $instance['goodmap'] ) {
+					printf(
+						'<span class="notice notice-warning" style="display: block;">%s</span>',
+						esc_html( $instance['goodmap'] )
+					);
 				}
 				?>
 			</p>
@@ -370,6 +336,43 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$address = str_ireplace( ' ', '+', $address ); // Use + not %20
 			return urlencode( $address );
 		}
+
+		/**
+		 * Returns the instance's updated 'goodmap' value.
+		 *
+		 * @param array $old_instance Old configuration values.
+		 * @param array $instance Current configuration values.
+		 *
+		 * @return bool|string The instance's updated 'goodmap' value. The value is true if
+		 * $instance can display a good map. If not, returns an error message.
+		 */
+		function update_goodmap( $old_instance, $instance ) {
+			/*
+			 * If we have no address or don't want to show a map,
+			 * no need to check if the map is valid.
+			 */
+			if ( empty( $instance['address'] ) || 0 === $instance['showmap'] ) {
+				return false;
+			}
+
+			/*
+			 * If there have been any changes that may impact the map in the widget
+			 * (adding an address, address changes, new API key, API key change)
+			 * then we want to check whether our map can be displayed again.
+			 */
+			if (
+				! isset( $instance['goodmap'] )
+				|| ! isset( $old_instance['address'] )
+				|| $this->urlencode_address( $old_instance['address'] ) !== $this->urlencode_address( $instance['address'] )
+				|| ! isset( $old_instance['apikey'] )
+				|| $old_instance['apikey'] !== $instance['apikey']
+			) {
+				return $this->has_good_map( $instance );
+			} else {
+				return $instance['goodmap'];
+			}
+		}
+
 
 		/**
 		 * Check if the instance has a valid Map location.
