@@ -247,7 +247,7 @@ class ProStatus extends React.Component {
 
 				case 'search':
 					if ( hasFree || hasPersonal || hasPremium ) {
-						return this.getProActions( 'pro' );
+						return this.getProActions( 'pro', 'search' );
 					}
 					return '';
 
