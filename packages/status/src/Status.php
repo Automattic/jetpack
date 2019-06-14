@@ -24,8 +24,8 @@ class Status {
 		$development_mode = false;
 		$site_url         = site_url();
 
-		if ( defined( 'JETPACK_DEV_DEBUG' ) ) {
-			$development_mode = JETPACK_DEV_DEBUG;
+		if ( defined( '\\JETPACK_DEV_DEBUG' ) ) {
+			$development_mode = constant( '\\JETPACK_DEV_DEBUG' );
 		} elseif ( $site_url ) {
 			$development_mode = false === strpos( $site_url, '.' );
 		}
@@ -40,6 +40,7 @@ class Status {
 		 * @param bool $development_mode Is Jetpack's development mode active.
 		 */
 		$development_mode = (bool) apply_filters( 'jetpack_development_mode', $development_mode );
+
 		return $development_mode;
 	}
 }

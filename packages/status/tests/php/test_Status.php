@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
 
-class Test_Manager extends TestCase {
+class Test_Status extends TestCase {
 	private $site_url = 'https://yourjetpack.blog';
 
 	public function tearDown() {
@@ -16,14 +16,17 @@ class Test_Manager extends TestCase {
 
 	public function test_is_development_mode_default() {
 		$this->mock_function( 'site_url', $this->site_url );
-		$filters_mock = $this->mock_filters();
+		$filters_mock = $this->mock_filters( array(
+			array( 'jetpack_development_mode', false, false ),
+			array( 'jetpack_development_mode', true, true ),
+		) );
 
 		$this->assertFalse( Status::is_development_mode() );
 
 		$filters_mock->disable();
 	}
 
-	public function test_is_development_mode_filter() {
+	public function test_is_development_mode_filter_true() {
 		$this->mock_function( 'site_url', $this->site_url );
 		$filters_mock = $this->mock_filters( array(
 			array( 'jetpack_development_mode', false, true ),
@@ -34,7 +37,7 @@ class Test_Manager extends TestCase {
 		$filters_mock->disable();
 	}
 
-	public function test_is_development_mode_bool() {
+	public function test_is_development_mode_filter_bool() {
 		$this->mock_function( 'site_url', $this->site_url );
 		$filters_mock = $this->mock_filters( array(
 			array( 'jetpack_development_mode', false, 0 ),
@@ -45,13 +48,48 @@ class Test_Manager extends TestCase {
 		$filters_mock->disable();
 	}
 
-	protected function mock_function_multi( $function_name, $args = array() ) {
+	public function test_is_development_mode_localhost() {
+		$this->mock_function( 'site_url', 'localhost' );
+		
+		$filters_mock = $this->mock_filters( array(
+			array( 'jetpack_development_mode', false, false ),
+			array( 'jetpack_development_mode', true, true ),
+		) );
+
+		$this->assertTrue( Status::is_development_mode() );
+
+		$filters_mock->disable();
+	}
+
+    /**
+     * @runInSeparateProcess
+     */	
+	public function test_is_development_mode_constant() {
+		$this->mock_function( 'site_url', $this->site_url );
+		$filters_mock = $this->mock_filters( array(
+			array( 'jetpack_development_mode', false, false ),
+			array( 'jetpack_development_mode', true, true ),
+		) );
+		$constants_mocks = $this->mock_constants( array(
+			array( '\\JETPACK_DEV_DEBUG', true ),
+		) );
+
+		$this->assertTrue( Status::is_development_mode() );
+
+		array_map( function( $mock ) {
+			$mock->disable();
+		}, $constants_mocks );
+		$filters_mock->disable();
+	}
+
+	protected function mock_function_with_args( $function_name, $args = array() ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
 			->setFunction(
 				function() use ( &$args ) {
 					$current_args = func_get_args();
+
 					foreach ( $args as $arg ) {
 						if ( array_slice( $arg, 0, -1 ) === $current_args ) {
 							return array_pop( $arg );
@@ -67,7 +105,18 @@ class Test_Manager extends TestCase {
 	}
 
 	protected function mock_filters( $filters = array() ) {
-		return $this->mock_function_multi( 'apply_filters', $filters );
+		return $this->mock_function_with_args( 'apply_filters', $filters );
+	}
+
+	protected function mock_constants( $constants = array() ) {
+		$prepare_constant = function( $constant ) {
+			return array( $constant[0], true );
+		};
+
+		return [
+			$this->mock_function_with_args( 'defined', array_map( $prepare_constant, $constants ) ),
+			$this->mock_function_with_args( 'constant', $constants )
+		];
 	}
 
 	protected function mock_function( $function_name, $return_value = null ) {
