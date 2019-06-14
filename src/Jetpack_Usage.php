@@ -152,6 +152,11 @@ class Jetpack_Usage {
 		) );
 	}
 
+	/**
+	 * Track that the site is incorrectly double-encoding redirects from http to https.
+	 *
+	 * @access public
+	 */
 	function jetpack_verify_api_authorization_request_error_double_encode() {
 		$this->tracking->record_user_event( 'error_double_encode' );
 	}
