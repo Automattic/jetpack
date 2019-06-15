@@ -203,8 +203,10 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		//Test both sync actions again, this time without causing a change in state (comment_unapproved_ remains true despite no state change, while comment_approved_to_unapproved does not)
 
 		$this->server_event_storage->reset();
+		$this->sender->reset_data();
 
 		wp_update_comment( (array) $this->comment );
+
 		$this->sender->do_sync();
 
 		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );

@@ -15,7 +15,6 @@ class Jetpack_Sync_Listener {
 	/**
 	 * Jetpack_Sync_Listener constructor.
 	 *
-	 * @param $sync \Automattic\Jetpack\Sync object
 	 */
 	public function __construct() {
 		$this->set_defaults();

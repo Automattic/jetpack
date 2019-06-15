@@ -102,7 +102,6 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_sync_and_set_delays( $queue ) {
-
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return new WP_Error( 'is_importing' );
@@ -362,8 +361,6 @@ class Jetpack_Sync_Sender {
 	function set_max_dequeue_time( $seconds ) {
 		$this->max_dequeue_time = $seconds;
 	}
-
-
 
 	function set_defaults() {
 		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );

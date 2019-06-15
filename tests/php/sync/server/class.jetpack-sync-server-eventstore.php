@@ -5,7 +5,6 @@
  */
 class Jetpack_Sync_Server_Eventstore {
 	private $events = array();
-	private $action_name = null;
 
 	function init() {
 		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 10, 8 );

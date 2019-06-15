@@ -24,13 +24,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $server_event_storage;
 
 	public function setUp() {
+		parent::setUp();
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
-		$sync = new \Automattic\Jetpack\Sync();
-		$this->listener = new Jetpack_Sync_Listener( $sync );
+		$this->listener = new Jetpack_Sync_Listener();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
-
-		parent::setUp();
 
 		$this->setSyncClientDefaults();
 
@@ -38,6 +36,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
+
 		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceive' ), 10, 4 );
 
 		// bind the two storage systems to the server events
@@ -59,6 +58,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		Jetpack_Sync_Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
+		$this->sender->set_sync_wait_threshold( 0 );
+
 		// don't sync callables or constants every time - slows down tests
 		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		set_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
