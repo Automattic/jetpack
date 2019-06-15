@@ -9,7 +9,7 @@ namespace Automattic\Jetpack;
  */
 class Sync {
 	public $sender                         = null;
-	private $listener                      = null;
+	public $listener                       = null;
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
@@ -20,12 +20,13 @@ class Sync {
 		// Check for WP Super Cache.
 		add_action( 'plugins_loaded', array( $this, 'initialize_wp_super_cache' ), 5 );
 
-
 		// We need to define this here so that it's hooked before `updating_jetpack_version` is called.
 		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
 		add_action( 'jetpack_user_authorized', array( $this, 'do_initial_sync' ), 10, 0 );
 
 		add_action( 'plugins_loaded', array( $this, 'init' ), 90 );
+
+		add_action( 'jetpack_sync_action_enqueued', array( $this, 'add_sender_shutdown' ) );
 	}
 
 	function init() {

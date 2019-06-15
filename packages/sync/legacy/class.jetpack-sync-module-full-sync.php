@@ -399,7 +399,8 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->clear_status();
 		$this->delete_config();
 
-		$listener = Jetpack_Sync_Listener::get_instance();
+		// TODO pass through constructor
+		$listener = new Jetpack_Sync_Listener();
 		$listener->get_full_sync_queue()->reset();
 	}
 

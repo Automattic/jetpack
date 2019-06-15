@@ -195,6 +195,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		update_option( 'home', $updated_home_option );
 		update_option( 'siteurl', $updated_siteurl_option );
 
+		$this->sender->set_next_sync_time( 0, 'sync' );
 		$this->sender->do_sync();
 
 		$synced_home_url = $this->server_replica_storage->get_callable( 'home_url' );
@@ -235,6 +236,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$_SERVER['HTTPS'] = 'on';
 
+		$this->sender->set_next_sync_time( 0, 'sync' );
 		$this->sender->do_sync();
 
 		$synced_home_url = $this->server_replica_storage->get_callable( 'home_url' );
@@ -279,6 +281,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+
+		$this->sender->set_next_sync_time( 0, 'sync' );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -447,6 +451,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
 
 		Jetpack_Sync_Settings::set_doing_cron( false );
+		$this->sender->set_next_sync_time( 0, 'sync' );
 		$this->sender->do_sync();
 		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
 	}

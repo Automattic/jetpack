@@ -13,17 +13,11 @@ class Jetpack_Sync_Listener {
 	private $sync_queue_lag_limit;
 
 	/**
-	 * @var \Automattic\Jetpack\Sync
-	 */
-	private $sync;
-
-	/**
 	 * Jetpack_Sync_Listener constructor.
 	 *
 	 * @param $sync \Automattic\Jetpack\Sync object
 	 */
-	public function __construct( $sync ) {
-		$this->sync = $sync;
+	public function __construct() {
 		$this->set_defaults();
 		$this->init();
 	}
@@ -247,13 +241,14 @@ class Jetpack_Sync_Listener {
 			);
 		}
 
-		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
-		if ( ! $this->sync->sender ) {
-			add_filter( 'jetpack_sync_sender_should_load', '__return_true' );
-			if ( did_action( 'init' ) ) {
-				$this->sync->add_sender_shutdown();
-			}
-		}
+		/**
+		 * Add an action hook to execute after action enqueued.
+		 *
+		 * @module sync
+		 *
+		 * @since 7.5.0
+		 */
+		do_action( 'jetpack_sync_action_enqueued' );
 	}
 
 	function get_actor( $current_filter, $args ) {
