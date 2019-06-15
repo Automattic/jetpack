@@ -1,7 +1,5 @@
 <?php
 
-Jetpack_Sync_Main::init();
-
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
@@ -28,7 +26,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function setUp() {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
-		$this->listener = Jetpack_Sync_Listener::get_instance();
+		$sync = new \Automattic\Jetpack\Sync();
+		$this->listener = new Jetpack_Sync_Listener( $sync );
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
 
 		parent::setUp();
@@ -94,7 +93,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	// asserts that two objects are the same if they're both "objectified",
 	// i.e. json_encoded and then json_decoded
 	// this is useful because we json encode everything sent to the server
-	protected function assertEqualsObject( $object_1, $object_2, $message = null ) {
+	protected function assertEqualsObject( $object_1, $object_2, $message = '' ) {
 		$this->assertEquals( $this->objectify( $object_1 ), $this->objectify( $object_2 ), $message );
 	}
 

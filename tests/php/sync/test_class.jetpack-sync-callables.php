@@ -41,7 +41,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
 	}
 
-
 	function test_wp_version_is_synced() {
 		global $wp_version;
 		$this->sender->do_sync();
@@ -168,6 +167,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->server_replica_storage->reset();
 
 		Jetpack::update_active_modules( array( 'json-api' ) );
+
+		$this->sender->set_next_sync_time( 0, 'sync' );
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );

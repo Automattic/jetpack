@@ -6,7 +6,7 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Tracking\Jetpack_Usage;
+use Automattic\Jetpack\Sync;
 
 /*
 Options:
@@ -39,8 +39,6 @@ class Jetpack {
 	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
-
-	private $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -463,9 +461,12 @@ class Jetpack {
 		$current_modules      = Jetpack_Options::get_option( 'active_modules', array() );
 		$active_modules       = Jetpack::get_active_modules();
 		$new_active_modules   = array_diff( $modules, $current_modules );
+
 		$new_inactive_modules = array_diff( $active_modules, $modules );
 		$new_current_modules  = array_diff( array_merge( $current_modules, $new_active_modules ), $new_inactive_modules );
+
 		$reindexed_modules    = array_values( $new_current_modules );
+
 		$success              = Jetpack_Options::update_option( 'active_modules', array_unique( $reindexed_modules ) );
 
 		foreach ( $new_active_modules as $module ) {
@@ -521,6 +522,7 @@ class Jetpack {
 	 * Constructor.  Initializes WordPress hooks
 	 */
 	private function __construct() {
+	    $this->sync = new Sync();
 		/*
 		 * Check for and alert any deprecated hooks
 		 */

@@ -1,16 +1,17 @@
 <?php
+use Automattic\Jetpack\Sync;
+use PHPUnit\Framework\TestCase;
 
-class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
+class WP_Test_Actions extends TestCase {
 	function test_get_sync_status() {
-		$sync = new Automattic\Jetpack\Sync();
-
+		$sync = new Sync();
 		$no_checksum = $sync->get_sync_status();
 		$this->assertArrayNotHasKey( 'posts_checksum', $no_checksum );
 		$this->assertArrayNotHasKey( 'comments_checksum', $no_checksum );
 		$this->assertArrayNotHasKey( 'post_meta_checksum', $no_checksum );
 		$this->assertArrayNotHasKey( 'comment_meta_checksum', $no_checksum );
 
-		$kitchen_sink_checksum = $sync->get_sync_status(
+		$kitchen_sink_checksum = Jetpack_Sync_Actions::get_sync_status(
 			'posts_checksum,comments_checksum,post_meta_checksum,comment_meta_checksum'
 		);
 		$this->assertArrayHasKey( 'posts_checksum', $kitchen_sink_checksum );
@@ -18,13 +19,13 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'post_meta_checksum', $kitchen_sink_checksum );
 		$this->assertArrayHasKey( 'comment_meta_checksum', $kitchen_sink_checksum );
 
-		$posts = $sync->get_sync_status( 'posts_checksum' );
+		$posts = Jetpack_Sync_Actions::get_sync_status( 'posts_checksum' );
 		$this->assertArrayHasKey( 'posts_checksum', $posts );
 		$this->assertArrayNotHasKey( 'comments_checksum', $posts );
 		$this->assertArrayNotHasKey( 'post_meta_checksum', $posts );
 		$this->assertArrayNotHasKey( 'comment_meta_checksum', $posts );
 
-		$comments = $sync->get_sync_status(
+		$comments = Jetpack_Sync_Actions::get_sync_status(
 			'comments_checksum'
 		);
 		$this->assertArrayNotHasKey( 'posts_checksum', $comments );
@@ -32,7 +33,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'post_meta_checksum', $comments );
 		$this->assertArrayNotHasKey( 'comment_meta_checksum', $comments );
 
-		$post_meta = $sync->get_sync_status(
+		$post_meta = Jetpack_Sync_Actions::get_sync_status(
 			'post_meta_checksum'
 		);
 		$this->assertArrayNotHasKey( 'posts_checksum', $post_meta );
@@ -40,12 +41,22 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'post_meta_checksum', $post_meta );
 		$this->assertArrayNotHasKey( 'comment_meta_checksum', $post_meta );
 
-		$comment_meta = $sync->get_sync_status(
+		$comment_meta = Jetpack_Sync_Actions::get_sync_status(
 			'comment_meta_checksum'
 		);
 		$this->assertArrayNotHasKey( 'posts_checksum', $comment_meta );
 		$this->assertArrayNotHasKey( 'comments_checksum', $comment_meta );
 		$this->assertArrayNotHasKey( 'post_meta_checksum', $comment_meta );
 		$this->assertArrayHasKey( 'comment_meta_checksum', $comment_meta );
+	}
+
+	/**
+	 * Mock a set of filters.
+	 *
+	 * @param array $args Array of filters with their arguments.
+	 * @return phpmock\Mock The mock object.
+	 */
+	protected function mock_filters( $filters = array() ) {
+		return $this->mock_function_with_args( 'apply_filters', $filters );
 	}
 }

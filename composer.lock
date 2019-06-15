@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
@@ -31,7 +31,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -68,7 +68,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -97,7 +97,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -135,7 +135,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -165,7 +165,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -192,21 +192,34 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "b6c34729a2a37b5a485add5d357ff018654e3e35",
+                "reference": "fa5671ce51089c34b6f904bb3659d36b230b5501",
                 "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
             "type": "library",
             "autoload": {
                 "classmap": [
-                    "/legacy"
+                    "legacy"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ]
             },
             "license": [
@@ -216,7 +229,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -374,7 +387,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-update/centralise-tracking",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",

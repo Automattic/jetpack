@@ -12,20 +12,18 @@ class Jetpack_Sync_Listener {
 	private $sync_queue_size_limit;
 	private $sync_queue_lag_limit;
 
-	// singleton functions
-	private static $instance;
+	/**
+	 * @var \Automattic\Jetpack\Sync
+	 */
+	private $sync;
 
-	public static function get_instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
-
-	// this is necessary because you can't use "new" when you declare instance properties >:(
-	protected function __construct() {
-		Jetpack_Sync_Main::init();
+	/**
+	 * Jetpack_Sync_Listener constructor.
+	 *
+	 * @param $sync \Automattic\Jetpack\Sync object
+	 */
+	public function __construct( $sync ) {
+		$this->sync = $sync;
 		$this->set_defaults();
 		$this->init();
 	}
@@ -250,10 +248,10 @@ class Jetpack_Sync_Listener {
 		}
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
-		if ( ! Jetpack_Sync_Actions::$sender ) {
+		if ( ! $this->sync->sender ) {
 			add_filter( 'jetpack_sync_sender_should_load', '__return_true' );
 			if ( did_action( 'init' ) ) {
-				Jetpack_Sync_Actions::add_sender_shutdown();
+				$this->sync->add_sender_shutdown();
 			}
 		}
 	}
