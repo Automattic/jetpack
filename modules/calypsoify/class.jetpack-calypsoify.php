@@ -240,7 +240,7 @@ class Jetpack_Calypsoify {
 			if ( empty( $submenu['options-general.php'] ) ) {
 				remove_menu_page( 'options-general.php' );
 			} else {
-			    // Rename and make sure the plugin settings menu is always last.
+				// Rename and make sure the plugin settings menu is always last.
 				// Sneaky plugins seem to override this otherwise.
 				// Settings is always key 80.
 				$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
