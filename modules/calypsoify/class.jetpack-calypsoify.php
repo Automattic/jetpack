@@ -231,7 +231,8 @@ class Jetpack_Calypsoify {
 		global $menu, $submenu;
 
 		if ( $_GET[ 'post_type' ] == 'feedback' ) {
-			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', $this->feedback_icon(), 1 );
+			// there is currently no gridicon for feeback, so using dashicon
+			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
 			remove_submenu_page( 'edit.php?post_type=feedback', 'feedback-export');
 		} else {
 			add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
@@ -312,12 +313,6 @@ class Jetpack_Calypsoify {
 
 	private function installed_plugins_icon() {
 		$svg = '<svg class="gridicon gridicons-plugins" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 24"><g><path d="M16 8V3c0-.552-.448-1-1-1s-1 .448-1 1v5h-4V3c0-.552-.448-1-1-1s-1 .448-1 1v5H5v4c0 2.79 1.637 5.193 4 6.317V22h6v-3.683c2.363-1.124 4-3.527 4-6.317V8h-3z" fill="black"></path></g></svg>';
-
-		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
-	}
-
-	private function feedback_icon() {
-		$svg = '<svg class="gridicon gridicons-feedback" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M2 2h16c.55 0 1 .45 1 1v14c0 .55-.45 1-1 1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1zm15 14V7H3v9h14zM4 8v1h3V8H4zm4 0v3h8V8H8zm-4 4v1h3v-1H4zm4 0v3h8v-3H8z"/></g></svg>';
 
 		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
