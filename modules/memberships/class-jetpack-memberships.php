@@ -365,6 +365,42 @@ class Jetpack_Memberships {
 			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
 
+		if ( ! $attrs['paywall'] ) {
+			return $this->get_button( $attrs, $data );
+		}
+		$subscriber_data = $this->get_subscriber_data();
+		// User is logged in.
+		if ( 'anon' !== $subscriber_data['type'] ) {
+			return '<div>' . __( 'Thank you for being a subscriber!', 'jetpack' ) . '</div>';
+		}
+		// We know the user is anonymous.
+		$this->paywall_the_post();
+		$login_link      = $this->get_login_link( $data );
+		$purchase_button = $this->get_purchase_button( $attrs, $data );
+		return "<div>{$purchase_button}<br/>{$login_link}</div>";
+	}
+
+	/**
+	 * Get login URL for WPCOM login flow.
+	 *
+	 * @param $data - Plan data.
+	 *
+	 * @return string
+	 */
+	private function get_login_link( $data ) {
+		$current_url = urlencode( ( isset( $_SERVER['HTTPS'] ) ? 'https' : 'http' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" );
+		return "<a href='https://subscribe.wordpress.com/status/?blog={$data['blog_id']}&redirect_url={$current_url}'>LOG IN</a></div>";
+	}
+
+	/**
+	 * Get the HTML for the purchase button.
+	 *
+	 * @param $attrs - block attributes.
+	 * @param $data - data for the payment plan.
+	 *
+	 * @return string
+	 */
+	private function get_purchase_button( $attrs, $data ) {
 		$classes = array(
 			'wp-block-button__link',
 			'components-button',
@@ -400,9 +436,6 @@ class Jetpack_Memberships {
 		}
 		$button_styles = implode( $button_styles, ';' );
 		add_thickbox();
-		$current_url = urlencode( ( isset( $_SERVER['HTTPS'] ) ? 'https' : 'http' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" );
-		$this->paywall_the_post();
-		return '<div>' . print_r( $this->get_subscriber_data(), true ) . "<a href='https://subscribe.wordpress.com/status/?blog={$data['blog_id']}&redirect_url={$current_url}'>LOG IN</a></div>";
 
 		return sprintf(
 			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" data-lang="%s" class="%s" style="%s">%s</button>',

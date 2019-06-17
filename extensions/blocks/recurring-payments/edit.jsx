@@ -18,6 +18,7 @@ import {
 	TextControl,
 	withNotices,
 	SelectControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { InspectorControls, BlockIcon } from '@wordpress/editor';
 import { Fragment, Component } from '@wordpress/element';
@@ -331,6 +332,14 @@ class MembershipsButtonEdit extends Component {
 						} ) ) }
 					/>
 				</PanelBody>
+				<PanelBody title={ __( 'Paywall', 'jetpack' ) }>
+					<ToggleControl
+						label={ __( 'This block is a paywall', 'jetpack' ) }
+						help={ 'Hide the rest of this post for anonymous users.' }
+						checked={ this.props.attributes.paywall }
+						onChange={ paywall => this.props.setAttributes( { paywall } ) }
+					/>
+				</PanelBody>
 				<PanelBody title={ __( 'Management', 'jetpack' ) }>
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
 						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
@@ -345,12 +354,17 @@ class MembershipsButtonEdit extends Component {
 			'is-button',
 		] );
 		const blockContent = (
-			<SubmitButton
-				className={ blockClasses }
-				submitButtonText={ this.props.attributes.submitButtonText }
-				attributes={ this.props.attributes }
-				setAttributes={ this.props.setAttributes }
-			/>
+			<div>
+				<SubmitButton
+					className={ blockClasses }
+					submitButtonText={ this.props.attributes.submitButtonText }
+					attributes={ this.props.attributes }
+					setAttributes={ this.props.setAttributes }
+				/>
+				{ this.props.attributes.paywall && (
+					<SubmitButton className={ blockClasses } submitButtonText={ __( 'Log in', 'jetpack' ) } />
+				) }
+			</div>
 		);
 		return (
 			<Fragment>
