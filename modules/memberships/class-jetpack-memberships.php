@@ -366,12 +366,12 @@ class Jetpack_Memberships {
 		);
 
 		if ( ! $attrs['paywall'] ) {
-			return $this->get_button( $attrs, $data );
+			return $this->get_purchase_button( $attrs, $data );
 		}
 		$subscriber_data = $this->get_subscriber_data();
 		// User is logged in.
 		if ( 'anon' !== $subscriber_data['type'] ) {
-			return '<div>' . __( 'Thank you for being a subscriber!', 'jetpack' ) . '</div>';
+			return '<div><b>' . __( 'Thank you for being a subscriber!', 'jetpack' ) . '</b></div>';
 		}
 		// We know the user is anonymous.
 		$this->paywall_the_post();
@@ -383,7 +383,7 @@ class Jetpack_Memberships {
 	/**
 	 * Get login URL for WPCOM login flow.
 	 *
-	 * @param $data - Plan data.
+	 * @param array $data - Plan data.
 	 *
 	 * @return string
 	 */
@@ -395,8 +395,8 @@ class Jetpack_Memberships {
 	/**
 	 * Get the HTML for the purchase button.
 	 *
-	 * @param $attrs - block attributes.
-	 * @param $data - data for the payment plan.
+	 * @param array $attrs - block attributes.
+	 * @param array $data - data for the payment plan.
 	 *
 	 * @return string
 	 */
