@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Recurring Payments Block: improve the display of the block in the editor.
 * WordAds: update link to daily earnings stats on WordPress.com.
+* WordAds: provide dditional details for custom ads.txt entries in the Jetpack dashboard.
 
 **Improved compatibility**
 
