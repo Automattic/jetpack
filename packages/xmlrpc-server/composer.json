@@ -1,0 +1,12 @@
+{
+	"name": "automattic/jetpack-xmlrpc-server",
+	"description": "An XML-RPC server providing various RPC methods required for Jetpack.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"classmap": [
+			"/legacy"
+		]
+	}
+}

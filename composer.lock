@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fa9992a37eabfa1d53bee78a855ce7a",
+    "content-hash": "0042c126496610c88983fa4f4a881a02",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
@@ -238,6 +238,25 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tracking for Jetpack"
+        },
+        {
+            "name": "automattic/jetpack-xmlrpc-server",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/xmlrpc-server",
+                "reference": "66a3561c56e4a114977c2041a98946aebf1626b3"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "/legacy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "An XML-RPC server providing various RPC methods required for Jetpack."
         },
         {
             "name": "composer/installers",
@@ -765,6 +784,7 @@
         "automattic/jetpack-asset-tools": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
+        "automattic/jetpack-xmlrpc-server": 20,
         "automattic/jetpack-autoloader": 20
     },
     "prefer-stable": true,
