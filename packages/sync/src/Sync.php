@@ -86,8 +86,10 @@ class Sync {
 			$this->should_initialize_sender()
 		) ) {
 			$this->initialize_sender();
-			add_action( 'shutdown', array( $this->sender, 'do_sync' ) );
-			add_action( 'shutdown', array( $this->sender, 'do_full_sync' ) );
+			if ( ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+				add_action( 'shutdown', array( $this->sender, 'do_sync' ) );
+				add_action( 'shutdown', array( $this->sender, 'do_full_sync' ) );
+			}
 		}
 	}
 
@@ -329,8 +331,10 @@ class Sync {
 	function initialize_sender() {
 		$this->sender = \Jetpack_Sync_Sender::get_instance();
 
-		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( $this, 'send_data' ), 10, 6 );
+		if ( ! defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+			// bind the sending process
+			add_filter( 'jetpack_sync_send_data', array( $this, 'send_data' ), 10, 6 );
+		}
 	}
 
 	function initialize_woocommerce() {
