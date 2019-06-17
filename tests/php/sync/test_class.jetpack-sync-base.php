@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		parent::setUp();
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
-		$this->listener = new Jetpack_Sync_Listener();
+		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
 
 		$this->setSyncClientDefaults();

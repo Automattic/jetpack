@@ -12,9 +12,19 @@ class Jetpack_Sync_Listener {
 	private $sync_queue_size_limit;
 	private $sync_queue_lag_limit;
 
+
+	// singleton functions
+	private static $instance;
+
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
 	/**
 	 * Jetpack_Sync_Listener constructor.
-	 *
 	 */
 	public function __construct() {
 		$this->set_defaults();
