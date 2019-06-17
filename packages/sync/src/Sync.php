@@ -325,7 +325,7 @@ class Sync {
 	}
 
 	function initialize_listener() {
-		$this->listener = new \Jetpack_Sync_Listener( $this );
+		$this->listener = \Jetpack_Sync_Listener::get_instance();
 	}
 
 	function initialize_sender() {

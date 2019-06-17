@@ -26,7 +26,7 @@ class Jetpack_Sync_Listener {
 	/**
 	 * Jetpack_Sync_Listener constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
 		$this->set_defaults();
 		$this->init();
 	}
