@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules\Callables;
+
 Jetpack_Sync_Main::init();
 
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
@@ -61,12 +63,12 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 		// don't sync callables or constants every time - slows down tests
-		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		set_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
 	}
 
 	protected function resetCallableAndConstantTimeouts() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
 	}
 
