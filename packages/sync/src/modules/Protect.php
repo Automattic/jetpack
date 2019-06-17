@@ -1,11 +1,15 @@
 <?php
 
+namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Constants;
 
 /**
- * logs bruteprotect failed logins via sync
+ * Logs valid failed login attempts via sync.
+ * A failed attempt is considered valid if it comes from a trusted IP address.
+ * Failed attempts from unknown IP addresses do not trigger sync actions.
  */
-class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
+class Protect extends \Jetpack_Sync_Module {
 
 	function name() {
 		return 'protect';
@@ -17,7 +21,7 @@ class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
 	}
 
 	function maybe_log_failed_login_attempt( $failed_attempt ) {
-		$protect = Jetpack_Protect_Module::instance();
+		$protect = \Jetpack_Protect_Module::instance();
 		if ( $protect->has_login_ability() && ! Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}
