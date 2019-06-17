@@ -459,6 +459,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/mobile/send-login-email',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::send_mobile_magic_link',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
 	}
 
 	public static function get_plans( $request ) {
@@ -3259,4 +3269,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 	}
 
+	/**
+	 * Proxies a request to WordPress.com to request that a magic link be sent to the current user
+	 * to log this user in to the mobile app via email.
+	 *
+	 * @param WP_REST_REQUEST $request The request parameters.
+	 * @return bool|WP_Error
+	 */
+	public static function send_mobile_magic_link( $request ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'user_id' => get_current_user_id(),
+			)
+		);
+
+		$xml->query( 'jetpack.sendMobileMagicLink', array() );
+		if ( $xml->isError() ) {
+			return new WP_Error(
+				'error_sending_mobile_magic_link',
+				sprintf(
+					'%s: %s',
+					$xml->getErrorCode(),
+					$xml->getErrorMessage()
+				)
+			);
+		}
+
+		$response = $xml->getResponse();
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
 } // class end

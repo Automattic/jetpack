@@ -262,6 +262,11 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+
+		sendMobileLoginEmail: () =>
+			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	function addCacheBuster( route ) {
