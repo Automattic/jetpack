@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Slideshow Block: fix CSS class name.
 
 --------
 
