@@ -17,7 +17,8 @@
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-asset-tools": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-tracking": "@dev"
+		"automattic/jetpack-tracking": "@dev",
+		"automattic/jetpack-xmlrpc-server": "@dev"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
