@@ -61,6 +61,12 @@ class Jetpack_Memberships {
 	 */
 	private $subscriber_data = array();
 	/**
+	 * Array of post IDs where we don't want to render blocks anymore.
+	 *
+	 * @var array
+	 */
+	private $stop_render_for_posts = array();
+	/**
 	 * These are defaults for wp_kses ran on the membership button.
 	 *
 	 * @var array
@@ -205,6 +211,7 @@ class Jetpack_Memberships {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->setup_cpts();
 		$this->setup_session_token();
+		$this->setup_paywall();
 	}
 
 	/**
@@ -284,6 +291,51 @@ class Jetpack_Memberships {
 	public function return_meta( $map ) {
 		return $map['meta'];
 	}
+
+	/**
+	 * Hooks into the 'render_block' filter in order to block content access.
+	 */
+	private function setup_paywall() {
+		add_filter( 'render_block', array( $this, 'do_paywall_for_block' ), 10, 2 );
+	}
+
+	/**
+	 * This is hooked into `render_block` filter.
+	 * The purpose is to not render any blocks following the paywall block.
+	 * This is achieved by storing the list of post_IDs where rendering of the blocks has been turned off.
+	 * If we are trying to render a block in one of these posts, we return empty string.
+	 *
+	 * @param string $block_content - rendered block.
+	 * @param array  $block - block metadata.
+	 *
+	 * @return string
+	 */
+	public function do_paywall_for_block( $block_content, $block ) {
+		global $post;
+		// Not in post context.
+		if ( ! $post ) {
+			return $block_content;
+		}
+		// This block itself is immune. This is checked before block is rendered, so it would not render the block itself.
+		if ( 'jetpack/' . self::$button_block_name === $block['blockName'] ) {
+			return $block_content;
+		}
+		// This will intercept rendering of any block after this one.
+		if ( in_array( $post->ID, $this->stop_render_for_posts ) ) {
+			return '';
+		}
+		return $block_content;
+	}
+
+	/**
+	 * Marks the rest of the current post as Paywalled. This will stop rendering any further blocks on this post.
+	 *
+	 * @see $this::do_paywall_for_block.
+	 */
+	private function paywall_the_post() {
+		global $post;
+		$this->stop_render_for_posts[] = $post->ID;
+	}
 	/**
 	 * Callback that parses the membership purchase shortcode.
 	 *
@@ -348,6 +400,10 @@ class Jetpack_Memberships {
 		}
 		$button_styles = implode( $button_styles, ';' );
 		add_thickbox();
+		$current_url = urlencode( ( isset( $_SERVER['HTTPS'] ) ? 'https' : 'http' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" );
+		$this->paywall_the_post();
+		return '<div>' . print_r( $this->get_subscriber_data(), true ) . "<a href='https://subscribe.wordpress.com/status/?blog={$data['blog_id']}&redirect_url={$current_url}'>LOG IN</a></div>";
+
 		return sprintf(
 			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" data-lang="%s" class="%s" style="%s">%s</button>',
 			esc_attr( $data['blog_id'] ),
@@ -359,6 +415,7 @@ class Jetpack_Memberships {
 			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button )
 		);
 	}
+
 
 	/**
 	 * Get current blog id.
