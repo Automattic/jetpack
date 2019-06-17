@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "b6c34729a2a37b5a485add5d357ff018654e3e35",
+                "reference": "7feb756c23c7c54941fbd9620a22407fbaa59028",
                 "shasum": null
             },
             "require": {
@@ -207,7 +207,10 @@
             "autoload": {
                 "classmap": [
                     "/legacy"
-                ]
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
+                }
             },
             "license": [
                 "GPL-2.0-or-later"
