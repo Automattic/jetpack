@@ -234,7 +234,8 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php'          );
 
-new Automattic\Jetpack\Sync();
+global $jetpack_sync;
+$jetpack_sync = new Automattic\Jetpack\Sync();
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );

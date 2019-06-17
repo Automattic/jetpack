@@ -818,12 +818,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @synopsis <status|start> [--<field>=<value>]
 	 */
 	public function sync( $args, $assoc_args ) {
+		global $jetpack_sync;
 
 		$action = isset( $args[0] ) ? $args[0] : 'status';
 
 		switch ( $action ) {
 			case 'status':
-				$status = Jetpack_Sync_Actions::get_sync_status();
+				$status = $jetpack_sync->get_sync_status();
 				$collection = array();
 				foreach ( $status as $key => $item ) {
 					$collection[]  = array(
@@ -890,7 +891,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				break;
 			case 'start':
-				if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+				if ( ! $jetpack_sync->sync_allowed() ) {
 					if( ! Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
 						return;
@@ -953,7 +954,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Kick off a full sync
-				if ( Jetpack_Sync_Actions::do_full_sync( $modules ) ) {
+				if ( $jetpack_sync->do_full_sync( $modules ) ) {
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), join( ', ', array_keys( $modules ) ) ) );
@@ -976,7 +977,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// Keep sending to WPCOM until there's nothing to send
 				$i = 1;
 				do {
-					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
+					$result = $jetpack_sync->sender->do_full_sync();
 					if ( is_wp_error( $result ) ) {
 						$queue_empty_error = ( 'empty_queue_full_sync' == $result->get_error_code() );
 						if ( ! $queue_empty_error || ( $queue_empty_error && ( 1 == $i ) ) ) {
@@ -1015,7 +1016,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @synopsis <incremental|full_sync> <peek>
 	 */
 	public function sync_queue( $args, $assoc_args ) {
-		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+		global $jetpack_sync;
+		if ( ! $jetpack_sync->sync_allowed() ) {
 			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
 		}
 

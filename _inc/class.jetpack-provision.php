@@ -35,9 +35,9 @@ class Jetpack_Provision { //phpcs:ignore
 
 		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
 		// functions/callables so that we can test if this site is in IDC.
-		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Jetpack_Sync_Actions::sync_allowed() ) {
-			Jetpack_Sync_Actions::do_full_sync( array( 'functions' => true ) );
-			Jetpack_Sync_Actions::$sender->do_full_sync();
+		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Sync::sync_allowed() ) {
+			Sync::do_full_sync( array( 'functions' => true ) );
+			Sync::$sender->do_full_sync();
 		}
 
 		if ( Jetpack::validate_sync_error_idc_option() ) {

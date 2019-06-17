@@ -1,6 +1,6 @@
 <?php
 
-class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
+class WP_Test_Sync extends WP_UnitTestCase {
 	function test_get_sync_status() {
 		$sync = new Automattic\Jetpack\Sync();
 

@@ -56,7 +56,7 @@ if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 
 if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	/**
-	 * "Mocking" function so that it exists and Jetpack_Sync_Actions will load Jetpack_Sync_Module_WP_Super_Cache
+	 * "Mocking" function so that it exists and Sync will load Jetpack_Sync_Module_WP_Super_Cache
 	 */
 	function wp_cache_is_enabled() {
 

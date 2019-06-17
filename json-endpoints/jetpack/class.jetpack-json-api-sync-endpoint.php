@@ -32,7 +32,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( empty( $modules ) ) {
 			$modules = null;
 		}
-		return array( 'scheduled' => Jetpack_Sync_Actions::do_full_sync( $modules ) );
+		return array( 'scheduled' => Sync::do_full_sync( $modules ) );
 	}
 
 	protected function validate_queue( $query ) {
@@ -50,9 +50,10 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 // GET /sites/%s/sync/status
 class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
+		global $jetpack_sync;
 		$args   = $this->query_args();
 		$fields = isset( $args['fields'] ) ? $args['fields'] : array();
-		return Jetpack_Sync_Actions::get_sync_status( $fields );
+		return $jetpack_sync->get_sync_status( $fields );
 	}
 }
 
