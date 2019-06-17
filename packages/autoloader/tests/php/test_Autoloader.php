@@ -1,9 +1,10 @@
 <?php
 
 use Automattic\Jetpack\Autoloader as Autoloader;
+use PHPUnit\Framework\TestCase;
 use Jetpack\TestCase_ABC\className_ABC;
 
-class WP_Test_Autoloader extends WP_UnitTestCase {
+class WP_Test_Autoloader extends TestCase {
 	static $jetpack_packages_classes;
 	function setup() {
 		parent::setup();
