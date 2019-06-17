@@ -5245,8 +5245,11 @@ p {
 			}
 		}
 
-		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
-		if ( ! $token ) {
+		$token = Jetpack_Data::get_access_token( $user_id, $token_key, false );
+		if ( is_wp_error( $token ) ) {
+			$token->add_data( compact( 'signature_details' ) );
+			return $token;
+		} elseif ( ! $token ) {
 			return new WP_Error( 'unknown_token', sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ), compact( 'signature_details' ) );
 		}
 

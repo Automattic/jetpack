@@ -267,10 +267,12 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * @param $text
+	 * Returns a base64-encoded sha1 hash of some text
+	 *
+	 * @param string $text The text to hash.
 	 * @return string
 	 */
-	function sha1_base64( $text ) {
+	public function sha1_base64( $text ) {
 		return base64_encode( sha1( $text, true ) );
 	}
 
@@ -285,7 +287,7 @@ class Manager implements Manager_Interface {
 
 		// If it's empty, just fail out.
 		if ( ! $domain ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_domain_empty',
 				/* translators: %1$s is a domain name. */
 				sprintf( __( 'Domain `%1$s` just failed is_usable_domain check as it is empty.', 'jetpack' ), $domain )
@@ -317,7 +319,7 @@ class Manager implements Manager_Interface {
 			'build.wordpress-develop.test', // VVV pattern.
 		);
 		if ( in_array( $domain, $forbidden_domains, true ) ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_domain_forbidden',
 				sprintf(
 					/* translators: %1$s is a domain name. */
@@ -332,7 +334,7 @@ class Manager implements Manager_Interface {
 
 		// No .test or .local domains.
 		if ( preg_match( '#\.(test|local)$#i', $domain ) ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_domain_tld',
 				sprintf(
 					/* translators: %1$s is a domain name. */
@@ -347,7 +349,7 @@ class Manager implements Manager_Interface {
 
 		// No WPCOM subdomains.
 		if ( preg_match( '#\.WordPress\.com$#i', $domain ) ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'fail_subdomain_wpcom',
 				sprintf(
 					/* translators: %1$s is a domain name. */
@@ -409,33 +411,34 @@ class Manager implements Manager_Interface {
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
+	 * @param bool|true    $suppress_errors If true, return a falsy value when the token isn't found; When false, return a descriptive WP_Error when the token isn't found.
 	 *
 	 * @return object|false
 	 */
-	public function get_access_token( $user_id = false, $token_key = false ) {
+	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens' );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
-					return false;
+					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option' );
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user' );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'token_missing_two_periods' );
 			}
 			if ( $user_id != $user_token_chunks[2] ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch' );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
@@ -464,7 +467,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( ! $possible_tokens ) {
-			return false;
+			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens' );
 		}
 
 		$valid_token = false;
@@ -489,7 +492,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( ! $valid_token ) {
-			return false;
+			return $suppress_errors ? false : new \WP_Error( 'no_valid_token' );
 		}
 
 		return (object) array(
