@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Staging enviroments: add staging enviroment detection for DreamPress sites.
 
 **Bug fixes**
 
