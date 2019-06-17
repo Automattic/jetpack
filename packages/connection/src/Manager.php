@@ -56,11 +56,16 @@ class Manager implements Manager_Interface {
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param Integer $user_id the user identifier.
+	 * @param Integer|Boolean $user_id the user identifier.
 	 * @return Boolean is the user connected?
 	 */
-	public function is_user_connected( $user_id ) {
-		return $user_id;
+	public function is_user_connected( $user_id = false ) {
+		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return (bool) $this->get_access_token( $user_id );
 	}
 
 	/**
