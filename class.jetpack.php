@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
@@ -3537,7 +3538,7 @@ p {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
-			Jetpack_Client::_wp_remote_request(
+			Client::_wp_remote_request(
 				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test' ) ),
 				$args,
 				true
@@ -4476,7 +4477,7 @@ p {
 			if ( ! $last_connect_url_check || ( time() - $last_connect_url_check ) > MINUTE_IN_SECONDS ) {
 				Jetpack_Options::update_raw_option( 'jetpack_last_connect_url_check', time() );
 
-				$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+				$response = Client::wpcom_json_api_request_as_blog(
 					sprintf( '/sites/%d', $site_id ) .'?force=wpcom',
 					'1.1'
 				);
@@ -5082,7 +5083,7 @@ p {
 
 		self::apply_activation_source_to_args( $args['body'] );
 
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
+		$response = Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
 		// Make sure the response is valid and does not contain any Jetpack errors
 		$registration_details = Jetpack::init()->validate_remote_register_response( $response );

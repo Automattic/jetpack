@@ -10,6 +10,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Disable direct access.
  */
@@ -153,7 +155,7 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 
 		// Remove filter to avoid endless loop since wpcom_json_api_request_as_blog uses this too.
 		remove_filter( 'pre_http_request', 'jetpack_theme_update' );
-		$result = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$result = Client::wpcom_json_api_request_as_blog(
 			"themes/download/$theme.zip",
 			'1.1',
 			array(

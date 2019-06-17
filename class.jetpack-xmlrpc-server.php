@@ -1,6 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Tracking;
+
 /**
  * Just a sack of functions.  Not actually an IXR_Server
  */
@@ -176,7 +178,7 @@ class Jetpack_XMLRPC_Server {
 		unset( $request['nonce'] );
 
 		$api_url  = Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'partner_provision_nonce_check' ) );
-		$response = Jetpack_Client::_wp_remote_request(
+		$response = Client::_wp_remote_request(
 			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
 			array( 'method' => 'GET' ),
 			true

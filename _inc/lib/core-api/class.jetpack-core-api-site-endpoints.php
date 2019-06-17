@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * This is the endpoint class for `/site` endpoints.
  *
@@ -16,7 +19,7 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		// Make the API request
 		$request = sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) );
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		// Bail if there was an error or malformed response
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {

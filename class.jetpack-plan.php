@@ -5,6 +5,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Provides methods methods for fetching the plan from WordPress.com.
  */
@@ -72,7 +74,7 @@ class Jetpack_Plan {
 	 * Make an API call to WordPress.com for plan status
 	 *
 	 * @uses Jetpack_Options::get_option()
-	 * @uses Jetpack_Client::wpcom_json_api_request_as_blog()
+	 * @uses Client::wpcom_json_api_request_as_blog()
 	 * @uses update_option()
 	 *
 	 * @access public
@@ -83,7 +85,7 @@ class Jetpack_Plan {
 	public static function refresh_from_wpcom() {
 		// Make the API request.
 		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		return self::update_from_sites_response( $response );
 	}
