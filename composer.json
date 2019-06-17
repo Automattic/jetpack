@@ -38,6 +38,11 @@
 			"url": "./packages/*"
 		}
 	],
+	"autoload": {
+		"classmap": [
+			"src"
+		]
+	},
 	"minimum-stability": "dev",
 	"prefer-stable": true
 }

@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Callables extends \Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
 
@@ -12,9 +14,9 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		if ( is_multisite() ) {
-			$this->callable_whitelist = array_merge( Jetpack_Sync_Defaults::get_callable_whitelist(), Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
+			$this->callable_whitelist = array_merge( \Jetpack_Sync_Defaults::get_callable_whitelist(), \Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
 		} else {
-			$this->callable_whitelist = Jetpack_Sync_Defaults::get_callable_whitelist();
+			$this->callable_whitelist = \Jetpack_Sync_Defaults::get_callable_whitelist();
 		}
 	}
 
@@ -63,7 +65,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach ( $url_callables as $callable ) {
-			delete_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
+			delete_option( \Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
 		}
 	}
 
@@ -78,7 +80,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function get_all_callables() {
 		// get_all_callables should run as the master user always.
 		$current_user_id = get_current_user_id();
-		wp_set_current_user( Jetpack_Options::get_option( 'master_user' ) );
+		wp_set_current_user( \Jetpack_Options::get_option( 'master_user' ) );
 		$callables = array_combine(
 			array_keys( $this->get_callable_whitelist() ),
 			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_whitelist() ) )
@@ -125,7 +127,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function set_plugin_action_links() {
 		if (
-			! class_exists( 'DOMDocument' ) ||
+			! class_exists( '\DOMDocument' ) ||
 			! function_exists( 'libxml_use_internal_errors' ) ||
 			! function_exists( 'mb_convert_encoding' )
 		) {
@@ -140,7 +142,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && $current_screeen->id !== 'plugins' ) ) {
 			return;
 		}
-		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
+		$plugins = array_keys( \Jetpack_Sync_Functions::get_plugins() );
 		foreach ( $plugins as $plugin_file ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.
@@ -159,7 +161,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			$action_links           = array_filter( $action_links );
 			$formatted_action_links = null;
 			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
-				$dom_doc = new DOMDocument();
+				$dom_doc = new \DOMDocument();
 				foreach ( $action_links as $action_link ) {
 					// The @ is not enough to suppress errors when dealing with libxml,
 					// we have to tell it directly how we want to handle errors.
@@ -201,7 +203,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			'home_url',
 			'site_url',
 		);
-		if ( in_array( $name, $idc_override_callables ) && Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
+		if ( in_array( $name, $idc_override_callables ) && \Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
 			return true;
 		}
 
@@ -210,7 +212,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function maybe_sync_callables() {
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
-			if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
+			if ( ! is_admin() || \Jetpack_Sync_Settings::is_doing_cron() ) {
 				return;
 			}
 
@@ -219,7 +221,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			}
 		}
 
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), \Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
 
 		$callables = $this->get_all_callables();
 
@@ -227,7 +229,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$callable_checksums = (array) Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
+		$callable_checksums = (array) \Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 		$has_changed        = false;
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
@@ -250,7 +252,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			}
 		}
 		if ( $has_changed ) {
-			Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 		}
 
 	}
@@ -262,7 +264,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			foreach ( $callables as $name => $value ) {
 				$callables_checksums[ $name ] = $this->get_check_sum( $value );
 			}
-			Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callables_checksums );
+			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callables_checksums );
 			return $callables;
 		}
 

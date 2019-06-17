@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Attachments extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Attachments extends \Jetpack_Sync_Module {
 	function name() {
 		return 'attachments';
 	}
