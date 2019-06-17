@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\TestCase;
 
-class Test_Manager extends TestCase {
+class Test_Constants extends TestCase {
 	public function setUp() {
 		if ( ! defined( 'JETPACK__VERSION' ) ) {
 			define( 'JETPACK__VERSION', '7.5' );
