@@ -20,7 +20,7 @@ import {
 	SelectControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { InspectorControls, BlockIcon } from '@wordpress/editor';
+import { InspectorControls, BlockIcon, RichText } from '@wordpress/editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
@@ -287,6 +287,7 @@ class MembershipsButtonEdit extends Component {
 		this.props.setAttributes( {
 			planId: id,
 			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' ),
+			loginButtonText: __( 'Log In', 'jetpack' ),
 		} );
 
 	renderMembershipAmounts = () => (
@@ -364,9 +365,28 @@ class MembershipsButtonEdit extends Component {
 				{ this.props.attributes.paywall && (
 					<SubmitButton
 						className={ blockClasses }
-						submitButtonText={ __( 'Log in', 'jetpack' ) }
+						submitButtonText={ this.props.attributes.loginButtonText }
 						attributes={ this.props.attributes }
-						setAttributes={ () => {} }
+						setAttributes={ newAttributes => {
+							const mappedAttributes = {};
+							Object.keys( newAttributes ).forEach( function( key ) {
+								if ( key === 'submitButtonText' ) {
+									mappedAttributes.loginButtonText = newAttributes[ key ];
+								} else {
+									mappedAttributes[ key ] = newAttributes[ key ];
+								}
+							} );
+							this.props.setAttributes( mappedAttributes );
+						} }
+					/>
+				) }
+				{ this.props.attributes.paywall && (
+					<RichText
+						tagName="div"
+						inlineToolbar
+						placeholder={ __( 'Message for the anonymous user', 'jetpack' ) }
+						value={ this.props.attributes.subscriberMessage }
+						onChange={ nextValue => this.props.setAttributes( { subscriberMessage: nextValue } ) }
 					/>
 				) }
 			</div>

@@ -42,6 +42,13 @@ export const settings = {
 		submitButtonText: {
 			type: 'string',
 		},
+		subscriberMessage: {
+			type: 'string',
+			default: '',
+		},
+		loginButtonText: {
+			type: 'string',
+		},
 		customBackgroundButtonColor: {
 			type: 'string',
 		},

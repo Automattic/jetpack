@@ -129,9 +129,10 @@ class Jetpack_Memberships {
 	 */
 	private function setup_session_token() {
 		global $_GET, $_COOKIE;
+		// TODO: We need to hook into the various caching plugins as well, to whitelist this cookie.
 		if ( isset( $_GET[ self::$subscriber_cookie_name ] ) ) {
 			$this->subscriber_token_value = $_GET[ self::$subscriber_cookie_name ];
-			setcookie( self::$subscriber_cookie_name, $this->subscriber_token_value, time() + 90 * 24 * 3600 );
+			setcookie( self::$subscriber_cookie_name, $this->subscriber_token_value, time() + 90 * 24 * 3600, COOKIEPATH, COOKIE_DOMAIN );
 		} elseif ( isset( $_COOKIE[ self::$subscriber_cookie_name ] ) ) {
 			$this->subscriber_token_value = $_COOKIE[ self::$subscriber_cookie_name ];
 		}
@@ -341,7 +342,7 @@ class Jetpack_Memberships {
 	 *
 	 * @param array $attrs - attributes in the shortcode. `id` here is the CPT id of the plan.
 	 *
-	 * @return string|void
+	 * @return string
 	 */
 	public function render_button( $attrs ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
@@ -370,14 +371,25 @@ class Jetpack_Memberships {
 		}
 		$subscriber_data = $this->get_subscriber_data();
 		// User is logged in.
+		// TODO: some more fallback.
 		if ( 'anon' !== $subscriber_data['type'] ) {
-			return '<div><b>' . __( 'Thank you for being a subscriber!', 'jetpack' ) . '</b></div>';
+			return '';
 		}
 		// We know the user is anonymous.
 		$this->paywall_the_post();
-		$login_link      = $this->get_login_link( $data );
-		$purchase_button = $this->get_purchase_button( $attrs, $data );
-		return "<div>{$purchase_button}<br/>{$login_link}</div>";
+		$login_link = $this->get_login_link( $data );
+
+		$purchase_button    = $this->get_purchase_button( $attrs, $data );
+		$subscriber_message = '';
+		if ( isset( $attrs['subscriberMessage'] ) ) {
+			$subscriber_message = $attrs['subscriberMessage'];
+		}
+		$classes = array(
+			self::$css_classname_prefix . '-subscriber-message',
+			self::$css_classname_prefix . '-' . $data['id'] . '-subscriber-message',
+		);
+		// TODO: This needs better customization.
+		return "<div>{$purchase_button}<br/>{$login_link}</div>" . sprintf( '<div class="%s">%s</div>', esc_html( $classes ), $subscriber_message );
 	}
 
 	/**
