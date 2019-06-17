@@ -229,7 +229,7 @@ class Jetpack_Calypsoify {
 	public function add_custom_menus() {
 		global $menu, $submenu;
 
-		if ( 'feedback' === $_GET['post_type'] ) {
+		if ( isset($_GET['post_type']) && 'feedback' === $_GET['post_type'] ) {
 			// there is currently no gridicon for feedback, so using dashicon.
 			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
 			remove_menu_page( 'options-general.php' );
@@ -281,7 +281,7 @@ class Jetpack_Calypsoify {
 	}
 
 	public function insert_sidebar_html() { 
-		$heading = ( 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+		$heading = ( isset($_GET['post_type']) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
 		?>
 		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
