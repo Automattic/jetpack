@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Recurring Payments Block: improve the display of the block in the editor.
 
 **Improved compatibility**
 
