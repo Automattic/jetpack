@@ -203,7 +203,6 @@ class Jetpack_Calypsoify {
 
 	public function remove_core_menus() {
 		remove_menu_page( 'edit.php?post_type=feedback' );
-		remove_menu_page( 'options-general.php' );
 		remove_menu_page( 'index.php' );
 		remove_menu_page( 'jetpack' );
 		remove_menu_page( 'edit.php' );
@@ -233,7 +232,8 @@ class Jetpack_Calypsoify {
 		if ( $_GET[ 'post_type' ] == 'feedback' ) {
 			// there is currently no gridicon for feeback, so using dashicon
 			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
-			remove_submenu_page( 'edit.php?post_type=feedback', 'feedback-export');
+			remove_menu_page( 'options-general.php' );
+			remove_submenu_page( 'edit.php?post_type=feedback', 'feedback-export' );
 		} else {
 			add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
 			// Count the settings page submenus, if it's zero then don't show this.
