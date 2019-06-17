@@ -113,6 +113,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					 */
 					$api_key = apply_filters( 'jetpack_google_maps_api_key', $instance['apikey'] );
 					echo $this->build_map( $instance['address'], $api_key );
+				} elseif ( $showmap && is_customize_preview() && true !== $goodmap ) {
+					printf(
+						'<span class="contact-map-api-error" style="display: block;">%s</span>',
+						esc_html( $instance['goodmap'] )
+					);
 				}
 
 				$map_link = $this->build_map_link( $instance['address'] );
