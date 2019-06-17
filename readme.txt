@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Page: fix display of backup details in the Jetpack dashboard.
 * Slideshow Block: fix CSS class name.
 
 --------
