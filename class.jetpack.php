@@ -1,5 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
+use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
 
@@ -25,11 +29,7 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use \Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
-
 require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -38,6 +38,8 @@ class Jetpack {
 	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
+
+	private $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -533,6 +535,11 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
+		if ( self::jetpack_tos_agreed() ) {
+			$tracking = new Automattic\Jetpack\Plugin\Tracking();
+			add_action( 'init', array( $tracking, 'init' ) );
+		}
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -598,6 +605,8 @@ class Jetpack {
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
 				}
 			} else {
+				new XMLRPC_Connector( $this->connection_manager );
+
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
 
@@ -622,6 +631,8 @@ class Jetpack {
 			if ( Jetpack::is_active() ) {
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
+			} else {
+				add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
 			}
 		}
 
@@ -657,9 +668,6 @@ class Jetpack {
 
 		// JITM AJAX callback function
 		add_action( 'wp_ajax_jitm_ajax',  array( $this, 'jetpack_jitm_ajax_callback' ) );
-
-		// Universal ajax callback for all tracking events triggered via js
-		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
@@ -718,6 +726,7 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
+
 		/**
 		 * These are sync actions that we need to keep track of for jitms
 		 */
@@ -727,6 +736,11 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+
+	}
+
+	function initialize_rest_api_registration_connector() {
+		new REST_Connector( $this->connection_manager );
 	}
 
 	/**
@@ -891,30 +905,6 @@ class Jetpack {
 		$wp_xmlrpc_server->serve_request();
 
 		exit;
-	}
-
-	function jetpack_admin_ajax_tracks_callback() {
-		// Check for nonce
-		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
-			wp_die( 'Permissions check failed.' );
-		}
-
-		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] )  ) {
-			wp_die( 'No valid event name or type.' );
-		}
-
-		$tracks_data = array();
-		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
-			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
-				$tracks_data = $_REQUEST['tracksEventProp'];
-			} else {
-				$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
-			}
-		}
-
-		Tracking::record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
-		wp_send_json_success();
-		wp_die();
 	}
 
 	/**
@@ -1721,6 +1711,7 @@ class Jetpack {
 	 * Get the wpcom user data of the current|specified connected user.
 	 */
 	public static function get_connected_user_data( $user_id = null ) {
+		// TODO: remove in favor of Connection_Manager->get_connected_user_data
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
 		}
@@ -3252,7 +3243,8 @@ p {
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
-			Tracking::record_user_event( 'disconnect_site', array() );
+			$tracking = new Tracking();
+			$tracking->record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister' );
@@ -4019,19 +4011,30 @@ p {
 					$error = $registered->get_error_code();
 					Jetpack::state( 'error', $error );
 					Jetpack::state( 'error', $registered->get_error_message() );
-					Tracking::record_user_event( 'jpc_register_fail', array(
-						'error_code' => $error,
-						'error_message' => $registered->get_error_message()
-					) );
+
+					/**
+					 * Jetpack registration Error.
+					 *
+					 * @since 7.5.0
+					 *
+					 * @param string|int $error The error code.
+					 * @param \WP_Error $registered The error object.
+					 */
+					do_action( 'jetpack_connection_register_fail', $error, $registered );
 					break;
 				}
 
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
-				Tracking::record_user_event( 'jpc_register_success', array(
-					'from' => $from
-				) );
+				/**
+				 * Jetpack registration Success.
+				 *
+				 * @since 7.5.0
+				 *
+				 * @param string $from 'from' GET parameter;
+				 */
+				do_action( 'jetpack_connection_register_success', $from );
 
 				$url = $this->build_connect_url( true, $redirect, $from );
 
@@ -4515,7 +4518,9 @@ p {
 			 */
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
-			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
+			$tracks = new Tracking();
+			$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 			$args = urlencode_deep(
 				array(
@@ -5021,7 +5026,8 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		Tracking::record_user_event( 'jpc_register_begin' );
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
@@ -5045,7 +5051,8 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+		$tracks = new Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$args = array(
 			'method'  => 'POST',
@@ -5879,8 +5886,13 @@ p {
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
-			Tracking::record_user_event( 'error_double_encode' );
-
+			/**
+			 * Jetpack authorisation request Error.
+			 *
+			 * @since 7.5.0
+			 *
+			 */
+			do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
@@ -6043,14 +6055,15 @@ p {
 			'urls' => array(
 				'#\.staging\.wpengine\.com$#i', // WP Engine
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com
-				),
+				'#\.stage\.site$#i'             // DreamPress
+			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine
 				'KINSTA_DEV_ENV',       // Kinsta.com
 				'WPSTAGECOACH_STAGING', // WP Stagecoach
 				'JETPACK_STAGING_MODE', // Generic
-				)
-			);
+			)
+		);
 		/**
 		 * Filters the flags of known staging sites.
 		 *
@@ -7164,4 +7177,5 @@ p {
 		}
 		return true;
 	}
+
 }

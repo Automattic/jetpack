@@ -9,7 +9,7 @@ class Jetpack_Sync_Modules {
 
 	private static $default_sync_modules = array(
 		'Jetpack_Sync_Module_Constants',
-		'Jetpack_Sync_Module_Callables',
+		'Automattic\\Jetpack\\Sync\\Modules\\Callables',
 		'Jetpack_Sync_Module_Options',
 		'Jetpack_Sync_Module_Network_Options',
 		'Jetpack_Sync_Module_Terms',
@@ -21,7 +21,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Protect',
 		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Updates',
-		'Jetpack_Sync_Module_Attachments',
+		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
 		'Jetpack_Sync_Module_Meta',
 		'Jetpack_Sync_Module_Plugins',
 		'Jetpack_Sync_Module_Full_Sync',

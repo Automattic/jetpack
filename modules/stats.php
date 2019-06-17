@@ -707,7 +707,8 @@ function stats_reports_page( $main_chart_only = false ) {
 	}
 
 	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) {
-		Tracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
+		$tracking = new Tracking();
+	    $tracking->record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
 	}
 
 	if ( isset( $_GET['noheader'] ) ) {

@@ -76,7 +76,7 @@ execute( $command, 'Could not add the new package repository remote.', true, tru
 execute( 'git push package master --force', 'Could not push to the new package repository.', true, true );
 
 // Grab all the existing tags from the package repository.
-execute( 'git fetch --tags', 'Could not fetch the existing tags of the package.', true, true );
+execute( 'git fetch -f --tags', 'Could not fetch the existing tags of the package.', true, true );
 
 // Create the new tag.
 $command = sprintf(

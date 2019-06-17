@@ -2,6 +2,73 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.4 =
+
+* Release date: June 4, 2019
+* Release post: https://wp.me/p1moTy-jgZ
+
+**Enhancements**
+
+* About Page: remove submenu and add link to page in the footer of Jetpack's dashboard.
+* Admin Page: remove Themes card on Plans tab.
+* Admin Page: consolidate the look of the different discussion settings.
+* Admin Page: add Security Checklist information.
+* Business Hours Block: improve the display of Business Hours.
+* Business Hours Block: Simplify hours format.
+* Comment Form: use HTTP 4xx status codes for comment errors.
+* Contact Form Block: improve styles for better display on mobile devices.
+* General: introduce a new Jetpack Logo package, to make it easier to share and re-use.
+* Multisite: Use modern `wp_initialize_site` hook when automatically connecting new sites.
+* Recurring Payments Block: automatically add button to the post content once you create it.
+* Recurring Payments Block: improve the display of the renewal frequency in button list.
+* Recurring Payments Block: require a paid plan to use the button.
+* Recurring Payments Block: improve the look of the payment modal on mobile devices.
+* Search: add new option for cross-site search permissions.
+* Sharing: update default sharing settings to include buttons.
+* Sitemaps: rename the `jetpack_sitemap_generate` and `jetpack_news_sitemap_generate` filters to the more accurate `jetpack_sitemap_include_in_robotstxt` and `jetpack_news_sitemap_include_in_robotstxt`.
+* Slideshow Block: depending on viewport, display prev/next arrows.
+* Slideshow Block: remove outline when focussing on the block.
+* Sync: offer posts, comments, and comment meta checksums when providing sync status.
+* Tiled Galleries: add `srcset` in the editor for an improved editing experience.
+* WordPress.com Block Editor: allow managing reusable blocks in the WordPress.com interface.
+* WordPress.com Toolbar: display hamburger icon in toolbar when in the block editor.
+* WordPress.com Toolbar: display a link to exit recovery mode when it is active on the site.
+
+**Improved compatibility**
+
+* Display Posts Widget: remove overly opinionated CSS.
+* General: Jetpack now requires PHP 5.3.2, and will display a notice if your site uses an older version of PHP.
+* General: display a notice and log an error if your version of WordPress is not supported by Jetpack.
+* General: Update `Jetpack::get_content_width()` to ensure that only numeric values are used.
+* GIF Block: improve compatibility with the AMP plugin.
+* Shortcodes: bring more of our shortcodes to meet current WordPress Coding Standards to help us maintain these features in the future.
+* Site Health: improve Jetpack errors' messaging in WordPress' new Site Health tools.
+
+**Bug fixes**
+
+* Admin Page: make sure the Jetpack Dashboard is displayed properly in IE11.
+* Admin Page: do not show Plugin Autoupdates card on admin searches.
+* Carousel: avoid scrolling back to the top of the page when you close the Carousel view.
+* Connect Flow: sanitize from parameter when building connection URL.
+* Mobile Themes: fix "View Full Site" and "View Mobile Site" links when WordPress lives in a subdirectory.
+* Recurring Payments Block: avoid invalid subscription amounts.
+* Recurring Payments Block: allow line breaks in the payment button.
+* Related Posts: do not add markup to attachment pages by default.
+* SEO Tools: support taxonomy archive pages in page titles.
+* Sharing: make sure the Whatsapp button works well in all browsers, including Firefox on desktop.
+* Shortcodes: update embed type detection for Medium Collections.
+* Social Icons SVG: switch to the presentation role for better accessibility.
+* Subscriptions: display checkboxes above the comment submit button.
+* Sync: add new WP Cli commands to help in monitoring and updating sync settings.
+* Tracks: limit the length of the strings saved for feature searches.
+* Unit Tests: add support for testing using VVV 3.0.
+* Verification Tools: make sure the feature can be disabled by override.
+* WooCommerce Analytics: remove duplicate self-executing anonymous function.
+* WordPress.com Interface: make sure navigation menu items match the one available in the WordPress.com interface.
+* WordPress.com Toolbar: restore the previous layout.
+* WordPress.com Toolbar: ensure you are properly logged out of your WordPress.com account when you sign out of your site using the toolbar.
+* WP Cli: ensure that WP Cli commands added by Jetpack include translator comments when necessary, to help with translations.
+
 = 7.3.1 =
 * Release date: May 14, 2019
 * Release post: https://wp.me/p1moTy-jgO

@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules\Callables;
 
 require_once 'test_class.jetpack-sync-base.php';
 
@@ -141,8 +142,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_white_listed_callables_doesnt_get_synced_twice() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->sender->do_sync();
 
@@ -151,7 +152,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
@@ -250,8 +251,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_home_site_urls_synced_while_migrate_for_idc_set() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		$home_option    = get_option( 'home' );
 		$siteurl_option = get_option( 'siteurl' );
@@ -266,7 +267,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Second, let's make sure that values don't get synced again if the migrate_for_idc option is not set
 		$this->server_replica_storage->reset();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -277,7 +278,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'migrate_for_idc', true );
 
 		$this->server_replica_storage->reset();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -412,8 +413,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of
 		// switching back and forth, so we force the domain to be the one in the siteurl option
 		$this->setSyncClientDefaults();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		$original_site_url = site_url();
 
@@ -424,8 +425,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'site_url', array( $this, 'add_www_subdomain_to_siteurl' ) );
 
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
