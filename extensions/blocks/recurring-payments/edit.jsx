@@ -362,7 +362,12 @@ class MembershipsButtonEdit extends Component {
 					setAttributes={ this.props.setAttributes }
 				/>
 				{ this.props.attributes.paywall && (
-					<SubmitButton className={ blockClasses } submitButtonText={ __( 'Log in', 'jetpack' ) } />
+					<SubmitButton
+						className={ blockClasses }
+						submitButtonText={ __( 'Log in', 'jetpack' ) }
+						attributes={ this.props.attributes }
+						setAttributes={ () => {} }
+					/>
 				) }
 			</div>
 		);

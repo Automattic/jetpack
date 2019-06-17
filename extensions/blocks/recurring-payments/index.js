@@ -35,6 +35,10 @@ export const settings = {
 		planId: {
 			type: 'integer',
 		},
+		paywall: {
+			type: 'boolean',
+			default: false,
+		},
 		submitButtonText: {
 			type: 'string',
 		},
