@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Used to manage Jetpack installation on Multisite Network installs
  *
@@ -501,7 +503,7 @@ class Jetpack_Network {
 		Jetpack::apply_activation_source_to_args( $args['body'] );
 
 		// Attempt to retrieve shadow blog details
-		$response = Jetpack_Client::_wp_remote_request(
+		$response = Client::_wp_remote_request(
 			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true
 		);
 

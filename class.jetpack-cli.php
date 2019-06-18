@@ -2,6 +2,8 @@
 
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Control your local Jetpack installation.
  *
@@ -130,9 +132,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
-			Jetpack_Client::WPCOM_JSON_API_VERSION
+			Client::WPCOM_JSON_API_VERSION
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -1120,7 +1122,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner_tracking_id'], $url ) );
 		}
 
-		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+		$result = Client::_wp_remote_request( $url, $request );
 
 		Jetpack_Options::delete_option( 'onboarding' );
 
@@ -1336,9 +1338,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? $named_args['resource']
 			: sprintf( $named_args['resource'], Jetpack_Options::get_option( 'id' ) );
 
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$resource_url,
-			empty( $named_args['api_version'] ) ? Jetpack_Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
+			empty( $named_args['api_version'] ) ? Client::WPCOM_JSON_API_VERSION : $named_args['api_version'],
 			$other_args,
 			empty( $decoded_body ) ? null : $decoded_body,
 			empty( $named_args['base_api_path'] ) ? 'rest' : $named_args['base_api_path']

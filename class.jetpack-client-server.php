@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -221,7 +222,7 @@ class Jetpack_Client_Server {
 				'Accept' => 'application/json',
 			),
 		);
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), $args );
+		$response = Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), $args );
 
 		if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'token_http_request_failed', $response->get_error_message() );

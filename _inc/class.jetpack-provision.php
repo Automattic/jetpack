@@ -1,5 +1,7 @@
 <?php //phpcs:ignore
 
+use Automattic\Jetpack\Connection\Client;
+
 class Jetpack_Provision { //phpcs:ignore
 
 	/**
@@ -191,7 +193,7 @@ class Jetpack_Provision { //phpcs:ignore
 			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}
 
-		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -258,7 +260,7 @@ class Jetpack_Provision { //phpcs:ignore
 		);
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
-		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
