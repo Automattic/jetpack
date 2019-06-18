@@ -515,9 +515,10 @@ HTML;
 		);
 
 		if ( self::is_amp() ) {
-			$height += 15; // this will ensure enough padding for "Report this ad"
-			$amp_section_id = self::get_amp_section_id();
-			$site_id = $this->params->blog_id;
+			$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad"
+			$width          = esc_attr( $width );
+			$amp_section_id = esc_attr( self::get_amp_section_id() );
+			$site_id        = esc_attr( $this->params->blog_id );
 			return <<<HTML
 			<amp-ad width="$width" height="$height"
 			    type="pubmine"
