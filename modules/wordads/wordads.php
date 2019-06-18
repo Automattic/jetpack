@@ -66,7 +66,7 @@ class WordAds {
 	 *
 	 * @var int
 	 */
-	public static $amp_section_id = 0;
+	public static $amp_section_id = 1;
 
 	/**
 	 * Increment the AMP section ID and return the value
@@ -74,8 +74,7 @@ class WordAds {
 	 * @return int
 	 */
 	public static function get_amp_section_id() {
-		self::$amp_section_id++;
-		return self::$amp_section_id;
+		return self::$amp_section_id++;
 	}
 
 	public static $SOLO_UNIT_CSS = 'float:left;margin-right:5px;margin-top:0px;';
