@@ -18,7 +18,7 @@ class WP_Super_Cache extends \Jetpack_Sync_Module {
 	);
 
 	static $wp_super_cache_callables = array(
-		'wp_super_cache_globals' => array( 'WP_Super_Cache', 'get_wp_super_cache_globals' ),
+		'wp_super_cache_globals' => array( 'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache', 'get_wp_super_cache_globals' ),
 	);
 
 	public function name() {
