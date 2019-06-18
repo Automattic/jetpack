@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
 
 require_once 'test_class.jetpack-sync-base.php';
 
