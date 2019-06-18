@@ -22,7 +22,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Updates',
 		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
-		'Jetpack_Sync_Module_Meta',
+		'Automattic\\Jetpack\\Sync\\Modules\\Meta',
 		'Jetpack_Sync_Module_Plugins',
 		'Jetpack_Sync_Module_Full_Sync',
 		'Jetpack_Sync_Module_Stats',
