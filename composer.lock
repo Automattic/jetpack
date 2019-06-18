@@ -1,14 +1,14 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "content-hash": "0fa9992a37eabfa1d53bee78a855ce7a",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
@@ -31,7 +31,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -68,7 +68,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -97,7 +97,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -135,7 +135,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -165,7 +165,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -192,7 +192,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -220,7 +220,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -378,7 +378,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-remove/jumpstart",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",

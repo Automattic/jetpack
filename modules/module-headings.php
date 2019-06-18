@@ -35,7 +35,6 @@ function jetpack_get_module_i18n( $key ) {
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'custom-content-types' => array(
@@ -81,7 +80,6 @@ function jetpack_get_module_i18n( $key ) {
 			'lazy-images' => array(
 				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Lazy-loading images improve your site\'s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'likes' => array(
@@ -107,7 +105,6 @@ function jetpack_get_module_i18n( $key ) {
 			'monitor' => array(
 				'name' => _x( 'Monitor', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Jetpack’s downtime monitoring will continuously watch your site, and alert you the moment that downtime is detected.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'notes' => array(
@@ -123,7 +120,6 @@ function jetpack_get_module_i18n( $key ) {
 			'photon' => array(
 				'name' => _x( 'Image CDN', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'post-by-email' => array(
@@ -184,7 +180,6 @@ function jetpack_get_module_i18n( $key ) {
 			'sso' => array(
 				'name' => _x( 'Secure Sign On', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Allow users to log in to this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'stats' => array(
