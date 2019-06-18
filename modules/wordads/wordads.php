@@ -61,6 +61,23 @@ class WordAds {
 		'inline-plugin' => 320,
 	);
 
+	/**
+	 * Counter to enable unique, sequential section IDs for all amp-ad units
+	 *
+	 * @var int
+	 */
+	public static $amp_section_id = 0;
+
+	/**
+	 * Increment the AMP section ID and return the value
+	 *
+	 * @return int
+	 */
+	public static function get_amp_section_id() {
+		self::$amp_section_id++;
+		return self::$amp_section_id;
+	}
+
 	public static $SOLO_UNIT_CSS = 'float:left;margin-right:5px;margin-top:0px;';
 
 	/**
@@ -481,7 +498,8 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
+	public function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
+
 		$this->ads[] = array(
 			'location' => $location,
 			'width'    => $width,
@@ -497,11 +515,13 @@ HTML;
 			$loc_id = self::$ad_location_ids[ $location ];
 		}
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$amp_section_id = self::get_amp_section_id();
 			$site_id = $this->params->blog_id;
 			return <<<HTML
 			<amp-ad width="$width" height="$height"
 			    type="pubmine"
-			    data-siteid="$site_id">
+			    data-siteid="$site_id"
+			    data-section="$amp_section_id">
 			</amp-ad>
 HTML;
 		}
