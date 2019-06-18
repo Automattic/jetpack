@@ -203,7 +203,7 @@ class Posts extends \Jetpack_Sync_Module {
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
 			// We only send the bare necessary object to be able to create a checksum.
-			$blocked_post                    = new stdClass();
+			$blocked_post                    = new \stdClass();
 			$blocked_post->ID                = $post->ID;
 			$blocked_post->post_modified     = $post->post_modified;
 			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
