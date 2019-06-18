@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules\Comments;
+
 /**
  * Testing CRUD on Comments
  */
