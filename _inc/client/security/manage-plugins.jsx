@@ -42,7 +42,7 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 					rel="noopener noreferrer"
 					href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl }
 				>
-					{ __( 'Manage your plugins' ) }
+					{ __( 'Choose which plugins to auto-update' ) }
 				</Card>
 			);
 		};
@@ -52,14 +52,14 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					module="manage"
-					header={ __( 'Plugin autoupdates', { context: 'Settings header' } ) }
+					header={ __( 'Auto-update plugins', { context: 'Settings header' } ) }
 					hideButton
 				>
 					<SettingsGroup disableInDevMode module={ this.props.getModule( 'manage' ) }>
 						<div>
 							{ __(
-								'When a plugin update is released, the best practice is to update that plugin right away. ' +
-									"Choose which plugins you'd like to autoupdate so that your site stays secure."
+								'With Jetpack you can choose to have your plugins auto-updated with each new plugin release. ' +
+									'You’ll get the latest security and bug fixes right away, ensuring your site stays secure.'
 							) }
 						</div>
 					</SettingsGroup>
