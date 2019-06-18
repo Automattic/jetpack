@@ -515,6 +515,7 @@ HTML;
 		);
 
 		if ( self::is_amp() ) {
+			$height += 15; // this will ensure enough padding for "Report this ad"
 			$amp_section_id = self::get_amp_section_id();
 			$site_id = $this->params->blog_id;
 			return <<<HTML
