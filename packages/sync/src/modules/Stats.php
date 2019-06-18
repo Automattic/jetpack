@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Stats extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Stats extends \Jetpack_Sync_Module {
 
 	function name() {
 		return 'stats';
@@ -23,6 +25,6 @@ class Jetpack_Sync_Module_Stats extends Jetpack_Sync_Module {
 	}
 
 	public function add_stats() {
-		return array( Jetpack::get_stat_data( false, false ) );
+		return array( \Jetpack::get_stat_data( false, false ) );
 	}
 }
