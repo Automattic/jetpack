@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
-			$callables['wp_super_cache_globals'] = Jetpack_Sync_Module_WP_Super_Cache::get_wp_super_cache_globals();
+			$callables['wp_super_cache_globals'] = WP_Super_Cache::get_wp_super_cache_globals();
 		}
 
 		if ( is_multisite() ) {
