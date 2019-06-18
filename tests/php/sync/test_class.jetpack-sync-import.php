@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules\Import;
+
 /**
  * Testing Import Syncing Events
  */
