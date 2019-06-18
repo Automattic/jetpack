@@ -6,6 +6,8 @@ use phpmock\Mock;
 use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 
+use Automattic\Jetpack\Constants;
+
 class ManagerTest extends TestCase {
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
@@ -15,6 +17,7 @@ class ManagerTest extends TestCase {
 
 	public function tearDown() {
 		unset( $this->manager );
+		Constants::clear_constants();
 		Mock::disableAll();
 	}
 
@@ -57,6 +60,21 @@ class ManagerTest extends TestCase {
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.another_thing/1/',
 			$this->manager->api_url( 'another_thing/' )
+		);
+	}
+
+	public function test_api_url_uses_constants() {
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
+		$this->assertEquals(
+			'https://example.com/api/base.something/1/',
+			$this->manager->api_url( 'something' )
+		);
+
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/another.' );
+		Constants::set_constant( 'JETPACK__API_VERSION', '99' );
+		$this->assertEquals(
+			'https://example.com/api/another.something/99/',
+			$this->manager->api_url( 'something' )
 		);
 	}
 
