@@ -72,7 +72,7 @@ class WordAds {
 	 * Checks for AMP support and returns true iff active & AMP request
 	 * @return boolean True if supported AMP request
 	 *
-	 * @since 4.5.0
+	 * @since 7.5.0
 	 */
 	public static function is_amp() {
 		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
