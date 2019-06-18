@@ -1,11 +1,13 @@
 <?php
 
+namespace Automattic\Jetpack\Sync;
+
 use Automattic\Jetpack\Constants;
 
 /**
  * This class grabs pending actions from the queue and sends them
  */
-class Jetpack_Sync_Sender {
+class Sender {
 
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 	const WPCOM_ERROR_SYNC_DELAY     = 60;
