@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * The Client class that is used to connect to WordPress.com Jetpack API.
  */
@@ -25,7 +27,7 @@ class Client {
 			'url'           => '',
 			'user_id'       => 0,
 			'blog_id'       => 0,
-			'auth_location' => JETPACK_CLIENT__AUTH_LOCATION,
+			'auth_location' => Constants::get_constant( 'JETPACK_CLIENT__AUTH_LOCATION' ),
 			'method'        => 'POST',
 			'timeout'       => 10,
 			'redirection'   => 0,
@@ -64,7 +66,12 @@ class Client {
 			return new \WP_Error( 'malformed_token' );
 		}
 
-		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
+		$token_key = sprintf(
+			'%s:%d:%d',
+			$token_key,
+			Constants::get_constant( 'JETPACK__API_VERSION' ),
+			$token->external_user_id
+		);
 
 		$time_diff         = (int) \Jetpack_Options::get_option( 'time_diff' );
 		$jetpack_signature = new \Jetpack_Signature( $token->secret, $time_diff );
@@ -133,7 +140,7 @@ class Client {
 
 		// Send an Authorization header so various caches/proxies do the right thing.
 		$auth['signature'] = $signature;
-		$auth['version']   = JETPACK__VERSION;
+		$auth['version']   = Constants::get_constant( 'JETPACK__VERSION' );
 		$header_pieces     = array();
 		foreach ( $auth as $key => $value ) {
 			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
@@ -317,7 +324,14 @@ class Client {
 
 		$args['user_id'] = get_current_user_id();
 		$args['method']  = isset( $args['method'] ) ? strtoupper( $args['method'] ) : 'GET';
-		$args['url']     = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $path );
+		$args['url']     = sprintf(
+			'%s://%s/%s/v%s/%s',
+			self::protocol(),
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			$base_api_path,
+			$version,
+			$path
+		);
 
 		if ( isset( $body ) && ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
@@ -366,7 +380,14 @@ class Client {
 		// Use GET by default whereas `remote_request` uses POST.
 		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
 
-		$url = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $_path );
+		$url = sprintf(
+			'%s://%s/%s/v%s/%s',
+			self::protocol(),
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_HOST' ),
+			$base_api_path,
+			$version,
+			$_path
+		);
 
 		$validated_args = array_merge(
 			$filtered_args,
