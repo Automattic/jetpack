@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Client {
+namespace Automattic\Jetpack\Connection;
+
+class Client {
 	const WPCOM_JSON_API_VERSION = '1.1';
 
 	/**
@@ -31,7 +33,7 @@ class Jetpack_Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = Jetpack_Data::get_access_token( $args['user_id'] );
+		$token = \Jetpack_Data::get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new Jetpack_Error( 'missing_token' );
 		}
@@ -54,8 +56,8 @@ class Jetpack_Client {
 
 		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
 
-		$time_diff         = (int) Jetpack_Options::get_option( 'time_diff' );
-		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
+		$time_diff         = (int) \Jetpack_Options::get_option( 'time_diff' );
+		$jetpack_signature = new \Jetpack_Signature( $token->secret, $time_diff );
 
 		$timestamp = time() + $time_diff;
 
@@ -84,7 +86,7 @@ class Jetpack_Client {
 			}
 
 			if ( ! is_string( $body_to_hash ) ) {
-				return new Jetpack_Error( 'invalid_body', 'Body is malformed.' );
+				return new \Jetpack_Error( 'invalid_body', 'Body is malformed.' );
 			}
 
 			$body_hash = Jetpack::connection()->sha1_base64( $body_to_hash );
@@ -100,7 +102,7 @@ class Jetpack_Client {
 		if ( false !== strpos( $args['url'], 'xmlrpc.php' ) ) {
 			$url_args = array(
 				'for'           => 'jetpack',
-				'wpcom_blog_id' => Jetpack_Options::get_option( 'id' ),
+				'wpcom_blog_id' => \Jetpack_Options::get_option( 'id' ),
 			);
 		} else {
 			$url_args = array();
@@ -171,9 +173,9 @@ class Jetpack_Client {
 			return wp_remote_request( $url, $args );
 		}
 
-		$fallback = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
 		if ( false === $fallback ) {
-			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
 		}
 
 		if ( (int) $fallback ) {
@@ -185,9 +187,9 @@ class Jetpack_Client {
 
 		if (
 			! $set_fallback                                     // We're not allowed to set the flag on this request, so whatever happens happens
-		||
+			||
 			isset( $args['sslverify'] ) && ! $args['sslverify'] // No verification - no point in doing it again
-		||
+			||
 			! is_wp_error( $response )                          // Let it ride
 		) {
 			self::set_time_diff( $response, $set_fallback );
@@ -201,15 +203,15 @@ class Jetpack_Client {
 		// Is it an SSL Certificate verification error?
 		if (
 			false === strpos( $message, '14090086' ) // OpenSSL SSL3 certificate error
-		&&
+			&&
 			false === strpos( $message, '1407E086' ) // OpenSSL SSL2 certificate error
-		&&
+			&&
 			false === strpos( $message, 'error setting certificate verify locations' ) // cURL CA bundle not found
-		&&
+			&&
 			false === strpos( $message, 'Peer certificate cannot be authenticated with' ) // cURL CURLE_SSL_CACERT: CA bundle found, but not helpful
-																						  // different versions of curl have different error messages
-																						  // this string should catch them all
-		&&
+			// different versions of curl have different error messages
+			// this string should catch them all
+			&&
 			false === strpos( $message, 'Problem with the SSL CA cert' ) // cURL CURLE_SSL_CACERT_BADFILE: probably access rights
 		) {
 			// No, it is not.
@@ -222,7 +224,7 @@ class Jetpack_Client {
 
 		if ( ! is_wp_error( $response ) ) {
 			// The request went through this time, flag for future fallbacks
-			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', time() );
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', time() );
 			self::set_time_diff( $response, $set_fallback );
 		}
 
@@ -248,11 +250,11 @@ class Jetpack_Client {
 		$time_diff = $time - time();
 
 		if ( $force_set ) { // during register
-			Jetpack_Options::update_option( 'time_diff', $time_diff );
+			\Jetpack_Options::update_option( 'time_diff', $time_diff );
 		} else { // otherwise
-			$old_diff = Jetpack_Options::get_option( 'time_diff' );
+			$old_diff = \Jetpack_Options::get_option( 'time_diff' );
 			if ( false === $old_diff || abs( $time_diff - (int) $old_diff ) > 10 ) {
-				Jetpack_Options::update_option( 'time_diff', $time_diff );
+				\Jetpack_Options::update_option( 'time_diff', $time_diff );
 			}
 		}
 	}
@@ -337,7 +339,7 @@ class Jetpack_Client {
 			$filtered_args,
 			array(
 				'url'     => $url,
-				'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
+				'blog_id' => (int) \Jetpack_Options::get_option( 'id' ),
 				'method'  => $request_method,
 			)
 		);
