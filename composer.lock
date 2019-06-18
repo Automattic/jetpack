@@ -8,12 +8,11 @@
     "packages": [
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "dad2e54f006f64ab7daae7753ef9179aaaddcc47",
-                "shasum": null
+                "reference": "dad2e54f006f64ab7daae7753ef9179aaaddcc47"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -31,12 +30,11 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "0a0e293d73c17d59376590d56e5667b169d26877",
-                "shasum": null
+                "reference": "0a0e293d73c17d59376590d56e5667b169d26877"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -68,12 +66,11 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95",
-                "shasum": null
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -97,12 +94,11 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "0a1342f1c50e4155285fe8d3327d3819f6f81e32",
-                "shasum": null
+                "reference": "0a1342f1c50e4155285fe8d3327d3819f6f81e32"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -135,12 +131,11 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610",
-                "shasum": null
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -165,12 +160,11 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f",
-                "shasum": null
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -192,12 +186,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a",
-                "shasum": null
+                "reference": "b6c34729a2a37b5a485add5d357ff018654e3e35"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -220,12 +213,11 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85",
-                "shasum": null
+                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
             },
             "require": {
                 "automattic/jetpack-options": "@dev"
@@ -378,12 +370,11 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-use-asset-tools-package-everywhere",
+            "version": "dev-try/statically-access-asset-tools",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb",
-                "shasum": null
+                "reference": "8c7dc6036bf6125c31a574c14c6b0521247410ed"
             },
             "require": {
                 "composer-plugin-api": "^1.1"

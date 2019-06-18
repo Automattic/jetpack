@@ -9,7 +9,7 @@ class Jetpack_Comic {
 		static $instance = false;
 
 		if ( ! $instance )
-			$instance = new Jetpack_Comic( Assets::get_instance() );
+			$instance = new Jetpack_Comic();
 
 		return $instance;
 	}
@@ -23,7 +23,7 @@ class Jetpack_Comic {
 	 * If no theme support is found there is no need to hook into
 	 * WordPress. We'll just return early instead.
 	 */
-	function __construct( Assets $assets ) {
+	function __construct() {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
@@ -77,7 +77,7 @@ class Jetpack_Comic {
 		add_action( 'load-edit.php', array( $this, 'bulk_edit' ) );
 		add_action( 'admin_notices', array( $this, 'bulk_edit_notices' ) );
 
-		$this->assets = $assets;
+		;
 	}
 
 	public function admin_footer() {
@@ -176,7 +176,7 @@ class Jetpack_Comic {
 		wp_style_add_data( 'jetpack-comics-style', 'rtl', 'replace' );
 		wp_enqueue_script(
 			'jetpack-comics',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/custom-post-types/comics/comics.min.js',
 				'modules/custom-post-types/comics/comics.js'
 			),

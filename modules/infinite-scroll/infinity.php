@@ -20,17 +20,12 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 class The_Neverending_Home_Page {
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * Register actions and filters, plus parse IS settings
 	 *
 	 * @uses add_action, add_filter, self::get_settings
 	 * @return null
 	 */
-	function __construct( Assets $assets ) {
+	function __construct() {
 		add_action( 'pre_get_posts',                  array( $this, 'posts_per_page_query' ) );
 
 		add_action( 'admin_init',                     array( $this, 'settings_api_init' ) );
@@ -47,8 +42,6 @@ class The_Neverending_Home_Page {
 
 		// Parse IS settings from theme
 		self::get_settings();
-
-		$this->assets = $assets;
 	}
 
 	/**
@@ -442,7 +435,7 @@ class The_Neverending_Home_Page {
 		// Add our scripts.
 		wp_register_script(
 			'the-neverending-homepage',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/infinite-scroll/infinity.min.js',
 				'modules/infinite-scroll/infinity.js'
 			),
@@ -1618,7 +1611,7 @@ function the_neverending_home_page_init() {
 	if ( ! current_theme_supports( 'infinite-scroll' ) )
 		return;
 
-	new The_Neverending_Home_Page( Assets::get_instance() );
+	new The_Neverending_Home_Page();
 }
 add_action( 'init', 'the_neverending_home_page_init', 20 );
 

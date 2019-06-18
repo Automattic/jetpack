@@ -9,17 +9,6 @@ include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 // Builds the settings page and its menu
 class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
-	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	public function __construct( Assets $assets ) {
-		parent::__construct();
-
-		$this->assets = $assets;
-	}
-
 	// Show the settings page only when Jetpack is connected or in dev mode
 	protected $dont_show_if_not_active = true;
 
@@ -40,7 +29,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// Renders the module list table where you can use bulk action or row
 	// actions to activate/deactivate and configure modules
 	function page_render() {
-		$list_table = new Jetpack_Modules_List_Table( Assets::get_instance() );
+		$list_table = new Jetpack_Modules_List_Table();
 
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
@@ -149,7 +138,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	function page_admin_scripts() {
 		wp_enqueue_script(
 			'jetpack-admin-js',
-			$this->assets->get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION
 		);

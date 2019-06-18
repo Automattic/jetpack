@@ -201,7 +201,7 @@ class Jetpack_Calypsoify {
 
 	public function mock_masterbar_activation() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
-		new A8C_WPCOM_Masterbar( Assets::get_instance() );
+		new A8C_WPCOM_Masterbar();
 	}
 
 	public function remove_core_menus() {

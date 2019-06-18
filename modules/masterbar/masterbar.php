@@ -73,20 +73,13 @@ class A8C_WPCOM_Masterbar {
 	private $user_site_count;
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * Constructor
 	 */
-	public function __construct( Assets $assets ) {
+	public function __construct() {
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
 		// Post logout on the site, also log the user out of WordPress.com.
 		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
-
-		$this->assets = $assets;
 	}
 
 	/**
@@ -249,14 +242,14 @@ class A8C_WPCOM_Masterbar {
 
 		wp_enqueue_script(
 			'jetpack-accessible-focus',
-			$this->assets->get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
 			array(),
 			JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_script(
 			'a8c_wpcom_masterbar_tracks_events',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/masterbar/tracks-events.min.js',
 				'modules/masterbar/tracks-events.js'
 			),

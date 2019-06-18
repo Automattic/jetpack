@@ -16,4 +16,4 @@ use Automattic\Jetpack\Assets;
 
 require dirname( __FILE__ ) . '/masterbar/masterbar.php';
 
-new A8C_WPCOM_Masterbar( Assets::get_instance() );
+new A8C_WPCOM_Masterbar();

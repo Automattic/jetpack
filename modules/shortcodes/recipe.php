@@ -27,19 +27,12 @@ class Jetpack_Recipes {
 	private $scripts_and_style_included = false;
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * Constructor
 	 */
-	public function __construct( Assets $assets ) {
+	public function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
 
 		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
-
-		$this->assets = $assets;
 	}
 
 	/**
@@ -141,7 +134,7 @@ class Jetpack_Recipes {
 		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
 		wp_enqueue_script(
 			'jetpack-recipes-printthis',
-			$this->assets->get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
 			array( 'jquery' ),
 			'20170202',
 			false
@@ -149,7 +142,7 @@ class Jetpack_Recipes {
 
 		wp_enqueue_script(
 			'jetpack-recipes-js',
-			$this->assets->get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
 			array( 'jquery', 'jetpack-recipes-printthis' ),
 			'20131230',
 			false
@@ -541,4 +534,4 @@ class Jetpack_Recipes {
 
 }
 
-new Jetpack_Recipes( Assets::get_instance() );
+new Jetpack_Recipes();

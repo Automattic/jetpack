@@ -82,14 +82,9 @@ if ( ! class_exists( 'Presentations' ) ) :
 		private $scripts_and_style_included;
 
 		/**
-		 * @var Assets
-		 */
-		protected $assets;
-
-		/**
 		 * Constructor
 		 */
-		public function __construct( Assets $assets ) {
+		public function __construct() {
 			$this->presentation_initialized   = false;
 			$this->scripts_and_style_included = false;
 
@@ -98,8 +93,6 @@ if ( ! class_exists( 'Presentations' ) ) :
 
 			add_shortcode( 'presentation', array( &$this, 'presentation_shortcode' ) );
 			add_shortcode( 'slide', array( &$this, 'slide_shortcode' ) );
-
-			$this->assets = $assets;
 		}
 
 		/**
@@ -130,14 +123,14 @@ if ( ! class_exists( 'Presentations' ) ) :
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script(
 				'jmpress',
-				$this->assets->get_file_url_for_environment( '_inc/build/shortcodes/js/jmpress.min.js', 'modules/shortcodes/js/jmpress.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/jmpress.min.js', 'modules/shortcodes/js/jmpress.js' ),
 				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
 			wp_enqueue_script(
 				'presentations',
-				$this->assets->get_file_url_for_environment( '_inc/build/shortcodes/js/main.min.js', 'modules/shortcodes/js/main.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/main.min.js', 'modules/shortcodes/js/main.js' ),
 				array( 'jquery', 'jmpress' ),
 				JETPACK__VERSION,
 				true
@@ -495,5 +488,5 @@ if ( ! class_exists( 'Presentations' ) ) :
 		}
 	}
 
-	$GLOBALS['presentations'] = new Presentations( Assets::get_instance() );
+	$GLOBALS['presentations'] = new Presentations();
 endif;

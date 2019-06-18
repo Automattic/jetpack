@@ -27,17 +27,11 @@ class JITM {
 	private $tracking;
 
 	/**
-	 * @var Automattic\Jetpack\Assets
-	 */
-	private $assets;
-
-	/**
 	 * JITM constructor.
 	 *
 	 * @param \Automattic\Jetpack\Assets $assets
 	 */
-	public function __construct( Assets $assets ) {
-		$this->assets   = $assets;
+	public function __construct() {
 		$this->tracking = new Tracking();
 	}
 
@@ -203,7 +197,7 @@ class JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			$this->assets->get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
 			array( 'jquery' ),
 			self::PACKAGE_VERSION, // TODO: Keep in sync with version specified in composer.json
 			true

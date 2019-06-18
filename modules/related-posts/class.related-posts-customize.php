@@ -27,19 +27,13 @@ class Jetpack_Related_Posts_Customize {
 	var $focus = '';
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * Class initialization.
 	 *
 	 * @since 4.4.0
 	 */
-	function __construct( Assets $assets ) {
+	function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
-		$this->assets = $assets;
 	}
 
 	/**
@@ -276,7 +270,7 @@ class Jetpack_Related_Posts_Customize {
 	function customize_controls_enqueue_scripts() {
 		wp_enqueue_script(
 			'jetpack_related-posts-customizer',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/related-posts/related-posts-customizer.min.js',
 				'modules/related-posts/related-posts-customizer.js'
 			),
@@ -305,4 +299,4 @@ class Jetpack_Message_Control extends WP_Customize_Control {
 } // class end
 
 // Initialize controls
-new Jetpack_Related_Posts_Customize( Assets::get_instance() );
+new Jetpack_Related_Posts_Customize();

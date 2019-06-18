@@ -20,13 +20,10 @@ class Jetpack_Slideshow_Shortcode {
 	 */
 	public $instance_count = 0;
 
-	/** @var Assets  */
-	protected $assets;
-
 	/**
 	 * Constructor
 	 */
-	public function __construct( Assets $assets ) {
+	public function __construct() {
 		global $shortcode_tags;
 
 		// Only if the slideshow shortcode has not already been defined.
@@ -39,8 +36,6 @@ class Jetpack_Slideshow_Shortcode {
 			add_filter( 'post_gallery', array( $this, 'post_gallery' ), 1002, 2 );
 			add_filter( 'jetpack_gallery_types', array( $this, 'add_gallery_type' ), 10 );
 		}
-
-		$this->assets = $assets;
 	}
 
 	/**
@@ -259,7 +254,7 @@ class Jetpack_Slideshow_Shortcode {
 		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
 		wp_enqueue_script(
 			'jetpack-slideshow',
-			$this->assets->get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
 			array( 'jquery-cycle' ),
 			'20160119.1',
 			true
@@ -301,7 +296,7 @@ class Jetpack_Slideshow_Shortcode {
 	 * Instantiate shortcode.
 	 */
 	public static function init() {
-		new Jetpack_Slideshow_Shortcode( Assets::get_instance() );
+		new Jetpack_Slideshow_Shortcode();
 	}
 }
 

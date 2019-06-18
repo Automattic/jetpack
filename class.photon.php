@@ -21,11 +21,6 @@ class Jetpack_Photon {
 	protected static $image_sizes = null;
 
 	/**
-	 * @var Assets;
-	 */
-	protected $assets;
-
-	/**
 	 * Singleton implementation
 	 *
 	 * @return object
@@ -33,7 +28,7 @@ class Jetpack_Photon {
 	public static function instance() {
 		if ( ! is_a( self::$__instance, 'Jetpack_Photon' ) ) {
 			self::$__instance = new Jetpack_Photon;
-			self::$__instance->setup( Assets::get_instance() );
+			self::$__instance->setup();
 		}
 
 		return self::$__instance;
@@ -51,7 +46,7 @@ class Jetpack_Photon {
 	 * @uses add_action, add_filter
 	 * @return null
 	 */
-	private function setup( Assets $assets ) {
+	private function setup() {
 		if ( ! function_exists( 'jetpack_photon_url' ) ) {
 			return;
 		}
@@ -85,8 +80,6 @@ class Jetpack_Photon {
 		if ( apply_filters( 'jetpack_photon_noresize_mode', false ) ) {
 			$this->enable_noresize_mode();
 		}
-
-		$this->assets = $assets;
 	}
 
 	/**
@@ -1193,7 +1186,7 @@ class Jetpack_Photon {
 		}
 		wp_enqueue_script(
 			'jetpack-photon',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),

@@ -2996,11 +2996,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public $error = false;
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts()
 	 * @param null|string          $content Null for selfclosing shortcodes.  The inner content otherwise.
 	 * @param Grunion_Contact_Form $form The parent form
@@ -3071,9 +3066,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		// Store parent form
 		$this->form = $form;
-
-		// TODO: Look into passing this in via constructor injection, notwithstanding existing args
-		$this->assets = Assets::get_instance();
 	}
 
 	/**
@@ -3377,7 +3369,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		wp_enqueue_script(
 			'grunion-frontend',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/contact-form/js/grunion-frontend.min.js',
 				'modules/contact-form/js/grunion-frontend.js'
 			),

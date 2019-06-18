@@ -13,18 +13,13 @@ class Jetpack_VideoPress {
 	public $version = 5;
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * Singleton
 	 */
 	public static function init() {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_VideoPress( Assets::get_instance() );
+			$instance = new Jetpack_VideoPress();
 		}
 
 		return $instance;
@@ -35,11 +30,10 @@ class Jetpack_VideoPress {
 	 *
 	 * Sets up the initializer and makes sure that videopress activates and deactivates properly.
 	 */
-	private function __construct( Assets $assets ) {
+	private function __construct() {
 		// $this->version = time(); // <s>ghost</s> cache busters!
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
-		$this->assets = $assets;
 	}
 
 	/**
@@ -136,7 +130,7 @@ class Jetpack_VideoPress {
 		if ( $this->should_override_media_uploader() ) {
 			wp_enqueue_script(
 				'videopress-plupload',
-				$this->assets->get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/videopress-plupload.min.js',
 					'modules/videopress/js/videopress-plupload.js'
 				),
@@ -149,7 +143,7 @@ class Jetpack_VideoPress {
 
 			wp_enqueue_script(
 				'videopress-uploader',
-				$this->assets->get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/videopress-uploader.min.js',
 					'modules/videopress/js/videopress-uploader.js'
 				),
@@ -161,7 +155,7 @@ class Jetpack_VideoPress {
 
 			wp_enqueue_script(
 				'media-video-widget-extensions',
-				$this->assets->get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/media-video-widget-extensions.min.js',
 					'modules/videopress/js/media-video-widget-extensions.js'
 				),

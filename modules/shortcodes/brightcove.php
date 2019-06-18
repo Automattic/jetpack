@@ -253,7 +253,7 @@ class Jetpack_Brightcove_Shortcode {
 		if ( $html5 ) {
 			wp_enqueue_script(
 				'brightcove-loader',
-				Assets::get_instance()->get_file_url_for_environment( '_inc/build/shortcodes/js/brightcove.min.js', 'modules/shortcodes/js/brightcove.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/brightcove.min.js', 'modules/shortcodes/js/brightcove.js' ),
 				array( 'jquery' ),
 				20121127,
 				false

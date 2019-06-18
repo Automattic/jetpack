@@ -106,7 +106,7 @@ class Jetpack_Connection_Banner {
 	public static function enqueue_banner_scripts() {
 		wp_enqueue_script(
 			'jetpack-connection-banner-js',
-			Assets::get_instance()->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/jetpack-connection-banner.min.js',
 				'_inc/jetpack-connection-banner.js'
 			),

@@ -19,7 +19,7 @@ class Jetpack_RelatedPosts {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
-				self::$instance = new Jetpack_RelatedPosts( Assets::get_instance() );
+				self::$instance = new Jetpack_RelatedPosts();
 			}
 		}
 
@@ -58,7 +58,7 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @return null
 	 */
-	public function __construct( Assets $assets ) {
+	public function __construct() {
 		$this->_blog_charset = get_option( 'blog_charset' );
 		$this->_convert_charset = ( function_exists( 'iconv' ) && ! preg_match( '/^utf\-?8$/i', $this->_blog_charset ) );
 
@@ -79,7 +79,7 @@ class Jetpack_RelatedPosts {
 			)
 		);
 
-		$this->assets = $assets;
+		;
 	}
 
 	protected function get_blog_id() {
@@ -1658,7 +1658,7 @@ EOT;
 		if ( $script ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
-				$this->assets->get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/related-posts/related-posts.min.js',
 					'modules/related-posts/related-posts.js'
 				),

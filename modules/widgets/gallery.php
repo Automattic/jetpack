@@ -16,11 +16,6 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 	protected $_instance_width;
 
-	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
 	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'widget-gallery',
@@ -37,8 +32,6 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			$widget_ops
 		);
 
-		$this->assets = Assets::get_instance();
-
 		if ( is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 
@@ -47,12 +40,12 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			}
 
 			if ( class_exists( 'Jetpack_Slideshow_Shortcode' ) ) {
-				$slideshow = new Jetpack_Slideshow_Shortcode( Assets::get_instance() );
+				$slideshow = new Jetpack_Slideshow_Shortcode();
 				add_action( 'wp_enqueue_scripts', array( $slideshow, 'enqueue_scripts' ) );
 			}
 
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
-				$carousel = new Jetpack_Carousel( $this->assets );
+				$carousel = new Jetpack_Carousel();
 				add_action( 'wp_enqueue_scripts', array( $carousel, 'enqueue_assets' ) );
 			}
 		}
@@ -94,7 +87,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
 				// Create new carousel so we can use the enqueue_assets() method. Not ideal, but there is a decent amount
 				// of logic in that method that shouldn't be duplicated.
-				$carousel = new Jetpack_Carousel( $this->assets );
+				$carousel = new Jetpack_Carousel();
 
 				// First parameter is $output, which comes from filters, and causes bypass of the asset enqueuing. Passing null is correct.
 				$carousel->enqueue_assets( null );
@@ -257,7 +250,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 		}
 
-		$slideshow = new Jetpack_Slideshow_Shortcode( Assets::get_instance() );
+		$slideshow = new Jetpack_Slideshow_Shortcode();
 
 		$slideshow->enqueue_scripts();
 
@@ -410,7 +403,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function enqueue_frontend_scripts() {
 		wp_register_script(
 			'gallery-widget',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/widgets/gallery/js/gallery.min.js',
 				'modules/widgets/gallery/js/gallery.js'
 			)
@@ -427,7 +420,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 			wp_enqueue_script(
 				'gallery-widget-admin',
-				$this->assets->get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/gallery/js/admin.min.js',
 					'modules/widgets/gallery/js/admin.js'
 				),

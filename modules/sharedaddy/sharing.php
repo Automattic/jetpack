@@ -9,12 +9,7 @@ if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 
 class Sharing_Admin {
 
-	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	public function __construct( Assets $assets ) {
+	public function __construct() {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
@@ -28,14 +23,12 @@ class Sharing_Admin {
 		add_action( 'wp_ajax_sharing_save_options', array( &$this, 'ajax_save_options' ) );
 		add_action( 'wp_ajax_sharing_new_service', array( &$this, 'ajax_new_service' ) );
 		add_action( 'wp_ajax_sharing_delete_service', array( &$this, 'ajax_delete_service' ) );
-
-		$this->assets = $assets;
 	}
 
 	public function sharing_head() {
 		wp_enqueue_script(
 			'sharing-js',
-			$this->assets->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/sharedaddy/admin-sharing.min.js',
 				'modules/sharedaddy/admin-sharing.js'
 			),
@@ -634,7 +627,7 @@ add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 )
 function sharing_admin_init() {
 	global $sharing_admin;
 
-	$sharing_admin = new Sharing_Admin( Assets::get_instance() );
+	$sharing_admin = new Sharing_Admin();
 }
 
 /**

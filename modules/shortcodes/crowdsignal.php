@@ -47,14 +47,9 @@ if (
 		private static $scripts = false;
 
 		/**
-		 * @var Assets
-		 */
-		protected $assets;
-
-		/**
 		 * Add all the actions & register the shortcode.
 		 */
-		public function __construct( Assets $assets ) {
+		public function __construct() {
 			add_action( 'init', array( $this, 'register_scripts' ) );
 
 			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
@@ -63,25 +58,22 @@ if (
 			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 			add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
-
-			$this->assets = $assets;
 		}
 
 		/**
 		 * Register scripts that may be enqueued later on by the shortcode.
 		 */
 		public static function register_scripts() {
-			$assets = Assets::get_instance();
 			wp_register_script(
 				'crowdsignal-shortcode',
-				$assets->get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
 				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
 			wp_register_script(
 				'crowdsignal-survey',
-				$assets->get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
 				array(),
 				JETPACK__VERSION,
 				true
@@ -444,7 +436,7 @@ if (
 								'crowdsignal_shortcode_options',
 								array(
 									'script_url' => esc_url_raw(
-										$this->assets->get_file_url_for_environment(
+										Assets::get_file_url_for_environment(
 											'_inc/build/polldaddy-shortcode.min.js',
 											'_inc/polldaddy-shortcode.js'
 										)
@@ -722,7 +714,7 @@ if (
 					'crowdsignal_shortcode_options',
 					array(
 						'script_url' => esc_url_raw(
-							$this->assets->get_file_url_for_environment(
+							Assets::get_file_url_for_environment(
 								'_inc/build/polldaddy-shortcode.min.js',
 								'_inc/polldaddy-shortcode.js'
 							)
@@ -734,7 +726,7 @@ if (
 	}
 
 	// Kick it all off.
-	new CrowdsignalShortcode( new Assets() );
+	new CrowdsignalShortcode();
 
 	if ( ! function_exists( 'crowdsignal_link' ) ) {
 		/**

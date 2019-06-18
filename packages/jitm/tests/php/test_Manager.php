@@ -26,7 +26,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, false ),
 		) );
 
-		$jitm = new JITM( Assets::get_instance() );
+		$jitm = new JITM();
 		$this->assertFalse( $jitm->register() );
 
 		$this->clear_mock_filters();
@@ -37,7 +37,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, true ),
 		) );
 
-		$jitm = new JITM( Assets::get_instance() );
+		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
 
 		$this->clear_mock_filters();

@@ -34,11 +34,6 @@ class Jetpack_IDC {
 	static $current_screen;
 
 	/**
-	 * @var Assets
-	 */
-	protected $assets;
-
-	/**
 	 * The link to the support document used to explain Safe Mode to users
 	 * @var string
 	 */
@@ -46,13 +41,13 @@ class Jetpack_IDC {
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_IDC( Assets::get_instance() );
+			self::$instance = new Jetpack_IDC();
 		}
 
 		return self::$instance;
 	}
 
-	private function __construct( Assets $assets ) {
+	private function __construct() {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
 
 		if ( false === $urls_in_crisis = Jetpack::check_identity_crisis() ) {
@@ -61,8 +56,6 @@ class Jetpack_IDC {
 
 		self::$wpcom_home_url = $urls_in_crisis['wpcom_home'];
 		add_action( 'init', array( $this, 'wordpress_init' ) );
-
-		$this->assets = $assets;
 	}
 
 	/**
@@ -263,7 +256,7 @@ class Jetpack_IDC {
 	function enqueue_idc_notice_files() {
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			$this->assets->get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

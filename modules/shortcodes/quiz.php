@@ -84,7 +84,7 @@ class Quiz_Shortcode {
 		wp_enqueue_style( 'quiz', plugins_url( 'css/quiz.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
 			'quiz',
-			Assets::get_instance()->get_file_url_for_environment( '_inc/build/shortcodes/js/quiz.min.js', 'modules/shortcodes/js/quiz.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/quiz.min.js', 'modules/shortcodes/js/quiz.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

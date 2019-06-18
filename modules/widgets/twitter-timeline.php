@@ -22,11 +22,6 @@ function jetpack_twitter_timeline_widget_init() {
 class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 	/**
-	 * @var Assets;
-	 */
-	protected $assets;
-
-	/**
 	 * Register widget with WordPress.
 	 */
 	public function __construct() {
@@ -46,8 +41,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
-
-		$this->assets = Assets::get_instance();
 	}
 
 	/**
@@ -75,7 +68,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		if ( 'widgets.php' === $hook ) {
 			wp_enqueue_script(
 				'twitter-timeline-admin',
-				$this->assets->get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/twitter-timeline-admin.min.js',
 					'modules/widgets/twitter-timeline-admin.js'
 				)

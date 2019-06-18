@@ -831,7 +831,7 @@ EXPECTED;
 	 */
 	function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
-		$file_url = Assets::get_instance()->get_file_url_for_environment( $min_path, $non_min_path );
+		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
 		$this->assertContains( $$expected, $file_url );
 		$this->assertNotContains( $$not_expected, $file_url );

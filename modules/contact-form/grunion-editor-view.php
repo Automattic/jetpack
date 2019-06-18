@@ -41,7 +41,7 @@ class Grunion_Editor_View {
 	}
 
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] = Assets::get_instance()->get_file_url_for_environment(
+		$plugin_array['grunion_form'] = Assets::get_file_url_for_environment(
 			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
 			'modules/contact-form/js/tinymce-plugin-form-button.js'
 		);
@@ -71,7 +71,7 @@ class Grunion_Editor_View {
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
 		wp_enqueue_script(
 			'grunion-editor-view',
-			Assets::get_instance()->get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/contact-form/js/editor-view.min.js',
 				'modules/contact-form/js/editor-view.js'
 			),

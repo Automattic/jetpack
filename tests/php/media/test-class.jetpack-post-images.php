@@ -42,7 +42,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
-		$slideshow = new Jetpack_Slideshow_Shortcode( \Automattic\Jetpack\Assets::get_instance() );
+		$slideshow = new Jetpack_Slideshow_Shortcode();
 
 		$post_id = $this->factory->post->create( array(
 			'post_content' => '[slideshow]',
