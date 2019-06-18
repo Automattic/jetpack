@@ -496,6 +496,15 @@ HTML;
 		if ( ! empty( self::$ad_location_ids[ $location ] ) ) {
 			$loc_id = self::$ad_location_ids[ $location ];
 		}
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$site_id = $this->params->blog_id;
+			return <<<HTML
+			<amp-ad width="$width" height="$height"
+			    type="pubmine"
+			    data-siteid="$site_id">
+			</amp-ad>
+HTML;
+		}
 
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
