@@ -12,7 +12,7 @@ class Jetpack_Sync_Modules {
 		'Automattic\\Jetpack\\Sync\\Modules\\Callables',
 		'Jetpack_Sync_Module_Options',
 		'Jetpack_Sync_Module_Network_Options',
-		'Jetpack_Sync_Module_Terms',
+		'Automattic\\Jetpack\\Sync\\Modules\\Terms',
 		'Jetpack_Sync_Module_Themes',
 		'Jetpack_Sync_Module_Menus',
 		'Jetpack_Sync_Module_Users',
