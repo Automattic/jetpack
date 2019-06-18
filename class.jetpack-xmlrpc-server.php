@@ -23,6 +23,7 @@ class Jetpack_XMLRPC_Server {
 		$jetpack_methods = array(
 			'jetpack.jsonAPI'           => array( $this, 'json_api' ),
 			'jetpack.verifyAction'      => array( $this, 'verify_action' ),
+			'jetpack.getUser'           => array( $this, 'get_user' ),
 			'jetpack.remoteRegister'    => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision'   => array( $this, 'remote_provision' ),
 		);
@@ -91,6 +92,73 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 			'jetpack.remoteConnect'   => array( $this, 'remote_connect' ),
+			'jetpack.getUser'         => array( $this, 'get_user' ),
+		);
+	}
+
+	/**
+	 * Used to verify whether a local user exists and what role they have.
+	 *
+	 * @param int|string|array $request One of:
+	 *                         int|string The local User's ID, username, or email address.
+	 *                         array      A request array containing:
+	 *                                    0: int|string The local User's ID, username, or email address.
+	 *
+	 * @return array|IXR_Error Information about the user, or error if no such user found:
+	 *                         roles:     string[] The user's rols.
+	 *                         login:     string   The user's username.
+	 *                         email_hash string[] The MD5 hash of the user's normalized email address.
+	 *                         caps       string[] The user's capabilities.
+	 *                         allcaps    string[] The user's granular capabilities, merged from role capabilities.
+	 *                         token_key  string   The Token Key of the user's Jetpack token. Empty string if none.
+	 */
+	function get_user( $request ) {
+		$user_id = is_array( $request ) ? $request[0] : $request;
+
+		if ( ! $user_id ) {
+			return $this->error(
+				new Jetpack_Error(
+					'invalid_user',
+					__( 'Invalid user identifier.', 'jetpack' ),
+					400
+				),
+				'jpc_get_user_fail'
+			);
+		}
+
+		$user = $this->get_user_by_anything( $user_id );
+
+		if ( ! $user ) {
+			return $this->error(
+				new Jetpack_Error(
+					'user_unknown',
+					__( 'User not found.', 'jetpack' ),
+					404
+				),
+				'jpc_get_user_fail'
+			);
+		}
+
+		$connection = Jetpack::connection();
+		$user_token = $connection->get_access_token( $user->ID );
+
+		if ( $user_token ) {
+			list( $user_token_key, $user_token_private ) = explode( '.', $user_token->secret );
+			if ( $user_token_key === $user_token->secret ) {
+				$user_token_key = '';
+			}
+		} else {
+			$user_token_key = '';
+		}
+
+		return array(
+			'id'         => $user->ID,
+			'login'      => $user->user_login,
+			'email_hash' => md5( strtolower( trim( $user->user_email ) ) ),
+			'roles'      => $user->roles,
+			'caps'       => $user->caps,
+			'allcaps'    => $user->allcaps,
+			'token_key'  => $user_token_key,
 		);
 	}
 
@@ -367,14 +435,18 @@ class Jetpack_XMLRPC_Server {
 		// local user is used to look up by login, email or ID
 		$local_user_info = $request['local_user'];
 
-		$user = get_user_by( 'login', $local_user_info );
+		return $this->get_user_by_anything( $local_user_info );
+	}
+
+	private function get_user_by_anything( $user_id ) {
+		$user = get_user_by( 'login', $user_id );
 
 		if ( ! $user ) {
-			$user = get_user_by( 'email', $local_user_info );
+			$user = get_user_by( 'email', $user_id );
 		}
 
 		if ( ! $user ) {
-			$user = get_user_by( 'ID', $local_user_info );
+			$user = get_user_by( 'ID', $user_id );
 		}
 
 		return $user;
