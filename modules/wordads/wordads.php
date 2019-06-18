@@ -69,6 +69,16 @@ class WordAds {
 	public static $amp_section_id = 1;
 
 	/**
+	 * Checks for AMP support and returns true iff active & AMP request
+	 * @return boolean True if supported AMP request
+	 *
+	 * @since 4.5.0
+	 */
+	public static function is_amp() {
+		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+	}
+
+	/**
 	 * Increment the AMP section ID and return the value
 	 *
 	 * @return int
@@ -498,22 +508,13 @@ HTML;
 	 * @since 5.7
 	 */
 	public function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
-
 		$this->ads[] = array(
 			'location' => $location,
 			'width'    => $width,
 			'height'   => $height,
 		);
-		$ad_number   = count( $this->ads ) . '-' . uniqid();
 
-		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$css = esc_attr( $css );
-
-		$loc_id = 100;
-		if ( ! empty( self::$ad_location_ids[ $location ] ) ) {
-			$loc_id = self::$ad_location_ids[ $location ];
-		}
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		if ( self::is_amp() ) {
 			$amp_section_id = self::get_amp_section_id();
 			$site_id = $this->params->blog_id;
 			return <<<HTML
@@ -523,6 +524,15 @@ HTML;
 			    data-section="$amp_section_id">
 			</amp-ad>
 HTML;
+		}
+
+		$ad_number = count( $this->ads ) . '-' . uniqid();
+		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
+		$css = esc_attr( $css );
+
+		$loc_id = 100;
+		if ( ! empty( self::$ad_location_ids[ $location ] ) ) {
+			$loc_id = self::$ad_location_ids[ $location ];
 		}
 
 		return <<<HTML
