@@ -67,7 +67,20 @@ class RelatedPostsComponent extends React.Component {
 					} }
 				>
 					<p className="jp-form-setting-explanation">
-						{ __( "These settings won't apply to related posts added using the block editor." ) }
+						{ __(
+							"These settings won't apply to {{a}}related posts added using the block editor{{/a}}.",
+							{
+								components: {
+									a: (
+										<a
+											href="https://jetpack.com/support/jetpack-blocks/related-posts-block/"
+											target="_blank"
+											rel="noopener noreferrer"
+										/>
+									),
+								},
+							}
+						) }
 					</p>
 					<ModuleToggle
 						slug="related-posts"
