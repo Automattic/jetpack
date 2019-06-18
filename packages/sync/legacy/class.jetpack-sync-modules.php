@@ -19,7 +19,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Posts',
 		'Jetpack_Sync_Module_Import',
 		'Jetpack_Sync_Module_Protect',
-		'Automattic\\Jetpack\\Sync\\Modules\\Comments',
+		Automattic\Jetpack\Sync\Modules\Comments::class,
 		'Jetpack_Sync_Module_Updates',
 		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
 		'Jetpack_Sync_Module_Meta',
