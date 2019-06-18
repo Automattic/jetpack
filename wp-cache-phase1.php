@@ -73,7 +73,11 @@ if (
 
 $wp_start_time = microtime();
 
-if ( $wp_cache_not_logged_in && wp_cache_get_cookies_values() ) {
+if ( wpsc_is_backend() ) {
+	return true;
+}
+
+if ( wpsc_is_caching_user_disabled() ) {
 	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
 	return true;
 }
@@ -83,7 +87,6 @@ if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon ) {
 }
 
 do_cacheaction( 'cache_init' );
-
 
 if ( ! $cache_enabled || ( isset( $_SERVER['REQUEST_METHOD'] ) && in_array( $_SERVER['REQUEST_METHOD'], array( 'POST', 'PUT', 'DELETE' ) ) ) || isset( $_GET['customize_changeset_uuid'] ) ) {
 	return true;

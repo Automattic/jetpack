@@ -233,12 +233,12 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	protected function set_wp_cache_not_logged_in( $value ) {
 		global $wp_cache_not_logged_in, $cache_path;
 
-		if ( 1 == $value ) {
+		if ( 0 != $value ) {
 			if ( 0 == $wp_cache_not_logged_in && function_exists( 'prune_super_cache' ) ) {
 				prune_super_cache( $cache_path, true );
 			}
 
-			$wp_cache_not_logged_in = 1;
+			$wp_cache_not_logged_in = (int) $value;
 
 		} else {
 			$wp_cache_not_logged_in = 0;
@@ -454,6 +454,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				'is_cache_enabled'        => 1,
 				'cache_rebuild_files'     => 1,
 				'cache_compression'       => 0,
+				'wp_cache_not_logged_in'  => 2,
 			);
 			wp_cache_enable();
 			if ( ! defined( 'DISABLE_SUPERCACHE' ) ) {
@@ -489,7 +490,6 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			'wp_supercache_cache_list',
 			'wp_cache_hello_world',
 			'wp_cache_clear_on_post_edit',
-			'wp_cache_not_logged_in',
 			'wp_cache_make_known_anon',
 			'wp_cache_object_cache',
 			'wp_cache_refresh_single_only',
