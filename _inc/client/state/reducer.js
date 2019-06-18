@@ -24,6 +24,7 @@ import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
 import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
+import { reducer as mobile } from 'state/mobile/reducer';
 
 const jetpackReducer = combineReducers( {
 	checklist,
@@ -42,6 +43,7 @@ const jetpackReducer = combineReducers( {
 	siteData,
 	siteVerify,
 	trackingSettings,
+	mobile,
 } );
 
 export default combineReducers( {

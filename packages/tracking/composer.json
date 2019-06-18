@@ -13,7 +13,10 @@
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\": "src/"
-		}
+		},
+		"classmap": [
+			"legacy"
+		]
 	},
 	"repositories": [
 		{

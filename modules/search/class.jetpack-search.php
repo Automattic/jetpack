@@ -1762,7 +1762,8 @@ class Jetpack_Search {
 			return;
 		}
 
-		jetpack_tracks_record_event(
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->tracks_record_event(
 			wp_get_current_user(),
 			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
 			$event['widget']

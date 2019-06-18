@@ -90,12 +90,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::delete_jitm_message'
 		) );
 
-		// Register a site
-		register_rest_route( 'jetpack/v4', '/verify_registration', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::verify_registration',
-		) );
-
 		// Authorize a remote user
 		register_rest_route( 'jetpack/v4', '/remote_authorize', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -462,6 +456,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/mobile/send-login-email',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::send_mobile_magic_link',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
 	}
 
 	public static function get_plans( $request ) {
@@ -519,28 +523,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}
-
-	/**
-	 * Handles verification that a site is registered
-	 *
-	 * @since 5.4.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|wp-error
-	 */
-	public static function verify_registration( $request ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
-		$xmlrpc_server = new Jetpack_XMLRPC_Server();
-		$result = $xmlrpc_server->verify_registration( array( $request['secret_1'], $request['state'] ) );
-
-		if ( is_a( $result, 'IXR_Error' ) ) {
-			$result = new WP_Error( $result->code, $result->message );
-		}
-
-		return $result;
-	}
-
 
 	/**
 	 * Checks if this site has been verified using a service - only 'google' supported at present - and a specfic
@@ -3258,4 +3240,39 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 	}
 
+	/**
+	 * Proxies a request to WordPress.com to request that a magic link be sent to the current user
+	 * to log this user in to the mobile app via email.
+	 *
+	 * @param WP_REST_REQUEST $request The request parameters.
+	 * @return bool|WP_Error
+	 */
+	public static function send_mobile_magic_link( $request ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'user_id' => get_current_user_id(),
+			)
+		);
+
+		$xml->query( 'jetpack.sendMobileMagicLink', array() );
+		if ( $xml->isError() ) {
+			return new WP_Error(
+				'error_sending_mobile_magic_link',
+				sprintf(
+					'%s: %s',
+					$xml->getErrorCode(),
+					$xml->getErrorMessage()
+				)
+			);
+		}
+
+		$response = $xml->getResponse();
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
 } // class end

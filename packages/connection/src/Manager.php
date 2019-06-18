@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -50,18 +49,23 @@ class Manager implements Manager_Interface {
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-		return false;
+		return (bool) $this->get_access_token( self::JETPACK_MASTER_USER );
 	}
 
 	/**
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param Integer $user_id the user identifier.
+	 * @param Integer|Boolean $user_id the user identifier.
 	 * @return Boolean is the user connected?
 	 */
-	public function is_user_connected( $user_id ) {
-		return $user_id;
+	public function is_user_connected( $user_id = false ) {
+		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return (bool) $this->get_access_token( $user_id );
 	}
 
 	/**
@@ -70,8 +74,31 @@ class Manager implements Manager_Interface {
 	 * @param Integer $user_id the user identifier.
 	 * @return Object the user object.
 	 */
-	public function get_connected_user_data( $user_id ) {
-		return $user_id;
+	public function get_connected_user_data( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$transient_key = "jetpack_connected_user_data_$user_id";
+
+		if ( $cached_user_data = get_transient( $transient_key ) ) {
+			return $cached_user_data;
+		}
+
+		\Jetpack::load_xml_rpc_client();
+		$xml = new \Jetpack_IXR_Client(
+			array(
+				'user_id' => $user_id,
+			)
+		);
+		$xml->query( 'wpcom.getUser' );
+		if ( ! $xml->isError() ) {
+			$user_data = $xml->getResponse();
+			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
+			return $user_data;
+		}
+
+		return false;
 	}
 
 	/**
@@ -229,9 +256,140 @@ class Manager implements Manager_Interface {
 	/**
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
+	 *
+	 * @param array $registration_data Array of [ secret_1, user_id ].
 	 */
-	public function handle_registration() {
+	public function handle_registration( array $registration_data ) {
+		list( $registration_secret_1, $registration_user_id ) = $registration_data;
+		if ( empty( $registration_user_id ) ) {
+			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack' ), 400 );
+		}
 
+		return $this->verify_secrets( 'register', $registration_secret_1, (int) $registration_user_id );
+	}
+
+	/**
+	 * Verify a Previously Generated Secret.
+	 *
+	 * @param string $action   The type of secret to verify.
+	 * @param string $secret_1 The secret string to compare to what is stored.
+	 * @param int    $user_id  The user ID of the owner of the secret.
+	 */
+	protected function verify_secrets( $action, $secret_1, $user_id ) {
+		$allowed_actions = array( 'register', 'authorize', 'publicize' );
+		if ( ! in_array( $action, $allowed_actions, true ) ) {
+			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
+		}
+
+		$user = get_user_by( 'id', $user_id );
+
+		/**
+		 * We've begun verifying the previously generated secret.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param string   $action The type of secret to verify.
+		 * @param \WP_User $user The user object.
+		 */
+		do_action( 'jetpack_verify_secrets_begin', $action, $user );
+
+		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
+			/**
+			 * Verifying of the previously generated secret has failed.
+			 *
+			 * @since 7.5.0
+			 *
+			 * @param string    $action  The type of secret to verify.
+			 * @param \WP_User  $user The user object.
+			 * @param \WP_Error $error The error object.
+			 */
+			do_action( 'jetpack_verify_secrets_fail', $action, $user, $error );
+
+			return $error;
+		};
+
+		$stored_secrets = $this->get_secrets( $action, $user_id );
+		$this->delete_secrets( $action, $user_id );
+
+		if ( empty( $secret_1 ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secret_1_missing',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
+					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'secret_1' ),
+					400
+				)
+			);
+		} elseif ( ! is_string( $secret_1 ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secret_1_malformed',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
+					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'secret_1' ),
+					400
+				)
+			);
+		} elseif ( empty( $user_id ) ) {
+			// $user_id is passed around during registration as "state".
+			return $return_error(
+				new \WP_Error(
+					'state_missing',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
+					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'state' ),
+					400
+				)
+			);
+		} elseif ( ! ctype_digit( (string) $user_id ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secret_1_malformed',
+					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
+					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
+					400
+				)
+			);
+		}
+
+		if ( ! $stored_secrets ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_missing',
+					__( 'Verification secrets not found', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( is_wp_error( $stored_secrets ) ) {
+			$stored_secrets->add_data( 400 );
+			return $return_error( $stored_secrets );
+		} elseif ( empty( $stored_secrets['secret_1'] ) || empty( $stored_secrets['secret_2'] ) || empty( $stored_secrets['exp'] ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_incomplete',
+					__( 'Verification secrets are incomplete', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( ! hash_equals( $secret_1, $stored_secrets['secret_1'] ) ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_mismatch',
+					__( 'Secret mismatch', 'jetpack' ),
+					400
+				)
+			);
+		}
+
+		/**
+		 * We've succeeded at verifying the previously generated secret.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param string   $action The type of secret to verify.
+		 * @param \WP_User $user The user object.
+		 */
+		do_action( 'jetpack_verify_secrets_success', $action, $user );
+
+		return $stored_secrets['secret_2'];
 	}
 
 	/**
@@ -267,13 +425,13 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * Returns a base64-encoded sha1 hash of some text
+	 * The Base64 Encoding of the SHA1 Hash of the Input.
 	 *
-	 * @param string $text The text to hash.
+	 * @param string $text The string to hash.
 	 * @return string
 	 */
 	public function sha1_base64( $text ) {
-		return base64_encode( sha1( $text, true ) );
+		return base64_encode( sha1( $text, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 	}
 
 	/**
@@ -437,7 +595,7 @@ class Manager implements Manager_Interface {
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
 				return $suppress_errors ? false : new \WP_Error( 'token_missing_two_periods', sprintf( 'Token \'%s\' for user %d is malformed', $user_tokens[ $user_id ], $user_id ) );
 			}
-			if ( $user_id != $user_token_chunks[2] ) {
+			if ( $user_token_chunks[2] !== (string) $user_id ) {
 				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";

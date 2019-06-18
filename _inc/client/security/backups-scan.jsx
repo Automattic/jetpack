@@ -221,7 +221,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				this.props.vaultPressData !== 'N/A' &&
 				false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( ! hasRewindData || ( this.props.vaultPressActive && ! hasVpData ) ) {
+			if ( ! hasRewindData && ( this.props.vaultPressActive && ! hasVpData ) ) {
 				return <LoadingCard />;
 			}
 

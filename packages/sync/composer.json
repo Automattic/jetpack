@@ -10,6 +10,9 @@
 	"autoload": {
 		"classmap": [
 			"/legacy"
-		]
+		],
+		"psr-4": {
+			"Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
+		}
 	}
 }

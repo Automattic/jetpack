@@ -8,6 +8,10 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 	 * @group lint
 	 */
 	public function test_php_lint() {
+		if ( ! getenv( 'PHP_LINT' ) ) {
+			$this->markTestSkipped( 'We only need to run PHP lint tests once for each PHP version.' );
+		}
+
 		$exclude_paths = array(
 			'./docker',
 			'./tools',

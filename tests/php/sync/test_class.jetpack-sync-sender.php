@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules\Callables;
+
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
 	protected $action_codec;
@@ -349,7 +351,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 	function test_limits_execution_time_of_do_sync() {
 		// disable sync callables
-		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->sender->get_sync_queue()->size() );
