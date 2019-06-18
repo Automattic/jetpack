@@ -381,11 +381,14 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "8c7dc6036bf6125c31a574c14c6b0521247410ed",
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb",
                 "shasum": null
             },
             "require": {
                 "composer-plugin-api": "^1.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "composer-plugin",
             "extra": {
@@ -395,6 +398,12 @@
                 "psr-4": {
                     "Automattic\\Jetpack\\Autoloader\\": "src"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"

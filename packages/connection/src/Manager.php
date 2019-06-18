@@ -80,9 +80,10 @@ class Manager implements Manager_Interface {
 			$user_id = get_current_user_id();
 		}
 
-		$transient_key = "jetpack_connected_user_data_$user_id";
+		$transient_key    = "jetpack_connected_user_data_$user_id";
+		$cached_user_data = get_transient( $transient_key );
 
-		if ( $cached_user_data = get_transient( $transient_key ) ) {
+		if ( $cached_user_data ) {
 			return $cached_user_data;
 		}
 
@@ -856,33 +857,34 @@ class Manager implements Manager_Interface {
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
+	 * @param bool|true    $suppress_errors If true, return a falsy value when the token isn't found; When false, return a descriptive WP_Error when the token isn't found.
 	 *
 	 * @return object|false
 	 */
-	public function get_access_token( $user_id = false, $token_key = false ) {
+	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens' );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
-					return false;
+					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option' );
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( 'No token for user %d', $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token \'%s\' for user %d is malformed', $user_tokens[ $user_id ], $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
@@ -911,7 +913,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( ! $possible_tokens ) {
-			return false;
+			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens' );
 		}
 
 		$valid_token = false;
@@ -936,7 +938,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( ! $valid_token ) {
-			return false;
+			return $suppress_errors ? false : new \WP_Error( 'no_valid_token' );
 		}
 
 		return (object) array(

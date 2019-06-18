@@ -15,6 +15,7 @@
  */
 
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Connection\Client;
 
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
@@ -684,7 +685,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	$timeout = 90;
 	$user_id = JETPACK_MASTER_USER; // means send the wp.com user_id
 
-	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
+	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
 	if ( is_wp_error( $get ) || ( 2 !== intval( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
@@ -1326,7 +1327,7 @@ function stats_dashboard_widget_content() {
 	$timeout = 90;
 	$user_id = JETPACK_MASTER_USER;
 
-	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
+	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
 	if ( is_wp_error( $get ) || ( 2 !== intval( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
@@ -1580,7 +1581,7 @@ function stats_get_remote_csv( $url ) {
 	$timeout = 90;
 	$user_id = JETPACK_MASTER_USER;
 
-	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
+	$get = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
 	if ( is_wp_error( $get ) || ( 2 !== intval( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		return array(); // @todo: return an error?
@@ -1664,7 +1665,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	}
 
 	// Do the dirty work.
-	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
+	$response = Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 		$data = is_wp_error( $response ) ? $response : new WP_Error( 'stats_error' );
 	} else {

@@ -2,6 +2,8 @@
 
 defined( 'ABSPATH' ) or die( 'No direct access, please.' );
 
+use Automattic\Jetpack\Connection\Client;
+
 require_once( ABSPATH . WPINC . '/class-IXR.php' );
 
 /**
@@ -33,7 +35,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 		$request = new IXR_Request( $method, $args );
 		$xml = trim( $request->getXml() );
 
-		$response = Jetpack_Client::remote_request( $this->jetpack_args, $xml );
+		$response = Client::remote_request( $this->jetpack_args, $xml );
 
 		if ( is_wp_error( $response ) ) {
 			$this->error = new IXR_Error( -10520, sprintf( 'Jetpack: [%s] %s', $response->get_error_code(), $response->get_error_message() ) );

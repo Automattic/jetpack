@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Terms extends \Jetpack_Sync_Module {
 	private $taxonomy_whitelist;
 
 	function name() {
@@ -58,8 +60,8 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	}
 
 	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
-		if ( class_exists( 'WP_Term' ) ) {
-			$term_object = WP_Term::get_instance( $term_id, $taxonomy );
+		if ( class_exists( '\\WP_Term' ) ) {
+			$term_object = \WP_Term::get_instance( $term_id, $taxonomy );
 		} else {
 			$term_object = get_term_by( 'id', $term_id, $taxonomy );
 		}
@@ -93,7 +95,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	}
 
 	function set_defaults() {
-		$this->taxonomy_whitelist = Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
+		$this->taxonomy_whitelist = \Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
 	}
 
 	public function expand_term_taxonomy_id( $args ) {

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Asset_Tools;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Tracking;
 
@@ -320,7 +321,7 @@ class JITM {
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
-			$wpcom_response = \Jetpack_Client::wpcom_json_api_request_as_blog(
+			$wpcom_response = Client::wpcom_json_api_request_as_blog(
 				$path,
 				'2',
 				array(
