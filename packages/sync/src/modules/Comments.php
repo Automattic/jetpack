@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Comments extends \Jetpack_Sync_Module {
 
 	public function name() {
 		return 'comments';
@@ -169,7 +171,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	// Comment Meta
 	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
+		return in_array( $meta_key, \Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
 	}
 
 	function filter_meta( $args ) {
@@ -189,7 +191,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 		return array(
 			$comments,
-			$this->get_metadata( $comment_ids, 'comment', Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
+			$this->get_metadata( $comment_ids, 'comment', \Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
 			$previous_interval_end,
 		);
 	}
