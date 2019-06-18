@@ -597,8 +597,7 @@ class Jetpack {
 				// Hack to preserve $HTTP_RAW_POST_DATA
 				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-				$signed = $this->verify_xml_rpc_signature();
-				if ( $signed && ! is_wp_error( $signed ) ) {
+				if ( $this->verify_xml_rpc_signature() ) {
 					// The actual API methods.
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
 				} else {
@@ -611,8 +610,8 @@ class Jetpack {
 
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
-				$signed = $this->verify_xml_rpc_signature();
-				if ( $signed && ! is_wp_error( $signed ) ) {
+
+				if ( $this->verify_xml_rpc_signature() ) {
 					// the jetpack Provision method is available for blog-token-signed requests
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
 				}
@@ -1701,12 +1700,7 @@ class Jetpack {
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
 	 */
 	public static function is_user_connected( $user_id = false ) {
-		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		return (bool) Jetpack_Data::get_access_token( $user_id );
+		return self::connection()->is_user_connected( $user_id );
 	}
 
 	/**
@@ -5173,23 +5167,69 @@ p {
 		$this->rest_authentication_status = null;
 	}
 
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * @return false|array
+	 */
 	function verify_xml_rpc_signature() {
-		if ( $this->xmlrpc_verification ) {
-			return $this->xmlrpc_verification;
+		if ( is_null( $this->xmlrpc_verification ) ) {
+			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
+
+			if ( is_wp_error( $this->xmlrpc_verification ) ) {
+				/**
+				 * Action for logging XMLRPC signature verification errors. This data is sensitive.
+				 *
+				 * Error codes:
+				 * - malformed_token
+				 * - malformed_user_id
+				 * - unknown_token
+				 * - could_not_sign
+				 * - invalid_nonce
+				 * - signature_mismatch
+				 *
+				 * @since 7.5.0
+				 *
+				 * @param WP_Error $signature_verification_error The verification error
+				 */
+				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
+			}
 		}
 
+		return is_wp_error( $this->xmlrpc_verification ) ? false : $this->xmlrpc_verification;
+	}
+
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * This function has side effects and should not be used. Instead,
+	 * use the memoized version `->verify_xml_rpc_signature()`.
+	 *
+	 * @internal
+	 */
+	private function internal_verify_xml_rpc_signature() {
 		// It's not for us
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
 		}
 
-		@list( $token_key, $version, $user_id ) = explode( ':', $_GET['token'] );
+		$signature_details = array(
+			'token'     => isset( $_GET['token'] )     ? wp_unslash( $_GET['token'] )     : '',
+			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
+			'nonce'     => isset( $_GET['nonce'] )     ? wp_unslash( $_GET['nonce'] )     : '',
+			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
+			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
+			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
+			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
+		);
+
+		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		if (
 			empty( $token_key )
 		||
 			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
 		) {
-			return false;
+			return new WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -5198,19 +5238,22 @@ p {
 		} else {
 			$token_type = 'user';
 			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
-				return false;
+				return new WP_Error( 'malformed_user_id', 'Malformed user_id in request', compact( 'signature_details' ) );
 			}
 			$user_id = (int) $user_id;
 
 			$user = new WP_User( $user_id );
 			if ( ! $user || ! $user->exists() ) {
-				return false;
+				return new WP_Error( 'unknown_user', sprintf( 'User %d does not exist', $user_id ), compact( 'signature_details' ) );
 			}
 		}
 
-		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
-		if ( ! $token ) {
-			return false;
+		$token = Jetpack_Data::get_access_token( $user_id, $token_key, false );
+		if ( is_wp_error( $token ) ) {
+			$token->add_data( compact( 'signature_details' ) );
+			return $token;
+		} elseif ( ! $token ) {
+			return new WP_Error( 'unknown_token', sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ), compact( 'signature_details' ) );
 		}
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
@@ -5243,19 +5286,29 @@ p {
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
 
+		$signature_details['url'] = $jetpack_signature->current_request_url;
+
 		if ( ! $signature ) {
-			return false;
+			return new WP_Error( 'could_not_sign', 'Unknown signature error', compact( 'signature_details' ) );
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
-			return false;
 		}
 
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
+		// Use up the nonce regardless of whether the signature matches.
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
-			return false;
+			return new WP_Error( 'invalid_nonce', 'Could not add nonce', compact( 'signature_details' ) );
+		}
+
+		// Be careful about what you do with this debugging data.
+		// If a malicious requester has access to the expected signature,
+		// bad things might be possible.
+		$signature_details['expected'] = $signature;
+
+		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+			return new WP_Error( 'signature_mismatch', 'Signature mismatch', compact( 'signature_details' ) );
 		}
 
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
@@ -5289,13 +5342,11 @@ p {
 			}
 		}
 
-		$this->xmlrpc_verification = array(
+		return array(
 			'type'      => $token_type,
 			'token_key' => $token_key,
 			'user_id'   => $token->external_user_id,
 		);
-
-		return $this->xmlrpc_verification;
 	}
 
 	/**
@@ -5308,7 +5359,7 @@ p {
 
 		$token_details = $this->verify_xml_rpc_signature();
 
-		if ( ! $token_details || is_wp_error( $token_details ) ) {
+		if ( ! $token_details ) {
 			return $user;
 		}
 
@@ -5377,11 +5428,6 @@ p {
 		}
 
 		$verified = $this->verify_xml_rpc_signature();
-
-		if ( is_wp_error( $verified ) ) {
-			$this->rest_authentication_status = $verified;
-			return null;
-		}
 
 		if (
 			$verified &&

@@ -5,6 +5,7 @@ use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
 class Jetpack_Signature {
 	public $token;
 	public $secret;
+	public $current_request_url;
 
 	function __construct( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
@@ -60,7 +61,7 @@ class Jetpack_Signature {
 			$port      = in_array( $host_port, array( 80, $http_port ) ) ? '' : $host_port;
 		}
 
-		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
+		$this->current_request_url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
 		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
@@ -103,7 +104,7 @@ class Jetpack_Signature {
 		}
 
 		$method = isset( $override['method'] ) ? $override['method'] : $_SERVER['REQUEST_METHOD'];
-		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $url, $body, true );
+		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $this->current_request_url, $body, true );
 	}
 
 	// body_hash v. body-hash is annoying.  Refactor to accept an array?
@@ -118,8 +119,10 @@ class Jetpack_Signature {
 
 		list( $token ) = explode( '.', $token );
 
+		$signature_details = compact( 'token', 'timestamp', 'nonce', 'body_hash', 'method', 'url' );
+
 		if ( 0 !== strpos( $token, "$this->token:" ) ) {
-			return new WP_Error( 'token_mismatch', 'Incorrect token' );
+			return new WP_Error( 'token_mismatch', 'Incorrect token', compact( 'signature_details' ) );
 		}
 
 		// If we got an array at this point, let's encode it, so we can see what it looks like as a string.
@@ -136,34 +139,34 @@ class Jetpack_Signature {
 		if ( ! is_null( $body ) ) {
 			$required_parameters[] = 'body_hash';
 			if ( ! is_string( $body ) ) {
-				return new WP_Error( 'invalid_body', 'Body is malformed.' );
+				return new WP_Error( 'invalid_body', 'Body is malformed.', compact( 'signature_details' ) );
 			}
 		}
 
 		foreach ( $required_parameters as $required ) {
 			if ( ! is_scalar( $$required ) ) {
-				return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', str_replace( '_', '-', $required ) ) );
+				return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', str_replace( '_', '-', $required ) ), compact( 'signature_details' ) );
 			}
 
 			if ( ! strlen( $$required ) ) {
-				return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is missing.', str_replace( '_', '-', $required ) ) );
+				return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is missing.', str_replace( '_', '-', $required ) ), compact( 'signature_details' ) );
 			}
 		}
 
 		if ( empty( $body ) ) {
 			if ( $body_hash ) {
-				return new WP_Error( 'invalid_body_hash', 'The body hash does not match.' );
+				return new WP_Error( 'invalid_body_hash', 'Invalid body hash for empty body.', compact( 'signature_details' ) );
 			}
 		} else {
 			$connection = new Connection_Manager();
 			if ( $verify_body_hash && $connection->sha1_base64( $body ) !== $body_hash ) {
-				return new WP_Error( 'invalid_body_hash', 'The body hash does not match.' );
+				return new WP_Error( 'invalid_body_hash', 'The body hash does not match.', compact( 'signature_details' ) );
 			}
 		}
 
 		$parsed = parse_url( $url );
 		if ( ! isset( $parsed['host'] ) ) {
-			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ) );
+			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ), compact( 'signature_details' ) );
 		}
 
 		if ( ! empty( $parsed['port'] ) ) {
@@ -174,21 +177,21 @@ class Jetpack_Signature {
 			} elseif ( 'https' == $parsed['scheme'] ) {
 				$port = 443;
 			} else {
-				return new WP_Error( 'unknown_scheme_port', "The scheme's port is unknown" );
+				return new WP_Error( 'unknown_scheme_port', "The scheme's port is unknown", compact( 'signature_details' ) );
 			}
 		}
 
 		if ( ! ctype_digit( "$timestamp" ) || 10 < strlen( $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
-			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'timestamp' ) );
+			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'timestamp' ), compact( 'signature_details' ) );
 		}
 
 		$local_time = $timestamp - $this->time_diff;
 		if ( $local_time < time() - 600 || $local_time > time() + 300 ) {
-			return new WP_Error( 'invalid_signature', 'The timestamp is too old.' );
+			return new WP_Error( 'invalid_signature', 'The timestamp is too old.', compact( 'signature_details' ) );
 		}
 
 		if ( 12 < strlen( $nonce ) || preg_match( '/[^a-zA-Z0-9]/', $nonce ) ) {
-			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'nonce' ) );
+			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'nonce' ), compact( 'signature_details' ) );
 		}
 
 		$normalized_request_pieces = array(
