@@ -79,9 +79,10 @@ class Manager implements Manager_Interface {
 			$user_id = get_current_user_id();
 		}
 
-		$transient_key = "jetpack_connected_user_data_$user_id";
+		$transient_key    = "jetpack_connected_user_data_$user_id";
+		$cached_user_data = get_transient( $transient_key );
 
-		if ( $cached_user_data = get_transient( $transient_key ) ) {
+		if ( $cached_user_data ) {
 			return $cached_user_data;
 		}
 
@@ -593,7 +594,7 @@ class Manager implements Manager_Interface {
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return $suppress_errors ? false : new \WP_Error( 'token_missing_two_periods', sprintf( 'Token \'%s\' for user %d is malformed', $user_tokens[ $user_id ], $user_id ) );
+				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token \'%s\' for user %d is malformed', $user_tokens[ $user_id ], $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
 				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
