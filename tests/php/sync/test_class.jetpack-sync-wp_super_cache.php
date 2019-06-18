@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
+
 /**
  * Testing WP Super Cache Sync
  */
