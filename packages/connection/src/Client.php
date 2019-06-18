@@ -106,7 +106,7 @@ class Client {
 				return new \WP_Error( 'invalid_body', 'Body is malformed.' );
 			}
 
-			$body_hash = Jetpack::connection()->sha1_base64( $body_to_hash );
+			$body_hash = base64_encode( sha1( $body_to_hash, true ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 
 		$auth = array(
@@ -130,7 +130,7 @@ class Client {
 		}
 
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
-		$url = Jetpack::fix_url_for_bad_hosts( $url );
+		$url = \Jetpack::fix_url_for_bad_hosts( $url );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
