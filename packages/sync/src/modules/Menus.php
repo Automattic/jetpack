@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Menus extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Menus extends Jetpack_Sync_Module {
 	private $nav_items_just_added = array();
 
 	function name() {

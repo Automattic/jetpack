@@ -14,7 +14,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Network_Options',
 		'Automattic\\Jetpack\\Sync\\Modules\\Terms',
 		'Jetpack_Sync_Module_Themes',
-		'Jetpack_Sync_Module_Menus',
+		'Automattic\\Jetpack\\Sync\\Modules\\Menus',
 		'Jetpack_Sync_Module_Users',
 		'Jetpack_Sync_Module_Posts',
 		'Jetpack_Sync_Module_Import',
