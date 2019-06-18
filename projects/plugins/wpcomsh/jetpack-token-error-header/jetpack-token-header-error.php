@@ -61,3 +61,4 @@ function jetpack_token_send_signature_error_header( $error ) {
 }
 
 add_action( 'jetpack_verify_signature_error', 'jetpack_token_send_signature_error_header' );
+
