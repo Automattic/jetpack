@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
+
 /**
  * Testing WP Super Cache Sync
  */
@@ -23,7 +26,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function define_constants() {
-		foreach ( Jetpack_Sync_Module_WP_Super_Cache::$wp_super_cache_constants as $constant ) {
+		foreach ( WP_Super_Cache::$wp_super_cache_constants as $constant ) {
 			if ( false === defined( $constant ) ) {
 				define( $constant, $constant );
 			}
@@ -37,13 +40,13 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	function test_constants_are_synced() {
 		$this->define_constants();
 		$this->sender->do_sync();
-		foreach ( Jetpack_Sync_Module_WP_Super_Cache::$wp_super_cache_constants as $constant ) {
+		foreach ( WP_Super_Cache::$wp_super_cache_constants as $constant ) {
 			$this->assertEquals( constant( $constant ), $this->server_replica_storage->get_constant( $constant ) );
 		}
 	}
 
 	function test_globals_are_synced() {
-		$wp_super_cache_globals = Jetpack_Sync_Module_WP_Super_Cache::get_wp_super_cache_globals();
+		$wp_super_cache_globals = WP_Super_Cache::get_wp_super_cache_globals();
 		foreach ( $wp_super_cache_globals as $key => $value ) {
 			$GLOBALS[$key] = $key;
 		}
