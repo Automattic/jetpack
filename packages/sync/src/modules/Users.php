@@ -1,8 +1,10 @@
 <?php
 
+namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Constants;
 
-class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
+class Users extends \Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
 	protected $flags = array();
@@ -82,7 +84,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( is_numeric( $user ) ) {
 			$user = get_user_by( 'id', $user );
 		}
-		if ( $user instanceof WP_User ) {
+		if ( $user instanceof \WP_User ) {
 			return $user;
 		}
 		return null;
@@ -119,7 +121,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( is_wp_error( $user ) ) {
 			return $user_capabilities;
 		}
-		foreach ( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
+		foreach ( \Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
 			if ( $user_has_capabilities = user_can( $user, $capability ) ) {
 				$user_capabilities[ $capability ] = true;
 			}
@@ -203,12 +205,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		// We are only interested in successful authentication events.
-		if ( is_wp_error( $user ) || ! ( $user instanceof WP_User ) ) {
+		if ( is_wp_error( $user ) || ! ( $user instanceof \WP_User ) ) {
 			return $user;
 		}
 
 		jetpack_require_lib( 'class.jetpack-password-checker' );
-		$password_checker = new Jetpack_Password_Checker( $user->ID );
+		$password_checker = new \Jetpack_Password_Checker( $user->ID );
 
 		$test_results = $password_checker->test( $password, true );
 
@@ -469,15 +471,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	protected function is_add_new_user_to_blog() {
-		return Jetpack::is_function_in_backtrace( 'add_new_user_to_blog' );
+		return \Jetpack::is_function_in_backtrace( 'add_new_user_to_blog' );
 	}
 
 	protected function is_add_user_to_blog() {
-		return Jetpack::is_function_in_backtrace( 'add_user_to_blog' );
+		return \Jetpack::is_function_in_backtrace( 'add_user_to_blog' );
 	}
 
 	protected function is_delete_user() {
-		return Jetpack::is_function_in_backtrace( array( 'wp_delete_user', 'remove_user_from_blog' ) );
+		return \Jetpack::is_function_in_backtrace( array( 'wp_delete_user', 'remove_user_from_blog' ) );
 	}
 
 	protected function is_create_user() {
@@ -487,7 +489,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site
 		);
 
-		return Jetpack::is_function_in_backtrace( $functions );
+		return \Jetpack::is_function_in_backtrace( $functions );
 	}
 
 	protected function get_reassigned_network_user_id() {
