@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules\Stats;
 
 /**
  * Testing Updates Sync
