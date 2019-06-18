@@ -17,7 +17,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Menus',
 		'Jetpack_Sync_Module_Users',
 		'Jetpack_Sync_Module_Posts',
-		'Jetpack_Sync_Module_Import',
+		'Automattic\\Jetpack\\Sync\\Modules\\Import',
 		'Jetpack_Sync_Module_Protect',
 		'Jetpack_Sync_Module_Comments',
 		'Jetpack_Sync_Module_Updates',

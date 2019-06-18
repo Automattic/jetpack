@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Import extends \Jetpack_Sync_Module {
 
 	/**
 	 * Tracks which actions have already been synced for the import
@@ -71,7 +73,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		}
 
 		// Get $importer from known_importers.
-		$known_importers = Jetpack_Sync_Settings::get_setting( 'known_importers' );
+		$known_importers = \Jetpack_Sync_Settings::get_setting( 'known_importers' );
 		if ( isset( $known_importers[ $importer ] ) ) {
 			$importer = $known_importers[ $importer ];
 		}
@@ -122,7 +124,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 	 */
 	private static function get_calling_importer_class() {
 		// If WP_Importer doesn't exist, neither will any importer that extends it.
-		if ( ! class_exists( 'WP_Importer', false ) ) {
+		if ( ! class_exists( '\WP_Importer', false ) ) {
 			return 'unknown';
 		}
 
@@ -156,7 +158,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 			// Check if the class extends WP_Importer.
 			if ( class_exists( $class_name, false ) ) {
 				$parents = class_parents( $class_name, false );
-				if ( $parents && in_array( 'WP_Importer', $parents, true ) ) {
+				if ( $parents && in_array( '\WP_Importer', $parents, true ) ) {
 					return $class_name;
 				}
 			}
