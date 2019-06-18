@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Sender;
 
 Jetpack_Sync_Main::init();
 
@@ -13,7 +14,7 @@ require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
- * Jetpack_Sync_Sender and dummy server implementation,
+ * Automattic\Jetpack\Sync\Sender and dummy server implementation,
  * and registers a Replicastore and Eventstore implementation to
  * process events.
  */
@@ -31,7 +32,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Jetpack_Sync_Listener::get_instance();
-		$this->sender   = Jetpack_Sync_Sender::get_instance();
+		$this->sender   = Sender::get_instance();
 
 		parent::setUp();
 
