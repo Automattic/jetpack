@@ -431,14 +431,14 @@ class Manager implements Manager_Interface {
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user' );
+				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( 'No token for user %d', $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return $suppress_errors ? false : new \WP_Error( 'token_missing_two_periods' );
+				return $suppress_errors ? false : new \WP_Error( 'token_missing_two_periods', sprintf( 'Token \'%s\' for user %d is malformed', $user_tokens[ $user_id ], $user_id ) );
 			}
 			if ( $user_id != $user_token_chunks[2] ) {
-				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch' );
+				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
