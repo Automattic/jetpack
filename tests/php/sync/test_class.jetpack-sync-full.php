@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules\Posts;
+
 function jetpack_foo_full_sync_callable() {
 	return 'the value';
 }
