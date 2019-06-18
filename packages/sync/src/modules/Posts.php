@@ -178,7 +178,7 @@ class Posts extends \Jetpack_Sync_Module {
 		// return non existant post
 		$post_type = get_post_type_object( $post->post_type );
 		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
-			$non_existant_post                    = new stdClass();
+			$non_existant_post                    = new \stdClass();
 			$non_existant_post->ID                = $post->ID;
 			$non_existant_post->post_modified     = $post->post_modified;
 			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
