@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class WP_Super_Cache extends Jetpack_Sync_Module {
+class WP_Super_Cache extends \Jetpack_Sync_Module {
 
 	public function __construct() {
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_wp_super_cache_constants_whitelist' ), 10 );
