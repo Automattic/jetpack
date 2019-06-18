@@ -229,7 +229,7 @@ class Jetpack_Calypsoify {
 	public function add_custom_menus() {
 		global $menu, $submenu;
 
-		if ( isset($_GET['post_type']) && 'feedback' === $_GET['post_type'] ) {
+		if ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) {
 			// there is currently no gridicon for feedback, so using dashicon.
 			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
 			remove_menu_page( 'options-general.php' );
