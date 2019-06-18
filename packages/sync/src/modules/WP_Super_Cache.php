@@ -1,5 +1,7 @@
 <?php
 
+namespace Automattic\Jetpack\Sync\Modules;
+
 class WP_Super_Cache extends Jetpack_Sync_Module {
 
 	public function __construct() {
