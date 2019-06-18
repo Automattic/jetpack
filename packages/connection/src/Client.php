@@ -1,13 +1,23 @@
 <?php
+/**
+ * The Connection Client class file.
+ *
+ * @package jetpack-connection
+ */
 
 namespace Automattic\Jetpack\Connection;
 
+/**
+ * The Client class that is used to connect to WordPress.com Jetpack API.
+ */
 class Client {
 	const WPCOM_JSON_API_VERSION = '1.1';
 
 	/**
 	 * Makes an authorized remote request using Jetpack_Signature
 	 *
+	 * @param Array        $args the arguments for the remote request.
+	 * @param Array|String $body the request body.
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
@@ -29,13 +39,13 @@ class Client {
 
 		$args['blog_id'] = (int) $args['blog_id'];
 
-		if ( 'header' != $args['auth_location'] ) {
+		if ( 'header' !== $args['auth_location'] ) {
 			$args['auth_location'] = 'query_string';
 		}
 
 		$token = \Jetpack_Data::get_access_token( $args['user_id'] );
 		if ( ! $token ) {
-			return new Jetpack_Error( 'missing_token' );
+			return new \WP_Error( 'missing_token' );
 		}
 
 		$method = strtoupper( $args['method'] );
@@ -49,9 +59,9 @@ class Client {
 
 		$request = compact( 'method', 'body', 'timeout', 'redirection', 'stream', 'filename', 'sslverify' );
 
-		@list( $token_key, $secret ) = explode( '.', $token->secret );
+		@list( $token_key, $secret ) = explode( '.', $token->secret ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( empty( $token ) || empty( $secret ) ) {
-			return new Jetpack_Error( 'malformed_token' );
+			return new \WP_Error( 'malformed_token' );
 		}
 
 		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
@@ -64,10 +74,10 @@ class Client {
 		if ( function_exists( 'wp_generate_password' ) ) {
 			$nonce = wp_generate_password( 10, false );
 		} else {
-			$nonce = substr( sha1( rand( 0, 1000000 ) ), 0, 10 );
+			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
 		}
 
-		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing
+		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing.
 		if ( is_null( $body ) ) {
 			$body_hash = '';
 
@@ -79,14 +89,14 @@ class Client {
 				// We cast this to a new variable, because the array form of $body needs to be
 				// maintained so it can be passed into the request later on in the code.
 				if ( count( $body ) > 0 ) {
-					$body_to_hash = json_encode( self::_stringify_data( $body ) );
+					$body_to_hash = wp_json_encode( self::_stringify_data( $body ) );
 				} else {
 					$body_to_hash = '';
 				}
 			}
 
 			if ( ! is_string( $body_to_hash ) ) {
-				return new \Jetpack_Error( 'invalid_body', 'Body is malformed.' );
+				return new \WP_Error( 'invalid_body', 'Body is malformed.' );
 			}
 
 			$body_hash = Jetpack::connection()->sha1_base64( $body_to_hash );
@@ -108,7 +118,7 @@ class Client {
 			$url_args = array();
 		}
 
-		if ( 'header' != $args['auth_location'] ) {
+		if ( 'header' !== $args['auth_location'] ) {
 			$url_args += $auth;
 		}
 
@@ -121,7 +131,7 @@ class Client {
 			return $signature;
 		}
 
-		// Send an Authorization header so various caches/proxies do the right thing
+		// Send an Authorization header so various caches/proxies do the right thing.
 		$auth['signature'] = $signature;
 		$auth['version']   = JETPACK__VERSION;
 		$header_pieces     = array();
@@ -135,8 +145,8 @@ class Client {
 			)
 		);
 
-		if ( 'header' != $args['auth_location'] ) {
-			$url = add_query_arg( 'signature', urlencode( $signature ), $url );
+		if ( 'header' !== $args['auth_location'] ) {
+			$url = add_query_arg( 'signature', rawurlencode( $signature ), $url );
 		}
 
 		return self::_wp_remote_request( $url, $request );
@@ -155,6 +165,9 @@ class Client {
 	 * @internal
 	 * @see Jetpack::fix_url_for_bad_hosts()
 	 *
+	 * @param String  $url the request URL.
+	 * @param Array   $args request arguments.
+	 * @param Boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
@@ -179,18 +192,18 @@ class Client {
 		}
 
 		if ( (int) $fallback ) {
-			// We're flagged to fallback
+			// We're flagged to fallback.
 			$args['sslverify'] = false;
 		}
 
 		$response = wp_remote_request( $url, $args );
 
 		if (
-			! $set_fallback                                     // We're not allowed to set the flag on this request, so whatever happens happens
+			! $set_fallback                                     // We're not allowed to set the flag on this request, so whatever happens happens.
 			||
-			isset( $args['sslverify'] ) && ! $args['sslverify'] // No verification - no point in doing it again
+			isset( $args['sslverify'] ) && ! $args['sslverify'] // No verification - no point in doing it again.
 			||
-			! is_wp_error( $response )                          // Let it ride
+			! is_wp_error( $response )                          // Let it ride.
 		) {
 			self::set_time_diff( $response, $set_fallback );
 			return $response;
@@ -202,17 +215,17 @@ class Client {
 
 		// Is it an SSL Certificate verification error?
 		if (
-			false === strpos( $message, '14090086' ) // OpenSSL SSL3 certificate error
+			false === strpos( $message, '14090086' ) // OpenSSL SSL3 certificate error.
 			&&
-			false === strpos( $message, '1407E086' ) // OpenSSL SSL2 certificate error
+			false === strpos( $message, '1407E086' ) // OpenSSL SSL2 certificate error.
 			&&
-			false === strpos( $message, 'error setting certificate verify locations' ) // cURL CA bundle not found
+			false === strpos( $message, 'error setting certificate verify locations' ) // cURL CA bundle not found.
 			&&
 			false === strpos( $message, 'Peer certificate cannot be authenticated with' ) // cURL CURLE_SSL_CACERT: CA bundle found, but not helpful
-			// different versions of curl have different error messages
-			// this string should catch them all
+			// Different versions of curl have different error messages
+			// this string should catch them all.
 			&&
-			false === strpos( $message, 'Problem with the SSL CA cert' ) // cURL CURLE_SSL_CACERT_BADFILE: probably access rights
+			false === strpos( $message, 'Problem with the SSL CA cert' ) // cURL CURLE_SSL_CACERT_BADFILE: probably access rights.
 		) {
 			// No, it is not.
 			return $response;
@@ -223,7 +236,7 @@ class Client {
 		$response          = wp_remote_request( $url, $args );
 
 		if ( ! is_wp_error( $response ) ) {
-			// The request went through this time, flag for future fallbacks
+			// The request went through this time, flag for future fallbacks.
 			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', time() );
 			self::set_time_diff( $response, $set_fallback );
 		}
@@ -231,27 +244,35 @@ class Client {
 		return $response;
 	}
 
+	/**
+	 * Sets the time difference for correct signature computation.
+	 *
+	 * @param HTTP_Response $response the response object.
+	 * @param Boolean       $force_set whether to force setting the time difference.
+	 */
 	public static function set_time_diff( &$response, $force_set = false ) {
 		$code = wp_remote_retrieve_response_code( $response );
 
-		// Only trust the Date header on some responses
-		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) {
+		// Only trust the Date header on some responses.
+		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  WordPress.PHP.StrictComparisons.LooseComparison
 			return;
 		}
 
-		if ( ! $date = wp_remote_retrieve_header( $response, 'date' ) ) {
+		$date = wp_remote_retrieve_header( $response, 'date' );
+		if ( ! $date ) {
 			return;
 		}
 
-		if ( 0 >= $time = (int) strtotime( $date ) ) {
+		$time = (int) strtotime( $date );
+		if ( 0 >= $time ) {
 			return;
 		}
 
 		$time_diff = $time - time();
 
-		if ( $force_set ) { // during register
+		if ( $force_set ) { // During register.
 			\Jetpack_Options::update_option( 'time_diff', $time_diff );
-		} else { // otherwise
+		} else { // Otherwise.
 			$old_diff = \Jetpack_Options::get_option( 'time_diff' );
 			if ( false === $old_diff || abs( $time_diff - (int) $old_diff ) > 10 ) {
 				\Jetpack_Options::update_option( 'time_diff', $time_diff );
@@ -270,7 +291,13 @@ class Client {
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */
-	public static function wpcom_json_api_request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom' ) {
+	public static function wpcom_json_api_request_as_user(
+		$path,
+		$version = '2',
+		$args = array(),
+		$body = null,
+		$base_api_path = 'wpcom'
+	) {
 		$base_api_path = trim( $base_api_path, '/' );
 		$version       = ltrim( $version, 'v' );
 		$path          = ltrim( $path, '/' );
@@ -306,14 +333,20 @@ class Client {
 	/**
 	 * Query the WordPress.com REST API using the blog token
 	 *
-	 * @param string $path
-	 * @param string $version
-	 * @param array  $args
-	 * @param string $body
-	 * @param string $base_api_path
-	 * @return array|WP_Error $response Data.
+	 * @param String $path The API endpoint relative path.
+	 * @param String $version The API version.
+	 * @param Array  $args Request arguments.
+	 * @param String $body Request body.
+	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
+	 * @return Array|WP_Error $response Data.
 	 */
-	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null, $base_api_path = 'rest' ) {
+	public static function wpcom_json_api_request_as_blog(
+		$path,
+		$version = self::WPCOM_JSON_API_VERSION,
+		$args = array(),
+		$body = null,
+		$base_api_path = 'rest'
+	) {
 		$filtered_args = array_intersect_key(
 			$args,
 			array(
@@ -327,10 +360,10 @@ class Client {
 			)
 		);
 
-		// unprecedingslashit
+		// unprecedingslashit.
 		$_path = preg_replace( '/^\//', '', $path );
 
-		// Use GET by default whereas `remote_request` uses POST
+		// Use GET by default whereas `remote_request` uses POST.
 		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
 
 		$url = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $_path );
@@ -352,7 +385,7 @@ class Client {
 	 * make sure that body hashes are made ith the string version, which is what will be seen after a
 	 * server pulls up the data in the $_POST array.
 	 *
-	 * @param array|mixed $data
+	 * @param Array|Mixed $data the data that needs to be stringified.
 	 *
 	 * @return array|string
 	 */
