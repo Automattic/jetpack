@@ -153,9 +153,13 @@ class Manager implements Manager_Interface {
 	 * @return String API URL.
 	 */
 	public function api_url( $relative_url ) {
+		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+		$version  = Constants::get_constant( 'JETPACK__API_VERSION' );
 
-		// TODO: rely on constants to override the default
-		return rtrim( 'https://jetpack.wordpress.com/jetpack.' . $relative_url, '/\\' ) . '/1/';
+		$api_base = $api_base ? $api_base : 'https://jetpack.wordpress.com/jetpack.';
+		$version  = $version ? '/' . $version . '/' : '/1/';
+
+		return rtrim( $api_base . $relative_url, '/\\' ) . $version;
 	}
 
 	/**
@@ -179,8 +183,8 @@ class Manager implements Manager_Interface {
 			return new \WP_Error( 'missing_secrets' );
 		}
 
-		// better to try (and fail) to set a higher timeout than this system
-		// supports than to have register fail for more users than it should
+		// Better to try (and fail) to set a higher timeout than this system
+		// supports than to have register fail for more users than it should.
 		$timeout = $this->set_min_time_limit( 60 ) / 2;
 
 		$gmt_offset = get_option( 'gmt_offset' );
@@ -190,8 +194,8 @@ class Manager implements Manager_Interface {
 
 		$stats_options = get_option( 'stats_options' );
 		$stats_id      = isset( $stats_options['blog_id'] )
-				  ? $stats_options['blog_id']
-				  : null;
+			? $stats_options['blog_id']
+			: null;
 
 		$args = array(
 			'method'  => 'POST',
@@ -208,7 +212,7 @@ class Manager implements Manager_Interface {
 				'stats_id'        => $stats_id,
 				'state'           => get_current_user_id(),
 				'site_created'    => $this->get_assumed_site_creation_date(),
-				'jetpack_version' => JETPACK__VERSION,
+				'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
@@ -218,14 +222,14 @@ class Manager implements Manager_Interface {
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
 
-		// TODO: fix URLs for bad hosts
-		$response = \Jetpack_Client::_wp_remote_request(
+		// TODO: fix URLs for bad hosts.
+		$response = Client::_wp_remote_request(
 			$this->api_url( 'register' ),
 			$args,
 			true
 		);
 
-		// Make sure the response is valid and does not contain any Jetpack errors
+		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
 
 		if ( is_wp_error( $registration_details ) ) {
@@ -286,7 +290,9 @@ class Manager implements Manager_Interface {
 	 * verifies it worked properly.
 	 *
 	 * @since 2.6
-	 * @return string|Jetpack_Error A JSON object on success or Jetpack_Error on failures
+	 *
+	 * @param Mixed $response the response object, or the error object.
+	 * @return string|WP_Error A JSON object on success or Jetpack_Error on failures
 	 **/
 	protected function validate_remote_register_response( $response ) {
 		if ( is_wp_error( $response ) ) {
@@ -306,20 +312,20 @@ class Manager implements Manager_Interface {
 		}
 
 		$code_type = intval( $code / 100 );
-		if ( 5 == $code_type ) {
+		if ( 5 === $code_type ) {
 			return new \WP_Error( 'wpcom_5??', $code );
-		} elseif ( 408 == $code ) {
+		} elseif ( 408 === $code ) {
 			return new \WP_Error( 'wpcom_408', $code );
 		} elseif ( ! empty( $registration_response->error ) ) {
 			if (
-				'xml_rpc-32700' == $registration_response->error
+				'xml_rpc-32700' === $registration_response->error
 				&& ! function_exists( 'xml_parser_create' )
 			) {
 				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
 			} else {
 				$error_description = isset( $registration_response->error_description )
-								   ? (string) $registration_response->error_description
-								   : '';
+					? (string) $registration_response->error_description
+					: '';
 			}
 
 			return new \WP_Error(
@@ -327,26 +333,29 @@ class Manager implements Manager_Interface {
 				$error_description,
 				$code
 			);
-		} elseif ( 200 != $code ) {
+		} elseif ( 200 !== $code ) {
 			return new \WP_Error( 'wpcom_bad_response', $code );
 		}
 
-		// Jetpack ID error block
+		// Jetpack ID error block.
 		if ( empty( $registration_response->jetpack_id ) ) {
 			return new \WP_Error(
 				'jetpack_id',
+				/* translators: %s is an error message string */
 				sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
 				$entity
 			);
 		} elseif ( ! is_scalar( $registration_response->jetpack_id ) ) {
 			return new \WP_Error(
 				'jetpack_id',
+				/* translators: %s is an error message string */
 				sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
 				$entity
 			);
 		} elseif ( preg_match( '/[^0-9]/', $registration_response->jetpack_id ) ) {
 			return new \WP_Error(
 				'jetpack_id',
+				/* translators: %s is an error message string */
 				sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ), $entity ),
 				$entity
 			);
@@ -366,7 +375,7 @@ class Manager implements Manager_Interface {
 	public function get_max_execution_time() {
 		$timeout = (int) ini_get( 'max_execution_time' );
 
-		// Ensure exec time set in php.ini
+		// Ensure exec time set in php.ini.
 		if ( ! $timeout ) {
 			$timeout = 30;
 		}
@@ -377,6 +386,7 @@ class Manager implements Manager_Interface {
 	 * Sets a minimum request timeout, and returns the current timeout
 	 *
 	 * @since 5.4
+	 * @param Integer $min_timeout the minimum timeout value.
 	 **/
 	public function set_min_time_limit( $min_timeout ) {
 		$timeout = $this->get_max_execution_time();
@@ -429,6 +439,12 @@ class Manager implements Manager_Interface {
 		return min( $earliest_registration_date, $earliest_post_date );
 	}
 
+	/**
+	 * Adds the activation source string as a parameter to passed arguments.
+	 *
+	 * @param Array $args arguments that need to have the source added.
+	 * @return Array $amended arguments.
+	 */
 	public static function apply_activation_source_to_args( $args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
 
