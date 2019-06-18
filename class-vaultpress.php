@@ -1,7 +1,7 @@
 <?php
 /**
  * Main VaultPress class.
- * 
+ *
  * @package VaultPress
  */
 
@@ -572,7 +572,7 @@ class VaultPress {
 					<img src="<?php echo esc_url( plugins_url( 'images/security.svg', __FILE__ ) ); ?>" alt="VaultPress">
 					<h2><?php _e( 'The VaultPress plugin requires a subscription.', 'vaultpress' ); ?></h2>
 					<p><?php _e( 'Get realtime backups, automated security scanning, and support from WordPress&nbsp;experts.', 'vaultpress' ); ?></p>
-					<a class="dops-button is-primary" href="https://vaultpress.com/plugin/?utm_source=plugin-unregistered&amp;utm_medium=view-plans-and-pricing&amp;utm_campaign=1.0-plugin"><?php _e( 'View plans and pricing', 'vaultpress' ); ?></a>
+					<a class="dops-button is-primary" href="https://vaultpress.com/plugin/?utm_source=plugin-unregistered&amp;utm_medium=view-plans-and-pricing&amp;utm_campaign=1.0-plugin" target="_blank" rel="noopener noreferrer"><?php _e( 'View plans and pricing', 'vaultpress' ); ?></a>
 				</div>
 			</div>
 
