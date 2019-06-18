@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules\Menus;
 
 if ( ! class_exists( 'WP_Test_Jetpack_Sync_Plugins' ) ) {
 	$sync_dir        = dirname( __FILE__ );
