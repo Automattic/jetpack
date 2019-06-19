@@ -547,7 +547,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on security' ) }</h3>
 								<p>
 									{ __(
 										'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
@@ -651,7 +651,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Site activity' ) }</h3>
 								<p>
 									{ __(
 										'View a chronological list of all the changes and updates to your site in an organized, readable way.'
