@@ -206,7 +206,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Built-in Performance' ) }
+									{ __( 'Optimized performance' ) }
 								</h3>
 								<p>
 									{ __(
@@ -572,7 +572,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Built-in Performance' ) }
+									{ __( 'Optimized performance' ) }
 								</h3>
 								<p>
 									{ __(
