@@ -417,7 +417,7 @@ class Queue {
 	}
 
 	private function validate_checkout( $buffer ) {
-		if ( ! $buffer instanceof Automattic\Jetpack\Sync\Queue_Buffer ) {
+		if ( ! $buffer instanceof Queue_Buffer ) {
 			return new \WP_Error( 'not_a_buffer', 'You must checkin an instance of Automattic\\Jetpack\\Sync\\Queue_Buffer' );
 		}
 

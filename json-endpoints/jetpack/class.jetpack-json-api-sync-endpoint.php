@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Queue;
+use Automattic\Jetpack\Sync\Queue_Buffer;
 use Automattic\Jetpack\Sync\Sender;
 
 // POST /sites/%s/sync
@@ -162,7 +164,7 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 		}
 
 		$sender = Sender::get_instance();
-		$response = $sender->do_sync_for_queue( new Jetpack_Sync_Queue( $args['queue'] ) );
+		$response = $sender->do_sync_for_queue( new Queue( $args['queue'] ) );
 
 		return array(
 			'response' => $response
@@ -183,7 +185,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
 		}
 
-		$queue = new Jetpack_Sync_Queue( $queue_name );
+		$queue = new Queue( $queue_name );
 
 		if ( 0 === $queue->size() ) {
 			return new WP_Error( 'queue_size', 'The queue is empty and there is nothing to send', 400 );
@@ -265,8 +267,8 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		$request_body ['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
 		$request_body['item_ids'] = array_filter( array_map( array( 'Jetpack_JSON_API_Sync_Close_Endpoint', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
-		$buffer = new Jetpack_Sync_Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
-		$queue = new Jetpack_Sync_Queue( $queue_name );
+		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
+		$queue = new Queue( $queue_name );
 
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
@@ -301,7 +303,7 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
 		}
 
-		$queue = new Jetpack_Sync_Queue( $args['queue'] );
+		$queue = new Queue( $args['queue'] );
 
 		// False means that there was no lock to delete.
 		$response = $queue->unlock();

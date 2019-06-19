@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Queue;
 
 /**
  * This class does a full resync of the database by
@@ -125,7 +126,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 		// if full sync queue is full, don't enqueue more items
 		$max_queue_size_full_sync = Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
-		$full_sync_queue          = new Jetpack_Sync_Queue( 'full_sync' );
+		$full_sync_queue          = new Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
 

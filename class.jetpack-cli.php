@@ -4,6 +4,7 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Queue;
 
 /**
  * Control your local Jetpack installation.
@@ -1035,7 +1036,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch( $action ) {
 			case 'peek':
-				$queue = new Jetpack_Sync_Queue( $mapped_queue_name );
+				$queue = new Queue( $mapped_queue_name );
 				$items = $queue->peek( 100 );
 
 				if ( empty( $items ) ) {
