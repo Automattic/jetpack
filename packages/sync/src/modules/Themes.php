@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Themes extends \Jetpack_Sync_Module {
 	function name() {
 		return 'themes';
 	}
@@ -293,7 +295,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		if ( 'install' === $details['action'] ) {
 			$theme = $upgrader->theme_info();
-			if ( ! $theme instanceof WP_Theme ) {
+			if ( ! $theme instanceof \WP_Theme ) {
 				return;
 			}
 			$theme_info = array(
@@ -324,7 +326,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			foreach ( $details['themes'] as $theme_slug ) {
 				$theme = wp_get_theme( $theme_slug );
 
-				if ( ! $theme instanceof WP_Theme ) {
+				if ( ! $theme instanceof \WP_Theme ) {
 					continue;
 				}
 
@@ -578,7 +580,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		if ( $theme === null ) {
 			$theme = wp_get_theme();
 
-			foreach ( Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
+			foreach ( \Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
 				$has_support = current_theme_supports( $theme_feature );
 				if ( $has_support ) {
 					$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];

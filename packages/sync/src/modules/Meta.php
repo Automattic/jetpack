@@ -1,7 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
 
+class Meta extends \Jetpack_Sync_Module {
 	public function name() {
 		return 'meta';
 	}

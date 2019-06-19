@@ -36,11 +36,10 @@ export const Masterbar = withModuleSettingsFormHelpers(
 					>
 						<p>
 							{ __(
-								'The WordPress.com toolbar replaces the default WordPress ' +
-									'admin toolbar and streamlines your WordPress experience. ' +
-									'It offers one-click access to manage all your sites, ' +
-									'update your WordPress.com profile, view notifications, ' +
-									'and catch up on the sites you follow in the Reader.'
+								'The WordPress.com toolbar replaces the default WordPress admin toolbar. ' +
+									'It offers one-click access to notifcations, your WordPress.com ' +
+									'profile and your other Jetpack and WordPress.com websites. ' +
+									'You can also catch up on the sites you follow in the Reader.'
 							) }
 						</p>
 						<ModuleToggle

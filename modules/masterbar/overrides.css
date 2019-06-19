@@ -75,6 +75,12 @@
 	font-size: 28px;
 }
 
+.jetpack-masterbar #wpadminbar #wp-admin-bar-recovery-mode {
+	background-color: #ca4a1f;
+	color: #fff;
+	margin-right: 1em;
+}
+
 @media screen and (max-width: 480px) {
 	.jetpack-masterbar.post-new-php.block-editor-page #wp-toolbar ul li {
 		flex: 1;
@@ -118,5 +124,9 @@
 
 	.jetpack-masterbar.post-new-php.block-editor-page #wpadminbar li#wp-admin-bar-newdash {
 		order: 3;
+	}
+
+	.jetpack-masterbar #wpadminbar #wp-admin-bar-recovery-mode {
+		display: none;
 	}
 }

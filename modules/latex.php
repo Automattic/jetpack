@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Beautiful Math
- * Module Description: Use the LaTeX markup language to write mathematical equations and formulas.
+ * Module Description: Use the LaTeX markup language to write mathematical equations and formulas
  * Sort Order: 12
  * First Introduced: 1.1
  * Requires Connection: No
