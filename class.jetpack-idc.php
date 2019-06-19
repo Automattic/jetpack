@@ -41,7 +41,7 @@ class Jetpack_IDC {
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_IDC();
+			self::$instance = new Jetpack_IDC;
 		}
 
 		return self::$instance;
@@ -254,6 +254,7 @@ class Jetpack_IDC {
 	 * Enqueue scripts for the notice
 	 */
 	function enqueue_idc_notice_files() {
+
 		wp_enqueue_script(
 			'jetpack-idc-js',
 			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),

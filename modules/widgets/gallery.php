@@ -49,7 +49,6 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 				add_action( 'wp_enqueue_scripts', array( $carousel, 'enqueue_assets' ) );
 			}
 		}
-
 	}
 
 	/**

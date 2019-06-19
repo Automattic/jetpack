@@ -100,4 +100,4 @@ class Jetpack_Gallery_Settings {
 		<?php
 	}
 }
-new Jetpack_Gallery_Settings();
+new Jetpack_Gallery_Settings;

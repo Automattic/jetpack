@@ -829,4 +829,4 @@ class Jetpack_Carousel {
 	}
 }
 
-new Jetpack_Carousel();
+new Jetpack_Carousel;

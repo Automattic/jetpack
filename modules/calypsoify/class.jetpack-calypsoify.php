@@ -1,7 +1,4 @@
 <?php
-
-use Automattic\Jetpack\Assets;
-
 /**
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
  * Ported from an internal Automattic plugin.
@@ -201,7 +198,7 @@ class Jetpack_Calypsoify {
 
 	public function mock_masterbar_activation() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
-		new A8C_WPCOM_Masterbar();
+		new A8C_WPCOM_Masterbar;
 	}
 
 	public function remove_core_menus() {

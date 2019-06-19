@@ -28,8 +28,6 @@ class JITM {
 
 	/**
 	 * JITM constructor.
-	 *
-	 * @param \Automattic\Jetpack\Assets $assets
 	 */
 	public function __construct() {
 		$this->tracking = new Tracking();

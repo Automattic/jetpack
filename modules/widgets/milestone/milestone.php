@@ -57,7 +57,6 @@ class Milestone_Widget extends WP_Widget {
 		if ( is_active_widget( false, false, $this->id_base, true ) || is_active_widget( false, false, 'monster', true ) || is_customize_preview() ) {
 			add_action( 'wp_head', array( __class__, 'styles_template' ) );
 		}
-
 	}
 
 	public static function enqueue_admin( $hook_suffix ) {

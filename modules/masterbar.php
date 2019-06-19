@@ -1,7 +1,4 @@
 <?php
-
-use Automattic\Jetpack\Assets;
-
 /**
  * Module Name: WordPress.com Toolbar
  * Module Description: Replaces the admin bar with a useful toolbar to quickly manage your site via WordPress.com.

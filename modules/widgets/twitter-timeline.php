@@ -20,7 +20,6 @@ function jetpack_twitter_timeline_widget_init() {
 }
 
 class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
-
 	/**
 	 * Register widget with WordPress.
 	 */

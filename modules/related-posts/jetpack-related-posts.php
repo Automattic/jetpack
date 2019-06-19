@@ -54,7 +54,6 @@ class Jetpack_RelatedPosts {
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
 	 * @uses get_option, add_action, apply_filters
-	 * @param Assets $assets
 	 *
 	 * @return null
 	 */
@@ -78,8 +77,6 @@ class Jetpack_RelatedPosts {
 				'render_callback' => array( $this, 'render_block' ),
 			)
 		);
-
-		;
 	}
 
 	protected function get_blog_id() {

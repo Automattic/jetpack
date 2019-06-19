@@ -29,7 +29,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	// Renders the module list table where you can use bulk action or row
 	// actions to activate/deactivate and configure modules
 	function page_render() {
-		$list_table = new Jetpack_Modules_List_Table();
+		$list_table = new Jetpack_Modules_List_Table;
 
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );

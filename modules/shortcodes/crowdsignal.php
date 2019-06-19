@@ -1,5 +1,4 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
 /**
  * Crowdsignal (PollDaddy) shortcode.
  *
