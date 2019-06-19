@@ -54,7 +54,6 @@ $wp_super_cache_front_page_clear = 0;
 $wp_super_cache_front_page_check = 0;
 $wp_super_cache_front_page_notification = '0';
 
-$wp_cache_object_cache = 0;
 $wp_cache_anon_only = 0;
 $wp_supercache_cache_list = 0;
 $wp_cache_debug_to_file = 0;
@@ -76,6 +75,7 @@ $wp_cache_pages[ "author" ] = 0;
 $wp_cache_hide_donation = 0;
 $wp_cache_not_logged_in = 0;
 $wp_cache_clear_on_post_edit = 0;
+$wp_cache_hello_world = 0;
 $wp_cache_mobile_enabled = 0;
 $wp_cache_cron_check = 0;
 $wp_cache_mfunc_enabled = 0;

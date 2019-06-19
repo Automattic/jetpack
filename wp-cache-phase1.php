@@ -111,18 +111,6 @@ if ( function_exists( 'add_filter' ) ) { // loaded since WordPress 4.6
 
 $wp_cache_request_uri = $_SERVER['REQUEST_URI']; // Cache this in case any plugin modifies it.
 
-if ( $wp_cache_object_cache ) {
-	if ( ! include_once WP_CONTENT_DIR . '/object-cache.php' ) {
-		return;
-	}
-
-	wp_cache_init(); // Note: wp-settings.php calls wp_cache_init() which clobbers the object made here.
-
-	if ( ! is_object( $wp_object_cache ) ) {
-		return;
-	}
-}
-
 if ( defined( 'DOING_CRON' ) ) {
 	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
 	return true;
