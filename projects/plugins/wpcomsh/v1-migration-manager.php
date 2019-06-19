@@ -289,27 +289,10 @@ class V1_Migration_Manager {
 					echo 'FALSE';
 					break;
 			}
-
-			die();
-		}
-
-			switch ( $uri ) {
-				case '/wp-json/wp/v2/v1-migration-lock':
-					$migration_timeout = isset( $_GET[ 'timeout' ] ) && $_GET[ 'timeout' ];
-					if ( ! $migration_timeout ) {
-						$migration_timeout = strtotime( '+2 hours' );
-					}
-					set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
-					break;
-				case '/wp-json/wp/v2/get-migration-lock':
-					$migration_lock = get_option( 'wpcom_atomic_migration_lock', 'FALSE' );
-					echo $migration_lock;
-					break;
-
-			}
 			die();
 		}
 	}
+
 
 	/**
 	 * Factory method to initiate the migration manager.
