@@ -76,8 +76,6 @@ class Jetpack_Comic {
 		add_action( 'admin_footer-edit.php', array( $this, 'admin_footer' ) );
 		add_action( 'load-edit.php', array( $this, 'bulk_edit' ) );
 		add_action( 'admin_notices', array( $this, 'bulk_edit_notices' ) );
-
-		;
 	}
 
 	public function admin_footer() {

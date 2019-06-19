@@ -1082,7 +1082,6 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
-		// die("code running" );
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
 			wp_register_script(
 				'spin',
