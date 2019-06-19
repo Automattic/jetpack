@@ -100,7 +100,7 @@ class VerificationServicesComponent extends React.Component {
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Verify your site with various services' ) }
+							{ __( 'Verify site ownership with third party services' ) }
 						</span>
 					</ModuleToggle>
 					<p>
