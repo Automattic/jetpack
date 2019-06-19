@@ -232,15 +232,19 @@ class WordAds {
 		}
 
 		if ( $this->option( 'enable_header_ad', true ) ) {
-			switch ( get_stylesheet() ) {
-				case 'twentyseventeen':
-				case 'twentyfifteen':
-				case 'twentyfourteen':
-					add_action( 'wp_footer', array( $this, 'insert_header_ad_special' ) );
-					break;
-				default:
-					add_action( 'wp_head', array( $this, 'insert_header_ad' ), 100 );
-					break;
+			if ( $this->is_amp() ) {
+				add_filter( 'the_content', array( $this, 'insert_header_ad_amp' ) );
+			} else {
+				switch ( get_stylesheet() ) {
+					case 'twentyseventeen':
+					case 'twentyfifteen':
+					case 'twentyfourteen':
+						add_action( 'wp_footer', array( $this, 'insert_header_ad_special' ) );
+						break;
+					default:
+						add_action( 'wp_head', array( $this, 'insert_header_ad' ), 100 );
+						break;
+				}
 			}
 		}
 	}
@@ -422,11 +426,27 @@ HTML;
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
 		echo $this->get_ad( 'top', $ad_type );
-		echo <<<HTML
+		if ( ! $this->is_amp() ) {
+			echo <<<HTML
 		<script type="text/javascript">
 			jQuery('.wpcnt-header').insertBefore('$selector');
 		</script>
 HTML;
+		}
+	}
+
+	/**
+	 * Header unit for AMP
+	 *
+	 * @param string $content Content of the page.
+	 *
+	 * @since 7.5.0
+	 */
+	public function insert_header_ad_amp( $content ) {
+
+		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
+		return $this->get_ad( 'top', $ad_type ) . $content;
+
 	}
 
 	/**
