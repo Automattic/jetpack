@@ -24,7 +24,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let visitors use a WordPress.com, Twitter, Facebook, or Google account to comment', 'Module Description', 'jetpack' ),
 			),
 
 			'contact-form' => array(
@@ -34,8 +34,8 @@ function jetpack_get_module_i18n( $key ) {
 
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Copy an existing post\'s content into a new draft post', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Copy an existing post\'s content into a new draft post', 'Jumpstart Description', 'jetpack' ),
+				'description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'custom-content-types' => array(
@@ -75,7 +75,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'latex' => array(
 				'name' => _x( 'Beautiful Math', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas', 'Module Description', 'jetpack' ),
 			),
 
 			'lazy-images' => array(
@@ -133,7 +133,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'protect' => array(
 				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
@@ -183,7 +183,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'sso' => array(
 				'name' => _x( 'Secure Sign On', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow users to log into this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Allow users to log in to this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
 

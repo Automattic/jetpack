@@ -1,8 +1,10 @@
 <?php
 
+namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Constants;
 
-class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
+class Updates extends \Jetpack_Sync_Module {
 
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 

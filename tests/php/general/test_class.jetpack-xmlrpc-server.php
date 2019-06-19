@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Sender;
+
 require_once dirname( __FILE__ ) . '/../../../class.jetpack-xmlrpc-server.php';
 
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
@@ -28,7 +30,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$server = new Jetpack_XMLRPC_Server();
 		$response = $server->sync_object( array( 'posts', 'post', $post_id ) );
 
-		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$codec = Sender::get_instance()->get_codec();
 		$decoded_object = $codec->decode( $response );
 
 		$this->assertEquals( $post_id, $decoded_object->ID );
@@ -38,7 +40,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$server = new Jetpack_XMLRPC_Server();
 		$response = $server->sync_object( array( 'posts', 'post', 1000 ) );
 
-		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$codec = Sender::get_instance()->get_codec();
 		$decoded_object = $codec->decode( $response );
 
 		$this->assertFalse( $decoded_object );
@@ -50,7 +52,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$server = new Jetpack_XMLRPC_Server();
 		$response = $server->sync_object( array( 'users', 'user', $user_id ) );
 
-		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$codec = Sender::get_instance()->get_codec();
 		$decoded_object = $codec->decode( $response );
 
 		$this->assertFalse( isset( $decoded_object->user_pass ) );

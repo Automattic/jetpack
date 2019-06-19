@@ -1061,8 +1061,9 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 		'$post' => '(int) The post ID',
 	),
 	'response_format' => array(
-		'post' => '(array) Post table row',
-		'meta' => '(array) Associative array of key/value postmeta data',
+		'post'  => '(array) Post table row',
+		'meta'  => '(array) Associative array of key/value postmeta data',
+		'terms' => '(array) List of terms attached to the post object',
 	),
 	'example_request_data' => array(
 		'headers' => array(

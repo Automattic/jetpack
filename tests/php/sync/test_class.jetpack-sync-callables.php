@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
+use Automattic\Jetpack\Sync\Sender;
 
 require_once 'test_class.jetpack-sync-base.php';
 
@@ -403,7 +404,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertInternalType( 'array', get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable) );
 		}
 
-		Jetpack_Sync_Sender::get_instance()->uninstall();
+		Sender::get_instance()->uninstall();
 
 		foreach( $url_callables as $callable ) {
 			$this->assertFalse( get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
