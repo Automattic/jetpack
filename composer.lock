@@ -8,7 +8,7 @@
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
@@ -31,7 +31,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -68,7 +68,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -97,7 +97,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -135,7 +135,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -165,7 +165,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -192,11 +192,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "7feb756c23c7c54941fbd9620a22407fbaa59028",
+                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a",
                 "shasum": null
             },
             "require": {
@@ -209,6 +209,7 @@
                     "/legacy"
                 ],
                 "psr-4": {
+                    "Automattic\\Jetpack\\Sync\\": "src/",
                     "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
                 }
             },
@@ -219,7 +220,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -377,7 +378,7 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-dna-comments-module",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
