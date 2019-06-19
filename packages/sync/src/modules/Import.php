@@ -158,7 +158,7 @@ class Import extends \Jetpack_Sync_Module {
 			// Check if the class extends WP_Importer.
 			if ( class_exists( $class_name, false ) ) {
 				$parents = class_parents( $class_name, false );
-				if ( $parents && in_array( '\WP_Importer', $parents, true ) ) {
+				if ( $parents && in_array( 'WP_Importer', $parents, true ) ) {
 					return $class_name;
 				}
 			}
