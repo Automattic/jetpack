@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules\Stats;
-
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 //Mock object requiered for test_theme_update()
