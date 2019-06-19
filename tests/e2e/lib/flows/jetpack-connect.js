@@ -24,6 +24,7 @@ import { takeScreenshot } from '../reporters/screenshot';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
+const siteUrl = new URL( process.env.WP_BASE_URL ).host;
 
 /**
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
@@ -34,13 +35,8 @@ export async function connectThroughWPAdminIfNeeded( {
 	plan = 'pro',
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
-	console.log( await page.cookies() );
 	await ( await WPLoginPage.visit( page ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
-	console.log( await page.cookies() );
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, '.ngrok.io' );
-	console.log( await page.cookies() );
-
+	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -73,18 +69,11 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await ( await JetpackPage.init( page ) ).waitForPage();
 	console.log( '1' );
-
 	console.log( await page.cookies() );
 
-	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
-	// console.log( '2' );
-	// console.log( await page.cookies() );
-
-	// await page.waitFor( 5000 );
-	// await page.reload();
-
-	// console.log( '3' );
-	// console.log( await page.cookies() );
+	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
+	console.log( '2' );
+	console.log( await page.cookies() );
 
 	await jetpackPage.isPlan( plan );
 	const filePath = await takeScreenshot( 'whatever', 'name' );
