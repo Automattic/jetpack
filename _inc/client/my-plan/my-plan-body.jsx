@@ -635,7 +635,7 @@ class MyPlanBody extends React.Component {
 									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
 									href={ 'https://wordpress.com/marketing/connections/' + this.props.siteRawUrl }
 								>
-									{ __( 'Start publicizing now' ) }
+									{ __( 'Start sharing' ) }
 								</Button>
 							</div>
 						</div>
