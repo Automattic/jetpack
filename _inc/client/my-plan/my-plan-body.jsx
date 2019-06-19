@@ -680,7 +680,7 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Need help? Learn about getting started, customizing your site, using advanced code snippets and more.'
+										'Need help? Learn about getting started, customizing your site, using advanced code snippets, and more.'
 									) }
 								</p>
 								<Button
