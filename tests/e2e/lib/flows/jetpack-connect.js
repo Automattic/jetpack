@@ -35,7 +35,7 @@ export async function connectThroughWPAdminIfNeeded( {
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
 	await ( await WPLoginPage.visit( page ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, '.eu.ngrok.io' );
+	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -71,28 +71,17 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	console.log( await page.cookies() );
 
-	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, '.eu.ngrok.io' );
-	console.log( '2' );
-	console.log( await page.cookies() );
+	// await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
+	// console.log( '2' );
+	// console.log( await page.cookies() );
 
-	await page.waitFor( 5000 );
-	await page.reload();
+	// await page.waitFor( 5000 );
+	// await page.reload();
 
-	console.log( '3' );
-	console.log( await page.cookies() );
+	// console.log( '3' );
+	// console.log( await page.cookies() );
 
-	const list = await page.evaluate( () =>
-		wp.data
-			.select( 'core/blocks' )
-			.getBlockTypes()
-			.filter( b => b.category === 'jetpack' )
-	);
-	console.log( JSON.stringify( list ) );
-
-	if ( await jetpackPage.isPlan( plan ) ) {
-		console.log( 'Can see activated plan' );
-		return true;
-	}
+	await jetpackPage.isPlan( plan );
 	const filePath = await takeScreenshot( 'whatever', 'name' );
 	await sendFailedTestScreenshotToSlack( filePath );
 }
