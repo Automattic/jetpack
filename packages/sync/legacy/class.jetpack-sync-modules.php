@@ -24,8 +24,8 @@ class Jetpack_Sync_Modules {
 		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
 		'Automattic\\Jetpack\\Sync\\Modules\\Meta',
 		'Jetpack_Sync_Module_Plugins',
-		'Jetpack_Sync_Module_Full_Sync',
 		'Automattic\\Jetpack\\Sync\\Modules\\Stats',
+		'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
 	);
 
 	private static $initialized_modules = null;
