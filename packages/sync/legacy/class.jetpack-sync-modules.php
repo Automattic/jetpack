@@ -10,7 +10,7 @@ class Jetpack_Sync_Modules {
 	private static $default_sync_modules = array(
 		'Jetpack_Sync_Module_Constants',
 		'Automattic\\Jetpack\\Sync\\Modules\\Callables',
-		'Jetpack_Sync_Module_Network_Options',
+		'Automattic\\Jetpack\\Sync\\Modules\\Network_Options',
 		'Automattic\\Jetpack\\Sync\\Modules\\Options',
 		'Automattic\\Jetpack\\Sync\\Modules\\Terms',
 		'Automattic\\Jetpack\\Sync\\Modules\\Themes',
