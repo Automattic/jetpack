@@ -10,6 +10,15 @@
  * @return bool
  */
 function wpcomsh_maybe_disable_spt( $should_disable ) {
+	// `environment-id` is added to Gutenframe `iframe` query args
+	// within the Calypso repo
+	$is_horizon = ( ! empty( $_GET['environment-id'] ) && $_GET['environment-id'] === 'horizon' );
+
+	// Never disable on Horizon
+	if ( $is_horizon ) {
+		return false;
+	}
+
 	$enabled_themes = [
 		'business',
 		'business-wpcom',
