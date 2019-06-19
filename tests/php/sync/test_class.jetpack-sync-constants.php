@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules\Constants;
+
 /**
  * Testing CRUD on Constants
  */
