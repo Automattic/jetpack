@@ -34,8 +34,13 @@ export async function connectThroughWPAdminIfNeeded( {
 	plan = 'pro',
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
+	console.log( await page.cookies() );
 	await ( await WPLoginPage.visit( page ) ).login();
 	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
+	console.log( await page.cookies() );
+	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, '.ngrok.io' );
+	console.log( await page.cookies() );
+
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -71,7 +76,7 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	console.log( await page.cookies() );
 
-	// await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
+	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, 'ngrok.io' );
 	// console.log( '2' );
 	// console.log( await page.cookies() );
 
