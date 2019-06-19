@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Listener;
-use Automattic\Jetpack\Sync\Modules\Constants as Constants_Sync_Module; // as because conflict with Constants used in children
+use Automattic\Jetpack\Sync\Modules\Constants;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 
@@ -68,12 +68,12 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 		// don't sync callables or constants every time - slows down tests
 		set_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
-		set_transient( Constants_Sync_Module::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
 	}
 
 	protected function resetCallableAndConstantTimeouts() {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_transient( Constants_Sync_Module::CONSTANTS_AWAIT_TRANSIENT_NAME );
+		delete_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 	}
 
 	public function test_pass() {
