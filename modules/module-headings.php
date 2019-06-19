@@ -34,8 +34,8 @@ function jetpack_get_module_i18n( $key ) {
 
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Copy an existing post\'s content into a new draft post', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Copy an existing post\'s content into a new draft post', 'Jumpstart Description', 'jetpack' ),
+				'description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'custom-content-types' => array(
@@ -75,7 +75,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'latex' => array(
 				'name' => _x( 'Beautiful Math', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas', 'Module Description', 'jetpack' ),
 			),
 
 			'lazy-images' => array(
