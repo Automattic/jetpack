@@ -14,6 +14,12 @@ class Tracking {
 	private $product_name;
 	private $connection;
 
+	/**
+	 * Creates the Tracking object.
+	 *
+	 * @param String                                $product_name the slug of the product that we are tracking.
+	 * @param Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
+	 */
 	function __construct( $product_name = 'jetpack', $connection = null ) {
 		$this->product_name = $product_name;
 		$this->connection   = $connection;

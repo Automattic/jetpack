@@ -20,11 +20,16 @@ class Jetpack_XMLRPC_Server {
 	 * The current user
 	 */
 	public $user = null;
-	
+
 	private $tracking;
-	
-	function __construct() {
-		$this->tracking = new Tracking();
+
+	/**
+	 * Creates a new XMLRPC server object.
+	 *
+	 * @param Automattic\Jetpack\Connection\Manager $manager the connection manager object.
+	 */
+	function __construct( $manager = null ) {
+		$this->tracking = new Tracking( 'jetpack', $manager );
 	}
 
 	/**
