@@ -16,7 +16,7 @@ class V1_Migration_Manager {
 	public $migration_activated;
 
 	public function __construct( $at_options ) {
-		$this->at_options = $at_options; 
+		$this->at_options = $at_options;
 		$this->options = wp_parse_args(
 			$at_options['v1_migration_options'] ?? [],
 			[
@@ -31,7 +31,7 @@ class V1_Migration_Manager {
 			]
 		);
 
-		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock', false );
+		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock', 0 );
 		if ( ! $this->migration_activated ) {
 			$this->migration_activated = $this->options['migration_active'];
 		}
@@ -82,6 +82,13 @@ class V1_Migration_Manager {
 	*/
 	public function is_query_ok_while_migrating( $query ) {
 		$q = ltrim($query, "\r\n\t (");
+
+		// check for the migration lock header. If set let the query continue
+		if ( ! empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
+			'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ]
+		) {
+			return true;
+		}
 
 		// Allow writes to wp_options when updating at_options.
 		if ( 1 === preg_match( '/at_options/', $q ) ) {
@@ -189,7 +196,7 @@ class V1_Migration_Manager {
 		<div class="notice notice-warning">
 			<h2>Scheduled Maintenance</h2>
 			<p>
-				We will be performing scheduled maintenance on <strong><?php echo $migration_day ?></strong> sometime between 9pm and 5am in the 
+				We will be performing scheduled maintenance on <strong><?php echo $migration_day ?></strong> sometime between 9pm and 5am in the
 <a href="https://en.support.wordpress.com/settings/time-settings/#change-timezone" >timezone</a> of your site.<br />
 				<?php if ( $show_migration_window ): ?>
 				The update will begin
@@ -212,7 +219,7 @@ class V1_Migration_Manager {
 	}
 
 	/**
-	 * Returns a checksum of posts data on /wp-json/wp/v2/posts-checksum requests 
+	 * Returns a checksum of posts data on /wp-json/wp/v2/posts-checksum requests
 	 */
 	public function handle_checksum_request() {
 		global $wpdb;
@@ -229,32 +236,84 @@ class V1_Migration_Manager {
 		}
 	}
 
-	/** 
+	/**
 	 * Toggles migration lock
 	 */
 	public function handle_migration_lock_request() {
-		if ( 
-			! empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
-			'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] 
-		) {
-			$uri = $_SERVER[ 'REQUEST_URI' ];
-
-			if ( '/wp-json/wp/v2/av1-migration-lock' ) {
-				$enable = isset( $_GET[ 'enable' ] ) && $_GET[ 'enable' ];
-				if ( $enable )  {
-					$migration_timeout = strtotime( '+2 hours' );
-					set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
-				} else {
-					delete_option( 'wpcom_atomic_migration_lock' );
-				}
-				die();
+		$uri = $_SERVER[ 'REQUEST_URI' ];
+		if ( '/wp-json/wp/v2/v1-migration-lock' === $uri ) {
+			$action = '';
+			if ( isset( $_GET['action'] ) ) {
+				$action = $_GET['action'];
 			}
+			switch ($action) {
+
+				case 'get':
+					$migration_lock = get_option( 'wpcom_atomic_migration_lock', 'FALSE' );
+					echo $migration_lock;
+					break;
+
+				case 'enable':
+					// Make sure the migration lock header is correct.
+					if ( empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) ||
+						'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' !== $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ]
+					) {
+						break;
+					}
+
+					$timeout = strtotime( '+2 hours' );
+					if ( isset( $_GET['timeout'] ) ) {
+						$timeout = $_GET['timeout'];
+					}
+
+					$option_set = set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
+
+					if ( $option_set ) {
+						echo 'TRUE';
+						break;
+					}
+
+					echo 'FALSE';
+					break;
+
+				case 'disable';
+					if ( ! $migration_lock_header_set ) {
+						break;
+					}
+	        $option_removed = delete_option( 'wpcom_atomic_migration_lock' );
+					if ( $option_removed ) {
+						echo 'TRUE';
+						break;
+					}
+
+					echo 'FALSE';
+					break;
+			}
+
+			die();
+		}
+
+			switch ( $uri ) {
+				case '/wp-json/wp/v2/v1-migration-lock':
+					$migration_timeout = isset( $_GET[ 'timeout' ] ) && $_GET[ 'timeout' ];
+					if ( ! $migration_timeout ) {
+						$migration_timeout = strtotime( '+2 hours' );
+					}
+					set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
+					break;
+				case '/wp-json/wp/v2/get-migration-lock':
+					$migration_lock = get_option( 'wpcom_atomic_migration_lock', 'FALSE' );
+					echo $migration_lock;
+					break;
+
+			}
+			die();
 		}
 	}
 
 	/**
 	 * Factory method to initiate the migration manager.
-	 * 
+	 *
 	 * @return bool|V1_Migration_Manager  returns false if the manager cannot be initialized.
 	 */
 	static function init() {
