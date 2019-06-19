@@ -124,7 +124,7 @@ class Import extends \Jetpack_Sync_Module {
 	 */
 	private static function get_calling_importer_class() {
 		// If WP_Importer doesn't exist, neither will any importer that extends it.
-		if ( ! class_exists( '\WP_Importer', false ) ) {
+		if ( ! class_exists( 'WP_Importer', false ) ) {
 			return 'unknown';
 		}
 
