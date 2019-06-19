@@ -30,6 +30,98 @@ class Manager implements Manager_Interface {
 	protected $secret_callable;
 
 	/**
+	 * Creates an instance of the connection manager.
+	 */
+	public function __construct() {
+	}
+
+	/**
+	 * Initializes required listeners. This is done separately from the constructors
+	 * because some objects sometimes need to instantiate separate objects of this class.
+	 */
+	public function init() {
+		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms.
+		if (
+			isset( $_GET['jetpack'] )
+			&& 'comms' === $_GET['jetpack']
+			&& isset( $_GET['for'] )
+			&& 'jetpack' === $_GET['for']
+		) {
+			if ( ! defined( 'XMLRPC_REQUEST' ) ) {
+				define( 'XMLRPC_REQUEST', true );
+			}
+
+			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
+
+			add_filter( 'xmlrpc_methods', array( $this, 'remove_non_jetpack_xmlrpc_methods' ), 1000 );
+		}
+
+		if (
+			defined( 'XMLRPC_REQUEST' )
+			&& XMLRPC_REQUEST
+			&& isset( $_GET['for'] )
+			&& 'jetpack' == $_GET['for']
+		) {
+			// Display errors can cause the XML to be not well formed.
+			// @ini_set( 'display_errors', false ); // phpcs:ignore
+
+			$this->xmlrpc_server = new \Jetpack_XMLRPC_Server( $this );
+
+			$this->require_jetpack_authentication();
+
+			if ( $this->is_active() ) {
+				// Hack to preserve $HTTP_RAW_POST_DATA.
+				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+
+				if ( $this->verify_xml_rpc_signature() ) {
+					// The actual API methods.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+				} else {
+					// The jetpack.authorize method should be available for unauthenticated users on a site with an
+					// active Jetpack connection, so that additional users can link their account.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
+				}
+			} else {
+				new XMLRPC_Connector( $this );
+
+				// The bootstrap API methods.
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+
+				if ( $this->verify_xml_rpc_signature() ) {
+					// The jetpack Provision method is available for blog-token-signed requests.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
+				}
+			}
+
+			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
+			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
+		} elseif (
+			is_admin() &&
+			isset( $_POST['action'] ) && (
+				'jetpack_upload_file' == $_POST['action'] ||
+				'jetpack_update_file' == $_POST['action']
+			)
+		) {
+			$this->require_jetpack_authentication();
+			$this->add_remote_request_handlers();
+		} else {
+			if ( $this->is_active() ) {
+				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
+				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
+			} else {
+				add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
+			}
+		}
+	}
+
+	/**
+	 * Initializes the REST API connector on the init hook.
+	 */
+	public function initialize_rest_api_registration_connector() {
+		new REST_Connector( $this );
+	}
+
+	/**
 	 * Initializes all needed hooks and request handlers. Handles API calls, upload
 	 * requests, authentication requests. Also XMLRPC options requests.
 	 * Fallback XMLRPC is also a bridge, but probably can be a class that inherits
@@ -42,6 +134,310 @@ class Manager implements Manager_Interface {
 	 */
 	public function initialize( $methods ) {
 		$methods;
+	}
+
+	/**
+	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
+	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
+	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
+	 * which is accessible via a different URI. Most of the below is copied directly
+	 * from /xmlrpc.php so that we're replicating it as closely as possible.
+	 */
+	public function alternate_xmlrpc() {
+		// phpcs:disable PHPCompatibility.Variables.RemovedPredefinedGlobalVariables.http_raw_post_dataDeprecatedRemoved
+		global $HTTP_RAW_POST_DATA;
+
+		// Some browser-embedded clients send cookies. We don't want them.
+		$_COOKIE = array();
+
+		// A bug in PHP < 5.2.2 makes $HTTP_RAW_POST_DATA not set by default,
+		// but we can do it ourself.
+		if ( ! isset( $HTTP_RAW_POST_DATA ) ) {
+			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
+		}
+
+		// fix for mozBlog and other cases where '<?xml' isn't on the very first line
+		if ( isset( $HTTP_RAW_POST_DATA ) ) {
+			$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
+		}
+
+		// phpcs:enable
+
+		include_once ABSPATH . 'wp-admin/includes/admin.php';
+		include_once ABSPATH . WPINC . '/class-IXR.php';
+		include_once ABSPATH . WPINC . '/class-wp-xmlrpc-server.php';
+
+		/**
+		 * Filters the class used for handling XML-RPC requests.
+		 *
+		 * @since 3.1.0
+		 *
+		 * @param string $class The name of the XML-RPC server class.
+		 */
+		$wp_xmlrpc_server_class = apply_filters( 'wp_xmlrpc_server_class', 'wp_xmlrpc_server' );
+		$wp_xmlrpc_server       = new $wp_xmlrpc_server_class();
+
+		// Fire off the request.
+		nocache_headers();
+		$wp_xmlrpc_server->serve_request();
+
+		exit;
+	}
+
+	/**
+	 * Removes all XML-RPC methods that are not `jetpack.*`.
+	 * Only used in our alternate XML-RPC endpoint, where we want to
+	 * ensure that Core and other plugins' methods are not exposed.
+	 *
+	 * @param array $methods
+	 * @return array filtered $methods
+	 */
+	public function remove_non_jetpack_xmlrpc_methods( $methods ) {
+		$jetpack_methods = array();
+
+		foreach ( $methods as $method => $callback ) {
+			if ( 0 === strpos( $method, 'jetpack.' ) ) {
+				$jetpack_methods[ $method ] = $callback;
+			}
+		}
+
+		return $jetpack_methods;
+	}
+
+	/**
+	 * Removes all other authentication methods not to allow other
+	 * methods to validate unauthenticated requests.
+	 */
+	public function require_jetpack_authentication() {
+		// Don't let anyone authenticate
+		$_COOKIE = array();
+		remove_all_filters( 'authenticate' );
+		remove_all_actions( 'wp_login_failed' );
+
+		if ( $this->is_active() ) {
+			// Allow Jetpack authentication.
+			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
+		}
+	}
+
+	/**
+	 * Authenticates XML-RPC and other requests from the Jetpack Server
+	 *
+	 * @param WP_User|Mixed $user user object if authenticated.
+	 * @param String        $username username.
+	 * @param String        $password password string.
+	 * @return WP_User|Mixed authenticated user or error.
+	 */
+	public function authenticate_jetpack( $user, $username, $password ) {
+		if ( is_a( $user, 'WP_User' ) ) {
+			return $user;
+		}
+
+		$token_details = $this->verify_xml_rpc_signature();
+
+		if ( ! $token_details ) {
+			return $user;
+		}
+
+		if ( 'user' !== $token_details['type'] ) {
+			return $user;
+		}
+
+		if ( ! $token_details['user_id'] ) {
+			return $user;
+		}
+
+		nocache_headers();
+
+		return new WP_User( $token_details['user_id'] );
+	}
+
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * @return false|array
+	 */
+	public function verify_xml_rpc_signature() {
+		if ( is_null( $this->xmlrpc_verification ) ) {
+			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
+
+			if ( is_wp_error( $this->xmlrpc_verification ) ) {
+				/**
+				 * Action for logging XMLRPC signature verification errors. This data is sensitive.
+				 *
+				 * Error codes:
+				 * - malformed_token
+				 * - malformed_user_id
+				 * - unknown_token
+				 * - could_not_sign
+				 * - invalid_nonce
+				 * - signature_mismatch
+				 *
+				 * @since 7.5.0
+				 *
+				 * @param WP_Error $signature_verification_error The verification error
+				 */
+				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
+			}
+		}
+
+		return is_wp_error( $this->xmlrpc_verification ) ? false : $this->xmlrpc_verification;
+	}
+
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * This function has side effects and should not be used. Instead,
+	 * use the memoized version `->verify_xml_rpc_signature()`.
+	 *
+	 * @internal
+	 */
+	private function internal_verify_xml_rpc_signature() {
+		// It's not for us
+		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
+			return false;
+		}
+
+		$signature_details = array(
+			'token'     => isset( $_GET['token'] ) ? wp_unslash( $_GET['token'] ) : '',
+			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
+			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
+			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
+			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
+			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
+			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
+		);
+
+		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
+		if (
+			empty( $token_key )
+		||
+			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
+		) {
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+		}
+
+		if ( '0' === $user_id ) {
+			$token_type = 'blog';
+			$user_id    = 0;
+		} else {
+			$token_type = 'user';
+			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
+				return new \WP_Error(
+					'malformed_user_id',
+					'Malformed user_id in request',
+					compact( 'signature_details' )
+				);
+			}
+			$user_id = (int) $user_id;
+
+			$user = new \WP_User( $user_id );
+			if ( ! $user || ! $user->exists() ) {
+				return new \WP_Error(
+					'unknown_user',
+					sprintf( 'User %d does not exist', $user_id ),
+					compact( 'signature_details' )
+				);
+			}
+		}
+
+		$token = $this->get_access_token( $user_id, $token_key, false );
+		if ( is_wp_error( $token ) ) {
+			$token->add_data( compact( 'signature_details' ) );
+			return $token;
+		} elseif ( ! $token ) {
+			return new \WP_Error(
+				'unknown_token',
+				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
+				compact( 'signature_details' )
+			);
+		}
+
+		$jetpack_signature = new \Jetpack_Signature( $token->secret, (int) \Jetpack_Options::get_option( 'time_diff' ) );
+		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
+			$post_data   = $_POST;
+			$file_hashes = array();
+			foreach ( $post_data as $post_data_key => $post_data_value ) {
+				if ( 0 !== strpos( $post_data_key, '_jetpack_file_hmac_' ) ) {
+					continue;
+				}
+				$post_data_key                 = substr( $post_data_key, strlen( '_jetpack_file_hmac_' ) );
+				$file_hashes[ $post_data_key ] = $post_data_value;
+			}
+
+			foreach ( $file_hashes as $post_data_key => $post_data_value ) {
+				unset( $post_data[ "_jetpack_file_hmac_{$post_data_key}" ] );
+				$post_data[ $post_data_key ] = $post_data_value;
+			}
+
+			ksort( $post_data );
+
+			$body = http_build_query( stripslashes_deep( $post_data ) );
+		} elseif ( is_null( $this->HTTP_RAW_POST_DATA ) ) {
+			$body = file_get_contents( 'php://input' );
+		} else {
+			$body = null;
+		}
+
+		$signature = $jetpack_signature->sign_current_request(
+			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body )
+		);
+
+		$signature_details['url'] = $jetpack_signature->current_request_url;
+
+		if ( ! $signature ) {
+			return new \WP_Error(
+				'could_not_sign',
+				'Unknown signature error',
+				compact( 'signature_details' )
+			);
+		} elseif ( is_wp_error( $signature ) ) {
+			return $signature;
+		}
+
+		$timestamp = (int) $_GET['timestamp'];
+		$nonce     = stripslashes( (string) $_GET['nonce'] );
+
+		// Use up the nonce regardless of whether the signature matches.
+		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
+			return new \WP_Error(
+				'invalid_nonce',
+				'Could not add nonce',
+				compact( 'signature_details' )
+			);
+		}
+
+		// Be careful about what you do with this debugging data.
+		// If a malicious requester has access to the expected signature,
+		// bad things might be possible.
+		$signature_details['expected'] = $signature;
+
+		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+			return new \WP_Error(
+				'signature_mismatch',
+				'Signature mismatch',
+				compact( 'signature_details' )
+			);
+		}
+
+		/**
+		 * Action for additional token checking.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param Array $post_data request data.
+		 * @param Array $token_data token data.
+		 */
+		return apply_filter(
+			'jetpack_signature_check_token',
+			array(
+				'type'      => $token_type,
+				'token_key' => $token_key,
+				'user_id'   => $token->external_user_id,
+			),
+			$token,
+			$this->HTTP_RAW_POST_DATA
+		);
 	}
 
 	/**

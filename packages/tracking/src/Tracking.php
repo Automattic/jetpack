@@ -14,9 +14,19 @@ class Tracking {
 	private $product_name;
 	private $connection;
 
-	function __construct( $product_name = 'jetpack' ) {
+	/**
+	 * Creates the Tracking object.
+	 *
+	 * @param String                                $product_name the slug of the product that we are tracking.
+	 * @param Automattic\Jetpack\Connection\Manager $manager the connection manager object.
+	 */
+	function __construct( $product_name = 'jetpack', $manager = null ) {
 		$this->product_name = $product_name;
-		$this->connection   = new Connection\Manager();
+		$this->connection   = $manager;
+
+		if ( null === $this->connection ) {
+			$this->connection = new Connection\Manager();
+		}
 	}
 
 	function enqueue_tracks_scripts() {

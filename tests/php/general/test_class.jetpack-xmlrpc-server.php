@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../class.jetpack-xmlrpc-server.php';
-
 class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	static $xmlrpc_admin = 0;
 
