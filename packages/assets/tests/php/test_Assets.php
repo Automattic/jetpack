@@ -25,6 +25,7 @@ class AssetsTest extends TestCase {
 		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Assets::get_file_url_for_environment( $min_path, $non_min_path );
 
+		// note the double-$$ here, $(non_)min_path is referenced by var name
 		$this->assertContains( $$expected, $file_url );
 		$this->assertNotContains( $$not_expected, $file_url );
 	}

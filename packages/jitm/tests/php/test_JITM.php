@@ -12,11 +12,13 @@ class Test_Jetpack_JITM extends TestCase {
 	public function setUp() {
 		$this->mock_add_action();
 		$this->mock_do_action();
-		$this->mock_wp_register_style();
-		$this->mock_plugins_url();
+		$this->mock_wp_enqueue_script();
+
+		// input/output of these functions doesn't matter right now, they just need to exist
+		$this->mock_empty_function( 'wp_register_style' );
+		$this->mock_empty_function( 'plugins_url' );
 		$this->mock_empty_function( 'wp_style_add_data' );
 		$this->mock_empty_function( 'wp_enqueue_style' );
-		$this->mock_empty_function( 'wp_enqueue_script' );
 		$this->mock_empty_function( 'wp_localize_script' );
 		$this->mock_empty_function( 'esc_url_raw' );
 		$this->mock_empty_function( 'rest_url' );
@@ -69,26 +71,40 @@ class Test_Jetpack_JITM extends TestCase {
 		$builder->build()->enable();
 	}
 
-	protected function mock_wp_register_style() {
-		$this->mock_empty_function( 'wp_register_style' );
+	protected function mock_wp_enqueue_script() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'wp_enqueue_script' )
+			->setFunction( function( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
+				global $wp_scripts;
+
+				if ( is_null( $wp_scripts ) ) {
+					$wp_scripts = array();
+				}
+
+				$wp_scripts[$handle] = compact( 'src', 'deps', 'ver', 'in_footer' );
+			} );
+		$builder->build()->enable();
 	}
 
-	protected function mock_plugins_url() {
-		$this->mock_empty_function( 'plugins_url' );
+	protected function get_enqueued_script( $handle ) {
+		global $wp_scripts;
+		return isset( $wp_scripts[$handle] ) ? $wp_scripts[$handle] : null;
 	}
 
 	protected function mock_empty_function( $name ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $name )
-			->setFunction( function() {
-				// noop
+			->setFunction( function() use ( $name ) {
+				echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";
 			} );
 		$builder->build()->enable();
 	}
 
 	public function tearDown() {
 		Mock::disableAll();
+		\Mockery::close();
 	}
 
 	public function test_jitm_disabled_by_filter() {
@@ -113,22 +129,42 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->clear_mock_filters();
 	}
 
+	/**
+	 * This is an example of a test which uses Mockery to tests a class static method.
+	 *
+	 * It requires the runInSeparateProcess tag so that the class isn't already autoloaded.
+	 *
+	 * @runInSeparateProcess
+	 */
 	public function test_prepare_jitms_enqueues_assets() {
-		echo "preparing!!\n";
+		$mockAssets = \Mockery::mock('alias:Automattic\Jetpack\Assets');
+
+		// mock the static method and return a dummy value
+		$mockAssets
+            ->shouldReceive('get_file_url_for_environment')
+            ->andReturn('the_file_url');
+
 		$jitm = new JITM();
-		$screen = new \stdClass();
-		$screen->id = 'jetpack_foo';
+		$screen = (object) array( 'id' => 'jetpack_foo' ); // fake screen object
 		$jitm->prepare_jitms( $screen );
 
+		// this should enqueue a jetpack-jitm-new script
 		do_action( 'admin_enqueue_scripts' );
+
+		// assert our script was enqueued with the right value
+		$script = $this->get_enqueued_script( 'jetpack-jitm-new' );
+
+		$this->assertEquals( 'the_file_url', $script['src'] );
 	}
 
+	/*
 	public function test_prepare_jitms_does_not_show_on_some_screens() {
 		$jitm = new JITM();
 		$screen = new \stdClass();
 		$screen->id = 'jetpack_page_stats';
 		$jitm->prepare_jitms( $screen );
 	}
+	*/
 
 	protected function mock_filters( $filters ) {
 		$this->mocked_filters = $filters;
