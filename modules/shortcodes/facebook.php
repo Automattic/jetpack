@@ -58,7 +58,7 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 	if (
 		false !== strpos( $url, 'video.php' )
 		|| false !== strpos( $url, '/videos/' )
-		|| false !== strpos( $url, '/watch/' )
+		|| false !== strpos( $url, '/watch' )
 	) {
 		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
 	} else {
