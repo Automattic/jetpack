@@ -67,6 +67,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	await ( await JetpackPage.init( page ) ).waitForPage();
+	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, '.eu.ngrok.io' );
 
 	if ( await jetpackPage.isPlan( plan ) ) {
 		console.log( 'Can see activated plan' );
