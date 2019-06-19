@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Server;
 
 Jetpack_Sync_Main::init();
 
@@ -38,7 +39,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->setSyncClientDefaults();
 
-		$this->server = new Jetpack_Sync_Server();
+		$this->server = new Server();
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
