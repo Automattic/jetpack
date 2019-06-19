@@ -25,86 +25,11 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->mock_empty_function( 'esc_html__' );
 	}
 
-	protected function mock_add_action() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'add_action' )
-			->setFunction( function( $name, $callable ) {
-				global $actions;
-
-				if ( is_null( $actions ) ) {
-					$actions = array();
-				}
-
-				// don't worry about precedence for now
-				if ( ! isset( $actions[$name] ) ) {
-					$actions[$name] = array();
-				}
-
-				$actions[$name][] = $callable;
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_do_action() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'do_action' )
-			->setFunction( function() {
-				global $actions;
-				$args = func_get_args();
-				$name = array_shift( $args );
-
-				if ( is_null( $actions ) ) {
-					$actions = array();
-				}
-
-				// don't worry about precedence for now
-				if ( ! isset( $actions[$name] ) ) {
-					$actions[$name] = array();
-				}
-
-				foreach( $actions[$name] as $callable ) {
-					call_user_func_array( $callable, $args );
-				}
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function mock_wp_enqueue_script() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( 'wp_enqueue_script' )
-			->setFunction( function( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
-				global $wp_scripts;
-
-				if ( is_null( $wp_scripts ) ) {
-					$wp_scripts = array();
-				}
-
-				$wp_scripts[$handle] = compact( 'src', 'deps', 'ver', 'in_footer' );
-			} );
-		$builder->build()->enable();
-	}
-
-	protected function get_enqueued_script( $handle ) {
-		global $wp_scripts;
-		return isset( $wp_scripts[$handle] ) ? $wp_scripts[$handle] : null;
-	}
-
-	protected function mock_empty_function( $name ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( $name )
-			->setFunction( function() use ( $name ) {
-				echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";
-			} );
-		$builder->build()->enable();
-	}
-
 	public function tearDown() {
 		Mock::disableAll();
 		\Mockery::close();
+		$this->clear_added_actions();
+		$this->clear_enqueued_scripts();
 	}
 
 	public function test_jitm_disabled_by_filter() {
@@ -188,5 +113,92 @@ class Test_Jetpack_JITM extends TestCase {
 	protected function clear_mock_filters() {
 		$this->apply_filters_mock->disable();
 		unset( $this->mocked_filters );
+	}
+
+	protected function mock_add_action() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'add_action' )
+			->setFunction( function( $name, $callable ) {
+				global $actions;
+
+				if ( is_null( $actions ) ) {
+					$actions = array();
+				}
+
+				// don't worry about precedence for now
+				if ( ! isset( $actions[$name] ) ) {
+					$actions[$name] = array();
+				}
+
+				$actions[$name][] = $callable;
+			} );
+		$builder->build()->enable();
+	}
+
+	protected function mock_do_action() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'do_action' )
+			->setFunction( function() {
+				global $actions;
+				$args = func_get_args();
+				$name = array_shift( $args );
+
+				if ( is_null( $actions ) ) {
+					$actions = array();
+				}
+
+				// don't worry about precedence for now
+				if ( ! isset( $actions[$name] ) ) {
+					$actions[$name] = array();
+				}
+
+				foreach( $actions[$name] as $callable ) {
+					call_user_func_array( $callable, $args );
+				}
+			} );
+		$builder->build()->enable();
+	}
+
+	protected function mock_wp_enqueue_script() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'wp_enqueue_script' )
+			->setFunction( function( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
+				global $wp_scripts;
+
+				if ( is_null( $wp_scripts ) ) {
+					$wp_scripts = array();
+				}
+
+				$wp_scripts[$handle] = compact( 'src', 'deps', 'ver', 'in_footer' );
+			} );
+		$builder->build()->enable();
+	}
+
+	protected function get_enqueued_script( $handle ) {
+		global $wp_scripts;
+		return isset( $wp_scripts[$handle] ) ? $wp_scripts[$handle] : null;
+	}
+
+	protected function clear_added_actions() {
+		global $actions;
+		$actions = array();
+	}
+
+	protected function clear_enqueued_scripts() {
+		global $wp_scripts;
+		$wp_scripts = array();
+	}
+
+	protected function mock_empty_function( $name ) {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( $name )
+			->setFunction( function() use ( $name ) {
+				// echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";
+			} );
+		$builder->build()->enable();
 	}
 }
