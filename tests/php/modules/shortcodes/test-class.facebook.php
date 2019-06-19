@@ -62,13 +62,13 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test a Facebook Video using the new format (watch/)
+	 * Test a Facebook Video using the "watch/" format
 	 *
 	 * @covers ::jetpack_facebook_embed_handler
 	 *
 	 * @since 7.5.0
 	 */
-	public function test_shortcodes_facebook_video_new() {
+	public function test_shortcodes_facebook_video_watch_format() {
 		global $post;
 
 		$fb_video_id = '546877659119730';
