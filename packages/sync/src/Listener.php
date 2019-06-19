@@ -1,9 +1,11 @@
 <?php
 
+namespace Automattic\Jetpack\Sync;
+
 /**
  * This class monitors actions and logs them to the queue to be sent
  */
-class Jetpack_Sync_Listener {
+class Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
 	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes
 
@@ -25,7 +27,7 @@ class Jetpack_Sync_Listener {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
-		Jetpack_Sync_Main::init();
+		\Jetpack_Sync_Main::init();
 		$this->set_defaults();
 		$this->init();
 	}
@@ -34,7 +36,7 @@ class Jetpack_Sync_Listener {
 		$handler           = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
-		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_listeners( $handler );
 			$module->init_full_sync_listeners( $full_sync_handler );
 		}
@@ -82,7 +84,7 @@ class Jetpack_Sync_Listener {
 	// prevent adding items to the queue if it hasn't sent an item for 15 mins
 	// AND the queue is over 1000 items long (by default)
 	function can_add_to_queue( $queue ) {
-		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
+		if ( ! \Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
 
@@ -138,7 +140,7 @@ class Jetpack_Sync_Listener {
 		$data_to_enqueue = array();
 		$user_id         = get_current_user_id();
 		$currtime        = microtime( true );
-		$is_importing    = Jetpack_Sync_Settings::is_importing();
+		$is_importing    = \Jetpack_Sync_Settings::is_importing();
 
 		foreach ( $args_array as $args ) {
 			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
@@ -177,7 +179,7 @@ class Jetpack_Sync_Listener {
 
 	function enqueue_action( $current_filter, $args, $queue ) {
 		// don't enqueue an action during the outbound http request - this prevents recursion
-		if ( Jetpack_Sync_Settings::is_sending() ) {
+		if ( \Jetpack_Sync_Settings::is_sending() ) {
 			return;
 		}
 
@@ -233,7 +235,7 @@ class Jetpack_Sync_Listener {
 					$args,
 					get_current_user_id(),
 					microtime( true ),
-					Jetpack_Sync_Settings::is_importing(),
+					\Jetpack_Sync_Settings::is_importing(),
 					$this->get_actor( $current_filter, $args ),
 				)
 			);
@@ -244,16 +246,16 @@ class Jetpack_Sync_Listener {
 					$args,
 					get_current_user_id(),
 					microtime( true ),
-					Jetpack_Sync_Settings::is_importing(),
+					\Jetpack_Sync_Settings::is_importing(),
 				)
 			);
 		}
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
-		if ( ! Jetpack_Sync_Actions::$sender ) {
+		if ( ! \Jetpack_Sync_Actions::$sender ) {
 			add_filter( 'jetpack_sync_sender_should_load', '__return_true' );
 			if ( did_action( 'init' ) ) {
-				Jetpack_Sync_Actions::add_sender_shutdown();
+				\Jetpack_Sync_Actions::add_sender_shutdown();
 			}
 		}
 	}
@@ -265,7 +267,7 @@ class Jetpack_Sync_Listener {
 			$user = wp_get_current_user();
 		}
 
-		$translated_role = Jetpack::translate_user_to_role( $user );
+		$translated_role = \Jetpack::translate_user_to_role( $user );
 
 		$actor = array(
 			'wpcom_user_id'    => null,
@@ -309,10 +311,10 @@ class Jetpack_Sync_Listener {
 	}
 
 	function set_defaults() {
-		$this->sync_queue      = new Jetpack_Sync_Queue( 'sync' );
-		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
-		$this->set_queue_size_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
-		$this->set_queue_lag_limit( Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
+		$this->sync_queue      = new \Jetpack_Sync_Queue( 'sync' );
+		$this->full_sync_queue = new \Jetpack_Sync_Queue( 'full_sync' );
+		$this->set_queue_size_limit( \Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
+		$this->set_queue_lag_limit( \Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
 	}
 
 	function get_request_url() {

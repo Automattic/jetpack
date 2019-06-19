@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Listener;
+
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -9,7 +11,7 @@
  * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
  * - for each object type, we page through the object IDs and enqueue them by firing some monitored actions
  * - we load the full objects for those IDs in chunks of Jetpack_Sync_Module::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
- * - we fire a trigger for the entire array which the Jetpack_Sync_Listener then serializes and queues.
+ * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
 
 class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
@@ -399,7 +401,7 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		$this->clear_status();
 		$this->delete_config();
 
-		$listener = Jetpack_Sync_Listener::get_instance();
+		$listener = Listener::get_instance();
 		$listener->get_full_sync_queue()->reset();
 	}
 

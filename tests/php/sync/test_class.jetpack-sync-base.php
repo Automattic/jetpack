@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 
@@ -32,7 +33,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function setUp() {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
-		$this->listener = Jetpack_Sync_Listener::get_instance();
+		$this->listener = Listener::get_instance();
 		$this->sender   = Sender::get_instance();
 
 		parent::setUp();
