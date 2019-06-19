@@ -39,7 +39,7 @@ class Shortlinks extends Component {
 						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Create short and simple links for all posts and pages' ) }
+						{ __( 'Generate shortened URLs for simpler sharing.' ) }
 					</ModuleToggle>
 				</SettingsGroup>
 			</SettingsCard>
