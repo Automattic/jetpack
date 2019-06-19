@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.
+ * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
