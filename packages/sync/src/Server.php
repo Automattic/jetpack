@@ -1,10 +1,12 @@
 <?php
 
+namespace Automattic\Jetpack\Sync;
+
 /**
  * Simple version of a Jetpack Sync Server - just receives arrays of events and
  * issues them locally with the 'jetpack_sync_remote_action' action.
  */
-class Jetpack_Sync_Server {
+class Server {
 	private $codec;
 	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
 	const BLOG_LOCK_TRANSIENT_PREFIX      = 'jp_sync_req_lock_';
@@ -12,10 +14,10 @@ class Jetpack_Sync_Server {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
-		$this->codec = new Jetpack_Sync_JSON_Deflate_Array_Codec();
+		$this->codec = new \Jetpack_Sync_JSON_Deflate_Array_Codec();
 	}
 
-	function set_codec( iJetpack_Sync_Codec $codec ) {
+	function set_codec( \iJetpack_Sync_Codec $codec ) {
 		$this->codec = $codec;
 	}
 
@@ -41,7 +43,7 @@ class Jetpack_Sync_Server {
 	function receive( $data, $token = null, $sent_timestamp = null, $queue_id = null ) {
 		$start_time = microtime( true );
 		if ( ! is_array( $data ) ) {
-			return new WP_Error( 'action_decoder_error', 'Events must be an array' );
+			return new \WP_Error( 'action_decoder_error', 'Events must be an array' );
 		}
 
 		if ( $token && ! $this->attempt_request_lock( $token->blog_id ) ) {
@@ -54,7 +56,7 @@ class Jetpack_Sync_Server {
 			 */
 			do_action( 'jetpack_sync_multi_request_fail', $token );
 
-			return new WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
+			return new \WP_Error( 'concurrent_request_error', 'There is another request running for the same blog ID' );
 		}
 
 		$events           = wp_unslash( array_map( array( $this->codec, 'decode' ), $data ) );
