@@ -441,7 +441,7 @@ class Jetpack_Sitemap_Manager {
 		 *
 		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
 		 */
-		$discover_sitemap = apply_filters_deprecated( 'jetpack_sitemap_generate', true, 'jetpack-7.4.0', 'jetpack_sitemap_include_in_robotstxt' );
+		$discover_sitemap = apply_filters_deprecated( 'jetpack_sitemap_generate', array( true ), 'jetpack-7.4.0', 'jetpack_sitemap_include_in_robotstxt' );
 
 		/**
 		 * Filter whether to make the default sitemap discoverable to robots or not. Default true.
@@ -467,7 +467,7 @@ class Jetpack_Sitemap_Manager {
 		 *
 		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
 		 */
-		$discover_news_sitemap = apply_filters_deprecated( 'jetpack_news_sitemap_generate', true, 'jetpack-7.4.0', 'jetpack_news_sitemap_include_in_robotstxt' );
+		$discover_news_sitemap = apply_filters_deprecated( 'jetpack_news_sitemap_generate', array( true ), 'jetpack-7.4.0', 'jetpack_news_sitemap_include_in_robotstxt' );
 
 		/**
 		 * Filter whether to make the news sitemap discoverable to robots or not. Default true.
