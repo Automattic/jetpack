@@ -25,6 +25,6 @@ describe( 'First test suite', () => {
 		await blockEditor.viewPost();
 
 		const frontend = await PostFrontendPage.init( page );
-		frontend.isRenderedBlockPresent( SimplePaymentBlock );
+		await frontend.isRenderedBlockPresent( SimplePaymentBlock );
 	} );
 } );

@@ -19,8 +19,6 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
-import { sendFailedTestScreenshotToSlack } from '../reporters/slack';
-import { takeScreenshot } from '../reporters/screenshot';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -68,14 +66,4 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	await ( await JetpackPage.init( page ) ).waitForPage();
-	console.log( '1' );
-	console.log( await page.cookies() );
-
-	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
-	console.log( '2' );
-	console.log( await page.cookies() );
-
-	await jetpackPage.isPlan( plan );
-	const filePath = await takeScreenshot( 'whatever', 'name' );
-	await sendFailedTestScreenshotToSlack( filePath );
 }
