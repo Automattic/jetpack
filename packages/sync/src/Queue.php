@@ -1,29 +1,6 @@
 <?php
 
-/**
- * A buffer of items from the queue that can be checked out
- */
-class Jetpack_Sync_Queue_Buffer {
-	public $id;
-	public $items_with_ids;
-
-	public function __construct( $id, $items_with_ids ) {
-		$this->id             = $id;
-		$this->items_with_ids = $items_with_ids;
-	}
-
-	public function get_items() {
-		return array_combine( $this->get_item_ids(), $this->get_item_values() );
-	}
-
-	public function get_item_values() {
-		return Jetpack_Sync_Utils::get_item_values( $this->items_with_ids );
-	}
-
-	public function get_item_ids() {
-		return Jetpack_Sync_Utils::get_item_ids( $this->items_with_ids );
-	}
-}
+namespace Automattic\Jetpack\Sync;
 
 /**
  * A persistent queue that can be flushed in increments of N items,
@@ -31,7 +8,7 @@ class Jetpack_Sync_Queue_Buffer {
  * closed. This uses raw SQL for two reasons: speed, and not triggering
  * tons of added_option callbacks.
  */
-class Jetpack_Sync_Queue {
+class Queue {
 	public $id;
 	private $row_iterator;
 
@@ -77,7 +54,7 @@ class Jetpack_Sync_Queue {
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) );
 
 		if ( count( $items ) === $rows_added ) {
-			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
+			return new \WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
 	}
 
@@ -85,7 +62,7 @@ class Jetpack_Sync_Queue {
 	function peek( $count = 1 ) {
 		$items = $this->fetch_items( $count );
 		if ( $items ) {
-			return Jetpack_Sync_Utils::get_item_values( $items );
+			return Utils::get_item_values( $items );
 		}
 
 		return array();
@@ -157,7 +134,7 @@ class Jetpack_Sync_Queue {
 
 	function checkout( $buffer_size ) {
 		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			return new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
 		$buffer_id = uniqid();
@@ -174,7 +151,7 @@ class Jetpack_Sync_Queue {
 			return false;
 		}
 
-		$buffer = new Jetpack_Sync_Queue_Buffer( $buffer_id, array_slice( $items, 0, $buffer_size ) );
+		$buffer = new Queue_Buffer( $buffer_id, array_slice( $items, 0, $buffer_size ) );
 
 		return $buffer;
 	}
@@ -186,7 +163,7 @@ class Jetpack_Sync_Queue {
 	// exceeds the memory limit, but in that case it will send that item by itself.
 	function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			return new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
 		$buffer_id = uniqid();
@@ -246,7 +223,7 @@ class Jetpack_Sync_Queue {
 			return false;
 		}
 
-		$buffer = new Jetpack_Sync_Queue_Buffer( $buffer_id, $items );
+		$buffer = new Queue_Buffer( $buffer_id, $items );
 
 		return $buffer;
 	}
@@ -289,7 +266,7 @@ class Jetpack_Sync_Queue {
 	}
 
 	function flush_all() {
-		$items = Jetpack_Sync_Utils::get_item_values( $this->fetch_items() );
+		$items = Utils::get_item_values( $this->fetch_items() );
 		$this->reset();
 
 		return $items;
@@ -316,11 +293,11 @@ class Jetpack_Sync_Queue {
 		}
 
 		if ( $tries === 30 ) {
-			return new WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
+			return new \WP_Error( 'lock_timeout', 'Timeout waiting for sync queue to empty' );
 		}
 
 		if ( $this->get_checkout_id() ) {
-			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
+			return new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
 		// hopefully this means we can acquire a checkout?
@@ -370,7 +347,7 @@ class Jetpack_Sync_Queue {
 	private function set_checkout_id( $checkout_id ) {
 		global $wpdb;
 
-		$expires     = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
+		$expires     = time() + \Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
@@ -440,39 +417,20 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function validate_checkout( $buffer ) {
-		if ( ! $buffer instanceof Jetpack_Sync_Queue_Buffer ) {
-			return new WP_Error( 'not_a_buffer', 'You must checkin an instance of Jetpack_Sync_Queue_Buffer' );
+		if ( ! $buffer instanceof Automattic\Jetpack\Sync\Queue_Buffer ) {
+			return new \WP_Error( 'not_a_buffer', 'You must checkin an instance of Automattic\\Jetpack\\Sync\\Queue_Buffer' );
 		}
 
 		$checkout_id = $this->get_checkout_id();
 
 		if ( ! $checkout_id ) {
-			return new WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
+			return new \WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
 		}
 
 		if ( $checkout_id != $buffer->id ) {
-			return new WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
+			return new \WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
 		}
 
 		return true;
-	}
-}
-
-class Jetpack_Sync_Utils {
-
-	static function get_item_values( $items ) {
-		return array_map( array( __CLASS__, 'get_item_value' ), $items );
-	}
-
-	static function get_item_ids( $items ) {
-		return array_map( array( __CLASS__, 'get_item_id' ), $items );
-	}
-
-	private static function get_item_value( $item ) {
-		return $item->value;
-	}
-
-	private static function get_item_id( $item ) {
-		return $item->id;
 	}
 }
