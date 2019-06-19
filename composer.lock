@@ -11,7 +11,7 @@
             "version": "dev-master",
             "dist": {
                 "type": "path",
-                "url":  "./packages/asset-tools",
+                "url": "./packages/asset-tools",
                 "reference": "5733de68bc0616f37ed3813b092908767df2cf68",
                 "shasum": null
             },
