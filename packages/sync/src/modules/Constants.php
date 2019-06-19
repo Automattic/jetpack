@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Constants extends \Jetpack_Sync_Module {
 	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
 
@@ -33,7 +35,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	}
 
 	function get_constants_whitelist() {
-		return Jetpack_Sync_Defaults::get_constants_whitelist();
+		return \Jetpack_Sync_Defaults::get_constants_whitelist();
 	}
 
 	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -63,7 +65,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 			return;
 		}
 
-		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
+		set_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME, microtime( true ), \Jetpack_Sync_Defaults::$default_sync_constants_wait_time );
 
 		$constants = $this->get_all_constants();
 		if ( empty( $constants ) ) {

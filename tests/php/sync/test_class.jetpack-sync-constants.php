@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 
-		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
+		delete_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'TEST_ABC' ) );
