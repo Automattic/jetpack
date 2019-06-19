@@ -680,14 +680,14 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Need help? Search our support site to find out about your site, your account, and how to make the most of WordPress.'
+										'Need help? Learn about getting started, customizing your site, using advanced code snippets and more.'
 									) }
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
 									href="https://jetpack.com/support/"
 								>
-									{ __( 'Support documentation' ) }
+									{ __( 'Search support docs' ) }
 								</Button>
 							</div>
 						</div>
