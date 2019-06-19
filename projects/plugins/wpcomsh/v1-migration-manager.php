@@ -31,7 +31,7 @@ class V1_Migration_Manager {
 			]
 		);
 
-		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock', 0 );
+		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock_timeout', 0 );
 		if ( ! $this->migration_activated ) {
 			$this->migration_activated = $this->options['migration_active'];
 		}
@@ -62,6 +62,13 @@ class V1_Migration_Manager {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Alias for is_migration_active
+	 */
+	public function migration_lock_is_active() {
+		return $this->is_migration_active();
 	}
 
 	/**
@@ -240,59 +247,65 @@ class V1_Migration_Manager {
 	 * Toggles migration lock
 	 */
 	public function handle_migration_lock_request() {
-		$uri = $_SERVER[ 'REQUEST_URI' ];
-		if ( '/wp-json/wp/v2/v1-migration-lock' === $uri ) {
-			$action = '';
-			if ( isset( $_GET['action'] ) ) {
-				$action = $_GET['action'];
+		$route = '/wp-json/wp/v2/av1-migration-lock';
+    $uri = $_SERVER[ 'REQUEST_URI' ];
+    if ( substr( $uri, 0, strlen( $route ) ) === $route ) {
+      $action = '';
+      if ( isset( $_GET['action'] ) ) {
+        $action = $_GET['action'];
 			}
+
+			$has_valid_lock_header = isset( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
+				'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ];
+
+			if ( ! $has_valid_lock_header ) {
+				// Pretend the route doesn't exist.
+				echo json_encode ( [
+					"code" => "rest_no_route",
+					"data" => [
+						"status" => 404,
+					],
+					"message" =>  "No route was found matching the URL and request method"
+				] );
+				die();
+			}
+
 			switch ($action) {
 
 				case 'get':
-					$migration_lock = get_option( 'wpcom_atomic_migration_lock', 'FALSE' );
-					echo $migration_lock;
+					echo $this->build_migration_lock_response();
 					break;
 
 				case 'enable':
-					// Make sure the migration lock header is correct.
-					if ( empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) ||
-						'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' !== $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ]
-					) {
-						break;
-					}
-
 					$timeout = strtotime( '+2 hours' );
 					if ( isset( $_GET['timeout'] ) ) {
 						$timeout = $_GET['timeout'];
 					}
 
-					$option_set = set_option( 'wpcom_atomic_migration_lock', $migration_timeout );
-
-					if ( $option_set ) {
-						echo 'TRUE';
-						break;
-					}
-
-					echo 'FALSE';
+					$lock_option_updated = update_option( 'wpcom_atomic_migration_lock_timeout', $timeout );
+					echo $this->build_migration_lock_response( [ "enable_result" => $lock_option_updated ] );
 					break;
 
 				case 'disable';
-					if ( ! $migration_lock_header_set ) {
-						break;
-					}
-	        $option_removed = delete_option( 'wpcom_atomic_migration_lock' );
-					if ( $option_removed ) {
-						echo 'TRUE';
-						break;
-					}
-
-					echo 'FALSE';
+					$lock_options_deleted = delete_option( 'wpcom_atomic_migration_lock_timeout' );
+					echo $this->build_migration_lock_response( [ "disable_result" => $lock_option_deleted ] );
 					break;
 			}
 			die();
 		}
 	}
 
+	private function build_migration_lock_response( $action_detail = [] ) {
+		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock_timeout', 0 );
+		$lock_active = $this->migration_lock_is_active();
+
+		$response_data = wp_parse_args( $action_detail, [
+			"lock_active"  => $lock_active,
+			"lock_timeout" => $this->mgiration_activated,
+		] );
+
+		return json_encode( $response_data );
+	}
 
 	/**
 	 * Factory method to initiate the migration manager.
