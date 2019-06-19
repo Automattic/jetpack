@@ -232,7 +232,7 @@ class WordAds {
 		}
 
 		if ( $this->option( 'enable_header_ad', true ) ) {
-			if ( $this->is_amp() ) {
+			if ( self::is_amp() ) {
 				add_filter( 'the_content', array( $this, 'insert_header_ad_amp' ) );
 			} else {
 				switch ( get_stylesheet() ) {
@@ -426,7 +426,7 @@ HTML;
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
 		echo $this->get_ad( 'top', $ad_type );
-		if ( ! $this->is_amp() ) {
+		if ( ! self::is_amp() ) {
 			echo <<<HTML
 		<script type="text/javascript">
 			jQuery('.wpcnt-header').insertBefore('$selector');
