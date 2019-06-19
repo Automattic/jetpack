@@ -67,7 +67,27 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	await ( await JetpackPage.init( page ) ).waitForPage();
+	console.log( '1' );
+
+	console.log( await page.cookies() );
+
 	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, '.eu.ngrok.io' );
+	console.log( '2' );
+	console.log( await page.cookies() );
+
+	await page.waitFor( 5000 );
+	await page.reload();
+
+	console.log( '3' );
+	console.log( await page.cookies() );
+
+	const list = await page.evaluate( () =>
+		wp.data
+			.select( 'core/blocks' )
+			.getBlockTypes()
+			.filter( b => b.category === 'jetpack' )
+	);
+	console.log( JSON.stringify( list ) );
 
 	if ( await jetpackPage.isPlan( plan ) ) {
 		console.log( 'Can see activated plan' );
