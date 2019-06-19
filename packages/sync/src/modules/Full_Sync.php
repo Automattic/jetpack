@@ -394,7 +394,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 
 		$this->delete_enqueue_status();
 
-		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
 			\Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
 			\Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent_total" );
 		}
