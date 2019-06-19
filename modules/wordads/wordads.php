@@ -445,6 +445,9 @@ HTML;
 	public function insert_header_ad_amp( $content ) {
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
+		if ( 'house' === $ad_type ) {
+			return $content;
+		}
 		return $this->get_ad( 'top', $ad_type ) . $content;
 
 	}
