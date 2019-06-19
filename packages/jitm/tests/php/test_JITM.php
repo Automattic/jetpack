@@ -141,8 +141,8 @@ class Test_Jetpack_JITM extends TestCase {
 
 		// mock the static method and return a dummy value
 		$mockAssets
-            ->shouldReceive('get_file_url_for_environment')
-            ->andReturn('the_file_url');
+			->shouldReceive('get_file_url_for_environment')
+			->andReturn('the_file_url');
 
 		$jitm = new JITM();
 		$screen = (object) array( 'id' => 'jetpack_foo' ); // fake screen object
