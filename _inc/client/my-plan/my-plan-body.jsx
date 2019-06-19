@@ -695,18 +695,21 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Jetpack offers so much more' ) }
+									{ __( 'Take your site to the next level!' ) }
 								</h3>
-								<p>
-									{ __(
-										'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
-									) }
-								</p>
+								<ul className="jp-landing__plan-features-list">
+									<li>{ __( 'Get peace of mind with automated backups.' ) }</li>
+									<li>{ __( 'Resolve issues quickly with priority support.' ) }</li>
+									<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
+									<li>{ __( 'Customize your social posting schedule.' ) }</li>
+									<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>
+								</ul>
 								<Button
+									className="is-primary"
 									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
 									href={ '#/plans' }
 								>
-									{ __( 'Explore Jetpack plans' ) }
+									{ __( 'Upgrade Jetpack now' ) }
 								</Button>
 							</div>
 						</div>
