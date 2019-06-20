@@ -46,8 +46,6 @@ window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 						' ' +
 						item.search_terms +
 						' ' +
-						item.jumpstart_desc +
-						' ' +
 						item.module_tags;
 					return -1 !== search_text.toLowerCase().indexOf( m_search );
 				} );

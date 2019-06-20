@@ -321,12 +321,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 					Jetpack::update_active_modules( $default_modules );
 				}
 				WP_CLI::success( __( 'Modules reset to default.', 'jetpack' ) );
-
-				// Jumpstart option is special
-				if ( ! $is_dry_run ) {
-					Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
-				}
-				WP_CLI::success( __( 'jumpstart option reset', 'jetpack' ) );
 				break;
 			case 'modules':
 				if ( ! $is_dry_run ) {
@@ -699,9 +693,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function options( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
 		$safe_to_modify = Jetpack_Options::get_options_for_reset();
-
-		// Jumpstart is special
-		array_push( $safe_to_modify, 'jumpstart' );
 
 		// Is the option flagged as unsafe?
 		$flagged = ! in_array( $args[1], $safe_to_modify );

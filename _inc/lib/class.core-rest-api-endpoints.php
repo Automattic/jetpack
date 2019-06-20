@@ -346,26 +346,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
-		// Return current Jumpstart status
-		register_rest_route( 'jetpack/v4', '/jumpstart', array(
-			'methods'             => WP_REST_Server::READABLE,
-			'callback'            => __CLASS__ . '::jumpstart_status',
-			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-		) );
-
-		// Update Jumpstart
-		register_rest_route( 'jetpack/v4', '/jumpstart', array(
-			'methods'             => WP_REST_Server::EDITABLE,
-			'callback'            => __CLASS__ . '::jumpstart_toggle',
-			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			'args'                => array(
-				'active' => array(
-					'required'          => true,
-					'validate_callback' => __CLASS__  . '::validate_boolean',
-				),
-			),
-		) );
-
 		// Updates: get number of plugin updates available
 		register_rest_route( 'jetpack/v4', '/updates/plugins', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -1532,8 +1512,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 					$default_modules = Jetpack::get_default_modules();
 					Jetpack::update_active_modules( $default_modules );
 
-					// Jumpstart option is special
-					Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
 					return rest_ensure_response( array(
 						'code' 	  => 'success',
 						'message' => esc_html__( 'Jetpack options reset.', 'jetpack' ),
@@ -1555,148 +1533,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "type".', 'jetpack' ), array( 'status' => 404 ) );
-	}
-
-	/**
-	 * Retrieves the current status of Jumpstart.
-	 *
-	 * @since 4.5.0
-	 *
-	 * @return bool
-	 */
-	public static function jumpstart_status() {
-		return array(
-			'status' => Jetpack_Options::get_option( 'jumpstart' )
-		);
-	}
-
-	/**
-	 * Toggles activation or deactivation of the JumpStart
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if toggling Jumpstart succeeded. Otherwise, a WP_Error instance with the corresponding error.
-	 */
-	public static function jumpstart_toggle( $request ) {
-
-		if ( $request[ 'active' ] ) {
-			return self::jumpstart_activate( $request );
-		} else {
-			return self::jumpstart_deactivate( $request );
-		}
-	}
-
-	/**
-	 * Activates a series of valid Jetpack modules and initializes some options.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if Jumpstart succeeded. Otherwise, a WP_Error instance with the corresponding error.
-	 */
-	public static function jumpstart_activate( $request ) {
-		$modules = Jetpack::get_available_modules();
-		$activate_modules = array();
-		foreach ( $modules as $module ) {
-			$module_info = Jetpack::get_module( $module );
-			if ( isset( $module_info['feature'] ) && is_array( $module_info['feature'] ) && in_array( 'Jumpstart', $module_info['feature'] ) ) {
-				$activate_modules[] = $module;
-			}
-		}
-
-		// Collect success/error messages like modules that are properly activated.
-		$result = array(
-			'activated_modules' => array(),
-			'failed_modules'    => array(),
-		);
-
-		// Update the jumpstart option
-		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-			$result['jumpstart_activated'] = Jetpack_Options::update_option( 'jumpstart', 'jumpstart_activated' );
-		}
-
-		// Check for possible conflicting plugins
-		$module_slugs_filtered = Jetpack::init()->filter_default_modules( $activate_modules );
-
-		foreach ( $module_slugs_filtered as $module_slug ) {
-			Jetpack::log( 'activate', $module_slug );
-			if ( Jetpack::activate_module( $module_slug, false, false ) ) {
-				$result['activated_modules'][] = $module_slug;
-			} else {
-				$result['failed_modules'][] = $module_slug;
-			}
-		}
-
-		// Set the default sharing buttons and set to display on posts if none have been set.
-		$sharing_services = get_option( 'sharing-services' );
-		$sharing_options  = get_option( 'sharing-options' );
-		if ( empty( $sharing_services['visible'] ) ) {
-			// Default buttons to set
-			$visible = array(
-				'twitter',
-				'facebook',
-			);
-			$hidden = array();
-
-			// Set some sharing settings
-			if ( class_exists( 'Sharing_Service' ) ) {
-				$sharing = new Sharing_Service();
-				$sharing_options['global'] = array(
-					'button_style'  => 'icon',
-					'sharing_label' => $sharing->default_sharing_label,
-					'open_links'    => 'same',
-					'show'          => array( 'post' ),
-					'custom'        => isset( $sharing_options['global']['custom'] ) ? $sharing_options['global']['custom'] : array()
-				);
-
-				$result['sharing_options']  = update_option( 'sharing-options', $sharing_options );
-				$result['sharing_services'] = update_option( 'sharing-services', array( 'visible' => $visible, 'hidden' => $hidden ) );
-			}
-		}
-
-		// If all Jumpstart modules were activated
-		if ( empty( $result['failed_modules'] ) ) {
-			return rest_ensure_response( array(
-				'code' 	  => 'success',
-				'message' => esc_html__( 'Jumpstart done.', 'jetpack' ),
-				'data'    => $result,
-			) );
-		}
-
-		return new WP_Error( 'jumpstart_failed', esc_html( sprintf( _n( 'Jumpstart failed activating this module: %s.', 'Jumpstart failed activating these modules: %s.', count( $result['failed_modules'] ), 'jetpack' ), join( ', ', $result['failed_modules'] ) ) ), array( 'status' => 400 ) );
-	}
-
-	/**
-	 * Dismisses Jumpstart so user is not prompted to go through it again.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if Jumpstart was disabled or was nothing to dismiss. Otherwise, a WP_Error instance with a message.
-	 */
-	public static function jumpstart_deactivate( $request ) {
-
-		// If dismissed, flag the jumpstart option as such.
-		if ( 'new_connection' === Jetpack_Options::get_option( 'jumpstart' ) ) {
-			if ( Jetpack_Options::update_option( 'jumpstart', 'jumpstart_dismissed' ) ) {
-				return rest_ensure_response( array(
-					'code' 	  => 'success',
-					'message' => esc_html__( 'Jumpstart dismissed.', 'jetpack' ),
-				) );
-			} else {
-				return new WP_Error( 'jumpstart_failed_dismiss', esc_html__( 'Jumpstart could not be dismissed.', 'jetpack' ), array( 'status' => 400 ) );
-			}
-		}
-
-		// If this was not a new connection and there was nothing to dismiss, don't fail.
-		return rest_ensure_response( array(
-			'code' 	  => 'success',
-			'message' => esc_html__( 'Nothing to dismiss. This was not a new connection.', 'jetpack' ),
-		) );
 	}
 
 	/**

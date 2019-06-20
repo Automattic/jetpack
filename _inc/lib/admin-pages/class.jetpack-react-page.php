@@ -242,7 +242,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'currentVersion' => JETPACK__VERSION,
 			'is_gutenberg_available' => true,
 			'getModules' => $modules,
-			'showJumpstart' => jetpack_show_jumpstart(),
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl' => esc_url( admin_url() ),
 			'stats' => array(
@@ -320,40 +319,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
 	}
-}
-
-/*
- * Only show Jump Start on first activation.
- * Any option 'jumpstart' other than 'new connection' will hide it.
- *
- * The option can be of 4 things, and will be stored as such:
- * new_connection      : Brand new connection - Show
- * jumpstart_activated : Jump Start has been activated - dismiss
- * jumpstart_dismissed : Manual dismissal of Jump Start - dismiss
- * jetpack_action_taken: Deprecated since 7.3 But still listed here to respect behaviour for old versions.
- *                       Manual activation of a module already happened - dismiss.
- *
- * @todo move to functions.global.php when available
- * @since 3.6
- * @return bool | show or hide
- */
-function jetpack_show_jumpstart() {
-	if ( ! Jetpack::is_active() ) {
-		return false;
-	}
-	$jumpstart_option = Jetpack_Options::get_option( 'jumpstart' );
-
-	$hide_options = array(
-		'jumpstart_activated',
-		'jetpack_action_taken',
-		'jumpstart_dismissed'
-	);
-
-	if ( ! $jumpstart_option || in_array( $jumpstart_option, $hide_options ) ) {
-		return false;
-	}
-
-	return true;
 }
 
 /**

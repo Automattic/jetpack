@@ -2,7 +2,6 @@
 /**
  * Module Name: Copy Post
  * Module Description: Enable the option copy entire posts and pages, including tags and settings
- * Jumpstart Description: Enable the option copy entire posts and pages, including tags and settings
  * Sort Order: 15
  * First Introduced: 7.0
  * Requires Connection: No
