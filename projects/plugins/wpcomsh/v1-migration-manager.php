@@ -248,11 +248,12 @@ class V1_Migration_Manager {
 	 */
 	public function handle_migration_lock_request() {
 		$route = '/wp-json/wp/v2/av1-migration-lock';
-    $uri = $_SERVER[ 'REQUEST_URI' ];
-    if ( substr( $uri, 0, strlen( $route ) ) === $route ) {
-      $action = '';
-      if ( isset( $_GET['action'] ) ) {
-        $action = $_GET['action'];
+		$uri = $_SERVER[ 'REQUEST_URI' ];
+		if ( substr( $uri, 0, strlen( $route ) ) === $route ) {
+
+			$action = '';
+			if ( isset( $_GET['action'] ) ) {
+				$action = $_GET['action'];
 			}
 
 			$has_valid_lock_header = isset( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
