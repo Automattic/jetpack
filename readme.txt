@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: add an option to send a magic link that will help you log in to the mobile apps in one click.
 * Admin Page: improve style and wording of many different sections of the dashboard to clarify the role of each feature.
+* Backups: include updates to term relationships when backing up Post object changes.
 * Faceboook Embeds: support new video URL format.
 * Lazy Load: allow adding event handlers to images.
 * Recurring Payments Block: improve the display of the block in the editor.
