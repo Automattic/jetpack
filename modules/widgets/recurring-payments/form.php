@@ -15,7 +15,7 @@
 		class="widefat jetpack-recurring-payments-widget-title"
 		id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
 		name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
-		value="<?php echo esc_attr( $instance['title'] ); ?>" />
+		value="<?php echo esc_attr( isset( $instance['title'] ) ? $instance['title'] : '' ); ?>" />
 </p>
 <p class="jetpack-recurring-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>">

@@ -29,10 +29,6 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 				)
 			);
 
-			global $pagenow;
-			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
-				add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ) );
-			}
 		}
 
 		/**
