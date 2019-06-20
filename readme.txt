@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin Page: improve style and wording of many different sections of the dashboard to clarify the role of each feature.
 * Recurring Payments Block: improve the display of the block in the editor.
 * WordAds: update link to daily earnings stats on WordPress.com.
 * WordAds: provide dditional details for custom ads.txt entries in the Jetpack dashboard.
