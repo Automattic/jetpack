@@ -7,6 +7,7 @@ use Automattic\Jetpack\Sync\Defaults;
  */
 
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
 
@@ -21,7 +22,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		// create a post
 		$this->meta_module = Modules::get_module( "meta" );
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
+		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
 		$this->post_id = $this->factory->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		$this->sender->do_sync();
@@ -107,7 +108,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( '_private_meta' ) ) );
+		Settings::update_settings( array( 'post_meta_whitelist' => array( '_private_meta' ) ) );
 
 		add_post_meta( $this->post_id, '_private_meta', 'boo' );
 
@@ -124,7 +125,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'comment', $comment_ids[0], '_private_meta', true ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array( '_private_meta' ) ) );
+		Settings::update_settings( array( 'comment_meta_whitelist' => array( '_private_meta' ) ) );
 
 		add_comment_meta( $comment_ids[0], '_private_meta', 'boo' );
 		$this->sender->do_sync();
@@ -133,7 +134,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_whitelisted_post_meta() {
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
+		Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
 		$white_listed_post_meta = Defaults::$post_meta_whitelist;
@@ -148,7 +149,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $white_listed_post_meta as $meta_key ) {
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'post', $this->post_id );
 		}
-		$whitelist = Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' );
+		$whitelist = Settings::get_setting( 'post_meta_whitelist' );
 
 		$whitelist_and_option_keys_difference = array_diff( $whitelist, $white_listed_post_meta );
 		// Are we testing all the options
@@ -159,7 +160,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_whitelisted_comment_meta() {
-		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array() ) );
+		Settings::update_settings( array( 'comment_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
 		$white_listed_comment_meta = Defaults::$comment_meta_whitelist;
@@ -176,7 +177,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $white_listed_comment_meta as $meta_key ) {
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'comment', $comment_ids[0] );
 		}
-		$whitelist = Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' );
+		$whitelist = Settings::get_setting( 'comment_meta_whitelist' );
 
 		$whitelist_and_option_keys_difference = array_diff( $whitelist, $white_listed_comment_meta );
 		// Are we testing all the options

@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Settings;
+
 class Comments extends \Jetpack_Sync_Module {
 
 	public function name() {
@@ -171,7 +173,7 @@ class Comments extends \Jetpack_Sync_Module {
 
 	// Comment Meta
 	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, \Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
+		return in_array( $meta_key, Settings::get_setting( 'comment_meta_whitelist' ) );
 	}
 
 	function filter_meta( $args ) {
@@ -191,7 +193,7 @@ class Comments extends \Jetpack_Sync_Module {
 
 		return array(
 			$comments,
-			$this->get_metadata( $comment_ids, 'comment', \Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
+			$this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
 			$previous_interval_end,
 		);
 	}

@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * An implementation of Replicastore Interface which returns data stored in a WordPress.org DB.
  * This is useful to compare values in the local WP DB to values in the synced replica store
@@ -655,14 +653,14 @@ class Replicastore implements Replicastore_Interface {
 				$object_count = $this->post_count( null, $start_id, $end_id );
 				$object_table = $wpdb->posts;
 				$id_field     = 'ID';
-				$where_sql    = \Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+				$where_sql    = Settings::get_blacklisted_post_types_sql();
 				if ( empty( $columns ) ) {
 					$columns = Defaults::$default_post_checksum_columns;
 				}
 				break;
 			case 'post_meta':
 				$object_table = $wpdb->postmeta;
-				$where_sql    = \Jetpack_Sync_Settings::get_whitelisted_post_meta_sql();
+				$where_sql    = Settings::get_whitelisted_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 
@@ -674,14 +672,14 @@ class Replicastore implements Replicastore_Interface {
 				$object_count = $this->comment_count( null, $start_id, $end_id );
 				$object_table = $wpdb->comments;
 				$id_field     = 'comment_ID';
-				$where_sql    = \Jetpack_Sync_Settings::get_comments_filter_sql();
+				$where_sql    = Settings::get_comments_filter_sql();
 				if ( empty( $columns ) ) {
 					$columns = Defaults::$default_comment_checksum_columns;
 				}
 				break;
 			case 'comment_meta':
 				$object_table = $wpdb->commentmeta;
-				$where_sql    = \Jetpack_Sync_Settings::get_whitelisted_comment_meta_sql();
+				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 				if ( empty( $columns ) ) {
