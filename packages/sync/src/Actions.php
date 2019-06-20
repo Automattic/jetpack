@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Users;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -31,7 +32,7 @@ class Actions {
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
 		// Sync connected user role changes to .com
-		\Jetpack_Sync_Users::init();
+		Users::init();
 
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
