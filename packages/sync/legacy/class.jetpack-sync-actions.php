@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Sender;
 
 /**
@@ -309,7 +310,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_listener() {
-		self::$listener = Jetpack_Sync_Listener::get_instance();
+		self::$listener = Listener::get_instance();
 	}
 
 	static function initialize_sender() {

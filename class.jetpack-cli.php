@@ -3,6 +3,7 @@
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Sync\Listener;
 
 /**
  * Control your local Jetpack installation.
@@ -863,7 +864,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s. Use `wp jetpack sync enable` to enable syncing again.', 'jetpack' ), get_site_url() ) );
-				$listener = Jetpack_Sync_Listener::get_instance();
+				$listener = Listener::get_instance();
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
 					$listener->get_full_sync_queue()->reset();

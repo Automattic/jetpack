@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Listener;
+
 class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
@@ -124,7 +126,7 @@ class Jetpack_Sync_Settings {
 
 			// if we set the disabled option to true, clear the queues
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
-				$listener = Jetpack_Sync_Listener::get_instance();
+				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
 			}
