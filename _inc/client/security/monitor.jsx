@@ -49,7 +49,9 @@ export const Monitor = withModuleSettingsFormHelpers(
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( "Monitor your site's downtime" ) }
+								{ __(
+									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.'
+								) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
