@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 class Updates extends \Jetpack_Sync_Module {
 
@@ -106,7 +106,7 @@ class Updates extends \Jetpack_Sync_Module {
 		// Core was autoudpated
 		if (
 			'update-core.php' !== $pagenow &&
-			! Constants::is_true( 'REST_API_REQUEST' ) // wp.com rest api calls should never be marked as a core autoupdate
+			! Jetpack_Constants::is_true( 'REST_API_REQUEST' ) // wp.com rest api calls should never be marked as a core autoupdate
 		) {
 			/**
 			 * Sync event that fires when core autoupdate was successful
