@@ -269,6 +269,9 @@ class WordAds {
 	 * @return [type] [description]
 	 */
 	function insert_head_meta() {
+		if ( self::is_amp() ) {
+			return;
+		}
 		$themename = esc_js( get_stylesheet() );
 		$pagetype  = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
@@ -291,6 +294,9 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_head_iponweb() {
+		if ( self::is_amp() ) {
+			return;
+		}
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		echo <<<HTML
 		<link rel='dns-prefetch' href='//s.pubmine.com' />
