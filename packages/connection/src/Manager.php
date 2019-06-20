@@ -594,7 +594,7 @@ class Manager implements Manager_Interface {
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token \'%s\' for user %d is malformed', $user_tokens[ $user_id ], $user_id ) );
+				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token for user %d is malformed', $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
 				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
