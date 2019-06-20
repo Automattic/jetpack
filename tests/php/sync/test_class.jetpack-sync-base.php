@@ -5,6 +5,7 @@ use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules\Constants;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
+use Automattic\Jetpack\Sync\Modules\Posts;
 
 Jetpack_Sync_Main::init();
 
@@ -86,7 +87,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$remote = $this->server_replica_storage;
 
 		// Also pass the posts though the same filter other wise they woun't match any more.
-		$posts_sync_module = new Jetpack_Sync_Module_Posts();
+		$posts_sync_module = new Posts();
 
 		$local_posts = array_map( array(
 			$posts_sync_module,

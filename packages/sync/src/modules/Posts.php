@@ -1,8 +1,10 @@
 <?php
 
+namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Constants;
 
-class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
+class Posts extends \Jetpack_Sync_Module {
 
 	private $just_published  = array();
 	private $previous_status = array();
@@ -92,7 +94,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	private function get_where_sql( $config ) {
-		$where_sql = Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+		$where_sql = \Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
 
 		// config is a list of post IDs to sync
 		if ( is_array( $config ) ) {
@@ -121,7 +123,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	function filter_blacklisted_post_types( $args ) {
 		$post = $args[1];
 
-		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
+		if ( in_array( $post->post_type, \Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
 
@@ -139,13 +141,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	function is_whitelisted_post_meta( $meta_key ) {
 		// _wpas_skip_ is used by publicize
-		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ) || wp_startswith( $meta_key, '_wpas_skip_' );
+		return in_array( $meta_key, \Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ) || wp_startswith( $meta_key, '_wpas_skip_' );
 	}
 
 	function is_post_type_allowed( $post_id ) {
 		$post = get_post( intval( $post_id ) );
 		if ( $post->post_type ) {
-			return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
+			return ! in_array( $post->post_type, \Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 		}
 		return false;
 	}
@@ -176,7 +178,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// return non existant post
 		$post_type = get_post_type_object( $post->post_type );
 		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
-			$non_existant_post                    = new stdClass();
+			$non_existant_post                    = new \stdClass();
 			$non_existant_post->ID                = $post->ID;
 			$non_existant_post->post_modified     = $post->post_modified;
 			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
@@ -201,7 +203,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
 			// We only send the bare necessary object to be able to create a checksum.
-			$blocked_post                    = new stdClass();
+			$blocked_post                    = new \stdClass();
 			$blocked_post->ID                = $post->ID;
 			$blocked_post->post_modified     = $post->post_modified;
 			$blocked_post->post_modified_gmt = $post->post_modified_gmt;
@@ -219,7 +221,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
+		if ( \Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
 			global $shortcode_tags;
 			/**
 			 * Filter prevents some shortcodes from expanding.
@@ -361,7 +363,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
 				'display_name'    => $author_user_object->display_name,
 				'email'           => $author_user_object->user_email,
-				'translated_role' => Jetpack::translate_user_to_role( $author_user_object ),
+				'translated_role' => \Jetpack::translate_user_to_role( $author_user_object ),
 			);
 		}
 
@@ -423,7 +425,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		return array(
 			$posts,
-			$this->get_metadata( $post_ids, 'post', Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ),
+			$this->get_metadata( $post_ids, 'post', \Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' ) ),
 			$this->get_term_relationships( $post_ids ),
 			$previous_interval_end,
 		);
