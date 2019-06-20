@@ -92,9 +92,6 @@ class Callables extends \Jetpack_Sync_Module {
 	}
 
 	private function get_callable( $callable ) {
-		if ( 'Functions' == $callable[0] ) {
-			Functions::invoke_autoload_for_indirect_invocation();
-		}
 		return call_user_func( $callable );
 	}
 
