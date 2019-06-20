@@ -419,6 +419,10 @@ class Jetpack_Photon {
 						list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $src );
 					}
 
+					$width_orig     = $width;
+					$height_orig    = $height;
+					$transform_orig = $transform;
+
 					// If width is available, constrain to $content_width
 					if ( false !== $width && false === strpos( $width, '%' ) && is_numeric( $content_width ) ) {
 						if ( $width > $content_width && false !== $height && false === strpos( $height, '%' ) ) {
@@ -468,16 +472,19 @@ class Jetpack_Photon {
 					 *
 					 * @param array $args Array of Photon Arguments.
 					 * @param array $args {
-					 * 	 Array of image details.
+					 *     Array of image details.
 					 *
-					 * 	 @type $tag Image tag (Image HTML output).
-					 * 	 @type $src Image URL.
-					 * 	 @type $src_orig Original Image URL.
-					 * 	 @type $width Image width.
-					 * 	 @type $height Image height.
+					 *     @type string    $tag            Image tag (Image HTML output).
+					 *     @type string    $src            Image URL.
+					 *     @type string    $src_orig       Original Image URL.
+					 *     @type int|false $width          Image width.
+					 *     @type int|false $height         Image height.
+					 *     @type int|false $width_orig     Original image width before constrained by content_width.
+					 *     @type int|false $height_orig    Original Image height before constrained by content_width.
+					 *     @type string    $transform_orig Original transform before constrained by content_width.
 					 * }
 					 */
-					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
+					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform_orig' ) );
 
 					$photon_url = jetpack_photon_url( $src, $args );
 
