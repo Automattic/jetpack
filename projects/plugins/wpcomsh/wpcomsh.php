@@ -55,6 +55,9 @@ require_once( 'endpoints/rest-api.php' );
 // V1 migration helper
 require_once( 'v1-migration-manager.php' );
 
+// Load feature plugin overrides
+require_once( 'feature-plugins/full-site-editing.php' );
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
 }
@@ -316,42 +319,6 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 			'</td>' .
 		'</tr>';
 }
-
-/**
- * Filters whether Starter Page Templates should be disabled.
- *
- * @param bool $should_disable Whether the feature should be disabled.
- * @return bool
- */
-function wpcomsh_maybe_disable_spt( $should_disable ) {
-	$enabled_themes = [
-		'business',
-		'business-wpcom',
-		'calm-business',
-		'calm-business-wpcom',
-		'elegant-business',
-		'elegant-business-wpcom',
-		'friendly-business',
-		'friendly-business-wpcom',
-		'modern-business',
-		'modern-business-wpcom',
-		'professional-business',
-		'professional-business-wpcom',
-		'sophisticated-business',
-		'sophisticated-business-wpcom',
-	];
-
-	if ( ! in_array( get_stylesheet(), $enabled_themes, true ) ) {
-		return true;
-	}
-
-	return $should_disable;
-}
-add_filter( 'a8c_disable_starter_page_templates', 'wpcomsh_maybe_disable_spt' );
-
-// Disable until they're ready for prime time.
-add_filter( 'a8c_disable_full_site_editing', '__return_true', 99 );
-add_filter( 'a8c_disable_starter_page_templates', '__return_true', 99 );
 
 function wpcomsh_register_theme_hooks() {
 	add_filter(
