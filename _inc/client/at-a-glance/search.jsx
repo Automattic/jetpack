@@ -56,12 +56,6 @@ class DashSearch extends Component {
 		isDevMode: false,
 	};
 
-	constructor() {
-		super( ...arguments );
-
-		this.trackSearchLink = this.trackSearchLink.bind( this );
-	}
-
 	trackSearchLink() {
 		analytics.tracks.recordJetpackClick( {
 			type: 'upgrade-link',
