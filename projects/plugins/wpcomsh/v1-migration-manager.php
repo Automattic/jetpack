@@ -13,13 +13,15 @@ class V1_Migration_Manager {
 
 	public $at_options;
 
+	public $migration_activated;
+
 	public function __construct( $at_options ) {
-		$this->at_options = $at_options; 
+		$this->at_options = $at_options;
 		$this->options = wp_parse_args(
 			$at_options['v1_migration_options'] ?? [],
 			[
 				'migration_active'        => false,
-				'maintenance_mode'        => true,
+				'maintenance_mode'        => false,
 				'media_backfill_active'   => true,
 				'show_maintenance_notice' => false,
 				'migration_window_start'  => date('Y-m-d H:i:s'),
@@ -29,12 +31,18 @@ class V1_Migration_Manager {
 			]
 		);
 
+		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock_timeout', 0 );
+		if ( ! $this->migration_activated ) {
+			$this->migration_activated = $this->options['migration_active'];
+		}
+
 		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 			add_filter( 'query',         [ $this, 'enable_lock_while_running_migration' ] );
 			add_action( 'get_header',    [ $this, 'migration_maintenance_mode' ] );
 			add_action( 'wp_footer',     [ $this, 'show_adminbar_notice' ] );
 			add_action( 'admin_notices', [ $this, 'display_migration_notice' ] );
 			add_action( 'admin_notices', [ $this, 'display_upcoming_migration_notice' ] );
+			$this->handle_migration_lock_request();
 		}
 
 		$this->handle_checksum_request();
@@ -50,11 +58,17 @@ class V1_Migration_Manager {
 			return false;
 		}
 
-		$migration_activated = $this->options['migration_active'];
-		if ( $migration_activated && time() < intval( $migration_activated ) ) {
+		if ( $this->migration_activated && time() < intval( $this->migration_activated ) ) {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Alias for is_migration_active
+	 */
+	public function migration_lock_is_active() {
+		return $this->is_migration_active();
 	}
 
 	/**
@@ -75,6 +89,13 @@ class V1_Migration_Manager {
 	*/
 	public function is_query_ok_while_migrating( $query ) {
 		$q = ltrim($query, "\r\n\t (");
+
+		// check for the migration lock header. If set let the query continue
+		if ( ! empty( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
+			'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ]
+		) {
+			return true;
+		}
 
 		// Allow writes to wp_options when updating at_options.
 		if ( 1 === preg_match( '/at_options/', $q ) ) {
@@ -182,7 +203,7 @@ class V1_Migration_Manager {
 		<div class="notice notice-warning">
 			<h2>Scheduled Maintenance</h2>
 			<p>
-				We will be performing scheduled maintenance on <strong><?php echo $migration_day ?></strong> sometime between 9pm and 5am in the 
+				We will be performing scheduled maintenance on <strong><?php echo $migration_day ?></strong> sometime between 9pm and 5am in the
 <a href="https://en.support.wordpress.com/settings/time-settings/#change-timezone" >timezone</a> of your site.<br />
 				<?php if ( $show_migration_window ): ?>
 				The update will begin
@@ -205,7 +226,7 @@ class V1_Migration_Manager {
 	}
 
 	/**
-	 * Returns a checksum of posts data on /wp-json/wp/v2/posts-checksum requests 
+	 * Returns a checksum of posts data on /wp-json/wp/v2/posts-checksum requests
 	 */
 	public function handle_checksum_request() {
 		global $wpdb;
@@ -223,8 +244,73 @@ class V1_Migration_Manager {
 	}
 
 	/**
+	 * Toggles migration lock
+	 */
+	public function handle_migration_lock_request() {
+		$route = '/wp-json/wp/v2/av1-migration-lock';
+		$uri = $_SERVER[ 'REQUEST_URI' ];
+		if ( substr( $uri, 0, strlen( $route ) ) === $route ) {
+
+			$action = '';
+			if ( isset( $_GET['action'] ) ) {
+				$action = $_GET['action'];
+			}
+
+			$has_valid_lock_header = isset( $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ] ) &&
+				'wsNDGmsDpw8gFXEsZNRVkrArCnqbyUgZFVwuGbRMFGsBJoYmEhsA78ncobiqb9cU' === $_SERVER[ 'HTTP_X_WPCOMSH_MIGRATION_LOCK' ];
+
+			if ( ! $has_valid_lock_header ) {
+				// Pretend the route doesn't exist.
+				echo json_encode ( [
+					"code" => "rest_no_route",
+					"data" => [
+						"status" => 404,
+					],
+					"message" =>  "No route was found matching the URL and request method"
+				] );
+				die();
+			}
+
+			switch ($action) {
+
+				case 'get':
+					echo $this->build_migration_lock_response();
+					break;
+
+				case 'enable':
+					$timeout = strtotime( '+2 hours' );
+					if ( isset( $_GET['timeout'] ) ) {
+						$timeout = intval( $_GET['timeout'] );
+					}
+
+					$lock_option_updated = update_option( 'wpcom_atomic_migration_lock_timeout', $timeout );
+					echo $this->build_migration_lock_response( [ "enable_result" => $lock_option_updated ] );
+					break;
+
+				case 'disable';
+					$lock_option_deleted = delete_option( 'wpcom_atomic_migration_lock_timeout' );
+					echo $this->build_migration_lock_response( [ "disable_result" => $lock_option_deleted ] );
+					break;
+			}
+			die();
+		}
+	}
+
+	private function build_migration_lock_response( $action_detail = [] ) {
+		$this->migration_activated = get_option( 'wpcom_atomic_migration_lock_timeout', 0 );
+		$lock_active = $this->migration_lock_is_active();
+
+		$response_data = wp_parse_args( $action_detail, [
+			"lock_active"  => $lock_active,
+			"lock_timeout" => $this->migration_activated,
+		] );
+
+		return json_encode( $response_data );
+	}
+
+	/**
 	 * Factory method to initiate the migration manager.
-	 * 
+	 *
 	 * @return bool|V1_Migration_Manager  returns false if the manager cannot be initialized.
 	 */
 	static function init() {
