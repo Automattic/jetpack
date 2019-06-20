@@ -64,7 +64,7 @@ class RelatedPostsComponent extends React.Component {
 					module={ this.props.getModule( 'related-posts' ) }
 					support={ {
 						text: __(
-							'The related posts feature scans all of your posts’ contents, ' +
+							'The related posts feature scans all of your posts’ content, ' +
 								'analyzes it, and then displays contextual posts your ' +
 								'visitors might be interested in reading. Related posts are ' +
 								'shown at the bottom of each post.'
