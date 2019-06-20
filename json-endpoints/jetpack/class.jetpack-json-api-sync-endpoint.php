@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
 use Automattic\Jetpack\Sync\Sender;
@@ -36,7 +37,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( empty( $modules ) ) {
 			$modules = null;
 		}
-		return array( 'scheduled' => Jetpack_Sync_Actions::do_full_sync( $modules ) );
+		return array( 'scheduled' => Actions::do_full_sync( $modules ) );
 	}
 
 	protected function validate_queue( $query ) {
@@ -56,7 +57,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 	protected function result() {
 		$args   = $this->query_args();
 		$fields = isset( $args['fields'] ) ? $args['fields'] : array();
-		return Jetpack_Sync_Actions::get_sync_status( $fields );
+		return Actions::get_sync_status( $fields );
 	}
 }
 

@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 
 function jetpack_foo_full_sync_callable() {
@@ -1342,7 +1343,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		Actions::do_initial_sync( '4.2', '4.1' );
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array(

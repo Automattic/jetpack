@@ -324,7 +324,7 @@ class Actions {
 		if ( false === class_exists( 'WooCommerce' ) ) {
 			return;
 		}
-		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
@@ -336,7 +336,7 @@ class Actions {
 		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 			return;
 		}
-		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_wp_super_cache_sync_module' ) );
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_wp_super_cache_sync_module' ) );
 	}
 
 	static function add_wp_super_cache_sync_module( $sync_modules ) {
@@ -440,7 +440,7 @@ class Actions {
 			self::clear_sync_cron_jobs();
 			\Jetpack_Sync_Settings::update_settings(
 				array(
-					'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content,
+					'render_filtered_content' => \Jetpack_Sync_Defaults::$default_render_filtered_content,
 				)
 			);
 		}
