@@ -89,6 +89,11 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							link: 'https://jetpack.com/support/sharing/',
 						} }
 					>
+						<p>
+							{ __(
+								'Sharing buttons are about expanding your reach: when you add them to your content, site visitors can share your posts and pages on social media with a couple of quick clicks.'
+							) }
+						</p>
 						<ModuleToggle
 							slug="sharedaddy"
 							activated={ isActive }
