@@ -73,7 +73,11 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 		 */
 		function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-			$plan = Jetpack_Memberships::product_post_to_array( $instance['product_post_id'] );
+			$post = get_post( $instance['product_post_id'] );
+			if ( ! $post ) {
+				return;
+			}
+			$plan = Jetpack_Memberships::product_post_to_array( $post );
 			if ( ! $plan ) {
 				return;
 			}
@@ -146,6 +150,7 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 		 * @param array $instance Previously saved values from database.
 		 */
 		function form( $instance ) {
+			$instance = wp_parse_args( $instance, $this->defaults() );
 			$product_posts = get_posts(
 				array(
 					'numberposts' => 100,
@@ -154,6 +159,7 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 					'post_status' => 'publish',
 				)
 			);
+
 			$product_posts = array_map( function( $post ) {
 				return Jetpack_Memberships::product_post_to_array( $post );
 			}, $product_posts );
