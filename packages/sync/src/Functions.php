@@ -278,7 +278,7 @@ class Functions {
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
 			// ensure that we get more uniform values.
-			$value = Jetpack_Options::get_raw_option( $option_name );
+			$value = \Jetpack_Options::get_raw_option( $option_name );
 		}
 
 		return $value;
