@@ -4,10 +4,6 @@ import {
 	mobile as mobileReducer
 } from '../reducer';
 
-const jumpstartState = {
-	showJumpStart: {},
-	isJumpstarting: false
-};
 describe( 'Mobile reducer', () => {
 	it( 'should default values to false or null', () => {
 		const stateOut = mobileReducer( undefined, {} );

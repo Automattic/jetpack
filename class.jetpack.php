@@ -2472,7 +2472,6 @@ class Jetpack {
 		$headers = array(
 			'name'                      => 'Module Name',
 			'description'               => 'Module Description',
-			'jumpstart_desc'            => 'Jumpstart Description',
 			'sort'                      => 'Sort Order',
 			'recommendation_order'      => 'Recommendation Order',
 			'introduced'                => 'First Introduced',
@@ -2532,12 +2531,11 @@ class Jetpack {
 		 * Filters the feature array on a module.
 		 *
 		 * This filter allows you to control where each module is filtered: Recommended,
-		 * Jumpstart, and the default "Other" listing.
+		 * and the default "Other" listing.
 		 *
 		 * @since 3.5.0
 		 *
 		 * @param array   $mod['feature'] The areas to feature this module:
-		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once.
 		 *     'Recommended' shows on the main Jetpack admin screen.
 		 *     'Other' should be the default if no other value is in the array.
 		 * @param string  $module The slug of the module, e.g. sharedaddy.
@@ -5109,15 +5107,7 @@ p {
 		 */
 		do_action( 'jetpack_site_registered', $registration_details->jetpack_id, $registration_details->jetpack_secret, $jetpack_public );
 
-		// Initialize Jump Start for the first and only time.
-		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
-
-			$jetpack = Jetpack::init();
-
-			$jetpack->stat( 'jumpstart', 'unique-views' );
-			$jetpack->do_stats( 'server_side' );
-		};
+		$jetpack = Jetpack::init();
 
 		return true;
 	}
