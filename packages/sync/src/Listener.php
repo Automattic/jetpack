@@ -235,7 +235,7 @@ class Listener {
 					$args,
 					get_current_user_id(),
 					microtime( true ),
-					\Settings::is_importing(),
+					Settings::is_importing(),
 					$this->get_actor( $current_filter, $args ),
 				)
 			);
@@ -246,7 +246,7 @@ class Listener {
 					$args,
 					get_current_user_id(),
 					microtime( true ),
-					\Settings::is_importing(),
+					Settings::is_importing(),
 				)
 			);
 		}
