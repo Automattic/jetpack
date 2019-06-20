@@ -194,7 +194,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'subscriptions' => array(
 				'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow users to subscribe to your posts and comments and receive notifications via email', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let visitors to subscribe to new posts and comments via email', 'Module Description', 'jetpack' ),
 			),
 
 			'tiled-gallery' => array(
