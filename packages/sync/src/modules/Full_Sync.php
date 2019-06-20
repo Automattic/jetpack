@@ -127,7 +127,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		}
 
 		// if full sync queue is full, don't enqueue more items
-		$max_queue_size_full_sync = Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
+		$max_queue_size_full_sync = \Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
 		$full_sync_queue          = new Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
