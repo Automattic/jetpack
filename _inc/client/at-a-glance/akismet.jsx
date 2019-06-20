@@ -34,13 +34,6 @@ class DashAkismet extends Component {
 		isDevMode: '',
 	};
 
-	constructor() {
-		super( ...arguments );
-
-		this.trackInstallClick = this.trackInstallClick.bind( this );
-		this.trackActivateClick = this.trackActivateClick.bind( this );
-	}
-
 	trackInstallClick() {
 		analytics.tracks.recordJetpackClick( {
 			type: 'install-link',
