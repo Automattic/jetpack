@@ -24,13 +24,7 @@ class UpgradeLink extends PureComponent {
 		upgradeUrl: PropTypes.string.isRequired,
 	};
 
-	constructor() {
-		super( ...arguments );
-
-		this.trackClick = this.trackClick.bind( this );
-	}
-
-	trackClick() {
+	trackClick = () => {
 		const { target, feature } = this.props;
 
 		if ( target && feature ) {
@@ -40,7 +34,7 @@ class UpgradeLink extends PureComponent {
 				feature,
 			} );
 		}
-	}
+	};
 
 	render() {
 		return (
