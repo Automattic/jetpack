@@ -10,6 +10,15 @@
  * @return bool
  */
 function wpcomsh_maybe_disable_spt( $should_disable ) {
+	// `environment-id` is added to Gutenframe `iframe` query args
+	// within the Calypso repo
+	$is_horizon = ( ! empty( $_GET['environment-id'] ) && $_GET['environment-id'] === 'horizon' );
+
+	// Disable outside Horizon
+	if ( ! $is_horizon ) {
+		return true;
+	}
+
 	$enabled_themes = [
 		'business',
 		'business-wpcom',
@@ -37,7 +46,6 @@ add_filter( 'a8c_disable_starter_page_templates', 'wpcomsh_maybe_disable_spt' );
 
 // Disable until they're ready for prime time.
 add_filter( 'a8c_disable_full_site_editing', '__return_true', 99 );
-add_filter( 'a8c_disable_starter_page_templates', '__return_true', 99 );
 
 /**
  * Adds the tracking identity to config that is passed to Starter Page Template frontend.
