@@ -50,7 +50,7 @@ class MyPlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Welcome to Jetpack Free' ) }
+								{ __( 'Your plan: Jetpack Free' ) }
 							</h3>
 							<p className="jp-landing__plan-features-text">
 								{ __( 'Get started with hassle-free design, stats, and performance tools.' ) }
@@ -73,7 +73,7 @@ class MyPlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Welcome to Jetpack Personal' ) }
+								{ __( 'Your plan: Jetpack Personal' ) }
 							</h3>
 							{ this.props.showBackups ? (
 								<p className="jp-landing__plan-features-text">
@@ -102,7 +102,7 @@ class MyPlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Welcome to Jetpack Premium' ) }
+								{ __( 'Your plan: Jetpack Premium' ) }
 							</h3>
 							<p className="jp-landing__plan-features-text">
 								{ __(
@@ -127,7 +127,7 @@ class MyPlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Welcome to Jetpack Professional' ) }
+								{ __( 'Your plan: Jetpack Professional' ) }
 							</h3>
 							<p className="jp-landing__plan-features-text">
 								{ __(
