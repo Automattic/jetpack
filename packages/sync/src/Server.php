@@ -17,7 +17,7 @@ class Server {
 		$this->codec = new \Jetpack_Sync_JSON_Deflate_Array_Codec();
 	}
 
-	function set_codec( \iJetpack_Sync_Codec $codec ) {
+	function set_codec( Codec_Interface $codec ) {
 		$this->codec = $codec;
 	}
 
