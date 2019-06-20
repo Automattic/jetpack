@@ -50,7 +50,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __(
-									"Get alerts if your site goes offline. We’ll let you know when it's back up, too."
+									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.'
 								) }
 							</span>
 						</ModuleToggle>
