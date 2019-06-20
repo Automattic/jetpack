@@ -63,12 +63,19 @@ class RelatedPostsComponent extends React.Component {
 					disableInDevMode
 					module={ this.props.getModule( 'related-posts' ) }
 					support={ {
+						text: __(
+							'The related posts feature scans all of your posts’ contents, ' +
+								'analyzes it, and then displays contextual posts your ' +
+								'visitors might be interested in reading. Related posts are ' +
+								'shown at the bottom of each post.'
+						),
 						link: 'https://jetpack.com/support/related-posts/',
 					} }
 				>
-					<p className="jp-form-setting-explanation">
+					<p>
 						{ __(
-							"These settings won't apply to {{a}}related posts added using the block editor{{/a}}.",
+							'Keep your visitors engaged with related content at the bottom of each post. ' +
+								"These settings won't apply to {{a}}related posts added using the block editor{{/a}}.",
 							{
 								components: {
 									a: (
