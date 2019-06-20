@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 /**
  * Logs valid failed login attempts via sync.
@@ -22,7 +22,7 @@ class Protect extends \Jetpack_Sync_Module {
 
 	function maybe_log_failed_login_attempt( $failed_attempt ) {
 		$protect = \Jetpack_Protect_Module::instance();
-		if ( $protect->has_login_ability() && ! Constants::is_true( 'XMLRPC_REQUEST' ) ) {
+		if ( $protect->has_login_ability() && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}
 	}
