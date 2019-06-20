@@ -307,7 +307,7 @@ class Sender {
 	}
 
 	function send_checksum() {
-		$store = new \Jetpack_Sync_WP_Replicastore();
+		$store = new Replicastore();
 		do_action( 'jetpack_sync_checksum', $store->checksum_all() );
 	}
 

@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules\Constants;
+use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 use Automattic\Jetpack\Sync\Modules\Posts;
@@ -83,7 +84,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	}
 
 	protected function assertDataIsSynced() {
-		$local  = new Jetpack_Sync_WP_Replicastore();
+		$local  = new Replicastore();
 		$remote = $this->server_replica_storage;
 
 		// Also pass the posts though the same filter other wise they woun't match any more.

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Replicastore;
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	require_once ABSPATH . 'wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-test-object-factory.php';
 } else {
@@ -500,7 +502,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		unset( $retrieved_comment->comment_date );
 		unset( $retrieved_comment->comment_date_gmt );
 
-		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting comments post_fields" );
 		}
 
@@ -577,7 +579,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 */
 	function test_replica_set_theme_support( $store ) {
 
-		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting theme options directly" );
 		}
 
@@ -805,7 +807,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_replica_set_callables( $store ) {
-		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting callables directly" );
 		}
 
@@ -855,7 +857,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_replica_update_users( $store ) {
-		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
 		}
 
@@ -897,7 +899,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 	 * @requires PHP 5.3
 	 */
 	function test_replica_get_allowed_mime_types( $store ) {
-		if ( $store instanceof Jetpack_Sync_WP_Replicastore ) {
+		if ( $store instanceof Replicastore ) {
 			$this->markTestIncomplete( "The WP replicastore doesn't support setting users" );
 		}
 
