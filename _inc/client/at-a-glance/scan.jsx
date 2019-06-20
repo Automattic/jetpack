@@ -40,6 +40,7 @@ const renderCard = props => (
 		className={ props.className || '' }
 		status={ props.status || '' }
 		pro={ true }
+		overrideContent={ props.overrideContent }
 	>
 		{ isArray( props.content ) ? (
 			props.content
@@ -137,6 +138,7 @@ class DashScan extends Component {
 		const planClass = getPlanClass( get( sitePlan, 'product_slug', '' ) );
 		const hasPremium = 'is-premium-plan' === planClass;
 		const hasBusiness = 'is-business-plan' === planClass;
+
 		const scanContent =
 			hasPremium || hasBusiness || scanEnabled ? (
 				<p className="jp-dash-item__description" key="inactive-scanning">
@@ -155,7 +157,10 @@ class DashScan extends Component {
 						}
 					) }
 				</p>
-			) : (
+			) : null;
+
+		const overrideContent =
+			null === scanContent ? (
 				<JetpackBanner
 					callToAction={ __( 'Upgrade' ) }
 					title={ __(
@@ -168,11 +173,13 @@ class DashScan extends Component {
 					plan={ PLAN_JETPACK_PREMIUM }
 					icon="lock"
 				/>
-			);
+			) : null;
+
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			status: hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive',
 			content: [ scanContent ],
+			overrideContent,
 		} );
 	}
 
