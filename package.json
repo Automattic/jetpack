@@ -28,7 +28,7 @@
 		"build-client": "gulp",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
 		"build-php": "composer install",
-		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install --no-dev --classmap-authoritative",
+		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
 		"build-production": "yarn distclean && yarn install --production && yarn build-production-client && yarn build-production-php && NODE_ENV=production yarn build-extensions && gulp languages:extract",
 		"build-languages": "gulp languages",
