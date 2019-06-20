@@ -60,6 +60,11 @@ class PostByEmail extends React.Component {
 						link: 'https://jetpack.com/support/post-by-email/',
 					} }
 				>
+					<p>
+						{ __(
+							'Post by email is a quick way to publish new posts without visiting your site. We’ll generate a unique email address for you to send your content to, which will then appear on your site just like any other post.'
+						) }
+					</p>
 					{ this.props.userCanManageModules ? (
 						<ModuleToggle
 							slug="post-by-email"
@@ -80,7 +85,7 @@ class PostByEmail extends React.Component {
 					) }
 					<FormFieldset>
 						<FormLabel>
-							<FormLegend>{ __( 'Email Address' ) }</FormLegend>
+							<FormLegend>{ __( 'Send your new posts to this email address:' ) }</FormLegend>
 							<ClipboardButtonInput
 								value={ emailAddress }
 								disabled={ ! isPbeActive || disabledControls }
