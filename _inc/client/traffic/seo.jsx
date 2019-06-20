@@ -39,7 +39,7 @@ class SeoComponent extends React.Component {
 				>
 					<span>
 						{ __(
-							"You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
+							"Jetpack SEO tools will give you live previews of what your site homepage and posts look like in popular search engines. Reorder items such as 'Site Name’' and 'Tagline' without having to touch any code.",
 							{
 								components: {
 									a: <a href="https://jetpack.com/support/seo-tools/" />,

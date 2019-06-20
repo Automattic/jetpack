@@ -150,7 +150,9 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.' ) }
+						title={ __(
+							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.'
+						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -165,7 +167,9 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Help your content get found and shared with SEO tools.' ) }
+						title={ __(
+							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium.'
+						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
