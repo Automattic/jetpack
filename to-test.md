@@ -28,6 +28,28 @@ This feature introduces a new option in the Jetpack dashboard. If you use one of
 4. Click Send Link button
 5. Ensure that you receive email with magic link
 
+### VideoPress
+
+We've made some changes to how video thumbnails were saved after uploading a video using Jetpack Videos, aka VideoPress. To test this, try the following:
+
+1. Start with a site including a plan that supports Jetpack Videos
+2. Go to Jetpack > Settings and enable the Video toggle.
+3. Go to this page and select your site: https://wordpress.com/media/
+4. Upload a video. After uploading, you may have to wait a few minutes for the video to be processed.
+5. Refresh the page, and you should see a video thumbnail appear below the video icon for that video.
+6. Try setting a different Video thumbnail there.
+7. Go back to your site and enable the Image CDN option under Jetpack > Settings > Performance.
+8. Add the following code snippet (here is how you can do it](https://jetpack.com/support/adding-code-snippets/)):
+```php
+add_filter('jetpack_photon_pre_args', 'jetpackme_custom_photon_compression' );
+function jetpackme_custom_photon_compression( $args ) {
+	$args['quality'] = 80;
+	$args['strip'] = 'all';
+	return $args;
+}
+```
+9. Repeat steps 3 to 5, make sure video thumbnails appear nicely for existing and new videos.
+
 
 ### Others
 
