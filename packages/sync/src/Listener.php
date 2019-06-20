@@ -1,6 +1,7 @@
 <?php
 
 namespace Automattic\Jetpack\Sync;
+use Automattic\Jetpack\Sync\Queue;
 
 /**
  * This class monitors actions and logs them to the queue to be sent
@@ -311,8 +312,8 @@ class Listener {
 	}
 
 	function set_defaults() {
-		$this->sync_queue      = new \Jetpack_Sync_Queue( 'sync' );
-		$this->full_sync_queue = new \Jetpack_Sync_Queue( 'full_sync' );
+		$this->sync_queue      = new Queue( 'sync' );
+		$this->full_sync_queue = new Queue( 'full_sync' );
 		$this->set_queue_size_limit( \Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( \Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
 	}

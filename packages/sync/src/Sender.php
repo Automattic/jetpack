@@ -367,8 +367,8 @@ class Sender {
 
 
 	function set_defaults() {
-		$this->sync_queue      = new \Jetpack_Sync_Queue( 'sync' );
-		$this->full_sync_queue = new \Jetpack_Sync_Queue( 'full_sync' );
+		$this->sync_queue      = new Queue( 'sync' );
+		$this->full_sync_queue = new Queue( 'full_sync' );
 		$this->set_codec();
 
 		// saved settings
