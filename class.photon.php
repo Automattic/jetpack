@@ -536,7 +536,9 @@ class Jetpack_Photon {
 						}
 
 						// Tag an image for dimension checking
-						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						if ( ! Jetpack_AMP_Support::is_amp_request() ) {
+							$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						}
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
