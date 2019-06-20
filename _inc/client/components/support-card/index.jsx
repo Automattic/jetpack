@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
-import Button from 'components/button';
 import analytics from 'lib/analytics';
 
 /**
@@ -80,7 +79,7 @@ class SupportCard extends React.Component {
 								: __( 'Your paid plan gives you access to prioritized Jetpack support.' ) }
 						</p>
 						<p className="jp-support-card__description">
-							<Button
+							<a
 								onClick={ this.trackAskQuestionClick }
 								href={
 									this.props.isAtomicSite
@@ -89,17 +88,7 @@ class SupportCard extends React.Component {
 								}
 							>
 								{ __( 'Ask a question' ) }
-							</Button>
-							<Button
-								onClick={ this.trackSearchClick }
-								href={
-									this.props.isAtomicSite
-										? 'https://wordpress.com/help/'
-										: 'https://jetpack.com/support/'
-								}
-							>
-								{ __( 'Search our support site' ) }
-							</Button>
+							</a>
 						</p>
 					</div>
 				</Card>
