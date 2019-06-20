@@ -418,4 +418,12 @@ class Functions {
 		}
 		return false;
 	}
+
+	/**
+	 * When this class is invoked via `call_user_func('Functions', 'some_method')`
+	 * it won't autoload unless an explicit call is made to it first.
+	 */
+	public static function invoke_autoload_for_indirect_invocation() {
+		return null;
+	}
 }
