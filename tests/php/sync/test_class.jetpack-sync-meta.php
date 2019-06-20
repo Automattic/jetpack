@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Defaults;
+
 /**
  * Testing CRUD on Meta
  */
@@ -134,7 +136,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_post_meta = Jetpack_Sync_Defaults::$post_meta_whitelist;
+		$white_listed_post_meta = Defaults::$post_meta_whitelist;
 
 		// update all the opyions.
 		foreach ( $white_listed_post_meta as $meta_key ) {
@@ -160,7 +162,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array() ) );
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
-		$white_listed_comment_meta = Jetpack_Sync_Defaults::$comment_meta_whitelist;
+		$white_listed_comment_meta = Defaults::$comment_meta_whitelist;
 
 		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
 

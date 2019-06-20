@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Defaults;
+
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
@@ -36,8 +38,8 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->listener->get_sync_queue()->reset();
 
 		// first, let's try overriding the default queue limit
-		$this->assertEquals( Jetpack_Sync_Defaults::$default_max_queue_size, $this->listener->get_queue_size_limit() );
-		$this->assertEquals( Jetpack_Sync_Defaults::$default_max_queue_lag, $this->listener->get_queue_lag_limit() );
+		$this->assertEquals( Defaults::$default_max_queue_size, $this->listener->get_queue_size_limit() );
+		$this->assertEquals( Defaults::$default_max_queue_lag, $this->listener->get_queue_lag_limit() );
 
 		// set max queue size to 2 items
 		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size' => 2 ) );

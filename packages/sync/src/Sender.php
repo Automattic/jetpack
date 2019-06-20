@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Defaults;
 
 /**
  * This class grabs pending actions from the queue and sends them
@@ -381,7 +382,7 @@ class Sender {
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 		$this->set_enqueue_wait_time( $settings['enqueue_wait_time'] );
 		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
-		$this->set_max_dequeue_time( \Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->set_max_dequeue_time( Defaults::get_max_sync_execution_time() );
 	}
 
 	function reset_data() {
