@@ -3,13 +3,14 @@
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Main;
 use Automattic\Jetpack\Sync\Modules\Constants;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 use Automattic\Jetpack\Sync\Modules\Posts;
 
-Jetpack_Sync_Main::init();
+Main::init();
 
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
 
