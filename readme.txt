@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: improve style and wording of many different sections of the dashboard to clarify the role of each feature.
 * Admin Page: remove feature that would offer you to activate a list of recommended features upon connecting your site to WordPress.com.
 * Backups: include updates to term relationships when backing up Post object changes.
+* Backups: synchronize ABSPATH value to help setting up SSH credentials when using Jetpack Backups.
 * Faceboook Embeds: support new video URL format.
 * Lazy Load: allow adding event handlers to images.
 * Recurring Payments Block: improve the display of the block in the editor.
