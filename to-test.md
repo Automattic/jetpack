@@ -1,5 +1,11 @@
 ## 7.5
 
+### Dashboard
+
+This release introduces many small changes in the Jetpack dashboard. We've updating the wording that describes several features, we've removed a feature that would offer you to activate a list of recommended features upon connecting your site to WordPress.com, we've removed some of the buttons offering you to upgrade to a Paid plan on the "At a Glance" view, we've tried to describe each plan a little better, and more.
+
+Do not hesitate to browse through all main Dashboard Pages ("At a Glance", "My Plan", "Plans", "Settings"). Check the phrases describing each feature, and let us know if you spot any typo or anything odd.
+
 ### Magic Links
 
 This feature introduces a new option in the Jetpack dashboard. If you use one of the mobile apps, you'll now be able to send an email to yourself, from the Jetpack dashboard, with a magic link that will allow you to log in to the mobile app in one click. We would invite you to test two scenarios:
