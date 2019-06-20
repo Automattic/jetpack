@@ -1,7 +1,6 @@
 <?php
 
 namespace Automattic\Jetpack\Sync;
-use Automattic\Jetpack\Sync\Queue;
 
 /**
  * This class monitors actions and logs them to the queue to be sent
@@ -253,10 +252,10 @@ class Listener {
 		}
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
-		if ( ! \Jetpack_Sync_Actions::$sender ) {
+		if ( ! Actions::$sender ) {
 			add_filter( 'jetpack_sync_sender_should_load', '__return_true' );
 			if ( did_action( 'init' ) ) {
-				\Jetpack_Sync_Actions::add_sender_shutdown();
+				Actions::add_sender_shutdown();
 			}
 		}
 	}

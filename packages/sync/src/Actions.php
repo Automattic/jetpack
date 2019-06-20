@@ -1,8 +1,8 @@
 <?php
 
+namespace Automattic\Jetpack\Sync;
+
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Listener;
-use Automattic\Jetpack\Sync\Sender;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -10,7 +10,7 @@ use Automattic\Jetpack\Sync\Sender;
  *
  * It also binds the action to send data to WPCOM to Jetpack's XMLRPC client object.
  */
-class Jetpack_Sync_Actions {
+class Actions {
 	static $sender                         = null;
 	static $listener                       = null;
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
@@ -31,7 +31,7 @@ class Jetpack_Sync_Actions {
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
 		// Sync connected user role changes to .com
-		Jetpack_Sync_Users::init();
+		\Jetpack_Sync_Users::init();
 
 		// publicize filter to prevent publicizing blacklisted post types
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
@@ -106,16 +106,16 @@ class Jetpack_Sync_Actions {
 		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
 			return true;
 		}
-		if ( ! Jetpack_Sync_Settings::is_sync_enabled() ) {
+		if ( ! \Jetpack_Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
-		if ( Jetpack::is_development_mode() ) {
+		if ( \Jetpack::is_development_mode() ) {
 			return false;
 		}
-		if ( Jetpack::is_staging_site() ) {
+		if ( \Jetpack::is_staging_site() ) {
 			return false;
 		}
-		if ( ! Jetpack::is_active() ) {
+		if ( ! \Jetpack::is_active() ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}
@@ -125,11 +125,11 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function sync_via_cron_allowed() {
-		return ( Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
+		return ( \Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
-		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
+		if ( in_array( $post->post_type, \Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
 
@@ -137,33 +137,33 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function set_is_importing_true() {
-		Jetpack_Sync_Settings::set_importing( true );
+		\Jetpack_Sync_Settings::set_importing( true );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
-		Jetpack::load_xml_rpc_client();
+		\Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
 			'sync'      => '1',             // add an extra parameter to the URL so we can tell it's a sync action
 			'codec'     => $codec_name,     // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 			'queue'     => $queue_id,       // sync or full_sync
-			'home'      => Jetpack_Sync_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
-			'siteurl'   => Jetpack_Sync_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'home'      => \Jetpack_Sync_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
+			'siteurl'   => \Jetpack_Sync_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
 			'cd'        => sprintf( '%.4f', $checkout_duration ),   // Time spent retrieving queue items from the DB
 			'pd'        => sprintf( '%.4f', $preprocess_duration ), // Time spent converting queue items into data to send
 		);
 
 		// Has the site opted in to IDC mitigation?
-		if ( Jetpack::sync_idc_optin() ) {
+		if ( \Jetpack::sync_idc_optin() ) {
 			$query_args['idc'] = true;
 		}
 
-		if ( Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
+		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
 			$query_args['migrate_for_idc'] = true;
 		}
 
-		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
+		$query_args['timeout'] = \Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
 
 		/**
 		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
@@ -174,9 +174,9 @@ class Jetpack_Sync_Actions {
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
-		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
+		$url = add_query_arg( $query_args, \Jetpack::xmlrpc_api_url() );
 
-		$rpc = new Jetpack_IXR_Client(
+		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
 				'user_id' => JETPACK_MASTER_USER,
@@ -202,13 +202,13 @@ class Jetpack_Sync_Actions {
 			);
 
 			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
-				Jetpack_Options::update_option(
+				\Jetpack_Options::update_option(
 					'sync_error_idc',
-					Jetpack::get_sync_error_idc_option( $response )
+					\Jetpack::get_sync_error_idc_option( $response )
 				);
 			}
 
-			return new WP_Error(
+			return new \WP_Error(
 				'sync_error_idc',
 				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
 			);
@@ -242,7 +242,7 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
-		$full_sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$full_sync_module = \Jetpack_Sync_Modules::get_module( 'full-sync' );
 
 		if ( ! $full_sync_module ) {
 			return false;
@@ -290,7 +290,7 @@ class Jetpack_Sync_Actions {
 
 		self::initialize_sender();
 
-		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$time_limit = \Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
 		$start_time = time();
 
 		do {
@@ -324,7 +324,7 @@ class Jetpack_Sync_Actions {
 		if ( false === class_exists( 'WooCommerce' ) ) {
 			return;
 		}
-		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
@@ -336,7 +336,7 @@ class Jetpack_Sync_Actions {
 		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 			return;
 		}
-		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_wp_super_cache_sync_module' ) );
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_wp_super_cache_sync_module' ) );
 	}
 
 	static function add_wp_super_cache_sync_module( $sync_modules ) {
@@ -438,9 +438,9 @@ class Jetpack_Sync_Actions {
 		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
 		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
 			self::clear_sync_cron_jobs();
-			Jetpack_Sync_Settings::update_settings(
+			\Jetpack_Sync_Settings::update_settings(
 				array(
-					'render_filtered_content' => Jetpack_Sync_Defaults::$default_render_filtered_content,
+					'render_filtered_content' => \Jetpack_Sync_Defaults::$default_render_filtered_content,
 				)
 			);
 		}
@@ -455,7 +455,7 @@ class Jetpack_Sync_Actions {
 	static function get_sync_status( $fields = null ) {
 		self::initialize_sender();
 
-		$sync_module     = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sync_module     = \Jetpack_Sync_Modules::get_module( 'full-sync' );
 		$queue           = self::$sender->get_sync_queue();
 		$full_queue      = self::$sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
@@ -464,7 +464,7 @@ class Jetpack_Sync_Actions {
 		$checksums = array();
 
 		if ( ! empty( $fields ) ) {
-			$store         = new Jetpack_Sync_WP_Replicastore();
+			$store         = new \Jetpack_Sync_WP_Replicastore();
 			$fields_params = array_map( 'trim', explode( ',', $fields ) );
 
 			if ( in_array( 'posts_checksum', $fields_params, true ) ) {
