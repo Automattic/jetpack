@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 class Posts extends \Jetpack_Sync_Module {
 
@@ -320,7 +320,7 @@ class Posts extends \Jetpack_Sync_Module {
 			false;
 
 		$state = array(
-			'is_auto_save'                 => (bool) Constants::get_constant( 'DOING_AUTOSAVE' ),
+			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
 			'previous_status'              => $previous_status,
 			'just_published'               => $just_published,
 			'is_gutenberg_meta_box_update' => $this->is_gutenberg_meta_box_update(),
