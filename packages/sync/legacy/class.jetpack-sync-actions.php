@@ -328,7 +328,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
-		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce';
 		return $sync_modules;
 	}
 
