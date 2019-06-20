@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Options extends \Jetpack_Sync_Module {
 	private $options_whitelist, $options_contentless;
 
 	public function name() {
@@ -92,7 +94,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	}
 
 	function update_options_whitelist() {
-		$this->options_whitelist = Jetpack_Sync_Defaults::get_options_whitelist();
+		$this->options_whitelist = \Jetpack_Sync_Defaults::get_options_whitelist();
 	}
 
 	function set_options_whitelist( $options ) {
@@ -104,7 +106,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	}
 
 	function update_options_contentless() {
-		$this->options_contentless = Jetpack_Sync_Defaults::get_options_contentless();
+		$this->options_contentless = \Jetpack_Sync_Defaults::get_options_contentless();
 	}
 
 	function get_options_contentless() {
@@ -157,9 +159,9 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
 		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
 			// This is the option that is synced with dotcom
-			Jetpack_Options::update_option( 'site_icon_url', $url );
+			\Jetpack_Options::update_option( 'site_icon_url', $url );
 		} elseif ( empty( $url ) ) {
-			Jetpack_Options::delete_option( 'site_icon_url' );
+			\Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
 

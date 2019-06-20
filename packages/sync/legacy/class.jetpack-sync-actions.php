@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Sender;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -308,11 +310,11 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_listener() {
-		self::$listener = Jetpack_Sync_Listener::get_instance();
+		self::$listener = Listener::get_instance();
 	}
 
 	static function initialize_sender() {
-		self::$sender = Jetpack_Sync_Sender::get_instance();
+		self::$sender = Sender::get_instance();
 
 		// bind the sending process
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );

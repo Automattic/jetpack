@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Sender;
 
 /**
  * Class Jetpack_Debug_Data
@@ -284,7 +285,7 @@ class Jetpack_Debug_Data {
 			);
 		}
 
-		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
+		$queue = Sender::get_instance()->get_sync_queue();
 
 		$debug_info['sync_size'] = array(
 			'label'   => 'Sync Queue Size',
@@ -297,7 +298,7 @@ class Jetpack_Debug_Data {
 			'private' => false,
 		);
 
-		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
+		$full_sync_queue = Sender::get_instance()->get_full_sync_queue();
 
 		$debug_info['full_sync_size'] = array(
 			'label'   => 'Full Sync Queue Size',

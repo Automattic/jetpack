@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Tracking;
 
 /*
@@ -3149,7 +3150,7 @@ p {
 		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
-		Jetpack_Sync_Sender::get_instance()->uninstall();
+		Sender::get_instance()->uninstall();
 
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();

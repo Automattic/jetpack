@@ -196,7 +196,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "7feb756c23c7c54941fbd9620a22407fbaa59028",
+                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a",
                 "shasum": null
             },
             "require": {
@@ -209,6 +209,7 @@
                     "/legacy"
                 ],
                 "psr-4": {
+                    "Automattic\\Jetpack\\Sync\\": "src/",
                     "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
                 }
             },

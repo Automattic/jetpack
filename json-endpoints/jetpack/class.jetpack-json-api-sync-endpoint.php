@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Sender;
+
 // POST /sites/%s/sync
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
@@ -137,7 +139,7 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 		$object_type = $args['object_type'];
 		$object_ids  = $args['object_ids'];
 
-		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
+		$codec = Sender::get_instance()->get_codec();
 
 		Jetpack_Sync_Settings::set_is_syncing( true );
 		$objects = $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) );
@@ -159,7 +161,7 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 			return $queue_name;
 		}
 
-		$sender = Jetpack_Sync_Sender::get_instance();
+		$sender = Sender::get_instance();
 		$response = $sender->do_sync_for_queue( new Jetpack_Sync_Queue( $args['queue'] ) );
 
 		return array(
@@ -187,7 +189,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			return new WP_Error( 'queue_size', 'The queue is empty and there is nothing to send', 400 );
 		}
 
-		$sender = Jetpack_Sync_Sender::get_instance();
+		$sender = Sender::get_instance();
 
 		// try to give ourselves as much time as possible
 		set_time_limit( 0 );
