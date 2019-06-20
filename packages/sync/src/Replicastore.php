@@ -666,7 +666,7 @@ class Replicastore implements Replicastore_Interface {
 				$id_field     = 'meta_id';
 
 				if ( empty( $columns ) ) {
-					$columns = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
+					$columns = \Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
 				}
 				break;
 			case 'comments':
