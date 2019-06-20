@@ -301,7 +301,7 @@ class V1_Migration_Manager {
 
 		$response_data = wp_parse_args( $action_detail, [
 			"lock_active"  => $lock_active,
-			"lock_timeout" => $this->mgiration_activated,
+			"lock_timeout" => $this->migration_activated,
 		] );
 
 		return json_encode( $response_data );
