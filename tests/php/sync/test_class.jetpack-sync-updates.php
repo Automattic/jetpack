@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing Updates Sync
@@ -16,7 +17,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function check_for_updates_to_sync() {
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 	}
 
@@ -53,7 +54,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_plugins', $response );
 
 		//
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
 		$this->sender->do_sync();
@@ -113,7 +114,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_themes', $response );
 
 		//
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
@@ -248,7 +249,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $pagenow === 'update-core.php' );
 		Constants::set_constant( 'REST_API_REQUEST', true );
-		Jetpack_Sync_Modules::get_module( "updates" )->update_core( 'new_version' );
+		Modules::get_module( "updates" )->update_core( 'new_version' );
 		$this->sender->do_sync();
 
 		Constants::clear_single_constant( 'REST_API_REQUEST' );

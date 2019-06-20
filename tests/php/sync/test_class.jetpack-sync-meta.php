@@ -4,6 +4,8 @@
  * Testing CRUD on Meta
  */
 
+use Automattic\Jetpack\Sync\Modules;
+
 require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
 
 class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
@@ -16,7 +18,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		parent::setUp();
 
 		// create a post
-		$this->meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		$this->meta_module = Modules::get_module( "meta" );
 		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
 		$this->post_id = $this->factory->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );

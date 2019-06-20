@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 
 /**
@@ -63,13 +64,13 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
 			$include_empty  = true;
-			foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+			foreach ( Modules::get_modules() as $module ) {
 				$module_configs[ $module->name() ] = true;
 			}
 		}
 
 		// set default configuration, calculate totals, and save configuration if totals > 0
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
 
@@ -146,7 +147,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 			$enqueue_status = $this->get_enqueue_status();
 		}
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 
 			// skip module if not configured for this sync or module is done
@@ -252,7 +253,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 			$this->update_status_option( 'send_started', time() );
 		}
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_actions     = $module->get_full_sync_actions();
 			$status_option_name = "{$module->name()}_sent";
 			$total_option_name  = "{$status_option_name}_total";
@@ -354,7 +355,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 
 		$enqueue_status = $this->get_enqueue_status();
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$name = $module->name();
 
 			if ( ! isset( $enqueue_status[ $name ] ) ) {
@@ -394,7 +395,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 
 		$this->delete_enqueue_status();
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			\Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
 			\Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent_total" );
 		}

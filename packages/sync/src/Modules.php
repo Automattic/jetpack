@@ -5,7 +5,9 @@
  * of sync modules
  */
 
-class Jetpack_Sync_Modules {
+namespace Automattic\Jetpack\Sync;
+
+class Modules {
 
 	private static $default_sync_modules = array(
 		'Automattic\\Jetpack\\Sync\\Modules\\Constants',
@@ -64,9 +66,9 @@ class Jetpack_Sync_Modules {
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
 
-		$modules = array_map( array( 'Jetpack_Sync_Modules', 'load_module' ), $modules );
+		$modules = array_map( array( 'Automattic\\Jetpack\\Sync\\Modules', 'load_module' ), $modules );
 
-		return array_map( array( 'Jetpack_Sync_Modules', 'set_module_defaults' ), $modules );
+		return array_map( array( 'Automattic\\Jetpack\\Sync\\Modules', 'set_module_defaults' ), $modules );
 	}
 
 	static function load_module( $module_name ) {

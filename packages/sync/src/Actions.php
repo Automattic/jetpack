@@ -243,7 +243,7 @@ class Actions {
 			return false;
 		}
 
-		$full_sync_module = \Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$full_sync_module = Modules::get_module( 'full-sync' );
 
 		if ( ! $full_sync_module ) {
 			return false;
@@ -456,7 +456,7 @@ class Actions {
 	static function get_sync_status( $fields = null ) {
 		self::initialize_sender();
 
-		$sync_module     = \Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sync_module     = Modules::get_module( 'full-sync' );
 		$queue           = self::$sender->get_sync_queue();
 		$full_queue      = self::$sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
