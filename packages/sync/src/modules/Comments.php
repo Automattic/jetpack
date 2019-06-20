@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Comments extends \Jetpack_Sync_Module {
 
 	public function name() {
 		return 'comments';
@@ -156,7 +158,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		 * @param mixed $comment WP_COMMENT object
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_comment_data', false, $comment ) ) {
-			$blocked_comment                   = new stdClass();
+			$blocked_comment                   = new \stdClass();
 			$blocked_comment->comment_ID       = $comment->comment_ID;
 			$blocked_comment->comment_date     = $comment->comment_date;
 			$blocked_comment->comment_date_gmt = $comment->comment_date_gmt;
@@ -169,7 +171,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	// Comment Meta
 	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
+		return in_array( $meta_key, \Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
 	}
 
 	function filter_meta( $args ) {
@@ -178,7 +180,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 	public function expand_comment_ids( $args ) {
 		list( $comment_ids, $previous_interval_end ) = $args;
-		$comments    = get_comments(
+		$comments                                    = get_comments(
 			array(
 				'include_unapproved' => true,
 				'comment__in'        => $comment_ids,
@@ -189,7 +191,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 		return array(
 			$comments,
-			$this->get_metadata( $comment_ids, 'comment', Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
+			$this->get_metadata( $comment_ids, 'comment', \Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
 			$previous_interval_end,
 		);
 	}
