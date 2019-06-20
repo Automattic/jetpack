@@ -287,7 +287,7 @@ class V1_Migration_Manager {
 					break;
 
 				case 'disable';
-					$lock_options_deleted = delete_option( 'wpcom_atomic_migration_lock_timeout' );
+					$lock_option_deleted = delete_option( 'wpcom_atomic_migration_lock_timeout' );
 					echo $this->build_migration_lock_response( [ "disable_result" => $lock_option_deleted ] );
 					break;
 			}
