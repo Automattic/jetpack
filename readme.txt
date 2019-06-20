@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Admin Page: improve display of the Jetpack Dashboard in IE11.
+* Sharing: avoid displaying extra list items below the sharing buttons when using the AMP plugin.
 * Staging enviroments: add staging enviroment detection for DreamPress sites.
 
 **Bug fixes**
