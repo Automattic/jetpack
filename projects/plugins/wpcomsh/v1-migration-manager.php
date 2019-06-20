@@ -279,7 +279,7 @@ class V1_Migration_Manager {
 				case 'enable':
 					$timeout = strtotime( '+2 hours' );
 					if ( isset( $_GET['timeout'] ) ) {
-						$timeout = $_GET['timeout'];
+						$timeout = intval( $_GET['timeout'] );
 					}
 
 					$lock_option_updated = update_option( 'wpcom_atomic_migration_lock_timeout', $timeout );
