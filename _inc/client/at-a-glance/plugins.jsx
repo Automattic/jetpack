@@ -27,12 +27,6 @@ class DashPluginUpdates extends Component {
 		pluginUpdates: PropTypes.any.isRequired,
 	};
 
-	constructor() {
-		super( ...arguments );
-
-		this.trackManagePlugins = this.trackManagePlugins.bind( this );
-	}
-
 	trackManagePlugins() {
 		analytics.tracks.recordJetpackClick( {
 			type: 'link',
