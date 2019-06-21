@@ -174,7 +174,9 @@ class SiteStatsComponent extends React.Component {
 			>
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
-					header={ __( 'Collecting valuable traffic stats and insights' ) }
+					header={ __(
+						'Expand to update settings for how visits are counted and manage who can view this information.'
+					) }
 					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', {
 						'jp-foldable-settings-disable': unavailableInDevMode,
