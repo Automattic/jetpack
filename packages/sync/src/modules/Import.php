@@ -1,8 +1,9 @@
 <?php
 
 namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Sync\Settings;
-^
+
 class Import extends Module {
 
 	/**

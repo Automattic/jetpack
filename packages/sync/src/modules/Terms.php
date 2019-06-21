@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
-^
+
 class Terms extends Module {
 	private $taxonomy_whitelist;
 

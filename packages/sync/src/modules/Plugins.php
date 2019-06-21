@@ -2,7 +2,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
-^
+
 class Plugins extends Module {
 
 	private $action_handler;

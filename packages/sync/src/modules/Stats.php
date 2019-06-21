@@ -1,7 +1,6 @@
 <?php
 
 namespace Automattic\Jetpack\Sync\Modules;
-^
 
 class Stats extends Module {
 

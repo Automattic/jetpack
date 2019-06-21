@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
-^
+
 /**
  * logs bruteprotect failed logins via sync
  */

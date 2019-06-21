@@ -1,7 +1,6 @@
 <?php
 
 namespace Automattic\Jetpack\Sync\Modules;
-^
 
 class Menus extends Module {
 	private $nav_items_just_added = array();
