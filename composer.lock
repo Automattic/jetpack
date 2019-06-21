@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d014deecdb9650743cd7ccb279d640d8",
+    "content-hash": "4af57e8797b77b8f0d1b76de90df3daa",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
@@ -30,7 +30,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -64,7 +64,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -100,7 +100,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -128,7 +128,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -165,7 +165,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -194,7 +194,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -220,11 +220,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a"
+                "reference": "b0d6e62ff20115d1ef5575ff46940fcbdb4bd2b0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -232,9 +232,6 @@
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "/legacy"
-                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Sync\\": "src/",
                     "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
@@ -247,7 +244,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-psr4-jetpack-sync-module",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -279,126 +276,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tracking for Jetpack"
-        },
-        {
-            "name": "composer/installers",
-            "version": "v1.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/composer/installers.git",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/cfcca6b1b60bc4974324efb5783c13dca6932b5b",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0"
-            },
-            "replace": {
-                "roundcube/plugin-installer": "*",
-                "shama/baton": "*"
-            },
-            "require-dev": {
-                "composer/composer": "1.0.*@dev",
-                "phpunit/phpunit": "^4.8.36"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Composer\\Installers\\Plugin",
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Composer\\Installers\\": "src/Composer/Installers"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kyle Robinson Young",
-                    "email": "kyle@dontkry.com",
-                    "homepage": "https://github.com/shama"
-                }
-            ],
-            "description": "A multi-framework Composer library installer",
-            "homepage": "https://composer.github.io/installers/",
-            "keywords": [
-                "Craft",
-                "Dolibarr",
-                "Eliasis",
-                "Hurad",
-                "ImageCMS",
-                "Kanboard",
-                "Lan Management System",
-                "MODX Evo",
-                "Mautic",
-                "Maya",
-                "OXID",
-                "Plentymarkets",
-                "Porto",
-                "RadPHP",
-                "SMF",
-                "Thelia",
-                "WolfCMS",
-                "agl",
-                "aimeos",
-                "annotatecms",
-                "attogram",
-                "bitrix",
-                "cakephp",
-                "chef",
-                "cockpit",
-                "codeigniter",
-                "concrete5",
-                "croogo",
-                "dokuwiki",
-                "drupal",
-                "eZ Platform",
-                "elgg",
-                "expressionengine",
-                "fuelphp",
-                "grav",
-                "installer",
-                "itop",
-                "joomla",
-                "kohana",
-                "laravel",
-                "lavalite",
-                "lithium",
-                "magento",
-                "majima",
-                "mako",
-                "mediawiki",
-                "modulework",
-                "modx",
-                "moodle",
-                "osclass",
-                "phpbb",
-                "piwik",
-                "ppi",
-                "puppet",
-                "pxcms",
-                "reindex",
-                "roundcube",
-                "shopware",
-                "silverstripe",
-                "sydes",
-                "symfony",
-                "typo3",
-                "wordpress",
-                "yawik",
-                "zend",
-                "zikula"
-            ],
-            "time": "2018-08-27T06:10:37+00:00"
         }
     ],
     "packages-dev": [
