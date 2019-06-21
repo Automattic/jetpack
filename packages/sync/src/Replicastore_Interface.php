@@ -6,12 +6,14 @@
  * To run tests: phpunit --testsuite sync --filter New_Sync
  */
 
+namespace Automattic\Jetpack\Sync;
+
 /**
  * A high-level interface for objects that store synced WordPress data
  * Useful for ensuring that different storage mechanisms implement the
  * required semantics for storing all the data that we sync
  */
-interface iJetpack_Sync_Replicastore {
+interface Replicastore_Interface {
 	// remove all data
 	public function reset();
 
