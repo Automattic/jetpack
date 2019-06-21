@@ -83,15 +83,13 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						disableInDevMode
 						module={ { module: 'sharing' } }
 						support={ {
-							text: __(
-								'Adds sharing buttons to your content so that visitors can share it on social media sites.'
-							),
+							text: __( 'Learn more about how to activate and customize your sharing buttons.' ),
 							link: 'https://jetpack.com/support/sharing/',
 						} }
 					>
 						<p>
 							{ __(
-								'Sharing buttons are about expanding your reach: when you add them to your content, site visitors can share your posts and pages on social media with a couple of quick clicks.'
+								'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.'
 							) }
 						</p>
 						<ModuleToggle
