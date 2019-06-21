@@ -17,14 +17,6 @@ import { imagePath } from 'constants/urls';
 import UpgradeLink from 'components/upgrade-link';
 
 class MyPlanHeader extends React.Component {
-	trackLearnMore = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'learn-more',
-			plan: 'free',
-			page: 'plans',
-		} );
-	};
-
 	trackChecklistCtaClick = () =>
 		void analytics.tracks.recordEvent(
 			'jetpack_myplan_headerchecklistcta_click',
@@ -58,8 +50,14 @@ class MyPlanHeader extends React.Component {
 									'Worried about security? Get backups, automated security fixes and more: {{a}}Upgrade now{{/a}}',
 									{
 										components: {
-											a: <UpgradeLink source="myplan-header-free-plan-text-link" />
-										}
+											a: (
+												<UpgradeLink
+													source="my-plan-header-free-plan-text-link"
+													target="upgrade-now"
+													feature="my-plan-header-free-upgrade"
+												/>
+											),
+										},
 									}
 								) }
 							</p>
