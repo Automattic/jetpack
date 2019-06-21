@@ -42,6 +42,29 @@ class Analyzer extends NodeVisitorAbstract {
 		print_r( $this->declarations );
 	}
 
+	public function scan() {
+		$exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
+		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
+			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
+				return true;
+			}
+			return $file->isFile();
+		};
+
+		$inner_iterator = new \RecursiveDirectoryIterator( $this->base_path, \RecursiveDirectoryIterator::SKIP_DOTS );
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveCallbackFilterIterator( $inner_iterator, $filter )
+		);
+
+		$display = array( 'php' );
+		foreach ( $iterator as $file ) {
+			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $display ) ) {
+				echo "$file\n";
+			}
+		}
+	}
+
 	public function file( $file_path ) {
 		$this->current_path = $file_path;
 		$source             = file_get_contents( $file_path );

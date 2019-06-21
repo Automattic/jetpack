@@ -10,6 +10,7 @@ $file_path = $base_path . '/class.jetpack.php';
 echo "Analyzing $file_path\n";
 
 $analyzer = new PHP_Analyzer( $base_path );
-$analyzer->file( $file_path );
+$analyzer->scan();
+// $analyzer->file( $file_path );
 
 echo "Done\n";
