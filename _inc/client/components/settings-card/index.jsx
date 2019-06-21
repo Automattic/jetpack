@@ -221,7 +221,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						title={ __(
-							'Auto-schedule your social media posts, so they are shared exactly when they should be.'
+							'Upgrade to customize your posting schedule. Your posts will be shared to social media exactly when you want them to be.'
 						) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
