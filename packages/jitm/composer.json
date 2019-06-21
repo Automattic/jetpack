@@ -4,7 +4,7 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-asset-tools": "@dev",
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-constants": "@dev",
@@ -13,7 +13,8 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"php-mock/php-mock": "^2.1"
+		"php-mock/php-mock": "^2.1",
+		"mockery/mockery": "^1.2"
 	},
 	"autoload": {
 		"psr-4": {

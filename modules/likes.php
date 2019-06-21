@@ -11,6 +11,8 @@
  * Additional Search Queries: like, likes, wordpress.com
  */
 
+use Automattic\Jetpack\Assets;
+
 Jetpack::dns_prefetch( array(
 	'//widgets.wp.com',
 	'//s0.wp.com',
@@ -27,7 +29,7 @@ class Jetpack_Likes {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Likes;
+			$instance = new Jetpack_Likes();
 		}
 
 		return $instance;
@@ -291,14 +293,14 @@ class Jetpack_Likes {
 	function register_scripts() {
 		wp_register_script(
 			'postmessage',
-			Jetpack::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			false
 		);
 		wp_register_script(
 			'jetpack_resize',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),
@@ -308,7 +310,7 @@ class Jetpack_Likes {
 		);
 		wp_register_script(
 			'jetpack_likes_queuehandler',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/likes/queuehandler.min.js',
 				'modules/likes/queuehandler.js'
 			),
@@ -369,7 +371,7 @@ class Jetpack_Likes {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
-					Jetpack::get_file_url_for_environment(
+					Assets::get_file_url_for_environment(
 						'_inc/build/likes/post-count.min.js',
 						'modules/likes/post-count.js'
 					),
@@ -378,7 +380,7 @@ class Jetpack_Likes {
 				);
 				wp_enqueue_script(
 					'likes-post-count-jetpack',
-					Jetpack::get_file_url_for_environment(
+					Assets::get_file_url_for_environment(
 						'_inc/build/likes/post-count-jetpack.min.js',
 						'modules/likes/post-count-jetpack.js'
 					),

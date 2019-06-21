@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+
 /**
  * GitHub's Gist site supports oEmbed but their oembed provider only
  * returns raw HTML (no styling) and the first little bit of the code.
@@ -186,7 +189,7 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	wp_enqueue_script(
 		'jetpack-gist-embed',
-		Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
+		Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/gist.min.js', 'modules/shortcodes/js/gist.js' ),
 		array( 'jquery' ),
 		JETPACK__VERSION,
 		true
