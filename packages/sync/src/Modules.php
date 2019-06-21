@@ -99,8 +99,9 @@ class Modules {
 	}
 
 	static function map_legacy_modules( $module_class ) {
-		if ( isset( self::LEGACY_SYNC_MODULES_MAP[ $module_class ] ) ) {
-			return self::LEGACY_SYNC_MODULES_MAP[ $module_class ];
+		$legacy_map = self::LEGACY_SYNC_MODULES_MAP;
+		if ( isset( $legacy_map[ $module_class ] ) ) {
+			return $legacy_map[ $module_class ];
 		}
 		return $module_class;
 	}
