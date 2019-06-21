@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Automattic\Jetpack\Sync\Modules;
 
