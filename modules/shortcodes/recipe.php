@@ -1,4 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Assets;
+
 /**
  * Embed recipe 'cards' in post, with basic styling and print functionality
  *
@@ -129,10 +132,9 @@ class Jetpack_Recipes {
 
 		// add $themecolors-defined styles.
 		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
-
 		wp_enqueue_script(
 			'jetpack-recipes-printthis',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
 			array( 'jquery' ),
 			'20170202',
 			false
@@ -140,7 +142,7 @@ class Jetpack_Recipes {
 
 		wp_enqueue_script(
 			'jetpack-recipes-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
 			array( 'jquery', 'jetpack-recipes-printthis' ),
 			'20131230',
 			false

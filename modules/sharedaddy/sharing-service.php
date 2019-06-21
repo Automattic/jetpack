@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Settings;
 
 include_once dirname( __FILE__ ) . '/sharing-sources.php';
@@ -895,9 +896,10 @@ function sharing_display( $text = '', $echo = false ) {
 			} else {
 				$ver = '20141212';
 			}
+
 			wp_register_script(
 				'sharing-js',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/sharedaddy/sharing.min.js',
 					'modules/sharedaddy/sharing.js'
 				),

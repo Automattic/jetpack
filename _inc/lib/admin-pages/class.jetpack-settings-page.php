@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Assets;
 
 include_once( 'class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
@@ -137,7 +138,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	function page_admin_scripts() {
 		wp_enqueue_script(
 			'jetpack-admin-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION
 		);

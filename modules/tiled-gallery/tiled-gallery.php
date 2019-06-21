@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 // Include the class file containing methods for rounding constrained array elements.
 // Here the constrained array element is the dimension of a row, group or an image in the tiled gallery.
 require_once dirname( __FILE__ ) . '/math/class-constrained-array-rounding.php';
@@ -127,7 +129,7 @@ class Jetpack_Tiled_Gallery {
 	public static function default_scripts_and_styles() {
 		wp_enqueue_script(
 			'tiled-gallery',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/tiled-gallery/tiled-gallery/tiled-gallery.min.js',
 				'modules/tiled-gallery/tiled-gallery/tiled-gallery.js'
 			),
