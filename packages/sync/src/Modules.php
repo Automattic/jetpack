@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 class Modules {
 
-	private static $default_sync_modules = array(
+	const DEFAULT_SYNC_MODULES = array(
 		'Jetpack_Sync_Modules_Constants',
 		'Jetpack_Sync_Modules_Callables',
 		'Jetpack_Sync_Modules_Network_Options',
@@ -30,7 +30,7 @@ class Modules {
 		'Jetpack_Sync_Modules_Full_Sync',
 	);
 
-	private static $legacy_sync_modules_map = array(
+	const LEGACY_SYNC_MODULES_MAP = array(
 		'Jetpack_Sync_Modules_Constants'       => 'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 		'Jetpack_Sync_Modules_Callables'       => 'Automattic\\Jetpack\\Sync\\Modules\\Callables',
 		'Jetpack_Sync_Modules_Network_Options' => 'Automattic\\Jetpack\\Sync\\Modules\\Network_Options',
@@ -85,7 +85,7 @@ class Modules {
 		 *
 		 * @since 4.2.0
 		 */
-		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
+		$modules = apply_filters( 'jetpack_sync_modules', self::DEFAULT_SYNC_MODULES );
 
 		$modules = array_map( array( 'Automattic\\Jetpack\\Sync\\Modules', 'map_legacy_modules' ), $modules );
 
@@ -99,8 +99,8 @@ class Modules {
 	}
 
 	static function map_legacy_modules( $module_class ) {
-		if ( isset( self::$legacy_sync_modules_map[ $module_class ] ) ) {
-			return self::$legacy_sync_modules_map[ $module_class ];
+		if ( isset( self::LEGACY_SYNC_MODULES_MAP[ $module_class ] ) ) {
+			return self::LEGACY_SYNC_MODULES_MAP[ $module_class ];
 		}
 		return $module_class;
 	}
