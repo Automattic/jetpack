@@ -614,7 +614,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
 		$post_id = $this->factory->post->create();
 
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		$meta_module = Modules::get_module( "meta" );
 		Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
 
 		// forbidden private meta
