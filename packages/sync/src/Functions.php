@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
-
 /*
  * Utility functions to generate data synced to wpcom
  */
@@ -85,7 +84,7 @@ class Functions {
 	public static function sanitize_post_type( $post_type ) {
 		// Lets clone the post type object instead of modifing the global one.
 		$sanitized_post_type = array();
-		foreach ( \Jetpack_Sync_Defaults::$default_post_type_attributes as $attribute_key => $default_value ) {
+		foreach ( Defaults::$default_post_type_attributes as $attribute_key => $default_value ) {
 			if ( isset( $post_type->{ $attribute_key } ) ) {
 				$sanitized_post_type[ $attribute_key ] = $post_type->{ $attribute_key };
 			}

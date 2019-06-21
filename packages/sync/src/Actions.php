@@ -440,7 +440,7 @@ class Actions {
 			self::clear_sync_cron_jobs();
 			\Jetpack_Sync_Settings::update_settings(
 				array(
-					'render_filtered_content' => \Jetpack_Sync_Defaults::$default_render_filtered_content,
+					'render_filtered_content' => Defaults::$default_render_filtered_content,
 				)
 			);
 		}

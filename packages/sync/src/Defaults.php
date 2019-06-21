@@ -1,4 +1,7 @@
 <?php
+
+namespace Automattic\Jetpack\Sync;
+
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
 use Automattic\Jetpack\Sync\Functions;
@@ -6,7 +9,7 @@ use Automattic\Jetpack\Sync\Functions;
 /**
  * Just some defaults that we share with the server
  */
-class Jetpack_Sync_Defaults {
+class Defaults {
 
 	static $default_options_whitelist = array(
 		'stylesheet',
