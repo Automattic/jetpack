@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Defaults;
 
 class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
@@ -60,7 +61,7 @@ class Jetpack_Sync_Settings {
 				$value = get_site_option( self::SETTINGS_OPTION_PREFIX . $setting );
 			} else {
 				// On single sites just return the default setting
-				$value                            = Jetpack_Sync_Defaults::get_default_setting( $setting );
+				$value                            = Defaults::get_default_setting( $setting );
 				self::$settings_cache[ $setting ] = $value;
 				return $value;
 			}
@@ -69,7 +70,7 @@ class Jetpack_Sync_Settings {
 		}
 
 		if ( false === $value ) { // no default value is set.
-			$value = Jetpack_Sync_Defaults::get_default_setting( $setting );
+			$value = Defaults::get_default_setting( $setting );
 			if ( self::is_network_setting( $setting ) ) {
 				update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 			} else {
@@ -84,16 +85,16 @@ class Jetpack_Sync_Settings {
 		$default_array_value = null;
 		switch ( $setting ) {
 			case 'post_types_blacklist':
-				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
+				$default_array_value = Defaults::$blacklisted_post_types;
 				break;
 			case 'post_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::get_post_meta_whitelist();
+				$default_array_value = Defaults::get_post_meta_whitelist();
 				break;
 			case 'comment_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::get_comment_meta_whitelist();
+				$default_array_value = Defaults::get_comment_meta_whitelist();
 				break;
 			case 'known_importers':
-				$default_array_value = Jetpack_Sync_Defaults::get_known_importers();
+				$default_array_value = Defaults::get_known_importers();
 				break;
 		}
 
