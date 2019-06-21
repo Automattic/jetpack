@@ -40,6 +40,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			}
+
+			add_action( 'wp_ajax_customize-contact-info-api-key', array( $this, 'ajax_check_api_key' ) );
 		}
 
 		/**
@@ -238,7 +240,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				</label>
 			</p>
 
-			<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
+			<p class="jp-contact-info-admin-map jp-contact-info-embed-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<?php
 				if ( ! is_customize_preview() && true === $instance['goodmap'] ) {
 					echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -378,7 +380,6 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 		}
 
-
 		/**
 		 * Check if the instance has a valid Map location.
 		 *
@@ -407,6 +408,21 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			return __( 'Please enter a valid Google API Key.', 'jetpack' );
+		}
+
+		/**
+		 * Check the Google Maps API key after an Ajax call from the widget's admin form in
+		 * the Customizer preview.
+		 */
+		function ajax_check_api_key() {
+			if ( isset( $_POST['apikey'] ) ) {
+				$apikey = wp_kses( $_POST['apikey'], array() );
+				$default_instance = $this->defaults();
+				$default_instance['apikey'] = $apikey;
+				wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );
+			} else {
+				wp_die();
+			}
 		}
 
 	}
