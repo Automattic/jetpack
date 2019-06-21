@@ -95,6 +95,8 @@ class AutoloadGenerator extends BaseGenerator {
 	 * This function differs from the composer parseAutoloadsType in that beside returning the path.
 	 * It also return the path and the version of a package.
 	 *
+	 * Currently supports only psr-4 and clasmap parsing.
+	 *
 	 * @param array            $packageMap Map of all the packages.
 	 * @param string           $type Type of autoloader to use, currently not used, since we only support psr-4.
 	 * @param PackageInterface $mainPackage Instance of the Package Object.
@@ -103,6 +105,11 @@ class AutoloadGenerator extends BaseGenerator {
 	 */
 	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage ) {
 		$autoloads = array();
+
+		if ( 'psr-4' !== $type && 'classmap' !== $type ) {
+			return parent::parseAutoloadsType( $packageMap, $type, $mainPackage );
+		}
+
 		foreach ( $packageMap as $item ) {
 			list($package, $installPath) = $item;
 			$autoload                    = $package->getAutoload();
@@ -111,24 +118,37 @@ class AutoloadGenerator extends BaseGenerator {
 				$autoload = array_merge_recursive( $autoload, $package->getDevAutoload() );
 			}
 
-			// Skip packages that are not 'psr-4' since we only support them for now.
-			if ( ! isset( $autoload['psr-4'] ) || ! is_array( $autoload['psr-4'] ) ) {
-				continue;
-			}
-
 			if ( null !== $package->getTargetDir() && $package !== $mainPackage ) {
 				$installPath = substr( $installPath, 0, -strlen( '/' . $package->getTargetDir() ) );
 			}
-			foreach ( $autoload['psr-4'] as $namespace => $paths ) {
-				foreach ( (array) $paths as $path ) {
-					$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
-					$autoloads[ $namespace ][] = array(
-						'path'    => $relativePath,
-						'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
-					);
+
+			if ( 'psr-4' == $type && isset( $autoload['psr-4'] ) && is_array( $autoload['psr-4'] ) ) {
+				foreach ( $autoload['psr-4'] as $namespace => $paths ) {
+					$paths = is_array( $paths ) ? $paths : array( $paths );
+					foreach ( $paths as $path ) {
+						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
+						$autoloads[ $namespace ][] = array(
+							'path'    => $relativePath,
+							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
+						);
+					}
+				}
+			}
+
+			if ( 'classmap' == $type && isset( $autoload['classmap'] ) && is_array( $autoload['classmap'] ) ) {
+				foreach ( $autoload['classmap'] as $paths ) {
+					$paths = is_array( $paths ) ? $paths : array( $paths );
+					foreach ( $paths as $path ) {
+						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
+						$autoloads[] = array(
+							'path'    => $relativePath,
+							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
+						);
+					}
 				}
 			}
 		}
+
 		return $autoloads;
 	}
 
@@ -143,10 +163,15 @@ class AutoloadGenerator extends BaseGenerator {
 	 * @return array $classMap
 	 */
 	private function getClassMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
-		$blacklist      = null; // not supported for now.
+		$blacklist = null;
+
+        if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
+            $blacklist = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
+		}
+
 		$classmapString = '';
 
-		// Scan the PSR-4 directories for class files, and add them to the class map.
+		// Scan the PSR-4 and classmap directories for class files, and add them to the class map.
 		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
 			foreach ( $packages_info as $package ) {
 				$dir = $filesystem->normalizePath(
@@ -171,8 +196,29 @@ CLASS_CODE;
 			}
 		}
 
-		return 'array( ' . PHP_EOL . $classmapString . ');' . PHP_EOL;
+		foreach ( $autoloads['classmap'] as $package ) {
+			$dir = $filesystem->normalizePath(
+				$filesystem->isAbsolutePath( $package['path'] )
+				? $package['path']
+				: $basePath . '/' . $package['path']
+			);
+			$map = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, null );
 
+			foreach ( $map as $class => $path ) {
+				$classCode       = var_export( $class, true );
+				$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $path );
+				$versionCode     = var_export( $package['version'], true );
+				$classmapString .= <<<CLASS_CODE
+	$classCode => array(
+		'version' => $versionCode,
+		'path'    => $pathCode
+	),
+CLASS_CODE;
+				$classmapString .= PHP_EOL;
+			}
+		}
+
+		return 'array( ' . PHP_EOL . $classmapString . ');' . PHP_EOL;
 	}
 
 	/**
@@ -215,11 +261,6 @@ function enqueue_packages_$suffix() {
 	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 	foreach ( \$class_map as \$class_name => \$class_info ) {
 		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
-	}
-	\$composer_class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap.php';
-	\$package_version    = file_exists( dirname( __DIR__ ) . '/package-version.php' ) ? include( dirname( __DIR__ ) . '/package-version.php' ) : '0.1';
-	foreach ( \$composer_class_map as \$class_name => \$class_path ) {
-		enqueue_package_class( \$class_name, \$package_version, \$class_path );
 	}
 }
 enqueue_packages_$suffix();
