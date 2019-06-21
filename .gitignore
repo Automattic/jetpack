@@ -7,6 +7,7 @@ vendor/phpcompatibility
 vendor/sirbrillig
 vendor/squizlabs
 vendor/wp-coding-standards
+vendor/automattic/jetpack-autoloader
 /wpcom-test-backup/
 /.vscode/
 
