@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing CRUD on Terms
@@ -14,7 +15,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		parent::setUp();
 		$this->sender->reset_data();
 
-		$this->terms_module = Jetpack_Sync_Modules::get_module( "terms" );
+		$this->terms_module = Modules::get_module( "terms" );
 
 		$this->taxonomy = 'genre';
 		register_taxonomy(

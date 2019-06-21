@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
 use Automattic\Jetpack\Sync\Replicastore;
@@ -136,7 +137,7 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 		$module_name = $args['module_name'];
 
-		if ( ! $sync_module = Jetpack_Sync_Modules::get_module( $module_name ) ) {
+		if ( ! $sync_module = Modules::get_module( $module_name ) ) {
 			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
 		}
 

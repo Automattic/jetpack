@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
 
 /**
@@ -34,7 +35,7 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_module_is_enabled() {
-		$this->assertTrue( !! Jetpack_Sync_Modules::get_module( "wp-super-cache" ) );
+		$this->assertTrue( !! Modules::get_module( "wp-super-cache" ) );
 	}
 
 	function test_constants_are_synced() {

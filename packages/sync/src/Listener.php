@@ -36,7 +36,7 @@ class Listener {
 		$handler           = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module->init_listeners( $handler );
 			$module->init_full_sync_listeners( $full_sync_handler );
 		}

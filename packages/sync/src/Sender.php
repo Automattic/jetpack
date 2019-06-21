@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * This class grabs pending actions from the queue and sends them
@@ -45,7 +46,7 @@ class Sender {
 	private function init() {
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
 	}
@@ -78,7 +79,7 @@ class Sender {
 	}
 
 	public function do_full_sync() {
-		if ( ! \Jetpack_Sync_Modules::get_module( 'full-sync' ) ) {
+		if ( ! Modules::get_module( 'full-sync' ) ) {
 			return;
 		}
 		$this->continue_full_sync_enqueue();
@@ -94,7 +95,7 @@ class Sender {
 			return false;
 		}
 
-		\Jetpack_Sync_Modules::get_module( 'full-sync' )->continue_enqueuing();
+		Modules::get_module( 'full-sync' )->continue_enqueuing();
 
 		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-enqueue' );
 	}
@@ -387,7 +388,7 @@ class Sender {
 		$this->reset_sync_queue();
 		$this->reset_full_sync_queue();
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
 

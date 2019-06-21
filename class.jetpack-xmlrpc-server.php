@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Tracking;
 
@@ -708,7 +709,7 @@ class Jetpack_XMLRPC_Server {
 		// e.g. posts, post, 5
 		list( $module_name, $object_type, $id ) = $args;
 
-		$sync_module = Jetpack_Sync_Modules::get_module( $module_name );
+		$sync_module = Modules::get_module( $module_name );
 		$codec = Sender::get_instance()->get_codec();
 
 		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );

@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules;
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_sending_empties_queue() {
@@ -70,7 +71,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_starts_full_sync_on_user_authorized() {
 		do_action( 'jetpack_user_authorized', 'abcd1234' );
-		$this->assertTrue( Jetpack_Sync_Modules::get_module( 'full-sync' )->is_started() );
+		$this->assertTrue( Modules::get_module( 'full-sync' )->is_started() );
 	}
 
 	function test_sends_updating_jetpack_version_event() {
