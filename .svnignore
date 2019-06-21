@@ -19,8 +19,10 @@ renovate.json
 bin/phpcs-whitelist.js
 bin/pre-commit-hook.js
 bin/release-package.php
+css/*.css.map
 docs
 tests
+scss
 tools
 vendor/bin
 vendor/dealerdirect
