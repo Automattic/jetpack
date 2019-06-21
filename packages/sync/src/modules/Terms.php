@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
+
 class Terms extends \Jetpack_Sync_Module {
 	private $taxonomy_whitelist;
 
@@ -95,7 +97,7 @@ class Terms extends \Jetpack_Sync_Module {
 	}
 
 	function set_defaults() {
-		$this->taxonomy_whitelist = \Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
+		$this->taxonomy_whitelist = Defaults::$default_taxonomy_whitelist;
 	}
 
 	public function expand_term_taxonomy_id( $args ) {

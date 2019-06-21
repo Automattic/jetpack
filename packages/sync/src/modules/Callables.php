@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Defaults;
 
 class Callables extends \Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
@@ -16,9 +17,9 @@ class Callables extends \Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		if ( is_multisite() ) {
-			$this->callable_whitelist = array_merge( \Jetpack_Sync_Defaults::get_callable_whitelist(), \Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
+			$this->callable_whitelist = array_merge( Defaults::get_callable_whitelist(), Defaults::get_multisite_callable_whitelist() );
 		} else {
-			$this->callable_whitelist = \Jetpack_Sync_Defaults::get_callable_whitelist();
+			$this->callable_whitelist = Defaults::get_callable_whitelist();
 		}
 	}
 
@@ -223,7 +224,7 @@ class Callables extends \Jetpack_Sync_Module {
 			}
 		}
 
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), \Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
 
 		$callables = $this->get_all_callables();
 

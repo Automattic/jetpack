@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Defaults;
 
 /**
  * Testing CRUD on Posts
@@ -662,7 +663,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( in_array( 'filter_me', $setting ) );
 
-		foreach( Jetpack_Sync_Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
+		foreach( Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
 			$this->assertTrue( in_array( $hardcoded_blacklist_post_type, $setting ) );
 		}
 	}

@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Replicastore_Interface;
+use Automattic\Jetpack\Sync\Defaults;
 
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
@@ -74,7 +75,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	function posts_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->posts[ get_current_blog_id() ], 'ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_post_checksum_columns );
+		return $this->calculate_checksum( $this->posts[ get_current_blog_id() ], 'ID', $min_id, $max_id, Defaults::$default_post_checksum_columns );
 	}
 
 	function post_meta_checksum( $min_id = null, $max_id = null ) {
@@ -120,7 +121,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( array_filter( $this->comments[ get_current_blog_id() ], array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+		return $this->calculate_checksum( array_filter( $this->comments[ get_current_blog_id() ], array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Defaults::$default_comment_checksum_columns );
 	}
 
 	function comment_meta_checksum( $min_id = null, $max_id = null ) {
@@ -204,7 +205,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	function options_checksum() {
-		return strtoupper( dechex( array_reduce( Jetpack_Sync_Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
+		return strtoupper( dechex( array_reduce( Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
 	}
 
 	private function option_checksum( $carry, $option_name ) {
@@ -610,7 +611,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				$get_function  = 'get_post';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_post_checksum_columns;
+					$fields = Defaults::$default_post_checksum_columns;
 				}
 
 				break;
@@ -621,7 +622,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				$get_function = 'get_post_meta_by_id';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
+					$fields = Defaults::$default_post_meta_checksum_columns;
 				}
 				break;
 			case 'comments':
@@ -631,7 +632,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				$get_function = 'get_comment';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_comment_checksum_columns;
+					$fields = Defaults::$default_comment_checksum_columns;
 				}
 				break;
 			case 'comment_meta':
@@ -641,7 +642,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 				$get_function = 'get_comment_meta_by_id';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_comment_meta_checksum_columns;
+					$fields = Defaults::$default_comment_meta_checksum_columns;
 				}
 				break;
 			default:
