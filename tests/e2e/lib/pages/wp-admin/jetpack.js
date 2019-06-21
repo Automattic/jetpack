@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitForSelector, isEventuallyVisible } from '../../page-helper';
+import { waitAndClick, isEventuallyVisible } from '../../page-helper';
 
 export default class JetpackPage extends Page {
 	constructor( page ) {
@@ -15,10 +15,6 @@ export default class JetpackPage extends Page {
 		await waitAndClick( this.page, connectButtonSelector );
 	}
 
-	async jumpstartDisplayed() {
-		return !! ( await waitForSelector( this.page, '.jp-jumpstart' ) );
-	}
-
 	async openMyPlan() {
 		const myPlanButton = "a[href*='my-plan'] span";
 		await waitAndClick( this.page, myPlanButton );
@@ -26,17 +22,17 @@ export default class JetpackPage extends Page {
 
 	async isPremium() {
 		const premiumPlanImage = ".jp-landing__plan-card-img img[src*='premium']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 10000 );
+		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
 	}
 
 	async isProfessional() {
 		const proPlanImage = ".jp-landing__plan-card-img img[src*='business']";
-		return await isEventuallyVisible( this.page, proPlanImage, 10000 );
+		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
 	}
 
 	async isConnected() {
 		const connectionInfo = '.jp-connection-settings__info';
-		return await isEventuallyVisible( this.page, connectionInfo, 10000 );
+		return await isEventuallyVisible( this.page, connectionInfo, 20000 );
 	}
 
 	async isPlan( plan ) {

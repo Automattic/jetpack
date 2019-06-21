@@ -24,15 +24,21 @@ export async function waitForSelector(
 	options = { timeout: 30000, logHTML: true }
 ) {
 	let el;
+	const startTime = new Date();
 	try {
 		el = await page.waitForSelector( selector, options );
-		console.log( `Found element by locator: ${ selector }` );
+		const secondsPassed = ( new Date() - startTime ) / 1000;
+		console.log( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
 		return el;
 	} catch ( e ) {
 		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
 			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
 			console.log( bodyHTML );
 		}
+		const secondsPassed = ( new Date() - startTime ) / 1000;
+		console.log(
+			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec`
+		);
 		throw e;
 	}
 }
@@ -59,7 +65,7 @@ export async function waitAndClick( page, selector, options = { visible: true } 
  */
 export async function waitAndType( page, selector, value, options = { visible: true } ) {
 	const el = await waitForSelector( page, selector, options );
-	await el.focus( selector );
+	await page.focus( selector );
 	await pressKeyWithModifier( 'primary', 'a' );
 	// await el.click( { clickCount: 3 } );
 	await page.waitFor( 300 );

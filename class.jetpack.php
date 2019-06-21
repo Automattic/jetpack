@@ -6,7 +6,9 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Assets;
 
@@ -1462,8 +1464,8 @@ class Jetpack {
 	 * @return string ( '1' | '0' )
 	 **/
 	public static function is_version_controlled() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Functions::is_version_controlled' );
-		return (string) (int) Jetpack_Sync_Functions::is_version_controlled();
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Functions::is_version_controlled' );
+		return (string) (int) Functions::is_version_controlled();
 	}
 
 	/**
@@ -1813,8 +1815,8 @@ class Jetpack {
 	 * Synchronize connected user role changes
 	 */
 	function user_role_change( $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Users::user_role_change()' );
-		Jetpack_Sync_Users::user_role_change( $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Users::user_role_change()' );
+		Users::user_role_change( $user_id );
 	}
 
 	/**
@@ -2481,7 +2483,6 @@ class Jetpack {
 		$headers = array(
 			'name'                      => 'Module Name',
 			'description'               => 'Module Description',
-			'jumpstart_desc'            => 'Jumpstart Description',
 			'sort'                      => 'Sort Order',
 			'recommendation_order'      => 'Recommendation Order',
 			'introduced'                => 'First Introduced',
@@ -2541,12 +2542,11 @@ class Jetpack {
 		 * Filters the feature array on a module.
 		 *
 		 * This filter allows you to control where each module is filtered: Recommended,
-		 * Jumpstart, and the default "Other" listing.
+		 * and the default "Other" listing.
 		 *
 		 * @since 3.5.0
 		 *
 		 * @param array   $mod['feature'] The areas to feature this module:
-		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once.
 		 *     'Recommended' shows on the main Jetpack admin screen.
 		 *     'Other' should be the default if no other value is in the array.
 		 * @param string  $module The slug of the module, e.g. sharedaddy.
@@ -5069,7 +5069,8 @@ p {
 				'_ui'             => $tracks_identity['_ui'],
 				'_ut'             => $tracks_identity['_ut'],
 				'site_created'    => Jetpack::get_assumed_site_creation_date(),
-				'jetpack_version' => JETPACK__VERSION
+				'jetpack_version' => JETPACK__VERSION,
+				'ABSPATH'         => defined( 'ABSPATH' ) ? ABSPATH : '',
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
@@ -5118,15 +5119,7 @@ p {
 		 */
 		do_action( 'jetpack_site_registered', $registration_details->jetpack_id, $registration_details->jetpack_secret, $jetpack_public );
 
-		// Initialize Jump Start for the first and only time.
-		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
-
-			$jetpack = Jetpack::init();
-
-			$jetpack->stat( 'jumpstart', 'unique-views' );
-			$jetpack->do_stats( 'server_side' );
-		};
+		$jetpack = Jetpack::init();
 
 		return true;
 	}
@@ -6196,8 +6189,8 @@ p {
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
 			$local_options = array(
-				'home'    => Jetpack_Sync_Functions::home_url(),
-				'siteurl' => Jetpack_Sync_Functions::site_url(),
+				'home'    => Functions::home_url(),
+				'siteurl' => Functions::site_url(),
 			);
 			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
 		}

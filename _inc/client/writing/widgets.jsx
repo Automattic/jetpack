@@ -16,7 +16,6 @@ import { ModuleToggle } from 'components/module-toggle';
 
 class Widgets extends Component {
 	render() {
-		const isLinked = this.props.isLinked;
 		const foundWidgets = this.props.isModuleFound( 'widgets' );
 		const foundWidgetVisibility = this.props.isModuleFound( 'widget-visibility' );
 
@@ -41,7 +40,6 @@ class Widgets extends Component {
 					>
 						<ModuleToggle
 							slug="widgets"
-							disabled={ ! isLinked }
 							activated={ this.props.widgetsActive }
 							toggling={ this.props.isSavingAnyOption( 'widgets' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -64,7 +62,6 @@ class Widgets extends Component {
 					>
 						<ModuleToggle
 							slug="widget-visibility"
-							disabled={ ! isLinked }
 							activated={ this.props.widgetVisibilityActive }
 							toggling={ this.props.isSavingAnyOption( 'widget-visibility' ) }
 							toggleModule={ this.props.toggleModuleNow }

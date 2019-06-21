@@ -118,7 +118,7 @@ class SubscriptionsComponent extends React.Component {
 								onChange={ this.handleSubscribeToBlogToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Show a "follow blog" option in the comment form' ) }
+									{ __( 'Enable the “subscribe to site” option on your comment form' ) }
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
@@ -131,7 +131,7 @@ class SubscriptionsComponent extends React.Component {
 								onChange={ this.handleSubscribeToCommentToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Show a "follow comments" option in the comment form' ) }
+									{ __( 'Enable the “subscribe to comments” option on your comment form' ) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>

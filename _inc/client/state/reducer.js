@@ -14,7 +14,6 @@ import { default as checklist } from 'state/checklist/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
-import { reducer as jumpstart } from 'state/jumpstart/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as pluginsData } from 'state/site/plugins/reducer';
 import { reducer as publicize } from 'state/publicize/reducer';
@@ -33,7 +32,6 @@ const jetpackReducer = combineReducers( {
 	devCard,
 	initialState,
 	jetpackNotices,
-	jumpstart,
 	modules,
 	pluginsData,
 	publicize,

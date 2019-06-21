@@ -7,13 +7,7 @@ import {
 } from '../reducer';
 
 let state = {
-	jetpack: {
-		jumpstart: {
-			status: {
-				showJumpStart: true
-			}
-		}
-	}
+	jetpack: {}
 };
 
 describe( 'mobile selectors', () => {

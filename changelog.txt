@@ -2,6 +2,15 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.4.1 =
+
+* Release date: June 17, 2019
+* Release post: https://wp.me/p1moTy-kvz
+
+**Bug fix**
+
+* Contact Form Block: avoid errors when trying to edit a form block, when using the Gutenberg plugin.
+
 = 7.4 =
 
 * Release date: June 4, 2019

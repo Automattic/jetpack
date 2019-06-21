@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Import extends \Jetpack_Sync_Module {
 
 	/**
 	 * Tracks which actions have already been synced for the import
@@ -71,7 +73,7 @@ class Jetpack_Sync_Module_Import extends Jetpack_Sync_Module {
 		}
 
 		// Get $importer from known_importers.
-		$known_importers = Jetpack_Sync_Settings::get_setting( 'known_importers' );
+		$known_importers = \Jetpack_Sync_Settings::get_setting( 'known_importers' );
 		if ( isset( $known_importers[ $importer ] ) ) {
 			$importer = $known_importers[ $importer ];
 		}

@@ -1,4 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Sync\Functions;
+
 /**
  * Manages compatibility with the amp-wp plugin
  *
@@ -129,7 +132,7 @@ class Jetpack_AMP_Support {
 	 */
 	private static function add_site_icon_to_metadata( $metadata ) {
 		$size          = 60;
-		$site_icon_url = class_exists( 'Jetpack_Sync_Functions' ) ? Jetpack_Sync_Functions::site_icon_url( $size ) : '';
+		$site_icon_url = class_exists( 'Automattic\\Jetpack\\Sync\\Functions' ) ? Functions::site_icon_url( $size ) : '';
 
 		if ( function_exists( 'blavatar_domain' ) ) {
 			$metadata['publisher']['logo'] = array(
@@ -338,7 +341,14 @@ class Jetpack_AMP_Support {
 			$sharing_link   .= '></amp-social-share>';
 			$sharing_links[] = $sharing_link;
 		}
-		return preg_replace( '#(?<=<div class="sd-content">).+?(?=</div>)#s', implode( '', $sharing_links ), $markup );
+
+		// Wrap AMP sharing buttons in container.
+		$markup = preg_replace( '#(?<=<div class="sd-content">).+?(?=</div>)#s', implode( '', $sharing_links ), $markup );
+
+		// Remove any lingering share-end list items.
+		$markup = str_replace( '<li class="share-end"></li>', '', $markup );
+
+		return $markup;
 	}
 }
 

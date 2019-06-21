@@ -1,6 +1,8 @@
 <?php
 
-class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
+namespace Automattic\Jetpack\Sync\Modules;
+
+class Network_Options extends \Jetpack_Sync_Module {
 	private $network_options_whitelist;
 
 	public function name() {
@@ -43,7 +45,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 	}
 
 	public function set_defaults() {
-		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
+		$this->network_options_whitelist = \Jetpack_Sync_Defaults::$default_network_options_whitelist;
 	}
 
 	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {

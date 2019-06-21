@@ -104,21 +104,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		jumpStart: action => {
-			let active;
-			if ( action === 'activate' ) {
-				active = true;
-			}
-			if ( action === 'deactivate' ) {
-				active = false;
-			}
-			return postRequest( `${ apiRoot }jetpack/v4/jumpstart`, postParams, {
-				body: JSON.stringify( { active } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse );
-		},
-
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 				.then( checkStatus )

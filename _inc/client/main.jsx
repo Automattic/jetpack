@@ -15,8 +15,6 @@ import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import SearchableSettings from 'settings/index.jsx';
-import JumpStart from 'components/jumpstart';
-import { getJumpStartStatus } from 'state/jumpstart';
 import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
 import {
 	setInitialState,
@@ -129,7 +127,6 @@ class Main extends React.Component {
 
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
-			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
 			nextProps.searchTerm !== this.props.searchTerm ||
@@ -152,22 +149,6 @@ class Main extends React.Component {
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 		}
 	}
-
-	renderJumpstart = () => {
-		if ( ! this.props.isSiteConnected ) {
-			return null;
-		}
-
-		if ( ! this.props.jumpStartStatus ) {
-			return null;
-		}
-
-		return (
-			<div aria-live="assertive">
-				<JumpStart />
-			</div>
-		);
-	};
 
 	renderMainContent = route => {
 		if ( ! this.props.userCanManageModules ) {
@@ -261,7 +242,6 @@ class Main extends React.Component {
 		return (
 			<div aria-live="assertive">
 				{ navComponent }
-				{ this.renderJumpstart() }
 				{ pageComponent }
 			</div>
 		);
@@ -301,7 +281,6 @@ class Main extends React.Component {
 export default connect(
 	state => {
 		return {
-			jumpStartStatus: getJumpStartStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
 			siteRawUrl: getSiteRawUrl( state ),

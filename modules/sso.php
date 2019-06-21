@@ -7,15 +7,14 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' 
 
 /**
  * Module Name: Secure Sign On
- * Module Description: Allow users to log into this site using WordPress.com accounts
- * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
+ * Module Description: Allow users to log in to this site using WordPress.com accounts
  * Sort Order: 30
  * Recommendation Order: 5
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Security, Jumpstart
+ * Feature: Security
  * Additional Search Queries: sso, single sign on, login, log in
  */
 
@@ -680,7 +679,7 @@ class Jetpack_SSO {
 		do_action( 'jetpack_sso_pre_handle_login', $user_data );
 
 		$tracking = new Tracking();
-		
+
 		if ( Jetpack_SSO_Helpers::is_two_step_required() && 0 === (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
 

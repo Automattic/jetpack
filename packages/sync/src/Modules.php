@@ -5,27 +5,29 @@
  * of sync modules
  */
 
-class Jetpack_Sync_Modules {
+namespace Automattic\Jetpack\Sync;
+
+class Modules {
 
 	private static $default_sync_modules = array(
-		'Jetpack_Sync_Module_Constants',
+		'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 		'Automattic\\Jetpack\\Sync\\Modules\\Callables',
-		'Jetpack_Sync_Module_Network_Options',
+		'Automattic\\Jetpack\\Sync\\Modules\\Network_Options',
 		'Automattic\\Jetpack\\Sync\\Modules\\Options',
 		'Automattic\\Jetpack\\Sync\\Modules\\Terms',
+		'Automattic\\Jetpack\\Sync\\Modules\\Menus',
 		'Automattic\\Jetpack\\Sync\\Modules\\Themes',
-		'Jetpack_Sync_Module_Menus',
 		'Automattic\\Jetpack\\Sync\\Modules\\Users',
-		'Jetpack_Sync_Module_Posts',
-		'Jetpack_Sync_Module_Import',
+		'Automattic\\Jetpack\\Sync\\Modules\\Import',
+		'Automattic\\Jetpack\\Sync\\Modules\\Posts',
 		'Jetpack_Sync_Module_Protect',
-		'Jetpack_Sync_Module_Comments',
+		'Automattic\\Jetpack\\Sync\\Modules\\Comments',
 		'Automattic\\Jetpack\\Sync\\Modules\\Updates',
 		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
 		'Automattic\\Jetpack\\Sync\\Modules\\Meta',
-		'Jetpack_Sync_Module_Plugins',
-		'Jetpack_Sync_Module_Full_Sync',
-		'Jetpack_Sync_Module_Stats',
+		'Automattic\\Jetpack\\Sync\\Modules\\Plugins',
+		'Automattic\\Jetpack\\Sync\\Modules\\Stats',
+		'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
 	);
 
 	private static $initialized_modules = null;
@@ -64,9 +66,9 @@ class Jetpack_Sync_Modules {
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
 
-		$modules = array_map( array( 'Jetpack_Sync_Modules', 'load_module' ), $modules );
+		$modules = array_map( array( 'Automattic\\Jetpack\\Sync\\Modules', 'load_module' ), $modules );
 
-		return array_map( array( 'Jetpack_Sync_Modules', 'set_module_defaults' ), $modules );
+		return array_map( array( 'Automattic\\Jetpack\\Sync\\Modules', 'set_module_defaults' ), $modules );
 	}
 
 	static function load_module( $module_name ) {

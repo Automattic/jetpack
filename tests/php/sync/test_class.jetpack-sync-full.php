@@ -1,5 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Modules\Full_Sync;
+
 function jetpack_foo_full_sync_callable() {
 	return 'the value';
 }
@@ -16,7 +20,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$this->full_sync = Modules::get_module( 'full-sync' );
 	}
 
 	function test_enqueues_sync_start_action() {
@@ -125,7 +129,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
-		$prefix = Jetpack_Sync_Module_Full_Sync::STATUS_OPTION_PREFIX;
+		$prefix = Full_Sync::STATUS_OPTION_PREFIX;
 		update_option( "{$prefix}_started", time() - 3700 );
 
 		$this->full_sync->start();
@@ -148,10 +152,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 
-		$options_full_sync_actions = Jetpack_Sync_Modules::get_module( 'options' )->get_full_sync_actions();
+		$options_full_sync_actions = Modules::get_module( 'options' )->get_full_sync_actions();
 		$options_event             = $this->server_event_storage->get_most_recent_event( $options_full_sync_actions[0] );
 
-		$posts_full_sync_actions = Jetpack_Sync_Modules::get_module( 'posts' )->get_full_sync_actions();
+		$posts_full_sync_actions = Modules::get_module( 'posts' )->get_full_sync_actions();
 		$posts_event             = $this->server_event_storage->get_most_recent_event( $posts_full_sync_actions[0] );
 
 		$this->assertTrue( $start_event !== false );
@@ -473,7 +477,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions() {
-		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -488,7 +492,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions_inverse() {
-		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
@@ -511,7 +515,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_options() {
 		delete_option( 'non_existant' );
-		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
+		Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
 		update_option( 'my_non_synced_option', 'baz' );
@@ -551,7 +555,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Jetpack_Sync_Modules::get_module( "network_options" )->set_network_options_whitelist( array(
+		Modules::get_module( "network_options" )->set_network_options_whitelist( array(
 			'my_option',
 			'my_prefix_value'
 		) );
@@ -609,7 +613,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
 		$post_id = $this->factory->post->create();
 
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
+		$meta_module = Modules::get_module( "meta" );
 		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
 
 		// forbidden private meta
@@ -729,7 +733,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function check_for_updates_to_sync() {
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 	}
 
@@ -1304,7 +1308,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->factory->comment->create_post_comments( $post_id, 2 );
 		}
 
-		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_name            = $module->name();
 			$estimate               = $module->estimate_full_sync_actions( true );
 			list( $actual, $state ) = $module->enqueue_full_sync_actions( true, 100, false );
@@ -1334,13 +1338,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
-		$user_ids = Jetpack_Sync_Modules::get_module( 'users' )->get_initial_sync_user_config();
+		$user_ids = Modules::get_module( 'users' )->get_initial_sync_user_config();
 		$this->assertEquals( 3, count( $user_ids ) );
 		$this->full_sync->start( array( 'users' => 'initial' ) );
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		Actions::do_initial_sync( '4.2', '4.1' );
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array(

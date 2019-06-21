@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing CRUD on Posts
@@ -26,7 +27,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+		$post_sync_module = Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1] );
@@ -36,7 +37,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+		$post_sync_module = Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
@@ -682,7 +683,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_returns_post_object_by_id() {
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+		$post_sync_module = Modules::get_module( "posts" );
 
 		$post_id = $this->factory->post->create();
 

@@ -1,6 +1,8 @@
 <?php
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
+use Automattic\Jetpack\Sync\Functions;
+
 /**
  * Just some defaults that we share with the server
  */
@@ -220,36 +222,36 @@ class Jetpack_Sync_Defaults {
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'is_main_network'                  => array( 'Jetpack', 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
-		'main_network_site'                => array( 'Jetpack_Sync_Functions', 'main_network_site_url' ),
-		'site_url'                         => array( 'Jetpack_Sync_Functions', 'site_url' ),
-		'home_url'                         => array( 'Jetpack_Sync_Functions', 'home_url' ),
+		'main_network_site'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_url' ),
+		'site_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_url' ),
+		'home_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'home_url' ),
 		'single_user_site'                 => array( 'Jetpack', 'is_single_user_site' ),
 		'updates'                          => array( 'Jetpack', 'get_updates' ),
-		'has_file_system_write_access'     => array( 'Jetpack_Sync_Functions', 'file_system_write_access' ),
-		'is_version_controlled'            => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
-		'taxonomies'                       => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
-		'post_types'                       => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
-		'post_type_features'               => array( 'Jetpack_Sync_Functions', 'get_post_type_features' ),
-		'shortcodes'                       => array( 'Jetpack_Sync_Functions', 'get_shortcodes' ),
-		'rest_api_allowed_post_types'      => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
-		'rest_api_allowed_public_metadata' => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_public_metadata' ),
+		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
+		'is_version_controlled'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'is_version_controlled' ),
+		'taxonomies'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_taxonomies' ),
+		'post_types'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_post_types' ),
+		'post_type_features'               => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_post_type_features' ),
+		'shortcodes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_shortcodes' ),
+		'rest_api_allowed_post_types'      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_post_types' ),
+		'rest_api_allowed_public_metadata' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_public_metadata' ),
 		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
 		'sso_should_hide_login_form'       => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
 		'sso_match_by_email'               => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
 		'sso_new_user_override'            => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
-		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
-		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
-		'get_plugins_action_links'         => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
+		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
-		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
+		'hosting_provider'                 => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
-		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
-		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
-		'timezone'                         => array( 'Jetpack_Sync_Functions', 'get_timezone' ),
+		'site_icon_url'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_icon_url' ),
+		'roles'                            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'roles' ),
+		'timezone'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
 		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
-		'paused_themes'                    => array( 'Jetpack_Sync_Functions', 'get_paused_themes' ),
-		'paused_plugins'                   => array( 'Jetpack_Sync_Functions', 'get_paused_plugins' ),
+		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 	);
 
 
@@ -562,7 +564,7 @@ class Jetpack_Sync_Defaults {
 
 	static function get_default_setting( $setting ) {
 		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
-		return Jetpack_Sync_Defaults::$$default_name;
+		return self::$$default_name;
 	}
 
 	static $default_network_options_whitelist = array(

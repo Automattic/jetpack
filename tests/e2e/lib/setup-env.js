@@ -3,6 +3,11 @@
  */
 import { setBrowserViewport } from '@wordpress/e2e-test-utils';
 /**
+ * Internal dependencies
+ */
+import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
+import { enablePageDialogAccept } from '@wordpress/e2e-test-utils/build/enable-page-dialog-accept';
+/**
  * Environment variables
  */
 const { PUPPETEER_TIMEOUT, E2E_DEBUG } = process.env;
@@ -24,6 +29,11 @@ async function setupBrowser() {
 // each other's side-effects.
 beforeAll( async () => {
 	await setupBrowser();
+
+	// Handles not saved changed dialog in block editor
+	await enablePageDialogAccept();
+
+	await connectThroughWPAdminIfNeeded();
 } );
 
 afterEach( async () => {

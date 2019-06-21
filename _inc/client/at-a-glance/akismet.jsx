@@ -9,6 +9,7 @@ import { numberFormat, translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryAkismetData from 'components/data/query-akismet-data';
@@ -33,13 +34,29 @@ class DashAkismet extends Component {
 		isDevMode: '',
 	};
 
+	trackInstallClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'install-link',
+			target: 'at-a-glance',
+			feature: 'akismet',
+		} );
+	}
+
+	trackActivateClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'activate-link',
+			target: 'at-a-glance',
+			feature: 'akismet',
+		} );
+	}
+
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Spam Protection' );
+		const labelName = __( 'Jetpack Anti-spam' );
 
 		const support = {
 			text: __(
-				'Akismet checks your comments and contact form submissions against our global database of spam.'
+				'Jetpack Anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.'
 			),
 			link: 'https://akismet.com/',
 			privacyLink: 'https://automattic.com/privacy/',
@@ -71,6 +88,7 @@ class DashAkismet extends Component {
 								a: (
 									<a
 										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+										onClick={ this.trackInstallClick }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -98,6 +116,7 @@ class DashAkismet extends Component {
 								a: (
 									<a
 										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+										onClick={ this.trackActivateClick }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -122,7 +141,7 @@ class DashAkismet extends Component {
 				>
 					<p className="jp-dash-item__description">
 						{ __(
-							'Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
+							'Whoops! Your Jetpack Anti-spam (powered by Akismet) key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
 							{
 								components: {
 									akismetSettings: (
