@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+
 /**
  * Add a contact form button to the post composition screen
  */
@@ -803,7 +806,7 @@ function grunion_enable_spam_recheck() {
 	// Add the scripts that handle the spam check event.
 	wp_register_script(
 		'grunion-admin',
-		Jetpack::get_file_url_for_environment(
+		Assets::get_file_url_for_environment(
 			'_inc/build/contact-form/js/grunion-admin.min.js',
 			'modules/contact-form/js/grunion-admin.js'
 		),

@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Assets;
+
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
 /**
@@ -240,14 +242,14 @@ class A8C_WPCOM_Masterbar {
 
 		wp_enqueue_script(
 			'jetpack-accessible-focus',
-			Jetpack::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
 			array(),
 			JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_script(
 			'a8c_wpcom_masterbar_tracks_events',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/masterbar/tracks-events.min.js',
 				'modules/masterbar/tracks-events.js'
 			),
