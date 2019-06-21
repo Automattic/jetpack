@@ -12,5 +12,6 @@ echo "Analyzing $file_path\n";
 $analyzer = new PHP_Analyzer( $base_path );
 $analyzer->scan();
 // $analyzer->file( $file_path );
+$analyzer->print_declarations();
 
 echo "Done\n";

@@ -38,8 +38,11 @@ class Analyzer extends NodeVisitorAbstract {
 		$this->declarations[] = $declaration;
 	}
 
-	private function print_declarations() {
-		print_r( $this->declarations );
+	public function print_declarations() {
+		// print_r( $this->declarations );
+		foreach ( $this->declarations as $dec ) {
+			echo $dec->to_string() . "\n";
+		}
 	}
 
 	public function scan() {
@@ -61,6 +64,7 @@ class Analyzer extends NodeVisitorAbstract {
 		foreach ( $iterator as $file ) {
 			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $display ) ) {
 				echo "$file\n";
+				$this->file( $file );
 			}
 		}
 	}
@@ -81,8 +85,6 @@ class Analyzer extends NodeVisitorAbstract {
 		$traverser = new NodeTraverser();
 		$traverser->addVisitor( $this );
 		$ast = $traverser->traverse( $ast );
-		$this->print_declarations();
-		return;
 	}
 
 	public function enterNode( Node $node ) {
@@ -112,6 +114,10 @@ class Declaration {
 		$this->path = $path;
 		$this->line = $line;
 		$this->name = $name;
+	}
+
+	function to_string() {
+		return $this->path . ':' . $this->line . ' ' . $this->name;
 	}
 }
 
