@@ -5,10 +5,12 @@
  * @package jetpack-sync
  */
 
+namespace Automattic\Jetpack\Sync;
+
 /**
  * Jetpack Sync main class.
  */
-class Jetpack_Sync_Main {
+class Main {
 	/**
 	 * Initialize the main sync actions.
 	 */
