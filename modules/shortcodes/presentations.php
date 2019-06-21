@@ -1,4 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Assets;
+
 /**
  * Presentations
  * Presentations plugin based on the work done by <a href="http://darylkoop.com/">Daryl Koopersmith</a>. Powered by jmpress.js
@@ -120,14 +123,14 @@ if ( ! class_exists( 'Presentations' ) ) :
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script(
 				'jmpress',
-				Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/jmpress.min.js', 'modules/shortcodes/js/jmpress.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/jmpress.min.js', 'modules/shortcodes/js/jmpress.js' ),
 				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
 			wp_enqueue_script(
 				'presentations',
-				Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/main.min.js', 'modules/shortcodes/js/main.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/main.min.js', 'modules/shortcodes/js/main.js' ),
 				array( 'jquery', 'jmpress' ),
 				JETPACK__VERSION,
 				true

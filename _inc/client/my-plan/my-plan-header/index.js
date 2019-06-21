@@ -58,8 +58,8 @@ class MyPlanHeader extends React.Component {
 									'Worried about security? Get backups, automated security fixes and more: {{a}}Upgrade now{{/a}}',
 									{
 										components: {
-											a: <UpgradeLink source="myplan-header-free-plan-text-link" />
-										}
+											a: <UpgradeLink source="myplan-header-free-plan-text-link" />,
+										},
 									}
 								) }
 							</p>

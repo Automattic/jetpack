@@ -1,10 +1,14 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
 
 class Sharing_Admin {
+
 	public function __construct() {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
@@ -24,7 +28,7 @@ class Sharing_Admin {
 	public function sharing_head() {
 		wp_enqueue_script(
 			'sharing-js',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/sharedaddy/admin-sharing.min.js',
 				'modules/sharedaddy/admin-sharing.js'
 			),

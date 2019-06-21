@@ -8,6 +8,8 @@ Author URI: http://automattic.com/
 License: GPLv2 or later
 */
 
+use Automattic\Jetpack\Assets;
+
 function jetpack_register_widget_milestone() {
 	register_widget( 'Milestone_Widget' );
 }
@@ -62,7 +64,7 @@ class Milestone_Widget extends WP_Widget {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
 			wp_enqueue_script(
 				'milestone-admin-js',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/milestone/admin.min.js',
 					'modules/widgets/milestone/admin.js'
 				),
@@ -80,7 +82,7 @@ class Milestone_Widget extends WP_Widget {
 
 		wp_enqueue_script(
 			'milestone',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/widgets/milestone/milestone.min.js',
 				'modules/widgets/milestone/milestone.js'
 			),
