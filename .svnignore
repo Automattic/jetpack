@@ -16,7 +16,6 @@ babel.config*
 phpunit.xml.dist
 dangerfile.js
 renovate.json
-bin
 docs
 tests
 tools
