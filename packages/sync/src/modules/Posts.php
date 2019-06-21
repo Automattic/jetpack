@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Sync\Settings;
 
-class Posts extends \Jetpack_Sync_Module {
+class Posts extends Module {
 
 	private $just_published  = array();
 	private $previous_status = array();
@@ -47,7 +47,6 @@ class Posts extends \Jetpack_Sync_Module {
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
 
 	}
-
 
 	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
 		remove_action( 'deleted_post_meta', $this->action_handler );
