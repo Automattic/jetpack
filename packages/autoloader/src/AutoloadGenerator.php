@@ -215,13 +215,14 @@ function enqueue_packages_$suffix() {
 	foreach ( \$class_map as \$class_name => \$class_info ) {
 		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
 	}
-	\$legacy_class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap.php';
-	foreach ( \$legacy_class_map as \$class_name => \$class_path ) {
-		enqueue_package_class( \$class_name, '0.1', \$class_path );
+	\$composer_class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap.php';
+	\$package_version    = file_exists( dirname( __DIR__ ) . '/package-version.php' ) ? include( dirname( __DIR__ ) . '/package-version.php' ) : '0.1';
+	foreach ( \$composer_class_map as \$class_name => \$class_path ) {
+		enqueue_package_class( \$class_name, \$package_version, \$class_path );
 	}
 }
 enqueue_packages_$suffix();
-		
+
 INCLUDE_FILES;
 
 		return $file_contents;
