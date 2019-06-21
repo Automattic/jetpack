@@ -1,19 +1,21 @@
 <?php
 
+namespace Automattic\Jetpack\Sync;
+
 use Automattic\Jetpack\Constants;
 
 /*
  * Utility functions to generate data synced to wpcom
  */
 
-class Jetpack_Sync_Functions {
+class Functions {
 	const HTTPS_CHECK_OPTION_PREFIX = 'jetpack_sync_https_history_';
 	const HTTPS_CHECK_HISTORY       = 5;
 
 	public static function get_modules() {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 
-		return Jetpack_Admin::init()->get_modules();
+		return \Jetpack_Admin::init()->get_modules();
 	}
 
 	public static function get_taxonomies() {
@@ -83,7 +85,7 @@ class Jetpack_Sync_Functions {
 	public static function sanitize_post_type( $post_type ) {
 		// Lets clone the post type object instead of modifing the global one.
 		$sanitized_post_type = array();
-		foreach ( Jetpack_Sync_Defaults::$default_post_type_attributes as $attribute_key => $default_value ) {
+		foreach ( \Jetpack_Sync_Defaults::$default_post_type_attributes as $attribute_key => $default_value ) {
 			if ( isset( $post_type->{ $attribute_key } ) ) {
 				$sanitized_post_type[ $attribute_key ] = $post_type->{ $attribute_key };
 			}
@@ -93,7 +95,7 @@ class Jetpack_Sync_Functions {
 
 	public static function expand_synced_post_type( $sanitized_post_type, $post_type ) {
 		$post_type        = sanitize_key( $post_type );
-		$post_type_object = new WP_Post_Type( $post_type, $sanitized_post_type );
+		$post_type_object = new \WP_Post_Type( $post_type, $sanitized_post_type );
 		$post_type_object->add_supports();
 		$post_type_object->add_rewrite_rules();
 		$post_type_object->add_hooks();
@@ -146,7 +148,7 @@ class Jetpack_Sync_Functions {
 		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		}
-		$updater = new WP_Automatic_Updater();
+		$updater = new \WP_Automatic_Updater();
 
 		return (bool) strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
 	}
@@ -276,7 +278,7 @@ class Jetpack_Sync_Functions {
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
 			// ensure that we get more uniform values.
-			$value = Jetpack_Options::get_raw_option( $option_name );
+			$value = \Jetpack_Options::get_raw_option( $option_name );
 		}
 
 		return $value;

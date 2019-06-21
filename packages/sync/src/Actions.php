@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Users;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -149,8 +148,8 @@ class Actions {
 			'codec'     => $codec_name,     // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 			'queue'     => $queue_id,       // sync or full_sync
-			'home'      => \Jetpack_Sync_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
-			'siteurl'   => \Jetpack_Sync_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'home'      => Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
+			'siteurl'   => Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
 			'cd'        => sprintf( '%.4f', $checkout_duration ),   // Time spent retrieving queue items from the DB
 			'pd'        => sprintf( '%.4f', $preprocess_duration ), // Time spent converting queue items into data to send
 		);

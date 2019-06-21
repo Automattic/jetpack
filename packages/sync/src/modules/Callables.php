@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Functions;
+
 class Callables extends \Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
@@ -65,7 +67,7 @@ class Callables extends \Jetpack_Sync_Module {
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach ( $url_callables as $callable ) {
-			delete_option( \Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
+			delete_option( Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
 		}
 	}
 
@@ -142,7 +144,7 @@ class Callables extends \Jetpack_Sync_Module {
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && $current_screeen->id !== 'plugins' ) ) {
 			return;
 		}
-		$plugins = array_keys( \Jetpack_Sync_Functions::get_plugins() );
+		$plugins = array_keys( Functions::get_plugins() );
 		foreach ( $plugins as $plugin_file ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.

@@ -1,7 +1,9 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Tracking;
 
@@ -724,8 +726,8 @@ class Jetpack_XMLRPC_Server {
 	 */
 	function validate_urls_for_idc_mitigation() {
 		return array(
-			'home'    => Jetpack_Sync_Functions::home_url(),
-			'siteurl' => Jetpack_Sync_Functions::site_url(),
+			'home'    => Functions::home_url(),
+			'siteurl' => Functions::site_url(),
 		);
 	}
 
