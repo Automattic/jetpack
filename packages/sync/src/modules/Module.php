@@ -1,6 +1,6 @@
 <?
 
-namespace Automattic\Jetpack\Sync;
+namespace Automattic\Jetpack\Sync\Modules;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions
