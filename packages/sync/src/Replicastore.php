@@ -7,8 +7,7 @@ namespace Automattic\Jetpack\Sync;
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Replicastore implements Replicastore_Interface {
-
-
+	
 	public function reset() {
 		global $wpdb;
 
@@ -147,12 +146,12 @@ class Replicastore implements Replicastore_Interface {
 
 	public function posts_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', \Jetpack_Sync_Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
 	}
 
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', \Jetpack_Sync_Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
 	}
 
 	public function comment_count( $status = null, $min_id = null, $max_id = null ) {
@@ -282,12 +281,12 @@ class Replicastore implements Replicastore_Interface {
 
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->comments, Defaults::$default_comment_checksum_columns, 'comment_ID', \Jetpack_Sync_Settings::get_comments_filter_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->comments, Defaults::$default_comment_checksum_columns, 'comment_ID', Settings::get_comments_filter_sql(), $min_id, $max_id );
 	}
 
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', \Jetpack_Sync_Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
 	}
 
 	public function options_checksum() {
