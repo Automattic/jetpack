@@ -1,12 +1,14 @@
 <?php
 
+namespace Automattic\Jetpack\Sync;
+
 use Automattic\Jetpack\Sync\Codec_Interface;
 
 /**
  * An implementation of Automattic\Jetpack\Sync\Codec_Interface that uses gzip's DEFLATE
  * algorithm to compress objects serialized using json_encode
  */
-class Jetpack_Sync_JSON_Deflate_Array_Codec implements Codec_Interface {
+class JSON_Deflate_Array_Codec implements Codec_Interface {
 	const CODEC_NAME = 'deflate-json-array';
 
 	public function name() {
