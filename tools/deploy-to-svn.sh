@@ -1,4 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# This script requires Bash 4+, since we want a version of Bash that supports globstar.
+if [ -z "${BASH_VERSINFO}" ] || [ -z "${BASH_VERSINFO[0]}" ] || [ ${BASH_VERSINFO[0]} -lt 4 ]; then
+	echo "This script requires Bash version >= 4."
+	read -p "Do you want to install it on your system with Homebrew? [y/N]" -n 1 -r
+	if [[ $REPLY != "y" && $REPLY != "Y" ]]; then
+		exit 1;
+	else
+		brew install bash 2>/dev/null
+		echo "Done!"
+	fi
+fi
 
 if [ $# -eq 0 ]; then
 	echo 'Usage: `./deploy-to-svn.sh <tag | HEAD>`'
@@ -69,6 +81,7 @@ echo "Done!"
 
 echo "Purging paths included in .svnignore"
 # check .svnignore
+shopt -s globstar # Support globs.
 for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
 	rm -rf $JETPACK_SVN_DIR/trunk/$file
 done
