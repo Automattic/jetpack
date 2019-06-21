@@ -12,8 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/asset-tools",
-                "reference": "5733de68bc0616f37ed3813b092908767df2cf68",
-                "shasum": null
+                "reference": "5733de68bc0616f37ed3813b092908767df2cf68"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -31,12 +30,11 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-fix/production-builds",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb",
-                "shasum": null
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -70,8 +68,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "0a0e293d73c17d59376590d56e5667b169d26877",
-                "shasum": null
+                "reference": "0a0e293d73c17d59376590d56e5667b169d26877"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -107,8 +104,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95",
-                "shasum": null
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -136,8 +132,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "4b1cb00db6b55a600855ed7a1300736b6e09e818",
-                "shasum": null
+                "reference": "4b1cb00db6b55a600855ed7a1300736b6e09e818"
             },
             "require": {
                 "automattic/jetpack-asset-tools": "@dev",
@@ -171,16 +166,10 @@
         {
             "name": "automattic/jetpack-logo",
             "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "c02750b6af95d114ba08562a7df74bab98235fef"
-            },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/c02750b6af95d114ba08562a7df74bab98235fef",
-                "reference": "c02750b6af95d114ba08562a7df74bab98235fef",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/logo",
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -192,12 +181,16 @@
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack",
-            "time": "2019-06-10T21:57:07+00:00"
+            "description": "A logo for Jetpack"
         },
         {
             "name": "automattic/jetpack-options",
@@ -205,8 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f",
-                "shasum": null
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -232,8 +224,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a",
-                "shasum": null
+                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -260,8 +251,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85",
-                "shasum": null
+                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
             },
             "require": {
                 "automattic/jetpack-options": "@dev"
