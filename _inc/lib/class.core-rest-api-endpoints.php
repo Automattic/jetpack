@@ -2061,7 +2061,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Stats
 			'admin_bar' => array(
-				'description'       => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),
+				'description'       => esc_html__( 'Include a small chart in your admin bar with a 48-hour traffic snapshot.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
