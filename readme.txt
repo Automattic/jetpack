@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: fix display of backup details in the Jetpack dashboard.
+* Admin Page: do not disable Widget Visibility and Widgets toggles in Development mode.
 * Sitemaps: ensure links to sitemaps appear in robots.txt
 * Slideshow Block: fix CSS class name.
 * Videos: ensure that Video Poster images are always displayed properly.
