@@ -16,6 +16,9 @@ babel.config*
 phpunit.xml.dist
 dangerfile.js
 renovate.json
+bin/phpcs-whitelist.js
+bin/pre-commit-hook.js
+bin/release-package.php
 docs
 tests
 tools
