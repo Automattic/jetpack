@@ -168,7 +168,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
-							'Give your search ranking a boost with SEO tools in Jetpack Premium or Professional.'
+							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium.'
 						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
