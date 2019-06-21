@@ -22,17 +22,17 @@ export default class JetpackPage extends Page {
 
 	async isPremium() {
 		const premiumPlanImage = ".jp-landing__plan-card-img img[src*='premium']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 10000 );
+		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
 	}
 
 	async isProfessional() {
 		const proPlanImage = ".jp-landing__plan-card-img img[src*='business']";
-		return await isEventuallyVisible( this.page, proPlanImage, 10000 );
+		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
 	}
 
 	async isConnected() {
 		const connectionInfo = '.jp-connection-settings__info';
-		return await isEventuallyVisible( this.page, connectionInfo, 10000 );
+		return await isEventuallyVisible( this.page, connectionInfo, 20000 );
 	}
 
 	async isPlan( plan ) {
