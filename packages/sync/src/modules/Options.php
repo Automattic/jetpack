@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
 
-class Options extends \Jetpack_Sync_Module {
+class Options extends Module {
 	private $options_whitelist, $options_contentless;
 
 	public function name() {

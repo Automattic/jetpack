@@ -6,7 +6,6 @@ use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
-
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -19,7 +18,7 @@ use Automattic\Jetpack\Sync\Settings;
  * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
 
-class Full_Sync extends \Jetpack_Sync_Module {
+class Full_Sync extends Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT    = 3600;
 

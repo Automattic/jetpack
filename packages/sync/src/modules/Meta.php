@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class Meta extends \Jetpack_Sync_Module {
+class Meta extends Module {
 	public function name() {
 		return 'meta';
 	}

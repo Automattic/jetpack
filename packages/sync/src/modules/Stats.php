@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class Stats extends \Jetpack_Sync_Module {
+class Stats extends Module {
 
 	function name() {
 		return 'stats';

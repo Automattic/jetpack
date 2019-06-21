@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
 
-class Constants extends \Jetpack_Sync_Module {
+class Constants extends Module {
 	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
 

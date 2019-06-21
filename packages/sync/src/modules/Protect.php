@@ -7,7 +7,7 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 /**
  * logs bruteprotect failed logins via sync
  */
-class Protect extends \Jetpack_Sync_Module {
+class Protect extends Module {
 
 	function name() {
 		return 'protect';
