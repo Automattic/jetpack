@@ -157,19 +157,24 @@ class ThemeEnhancements extends React.Component {
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
+						<p>
+							{ __(
+								'Create a smooth, uninterrupted reading experience on your site by loading more content as visitors scroll to the bottom of an archive page.'
+							) }
+						</p>
 						{ this.props.isInfiniteScrollSupported ? (
 							[
 								{
 									key: 'infinite_default',
-									label: __( 'Load more posts using the default theme behavior' ),
+									label: __( 'Don’t load more content automatically' ),
 								},
 								{
 									key: 'infinite_button',
-									label: __( 'Load more posts in page with a button' ),
+									label: __( 'Add a button that visitors can click to see more content' ),
 								},
 								{
 									key: 'infinite_scroll',
-									label: __( 'Load more posts as the reader scrolls down' ),
+									label: __( 'Load more content automatically as the reader scrolls down' ),
 								},
 							].map( radio => (
 								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
