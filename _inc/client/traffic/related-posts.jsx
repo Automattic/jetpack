@@ -64,10 +64,8 @@ class RelatedPostsComponent extends React.Component {
 					module={ this.props.getModule( 'related-posts' ) }
 					support={ {
 						text: __(
-							'The related posts feature scans all of your posts’ content, ' +
-								'analyzes it, and then displays contextual posts your ' +
-								'visitors might be interested in reading. Related posts are ' +
-								'shown at the bottom of each post.'
+							'The feature helps visitors find more of your content by ' +
+								'displaying related posts at the bottom of each post.'
 						),
 						link: 'https://jetpack.com/support/related-posts/',
 					} }
