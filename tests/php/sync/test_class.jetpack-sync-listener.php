@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
@@ -42,10 +43,10 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Defaults::$default_max_queue_lag, $this->listener->get_queue_lag_limit() );
 
 		// set max queue size to 2 items
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size' => 2 ) );
+		Settings::update_settings( array( 'max_queue_size' => 2 ) );
 
 		// set max queue age to 3 seconds
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_lag' => 3 ) );
+		Settings::update_settings( array( 'max_queue_lag' => 3 ) );
 
 		$this->listener->set_defaults(); // should pick up new queue size limit
 
@@ -184,7 +185,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_does_set_silent_flag_true_while_importing() {
-		Jetpack_Sync_Settings::set_importing( true );
+		Settings::set_importing( true );
 
 		$this->factory->post->create();
 

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Settings;
+
 class Jetpack_Likes_Settings {
 	function __construct() {
 		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
@@ -269,7 +271,7 @@ class Jetpack_Likes_Settings {
 	 * similar logic and filters apply here, too.
 	 */
 	function is_likes_visible() {
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return false;
 		}
 

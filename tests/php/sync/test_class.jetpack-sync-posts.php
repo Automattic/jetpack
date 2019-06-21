@@ -1,8 +1,10 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing CRUD on Posts
@@ -405,7 +407,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_content_was_filtered() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = "[foo]";
 
@@ -418,7 +420,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_disabled_post_filtered_content() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 0 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 0 ) );
 
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = "[foo]";
@@ -430,11 +432,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post_on_server->post_content, '[foo]' );
 		$this->assertTrue( empty( $post_on_server->post_content_filtered ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 	}
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
@@ -449,7 +451,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_filter( 'jetpack_sync_do_not_expand_shortcodes', array( $this, 'do_not_expand_shortcode' ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
@@ -650,7 +652,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// first, show that post is being synced
 		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
+		Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
 
@@ -659,7 +661,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 
 		// also assert that the post types blacklist still contains the hard-coded values
-		$setting = Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' );
+		$setting = Settings::get_setting( 'post_types_blacklist' );
 
 		$this->assertTrue( in_array( 'filter_me', $setting ) );
 
@@ -674,7 +676,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
+		Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
 
 		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
@@ -705,7 +707,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_contact_form_shortcode_from_filtered_content() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
@@ -726,7 +728,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_likes_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		// initial sync sets the screen to 'sync', then `is_admin` returns `true`
 		set_current_screen( 'front' );
@@ -753,7 +755,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_sharedaddy_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
@@ -784,7 +786,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_related_posts_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
@@ -807,7 +809,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_related_posts_shortcode_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
@@ -896,7 +898,7 @@ POST_CONTENT;
 
 	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_filter( 'the_content', array( $this, 'the_content_filter' ), 1000 );
 		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ), 1000 );
@@ -944,7 +946,7 @@ POST_CONTENT;
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$content =
 			'Check out this cool video:

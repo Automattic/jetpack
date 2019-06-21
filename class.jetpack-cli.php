@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Queue;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Control your local Jetpack installation.
@@ -832,7 +833,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'settings':
 				WP_CLI::log( __( 'Sync Settings:', 'jetpack' ) );
-				foreach( Jetpack_Sync_Settings::get_settings() as $setting => $item ) {
+				foreach( Settings::get_settings() as $setting => $item ) {
 					$settings[]  = array(
 						'setting' => $setting,
 						'value' => is_scalar( $item ) ? $item : json_encode( $item )
@@ -841,18 +842,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
 
 			case 'disable':
-				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				// Don't set it via the Settings since that also resets the queues.
 				update_option( 'jetpack_sync_settings_disable', 1 );
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Disabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'enable':
-				Jetpack_Sync_Settings::update_settings( array( 'disable' => 0 ) );
+				Settings::update_settings( array( 'disable' => 0 ) );
 				/* translators: %s is the site URL */
 				WP_CLI::log( sprintf( __( 'Sync Enabled on %s', 'jetpack' ), get_site_url() ) );
 				break;
 			case 'reset':
-				// Don't set it via the Jetpack_Sync_Settings since that also resets the queues.
+				// Don't set it via the Settings since that also resets the queues.
 				update_option( 'jetpack_sync_settings_disable', 1 );
 
 				/* translators: %s is the site URL */
@@ -887,7 +888,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'start':
 				if ( ! Actions::sync_allowed() ) {
-					if( ! Jetpack_Sync_Settings::get_setting( 'disable' ) ) {
+					if( ! Settings::get_setting( 'disable' ) ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
 						return;
 					}
@@ -906,11 +907,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				}
 				// Get the original settings so that we can restore them later
-				$original_settings = Jetpack_Sync_Settings::get_settings();
+				$original_settings = Settings::get_settings();
 
 				// Initialize sync settigns so we can sync as quickly as possible
 				$sync_settings = wp_parse_args(
-					array_intersect_key( $assoc_args, Jetpack_Sync_Settings::$valid_settings ),
+					array_intersect_key( $assoc_args, Settings::$valid_settings ),
 					array(
 						'sync_wait_time' => 0,
 						'enqueue_wait_time' => 0,
@@ -918,7 +919,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'max_queue_size_full_sync' => 100000
 					)
 				);
-				Jetpack_Sync_Settings::update_settings( $sync_settings );
+				Settings::update_settings( $sync_settings );
 
 				// Convert comma-delimited string of modules to an array
 				if ( ! empty( $assoc_args['modules'] ) ) {
@@ -959,7 +960,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				} else {
 
 					// Reset sync settings to original.
-					Jetpack_Sync_Settings::update_settings( $original_settings );
+					Settings::update_settings( $original_settings );
 
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
@@ -990,7 +991,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				} while ( $result && ! is_wp_error( $result ) );
 
 				// Reset sync settings to original.
-				Jetpack_Sync_Settings::update_settings( $original_settings );
+				Settings::update_settings( $original_settings );
 
 				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
 				break;

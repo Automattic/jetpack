@@ -84,7 +84,7 @@ class Listener {
 	// prevent adding items to the queue if it hasn't sent an item for 15 mins
 	// AND the queue is over 1000 items long (by default)
 	function can_add_to_queue( $queue ) {
-		if ( ! \Jetpack_Sync_Settings::is_sync_enabled() ) {
+		if ( ! Settings::is_sync_enabled() ) {
 			return false;
 		}
 
@@ -140,7 +140,7 @@ class Listener {
 		$data_to_enqueue = array();
 		$user_id         = get_current_user_id();
 		$currtime        = microtime( true );
-		$is_importing    = \Jetpack_Sync_Settings::is_importing();
+		$is_importing    = Settings::is_importing();
 
 		foreach ( $args_array as $args ) {
 			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
@@ -179,7 +179,7 @@ class Listener {
 
 	function enqueue_action( $current_filter, $args, $queue ) {
 		// don't enqueue an action during the outbound http request - this prevents recursion
-		if ( \Jetpack_Sync_Settings::is_sending() ) {
+		if ( Settings::is_sending() ) {
 			return;
 		}
 
@@ -235,7 +235,7 @@ class Listener {
 					$args,
 					get_current_user_id(),
 					microtime( true ),
-					\Jetpack_Sync_Settings::is_importing(),
+					Settings::is_importing(),
 					$this->get_actor( $current_filter, $args ),
 				)
 			);
@@ -246,7 +246,7 @@ class Listener {
 					$args,
 					get_current_user_id(),
 					microtime( true ),
-					\Jetpack_Sync_Settings::is_importing(),
+					Settings::is_importing(),
 				)
 			);
 		}
@@ -313,8 +313,8 @@ class Listener {
 	function set_defaults() {
 		$this->sync_queue      = new Queue( 'sync' );
 		$this->full_sync_queue = new Queue( 'full_sync' );
-		$this->set_queue_size_limit( \Jetpack_Sync_Settings::get_setting( 'max_queue_size' ) );
-		$this->set_queue_lag_limit( \Jetpack_Sync_Settings::get_setting( 'max_queue_lag' ) );
+		$this->set_queue_size_limit( Settings::get_setting( 'max_queue_size' ) );
+		$this->set_queue_lag_limit( Settings::get_setting( 'max_queue_lag' ) );
 	}
 
 	function get_request_url() {
