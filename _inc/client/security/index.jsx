@@ -91,7 +91,7 @@ export class Security extends Component {
 						isSearchTerm
 							? __( 'Security' )
 							: __(
-									"Your site is protected by Jetpack. You'll be notified if anything needs attention."
+									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.'
 							  )
 					}
 					className="jp-settings-description"
