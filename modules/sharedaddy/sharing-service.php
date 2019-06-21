@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Settings;
+
 include_once dirname( __FILE__ ) . '/sharing-sources.php';
 
 define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
@@ -669,8 +671,7 @@ add_action( 'template_redirect', 'sharing_process_requests', 9 );
 function sharing_display( $text = '', $echo = false ) {
 	global $post, $wp_current_filter;
 
-	require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
-	if ( Jetpack_Sync_Settings::is_syncing() ) {
+	if ( Settings::is_syncing() ) {
 		return $text;
 	}
 

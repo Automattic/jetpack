@@ -1,7 +1,5 @@
 <?php
 
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
-
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
@@ -131,10 +129,10 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['signature'] = 'abc';
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $this->request );
-		$this->assertErrorResponse( 'invalid_signature', $response );
-		$this->assertEquals( 500, $response->get_status() );
+		$this->assertErrorResponse( 'rest_invalid_signature', $response );
+		$this->assertEquals( 400, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertEquals( 'The required "nonce" parameter is malformed.', $data['message'] );
+		$this->assertEquals( 'The request is not signed correctly.', $data['message'] );
 		$this->assertEquals( 0, get_current_user_id() );
 	}
 
@@ -196,7 +194,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = jetpack_sha1_base64( '{"modules":[]}' );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( '{"modules":[]}' );
 		$_GET['signature'] = 'abc';
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
@@ -221,7 +219,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 			$_GET['token'],
 			$_GET['timestamp'],
 			$_GET['nonce'],
-			jetpack_sha1_base64( '{"modules":[]}' ),
+			Jetpack::connection()->sha1_base64( '{"modules":[]}' ),
 			'GET',
 			'example.org',
 			'80',
@@ -232,8 +230,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request->set_header( 'Content-Type', 'application/json' );
 		$this->request->set_body( '{"modules":[]}' );
 		$response = $this->server->dispatch( $this->request );
-		$this->assertErrorResponse( 'invalid_body_hash', $response );
-		$this->assertEquals( 500, $response->get_status() );
+		$this->assertErrorResponse( 'rest_invalid_signature', $response );
+		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 0, get_current_user_id() );
 	}
 
@@ -251,7 +249,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = jetpack_sha1_base64( $body );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],
@@ -291,7 +289,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = jetpack_sha1_base64( $body );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],
@@ -341,7 +339,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = jetpack_sha1_base64( $body );
+		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],

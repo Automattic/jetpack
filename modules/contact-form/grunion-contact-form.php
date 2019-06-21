@@ -10,6 +10,8 @@ Version: 2.4
 License: GPLv2 or later
 */
 
+use Automattic\Jetpack\Sync\Settings;
+
 define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRUNION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -1935,8 +1937,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML for the concat form.
 	 */
 	static function parse( $attributes, $content ) {
-		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return '';
 		}
 		// Create a new Grunion_Contact_Form object (this class)

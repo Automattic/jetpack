@@ -94,7 +94,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getJetpackStateNoticesErrorCode( state )**
 * **getJetpackStateNoticesErrorDescription( state )**
 * **getJetpackStateNoticesMessageCode( state )**
-* **getJumpStartStatus( state )**
 * **getLastDownTime( state )**
 * **getModule( state, name )**
 * **getModuleOption( state, module_slug, option_name )** {
@@ -141,8 +140,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **fetchStatsData( range )**
 * **fetchUserConnectionData()**
 * **filterSearch( term )**
-* **jumpStartActivate()**
-* **jumpStartSkip()**
 * **regeneratePostByEmailAddress()**
 * **resetOptions( options )**
 * **setInitialState()**

@@ -1,49 +1,55 @@
-## 7.4
+## 7.5
 
-### Blocks
+### Dashboard
 
-#### Business Hours
+This release introduces many small changes in the Jetpack dashboard. We've updating the wording that describes several features, we've removed a feature that would offer you to activate a list of recommended features upon connecting your site to WordPress.com, we've removed some of the buttons offering you to upgrade to a Paid plan on the "At a Glance" view, we've tried to describe each plan a little better, and more.
 
-We've made some changes to the display of the Business Hours block.
-- Try to view a Business Blocks block that was created before the update; is it still displayed nicely?
-- When adding a new block, are the opening hours displayed nicely?
+Do not hesitate to browse through all main Dashboard Pages ("At a Glance", "My Plan", "Plans", "Settings"). Check the phrases describing each feature, and let us know if you spot any typo or anything odd.
 
-#### Memberships
+### Magic Links
 
-Following feedback from our Beta testers (thank you!), we've made several changes to the Memberships block. If you have a paid plan on your testing site, we'd recommend that you give the block another try, and let us know of any issues you may find when creating a button:
-- What's the button creation process like?
-- Can you personalize the button?
+This feature introduces a new option in the Jetpack dashboard. If you use one of the mobile apps, you'll now be able to send an email to yourself, from the Jetpack dashboard, with a magic link that will allow you to log in to the mobile app in one click. We would invite you to test two scenarios:
 
-If you don't have a paid plan on your site, try adding the block and go through the flow of upgrading your site; do things work as expected?
+**Testing the error case:**
 
-### Private Sites
+1. Ensure that Jetpack site is connected to a test account that **is** an Automattician account
+2. Go to Jetpack > Dashboard
+3. Click Connect to mobile WordPress app link. That link appears in the Connection area.
+4. Ensure modal pops up
+5. Click Send Link button
+6. Ensure that an error message occurs (this is due to you being connected to an Automattician account)
+7. Disconnect site
 
-This release introduces a new feature, Private Sites, a great option if you're still working on your site and aren't quite ready to show it off to the rest of the internet yet.
+**Testing the success case:**
 
-There are 3 ways to access this feature:
+1. Reconnect site to a WordPress.com test user that **is not** an Automattician account
+2. Click Connect to mobile WordPress app link
+3. Ensure modal pops up
+4. Click Send Link button
+5. Ensure that you receive email with magic link
 
-- In your dashboard, in the "At a glance" widget, find the option to make your site private.
-- Under Settings > Reading, find a similar option.
-- Under Jetpack > Settings > Security, find the Private Sites setting.
+### VideoPress
 
-1. Try turning the option on, and try to access any part of your site while logged. You should only be able to see a log in screen.
-2. Once you toggle the option back off, your Jetpack features should be the same as before you used the Private Sites option. As an example, if the Publicize feature was on before you started using Private Sites, it should have been turned off when you made your site private, and turned back on when you made your site public again.
-3. Make sure that the feature does not generate any errors or warnings in your Debug log.
-4. Make sure the settings under Settings > Reading and in the dashboard widget always reflect the status of the site's privacy.
-5. When a site is private, make sure no posts are pushed by Publicize or sent to email subscribers.
+We've made some changes to how video thumbnails were saved after uploading a video using Jetpack Videos, aka VideoPress. To test this, try the following:
 
+1. Start with a site including a plan that supports Jetpack Videos
+2. Go to Jetpack > Settings and enable the Video toggle.
+3. Go to this page and select your site: https://wordpress.com/media/
+4. Upload a video. After uploading, you may have to wait a few minutes for the video to be processed.
+5. Refresh the page, and you should see a video thumbnail appear below the video icon for that video.
+6. Try setting a different Video thumbnail there.
+7. Go back to your site and enable the Image CDN option under Jetpack > Settings > Performance.
+8. Add the following code snippet (here is how you can do it](https://jetpack.com/support/adding-code-snippets/)):
+```php
+add_filter('jetpack_photon_pre_args', 'jetpackme_custom_photon_compression' );
+function jetpackme_custom_photon_compression( $args ) {
+	$args['quality'] = 80;
+	$args['strip'] = 'all';
+	return $args;
+}
+```
+9. Repeat steps 3 to 5, make sure video thumbnails appear nicely for existing and new videos.
 
-### Tiled Galleries
-
-We've made some changes to the editing experience when creating Tiled Galleries in the block editor. To test those changes, try the following:
-
-- Add a Tiled Gallery block, and make sure it is displayed nicely in the editor and on the frontend.
-- Try editing old posts with tiled gallery blocks. When opening the post in the editor, you should see no block invalidation error.
-- Those old posts should look nice on the front end as well.
-- Try creating a Tiled Gallery block with a lot of large images.
-- Reload the editor with a very small viewport (mobile view).
-- All images should load nicely, and faster.
-- Scale up the viewport; depending on the browser and if you look at the Network tab in your browser dev tools, you will likely see more requests fired for larger assets as the viewport width increases.
 
 ### Others
 

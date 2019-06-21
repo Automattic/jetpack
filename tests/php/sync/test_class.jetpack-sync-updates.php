@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing Updates Sync
  */
@@ -14,7 +17,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function check_for_updates_to_sync() {
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 	}
 
@@ -51,7 +54,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_plugins', $response );
 
 		//
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
 		$this->sender->do_sync();
@@ -111,7 +114,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		set_site_transient( 'update_themes', $response );
 
 		//
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 
 		$has_action = has_action( 'shutdown', array( $updates_module, 'sync_last_event' ) );
@@ -245,11 +248,11 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		global $wp_version, $pagenow;
 
 		$this->assertFalse( $pagenow === 'update-core.php' );
-		Jetpack_Constants::set_constant( 'REST_API_REQUEST', true );
-		Jetpack_Sync_Modules::get_module( "updates" )->update_core( 'new_version' );
+		Constants::set_constant( 'REST_API_REQUEST', true );
+		Modules::get_module( "updates" )->update_core( 'new_version' );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_single_constant( 'REST_API_REQUEST' );
+		Constants::clear_single_constant( 'REST_API_REQUEST' );
 
 		$autoupdate_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_autoupdated_successfully' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );

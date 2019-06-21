@@ -95,7 +95,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Add sharing buttons to your posts' ) }
+							{ __( 'Add sharing buttons to your posts and pages' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isActive && configCard() }

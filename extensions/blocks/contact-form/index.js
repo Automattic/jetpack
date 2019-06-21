@@ -69,7 +69,7 @@ export const settings = {
 	},
 
 	edit: JetpackContactForm,
-	save: InnerBlocks.Content,
+	save: () => <InnerBlocks.Content />,
 	deprecated: [
 		{
 			attributes: {
@@ -107,7 +107,7 @@ export const settings = {
 				return true;
 			},
 
-			save: InnerBlocks.Content,
+			save: () => <InnerBlocks.Content />,
 		},
 	],
 };

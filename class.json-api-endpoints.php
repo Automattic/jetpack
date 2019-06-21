@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+
 require_once( dirname( __FILE__ ) . '/json-api-config.php' );
 require_once( dirname( __FILE__ ) . '/sal/class.json-api-links.php' );
 require_once( dirname( __FILE__ ) . '/sal/class.json-api-metadata.php' );
@@ -300,7 +302,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 
 	protected function get_secure_body( $secure_key ) {
-		$response =  Jetpack_Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/secure-request', Jetpack_Options::get_option('id' ) ),
 			'1.1',
 			array( 'method' => 'POST' ),

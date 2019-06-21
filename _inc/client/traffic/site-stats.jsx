@@ -174,7 +174,9 @@ class SiteStatsComponent extends React.Component {
 			>
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
-					header={ __( 'Collecting valuable traffic stats and insights' ) }
+					header={ __(
+						'Expand to update settings for how visits are counted and manage who can view this information.'
+					) }
 					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', {
 						'jp-foldable-settings-disable': unavailableInDevMode,
@@ -198,7 +200,9 @@ class SiteStatsComponent extends React.Component {
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Put a chart showing 48 hours of views in the admin bar' ) }
+									{ __(
+										'Include a small chart in your admin bar with a 48-hour traffic snapshot'
+									) }
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle

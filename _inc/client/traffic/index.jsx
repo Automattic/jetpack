@@ -80,7 +80,7 @@ export class Traffic extends React.Component {
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
-						configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
+						configureUrl={ 'https://wordpress.com/stats/ads/day/' + this.props.siteRawUrl }
 					/>
 				) }
 				{ foundRelated && (

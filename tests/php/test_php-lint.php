@@ -8,6 +8,10 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 	 * @group lint
 	 */
 	public function test_php_lint() {
+		if ( ! getenv( 'PHP_LINT' ) ) {
+			$this->markTestSkipped( 'We only need to run PHP lint tests once for each PHP version.' );
+		}
+
 		$exclude_paths = array(
 			'./docker',
 			'./tools',
@@ -17,7 +21,7 @@ class WP_Test_Jetpack_PHP_Lint extends WP_UnitTestCase {
 			'./_inc/class.jetpack-provision.php',
 			'./_inc/lib/debugger/debug-functions-for-php53.php',
 		);
-
+		
 		// use -prune to prevent traversal of that path.
 		// use -print0 and read -d '' to support filenames containing funny characters.
 		$find = 'find . -path ' . join( ' -prune -o -path ', array_map( 'escapeshellarg', $exclude_paths ) ) . " -prune -o -name '*.php' -print0";

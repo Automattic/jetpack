@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Users;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing CRUD on Users
@@ -31,7 +34,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
 
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 		$synced_user = $event->args[0];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -415,7 +418,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( (bool) $save_event );
 
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 		$synced_user = $add_event->args[0];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -518,22 +521,22 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		) );
 
 		// maybe
-		Jetpack_Sync_Users::maybe_demote_master_user( $current_master_id );
+		Users::maybe_demote_master_user( $current_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ) );
 
 		// don't demote user that if the user is still an admin.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( 'administrator', $new_master->roles[0] );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote the master user if the user is still an admin' );
 
 		$new_master->set_role( 'author' );
 		// don't demote user if the user one the only admin that is connected.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
 	}
 
 	public function test_returns_user_object_by_id() {
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 
 		// get the synced object
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
@@ -710,12 +713,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_invite_user_sync_invite_event() {
 		$this->server_event_storage->reset();
 		// Fake it till you make it
-		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+		Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
@@ -729,12 +732,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_invite_user_sync_invite_event_false() {
 		$this->server_event_storage->reset();
 		// Fake it till we make it
-		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
+		Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );

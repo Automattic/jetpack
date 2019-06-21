@@ -1,5 +1,8 @@
 <?php //phpcs:ignore
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Sync\Actions;
+
 class Jetpack_Provision { //phpcs:ignore
 
 	/**
@@ -35,9 +38,9 @@ class Jetpack_Provision { //phpcs:ignore
 
 		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
 		// functions/callables so that we can test if this site is in IDC.
-		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Jetpack_Sync_Actions::sync_allowed() ) {
-			Jetpack_Sync_Actions::do_full_sync( array( 'functions' => true ) );
-			Jetpack_Sync_Actions::$sender->do_full_sync();
+		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
+			Actions::do_full_sync( array( 'functions' => true ) );
+			Actions::$sender->do_full_sync();
 		}
 
 		if ( Jetpack::validate_sync_error_idc_option() ) {
@@ -191,7 +194,7 @@ class Jetpack_Provision { //phpcs:ignore
 			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}
 
-		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -258,7 +261,7 @@ class Jetpack_Provision { //phpcs:ignore
 		);
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
-		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;

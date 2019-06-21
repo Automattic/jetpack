@@ -150,7 +150,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Integrate easily with Google Analytics.' ) }
+						title={ __( 'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }

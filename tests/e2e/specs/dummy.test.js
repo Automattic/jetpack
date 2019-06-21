@@ -1,16 +1,30 @@
 /**
  * WordPress dependencies
  */
-import { visitAdminPage } from '@wordpress/e2e-test-utils';
-
+import { createNewPost } from '@wordpress/e2e-test-utils/build/create-new-post';
 /**
  * Internal dependencies
  */
-import DashboardPage from '../lib/pages/wp-admin/dashboard';
+import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
+import SimplePaymentBlock from '../lib/pages/blocks/simple-payments';
+import PostFrontendPage from '../lib/pages/postFrontend';
 
-describe( 'First test', () => {
-	it( 'Can login to wp-admin and click Connect on Jetpack page', async () => {
-		await visitAdminPage( '' );
-		await DashboardPage.init( page );
+describe( 'First test suite', () => {
+	it( 'Can publish a post with a Simple Payments block', async () => {
+		await createNewPost();
+
+		const blockEditor = await BlockEditorPage.init( page );
+		const blockInfo = await blockEditor.insertBlock( SimplePaymentBlock.name() );
+
+		const spBlock = new SimplePaymentBlock( blockInfo, page );
+		await spBlock.fillDetails();
+
+		await blockEditor.focus();
+
+		await blockEditor.publishPost();
+		await blockEditor.viewPost();
+
+		const frontend = await PostFrontendPage.init( page );
+		await frontend.isRenderedBlockPresent( SimplePaymentBlock );
 	} );
 } );

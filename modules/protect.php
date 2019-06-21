@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.
+ * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -11,6 +11,8 @@
  * Feature: Security
  * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
+
+use Automattic\Jetpack\Constants;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -438,7 +440,7 @@ class Jetpack_Protect_Module {
 		/**
 		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
 		 */
-		if ( Jetpack_Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
+		if ( Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
 			$this->kill_login();
 		}
 

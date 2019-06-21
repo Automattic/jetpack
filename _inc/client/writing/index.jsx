@@ -84,9 +84,6 @@ export class Writing extends React.Component {
 					className="jp-settings-description"
 				/>
 				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
-				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
-					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
-				) }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
@@ -102,6 +99,9 @@ export class Writing extends React.Component {
 						isLinked={ this.props.isLinked }
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
+				) }
+				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
+					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 				) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing WooCommerce Sync
  */
@@ -61,11 +63,11 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 			return;
 		}
 		parent::setUp();
-		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$this->full_sync = Modules::get_module( 'full-sync' );
 	}
 
 	function test_module_is_enabled() {
-		$this->assertTrue( !! Jetpack_Sync_Modules::get_module( "woocommerce" ) );
+		$this->assertTrue( !! Modules::get_module( "woocommerce" ) );
 	}
 
 	// Incremental sync

@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Sync\Settings;
+
 class Jetpack_RelatedPosts {
 	const VERSION   = '20190204';
 	const SHORTCODE = 'jetpack-related-posts';
@@ -197,8 +200,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
-		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return '';
 		}
 
@@ -232,8 +234,7 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
-		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return '';
 		}
 		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";

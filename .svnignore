@@ -16,6 +16,9 @@ babel.config*
 phpunit.xml.dist
 dangerfile.js
 renovate.json
+bin/phpcs-whitelist.js
+bin/pre-commit-hook.js
+bin/release-package.php
 docs
 tests
 tools
@@ -25,6 +28,7 @@ vendor/phpcompatibility
 vendor/sirbrillig
 vendor/squizlabs
 vendor/wp-coding-standards
+vendor/automattic/jetpack-autoloader
 composer.lock
 package.json
 gulpfile.js

@@ -1,18 +1,20 @@
 <?php
+
+use Automattic\Jetpack\Tracking;
+
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
 
 /**
  * Module Name: Secure Sign On
- * Module Description: Allow users to log into this site using WordPress.com accounts
- * Jumpstart Description: Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.
+ * Module Description: Allow users to log in to this site using WordPress.com accounts
  * Sort Order: 30
  * Recommendation Order: 5
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
- * Feature: Security, Jumpstart
+ * Feature: Security
  * Additional Search Queries: sso, single sign on, login, log in
  */
 
@@ -319,6 +321,8 @@ class Jetpack_SSO {
 	function login_init() {
 		global $action;
 
+		$tracking = new Tracking();
+
 		if ( Jetpack_SSO_Helpers::should_hide_login_form() ) {
 			/**
 			 * Since the default authenticate filters fire at priority 20 for checking username and password,
@@ -360,7 +364,7 @@ class Jetpack_SSO {
 						Jetpack_options::update_option( 'sso_first_login', true );
 					}
 
-					JetpackTracking::record_user_event( 'sso_login_redirect_success' );
+					$tracking->record_user_event( 'sso_login_redirect_success' );
 					wp_safe_redirect( $sso_url );
 					exit;
 				}
@@ -379,7 +383,7 @@ class Jetpack_SSO {
 				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 				$reauth = ! empty( $_GET['force_reauth'] );
 				$sso_url = $this->get_sso_url_or_die( $reauth );
-				JetpackTracking::record_user_event( 'sso_login_redirect_bypass_success' );
+				$tracking->record_user_event( 'sso_login_redirect_bypass_success' );
 				wp_safe_redirect( $sso_url );
 				exit;
 			}
@@ -674,10 +678,12 @@ class Jetpack_SSO {
 		 */
 		do_action( 'jetpack_sso_pre_handle_login', $user_data );
 
+		$tracking = new Tracking();
+
 		if ( Jetpack_SSO_Helpers::is_two_step_required() && 0 === (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
 
-			JetpackTracking::record_user_event( 'sso_login_failed', array(
+			$tracking->record_user_event( 'sso_login_failed', array(
 				'error_message' => 'error_msg_enable_two_step'
 			) );
 
@@ -724,7 +730,7 @@ class Jetpack_SSO {
 
 				$user = Jetpack_SSO_Helpers::generate_user( $user_data );
 				if ( ! $user ) {
-					JetpackTracking::record_user_event( 'sso_login_failed', array(
+					$tracking->record_user_event( 'sso_login_failed', array(
 						'error_message' => 'could_not_create_username'
 					) );
 					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_unable_to_create_user' ) );
@@ -735,7 +741,7 @@ class Jetpack_SSO {
 					? 'user_created_new_user_override'
 					: 'user_created_users_can_register';
 			} else {
-				JetpackTracking::record_user_event( 'sso_login_failed', array(
+				$tracking->record_user_event( 'sso_login_failed', array(
 					'error_message' => 'error_msg_email_already_exists'
 				) );
 
@@ -783,7 +789,7 @@ class Jetpack_SSO {
 
 			$is_json_api_auth = ! empty( $json_api_auth_environment );
 			$is_user_connected = Jetpack::is_user_connected( $user->ID );
-			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
+			$tracking->record_user_event( 'sso_user_logged_in', array(
 				'user_found_with'  => $user_found_with,
 				'user_connected'   => (bool) $is_user_connected,
 				'user_role'        => Jetpack::translate_current_user_to_role(),
@@ -819,7 +825,7 @@ class Jetpack_SSO {
 
 		add_filter( 'jetpack_sso_default_to_sso_login', '__return_false' );
 
-		JetpackTracking::record_user_event( 'sso_login_failed', array(
+		$tracking->record_user_event( 'sso_login_failed', array(
 			'error_message' => 'cant_find_user'
 		) );
 
@@ -895,7 +901,8 @@ class Jetpack_SSO {
 			$error_message = sanitize_text_field(
 				sprintf( '%s: %s', $sso_redirect->get_error_code(), $sso_redirect->get_error_message() )
 			);
-			JetpackTracking::record_user_event( 'sso_login_redirect_failed', array(
+			$tracking = new Tracking();
+			$tracking->record_user_event( 'sso_login_redirect_failed', array(
 				'error_message' => $error_message
 			) );
 			wp_die( $error_message );
