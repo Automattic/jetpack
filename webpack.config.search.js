@@ -1,4 +1,11 @@
+const path = require( 'path' );
+
 module.exports = {
+	entry: path.join( __dirname, '_inc', 'search' ),
+	output: {
+		path: path.resolve( __dirname, '_inc', 'search', 'dist' ),
+		filename: 'jp-search.bundle.js',
+	},
 	module: {
 		rules: [
 			{
