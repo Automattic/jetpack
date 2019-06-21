@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Users;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing CRUD on Users
@@ -33,7 +34,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
 
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 		$synced_user = $event->args[0];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -417,7 +418,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( (bool) $save_event );
 
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 		$synced_user = $add_event->args[0];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -535,7 +536,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_returns_user_object_by_id() {
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 
 		// get the synced object
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );

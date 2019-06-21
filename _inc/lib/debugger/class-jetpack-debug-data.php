@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Sender;
 
 /**
@@ -269,7 +270,7 @@ class Jetpack_Debug_Data {
 		);
 
 		/** Sync Debug Information */
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sync_module = Modules::get_module( 'full-sync' );
 		if ( $sync_module ) {
 			$sync_statuses              = $sync_module->get_status();
 			$human_readable_sync_status = array();

@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
 use Automattic\Jetpack\Sync\Sender;
@@ -25,7 +26,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->resetCallableAndConstantTimeouts();
 
-		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
+		$this->callable_module = Modules::get_module( "functions" );
 		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
 

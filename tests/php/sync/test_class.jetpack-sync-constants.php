@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Constants;
 
 /**
@@ -14,7 +15,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 
 		$this->resetCallableAndConstantTimeouts();
 
-		$this->constant_module = Jetpack_Sync_Modules::get_module( "constants" );
+		$this->constant_module = Modules::get_module( "constants" );
 	}
 
 	// TODO:
