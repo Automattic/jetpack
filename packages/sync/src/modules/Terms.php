@@ -3,8 +3,9 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Module;
 
-class Terms extends \Jetpack_Sync_Module {
+class Terms extends Module {
 	private $taxonomy_whitelist;
 
 	function name() {
@@ -103,16 +104,16 @@ class Terms extends \Jetpack_Sync_Module {
 	public function expand_term_taxonomy_id( $args ) {
 		list( $term_taxonomy_ids,  $previous_end ) = $args;
 
-		return
-			array( 'terms' => get_terms(
+		return array(
+			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,
 					'term_taxonomy_id' => $term_taxonomy_ids,
 					'orderby'          => 'term_taxonomy_id',
-					'order'            => 'DESC'
+					'order'            => 'DESC',
 				)
 			),
-			'previous_end' => $previous_end
+			'previous_end' => $previous_end,
 		);
 	}
 }

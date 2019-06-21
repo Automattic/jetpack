@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class WooCommerce extends \Jetpack_Sync_Module {
+use Automattic\Jetpack\Sync\Module;
+
+class WooCommerce extends Module {
 
 	private $order_item_meta_whitelist = array(
 		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20

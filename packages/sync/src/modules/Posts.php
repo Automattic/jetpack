@@ -4,8 +4,9 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Module;
 
-class Posts extends \Jetpack_Sync_Module {
+class Posts extends Module {
 
 	private $just_published  = array();
 	private $previous_status = array();

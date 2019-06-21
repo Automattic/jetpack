@@ -72,6 +72,7 @@ class Modules {
 	}
 
 	static function load_module( $module_name ) {
+		// TODO: We'll need to map old module name to new module name. For example 'Automattic\\Jetpack\\Sync\\Modules\\Constants' => 'Jetpack_Sync_Module_Constants'.
 		return new $module_name();
 	}
 

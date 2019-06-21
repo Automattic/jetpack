@@ -4,8 +4,9 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Module;
 
-class Users extends \Jetpack_Sync_Module {
+class Users extends Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
 	protected $flags = array();

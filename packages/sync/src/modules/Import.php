@@ -1,10 +1,10 @@
 <?php
 
 namespace Automattic\Jetpack\Sync\Modules;
-
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Module;
 
-class Import extends \Jetpack_Sync_Module {
+class Import extends Module {
 
 	/**
 	 * Tracks which actions have already been synced for the import
