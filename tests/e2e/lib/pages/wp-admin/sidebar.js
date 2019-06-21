@@ -15,10 +15,14 @@ export default class Sidebar extends Page {
 		const menuItemSelector =
 			'#toplevel_page_jetpack a[href$="jetpack#/dashboard"], #toplevel_page_jetpack a[href$="jetpack"]';
 
-		return await Promise.all( [
-			this.page.waitForNavigation( { waitFor: 'networkidle2' } ),
-			this._selectMenuItem( jetpackMenuSelector, menuItemSelector ),
-		] );
+		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+	}
+
+	async selectNewPost() {
+		const postsSelector = '#menu-posts';
+		const itemSelector = '#menu-posts a[href*="post-new"]';
+
+		return await this._selectMenuItem( postsSelector, itemSelector );
 	}
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
