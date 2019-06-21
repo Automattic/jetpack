@@ -80,7 +80,7 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 		// create an instance of each type of replicastore
 		$all_replicastores = array();
 		foreach ( get_declared_classes() as $className ) {
-			if ( in_array( 'Automattic\\Jetpack\\Sync\\Replicastore_Interface', class_implements( $className ) ) ) {
+			if ( in_array( 'Automattic\Jetpack\Sync\Replicastore_Interface', class_implements( $className ) ) ) {
 				if ( method_exists( $className, 'getInstance' ) ) {
 					$all_replicastores[] = call_user_func( array( $className, 'getInstance' ) );
 				} else {
@@ -107,6 +107,8 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 		// ensure the checksums are the same
 		$checksums = array_map( array( $this, 'get_all_checksums' ), $all_replicastores );
+
+		var_dump($checksums);
 
 		// for helpful debug output in case they don't match
 		$labelled_checksums = array_combine( array_map( 'get_class', $all_replicastores ), $checksums );
