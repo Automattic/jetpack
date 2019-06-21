@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Users;
 
 /**
  * Testing CRUD on Users
@@ -519,17 +520,17 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		) );
 
 		// maybe
-		Jetpack_Sync_Users::maybe_demote_master_user( $current_master_id );
+		Users::maybe_demote_master_user( $current_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ) );
 
 		// don't demote user that if the user is still an admin.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( 'administrator', $new_master->roles[0] );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote the master user if the user is still an admin' );
 
 		$new_master->set_role( 'author' );
 		// don't demote user if the user one the only admin that is connected.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
 	}
 
