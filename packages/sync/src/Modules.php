@@ -20,7 +20,7 @@ class Modules {
 		'Automattic\\Jetpack\\Sync\\Modules\\Users',
 		'Automattic\\Jetpack\\Sync\\Modules\\Import',
 		'Automattic\\Jetpack\\Sync\\Modules\\Posts',
-		'Jetpack_Sync_Module_Protect',
+		'Automattic\\Jetpack\\Sync\\Modules\\Protect',
 		'Automattic\\Jetpack\\Sync\\Modules\\Comments',
 		'Automattic\\Jetpack\\Sync\\Modules\\Updates',
 		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
