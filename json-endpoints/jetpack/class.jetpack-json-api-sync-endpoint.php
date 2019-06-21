@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
+use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 
 // POST /sites/%s/sync
@@ -64,7 +65,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		$store = new Jetpack_Sync_WP_Replicastore();
+		$store = new Replicastore();
 		return $store->checksum_all();
 	}
 }
@@ -80,7 +81,7 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 			$columns = null; // go with defaults
 		}
 
-		$store = new Jetpack_Sync_WP_Replicastore();
+		$store = new Replicastore();
 
 		if ( ! isset( $args['strip_non_ascii'] ) ) {
 			$args['strip_non_ascii'] = true;

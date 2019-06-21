@@ -464,7 +464,7 @@ class Actions {
 		$checksums = array();
 
 		if ( ! empty( $fields ) ) {
-			$store         = new \Jetpack_Sync_WP_Replicastore();
+			$store         = new Replicastore();
 			$fields_params = array_map( 'trim', explode( ',', $fields ) );
 
 			if ( in_array( 'posts_checksum', $fields_params, true ) ) {
