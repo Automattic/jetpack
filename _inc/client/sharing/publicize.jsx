@@ -13,6 +13,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import { FEATURE_SCHEDULE_PUBLICIZE_JETPACK } from 'lib/plans/constants';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -68,6 +69,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Publicize connections', { context: 'Settings header' } ) }
+					feature={ FEATURE_SCHEDULE_PUBLICIZE_JETPACK }
 					module="publicize"
 					hideButton
 				>

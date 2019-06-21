@@ -23,6 +23,7 @@ import {
 	FEATURE_WORDADS_JETPACK,
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
+	FEATURE_SCHEDULE_PUBLICIZE_JETPACK,
 	getPlanClass,
 } from 'lib/plans/constants';
 
@@ -150,7 +151,9 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.' ) }
+						title={ __(
+							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.'
+						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -207,6 +210,24 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PERSONAL }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
+					/>
+				);
+
+			case FEATURE_SCHEDULE_PUBLICIZE_JETPACK:
+				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Auto-schedule your social media posts, so they are shared exactly when they should be.'
+						) }
+						callToAction={ upgradeLabel }
+						plan={ PLAN_JETPACK_PREMIUM }
+						feature={ feature }
+						onClick={ handleClickForTracking( feature ) }
+						href={ props.publicizeUpgradeUrl }
 					/>
 				);
 
@@ -364,6 +385,7 @@ export default connect( state => {
 		adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),
 		securityProUpgradeUrl: getUpgradeUrl( state, 'settings-security-pro' ),
 		securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
+		publicizeUpgradeUrl: getUpgradeUrl( state, 'settings-publicize' ),
 		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 		seoUpgradeUrl: getUpgradeUrl( state, 'settings-seo' ),
 		searchUpgradeUrl: getUpgradeUrl( state, 'settings-search' ),

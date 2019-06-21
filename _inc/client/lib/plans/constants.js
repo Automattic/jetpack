@@ -102,6 +102,7 @@ export const FEATURE_SEO_TOOLS_JETPACK = 'seo-tools-jetpack';
 export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
+export const FEATURE_SCHEDULE_PUBLICIZE_JETPACK = 'schedule-publicize-jetpack';
 
 export function isMonthly( plan ) {
 	return includes( JETPACK_MONTHLY_PLANS, plan );
