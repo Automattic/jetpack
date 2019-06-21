@@ -7,9 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Manager_Interface;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Tracking;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -58,11 +56,16 @@ class Manager implements Manager_Interface {
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param Integer $user_id the user identifier.
+	 * @param Integer|Boolean $user_id the user identifier.
 	 * @return Boolean is the user connected?
 	 */
-	public function is_user_connected( $user_id ) {
-		return $user_id;
+	public function is_user_connected( $user_id = false ) {
+		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		return (bool) $this->get_access_token( $user_id );
 	}
 
 	/**
@@ -71,8 +74,32 @@ class Manager implements Manager_Interface {
 	 * @param Integer $user_id the user identifier.
 	 * @return Object the user object.
 	 */
-	public function get_connected_user_data( $user_id ) {
-		return $user_id;
+	public function get_connected_user_data( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$transient_key    = "jetpack_connected_user_data_$user_id";
+		$cached_user_data = get_transient( $transient_key );
+
+		if ( $cached_user_data ) {
+			return $cached_user_data;
+		}
+
+		\Jetpack::load_xml_rpc_client();
+		$xml = new \Jetpack_IXR_Client(
+			array(
+				'user_id' => $user_id,
+			)
+		);
+		$xml->query( 'wpcom.getUser' );
+		if ( ! $xml->isError() ) {
+			$user_data = $xml->getResponse();
+			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
+			return $user_data;
+		}
+
+		return false;
 	}
 
 	/**
@@ -257,17 +284,27 @@ class Manager implements Manager_Interface {
 
 		$user = get_user_by( 'id', $user_id );
 
-		Tracking::record_user_event( "jpc_verify_{$action}_begin", array(), $user );
+		/**
+		 * We've begun verifying the previously generated secret.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param string   $action The type of secret to verify.
+		 * @param \WP_User $user The user object.
+		 */
+		do_action( 'jetpack_verify_secrets_begin', $action, $user );
 
 		$return_error = function( \WP_Error $error ) use ( $action, $user ) {
-			Tracking::record_user_event(
-				"jpc_verify_{$action}_fail",
-				array(
-					'error_code'    => $error->get_error_code(),
-					'error_message' => $error->get_error_message(),
-				),
-				$user
-			);
+			/**
+			 * Verifying of the previously generated secret has failed.
+			 *
+			 * @since 7.5.0
+			 *
+			 * @param string    $action  The type of secret to verify.
+			 * @param \WP_User  $user The user object.
+			 * @param \WP_Error $error The error object.
+			 */
+			do_action( 'jetpack_verify_secrets_fail', $action, $user, $error );
 
 			return $error;
 		};
@@ -343,7 +380,15 @@ class Manager implements Manager_Interface {
 			);
 		}
 
-		Tracking::record_user_event( "jpc_verify_{$action}_success", array(), $user );
+		/**
+		 * We've succeeded at verifying the previously generated secret.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param string   $action The type of secret to verify.
+		 * @param \WP_User $user The user object.
+		 */
+		do_action( 'jetpack_verify_secrets_success', $action, $user );
 
 		return $stored_secrets['secret_2'];
 	}
@@ -525,33 +570,34 @@ class Manager implements Manager_Interface {
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
+	 * @param bool|true    $suppress_errors If true, return a falsy value when the token isn't found; When false, return a descriptive WP_Error when the token isn't found.
 	 *
 	 * @return object|false
 	 */
-	public function get_access_token( $user_id = false, $token_key = false ) {
+	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens' );
 			}
 			if ( self::JETPACK_MASTER_USER === $user_id ) {
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
-					return false;
+					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option' );
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( 'No token for user %d', $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( 'Token for user %d is malformed', $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
-				return false;
+				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( 'Requesting user_id %d does not match token user_id %d', $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
@@ -580,7 +626,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( ! $possible_tokens ) {
-			return false;
+			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens' );
 		}
 
 		$valid_token = false;
@@ -605,7 +651,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( ! $valid_token ) {
-			return false;
+			return $suppress_errors ? false : new \WP_Error( 'no_valid_token' );
 		}
 
 		return (object) array(

@@ -14,7 +14,6 @@ import { default as checklist } from 'state/checklist/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
-import { reducer as jumpstart } from 'state/jumpstart/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as pluginsData } from 'state/site/plugins/reducer';
 import { reducer as publicize } from 'state/publicize/reducer';
@@ -24,6 +23,7 @@ import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
 import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
+import { reducer as mobile } from 'state/mobile/reducer';
 
 const jetpackReducer = combineReducers( {
 	checklist,
@@ -32,7 +32,6 @@ const jetpackReducer = combineReducers( {
 	devCard,
 	initialState,
 	jetpackNotices,
-	jumpstart,
 	modules,
 	pluginsData,
 	publicize,
@@ -42,6 +41,7 @@ const jetpackReducer = combineReducers( {
 	siteData,
 	siteVerify,
 	trackingSettings,
+	mobile,
 } );
 
 export default combineReducers( {

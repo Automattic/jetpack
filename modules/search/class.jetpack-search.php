@@ -7,6 +7,8 @@
  * @since      5.0.0
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * The main class for the Jetpack Search module.
  *
@@ -339,7 +341,7 @@ class Jetpack_Search {
 
 		$do_authenticated_request = false;
 
-		if ( class_exists( 'Jetpack_Client' ) &&
+		if ( class_exists( 'Client' ) &&
 			isset( $es_args['authenticated_request'] ) &&
 			true === $es_args['authenticated_request'] ) {
 			$do_authenticated_request = true;
@@ -362,7 +364,7 @@ class Jetpack_Search {
 		if ( $do_authenticated_request ) {
 			$request_args['method'] = 'POST';
 
-			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $request_args, $request_body );
+			$request = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $request_args, $request_body );
 		} else {
 			$request_args = array_merge( $request_args, array(
 				'body' => $request_body,
@@ -1762,7 +1764,8 @@ class Jetpack_Search {
 			return;
 		}
 
-		jetpack_tracks_record_event(
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->tracks_record_event(
 			wp_get_current_user(),
 			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
 			$event['widget']

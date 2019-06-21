@@ -1,7 +1,7 @@
 <?php
 
 /**
- * An implementation of iJetpack_Sync_Codec that uses gzip's DEFLATE
+ * An implementation of Automattic\Jetpack\Sync\Codec_Interface that uses gzip's DEFLATE
  * algorithm to compress objects serialized using json_encode
  */
 class Jetpack_Sync_Simple_Codec extends Jetpack_Sync_JSON_Deflate_Array_Codec {

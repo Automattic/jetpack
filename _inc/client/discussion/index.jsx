@@ -61,7 +61,7 @@ export class Discussion extends React.Component {
 						this.props.searchTerm
 							? __( 'Discussion' )
 							: __(
-									'Open your site to comments and invite subscribers to get alerts about your latest work.'
+									'Manage advanced comment settings and grow your audience with email subscriptions.'
 							  )
 					}
 					className="jp-settings-description"

@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules\Full_Sync;
+
 function jetpack_foo_full_sync_callable() {
 	return 'the value';
 }
@@ -125,7 +128,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
-		$prefix = Jetpack_Sync_Module_Full_Sync::STATUS_OPTION_PREFIX;
+		$prefix = Full_Sync::STATUS_OPTION_PREFIX;
 		update_option( "{$prefix}_started", time() - 3700 );
 
 		$this->full_sync->start();
@@ -1340,7 +1343,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		Actions::do_initial_sync( '4.2', '4.1' );
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array(

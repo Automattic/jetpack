@@ -4,6 +4,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Asset_Tools;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Tracking;
 
@@ -15,6 +16,22 @@ use Automattic\Jetpack\Tracking;
 class JITM {
 
 	const PACKAGE_VERSION = '1.0';
+
+	/**
+	 * Tracking object.
+	 *
+	 * @var Automattic\Jetpack\Tracking
+	 *
+	 * @access private
+	 */
+	private $tracking;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		$this->tracking = new Tracking();
+	}
 
 	public function register() {
 		/**
@@ -205,7 +222,7 @@ class JITM {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		Tracking::record_user_event(
+		$this->tracking->record_user_event(
 			'jitm_dismiss_client',
 			array(
 				'jitm_id'       => $id,
@@ -271,8 +288,6 @@ class JITM {
 			return array();
 		}
 
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client.php';
-
 		$site_id = \Jetpack_Options::get_option( 'id' );
 
 		// build our jitm request
@@ -306,7 +321,7 @@ class JITM {
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
-			$wpcom_response = \Jetpack_Client::wpcom_json_api_request_as_blog(
+			$wpcom_response = Client::wpcom_json_api_request_as_blog(
 				$path,
 				'2',
 				array(
@@ -360,7 +375,7 @@ class JITM {
 				continue;
 			}
 
-			Tracking::record_user_event(
+			$this->tracking->record_user_event(
 				'jitm_view_client',
 				array(
 					'jitm_id' => $envelope->id,

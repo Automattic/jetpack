@@ -9,7 +9,7 @@ define( 'JETPACK_FACEBOOK_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)
 define( 'JETPACK_FACEBOOK_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/permalink.php\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_PHOTO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/photo.php\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/photos/([^/]+)?#' );
-define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/video.php\?([^\s]+)#' );
+define( 'JETPACK_FACEBOOK_VIDEO_EMBED_REGEX', '#^https?://(www.)?facebook\.com/(?:video.php|watch\/?)\?([^\s]+)#' );
 define( 'JETPACK_FACEBOOK_VIDEO_ALTERNATE_EMBED_REGEX', '#^https?://(www.)?facebook\.com/([^/]+)/videos/([^/]+)?#' );
 
 
@@ -34,7 +34,11 @@ wp_embed_register_handler( 'facebook-photo', JETPACK_FACEBOOK_PHOTO_EMBED_REGEX,
 wp_embed_register_handler( 'facebook-alternate-photo', JETPACK_FACEBOOK_PHOTO_ALTERNATE_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
 
 /*
- * Videos e.g. https://www.facebook.com/video.php?v=772471122790796
+ * Videos
+ *
+ * Formats:
+ * https://www.facebook.com/video.php?v=2836814009877992
+ * https://www.facebook.com/watch/?v=2836814009877992
  */
 wp_embed_register_handler( 'facebook-video', JETPACK_FACEBOOK_VIDEO_EMBED_REGEX, 'jetpack_facebook_embed_handler' );
 
@@ -51,7 +55,11 @@ wp_embed_register_handler( 'facebook-alternate-video', JETPACK_FACEBOOK_VIDEO_AL
  * @param array $url     Requested URL to be embedded.
  */
 function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
-	if ( false !== strpos( $url, 'video.php' ) || false !== strpos( $url, '/videos/' ) ) {
+	if (
+		false !== strpos( $url, 'video.php' )
+		|| false !== strpos( $url, '/videos/' )
+		|| false !== strpos( $url, '/watch' )
+	) {
 		$embed = sprintf( '<div class="fb-video" data-allowfullscreen="true" data-href="%s"></div>', esc_url( $url ) );
 	} else {
 		$width = 552; // As of 01/2017, the default width of Facebook embeds when no width attribute provided.

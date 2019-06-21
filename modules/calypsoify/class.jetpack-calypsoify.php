@@ -38,7 +38,7 @@ class Jetpack_Calypsoify {
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
 			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-			add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
+			add_action( 'admin_menu', array( $this, 'add_custom_menus' ), 101 );
 		}
 
 		// Make this always available -- in case calypsoify gets toggled off.
@@ -202,10 +202,10 @@ class Jetpack_Calypsoify {
 	}
 
 	public function remove_core_menus() {
+		remove_menu_page( 'edit.php?post_type=feedback' );
 		remove_menu_page( 'index.php' );
 		remove_menu_page( 'jetpack' );
 		remove_menu_page( 'edit.php' );
-		remove_menu_page( 'edit.php?post_type=feedback' );
 		remove_menu_page( 'upload.php' );
 		remove_menu_page( 'edit.php?post_type=page' );
 		remove_menu_page( 'edit-comments.php' );
@@ -226,21 +226,27 @@ class Jetpack_Calypsoify {
 		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
-	public function add_plugin_menus() {
+	public function add_custom_menus() {
 		global $menu, $submenu;
 
-		add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
-
-		// // Count the settings page submenus, if it's zero then don't show this.
-		if ( empty( $submenu['options-general.php'] ) ) {
+		if ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) {
+			// there is currently no gridicon for feedback, so using dashicon.
+			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
 			remove_menu_page( 'options-general.php' );
+			remove_submenu_page( 'edit.php?post_type=feedback', 'feedback-export' );
 		} else {
-			// Rename and make sure the plugin settings menu is always last.
-			// Sneaky plugins seem to override this otherwise.
-			// Settings is always key 80.
-			$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
-			$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
-			unset( $menu[80] );
+			add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
+			// Count the settings page submenus, if it's zero then don't show this.
+			if ( empty( $submenu['options-general.php'] ) ) {
+				remove_menu_page( 'options-general.php' );
+			} else {
+				// Rename and make sure the plugin settings menu is always last.
+				// Sneaky plugins seem to override this otherwise.
+				// Settings is always key 80.
+				$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
+				$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
+				unset( $menu[80] );
+			}
 		}
 	}
 
@@ -274,13 +280,15 @@ class Jetpack_Calypsoify {
 		);
 	}
 
-	public function insert_sidebar_html() { ?>
+	public function insert_sidebar_html() { 
+		$heading = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+		?>
 		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
 			<ul>
 				<li id="calypso-sitename"><?php bloginfo( 'name' ); ?></li>
-				<li id="calypso-plugins"><?php esc_html_e( 'Plugins' ); ?></li>
+				<li id="calypso-plugins"><?php echo esc_html( $heading ); ?></li>
 			</ul>
 		</a>
 		<?php

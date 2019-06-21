@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fa9992a37eabfa1d53bee78a855ce7a",
+    "content-hash": "d014deecdb9650743cd7ccb279d640d8",
     "packages": [
         {
             "name": "automattic/jetpack-asset-tools",
@@ -28,6 +28,41 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages"
+        },
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-fix/production-builds",
+            "dist": {
+                "type": "path",
+                "url": "./packages/autoloader",
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb",
+                "shasum": null
+            },
+            "require": {
+                "composer-plugin-api": "^1.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
             "name": "automattic/jetpack-connection",
@@ -136,11 +171,16 @@
         {
             "name": "automattic/jetpack-logo",
             "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-logo.git",
+                "reference": "c02750b6af95d114ba08562a7df74bab98235fef"
+            },
             "dist": {
-                "type": "path",
-                "url": "./packages/logo",
-                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610",
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/c02750b6af95d114ba08562a7df74bab98235fef",
+                "reference": "c02750b6af95d114ba08562a7df74bab98235fef",
+                "shasum": ""
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -152,16 +192,12 @@
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "time": "2019-06-10T21:57:07+00:00"
         },
         {
             "name": "automattic/jetpack-options",
@@ -196,7 +232,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "b6c34729a2a37b5a485add5d357ff018654e3e35",
+                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a",
                 "shasum": null
             },
             "require": {
@@ -207,7 +243,11 @@
             "autoload": {
                 "classmap": [
                     "/legacy"
-                ]
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Sync\\": "src/",
+                    "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
+                }
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -220,7 +260,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "aabd3d202f67a9ab62b6e4a524ce26a891369326",
+                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85",
                 "shasum": null
             },
             "require": {
@@ -234,7 +274,10 @@
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\": "src/"
-                }
+                },
+                "classmap": [
+                    "legacy"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -369,32 +412,6 @@
         }
     ],
     "packages-dev": [
-        {
-            "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "./packages/autoloader",
-                "reference": "8c7dc6036bf6125c31a574c14c6b0521247410ed",
-                "shasum": null
-            },
-            "require": {
-                "composer-plugin-api": "^1.1"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
-            },
-            "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Autoloader\\": "src"
-                }
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Creates a custom autoloader for a plugin or theme."
-        },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.5.0",

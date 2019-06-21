@@ -15,5 +15,6 @@ module.exports = {
 	rules: {
 		'arrow-parens': [ 0, 'as-needed' ],
 		'wpcalypso/import-docblock': 0,
+		'no-console': 0,
 	},
 };

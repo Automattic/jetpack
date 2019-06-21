@@ -99,7 +99,7 @@ class CommentsComponent extends React.Component {
 						</ModuleToggle>
 						<FormFieldset>
 							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Comments headline' ) }</span>
+								<span className="jp-form-label-wide">{ __( 'Comment form introduction' ) }</span>
 								<TextInput
 									name={ 'highlander_comment_form_prompt' }
 									value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
@@ -112,7 +112,7 @@ class CommentsComponent extends React.Component {
 								/>
 							</FormLabel>
 							<span className="jp-form-setting-explanation">
-								{ __( 'A few catchy words to motivate your readers to comment.' ) }
+								{ __( 'A few catchy words to motivate your visitors to comment.' ) }
 							</span>
 							<FormLabel>
 								<span className="jp-form-label-wide">{ __( 'Color scheme' ) }</span>

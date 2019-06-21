@@ -206,7 +206,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Built-in Performance' ) }
+									{ __( 'Optimized performance' ) }
 								</h3>
 								<p>
 									{ __(
@@ -547,7 +547,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on security' ) }</h3>
 								<p>
 									{ __(
 										'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
@@ -572,7 +572,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Built-in Performance' ) }
+									{ __( 'Optimized performance' ) }
 								</h3>
 								<p>
 									{ __(
@@ -635,7 +635,7 @@ class MyPlanBody extends React.Component {
 									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
 									href={ 'https://wordpress.com/marketing/connections/' + this.props.siteRawUrl }
 								>
-									{ __( 'Start publicizing now' ) }
+									{ __( 'Start sharing' ) }
 								</Button>
 							</div>
 						</div>
@@ -651,7 +651,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Site activity' ) }</h3>
 								<p>
 									{ __(
 										'View a chronological list of all the changes and updates to your site in an organized, readable way.'
@@ -680,14 +680,14 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Need help? Search our support site to find out about your site, your account, and how to make the most of WordPress.'
+										'Need help? Learn about getting started, customizing your site, using advanced code snippets, and more.'
 									) }
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
 									href="https://jetpack.com/support/"
 								>
-									{ __( 'Support documentation' ) }
+									{ __( 'Search support docs' ) }
 								</Button>
 							</div>
 						</div>
@@ -695,18 +695,21 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Jetpack offers so much more' ) }
+									{ __( 'Take your site to the next level!' ) }
 								</h3>
-								<p>
-									{ __(
-										'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
-									) }
-								</p>
+								<ul className="jp-landing__plan-features-list">
+									<li>{ __( 'Get peace of mind with automated backups.' ) }</li>
+									<li>{ __( 'Resolve issues quickly with priority support.' ) }</li>
+									<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
+									<li>{ __( 'Customize your social posting schedule.' ) }</li>
+									<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>
+								</ul>
 								<Button
+									className="is-primary"
 									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
 									href={ '#/plans' }
 								>
-									{ __( 'Explore Jetpack plans' ) }
+									{ __( 'Upgrade Jetpack now' ) }
 								</Button>
 							</div>
 						</div>

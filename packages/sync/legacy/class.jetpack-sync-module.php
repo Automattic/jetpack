@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Listener;
+
 /**
  * Basic methods implemented by Jetpack Sync extensions
  */
@@ -69,7 +71,7 @@ abstract class Jetpack_Sync_Module {
 		$page                  = 1;
 		$chunk_count           = 0;
 		$previous_interval_end = $state ? $state : '~0';
-		$listener              = Jetpack_Sync_Listener::get_instance();
+		$listener              = Listener::get_instance();
 
 		// count down from max_id to min_id so we get newest posts/comments/etc first
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
@@ -78,8 +80,8 @@ abstract class Jetpack_Sync_Module {
 
 			// if we hit our row limit, process and return
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
-				$remaining_items_count = $max_items_to_enqueue - $chunk_count;
-				$remaining_items       = array_slice( $chunked_ids, 0, $remaining_items_count );
+				$remaining_items_count                      = $max_items_to_enqueue - $chunk_count;
+				$remaining_items                            = array_slice( $chunked_ids, 0, $remaining_items_count );
 				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
 				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
@@ -90,8 +92,8 @@ abstract class Jetpack_Sync_Module {
 
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
-			$chunk_count    += count( $chunked_ids );
-			$page           += 1;
+			$chunk_count += count( $chunked_ids );
+			$page        += 1;
 			// $ids are ordered in descending order
 			$previous_interval_end = end( $ids );
 		}
@@ -100,10 +102,10 @@ abstract class Jetpack_Sync_Module {
 	}
 
 	private function get_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
-		foreach( $chunks as $chunk ) {
+		foreach ( $chunks as $chunk ) {
 			$chunks_with_ends[] = array(
-				'ids' => $chunk,
-				'previous_end' => $previous_interval_end
+				'ids'          => $chunk,
+				'previous_end' => $previous_interval_end,
 			);
 			// Chunks are ordered in descending order
 			$previous_interval_end = end( $chunk );

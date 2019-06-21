@@ -57,7 +57,9 @@ class Sharing extends Component {
 					title={
 						this.props.searchTerm
 							? __( 'Sharing' )
-							: __( 'Share your content on social media and increase audience engagement.' )
+							: __(
+									'Share your content to social media, reaching new audiences and increasing engagement.'
+							  )
 					}
 					className="jp-settings-description"
 				/>

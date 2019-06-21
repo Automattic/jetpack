@@ -199,7 +199,6 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				);
 				?>
             </p>
-            </p>
         </div>
 		<?php
 	}
@@ -215,7 +214,6 @@ add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_a
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );

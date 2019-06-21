@@ -338,7 +338,14 @@ class Jetpack_AMP_Support {
 			$sharing_link   .= '></amp-social-share>';
 			$sharing_links[] = $sharing_link;
 		}
-		return preg_replace( '#(?<=<div class="sd-content">).+?(?=</div>)#s', implode( '', $sharing_links ), $markup );
+
+		// Wrap AMP sharing buttons in container.
+		$markup = preg_replace( '#(?<=<div class="sd-content">).+?(?=</div>)#s', implode( '', $sharing_links ), $markup );
+
+		// Remove any lingering share-end list items.
+		$markup = str_replace( '<li class="share-end"></li>', '', $markup );
+
+		return $markup;
 	}
 }
 
