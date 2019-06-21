@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Tracking;
 
 /*
@@ -1812,8 +1813,8 @@ class Jetpack {
 	 * Synchronize connected user role changes
 	 */
 	function user_role_change( $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Jetpack_Sync_Users::user_role_change()' );
-		Jetpack_Sync_Users::user_role_change( $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Users::user_role_change()' );
+		Users::user_role_change( $user_id );
 	}
 
 	/**
