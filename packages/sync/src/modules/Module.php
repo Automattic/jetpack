@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Listener;
+
 /**
  * Basic methods implemented by Jetpack Sync extensions
  */
