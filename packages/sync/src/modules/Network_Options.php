@@ -3,8 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Module;
-
+^
 class Network_Options extends Module {
 	private $network_options_whitelist;
 

@@ -6,8 +6,7 @@ use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
-use Automattic\Jetpack\Sync\Module;
-
+^
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object

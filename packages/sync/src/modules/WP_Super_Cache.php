@@ -1,8 +1,7 @@
 <?php
 
 namespace Automattic\Jetpack\Sync\Modules;
-
-use Automattic\Jetpack\Sync\Module;
+^
 
 class WP_Super_Cache extends Module {
 

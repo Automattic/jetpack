@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Module;
 
 class Constants extends Module {
 	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';

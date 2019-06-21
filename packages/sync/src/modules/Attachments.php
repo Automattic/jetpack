@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Sync\Module;
-
 class Attachments extends Module {
 	function name() {
 		return 'attachments';

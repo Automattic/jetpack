@@ -2,8 +2,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
-use Automattic\Jetpack\Sync\Module;
-
+^
 class Import extends Module {
 
 	/**

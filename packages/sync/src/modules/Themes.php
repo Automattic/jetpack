@@ -3,8 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Module;
-
+^
 class Themes extends Module {
 	function name() {
 		return 'themes';
