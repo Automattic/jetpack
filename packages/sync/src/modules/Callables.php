@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
 
 class Callables extends \Jetpack_Sync_Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
@@ -215,7 +216,7 @@ class Callables extends \Jetpack_Sync_Module {
 
 	public function maybe_sync_callables() {
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
-			if ( ! is_admin() || \Jetpack_Sync_Settings::is_doing_cron() ) {
+			if ( ! is_admin() || Settings::is_doing_cron() ) {
 				return;
 			}
 
