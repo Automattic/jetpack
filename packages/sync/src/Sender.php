@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\JSON_Deflate_Array_Codec;
 
 /**
  * This class grabs pending actions from the queue and sends them
@@ -300,7 +301,7 @@ class Sender {
 	}
 	function set_codec() {
 		if ( function_exists( 'gzinflate' ) ) {
-			$this->codec = new \Jetpack_Sync_JSON_Deflate_Array_Codec();
+			$this->codec = new JSON_Deflate_Array_Codec();
 		} else {
 			$this->codec = new \Jetpack_Sync_Simple_Codec();
 		}

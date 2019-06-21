@@ -14,7 +14,7 @@ class Server {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	function __construct() {
-		$this->codec = new \Jetpack_Sync_JSON_Deflate_Array_Codec();
+		$this->codec = new JSON_Deflate_Array_Codec();
 	}
 
 	function set_codec( Codec_Interface $codec ) {
