@@ -1,9 +1,8 @@
 <?php
 
-use Automattic\Jetpack\Sync\Listener;
-use Automattic\Jetpack\Sync\Defaults;
+namespace Automattic\Jetpack\Sync;
 
-class Jetpack_Sync_Settings {
+class Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(

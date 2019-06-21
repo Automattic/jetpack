@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	function test_sending_empties_queue() {
@@ -108,9 +109,9 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	function test_do_not_load_sender_if_is_cron_and_cron_sync_disabled() {
 		Constants::set_constant( 'DOING_CRON', true );
-		$settings = Jetpack_Sync_Settings::get_settings();
+		$settings = Settings::get_settings();
 		$settings['sync_via_cron'] = 0;
-		Jetpack_Sync_Settings::update_settings( $settings );
+		Settings::update_settings( $settings );
 		Actions::$sender = null;
 
 		Actions::add_sender_shutdown();
@@ -118,7 +119,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( Actions::$sender );
 
 		Constants::clear_constants();
-		Jetpack_Sync_Settings::reset_data();
+		Settings::reset_data();
 	}
 
 	function test_cleanup_cron_jobs_with_non_staggered_start() {
@@ -151,15 +152,15 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_settings_updates_on_upgrade() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
-		Jetpack_Sync_Settings::get_settings();
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::get_settings();
 
-		$this->assertEquals( 1, Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) );
+		$this->assertEquals( 1, Settings::get_setting( 'render_filtered_content' ) );
 
 		/** This action is documented in class.jetpack.php */
 		do_action( 'updating_jetpack_version', '4.5', '4.3' );
 
-		$this->assertEquals( 0, Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) );
+		$this->assertEquals( 0, Settings::get_setting( 'render_filtered_content' ) );
 	}
 
 	/**

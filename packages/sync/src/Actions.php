@@ -106,7 +106,8 @@ class Actions {
 		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
 			return true;
 		}
-		if ( ! \Jetpack_Sync_Settings::is_sync_enabled() ) {
+
+		if ( ! Settings::is_sync_enabled() ) {
 			return false;
 		}
 		if ( \Jetpack::is_development_mode() ) {
@@ -125,11 +126,11 @@ class Actions {
 	}
 
 	static function sync_via_cron_allowed() {
-		return ( \Jetpack_Sync_Settings::get_setting( 'sync_via_cron' ) );
+		return ( Settings::get_setting( 'sync_via_cron' ) );
 	}
 
 	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
-		if ( in_array( $post->post_type, \Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
 		}
 
@@ -137,7 +138,7 @@ class Actions {
 	}
 
 	static function set_is_importing_true() {
-		\Jetpack_Sync_Settings::set_importing( true );
+		Settings::set_importing( true );
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
@@ -163,7 +164,7 @@ class Actions {
 			$query_args['migrate_for_idc'] = true;
 		}
 
-		$query_args['timeout'] = \Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
+		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 15;
 
 		/**
 		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
@@ -290,7 +291,7 @@ class Actions {
 
 		self::initialize_sender();
 
-		$time_limit = \Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$time_limit = Settings::get_setting( 'cron_sync_time_limit' );
 		$start_time = time();
 
 		do {
@@ -438,7 +439,7 @@ class Actions {
 		$is_new_sync_upgrade = version_compare( $old_version, '4.2', '>=' );
 		if ( ! empty( $old_version ) && $is_new_sync_upgrade && version_compare( $old_version, '4.5', '<' ) ) {
 			self::clear_sync_cron_jobs();
-			\Jetpack_Sync_Settings::update_settings(
+			Settings::update_settings(
 				array(
 					'render_filtered_content' => Defaults::$default_render_filtered_content,
 				)
