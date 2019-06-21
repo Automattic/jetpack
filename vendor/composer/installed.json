@@ -25,8 +25,8 @@
     },
     {
         "name": "automattic/jetpack-autoloader",
-        "version": "dev-fix/production-builds",
-        "version_normalized": "dev-fix/production-builds",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "dist": {
             "type": "path",
             "url": "./packages/autoloader",
@@ -170,30 +170,28 @@
         "name": "automattic/jetpack-logo",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Automattic/jetpack-logo.git",
-            "reference": "c02750b6af95d114ba08562a7df74bab98235fef"
-        },
         "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/c02750b6af95d114ba08562a7df74bab98235fef",
-            "reference": "c02750b6af95d114ba08562a7df74bab98235fef",
-            "shasum": ""
+            "type": "path",
+            "url": "./packages/logo",
+            "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
         },
         "require-dev": {
             "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2019-06-10T21:57:07+00:00",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-4": {
                 "Automattic\\Jetpack\\Assets\\": "src/"
             }
         },
-        "notification-url": "https://packagist.org/downloads/",
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
         "license": [
             "GPL-2.0-or-later"
         ],

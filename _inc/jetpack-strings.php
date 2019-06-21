@@ -411,22 +411,23 @@ __( "Google Analytics is a free service that complements our {{a}}built-in stats
 __( "Configure your Google Analytics settings", "jetpack" ), // _inc/client/traffic/google-analytics.jsx:60
 __( "Traffic", "jetpack" ), // _inc/client/traffic/index.jsx:73
 __( "Maximize your site’s visibility in search engines and view traffic stats in real time.", "jetpack" ), // _inc/client/traffic/index.jsx:74
-__( "These settings won't apply to {{a}}related posts added using the block editor{{/a}}.", "jetpack" ), // _inc/client/traffic/related-posts.jsx:70
-__( "Show related content after posts", "jetpack" ), // _inc/client/traffic/related-posts.jsx:93
-__( "Highlight related content with a heading", "jetpack" ), // _inc/client/traffic/related-posts.jsx:107
-__( "Show a thumbnail image where available", "jetpack" ), // _inc/client/traffic/related-posts.jsx:120
-_x( "Preview", "A header for a preview area in the configuration screen.", "jetpack" ), // _inc/client/traffic/related-posts.jsx:126
-__( "Related", "jetpack" ), // _inc/client/traffic/related-posts.jsx:132
-__( "Big iPhone/iPad Update Now Available", "jetpack" ), // _inc/client/traffic/related-posts.jsx:137
+__( "The feature helps visitors find more of your content by displaying related posts at the bottom of each post.", "jetpack" ), // _inc/client/traffic/related-posts.jsx:66
+__( "Keep your visitors engaged with related content at the bottom of each post. These settings won't apply to {{a}}related posts added using the block editor{{/a}}.", "jetpack" ), // _inc/client/traffic/related-posts.jsx:74
+__( "Show related content after posts", "jetpack" ), // _inc/client/traffic/related-posts.jsx:98
+__( "Highlight related content with a heading", "jetpack" ), // _inc/client/traffic/related-posts.jsx:112
+__( "Show a thumbnail image where available", "jetpack" ), // _inc/client/traffic/related-posts.jsx:125
+_x( "Preview", "A header for a preview area in the configuration screen.", "jetpack" ), // _inc/client/traffic/related-posts.jsx:131
+__( "Related", "jetpack" ), // _inc/client/traffic/related-posts.jsx:137
+__( "Big iPhone/iPad Update Now Available", "jetpack" ), // _inc/client/traffic/related-posts.jsx:142
 /* translators: It refers to the category where a post was found. Used in an example preview. */
-__( "In \"Mobile\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:138
-__( "The WordPress for Android App Gets a Big Facelift", "jetpack" ), // _inc/client/traffic/related-posts.jsx:145
+__( "In \"Mobile\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:143
+__( "The WordPress for Android App Gets a Big Facelift", "jetpack" ), // _inc/client/traffic/related-posts.jsx:150
 /* translators: It refers to the category where a post was found. Used in an example preview. */
-__( "In \"Mobile\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:146
-__( "Upgrade Focus: VideoPress For Weddings", "jetpack" ), // _inc/client/traffic/related-posts.jsx:153
+__( "In \"Mobile\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:151
+__( "Upgrade Focus: VideoPress For Weddings", "jetpack" ), // _inc/client/traffic/related-posts.jsx:158
 /* translators: It refers to the category where a post was found. Used in an example preview. */
-__( "In \"Upgrade\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:154
-__( "Configure related posts in the Customizer", "jetpack" ), // _inc/client/traffic/related-posts.jsx:185
+__( "In \"Upgrade\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:159
+__( "Configure related posts in the Customizer", "jetpack" ), // _inc/client/traffic/related-posts.jsx:190
 _x( "Search engine optimization", "Settings header", "jetpack" ), // _inc/client/traffic/seo.jsx:26
 __( "Allows you to optimize your site and its content for better results in search engines.", "jetpack" ), // _inc/client/traffic/seo.jsx:34
 __( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.", "jetpack" ), // _inc/client/traffic/seo.jsx:41

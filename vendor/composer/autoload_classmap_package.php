@@ -570,11 +570,11 @@ return array(
 		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Client.php'
 	),
 	'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => array(
-		'version' => 'dev-fix/production-builds',
+		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-autoloader/src/AutoloadGenerator.php'
 	),
 	'Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin' => array(
-		'version' => 'dev-fix/production-builds',
+		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-autoloader/src/CustomAutoloaderPlugin.php'
 	),
 	'Automattic\\Jetpack\\Assets\\Logo' => array(
