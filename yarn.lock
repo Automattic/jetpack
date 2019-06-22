@@ -4107,11 +4107,10 @@ eslint-plugin-react@7.13.0, eslint-plugin-react@^7.12.4:
     prop-types "^15.7.2"
     resolve "^1.10.1"
 
-eslint-plugin-wpcalypso@4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-wpcalypso/-/eslint-plugin-wpcalypso-4.0.2.tgz#ad5c98b1e3faed275b56924746225cfbb196e331"
-  dependencies:
-    requireindex "^1.1.0"
+eslint-plugin-wpcalypso@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-wpcalypso/-/eslint-plugin-wpcalypso-4.1.0.tgz#a18e881805fdc7a70be7db8c62d2c92a2923355c"
+  integrity sha512-2gZdaaX5rS7vve5FfIBTANPFXfQstxMppUFR8KzrY5cJPt7hIhpg9lOb4y0hVYNdJkhZxkvEWw8yoJhaUc1OYQ==
 
 eslint-scope@3.7.1:
   version "3.7.1"
@@ -9926,7 +9925,7 @@ require-main-filename@^2.0.0:
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
   integrity sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==
 
-requireindex@^1.1.0, requireindex@^1.2.0:
+requireindex@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/requireindex/-/requireindex-1.2.0.tgz#3463cdb22ee151902635aa6c9535d4de9c2ef1ef"
 

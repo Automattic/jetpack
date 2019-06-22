@@ -172,7 +172,7 @@
 		"eslint-plugin-jsx-a11y": "6.2.1",
 		"eslint-plugin-lodash": "5.1.0",
 		"eslint-plugin-react": "7.13.0",
-		"eslint-plugin-wpcalypso": "4.0.2",
+		"eslint-plugin-wpcalypso": "4.1.0",
 		"glob": "7.1.3",
 		"gulp-check": "0.1.2",
 		"gulp-sftp": "0.1.5",
