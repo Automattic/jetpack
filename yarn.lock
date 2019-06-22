@@ -5065,10 +5065,10 @@ grid-index@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/grid-index/-/grid-index-1.1.0.tgz#97f8221edec1026c8377b86446a7c71e79522ea7"
 
-gridicons@3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/gridicons/-/gridicons-3.2.0.tgz#0e78066f2bce2957a4789ee2be80900df4c4a12d"
-  integrity sha512-82bdTGEV12d9Ig5gTYw0uR2gf/Q/PNytAfLQdmBdZyj/iqCTw2jOipLq/GpG+VgiRQEXjc5TujBj7Jg/R2aP6Q==
+gridicons@3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/gridicons/-/gridicons-3.3.1.tgz#12c098fac5f6b59aecd42082ed5ef5edc391dfd4"
+  integrity sha512-eQsmujjLptLtyhGuu31US3mXkcptYHkgEE/s277HWv+j6c3Z2gYyjoHcBKwSFbQwxbfhToRd5uzYimR2ExWJdQ==
   dependencies:
     prop-types "^15.5.7"
 
