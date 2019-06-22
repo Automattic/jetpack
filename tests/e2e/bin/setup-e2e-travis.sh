@@ -114,6 +114,9 @@ prepare_jetpack() {
 	ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/
 
 	wp plugin activate jetpack
+
+	# Activate WordAds module
+	wp jetpack module activate wordads
 }
 
 export_env_variables() {
@@ -121,7 +124,6 @@ export_env_variables() {
 	cat <<EOT >> env-file
 WP_SITE_URL=${WP_SITE_URL}
 WORKING_DIR=${WORKING_DIR}
-WHATEVER_VAR="${WP_SITE_URL}${WORKING_DIR}"
 EOT
 }
 
