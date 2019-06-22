@@ -27,7 +27,8 @@ function execShellCommand( cmd ) {
 }
 
 describe( 'WordAds block', () => {
-	beforeAll( 'Activate WordAds module if in CI', async () => {
+	// Activate WordAds module if in CI
+	beforeAll( async () => {
 		if ( process.env.CI ) {
 			const out = await execShellCommand(
 				'wp jetpack module activate wordads --path="/home/travis/wordpress"'
