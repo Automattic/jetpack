@@ -27,12 +27,16 @@ function execShellCommand( cmd ) {
 }
 
 describe( 'WordAds block', () => {
-	it( 'Can publish a post with a WordAds block', async () => {
-		// # Activate WordAds module
-		// wp jetpack module activate wordads
-		const out = await execShellCommand( 'wp jetpack module activate wordads' );
-		console.log( out );
+	beforeAll( 'Activate WordAds module if in CI', async () => {
+		if ( process.env.CI ) {
+			const out = await execShellCommand(
+				'wp jetpack module activate wordads --path="/home/travis/wordpress"'
+			);
+			console.log( out );
+		}
+	} );
 
+	it( 'Can publish a post with a WordAds block', async () => {
 		await createNewPost();
 
 		const blockEditor = await BlockEditorPage.init( page );
