@@ -41,9 +41,59 @@ class Analyzer extends NodeVisitorAbstract {
 	}
 
 	public function print_declarations() {
-		// print_r( $this->declarations );
+		echo $this->save_declarations( 'php://memory' );
+	}
+
+	/**
+	 * Saves the declarations to a file and returns the file contents
+	 */
+	public function save_declarations( $file_path ) {
+		$handle = fopen( $file_path, 'r+');
 		foreach ( $this->declarations as $dec ) {
-			echo $dec->to_string() . "\n";
+			fputcsv( $handle, $dec->to_csv_array() );
+		}
+		rewind( $handle );
+		$contents = stream_get_contents( $handle );
+		fclose( $handle );
+		return $contents;
+	}
+
+	public function get_declarations() {
+		return $this->declarations;
+	}
+
+	public function load_declarations( $file_path ) {
+		$row = 1;
+		if ( ( $handle = fopen( $file_path , "r" ) ) !== FALSE ) {
+			while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== FALSE ) {
+				$num = count( $data );
+				list( $type, $file, $line, $class_name, $name, $static, $params_json ) = $data;
+
+				switch( $type ) {
+					case 'class':
+						$this->add_declaration( new Class_Declaration( $file, $line, $class_name ) );
+						break;
+
+					case 'property':
+						$this->add_declaration( new Class_Property_Declaration( $file, $line, $class_name, $name, $static ) );
+						break;
+
+					case 'method':
+						$params = json_decode( $params_json );
+						$declaration = new Class_Method_Declaration( $file, $line, $class_name, $name, $static );
+						if ( is_array( $params ) ) {
+							foreach( $params as $param ) {
+								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
+							}
+						}
+
+						$this->add_declaration( $declaration );
+
+						break;
+				}
+				$row++;
+			}
+			fclose($handle);
 		}
 	}
 
@@ -65,7 +115,6 @@ class Analyzer extends NodeVisitorAbstract {
 		$display = array( 'php' );
 		foreach ( $iterator as $file ) {
 			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $display ) ) {
-				echo "$file\n";
 				$this->file( $file );
 			}
 		}
@@ -92,18 +141,17 @@ class Analyzer extends NodeVisitorAbstract {
 	}
 
 	public function enterNode( Node $node ) {
-		// print_r($node);
 		if ( $node instanceof Node\Stmt\Class_ ) {
 			$this->current_class = $node->name->name;
 			$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
 		}
 		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
-			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $node->props[0]->name->name, $this->current_class ) );
+			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
 		}
 		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
-			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name, $node->isStatic(), $this->current_class );
+			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
 			foreach ( $node->getParams() as $param ) {
-				$method->add_param( $node->var->name, $node->default, $node->type, $node->byRef, $node->variadic );
+				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
 			}
 			$this->add_declaration( $method );
 		}
@@ -114,48 +162,145 @@ class Analyzer extends NodeVisitorAbstract {
 			$this->current_class = null;
 		}
 	}
+
+	public function find_differences( $analyzer ) {
+		$differences = array();
+		$total = 0;
+		// for each declaration, see if it exists in the current analyzer's declarations
+		// if not, add it to the list of differences - either as missing or different
+		foreach( $analyzer->get_declarations() as $prev_declaration ) {
+			$matched = false;
+			foreach( $this->declarations as $declaration ) {
+				if ( $prev_declaration->match( $declaration ) ) {
+					$matched = true;
+					break;
+				}
+			}
+			if ( ! $matched ) {
+				$differences[] = new Difference_Missing( $prev_declaration );
+			}
+			$total += 1;
+		}
+
+		echo "Total: $total\n";
+		echo "Missing: " . count( $differences ) . "\n";
+		return $differences;
+	}
 }
 
-class Declaration {
+class Difference_Missing {
+	public $declaration;
+
+	function __construct( $declaration ) {
+		$this->declaration = $declaration;
+	}
+
+	public function to_csv() {
+		return 'missing,' . $this->declaration->type() . ',' . $this->declaration->display_name();
+	}
+}
+
+/*
+class Difference_Params {
+	public $declaration;
+
+	function __construct( $declaration ) {
+		$this->declaration = $declaration;
+	}
+
+	public function to_csv() {
+		return 'params,' . implode( ',', $this->declaration->to_csv_array() );
+	}
+}
+*/
+
+abstract class Declaration {
 	public $path;
 	public $line;
-	public $name;
 
-	function __construct( $path, $line, $name ) {
+	function __construct( $path, $line ) {
 		$this->path = $path;
 		$this->line = $line;
-		$this->name = $name;
 	}
 
-	function to_string() {
-		return $this->path . ':' . $this->line . ' ' . $this->name;
+	function match( $other ) {
+		return get_class( $other ) === get_class( $this )
+			&& $other->name === $this->name
+			&& $other->path === $this->path;
 	}
+
+	abstract function type();
+	// e.g. Jetpack::get_file_url_for_environment()
+	abstract function display_name();
 }
 
 class Class_Declaration extends Declaration {
+	public $class_name;
+
+	function __construct( $path, $line, $class_name ) {
+		$this->class_name = $class_name;
+		parent::__construct( $path, $line );
+	}
+
+	function to_csv_array() {
+		return array(
+			$this->type(),
+			$this->path,
+			$this->line,
+			$this->class_name
+		);
+	}
+
+	function type() {
+		return 'class';
+	}
+
+	function display_name() {
+		return $this->class_name;
+	}
 }
 
 /**
  * We only log public class methods, whether they are static, and their parameters
  */
 class Class_Method_Declaration extends Declaration {
-	public $static;
 	public $class_name;
+	public $name;
+	public $params;
+	public $static;
 
-	function __construct( $path, $line, $name, $static, $class_name ) {
-		$this->static = $static;
+	function __construct( $path, $line, $class_name, $name, $static ) {
 		$this->class_name = $class_name;
+		$this->name = $name;
 		$this->params = array();
-		parent::__construct( $path, $line, $name );
+		$this->static = $static;
+		parent::__construct( $path, $line );
 	}
 
+	// TODO: parse "default" into comparable string form?
 	function add_param( $name, $default, $type, $byRef, $variadic ) {
 		$this->params[] = (object) compact( 'name', 'default', 'type', 'byRef', 'variadic' );
 	}
 
-	function to_string() {
+	function to_csv_array() {
+		return array(
+			$this->type(),
+			$this->path,
+			$this->line,
+			$this->class_name,
+			$this->name,
+			$this->static,
+			json_encode( $this->params )
+		);
+	}
+
+	function type() {
+		return 'method';
+	}
+
+	function display_name() {
 		$sep = $this->static ? '::' : '->';
-		return $this->path . ':' . $this->line . ' ' . $this->class_name . $sep . $this->name;
+		return $this->class_name . $sep . $this->name;
 	}
 }
 
@@ -164,14 +309,34 @@ class Class_Method_Declaration extends Declaration {
  */
 class Class_Property_Declaration extends Declaration {
 	public $class_name;
+	public $name;
+	public $static;
 
-	function __construct( $path, $line, $name, $class_name ) {
+	function __construct( $path, $line, $class_name, $name, $static ) {
 		$this->class_name = $class_name;
-		parent::__construct( $path, $line, $name );
+		$this->name = $name;
+		$this->static = $static;
+		parent::__construct( $path, $line );
 	}
 
-	function to_string() {
+	function to_csv_array() {
+		return array(
+			$this->type(),
+			$this->path,
+			$this->line,
+			$this->class_name,
+			$this->name,
+			$this->static,
+			''
+		);
+	}
+
+	function type() {
+		return 'property';
+	}
+
+	function display_name() {
 		$sep = $this->static ? '::$' : '->';
-		return $this->path . ':' . $this->line . ' ' . $this->class_name . $sep . $this->name;
+		return $this->class_name . $sep . $this->name;
 	}
 }
