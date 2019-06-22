@@ -114,9 +114,6 @@ prepare_jetpack() {
 	ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/
 
 	wp plugin activate jetpack
-
-	# Activate WordAds module
-	wp jetpack module activate wordads
 }
 
 export_env_variables() {
