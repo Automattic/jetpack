@@ -5,7 +5,7 @@ import Page from '../page';
 /**
  * WordPress dependencies
  */
-import { insertBlock, getAllBlocks } from '@wordpress/e2e-test-utils';
+import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector } from '../../page-helper';
 
 export default class BlockEditorPage extends Page {
@@ -15,9 +15,10 @@ export default class BlockEditorPage extends Page {
 	}
 
 	async insertBlock( blockName ) {
-		await insertBlock( blockName );
+		await searchForBlock( blockName );
+		const insertButton = `.editor-inserter__menu button[aria-label*='${ blockName }']`;
+		await waitAndClick( this.page, insertButton );
 		const blockInfo = await this.getInsertedBlock();
-		console.log( blockInfo );
 		return blockInfo;
 	}
 
