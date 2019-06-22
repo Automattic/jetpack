@@ -21,6 +21,8 @@ class Analyzer extends NodeVisitorAbstract {
 	private $declarations;
 	private $base_path;
 	private $current_path;
+	private $current_relative_path;
+	private $current_class;
 	private $parser;
 
 	function __construct( $base_path ) {
@@ -71,6 +73,8 @@ class Analyzer extends NodeVisitorAbstract {
 
 	public function file( $file_path ) {
 		$this->current_path = $file_path;
+		$this->current_relative_path = str_replace( $this->base_path, '', $file_path );
+
 		$source             = file_get_contents( $file_path );
 		try {
 			$ast = $this->parser->parse( $source );
@@ -90,17 +94,24 @@ class Analyzer extends NodeVisitorAbstract {
 	public function enterNode( Node $node ) {
 		// print_r($node);
 		if ( $node instanceof Node\Stmt\Class_ ) {
-			$this->add_declaration( new Class_Declaration( $this->current_path, $node->getLine(), $node->name->name ) );
+			$this->current_class = $node->name->name;
+			$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
 		}
 		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
-			$this->add_declaration( new Class_Property_Declaration( $this->current_path, $node->getLine(), $node->props[0]->name->name ) );
+			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $node->props[0]->name->name, $this->current_class ) );
 		}
 		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
-			$method = new Class_Method_Declaration( $this->current_path, $node->getLine(), $node->name->name, $node->isStatic() );
+			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name, $node->isStatic(), $this->current_class );
 			foreach ( $node->getParams() as $param ) {
 				$method->add_param( $node->var->name, $node->default, $node->type, $node->byRef, $node->variadic );
 			}
 			$this->add_declaration( $method );
+		}
+	}
+
+	public function leaveNode( Node $node ) {
+		if ( $node instanceof Node\Stmt\Class_ ) {
+			$this->current_class = null;
 		}
 	}
 }
@@ -129,9 +140,11 @@ class Class_Declaration extends Declaration {
  */
 class Class_Method_Declaration extends Declaration {
 	public $static;
+	public $class_name;
 
-	function __construct( $path, $line, $name, $static ) {
+	function __construct( $path, $line, $name, $static, $class_name ) {
 		$this->static = $static;
+		$this->class_name = $class_name;
 		$this->params = array();
 		parent::__construct( $path, $line, $name );
 	}
@@ -139,10 +152,26 @@ class Class_Method_Declaration extends Declaration {
 	function add_param( $name, $default, $type, $byRef, $variadic ) {
 		$this->params[] = (object) compact( 'name', 'default', 'type', 'byRef', 'variadic' );
 	}
+
+	function to_string() {
+		$sep = $this->static ? '::' : '->';
+		return $this->path . ':' . $this->line . ' ' . $this->class_name . $sep . $this->name;
+	}
 }
 
 /**
  * We only log public class variables
  */
 class Class_Property_Declaration extends Declaration {
+	public $class_name;
+
+	function __construct( $path, $line, $name, $class_name ) {
+		$this->class_name = $class_name;
+		parent::__construct( $path, $line, $name );
+	}
+
+	function to_string() {
+		$sep = $this->static ? '::$' : '->';
+		return $this->path . ':' . $this->line . ' ' . $this->class_name . $sep . $this->name;
+	}
 }
