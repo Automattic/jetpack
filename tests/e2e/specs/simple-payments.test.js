@@ -6,7 +6,7 @@ import { createNewPost } from '@wordpress/e2e-test-utils/build/create-new-post';
  * Internal dependencies
  */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
-import SimplePaymentBlock from '../lib/pages/blocks/simple-payments';
+import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 
 describe( 'First test suite', () => {
