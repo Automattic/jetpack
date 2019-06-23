@@ -4,7 +4,7 @@ require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 use Automattic\Jetpack\Analyzer\Analyzer as PHP_Analyzer;
 
-$base_path = dirname( dirname( dirname( __DIR__ ) ) );
+$base_path             = dirname( dirname( dirname( __DIR__ ) ) );
 $example_external_path = dirname( __DIR__ ) . '/data/example-external.php';
 
 $jp74_base_path = '/Users/dan/Downloads/jetpack';
@@ -22,12 +22,13 @@ $analyzer = new PHP_Analyzer( $base_path );
 // return;
 
 $analyzer->scan();
-$analyzer->save_declarations( $data_path . 'master.csv');
-
+$analyzer->save_declarations( $data_path . 'master.csv' );
+// $analyzer->print_declarations();
+// return;
 // load the output into another analyzer
 echo "*** Jetpack master ***\n";
 $other_analyzer = new PHP_Analyzer( $base_path );
-$other_analyzer->load_declarations( $data_path . 'master.csv');
+$other_analyzer->load_declarations( $data_path . 'master.csv' );
 // $other_analyzer->print_declarations();
 
 // exit;
@@ -42,7 +43,7 @@ $jp74_analyzer->scan();
 $other_analyzer->find_differences( $jp74_analyzer );
 $differences = $other_analyzer->get_differences();
 
-foreach( $differences as $difference ) {
+foreach ( $differences as $difference ) {
 	echo $difference->to_csv() . "\n";
 }
 

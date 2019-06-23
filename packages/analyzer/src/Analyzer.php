@@ -82,8 +82,21 @@ class Analyzer extends NodeVisitorAbstract {
 						break;
 
 					case 'method':
-						$params = json_decode( $params_json );
+						$params = json_decode( $params_json, TRUE );
 						$declaration = new Class_Method_Declaration( $file, $line, $class_name, $name, $static );
+						if ( is_array( $params ) ) {
+							foreach( $params as $param ) {
+								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
+							}
+						}
+
+						$this->add_declaration( $declaration );
+
+						break;
+
+					case 'function':
+						$params = json_decode( $params_json, TRUE );
+						$declaration = new Function_Declaration( $file, $line, $name );
 						if ( is_array( $params ) ) {
 							foreach( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
@@ -173,6 +186,13 @@ class Analyzer extends NodeVisitorAbstract {
 			}
 			$this->add_declaration( $method );
 		}
+		if ( $node instanceof Node\Stmt\Function_ ) {
+			$function = new Function_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name );
+			foreach ( $node->getParams() as $param ) {
+				$function->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+			}
+			$this->add_declaration( $function  );
+		}
 	}
 
 	public function leaveNode( Node $node ) {
@@ -210,7 +230,7 @@ class Analyzer extends NodeVisitorAbstract {
 		}
 
 		echo "Total: $total\n";
-		echo "Missing: " . count( $differences ) . "\n";
+		echo "Missing: " . count( $this->differences ) . "\n";
 	}
 
 	public function get_differences() {
@@ -244,31 +264,32 @@ class Invocation_Finder extends NodeVisitorAbstract {
 	}
 
 	public function enterNode( Node $node ) {
-		if ( $node instanceof Node\Stmt\Class_ ) {
-			$this->current_class = $node->name->name;
-			$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
-		}
-		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
-			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
-		}
-		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
-			// ClassMethods are also listed inside interfaces, which means current_class is null
-			// so we ignore these
-			if ( ! $this->current_class ) {
-				return;
-			}
-			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
-			foreach ( $node->getParams() as $param ) {
-				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
-			}
-			$this->add_declaration( $method );
-		}
+
+		// if ( $node instanceof Node\Stmt\Class_ ) {
+		// 	$this->current_class = $node->name->name;
+		// 	$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
+		// }
+		// if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
+		// 	$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
+		// }
+		// if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
+		// 	// ClassMethods are also listed inside interfaces, which means current_class is null
+		// 	// so we ignore these
+		// 	if ( ! $this->current_class ) {
+		// 		return;
+		// 	}
+		// 	$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
+		// 	foreach ( $node->getParams() as $param ) {
+		// 		$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+		// 	}
+		// 	$this->add_declaration( $method );
+		// }
 	}
 
 	public function leaveNode( Node $node ) {
-		if ( $node instanceof Node\Stmt\Class_ ) {
-			$this->current_class = null;
-		}
+		// if ( $node instanceof Node\Stmt\Class_ ) {
+		// 	$this->current_class = null;
+		// }
 	}
 }
 
@@ -313,7 +334,9 @@ abstract class Declaration {
 			&& $other->path === $this->path;
 	}
 
+	// a simple name, like 'method'
 	abstract function type();
+
 	// e.g. Jetpack::get_file_url_for_environment()
 	abstract function display_name();
 }
@@ -384,7 +407,7 @@ class Class_Method_Declaration extends Declaration {
 
 	function display_name() {
 		$sep = $this->static ? '::' : '->';
-		return $this->class_name . $sep . $this->name;
+		return $this->class_name . $sep . $this->name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
 	}
 }
 
@@ -422,5 +445,44 @@ class Class_Property_Declaration extends Declaration {
 	function display_name() {
 		$sep = $this->static ? '::$' : '->';
 		return $this->class_name . $sep . $this->name;
+	}
+}
+
+/**
+ * We only log public class methods, whether they are static, and their parameters
+ */
+class Function_Declaration extends Declaration {
+	public $name;
+	public $params;
+
+	function __construct( $path, $line, $name ) {
+		$this->name = $name;
+		$this->params = array();
+		parent::__construct( $path, $line );
+	}
+
+	// TODO: parse "default" into comparable string form?
+	function add_param( $name, $default, $type, $byRef, $variadic ) {
+		$this->params[] = (object) compact( 'name', 'default', 'type', 'byRef', 'variadic' );
+	}
+
+	function to_csv_array() {
+		return array(
+			$this->type(),
+			$this->path,
+			$this->line,
+			'',
+			$this->name,
+			'',
+			json_encode( $this->params )
+		);
+	}
+
+	function type() {
+		return 'function';
+	}
+
+	function display_name() {
+		return $this->name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
 	}
 }
