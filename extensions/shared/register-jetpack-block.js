@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { endsWith } from 'lodash';
 import { registerBlockType } from '@wordpress/blocks';
 
 /**
@@ -10,6 +11,13 @@ import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 
 const betaExtensions = extensionList.beta || [];
+
+function requiresPlan( unavailableReason ) {
+	if ( endsWith( unavailableReason, '_plan_required' ) ) {
+		return unavailableReason.substring( 0, unavailableReason.length - '_plan_required'.length );
+	}
+	return false;
+}
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -22,7 +30,7 @@ const betaExtensions = extensionList.beta || [];
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( name );
 
-	if ( ! available ) {
+	if ( ! available && ! requiresPlan( unavailableReason ) ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
