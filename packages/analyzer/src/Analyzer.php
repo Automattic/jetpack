@@ -10,6 +10,7 @@ use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\ClassMethod_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
+use PhpParser\NodeVisitor\NameResolver;
 
 // const STATE_NONE = 0;
 // const STATE_CLASS_DECLARATION = 1;
@@ -19,6 +20,7 @@ const VIS_PRIVATE = 1;
 
 class Analyzer extends NodeVisitorAbstract {
 	private $declarations;
+	private $differences;
 	private $base_path;
 	private $current_path;
 	private $current_relative_path;
@@ -28,6 +30,7 @@ class Analyzer extends NodeVisitorAbstract {
 	function __construct( $base_path ) {
 		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		$this->declarations = array();
+		$this->differences = array();
 		$this->base_path    = $this->slashit( $base_path );
 	}
 
@@ -124,7 +127,7 @@ class Analyzer extends NodeVisitorAbstract {
 		$this->current_path = $file_path;
 		$this->current_relative_path = str_replace( $this->base_path, '', $file_path );
 
-		$source             = file_get_contents( $file_path );
+		$source = file_get_contents( $file_path );
 		try {
 			$ast = $this->parser->parse( $source );
 		} catch ( Error $error ) {
@@ -136,19 +139,34 @@ class Analyzer extends NodeVisitorAbstract {
 		// echo $dumper->dump($ast) . "\n";
 
 		$traverser = new NodeTraverser();
+		$nameResolver = new NameResolver();
+		$traverser->addVisitor( $nameResolver );
+
+		// Resolve names
+		$ast = $traverser->traverse( $ast );
+
+		// now scan for public methods etc
+		$traverser = new NodeTraverser();
 		$traverser->addVisitor( $this );
 		$ast = $traverser->traverse( $ast );
 	}
 
 	public function enterNode( Node $node ) {
 		if ( $node instanceof Node\Stmt\Class_ ) {
-			$this->current_class = $node->name->name;
+			// $this->current_class = $node->name->name;
+			$this->current_class = implode( '\\', $node->namespacedName->parts );
+
 			$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
 		}
 		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
 			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
 		}
 		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
+			// ClassMethods are also listed inside interfaces, which means current_class is null
+			// so we ignore these
+			if ( ! $this->current_class ) {
+				return;
+			}
 			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
 			foreach ( $node->getParams() as $param ) {
 				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
@@ -164,7 +182,16 @@ class Analyzer extends NodeVisitorAbstract {
 	}
 
 	public function find_differences( $analyzer ) {
-		$differences = array();
+		// check the analyzers have been run
+		if ( count( $analyzer->get_declarations() ) === 0 ) {
+			$analyzer->scan();
+		}
+
+		if ( count( $this->get_declarations() ) === 0 ) {
+			$this->scan();
+		}
+
+		$this->differences = array();
 		$total = 0;
 		// for each declaration, see if it exists in the current analyzer's declarations
 		// if not, add it to the list of differences - either as missing or different
@@ -177,14 +204,71 @@ class Analyzer extends NodeVisitorAbstract {
 				}
 			}
 			if ( ! $matched ) {
-				$differences[] = new Difference_Missing( $prev_declaration );
+				$this->differences[] = new Difference_Missing( $prev_declaration );
 			}
 			$total += 1;
 		}
 
 		echo "Total: $total\n";
 		echo "Missing: " . count( $differences ) . "\n";
-		return $differences;
+	}
+
+	public function get_differences() {
+		return $this->differences;
+	}
+
+	public function check_file_compatibility( $file_path ) {
+		$source = file_get_contents( $file_path );
+		try {
+			$ast = $this->parser->parse( $source );
+		} catch ( Error $error ) {
+			echo "Parse error: {$error->getMessage()}\n";
+			return;
+		}
+
+		// $dumper = new NodeDumper;
+		// echo $dumper->dump($ast) . "\n";
+
+		$traverser = new NodeTraverser();
+		$invocation_finder = new Invocation_Finder( $this );
+		$traverser->addVisitor( $invocation_finder );
+		$ast = $traverser->traverse( $ast );
+	}
+}
+
+class Invocation_Finder extends NodeVisitorAbstract {
+	public $analyzer;
+
+	public function __construct( $analyzer ) {
+		$this->analyzer = $analyzer;
+	}
+
+	public function enterNode( Node $node ) {
+		if ( $node instanceof Node\Stmt\Class_ ) {
+			$this->current_class = $node->name->name;
+			$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
+		}
+		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
+			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
+		}
+		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
+			// ClassMethods are also listed inside interfaces, which means current_class is null
+			// so we ignore these
+			if ( ! $this->current_class ) {
+				return;
+			}
+			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
+			foreach ( $node->getParams() as $param ) {
+				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+			}
+			$this->add_declaration( $method );
+		}
+	}
+
+	public function leaveNode( Node $node ) {
+		if ( $node instanceof Node\Stmt\Class_ ) {
+			$this->current_class = null;
+		}
 	}
 }
 
@@ -196,7 +280,7 @@ class Difference_Missing {
 	}
 
 	public function to_csv() {
-		return 'missing,' . $this->declaration->type() . ',' . $this->declaration->display_name();
+		return 'missing,' . $this->declaration->path . ',' . $this->declaration->type() . ',' . $this->declaration->display_name();
 	}
 }
 
