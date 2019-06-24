@@ -32,7 +32,7 @@ class PersistentList {
 	 * Saves the items to a file and returns the file contents
 	 */
 	public function save( $file_path ) {
-		$handle = fopen( $file_path, 'r+');
+		$handle = fopen( $file_path, 'w+');
 		foreach ( $this->items as $item ) {
 			fputcsv( $handle, $item->to_csv_array() );
 		}
