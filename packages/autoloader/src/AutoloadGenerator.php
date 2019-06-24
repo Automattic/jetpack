@@ -135,7 +135,7 @@ class AutoloadGenerator extends BaseGenerator {
 				}
 			}
 
-			if ( 'classmap' == $type && isset( $autoload['classmap'] ) && is_array( $autoload['classmap'] ) ) {
+			if ( 'classmap' === $type && isset( $autoload['classmap'] ) && is_array( $autoload['classmap'] ) ) {
 				foreach ( $autoload['classmap'] as $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
