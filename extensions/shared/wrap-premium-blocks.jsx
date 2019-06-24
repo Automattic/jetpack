@@ -9,21 +9,15 @@ import { addFilter } from '@wordpress/hooks';
  */
 import UpgradeNudge from './upgrade-nudge';
 
-const wrapPremiumBlocks = WrappedComponent => {
-	return class extends React.Component {
-		render() {
-			// Wraps the input component in a container, without mutating it. Good!
-			return (
-				<div className="premium-blocks__wrapper">
-					<UpgradeNudge />
-					<div className="premium-blocks__disabled">
-						<WrappedComponent { ...this.props } />
-					</div>
-				</div>
-			);
-		}
-	};
-};
+const wrapPremiumBlocks = WrappedComponent => props => (
+	// Wraps the input component in a container, without mutating it. Good!
+	<div className="premium-blocks__wrapper">
+		<UpgradeNudge />
+		<div className="premium-blocks__disabled">
+			<WrappedComponent { ...props } />
+		</div>
+	</div>
+);
 
 const premiumBlocks = ( settings, name ) => {
 	if ( name === 'jetpack/simple-payments' ) {
