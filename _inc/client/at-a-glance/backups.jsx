@@ -40,6 +40,7 @@ const renderCard = props => (
 		className={ props.className }
 		status={ props.status }
 		pro={ true }
+		overrideContent={ props.overrideContent }
 	>
 		<p className="jp-dash-item__description">{ props.content }</p>
 	</DashItem>
@@ -231,13 +232,13 @@ class DashBackups extends Component {
 	}
 }
 
-export default connect( ( state, { source } ) => {
+export default connect( state => {
 	return {
 		vaultPressData: getVaultPressData( state ),
 		sitePlan: getSitePlan( state ),
 		isDevMode: isDevMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, source ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
 	};
 } )( DashBackups );
