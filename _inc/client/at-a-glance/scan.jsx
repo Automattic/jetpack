@@ -261,7 +261,7 @@ class DashScan extends Component {
 	}
 }
 
-export default connect( ( state, { source } ) => {
+export default connect( state => {
 	return {
 		vaultPressData: getVaultPressData( state ),
 		scanThreats: getVaultPressScanThreatCount( state ),
@@ -270,6 +270,6 @@ export default connect( ( state, { source } ) => {
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, source ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
 	};
 } )( DashScan );
