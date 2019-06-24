@@ -28,10 +28,10 @@ $dir_declarations->save( $data_path . 'master.csv' );
 // $dir_declarations->print();
 
 // test loading the output into another analyzer
-echo "*** Jetpack master ***\n";
-$other_declarations = new Automattic\Jetpack\Analyzer\Declarations();
-$other_declarations->load( $data_path . 'master.csv' );
-// $other_declarations->print();
+echo "*** Load Jetpack master declarations ***\n";
+$master_declarations = new Automattic\Jetpack\Analyzer\Declarations();
+$master_declarations->load( $data_path . 'master.csv' );
+// $master_declarations->print();
 
 // analyze a separate code base
 $jp74_base_path = '/Users/dan/Downloads/jetpack';
@@ -45,7 +45,8 @@ $jp74_declarations->save( $data_path . 'jp74.csv');
 // $jp74_declarations->print();
 
 echo "*** Finding differences between the two versions\n";
-$differences = $other_declarations->find_differences( $jp74_declarations );
+$differences = new Automattic\Jetpack\Analyzer\Differences();
+$differences->find( $master_declarations, $jp74_declarations );
 
 foreach ( $differences->get() as $difference ) {
 	echo implode( ', ', $difference->to_csv_array() ) . "\n";

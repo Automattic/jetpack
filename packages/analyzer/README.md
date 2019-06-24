@@ -27,7 +27,7 @@ You can `print`, `load`, and `save` those declarations as CSV.
 You can also generate a list of differences between old and new code bases, e.g. Jetpack 7.4 and Jetpack 7.5, using `->find_differences( $previous_declarations )`, which returns an instance of `Automattic\Jetpack\Analyzer\Differences`.
 
 ```php
-$declarations = new new Automattic\Jetpack\Analyzer\Declarations();
+$declarations = new Automattic\Jetpack\Analyzer\Declarations();
 
 // single file
 $declarations->scan( $base_path . '/class.jetpack.php' );
@@ -44,10 +44,9 @@ $declarations->save( 'path/to/jetpack-master.csv' );
 
 // load some other declarations
 $jp74_declarations->load( 'path/to/jetpack-branch-7.4.csv' );
-
-// find a list of differences, e.g. methods that are missing, or classes that have moved to a different relative path
-$differences = $declarations->find_differences( $jp74_declarations );
 ```
+
+You can use instances of `Declarations` as input to `(new Differences())->find( $new_codebase, $old_codebase )`
 
 #### Differences
 
@@ -56,7 +55,12 @@ A list of differences can be used to check compatibity against a set of invocati
 This is performed by parsing any external file looking for invocations. If those invocations match any functions, methods, classes or properties that have been changed between the two Jetpack versions, then a list of warnings or errors will be produced.
 
 ```php
-$differences = $declarations->find_differences( $jp74_declarations );
+// load declarations from a file, or scan using ->scan()
+$master_declarations->load( 'path/to/jetpack-master.csv' );
+$jp74_declarations->load( 'path/to/jetpack-branch-7.4.csv' );
+
+$differences = new Automattic\Jetpack\Analyzer\Differences();
+$differences->find( $master_declarations, $jp74_declarations );
 
 // check compatibility of a single file
 $differences->check_file_compatibility( 'path/to/a-file.php' );

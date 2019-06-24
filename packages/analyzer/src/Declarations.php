@@ -131,37 +131,4 @@ class Declarations extends PersistentList {
 			fclose( $handle );
 		}
 	}
-
-	public function find_differences( $prev_declarations ) {
-		$differences = new Differences();
-		$total = 0;
-		// for each declaration, see if it exists in the current analyzer's declarations
-		// if not, add it to the list of differences - either as missing or different
-		foreach( $prev_declarations->get() as $prev_declaration ) {
-			$matched = false;
-			foreach( $this->get() as $declaration ) {
-				if ( $prev_declaration->match( $declaration ) ) {
-					$matched = true;
-					break;
-				}
-			}
-			if ( ! $matched ) {
-				switch( $prev_declaration->type() ) {
-					case 'class':
-						$differences->add( new Differences\Class_Missing( $prev_declaration ) );
-						break;
-					case 'method':
-						$differences->add( new Differences\Class_Method_Missing( $prev_declaration ) );
-						break;
-					default:
-						echo "Unknown unmatched type " . $prev_declaration->type() . "\n";
-				}
-			}
-			$total += 1;
-		}
-
-		echo "Total: $total\n";
-		echo "Missing: " . count( $differences->get() ) . "\n";
-		return $differences;
-	}
 }
