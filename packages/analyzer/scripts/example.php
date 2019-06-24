@@ -8,6 +8,13 @@ $external_base_path    = dirname( __DIR__ ) . '/data';
 // a place for data
 $data_path = '/Users/dan/Downloads/';
 
+// echo "*** Checking compatibility of single external file\n";
+// $invocations = new Automattic\Jetpack\Analyzer\Invocations();
+// $invocations->scan( $external_base_path . '/example-external.php' );
+// $invocations->print();
+
+// return;
+
 // echo "Analyzing $file_path\n";
 
 // analyze the Jetpack code base
@@ -47,16 +54,13 @@ $jp74_declarations->scan( $jp74_base_path, $exclude );
 echo "*** Finding differences between the two versions\n";
 $differences = new Automattic\Jetpack\Analyzer\Differences();
 $differences->find( $master_declarations, $jp74_declarations );
-$differences->print();
+// $differences->print();
 // $differences->save( $data_path . 'differences.csv' );
 
 echo "*** Checking compatibility of single external file\n";
 $invocations = new Automattic\Jetpack\Analyzer\Invocations();
 $invocations->scan( $external_base_path . '/example-external.php' );
 $invocations->print();
-
-
-return;
 
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();
 $warnings->generate( $invocations, $differences );

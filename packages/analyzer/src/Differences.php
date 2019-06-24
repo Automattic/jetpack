@@ -30,7 +30,6 @@ class Differences extends PersistentList {
 						$this->add( new Differences\Class_Method_Missing( $prev_declaration ) );
 						break;
 					case 'property':
-						print_r( $prev_declaration->to_csv_array() );
 						$this->add( new Differences\Class_Property_Missing( $prev_declaration ) );
 						break;
 					case 'function':
