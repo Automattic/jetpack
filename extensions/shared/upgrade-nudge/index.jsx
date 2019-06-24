@@ -13,14 +13,12 @@ import getSiteFragment from '../get-site-fragment';
 
 import './style.scss';
 
-export default ( { requiredPlan, feature } ) => (
+export default ( { feature, plan } ) => (
 	<div className="upgrade-nudge">
 		<Gridicon className="upgrade-nudge__icon" icon="star" size={ 18 } />
 		<div className="upgrade-nudge__info">
 			<span className="upgrade-nudge__title">
-				{ sprintf( __( 'You need at least the following plan: %(requiredPlan)s', 'jetpack' ), {
-					requiredPlan,
-				} ) }
+				{ sprintf( __( 'You need at least the following plan: %(plan)s', 'jetpack' ), { plan } ) }
 			</span>
 			<span className="upgrade-nudge__message">{ __( 'To gain access to this block.' ) }</span>
 		</div>
