@@ -40,10 +40,9 @@ $jp74_analyzer->scan();
 // $jp74_analyzer->save_declarations( $data_path . 'jp74.csv');
 // $jp74_analyzer->print_declarations();
 
-$other_analyzer->find_differences( $jp74_analyzer );
-$differences = $other_analyzer->get_differences();
+$differences = $other_analyzer->find_differences( $jp74_analyzer );
 
-foreach ( $differences as $difference ) {
+foreach ( $differences->get_differences() as $difference ) {
 	echo $difference->to_csv() . "\n";
 }
 

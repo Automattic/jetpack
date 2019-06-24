@@ -20,17 +20,14 @@ const VIS_PRIVATE = 1;
 
 class Analyzer extends NodeVisitorAbstract {
 	private $declarations;
-	private $differences;
 	private $base_path;
 	private $current_path;
 	private $current_relative_path;
 	private $current_class;
-	private $parser;
 
 	function __construct( $base_path ) {
 		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		$this->declarations = array();
-		$this->differences = array();
 		$this->base_path    = $this->slashit( $base_path );
 	}
 
@@ -211,7 +208,7 @@ class Analyzer extends NodeVisitorAbstract {
 			$this->scan();
 		}
 
-		$this->differences = array();
+		$differences = new Declaration_Differences();
 		$total = 0;
 		// for each declaration, see if it exists in the current analyzer's declarations
 		// if not, add it to the list of differences - either as missing or different
@@ -224,17 +221,14 @@ class Analyzer extends NodeVisitorAbstract {
 				}
 			}
 			if ( ! $matched ) {
-				$this->differences[] = new Difference_Missing( $prev_declaration );
+				$differences->add_difference( new Difference_Missing( $prev_declaration ) );
 			}
 			$total += 1;
 		}
 
 		echo "Total: $total\n";
-		echo "Missing: " . count( $this->differences ) . "\n";
-	}
-
-	public function get_differences() {
-		return $this->differences;
+		echo "Missing: " . count( $differences->get_differences() ) . "\n";
+		return $differences;
 	}
 
 	public function check_file_compatibility( $file_path ) {
@@ -253,6 +247,24 @@ class Analyzer extends NodeVisitorAbstract {
 		$invocation_finder = new Invocation_Finder( $this );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
+	}
+}
+
+class Declaration_Differences {
+	private $differences;
+	private $parser;
+
+	function __construct() {
+		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		$this->differences = array();
+	}
+
+	public function get_differences() {
+		return $this->differences;
+	}
+
+	public function add_difference( $difference ) {
+		$this->differences[] = $difference;
 	}
 }
 
