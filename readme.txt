@@ -23,7 +23,7 @@ Jetpack is your site's security detail, guarding you against brute-force attacks
 * Fast, priority support from WordPress experts.
 
 = Peak Performance =
-Activate site accelerator tools and watch your page load times and hosting costs drop -- we'll optimize your images and serve them from our own powerful global network, and speed up your mobile site to reduce bandwidth usage (and save money!). Connect Jetpack to take advantage of:
+Activate site accelerator tools and watch your page load times decrease -- we'll optimize your images and serve them from our own powerful global network, and speed up your mobile site to reduce bandwidth usage (and save money!). Connect Jetpack to take advantage of:
 
 * Images and static files, like CSS and JavaScript, served from our servers, not yours.
 * Elasticsearch-powered related content and site search, for relevant results with no drain on your servers.
