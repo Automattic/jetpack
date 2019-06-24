@@ -31,6 +31,9 @@ vendor/sirbrillig
 vendor/squizlabs
 vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
+vendor/automattic/**/tests/
+vendor/automattic/**/README.md
+vendor/automattic/**/phpunit.xml.dist
 composer.lock
 package.json
 gulpfile.js
