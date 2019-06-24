@@ -31,7 +31,9 @@ function requiresPlan( unavailableReason ) {
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( name );
 
-	if ( ! available && ! requiresPlan( unavailableReason ) ) {
+	const requiredPlan = requiresPlan( unavailableReason );
+
+	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -44,7 +46,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
-		edit: requiresPlan( unavailableReason ) ? wrapPaidBlock( settings.edit ) : settings.edit,
+		edit: requiredPlan ? wrapPaidBlock( settings.edit, requiredPlan ) : settings.edit,
 	} );
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
