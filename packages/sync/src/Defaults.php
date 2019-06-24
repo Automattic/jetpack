@@ -324,6 +324,7 @@ class Defaults {
 		'postman_sent_mail',
 		'rssap-feed',
 		'rssmi_feed_item',
+		'scheduled-action', // Action Scheduler - Job Queue for WordPress https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler .
 		'secupress_log_action',
 		'sg_optimizer_jobs',
 		'snitch',
