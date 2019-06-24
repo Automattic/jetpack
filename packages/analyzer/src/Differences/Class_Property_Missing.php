@@ -3,10 +3,10 @@
 namespace Automattic\Jetpack\Analyzer\Differences;
 
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
-use Automattic\Jetpack\Analyzer\Invocations\Static_Call;
+use Automattic\Jetpack\Analyzer\Invocations\New_;
 use Automattic\Jetpack\Analyzer\Warnings\Warning; // TODO - subclasses?
 
-class Class_Method_Missing extends PersistentListItem implements Invocation_Warner {
+class Class_Property_Missing extends PersistentListItem implements Invocation_Warner {
 	public $declaration;
 
 	function __construct( $declaration ) {
@@ -26,19 +26,14 @@ class Class_Method_Missing extends PersistentListItem implements Invocation_Warn
 		return 'method_missing';
 	}
 
-	public function display_name() {
-		return $this->declaration->display_name();
-	}
-
 	public function find_invocation_warnings( $invocation, $warnings ) {
-		if ( $invocation instanceof Static_Call ) {
+		if ( $invocation instanceof New_ ) {
 			// check if it's instantiating this missing class
 			// echo "Checking " . $invocation->class_name . " matches " . $this->declaration->class_name . "\n";
 			// echo "... and " . $invocation->method_name . " matches " . $this->declaration->name . ", and invocation is static\n";
 			if ( $invocation->class_name === $this->declaration->class_name
-				&& $invocation->method_name === $this->declaration->name
 				&& $this->declaration->static ) {
-				$warnings->add( new Warning( $invocation->path, $invocation->line, "Class static method" . $this->declaration->display_name() . " is missing") );
+				$warnings->add( new Warning( $invocation->path, $invocation->line, "Class static property" . $this->declaration->display_name() . " is missing") );
 			}
 		}
 	}

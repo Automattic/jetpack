@@ -29,6 +29,9 @@ class Differences extends PersistentList {
 					case 'method':
 						$this->add( new Differences\Class_Method_Missing( $prev_declaration ) );
 						break;
+					case 'property':
+						$this->add( new Differences\Class_Property_Missing( $prev_declaration ) );
+						break;
 					default:
 						echo "Unknown unmatched type " . $prev_declaration->type() . "\n";
 				}
