@@ -10,35 +10,31 @@ composer run example
 
 ### API
 
-#### Analyzer
-
-The analyzer finds public classes, class methods (static and instance) and public properties.
-
-It returns and instance `Automattic\Jetpack\Analyzer\Declarations` which can be saved to a file or reused in context later.
-
-```php
-use Automattic\Jetpack\Analyzer\Analyzer as PHP_Analyzer;
-
-$base_path = 'path/to/jetpack';
-
-// scan a whole directory
-$declarations = $analyzer->scan();
-
-// scan a single file
-$file_declarations = $analyzer->file( $base_path . '/class.jetpack.php' );
-$file_declarations->save( 'path/to/jetpack-master-class.jetpack.php.csv' );
-```
-
 #### Declarations
 
-This class represents a list of declarations accumulated from one or more files. It is produced by the Analyzer.
+This class represents a list of public declarations accumulated from one or more files.
 
-You can print, load, and save those declarations as CSV.
+Public declarations include:
+- classes
+- class methods (static and instance)
+- public class properties
+- functions
+
+`Declarations` can find each declaration by scanning files and directories using `$declarations->scan( $dir, $exclude = array() )`.
+
+You can `print`, `load`, and `save` those declarations as CSV.
 
 You can also generate a list of differences between old and new code bases, e.g. Jetpack 7.4 and Jetpack 7.5, using `->find_differences( $previous_declarations )`, which returns an instance of `Automattic\Jetpack\Analyzer\Differences`.
 
 ```php
-$declarations = $analyzer->scan();
+$declarations = new new Automattic\Jetpack\Analyzer\Declarations();
+
+// single file
+$declarations->scan( $base_path . '/class.jetpack.php' );
+
+// OR recursively scan a directory
+$exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
+$declarations->scan( $base_path, $exclude );
 
 // print the declarations
 $declarations->print();

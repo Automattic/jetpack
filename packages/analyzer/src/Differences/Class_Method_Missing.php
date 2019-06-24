@@ -6,7 +6,7 @@ use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 use Automattic\Jetpack\Analyzer\Invocations\New_;
 use Automattic\Jetpack\Analyzer\Warnings\Warning; // TODO - subclasses?
 
-class Class_Missing extends PersistentListItem implements Invocation_Warner {
+class Class_Method_Missing extends PersistentListItem implements Invocation_Warner {
 	public $declaration;
 
 	function __construct( $declaration ) {
@@ -23,15 +23,17 @@ class Class_Missing extends PersistentListItem implements Invocation_Warner {
 	}
 
 	public function type() {
-		return 'class_missing';
+		return 'method_missing';
 	}
 
 	public function find_invocation_warnings( $invocation, $warnings ) {
 		if ( $invocation instanceof New_ ) {
 			// check if it's instantiating this missing class
 			// echo "Checking " . $invocation->class_name . " matches " . $this->declaration->class_name . "\n";
-			if ( $invocation->class_name === $this->declaration->class_name ) {
-				$warnings->add( new Warning( $invocation->path, $invocation->line, "Class " . $this->declaration->class_name . " is missing") );
+			// echo "... and " . $invocation->method_name . " matches " . $this->declaration->name . ", and invocation is static\n";
+			if ( $invocation->class_name === $this->declaration->class_name
+				&& $this->declaration->static ) {
+				$warnings->add( new Warning( $invocation->path, $invocation->line, "Class static method" . $this->declaration->class_name . " is missing") );
 			}
 		}
 	}

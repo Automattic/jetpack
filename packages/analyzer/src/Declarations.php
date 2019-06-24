@@ -2,7 +2,87 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
+use PhpParser\ParserFactory;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
+
 class Declarations extends PersistentList {
+
+	private $parser;
+
+	function __construct() {
+		$this->parser    = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		parent::__construct();
+	}
+
+	private function slashit( $path ) {
+		$path .= ( substr( $path, -1 ) == '/' ? '' : '/' );
+		return $path;
+	}
+
+	/**
+	 * Scan every PHP in the root
+	 */
+	public function scan( $root, $exclude = array() ) {
+		if ( is_dir( $root ) ) {
+			return $this->scan_dir( $this->slashit( $root ), $exclude );
+		} elseif( is_file( $root ) ) {
+			return $this->scan_file( $this->slashit( dirname( $root ) ), $root );
+		} else {
+			throw new \Exception( 'input_error', "Expected $root to be a file or directory" );
+		}
+	}
+
+	public function scan_dir( $root, $exclude = array() ) {
+
+		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
+			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
+				return true;
+			}
+			return $file->isFile();
+		};
+
+		$inner_iterator = new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS );
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveCallbackFilterIterator( $inner_iterator, $filter )
+		);
+
+		$valid_extensions = array( 'php' );
+		foreach ( $iterator as $file ) {
+			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $valid_extensions ) ) {
+				$this->scan_file( $root, $file );
+			}
+		}
+	}
+
+	public function scan_file( $root, $file_path ) {
+		$file_path_relative = str_replace( $root, '', $file_path );
+
+		$source = file_get_contents( $file_path );
+		try {
+			$ast = $this->parser->parse( $source );
+		} catch ( Error $error ) {
+			echo "Parse error: {$error->getMessage()}\n";
+			return;
+		}
+
+		// $dumper = new NodeDumper;
+		// echo $dumper->dump($ast) . "\n";
+
+		$traverser    = new NodeTraverser();
+		$nameResolver = new NameResolver();
+		$traverser->addVisitor( $nameResolver );
+
+		// Resolve names
+		$ast = $traverser->traverse( $ast );
+
+		// now scan for public methods etc
+		$traverser           = new NodeTraverser();
+		$declaration_visitor = new Declarations\Visitor( $file_path_relative, $this );
+		$traverser->addVisitor( $declaration_visitor );
+		$ast = $traverser->traverse( $ast );
+	}
 
 	public function load( $file_path ) {
 		$row = 1;
@@ -66,12 +146,16 @@ class Declarations extends PersistentList {
 				}
 			}
 			if ( ! $matched ) {
-				if ( 'class' === $prev_declaration->type() ) {
-					$differences->add( new Differences\Class_Missing( $prev_declaration ) );
-				} else {
-					echo "Unknown unmatched type " . $prev_declaration->type() . "\n";
+				switch( $prev_declaration->type() ) {
+					case 'class':
+						$differences->add( new Differences\Class_Missing( $prev_declaration ) );
+						break;
+					case 'method':
+						$differences->add( new Differences\Class_Method_Missing( $prev_declaration ) );
+						break;
+					default:
+						echo "Unknown unmatched type " . $prev_declaration->type() . "\n";
 				}
-
 			}
 			$total += 1;
 		}
