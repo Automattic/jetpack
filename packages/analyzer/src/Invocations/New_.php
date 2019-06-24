@@ -2,10 +2,14 @@
 
 namespace Automattic\Jetpack\Analyzer\Invocations;
 
+use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
+
 /**
  * Instantiation of a class
+ *
+ * TODO: detect dynamic instantiations like `$shape = new $class_name( $this->images )`
  */
-class New_ {
+class New_ extends PersistentListItem {
 	public $path;
 	public $line;
 	public $class_name;

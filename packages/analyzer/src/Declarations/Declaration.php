@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\Analyzer\Declarations;
 
-abstract class Declaration {
+use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
+
+abstract class Declaration extends PersistentListItem {
 	public $path;
 	public $line;
 

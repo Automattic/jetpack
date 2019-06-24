@@ -1,6 +1,7 @@
 <?php
 
 namespace Automattic\Jetpack\Analyzer;
+use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 
 /**
  * Handy class for persisting a list of objects that support the to_csv_array method
@@ -17,6 +18,9 @@ class PersistentList {
 	}
 
 	public function add( $item ) {
+		if ( ! is_subclass_of( $item, 'Automattic\Jetpack\Analyzer\PersistentList\Item' ) ) {
+			throw new \Exception( "item must extend Automattic\Jetpack\Analyzer\PersistentList\Item");
+		}
 		$this->items[] = $item;
 	}
 

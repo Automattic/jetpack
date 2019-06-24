@@ -47,5 +47,18 @@ class Differences extends PersistentList {
 		// echo $dumper->dump($ast) . "\n";
 
 		// TODO: return a list of warnings and errors
+
+		/**
+		 * Scan every invocation to see if it depends on a Difference
+		 */
+		$warnings = new Warnings();
+		foreach( $invocations->get() as $invocation ) {
+			foreach( $this->get() as $difference ) {
+				// $warning = $
+				$difference->find_invocation_warnings( $invocation, $warnings );
+			}
+		}
+
+		return $warnings;
 	}
 }

@@ -66,7 +66,12 @@ class Declarations extends PersistentList {
 				}
 			}
 			if ( ! $matched ) {
-				$differences->add( new Differences\Missing( $prev_declaration ) );
+				if ( 'class' === $prev_declaration->type() ) {
+					$differences->add( new Differences\Class_Missing( $prev_declaration ) );
+				} else {
+					echo "Unknown unmatched type " . $prev_declaration->type() . "\n";
+				}
+
 			}
 			$total += 1;
 		}
