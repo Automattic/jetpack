@@ -184,6 +184,9 @@ if ( ! class_exists( 'Jetpack_Recurring_Payments_Widget' ) ) {
 		if ( ! class_exists( 'Jetpack_Memberships' ) ) {
 			return;
 		}
+		if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'recurring-payments' ) ) {
+			return;
+		}
 		register_widget( 'Jetpack_Recurring_Payments_Widget' );
 	}
 	add_action( 'widgets_init', 'register_widget_jetpack_recurring_payments' );
