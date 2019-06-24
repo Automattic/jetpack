@@ -59,7 +59,7 @@ export const SSO = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					hideButton
 					module="sso"
-					header={ __( 'WordPress.com login', { context: 'Settings header' } ) }
+					header={ __( 'WordPress.com login', { context: 'Settings header, noun.' } ) }
 				>
 					<SettingsGroup
 						hasChild
