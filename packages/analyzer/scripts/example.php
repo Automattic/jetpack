@@ -52,6 +52,6 @@ foreach ( $differences->get() as $difference ) {
 
 echo "*** Generating compatibility checker\n";
 
-// $other_analyzer->check_file_compatibility( $example_external_path );
+$differences->check_file_compatibility( $example_external_path );
 
 echo "Done\n";

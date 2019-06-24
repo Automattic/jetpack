@@ -2,20 +2,9 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-// use PhpParser\Error;
-// use PhpParser\NodeDumper;
 use PhpParser\ParserFactory;
-// use PhpParser\Node\Stmt\Function_;
-// use PhpParser\Node\Stmt\ClassMethod_;
 use PhpParser\NodeTraverser;
-// use PhpParser\NodeVisitorAbstract;
 use PhpParser\NodeVisitor\NameResolver;
-
-// const STATE_NONE = 0;
-// const STATE_CLASS_DECLARATION = 1;
-
-const VIS_PUBLIC  = 0;
-const VIS_PRIVATE = 1;
 
 class Analyzer {
 	private $declarations;
@@ -87,24 +76,6 @@ class Analyzer {
 		$traverser = new NodeTraverser();
 		$declaration_visitor = new Declarations\Visitor( $current_relative_path, $declarations );
 		$traverser->addVisitor( $declaration_visitor );
-		$ast = $traverser->traverse( $ast );
-	}
-
-	public function check_file_compatibility( $file_path ) {
-		$source = file_get_contents( $file_path );
-		try {
-			$ast = $this->parser->parse( $source );
-		} catch ( Error $error ) {
-			echo "Parse error: {$error->getMessage()}\n";
-			return;
-		}
-
-		// $dumper = new NodeDumper;
-		// echo $dumper->dump($ast) . "\n";
-
-		$traverser = new NodeTraverser();
-		$invocation_finder = new Invocation_Visitor( $this );
-		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
 	}
 }

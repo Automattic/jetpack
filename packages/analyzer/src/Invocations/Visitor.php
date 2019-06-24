@@ -1,11 +1,11 @@
 <?php
 
-namespace Automattic\Jetpack\Analyzer;
+namespace Automattic\Jetpack\Analyzer\Invocations;
 
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Node;
 
-class Invocation_Visitor extends NodeVisitorAbstract {
+class Visitor extends NodeVisitorAbstract {
 	public $analyzer;
 
 	public function __construct( $analyzer ) {
@@ -14,10 +14,11 @@ class Invocation_Visitor extends NodeVisitorAbstract {
 
 	public function enterNode( Node $node ) {
 
-		// if ( $node instanceof Node\Stmt\Class_ ) {
+		if ( $node instanceof Node\Stmt\Class_ ) {
+			echo $node->name->name . "\n";
 		// 	$this->current_class = $node->name->name;
 		// 	$this->add( new Declarations\Class_( $this->current_relative_path, $node->getLine(), $node->name->name ) );
-		// }
+		}
 		// if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
 		// 	$this->add( new Declarations\Class_Property( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
 		// }
