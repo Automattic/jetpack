@@ -21,14 +21,18 @@ $analyzer = new PHP_Analyzer( $base_path );
 // $analyzer->file( $base_path . '/class.jetpack.php' );
 // return;
 
-$analyzer->scan();
-$analyzer->save_declarations( $data_path . 'master.csv' );
+$declarations = $analyzer->scan();
+$declarations->save( $data_path . 'master.csv' );
 // $analyzer->print_declarations();
 // return;
 // load the output into another analyzer
 echo "*** Jetpack master ***\n";
-$other_analyzer = new PHP_Analyzer( $base_path );
-$other_analyzer->load_declarations( $data_path . 'master.csv' );
+
+$other_declarations = new Automattic\Jetpack\Analyzer\Declarations();
+$other_declarations->load( $data_path . 'master.csv' );
+
+// $other_analyzer = new PHP_Analyzer( $base_path );
+// $other_analyzer->load_declarations( $data_path . 'master.csv' );
 // $other_analyzer->print_declarations();
 
 // exit;
@@ -36,18 +40,18 @@ $other_analyzer->load_declarations( $data_path . 'master.csv' );
 // analyze a separate code base
 echo "*** Jetpack 7.4 ***\n";
 $jp74_analyzer = new PHP_Analyzer( $jp74_base_path );
-$jp74_analyzer->scan();
+$jp74_differences = $jp74_analyzer->scan();
 // $jp74_analyzer->save_declarations( $data_path . 'jp74.csv');
 // $jp74_analyzer->print_declarations();
 
-$differences = $other_analyzer->find_differences( $jp74_analyzer );
+$differences = $other_declarations->find_differences( $jp74_differences );
 
-foreach ( $differences->get_differences() as $difference ) {
+foreach ( $differences->get() as $difference ) {
 	echo $difference->to_csv() . "\n";
 }
 
 echo "*** Generating compatibility checker\n";
 
-$other_analyzer->check_file_compatibility( $example_external_path );
+// $other_analyzer->check_file_compatibility( $example_external_path );
 
 echo "Done\n";

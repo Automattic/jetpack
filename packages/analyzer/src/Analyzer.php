@@ -23,11 +23,9 @@ class Analyzer extends NodeVisitorAbstract {
 	private $base_path;
 	private $current_path;
 	private $current_relative_path;
-	private $current_class;
 
 	function __construct( $base_path ) {
 		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
-		$this->declarations = array();
 		$this->base_path    = $this->slashit( $base_path );
 	}
 
@@ -36,81 +34,9 @@ class Analyzer extends NodeVisitorAbstract {
 		return $path;
 	}
 
-	protected function add_declaration( $declaration ) {
-		$this->declarations[] = $declaration;
-	}
-
-	public function print_declarations() {
-		echo $this->save_declarations( 'php://memory' );
-	}
-
-	/**
-	 * Saves the declarations to a file and returns the file contents
-	 */
-	public function save_declarations( $file_path ) {
-		$handle = fopen( $file_path, 'r+');
-		foreach ( $this->declarations as $dec ) {
-			fputcsv( $handle, $dec->to_csv_array() );
-		}
-		rewind( $handle );
-		$contents = stream_get_contents( $handle );
-		fclose( $handle );
-		return $contents;
-	}
-
-	public function get_declarations() {
-		return $this->declarations;
-	}
-
-	public function load_declarations( $file_path ) {
-		$row = 1;
-		if ( ( $handle = fopen( $file_path , "r" ) ) !== FALSE ) {
-			while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== FALSE ) {
-				$num = count( $data );
-				list( $type, $file, $line, $class_name, $name, $static, $params_json ) = $data;
-
-				switch( $type ) {
-					case 'class':
-						$this->add_declaration( new Class_Declaration( $file, $line, $class_name ) );
-						break;
-
-					case 'property':
-						$this->add_declaration( new Class_Property_Declaration( $file, $line, $class_name, $name, $static ) );
-						break;
-
-					case 'method':
-						$params = json_decode( $params_json, TRUE );
-						$declaration = new Class_Method_Declaration( $file, $line, $class_name, $name, $static );
-						if ( is_array( $params ) ) {
-							foreach( $params as $param ) {
-								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
-							}
-						}
-
-						$this->add_declaration( $declaration );
-
-						break;
-
-					case 'function':
-						$params = json_decode( $params_json, TRUE );
-						$declaration = new Function_Declaration( $file, $line, $name );
-						if ( is_array( $params ) ) {
-							foreach( $params as $param ) {
-								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
-							}
-						}
-
-						$this->add_declaration( $declaration );
-
-						break;
-				}
-				$row++;
-			}
-			fclose($handle);
-		}
-	}
-
 	public function scan() {
+		$declarations = new Declarations();
+
 		$exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
 			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
@@ -128,14 +54,16 @@ class Analyzer extends NodeVisitorAbstract {
 		$display = array( 'php' );
 		foreach ( $iterator as $file ) {
 			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $display ) ) {
-				$this->file( $file );
+				$this->file( $file, $declarations );
 			}
 		}
+
+		return $declarations;
 	}
 
-	public function file( $file_path ) {
+	public function file( $file_path, $declarations ) {
 		$this->current_path = $file_path;
-		$this->current_relative_path = str_replace( $this->base_path, '', $file_path );
+		$current_relative_path = str_replace( $this->base_path, '', $file_path );
 
 		$source = file_get_contents( $file_path );
 		try {
@@ -157,78 +85,9 @@ class Analyzer extends NodeVisitorAbstract {
 
 		// now scan for public methods etc
 		$traverser = new NodeTraverser();
-		$traverser->addVisitor( $this );
+		$declaration_visitor = new Declaration_Visitor( $current_relative_path, $declarations );
+		$traverser->addVisitor( $declaration_visitor );
 		$ast = $traverser->traverse( $ast );
-	}
-
-	public function enterNode( Node $node ) {
-		if ( $node instanceof Node\Stmt\Class_ ) {
-			// $this->current_class = $node->name->name;
-			$this->current_class = implode( '\\', $node->namespacedName->parts );
-
-			$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
-		}
-		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
-			$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
-		}
-		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
-			// ClassMethods are also listed inside interfaces, which means current_class is null
-			// so we ignore these
-			if ( ! $this->current_class ) {
-				return;
-			}
-			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
-			foreach ( $node->getParams() as $param ) {
-				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
-			}
-			$this->add_declaration( $method );
-		}
-		if ( $node instanceof Node\Stmt\Function_ ) {
-			$function = new Function_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name );
-			foreach ( $node->getParams() as $param ) {
-				$function->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
-			}
-			$this->add_declaration( $function  );
-		}
-	}
-
-	public function leaveNode( Node $node ) {
-		if ( $node instanceof Node\Stmt\Class_ ) {
-			$this->current_class = null;
-		}
-	}
-
-	public function find_differences( $analyzer ) {
-		// check the analyzers have been run
-		if ( count( $analyzer->get_declarations() ) === 0 ) {
-			$analyzer->scan();
-		}
-
-		if ( count( $this->get_declarations() ) === 0 ) {
-			$this->scan();
-		}
-
-		$differences = new Declaration_Differences();
-		$total = 0;
-		// for each declaration, see if it exists in the current analyzer's declarations
-		// if not, add it to the list of differences - either as missing or different
-		foreach( $analyzer->get_declarations() as $prev_declaration ) {
-			$matched = false;
-			foreach( $this->declarations as $declaration ) {
-				if ( $prev_declaration->match( $declaration ) ) {
-					$matched = true;
-					break;
-				}
-			}
-			if ( ! $matched ) {
-				$differences->add_difference( new Difference_Missing( $prev_declaration ) );
-			}
-			$total += 1;
-		}
-
-		echo "Total: $total\n";
-		echo "Missing: " . count( $differences->get_differences() ) . "\n";
-		return $differences;
 	}
 
 	public function check_file_compatibility( $file_path ) {
@@ -244,31 +103,188 @@ class Analyzer extends NodeVisitorAbstract {
 		// echo $dumper->dump($ast) . "\n";
 
 		$traverser = new NodeTraverser();
-		$invocation_finder = new Invocation_Finder( $this );
+		$invocation_finder = new Invocation_Visitor( $this );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
 	}
 }
 
-class Declaration_Differences {
-	private $differences;
-	private $parser;
+class Declarations {
+	private $declarations;
+	// private $parser;
 
 	function __construct() {
-		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		// $this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		$this->declarations = array();
+	}
+
+	public function get() {
+		return $this->declarations;
+	}
+
+	public function add( $declaration ) {
+		$this->declarations[] = $declaration;
+	}
+
+	public function print() {
+		echo $this->save( 'php://memory' );
+	}
+
+	/**
+	 * Saves the declarations to a file and returns the file contents
+	 */
+	public function save( $file_path ) {
+		$handle = fopen( $file_path, 'r+');
+		foreach ( $this->declarations as $dec ) {
+			fputcsv( $handle, $dec->to_csv_array() );
+		}
+		rewind( $handle );
+		$contents = stream_get_contents( $handle );
+		fclose( $handle );
+		return $contents;
+	}
+
+	public function load( $file_path ) {
+		$row = 1;
+		if ( ( $handle = fopen( $file_path , "r" ) ) !== FALSE ) {
+			while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== FALSE ) {
+				$num = count( $data );
+				list( $type, $file, $line, $class_name, $name, $static, $params_json ) = $data;
+
+				switch( $type ) {
+					case 'class':
+						$this->add( new Class_Declaration( $file, $line, $class_name ) );
+						break;
+
+					case 'property':
+						$this->add( new Class_Property_Declaration( $file, $line, $class_name, $name, $static ) );
+						break;
+
+					case 'method':
+						$params = json_decode( $params_json, TRUE );
+						$declaration = new Class_Method_Declaration( $file, $line, $class_name, $name, $static );
+						if ( is_array( $params ) ) {
+							foreach( $params as $param ) {
+								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
+							}
+						}
+
+						$this->add( $declaration );
+
+						break;
+
+					case 'function':
+						$params = json_decode( $params_json, TRUE );
+						$declaration = new Function_Declaration( $file, $line, $name );
+						if ( is_array( $params ) ) {
+							foreach( $params as $param ) {
+								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
+							}
+						}
+
+						$this->add( $declaration );
+
+						break;
+				}
+				$row++;
+			}
+			fclose( $handle );
+		}
+	}
+
+	public function find_differences( $prev_declarations ) {
+
+		$differences = new Declaration_Differences();
+		$total = 0;
+		// for each declaration, see if it exists in the current analyzer's declarations
+		// if not, add it to the list of differences - either as missing or different
+		foreach( $prev_declarations->get() as $prev_declaration ) {
+			$matched = false;
+			foreach( $this->declarations as $declaration ) {
+				if ( $prev_declaration->match( $declaration ) ) {
+					$matched = true;
+					break;
+				}
+			}
+			if ( ! $matched ) {
+				$differences->add( new Difference_Missing( $prev_declaration ) );
+			}
+			$total += 1;
+		}
+
+		echo "Total: $total\n";
+		echo "Missing: " . count( $differences->get() ) . "\n";
+		return $differences;
+	}
+}
+
+class Declaration_Differences {
+	private $differences;
+	// private $parser;
+
+	function __construct() {
+		// $this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		$this->differences = array();
 	}
 
-	public function get_differences() {
+	public function get() {
 		return $this->differences;
 	}
 
-	public function add_difference( $difference ) {
+	public function add( $difference ) {
 		$this->differences[] = $difference;
 	}
 }
 
-class Invocation_Finder extends NodeVisitorAbstract {
+class Declaration_Visitor extends NodeVisitorAbstract {
+	private $current_class;
+	private $declarations;
+	private $current_relative_path;
+
+	public function __construct( $current_relative_path, $declarations ) {
+		$this->current_relative_path = $current_relative_path;
+		$this->declarations = $declarations;
+	}
+
+	public function enterNode( Node $node ) {
+		if ( $node instanceof Node\Stmt\Class_ ) {
+			// $this->current_class = $node->name->name;
+			$this->current_class = implode( '\\', $node->namespacedName->parts );
+
+			$this->declarations->add( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
+		}
+		if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
+			$this->declarations->add( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
+		}
+		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
+			// ClassMethods are also listed inside interfaces, which means current_class is null
+			// so we ignore these
+			if ( ! $this->current_class ) {
+				return;
+			}
+			$method = new Class_Method_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
+			foreach ( $node->getParams() as $param ) {
+				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+			}
+			$this->declarations->add( $method );
+		}
+		if ( $node instanceof Node\Stmt\Function_ ) {
+			$function = new Function_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name );
+			foreach ( $node->getParams() as $param ) {
+				$function->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+			}
+			$this->declarations->add( $function  );
+		}
+	}
+
+	public function leaveNode( Node $node ) {
+		if ( $node instanceof Node\Stmt\Class_ ) {
+			$this->current_class = null;
+		}
+	}
+}
+
+class Invocation_Visitor extends NodeVisitorAbstract {
 	public $analyzer;
 
 	public function __construct( $analyzer ) {
@@ -279,10 +295,10 @@ class Invocation_Finder extends NodeVisitorAbstract {
 
 		// if ( $node instanceof Node\Stmt\Class_ ) {
 		// 	$this->current_class = $node->name->name;
-		// 	$this->add_declaration( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
+		// 	$this->add( new Class_Declaration( $this->current_relative_path, $node->getLine(), $node->name->name ) );
 		// }
 		// if ( $node instanceof Node\Stmt\Property && $node->isPublic() ) {
-		// 	$this->add_declaration( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
+		// 	$this->add( new Class_Property_Declaration( $this->current_relative_path, $node->getLine(), $this->current_class, $node->props[0]->name->name, $node->isStatic() ) );
 		// }
 		// if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
 		// 	// ClassMethods are also listed inside interfaces, which means current_class is null
@@ -294,7 +310,7 @@ class Invocation_Finder extends NodeVisitorAbstract {
 		// 	foreach ( $node->getParams() as $param ) {
 		// 		$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
 		// 	}
-		// 	$this->add_declaration( $method );
+		// 	$this->add( $method );
 		// }
 	}
 
