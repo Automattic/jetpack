@@ -137,7 +137,7 @@ class DashAkismet extends Component {
 						eventFeature="akismet"
 						path="dashboard"
 						plan={ PLAN_JETPACK_PREMIUM }
-						icon="lock"
+						icon="flag"
 					/>
 				) : null;
 
