@@ -50,7 +50,11 @@ class Analyzer {
 		return $declarations;
 	}
 
-	public function file( $file_path, $declarations ) {
+	public function file( $file_path, $declarations = null ) {
+		if ( ! $declarations ) {
+			$declarations = new Declarations();
+		}
+
 		$this->current_path    = $file_path;
 		$current_relative_path = str_replace( $this->base_path, '', $file_path );
 
@@ -77,6 +81,8 @@ class Analyzer {
 		$declaration_visitor = new Declarations\Visitor( $current_relative_path, $declarations );
 		$traverser->addVisitor( $declaration_visitor );
 		$ast = $traverser->traverse( $ast );
+
+		return $declarations;
 	}
 }
 
