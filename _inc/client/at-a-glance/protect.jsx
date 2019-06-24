@@ -36,7 +36,7 @@ class DashProtect extends Component {
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
 				return (
 					<DashItem
-						label="Protect"
+						label="Jetpack Protect"
 						module="protect"
 						support={ support }
 						status="is-working"

@@ -29,7 +29,7 @@ import JetpackBanner from 'components/jetpack-banner';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Security Scanning' ) }
+		label={ __( 'Jetpack Scan' ) }
 		module={ props.feature || 'scan' }
 		support={ {
 			text: __(
