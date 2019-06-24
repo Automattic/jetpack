@@ -34,6 +34,7 @@ export class DashItem extends Component {
 		pro: PropTypes.bool,
 		isModule: PropTypes.bool,
 		support: PropTypes.object,
+		overrideContent: PropTypes.element,
 	};
 
 	static defaultProps = {
@@ -140,14 +141,18 @@ export class DashItem extends Component {
 				<SectionHeader label={ this.props.label } cardBadge={ proButton }>
 					{ this.props.userCanToggle ? toggle : '' }
 				</SectionHeader>
-				<Card className="jp-dash-item__card" href={ this.props.href }>
-					<div className="jp-dash-item__content">
-						{ this.props.support.link && (
-							<SupportInfo module={ module } { ...this.props.support } />
-						) }
-						{ this.props.children }
-					</div>
-				</Card>
+				{ this.props.overrideContent ? (
+					this.props.overrideContent
+				) : (
+					<Card className="jp-dash-item__card" href={ this.props.href }>
+						<div className="jp-dash-item__content">
+							{ this.props.support.link && (
+								<SupportInfo module={ module } { ...this.props.support } />
+							) }
+							{ this.props.children }
+						</div>
+					</Card>
+				) }
 			</div>
 		);
 	}

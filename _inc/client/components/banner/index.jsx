@@ -9,6 +9,7 @@ import { noop, size } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -22,12 +23,13 @@ class Banner extends Component {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
 		description: PropTypes.node,
-		event: PropTypes.string,
+		eventFeature: PropTypes.string,
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
 		href: PropTypes.string,
 		icon: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
+		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
 		title: PropTypes.string.isRequired,
@@ -51,6 +53,21 @@ class Banner extends Component {
 
 	handleClick = () => {
 		this.props.onClick();
+
+		const { eventFeature, path } = this.props;
+		if ( eventFeature || path ) {
+			const eventFeatureProp = eventFeature ? { feature: eventFeature } : {};
+			const pathProp = path ? { path } : {};
+
+			const eventProps = {
+				target: 'banner',
+				type: 'upgrade',
+				...eventFeatureProp,
+				...pathProp,
+			};
+
+			analytics.tracks.recordJetpackClick( eventProps );
+		}
 	};
 
 	getIcon() {
