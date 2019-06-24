@@ -64,7 +64,11 @@ class Jetpack_Simple_Payments {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
 			jetpack_register_block( 'jetpack/simple-payments' );
 		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/simple-payments', 'premium_plan_required' );
+			$required_plan = 'jetpack_premium';
+			if( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$required_plan = 'premium';
+			}
+			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/simple-payments', $required_plan . '_plan_required' );
 		}
 	}
 
