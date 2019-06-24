@@ -86,7 +86,7 @@ class Declarations {
 	}
 
 	public function find_differences( $prev_declarations ) {
-		$differences = new Declaration_Differences();
+		$differences = new Differences();
 		$total = 0;
 		// for each declaration, see if it exists in the current analyzer's declarations
 		// if not, add it to the list of differences - either as missing or different
@@ -99,7 +99,7 @@ class Declarations {
 				}
 			}
 			if ( ! $matched ) {
-				$differences->add( new Difference_Missing( $prev_declaration ) );
+				$differences->add( new Differences\Missing( $prev_declaration ) );
 			}
 			$total += 1;
 		}

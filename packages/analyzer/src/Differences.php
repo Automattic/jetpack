@@ -6,7 +6,7 @@ use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 
-class Declaration_Differences {
+class Differences {
 	private $differences;
 	private $parser;
 

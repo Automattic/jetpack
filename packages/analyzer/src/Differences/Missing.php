@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\Jetpack\Analyzer;
+namespace Automattic\Jetpack\Analyzer\Differences;
 
-class Difference_Missing {
+class Missing {
 	public $declaration;
 
 	function __construct( $declaration ) {
