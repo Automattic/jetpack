@@ -7,12 +7,12 @@ namespace Automattic\Jetpack\Analyzer\Declarations;
  */
 class Class_Property extends Declaration {
 	public $class_name;
-	public $name;
+	public $prop_name;
 	public $static;
 
-	function __construct( $path, $line, $class_name, $name, $static ) {
+	function __construct( $path, $line, $class_name, $prop_name, $static ) {
 		$this->class_name = $class_name;
-		$this->name = $name;
+		$this->prop_name = $prop_name;
 		$this->static = $static;
 		parent::__construct( $path, $line );
 	}
@@ -23,7 +23,7 @@ class Class_Property extends Declaration {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			$this->name,
+			$this->prop_name,
 			$this->static,
 			''
 		);
@@ -35,6 +35,6 @@ class Class_Property extends Declaration {
 
 	function display_name() {
 		$sep = $this->static ? '::$' : '->';
-		return $this->class_name . $sep . $this->name;
+		return $this->class_name . $sep . $this->prop_name;
 	}
 }

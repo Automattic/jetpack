@@ -15,7 +15,7 @@ abstract class Declaration extends PersistentListItem {
 
 	function match( $other ) {
 		return get_class( $other ) === get_class( $this )
-			&& $other->name === $this->name
+			&& $other->display_name() === $this->display_name() // hack
 			&& $other->path === $this->path;
 	}
 

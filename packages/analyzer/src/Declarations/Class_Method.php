@@ -7,13 +7,13 @@ namespace Automattic\Jetpack\Analyzer\Declarations;
  */
 class Class_Method extends Declaration {
 	public $class_name;
-	public $name;
+	public $method_name;
 	public $params;
 	public $static;
 
-	function __construct( $path, $line, $class_name, $name, $static ) {
+	function __construct( $path, $line, $class_name, $method_name, $static ) {
 		$this->class_name = $class_name;
-		$this->name = $name;
+		$this->method_name = $method_name;
 		$this->params = array();
 		$this->static = $static;
 		parent::__construct( $path, $line );
@@ -30,7 +30,7 @@ class Class_Method extends Declaration {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			$this->name,
+			$this->method_name,
 			$this->static,
 			json_encode( $this->params )
 		);
@@ -42,6 +42,6 @@ class Class_Method extends Declaration {
 
 	function display_name() {
 		$sep = $this->static ? '::' : '->';
-		return $this->class_name . $sep . $this->name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
+		return $this->class_name . $sep . $this->method_name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
 	}
 }

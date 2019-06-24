@@ -6,11 +6,11 @@ namespace Automattic\Jetpack\Analyzer\Declarations;
  * We only log public class methods, whether they are static, and their parameters
  */
 class Function_ extends Declaration {
-	public $name;
+	public $func_name;
 	public $params;
 
-	function __construct( $path, $line, $name ) {
-		$this->name = $name;
+	function __construct( $path, $line, $func_name ) {
+		$this->func_name = $func_name;
 		$this->params = array();
 		parent::__construct( $path, $line );
 	}
@@ -26,7 +26,7 @@ class Function_ extends Declaration {
 			$this->path,
 			$this->line,
 			'',
-			$this->name,
+			$this->func_name,
 			'',
 			json_encode( $this->params )
 		);
@@ -37,6 +37,6 @@ class Function_ extends Declaration {
 	}
 
 	function display_name() {
-		return $this->name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
+		return $this->func_name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
 	}
 }

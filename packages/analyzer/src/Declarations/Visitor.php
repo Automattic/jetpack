@@ -19,7 +19,6 @@ class Visitor extends NodeVisitorAbstract {
 	public function enterNode( Node $node ) {
 
 		if ( $node instanceof Node\Stmt\Class_ ) {
-			// $this->current_class = $node->name->name;
 			$namespaced_name = '\\' . implode( '\\', $node->namespacedName->parts );
 			$this->current_class = $namespaced_name;
 

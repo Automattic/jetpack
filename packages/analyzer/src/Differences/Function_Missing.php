@@ -3,10 +3,10 @@
 namespace Automattic\Jetpack\Analyzer\Differences;
 
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
-use Automattic\Jetpack\Analyzer\Invocations\New_;
+use Automattic\Jetpack\Analyzer\Invocations\Static_Call;
 use Automattic\Jetpack\Analyzer\Warnings\Warning; // TODO - subclasses?
 
-class Class_Property_Missing extends PersistentListItem implements Invocation_Warner {
+class Function_Missing extends PersistentListItem implements Invocation_Warner {
 	public $declaration;
 
 	function __construct( $declaration ) {
@@ -23,15 +23,20 @@ class Class_Property_Missing extends PersistentListItem implements Invocation_Wa
 	}
 
 	public function type() {
-		return 'property_missing';
+		return 'function_missing';
+	}
+
+	public function display_name() {
+		return $this->declaration->display_name();
 	}
 
 	public function find_invocation_warnings( $invocation, $warnings ) {
-		// if ( $invocation instanceof New_ ) {
+		// if ( $invocation instanceof Static_Call ) {
 		// 	// check if it's instantiating this missing class
 		// 	if ( $invocation->class_name === $this->declaration->class_name
+		// 		&& $invocation->method_name === $this->declaration->method_name
 		// 		&& $this->declaration->static ) {
-		// 		$warnings->add( new Warning( $invocation->path, $invocation->line, 'Class static property' . $this->declaration->display_name() . ' is missing' ) );
+		// 		$warnings->add( new Warning( $invocation->path, $invocation->line, 'Class static method' . $this->declaration->display_name() . ' is missing' ) );
 		// 	}
 		// }
 	}
