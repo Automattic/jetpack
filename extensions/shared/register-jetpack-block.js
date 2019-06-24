@@ -9,7 +9,7 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
-import wrapPremiumBlocks from './wrap-premium-blocks';
+import wrapPaidBlock from './wrap-paid-block';
 
 const betaExtensions = extensionList.beta || [];
 
@@ -44,7 +44,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
-		edit: requiresPlan( unavailableReason ) ? wrapPremiumBlocks( settings.edit ) : settings.edit,
+		edit: requiresPlan( unavailableReason ) ? wrapPaidBlock( settings.edit ) : settings.edit,
 	} );
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
