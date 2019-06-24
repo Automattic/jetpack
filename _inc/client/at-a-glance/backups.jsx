@@ -28,7 +28,7 @@ import { showBackups } from 'state/initial-state';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Backups' ) }
+		label={ __( 'Backup' ) }
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
