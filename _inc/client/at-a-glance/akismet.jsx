@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -16,6 +17,8 @@ import QueryAkismetData from 'components/data/query-akismet-data';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
+import { getUpgradeUrl } from 'state/initial-state';
+import JetpackBanner from 'components/jetpack-banner';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -25,6 +28,7 @@ class DashAkismet extends Component {
 		// Connected props
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 		isDevMode: PropTypes.bool.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -101,6 +105,21 @@ class DashAkismet extends Component {
 		}
 
 		if ( akismetData === 'not_active' ) {
+			const activateContent = (
+				<JetpackBanner
+					callToAction={ __( 'Activate' ) }
+					title={ __(
+						'Automatically clear spam from your comments and forms so you can get back to your business.'
+					) }
+					disableHref="false"
+					href={ this.props.upgradeUrl }
+					eventFeature="akismet"
+					path="dashboard"
+					plan={ PLAN_JETPACK_PREMIUM }
+					icon="lock"
+				/>
+			);
+
 			return (
 				<DashItem
 					label={ labelName }
@@ -109,22 +128,8 @@ class DashAkismet extends Component {
 					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
-							components: {
-								a: (
-									<a
-										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
-										onClick={ this.trackActivateClick }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
-						} ) }
-					</p>
-				</DashItem>
+					overrideContent={ activateContent }
+				/>
 			);
 		}
 
@@ -198,4 +203,5 @@ export default connect( state => ( {
 	akismetData: getAkismetData( state ),
 	sitePlan: getSitePlan( state ),
 	isDevMode: isDevMode( state ),
+	upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
 } ) )( DashAkismet );
