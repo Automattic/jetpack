@@ -165,8 +165,8 @@ class AutoloadGenerator extends BaseGenerator {
 	private function getClassMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
 		$blacklist = null;
 
-        if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
-            $blacklist = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
+		if ( ! empty( $autoloads['exclude-from-classmap'] ) ) {
+			$blacklist = '{(' . implode( '|', $autoloads['exclude-from-classmap'] ) . ')}';
 		}
 
 		$classmapString = '';
