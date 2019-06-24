@@ -140,7 +140,7 @@ class DashBackups extends Component {
 						eventFeature="backups"
 						path="dashboard"
 						plan={ PLAN_JETPACK_PREMIUM }
-						icon="lock"
+						icon="history"
 					/>
 				),
 			} );
