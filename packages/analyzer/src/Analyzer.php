@@ -14,8 +14,8 @@ class Analyzer {
 	private $parser;
 
 	function __construct( $base_path ) {
-		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
-		$this->base_path    = $this->slashit( $base_path );
+		$this->parser    = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		$this->base_path = $this->slashit( $base_path );
 	}
 
 	private function slashit( $path ) {
@@ -51,7 +51,7 @@ class Analyzer {
 	}
 
 	public function file( $file_path, $declarations ) {
-		$this->current_path = $file_path;
+		$this->current_path    = $file_path;
 		$current_relative_path = str_replace( $this->base_path, '', $file_path );
 
 		$source = file_get_contents( $file_path );
@@ -65,7 +65,7 @@ class Analyzer {
 		// $dumper = new NodeDumper;
 		// echo $dumper->dump($ast) . "\n";
 
-		$traverser = new NodeTraverser();
+		$traverser    = new NodeTraverser();
 		$nameResolver = new NameResolver();
 		$traverser->addVisitor( $nameResolver );
 
@@ -73,7 +73,7 @@ class Analyzer {
 		$ast = $traverser->traverse( $ast );
 
 		// now scan for public methods etc
-		$traverser = new NodeTraverser();
+		$traverser           = new NodeTraverser();
 		$declaration_visitor = new Declarations\Visitor( $current_relative_path, $declarations );
 		$traverser->addVisitor( $declaration_visitor );
 		$ast = $traverser->traverse( $ast );

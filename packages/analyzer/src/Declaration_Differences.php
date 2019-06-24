@@ -11,7 +11,7 @@ class Declaration_Differences {
 	private $parser;
 
 	function __construct() {
-		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		$this->parser      = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		$this->differences = array();
 	}
 
@@ -39,14 +39,14 @@ class Declaration_Differences {
 		// echo $dumper->dump($ast) . "\n";
 
 		// before parsing, make sure we try to resolve class names
-		$traverser = new NodeTraverser();
+		$traverser    = new NodeTraverser();
 		$nameResolver = new NameResolver();
 		$traverser->addVisitor( $nameResolver );
 
 		// Resolve names
 		$ast = $traverser->traverse( $ast );
 
-		$traverser = new NodeTraverser();
+		$traverser         = new NodeTraverser();
 		$invocation_finder = new Invocations\Visitor( $this );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
