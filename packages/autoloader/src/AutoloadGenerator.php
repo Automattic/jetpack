@@ -122,7 +122,7 @@ class AutoloadGenerator extends BaseGenerator {
 				$installPath = substr( $installPath, 0, -strlen( '/' . $package->getTargetDir() ) );
 			}
 
-			if ( 'psr-4' == $type && isset( $autoload['psr-4'] ) && is_array( $autoload['psr-4'] ) ) {
+			if ( 'psr-4' === $type && isset( $autoload['psr-4'] ) && is_array( $autoload['psr-4'] ) ) {
 				foreach ( $autoload['psr-4'] as $namespace => $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
