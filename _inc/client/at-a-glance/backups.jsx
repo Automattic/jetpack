@@ -7,18 +7,19 @@ import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
 import { get, isEmpty, noop } from 'lodash';
+import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
+import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import UpgradeLink from 'components/upgrade-link';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -55,6 +56,7 @@ class DashBackups extends Component {
 		sitePlan: PropTypes.object.isRequired,
 		isDevMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -126,13 +128,19 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				content: __(
-					'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.',
-					{
-						components: {
-							a: <UpgradeLink source="aag-backups" target="at-a-glance" feature="backups" />,
-						},
-					}
+				overrideContent: (
+					<JetpackBanner
+						callToAction={ __( 'Upgrade' ) }
+						title={ __(
+							'Never worry about losing your site – automatic backups keep your content safe.'
+						) }
+						disableHref="false"
+						href={ this.props.upgradeUrl }
+						eventFeature="backups"
+						path="dashboard"
+						plan={ PLAN_JETPACK_PREMIUM }
+						icon="lock"
+					/>
 				),
 			} );
 		}
@@ -223,12 +231,13 @@ class DashBackups extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state, { source } ) => {
 	return {
 		vaultPressData: getVaultPressData( state ),
 		sitePlan: getSitePlan( state ),
 		isDevMode: isDevMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		showBackups: showBackups( state ),
+		upgradeUrl: getUpgradeUrl( state, source ),
 	};
 } )( DashBackups );
