@@ -47,15 +47,16 @@ $jp74_declarations->save( $data_path . 'jp74.csv');
 echo "*** Finding differences between the two versions\n";
 $differences = new Automattic\Jetpack\Analyzer\Differences();
 $differences->find( $master_declarations, $jp74_declarations );
-$differences->print();
-$differences->save( $data_path . 'differences.csv' );
-
+// $differences->print();
+// $differences->save( $data_path . 'differences.csv' );
 
 echo "*** Checking compatibility of single external file\n";
 
 $invocations = new Automattic\Jetpack\Analyzer\Invocations();
+$invocations->scan( $external_base_path . '/example-external.php' );
 
-$warnings = $invocations->scan_file( $external_base_path, $external_base_path . '/example-external.php', $differences );
+$warnings = new Automattic\Jetpack\Analyzer\Warnings();
+$warnings->generate( $invocations, $differences );
 $warnings->print();
 
 echo "*** Done\n";

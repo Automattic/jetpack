@@ -38,7 +38,6 @@ class Invocations extends PersistentList {
 	}
 
 	public function scan_dir( $root, $exclude = array() ) {
-
 		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
 			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
 				return true;
@@ -60,42 +59,13 @@ class Invocations extends PersistentList {
 		}
 	}
 
-	// public function scan_file( $root, $file_path ) {
-	// 	$file_path_relative = str_replace( $root, '', $file_path );
-
-	// 	$source = file_get_contents( $file_path );
-	// 	try {
-	// 		$ast = $this->parser->parse( $source );
-	// 	} catch ( Error $error ) {
-	// 		echo "Parse error: {$error->getMessage()}\n";
-	// 		return;
-	// 	}
-
-	// 	// $dumper = new NodeDumper;
-	// 	// echo $dumper->dump($ast) . "\n";
-
-	// 	$traverser    = new NodeTraverser();
-	// 	$nameResolver = new NameResolver();
-	// 	$traverser->addVisitor( $nameResolver );
-
-	// 	// Resolve names
-	// 	$ast = $traverser->traverse( $ast );
-
-	// 	// now scan for public methods etc
-	// 	$traverser           = new NodeTraverser();
-	// 	$declaration_visitor = new Declarations\Visitor( $file_path_relative, $this );
-	// 	$traverser->addVisitor( $declaration_visitor );
-	// 	$ast = $traverser->traverse( $ast );
-	// }
-
 	/**
 	 * Scans the file for any invocations that depend on missing or different classes, methods, properties and functions
 	 */
-	public function scan_file( $root, $file_path, $differences ) {
+	public function scan_file( $root, $file_path ) {
 		$source = file_get_contents( $file_path );
-		$parser = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		try {
-			$ast    = $parser->parse( $source );
+			$ast    = $this->parser->parse( $source );
 		} catch ( Error $error ) {
 			echo "Parse error: {$error->getMessage()}\n";
 			return;
@@ -117,27 +87,5 @@ class Invocations extends PersistentList {
 		$invocation_finder = new Invocations\Visitor( $file_path, $this );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
-
-		// print_r($this);
-		// $this->print();
-		// return $invocations;
-
-		// $dumper = new NodeDumper;
-		// echo $dumper->dump($ast) . "\n";
-
-		// TODO: return a list of warnings and errors
-
-		/**
-		 * Scan every invocation to see if it depends on a Difference
-		 */
-		$warnings = new Warnings();
-		foreach( $this->get() as $invocation ) {
-			foreach( $differences->get() as $difference ) {
-				// $warning = $
-				$difference->find_invocation_warnings( $invocation, $warnings );
-			}
-		}
-
-		return $warnings;
 	}
 }
