@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import { PLAN_JETPACK_PREMIUM, getPlanClass } from 'lib/plans/constants';
+import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -105,10 +105,15 @@ class DashAkismet extends Component {
 		}
 
 		if ( akismetData === 'not_active' ) {
-			const planClass = getPlanClass( this.props.sitePlan.product_slug );
-
-			const activateContent =
-				'is-free-plan' === planClass ? null : (
+			return (
+				<DashItem
+					label={ labelName }
+					module="akismet"
+					support={ support }
+					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
+					className="jp-dash-item__is-inactive"
+					pro={ true }
+				>
 					<p className="jp-dash-item__description">
 						{ __( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
 							components: {
@@ -123,35 +128,6 @@ class DashAkismet extends Component {
 							},
 						} ) }
 					</p>
-				);
-
-			const upgradeContent =
-				'is-free-plan' === planClass ? (
-					<JetpackBanner
-						callToAction={ __( 'Upgrade' ) }
-						title={ __(
-							'Automatically clear spam from your comments and forms so you can get back to your business.'
-						) }
-						disableHref="false"
-						href={ this.props.upgradeUrl }
-						eventFeature="akismet"
-						path="dashboard"
-						plan={ PLAN_JETPACK_PREMIUM }
-						icon="flag"
-					/>
-				) : null;
-
-			return (
-				<DashItem
-					label={ labelName }
-					module="akismet"
-					support={ support }
-					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
-					className="jp-dash-item__is-inactive"
-					pro={ true }
-					overrideContent={ upgradeContent }
-				>
-					{ activateContent }
 				</DashItem>
 			);
 		}
@@ -163,23 +139,22 @@ class DashAkismet extends Component {
 					module="akismet"
 					support={ support }
 					className="jp-dash-item__is-inactive"
-					status="is-warning"
-					statusText={ __( 'Invalid key' ) }
 					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __(
-							'Whoops! Your Jetpack Anti-spam (powered by Akismet) key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
-							{
-								components: {
-									akismetSettings: (
-										<a href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config` } />
-									),
-								},
-							}
-						) }
-					</p>
-				</DashItem>
+					overrideContent={
+						<JetpackBanner
+							callToAction={ __( 'Upgrade' ) }
+							title={ __(
+								'Automatically clear spam from your comments and forms so you can get back to your business.'
+							) }
+							disableHref="false"
+							href={ this.props.upgradeUrl }
+							eventFeature="akismet"
+							path="dashboard"
+							plan={ PLAN_JETPACK_PREMIUM }
+							icon="flag"
+						/>
+					}
+				/>
 			);
 		}
 
