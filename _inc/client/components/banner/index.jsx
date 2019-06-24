@@ -65,7 +65,7 @@ class Banner extends Component {
 			const eventProps = {
 				target: 'banner',
 				type: 'upgrade',
-				currentVersion,
+				current_version: currentVersion,
 				...eventFeatureProp,
 				...pathProp,
 			};
