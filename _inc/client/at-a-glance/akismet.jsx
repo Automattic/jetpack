@@ -66,7 +66,7 @@ class DashAkismet extends Component {
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
-		if ( akismetData === 'N/A' ) {
+		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
@@ -76,7 +76,7 @@ class DashAkismet extends Component {
 
 		const hasSitePlan = false !== this.props.sitePlan;
 
-		if ( akismetData === 'not_installed' ) {
+		if ( 'not_installed' === akismetData ) {
 			return (
 				<DashItem
 					label={ labelName }
@@ -104,7 +104,7 @@ class DashAkismet extends Component {
 			);
 		}
 
-		if ( akismetData === 'not_active' ) {
+		if ( 'not_active' === akismetData ) {
 			return (
 				<DashItem
 					label={ labelName }
@@ -132,7 +132,7 @@ class DashAkismet extends Component {
 			);
 		}
 
-		if ( akismetData === 'invalid_key' ) {
+		if ( 'invalid_key' === akismetData ) {
 			return (
 				<DashItem
 					label={ labelName }
