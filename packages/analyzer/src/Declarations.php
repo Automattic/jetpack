@@ -2,40 +2,7 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-class Declarations {
-	private $declarations;
-	// private $parser;
-
-	function __construct() {
-		// $this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
-		$this->declarations = array();
-	}
-
-	public function get() {
-		return $this->declarations;
-	}
-
-	public function add( $declaration ) {
-		$this->declarations[] = $declaration;
-	}
-
-	public function print() {
-		echo $this->save( 'php://memory' );
-	}
-
-	/**
-	 * Saves the declarations to a file and returns the file contents
-	 */
-	public function save( $file_path ) {
-		$handle = fopen( $file_path, 'r+');
-		foreach ( $this->declarations as $dec ) {
-			fputcsv( $handle, $dec->to_csv_array() );
-		}
-		rewind( $handle );
-		$contents = stream_get_contents( $handle );
-		fclose( $handle );
-		return $contents;
-	}
+class Declarations extends PersistentList {
 
 	public function load( $file_path ) {
 		$row = 1;
@@ -92,7 +59,7 @@ class Declarations {
 		// if not, add it to the list of differences - either as missing or different
 		foreach( $prev_declarations->get() as $prev_declaration ) {
 			$matched = false;
-			foreach( $this->declarations as $declaration ) {
+			foreach( $this->get() as $declaration ) {
 				if ( $prev_declaration->match( $declaration ) ) {
 					$matched = true;
 					break;

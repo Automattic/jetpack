@@ -16,7 +16,7 @@ $data_path = '/Users/dan/Downloads/';
 $analyzer = new PHP_Analyzer( $base_path );
 
 // analyze a single file
-// $file_declarations = $analyzer->file( $base_path . '/class.jetpack.php' );
+$file_declarations = $analyzer->file( $base_path . '/class.jetpack.php' );
 // $file_declarations->print();
 
 // scan a whole directory

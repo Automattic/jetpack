@@ -2,5 +2,5 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-class Invocations extends PersistentList {
+class Warnings extends PersistentList {
 }
