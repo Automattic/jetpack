@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import React from 'react';
 import { addFilter } from '@wordpress/hooks';
 
 /**
