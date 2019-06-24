@@ -20,6 +20,10 @@ function requiresPlan( unavailableReason ) {
 	return false;
 }
 
+const blockFeatureMap = {
+	'simple-payments': 'simple-payments',
+};
+
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
@@ -46,7 +50,9 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
-		edit: requiredPlan ? wrapPaidBlock( settings.edit, requiredPlan ) : settings.edit,
+		edit: requiredPlan
+			? wrapPaidBlock( settings.edit, { feature: blockFeatureMap[ name ], requiredPlan } )
+			: settings.edit,
 	} );
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
