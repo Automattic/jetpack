@@ -78,6 +78,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 					$class_name,
 					array(
 						'Automattic\Jetpack\JITM',
+						'Automattic\Jetpack\Connection\Client',
 						'Automattic\Jetpack\Connection\Manager',
 						'Automattic\Jetpack\Connection\Manager_Interface',
 						'Automattic\Jetpack\Connection\XMLRPC_Connector',
