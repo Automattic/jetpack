@@ -24,7 +24,7 @@ export default ( { feature, plan } ) => (
 		</div>
 		<Button
 			className="upgrade-nudge__button"
-			href={ addQueryArgs( `//wordpress.com/plans/${ getSiteFragment() }`, { feature } ) }
+			href={ addQueryArgs( `//wordpress.com/plans/${ getSiteFragment() }`, { feature, plan } ) }
 			isDefault
 		>
 			{ __( 'Upgrade' ) }
