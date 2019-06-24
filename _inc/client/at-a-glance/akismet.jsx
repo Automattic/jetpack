@@ -128,7 +128,7 @@ class DashAkismet extends Component {
 			const upgradeContent =
 				'is-free-plan' === planClass ? (
 					<JetpackBanner
-						callToAction={ __( 'Activate' ) }
+						callToAction={ __( 'Upgrade' ) }
 						title={ __(
 							'Automatically clear spam from your comments and forms so you can get back to your business.'
 						) }
