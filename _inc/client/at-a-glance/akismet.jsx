@@ -52,7 +52,7 @@ class DashAkismet extends Component {
 
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Jetpack Anti-spam' );
+		const labelName = __( 'Anti-spam' );
 
 		const support = {
 			text: __(
