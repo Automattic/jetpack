@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Analyzer;
 
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeDumper;
 use PhpParser\NodeVisitor\NameResolver;
 
 class Differences {
@@ -47,8 +48,18 @@ class Differences {
 		$ast = $traverser->traverse( $ast );
 
 		$traverser         = new NodeTraverser();
-		$invocation_finder = new Invocations\Visitor( $this );
+		$invocations = new Invocations();
+		$invocation_finder = new Invocations\Visitor( $invocations );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
+
+		// print_r($ast);
+		$invocations->print();
+		// return $invocations;
+
+		// $dumper = new NodeDumper;
+		// echo $dumper->dump($ast) . "\n";
+
+		// TODO: return a list of warnings and errors
 	}
 }

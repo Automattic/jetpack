@@ -6,16 +6,16 @@ use PhpParser\NodeVisitorAbstract;
 use PhpParser\Node;
 
 class Visitor extends NodeVisitorAbstract {
-	public $analyzer;
+	public $invocations;
 
-	public function __construct( $analyzer ) {
-		$this->analyzer = $analyzer;
+	public function __construct( $invocations ) {
+		$this->invocations = $invocations;
 	}
 
 	public function enterNode( Node $node ) {
 
-		if ( $node instanceof Node\Stmt\Class_ ) {
-			echo $node->name->name . "\n";
+		if ( $node instanceof PhpParser\Node\Expr\New_ ) {
+			print_r($node);
 		// 	$this->current_class = $node->name->name;
 		// 	$this->add( new Declarations\Class_( $this->current_relative_path, $node->getLine(), $node->name->name ) );
 		}

@@ -7,7 +7,6 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 
 class Analyzer {
-	private $declarations;
 	private $base_path;
 	private $current_path;
 	private $current_relative_path;
