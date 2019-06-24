@@ -34,7 +34,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enable the option copy entire posts and pages, including tags and settings', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enable the option to copy entire posts and pages, including tags and settings', 'Module Description', 'jetpack' ),
 			),
 
 			'custom-content-types' => array(
@@ -189,7 +189,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'subscriptions' => array(
 				'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Let visitors to subscribe to new posts and comments via email', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let visitors subscribe to new posts and comments via email', 'Module Description', 'jetpack' ),
 			),
 
 			'tiled-gallery' => array(
