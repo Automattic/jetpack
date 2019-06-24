@@ -130,7 +130,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Jetpack Anti-spam', { context: 'Settings header' } ) }
+					header={ __( 'Jetpack anti-spam', { context: 'Settings header' } ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
 					feature={ FEATURE_SPAM_AKISMET_PLUS }
 				>

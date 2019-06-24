@@ -52,11 +52,11 @@ class DashAkismet extends Component {
 
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Jetpack Anti-spam' );
+		const labelName = __( 'Jetpack anti-spam' );
 
 		const support = {
 			text: __(
-				'Jetpack Anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.'
+				'Jetpack anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.'
 			),
 			link: 'https://akismet.com/',
 			privacyLink: 'https://automattic.com/privacy/',
@@ -141,7 +141,7 @@ class DashAkismet extends Component {
 				>
 					<p className="jp-dash-item__description">
 						{ __(
-							'Whoops! Your Jetpack Anti-spam (powered by Akismet) key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
+							'Whoops! Your Jetpack anti-spam (powered by Akismet) key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
 							{
 								components: {
 									akismetSettings: (
