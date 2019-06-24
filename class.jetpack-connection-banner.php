@@ -206,7 +206,7 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Activate site accelerator tools and watch your page load times and hosting costs drop – we’ll ' .
+									'Activate site accelerator tools and watch your page load times decrease—we’ll ' .
 									'optimize your images and serve them from our own powerful global network of servers, ' .
 									'and speed up your mobile site to reduce bandwidth usage.',
 									'jetpack'
@@ -287,7 +287,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-connect-full__slide-card">
 							<p><?php
 								esc_html_e(
-									"Activate site accelerator tools and watch your page load times and hosting costs drop—" .
+									"Activate site accelerator tools and watch your page load times decrease—" .
 									"we'll optimize your images and serve them from our own powerful global network of servers, " .
 									"and speed up your mobile site to reduce bandwidth usage.",
 									'jetpack'
