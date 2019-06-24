@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/components';
 import Gridicon from 'gridicons';
 
 import './style.scss';
@@ -13,6 +14,6 @@ export default () => (
 			<span className="upgrade-nudge__title">{ __( 'Upgrade to Premium' ) }</span>
 			<span className="upgrade-nudge__message">{ __( 'To gain access to this block.' ) }</span>
 		</div>
-		<button className="upgrade-nudge__button">{ __( 'Upgrade' ) }</button>
+		<Button className="upgrade-nudge__button">{ __( 'Upgrade' ) }</Button>
 	</div>
 );
