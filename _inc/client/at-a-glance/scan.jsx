@@ -29,7 +29,7 @@ import JetpackBanner from 'components/jetpack-banner';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Security Scanning' ) }
+		label={ __( 'Scan' ) }
 		module={ props.feature || 'scan' }
 		support={ {
 			text: __(
@@ -163,9 +163,7 @@ class DashScan extends Component {
 			null === scanContent ? (
 				<JetpackBanner
 					callToAction={ __( 'Upgrade' ) }
-					title={ __(
-						"Jetpack's comprehensive security scanning finds issues early so we can help fix them fast."
-					) }
+					title={ __( 'Find threats early so we can help fix them fast.' ) }
 					disableHref="false"
 					href={ this.props.upgradeUrl }
 					eventFeature="scan"
