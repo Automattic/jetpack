@@ -4,12 +4,12 @@ namespace Automattic\Jetpack\Analyzer;
 
 // use PhpParser\Error;
 // use PhpParser\NodeDumper;
-// use PhpParser\ParserFactory;
+use PhpParser\ParserFactory;
 // use PhpParser\Node\Stmt\Function_;
 // use PhpParser\Node\Stmt\ClassMethod_;
-// use PhpParser\NodeTraverser;
+use PhpParser\NodeTraverser;
 // use PhpParser\NodeVisitorAbstract;
-// use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\NodeVisitor\NameResolver;
 
 // const STATE_NONE = 0;
 // const STATE_CLASS_DECLARATION = 1;
@@ -22,6 +22,7 @@ class Analyzer {
 	private $base_path;
 	private $current_path;
 	private $current_relative_path;
+	private $parser;
 
 	function __construct( $base_path ) {
 		$this->parser       = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
@@ -84,7 +85,7 @@ class Analyzer {
 
 		// now scan for public methods etc
 		$traverser = new NodeTraverser();
-		$declaration_visitor = new Declaration_Visitor( $current_relative_path, $declarations );
+		$declaration_visitor = new Declarations\Visitor( $current_relative_path, $declarations );
 		$traverser->addVisitor( $declaration_visitor );
 		$ast = $traverser->traverse( $ast );
 	}

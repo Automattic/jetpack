@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack\Analyzer;
+namespace Automattic\Jetpack\Analyzer\Declarations;
 
 abstract class Declaration {
 	public $path;

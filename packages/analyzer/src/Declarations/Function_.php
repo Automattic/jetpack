@@ -1,11 +1,11 @@
 <?php
 
-namespace Automattic\Jetpack\Analyzer;
+namespace Automattic\Jetpack\Analyzer\Declarations;
 
 /**
  * We only log public class methods, whether they are static, and their parameters
  */
-class Function_Declaration extends Declaration {
+class Function_ extends Declaration {
 	public $name;
 	public $params;
 

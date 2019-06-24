@@ -1,8 +1,8 @@
 <?php
 
-namespace Automattic\Jetpack\Analyzer;
+namespace Automattic\Jetpack\Analyzer\Declarations;
 
-class Class_Declaration extends Declaration {
+class Class_ extends Declaration {
 	public $class_name;
 
 	function __construct( $path, $line, $class_name ) {

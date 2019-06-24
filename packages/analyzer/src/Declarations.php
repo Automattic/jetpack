@@ -46,16 +46,16 @@ class Declarations {
 
 				switch( $type ) {
 					case 'class':
-						$this->add( new Class_Declaration( $file, $line, $class_name ) );
+						$this->add( new Declarations\Class_( $file, $line, $class_name ) );
 						break;
 
 					case 'property':
-						$this->add( new Class_Property_Declaration( $file, $line, $class_name, $name, $static ) );
+						$this->add( new Declarations\Class_Property( $file, $line, $class_name, $name, $static ) );
 						break;
 
 					case 'method':
 						$params = json_decode( $params_json, TRUE );
-						$declaration = new Class_Method_Declaration( $file, $line, $class_name, $name, $static );
+						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static );
 						if ( is_array( $params ) ) {
 							foreach( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
@@ -68,7 +68,7 @@ class Declarations {
 
 					case 'function':
 						$params = json_decode( $params_json, TRUE );
-						$declaration = new Function_Declaration( $file, $line, $name );
+						$declaration = new Declarations\Function_( $file, $line, $name );
 						if ( is_array( $params ) ) {
 							foreach( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
@@ -86,7 +86,6 @@ class Declarations {
 	}
 
 	public function find_differences( $prev_declarations ) {
-
 		$differences = new Declaration_Differences();
 		$total = 0;
 		// for each declaration, see if it exists in the current analyzer's declarations
