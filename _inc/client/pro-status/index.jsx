@@ -122,12 +122,7 @@ class ProStatus extends React.Component {
 				} );
 				break;
 			case 'invalid_key':
-				status = 'is-warning';
-				action = __( 'Invalid key', {
-					context: 'Short warning message about an invalid key being used for Akismet.',
-				} );
-				actionUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
-				break;
+				return;
 			case 'rewind_connected':
 				const rewindMessage = this.getRewindMessage();
 				return (
