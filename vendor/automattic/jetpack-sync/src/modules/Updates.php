@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
-class Updates extends \Jetpack_Sync_Module {
+class Updates extends Module {
 
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 

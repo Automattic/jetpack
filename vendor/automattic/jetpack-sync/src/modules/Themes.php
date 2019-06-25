@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class Themes extends \Jetpack_Sync_Module {
+use Automattic\Jetpack\Sync\Defaults;
+
+class Themes extends Module {
 	function name() {
 		return 'themes';
 	}
@@ -364,7 +366,7 @@ class Themes extends \Jetpack_Sync_Module {
 
 		/**
 		 * Fires when the client needs to sync theme support info
-		 * Only sends theme support attributes whitelisted in Jetpack_Sync_Defaults::$default_theme_support_whitelist
+		 * Only sends theme support attributes whitelisted in Defaults::$default_theme_support_whitelist
 		 *
 		 * @since 4.2.0
 		 *
@@ -580,7 +582,7 @@ class Themes extends \Jetpack_Sync_Module {
 		if ( $theme === null ) {
 			$theme = wp_get_theme();
 
-			foreach ( \Jetpack_Sync_Defaults::$default_theme_support_whitelist as $theme_feature ) {
+			foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
 				$has_support = current_theme_supports( $theme_feature );
 				if ( $has_support ) {
 					$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];

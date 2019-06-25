@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Functions;
+
 require_once dirname( __FILE__ ) . '/class.json-api-site-jetpack-base.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-jetpack.php';
 
@@ -51,11 +53,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	protected function is_version_controlled() {
-		return Jetpack_Sync_Functions::is_version_controlled();
+		return Functions::is_version_controlled();
 	}
 
 	protected function file_system_write_access() {
-		return Jetpack_Sync_Functions::file_system_write_access();
+		return Functions::file_system_write_access();
 	}
 
 	protected function current_theme_supports( $feature_name ) {

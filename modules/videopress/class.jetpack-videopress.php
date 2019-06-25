@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 /**
  * VideoPress in Jetpack
  */
@@ -128,7 +130,7 @@ class Jetpack_VideoPress {
 		if ( $this->should_override_media_uploader() ) {
 			wp_enqueue_script(
 				'videopress-plupload',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/videopress-plupload.min.js',
 					'modules/videopress/js/videopress-plupload.js'
 				),
@@ -141,7 +143,7 @@ class Jetpack_VideoPress {
 
 			wp_enqueue_script(
 				'videopress-uploader',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/videopress-uploader.min.js',
 					'modules/videopress/js/videopress-uploader.js'
 				),
@@ -153,7 +155,7 @@ class Jetpack_VideoPress {
 
 			wp_enqueue_script(
 				'media-video-widget-extensions',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/videopress/js/media-video-widget-extensions.min.js',
 					'modules/videopress/js/media-video-widget-extensions.js'
 				),
