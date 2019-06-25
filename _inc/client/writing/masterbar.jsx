@@ -31,6 +31,9 @@ export const Masterbar = withModuleSettingsFormHelpers(
 						disableInDevMode
 						module={ { module: 'masterbar' } }
 						support={ {
+							text: __(
+								'Adds a toolbar with links to all your sites, notifications, your WordPress.com profile, and the Reader.'
+							),
 							link: 'https://jetpack.com/support/masterbar/',
 						} }
 					>
