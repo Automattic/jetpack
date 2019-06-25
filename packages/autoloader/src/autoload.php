@@ -107,6 +107,15 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 			if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
 				require_once $jetpack_packages_classes[ $class_name ]['path'];
 
+				// Extend autoloaded class with legacy class, if it exists.
+				if ( class_exists( $class_name ) && method_exists( $class_name, 'getLegacyName' ) ) {
+					eval( 'class ' . $class_name::getLegacyName() . ' extends ' . $class_name . '{}' );
+
+					if ( class_exists( $class_name::getLegacyName() ) ) {
+						echo $class_name::getLegacyName() . "exists!\n<br>";
+					}
+				}
+
 				return true;
 			}
 		}

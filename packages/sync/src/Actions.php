@@ -499,4 +499,8 @@ class Actions {
 			)
 		);
 	}
+
+	static function getLegacyName() {
+		return 'Jetpack_Sync_Actions';
+	}
 }
