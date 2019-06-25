@@ -11,7 +11,7 @@ class Declarations extends PersistentList {
 	private $parser;
 
 	function __construct() {
-		$this->parser    = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		$this->parser = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		parent::__construct();
 	}
 
@@ -26,7 +26,7 @@ class Declarations extends PersistentList {
 	public function scan( $root, $exclude = array() ) {
 		if ( is_dir( $root ) ) {
 			return $this->scan_dir( $this->slashit( $root ), $exclude );
-		} elseif( is_file( $root ) ) {
+		} elseif ( is_file( $root ) ) {
 			return $this->scan_file( $this->slashit( dirname( $root ) ), $root );
 		} else {
 			throw new \Exception( "Expected $root to be a file or directory" );
@@ -36,10 +36,10 @@ class Declarations extends PersistentList {
 	public function scan_dir( $root, $exclude = array() ) {
 
 		if ( is_null( $exclude ) || ! is_array( $exclude ) ) {
-			throw new Exception( "Exclude must be an array" );
+			throw new Exception( 'Exclude must be an array' );
 		}
 
-		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
+		$filter = function ( $file, $key, $iterator ) use ( $exclude ) {
 			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
 				return true;
 			}
@@ -54,7 +54,10 @@ class Declarations extends PersistentList {
 
 		$valid_extensions = array( 'php' );
 		foreach ( $iterator as $file ) {
-			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $valid_extensions ) ) {
+			$parts             = explode( '.', $file );
+			$current_extension = strtolower( array_pop( $parts ) );
+
+			if ( in_array( $current_extension, $valid_extensions, true ) ) {
 				$this->scan_file( $root, $file );
 			}
 		}
@@ -90,12 +93,11 @@ class Declarations extends PersistentList {
 
 	public function load( $file_path ) {
 		$row = 1;
-		if ( ( $handle = fopen( $file_path , "r" ) ) !== FALSE ) {
-			while ( ( $data = fgetcsv( $handle, 1000, "," ) ) !== FALSE ) {
+		if ( ( $handle = fopen( $file_path, 'r' ) ) !== false ) {
+			while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 				$num = count( $data );
-				list( $type, $file, $line, $class_name, $name, $static, $params_json ) = $data;
-
-				switch( $type ) {
+				@list( $type, $file, $line, $class_name, $name, $static, $params_json ) = $data;
+				switch ( $type ) {
 					case 'class':
 						$this->add( new Declarations\Class_( $file, $line, $class_name ) );
 						break;
@@ -105,10 +107,10 @@ class Declarations extends PersistentList {
 						break;
 
 					case 'method':
-						$params = json_decode( $params_json );
+						$params      = json_decode( $params_json );
 						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static );
 						if ( is_array( $params ) ) {
-							foreach( $params as $param ) {
+							foreach ( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
 							}
 						}
@@ -118,10 +120,10 @@ class Declarations extends PersistentList {
 						break;
 
 					case 'function':
-						$params = json_decode( $params_json );
+						$params      = json_decode( $params_json );
 						$declaration = new Declarations\Function_( $file, $line, $name );
 						if ( is_array( $params ) ) {
-							foreach( $params as $param ) {
+							foreach ( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
 							}
 						}

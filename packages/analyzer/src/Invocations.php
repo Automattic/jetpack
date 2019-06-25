@@ -15,7 +15,7 @@ class Invocations extends PersistentList {
 	private $parser;
 
 	function __construct() {
-		$this->parser    = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
+		$this->parser = ( new ParserFactory() )->create( ParserFactory::PREFER_PHP7 );
 		parent::__construct();
 	}
 
@@ -30,7 +30,7 @@ class Invocations extends PersistentList {
 	public function scan( $root, $exclude = array() ) {
 		if ( is_dir( $root ) ) {
 			return $this->scan_dir( $this->slashit( $root ), $exclude );
-		} elseif( is_file( $root ) ) {
+		} elseif ( is_file( $root ) ) {
 			return $this->scan_file( $this->slashit( dirname( $root ) ), $root );
 		} else {
 			throw new \Exception( 'input_error', "Expected $root to be a file or directory" );
@@ -38,7 +38,7 @@ class Invocations extends PersistentList {
 	}
 
 	public function scan_dir( $root, $exclude = array() ) {
-		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
+		$filter = function ( $file, $key, $iterator ) use ( $exclude ) {
 			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
 				return true;
 			}
@@ -53,7 +53,10 @@ class Invocations extends PersistentList {
 
 		$valid_extensions = array( 'php' );
 		foreach ( $iterator as $file ) {
-			if ( in_array( strtolower( array_pop( explode( '.', $file ) ) ), $valid_extensions ) ) {
+			$parts             = explode( '.', $file );
+			$current_extension = strtolower( array_pop( $parts ) );
+
+			if ( in_array( $current_extension, $valid_extensions ) ) {
 				$this->scan_file( $root, $file );
 			}
 		}
@@ -67,7 +70,7 @@ class Invocations extends PersistentList {
 
 		$source = file_get_contents( $file_path );
 		try {
-			$ast    = $this->parser->parse( $source );
+			$ast = $this->parser->parse( $source );
 		} catch ( Error $error ) {
 			echo "Parse error: {$error->getMessage()}\n";
 			return;
