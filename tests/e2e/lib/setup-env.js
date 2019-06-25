@@ -3,15 +3,9 @@
  */
 import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
- * Internal dependencies
- */
-import { registerFailFastReporter } from './reporters/fail-fast';
-/**
  * Environment variables
  */
 const { PUPPETEER_TIMEOUT, E2E_DEBUG } = process.env;
-
-registerFailFastReporter();
 
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );

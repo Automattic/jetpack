@@ -28,7 +28,7 @@ function execShellCommand( cmd ) {
 }
 
 // Activate WordAds module if in CI
-beforeAll( async () => {
+async function activateWordAdsModule() {
 	let cmd =
 		'docker-compose -f ./tests/e2e/bin/docker-compose.yml run --rm -u 33 cli_e2e_tests wp jetpack module activate wordads';
 	if ( process.env.CI ) {
@@ -37,14 +37,15 @@ beforeAll( async () => {
 
 	const out = await execShellCommand( cmd );
 	console.log( out );
-} );
+}
 
 describe( 'WordAds block', () => {
-	it( 'Can login and connect Jetpack if needed', async () => {
-		await connectThroughWPAdminIfNeeded();
-	} );
-
 	it( 'Can publish a post with a WordAds block', async () => {
+		// Can login and connect Jetpack if needed
+		await connectThroughWPAdminIfNeeded();
+		// Can activate WordAds module
+		await activateWordAdsModule();
+
 		await createNewPost();
 
 		const blockEditor = await BlockEditorPage.init( page );

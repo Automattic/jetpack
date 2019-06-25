@@ -11,11 +11,10 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 
 describe( 'First test suite', () => {
-	it( 'Can login and connect Jetpack if needed', async () => {
-		await connectThroughWPAdminIfNeeded();
-	} );
-
 	it( 'Can publish a post with a Simple Payments block', async () => {
+		//Can login and connect Jetpack if needed
+		await connectThroughWPAdminIfNeeded();
+
 		await createNewPost();
 
 		const blockEditor = await BlockEditorPage.init( page );
