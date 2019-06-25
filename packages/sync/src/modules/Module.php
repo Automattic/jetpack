@@ -1,11 +1,13 @@
 <?php
 
+namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Sync\Listener;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions
  */
-abstract class Jetpack_Sync_Module {
+abstract class Module {
 	const ARRAY_CHUNK_SIZE = 10;
 
 	abstract public function name();

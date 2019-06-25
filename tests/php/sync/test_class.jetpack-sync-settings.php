@@ -1,8 +1,10 @@
 <?php
 
+use Automattic\Jetpack\Sync\Settings;
+
 class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 	function test_can_write_settings() {
-		$settings = Jetpack_Sync_Settings::get_settings();
+		$settings = Settings::get_settings();
 
 		foreach (
 			array(
@@ -20,9 +22,9 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		$settings['dequeue_max_bytes'] = 50;
-		Jetpack_Sync_Settings::update_settings( $settings );
+		Settings::update_settings( $settings );
 
-		$updated_settings = Jetpack_Sync_Settings::get_settings();
+		$updated_settings = Settings::get_settings();
 
 		$this->assertSame( 50, $updated_settings['dequeue_max_bytes'] );
 	}
@@ -34,9 +36,9 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$post_id = $this->factory->post->create();
 		$this->assertTrue( $this->listener->get_sync_queue()->size() > 0 );
 
-		Jetpack_Sync_Settings::update_settings( array( 'disable' => 1 ) );
+		Settings::update_settings( array( 'disable' => 1 ) );
 
-		$this->assertFalse( Jetpack_Sync_Settings::is_sync_enabled() );
+		$this->assertFalse( Settings::is_sync_enabled() );
 
 		// generating posts should no longer affect queue size
 		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
@@ -47,8 +49,8 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'wp_insert_post' ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'disable' => 0 ) );
-		$this->assertTrue( Jetpack_Sync_Settings::is_sync_enabled() );
+		Settings::update_settings( array( 'disable' => 0 ) );
+		$this->assertTrue( Settings::is_sync_enabled() );
 	}
 
 	function test_settings_disable_network_enqueue_and_clears_queue() {
@@ -62,7 +64,7 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$post_id = $this->factory->post->create();
 		$this->assertTrue( $this->listener->get_sync_queue()->has_any_items() );
 
-		Jetpack_Sync_Settings::update_settings( array( 'network_disable' => 1 ) );
+		Settings::update_settings( array( 'network_disable' => 1 ) );
 
 		// generating posts should no longer affect queue size
 		$this->assertEquals( 0, $this->listener->get_sync_queue()->size() );
@@ -73,21 +75,21 @@ class WP_Test_Jetpack_Sync_Settings extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'wp_insert_post' ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'network_disable' => 0 ) );
+		Settings::update_settings( array( 'network_disable' => 0 ) );
 	}
 
 	function test_setting_network_option_on_single_site_does_not_work() {
 		if ( is_multisite() ) {
-			Jetpack_Sync_Settings::update_settings( array( 'network_disable' => 1 ) );
-			$this->assertEquals( 1, Jetpack_Sync_Settings::get_setting( 'network_disable' ) );
-			$this->assertFalse( Jetpack_Sync_Settings::is_sync_enabled() );
-			Jetpack_Sync_Settings::update_settings( array( 'network_disable' => 0 ) ); // reset things
-			$this->assertTrue( Jetpack_Sync_Settings::is_sync_enabled() );
+			Settings::update_settings( array( 'network_disable' => 1 ) );
+			$this->assertEquals( 1, Settings::get_setting( 'network_disable' ) );
+			$this->assertFalse( Settings::is_sync_enabled() );
+			Settings::update_settings( array( 'network_disable' => 0 ) ); // reset things
+			$this->assertTrue( Settings::is_sync_enabled() );
 		} else {
-			Jetpack_Sync_Settings::update_settings( array( 'network_disable' => 1 ) );
+			Settings::update_settings( array( 'network_disable' => 1 ) );
 			// Notice that the value is unchanged
-			$this->assertEquals( 0, Jetpack_Sync_Settings::get_setting( 'network_disable' ) );
-			$this->assertTrue( Jetpack_Sync_Settings::is_sync_enabled() );
+			$this->assertEquals( 0, Settings::get_setting( 'network_disable' ) );
+			$this->assertTrue( Settings::is_sync_enabled() );
 		}
 	}
 

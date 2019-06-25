@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Logo as Jetpack_Logo;
 
 /**
@@ -256,7 +257,7 @@ class Jetpack_IDC {
 
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

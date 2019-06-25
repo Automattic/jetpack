@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Modules;
 
 /**
  * This class grabs pending actions from the queue and sends them
@@ -117,11 +116,11 @@ class Sender {
 
 		$start_time = microtime( true );
 
-		\Jetpack_Sync_Settings::set_is_syncing( true );
+		Settings::set_is_syncing( true );
 
 		$sync_result = $this->do_sync_for_queue( $queue );
 
-		\Jetpack_Sync_Settings::set_is_syncing( false );
+		Settings::set_is_syncing( false );
 
 		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (float) $this->get_sync_wait_threshold();
 
@@ -238,9 +237,9 @@ class Sender {
 			 * @param double $time The current time
 			 * @param string $queue The queue used to send ('sync' or 'full_sync')
 			 */
-			\Jetpack_Sync_Settings::set_is_sending( true );
+			Settings::set_is_sending( true );
 			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
-			\Jetpack_Sync_Settings::set_is_sending( false );
+			Settings::set_is_sending( false );
 		} else {
 			$processed_item_ids = $skipped_items_ids;
 			$skipped_items_ids  = array();
@@ -373,15 +372,15 @@ class Sender {
 		$this->set_codec();
 
 		// saved settings
-		\Jetpack_Sync_Settings::set_importing( null );
-		$settings = \Jetpack_Sync_Settings::get_settings();
+		Settings::set_importing( null );
+		$settings = Settings::get_settings();
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
 		$this->set_enqueue_wait_time( $settings['enqueue_wait_time'] );
 		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
-		$this->set_max_dequeue_time( \Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->set_max_dequeue_time( Defaults::get_max_sync_execution_time() );
 	}
 
 	function reset_data() {
@@ -396,7 +395,7 @@ class Sender {
 			delete_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name );
 		}
 
-		\Jetpack_Sync_Settings::reset_data();
+		Settings::reset_data();
 	}
 
 	function uninstall() {

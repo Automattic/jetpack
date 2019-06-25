@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 /*
 Plugin Name: The Neverending Home Page.
 Plugin URI: http://automattic.com/
@@ -16,6 +18,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * styling from each theme; including fixed footer.
  */
 class The_Neverending_Home_Page {
+
 	/**
 	 * Register actions and filters, plus parse IS settings
 	 *
@@ -432,7 +435,7 @@ class The_Neverending_Home_Page {
 		// Add our scripts.
 		wp_register_script(
 			'the-neverending-homepage',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/infinite-scroll/infinity.min.js',
 				'modules/infinite-scroll/infinity.js'
 			),
@@ -1608,7 +1611,7 @@ function the_neverending_home_page_init() {
 	if ( ! current_theme_supports( 'infinite-scroll' ) )
 		return;
 
-	new The_Neverending_Home_Page;
+	new The_Neverending_Home_Page();
 }
 add_action( 'init', 'the_neverending_home_page_init', 20 );
 

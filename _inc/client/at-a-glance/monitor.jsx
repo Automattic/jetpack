@@ -30,7 +30,7 @@ class DashMonitor extends Component {
 	};
 
 	getContent() {
-		const labelName = __( 'Downtime monitoring' );
+		const labelName = __( 'Downtime monitor' );
 
 		const support = {
 			text: __(

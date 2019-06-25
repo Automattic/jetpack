@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class Terms extends \Jetpack_Sync_Module {
+use Automattic\Jetpack\Sync\Defaults;
+
+class Terms extends Module {
 	private $taxonomy_whitelist;
 
 	function name() {
@@ -95,22 +97,22 @@ class Terms extends \Jetpack_Sync_Module {
 	}
 
 	function set_defaults() {
-		$this->taxonomy_whitelist = \Jetpack_Sync_Defaults::$default_taxonomy_whitelist;
+		$this->taxonomy_whitelist = Defaults::$default_taxonomy_whitelist;
 	}
 
 	public function expand_term_taxonomy_id( $args ) {
 		list( $term_taxonomy_ids,  $previous_end ) = $args;
 
-		return
-			array( 'terms' => get_terms(
+		return array(
+			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,
 					'term_taxonomy_id' => $term_taxonomy_ids,
 					'orderby'          => 'term_taxonomy_id',
-					'order'            => 'DESC'
+					'order'            => 'DESC',
 				)
 			),
-			'previous_end' => $previous_end
+			'previous_end' => $previous_end,
 		);
 	}
 }

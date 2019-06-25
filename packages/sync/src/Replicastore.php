@@ -7,8 +7,7 @@ namespace Automattic\Jetpack\Sync;
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Replicastore implements Replicastore_Interface {
-
-
+	
 	public function reset() {
 		global $wpdb;
 
@@ -147,12 +146,12 @@ class Replicastore implements Replicastore_Interface {
 
 	public function posts_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->posts, \Jetpack_Sync_Defaults::$default_post_checksum_columns, 'ID', \Jetpack_Sync_Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
 	}
 
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->postmeta, \Jetpack_Sync_Defaults::$default_post_meta_checksum_columns, 'meta_id', \Jetpack_Sync_Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
 	}
 
 	public function comment_count( $status = null, $min_id = null, $max_id = null ) {
@@ -282,21 +281,20 @@ class Replicastore implements Replicastore_Interface {
 
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->comments, \Jetpack_Sync_Defaults::$default_comment_checksum_columns, 'comment_ID', \Jetpack_Sync_Settings::get_comments_filter_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->comments, Defaults::$default_comment_checksum_columns, 'comment_ID', Settings::get_comments_filter_sql(), $min_id, $max_id );
 	}
 
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->commentmeta, \Jetpack_Sync_Defaults::$default_comment_meta_checksum_columns, 'meta_id', \Jetpack_Sync_Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
 	}
 
 	public function options_checksum() {
 		global $wpdb;
-
-		$options_whitelist = "'" . implode( "', '", \Jetpack_Sync_Defaults::$default_options_whitelist ) . "'";
+		$options_whitelist = "'" . implode( "', '", Defaults::$default_options_whitelist ) . "'";
 		$where_sql         = "option_name IN ( $options_whitelist )";
 
-		return $this->table_checksum( $wpdb->options, \Jetpack_Sync_Defaults::$default_option_checksum_columns, null, $where_sql, null, null );
+		return $this->table_checksum( $wpdb->options, Defaults::$default_option_checksum_columns, null, $where_sql, null, null );
 	}
 
 
@@ -654,37 +652,37 @@ class Replicastore implements Replicastore_Interface {
 				$object_count = $this->post_count( null, $start_id, $end_id );
 				$object_table = $wpdb->posts;
 				$id_field     = 'ID';
-				$where_sql    = \Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+				$where_sql    = Settings::get_blacklisted_post_types_sql();
 				if ( empty( $columns ) ) {
-					$columns = \Jetpack_Sync_Defaults::$default_post_checksum_columns;
+					$columns = Defaults::$default_post_checksum_columns;
 				}
 				break;
 			case 'post_meta':
 				$object_table = $wpdb->postmeta;
-				$where_sql    = \Jetpack_Sync_Settings::get_whitelisted_post_meta_sql();
+				$where_sql    = Settings::get_whitelisted_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 
 				if ( empty( $columns ) ) {
-					$columns = \Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
+					$columns = Defaults::$default_post_meta_checksum_columns;
 				}
 				break;
 			case 'comments':
 				$object_count = $this->comment_count( null, $start_id, $end_id );
 				$object_table = $wpdb->comments;
 				$id_field     = 'comment_ID';
-				$where_sql    = \Jetpack_Sync_Settings::get_comments_filter_sql();
+				$where_sql    = Settings::get_comments_filter_sql();
 				if ( empty( $columns ) ) {
-					$columns = \Jetpack_Sync_Defaults::$default_comment_checksum_columns;
+					$columns = Defaults::$default_comment_checksum_columns;
 				}
 				break;
 			case 'comment_meta':
 				$object_table = $wpdb->commentmeta;
-				$where_sql    = \Jetpack_Sync_Settings::get_whitelisted_comment_meta_sql();
+				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 				if ( empty( $columns ) ) {
-					$columns = \Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
+					$columns = Defaults::$default_post_meta_checksum_columns;
 				}
 				break;
 			default:

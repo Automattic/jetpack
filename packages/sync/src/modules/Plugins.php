@@ -1,8 +1,9 @@
 <?php
 namespace Automattic\Jetpack\Sync\Modules;
+
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
-class Plugins extends \Jetpack_Sync_Module {
+class Plugins extends Module {
 
 	private $action_handler;
 	private $plugin_info = array();
@@ -162,8 +163,8 @@ class Plugins extends \Jetpack_Sync_Module {
 	public function check_plugin_edit() {
 		$screen = get_current_screen();
 		if ( 'plugin-editor' !== $screen->base ||
-		     ! isset( $_POST['newcontent'] ) ||
-		     ! isset( $_POST['plugin'] )
+			 ! isset( $_POST['newcontent'] ) ||
+			 ! isset( $_POST['plugin'] )
 		) {
 			return;
 		}

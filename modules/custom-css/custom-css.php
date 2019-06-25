@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 class Jetpack_Custom_CSS {
 	static function init() {
 		add_action( 'switch_theme', array( __CLASS__, 'reset' ) );
@@ -932,7 +934,7 @@ class Jetpack_Custom_CSS {
 		wp_enqueue_script( 'postbox' );
 		wp_enqueue_script(
 			'custom-css-editor',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/css-editor.min.js',
 				'modules/custom-css/custom-css/js/css-editor.js'
 			),
@@ -949,7 +951,7 @@ class Jetpack_Custom_CSS {
 			wp_register_script( 'jetpack-css-codemirror', plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
 			wp_enqueue_script(
 				'jetpack-css-use-codemirror',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/custom-css/custom-css/js/use-codemirror.min.js',
 					'modules/custom-css/custom-css/js/use-codemirror.js'
 				),

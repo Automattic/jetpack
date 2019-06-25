@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Subscriptions
- * Module Description: Let visitors to subscribe to new posts and comments via email
+ * Module Description: Let visitors subscribe to new posts and comments via email
  * Sort Order: 9
  * Recommendation Order: 8
  * First Introduced: 1.2

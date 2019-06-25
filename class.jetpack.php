@@ -10,6 +10,7 @@ use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Assets;
 
 /*
 Options:
@@ -1086,7 +1087,7 @@ class Jetpack {
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
 			wp_register_script(
 				'spin',
-				self::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
 				false,
 				'1.3'
 			);
@@ -1095,7 +1096,7 @@ class Jetpack {
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
 			wp_register_script(
 				'jquery.spin',
-				self::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
 				array( 'jquery', 'spin' ),
 				'1.3'
 			);
@@ -1104,7 +1105,7 @@ class Jetpack {
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-gallery-settings',
-				self::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
 				array( 'media-views' ),
 				'20121225'
 			);
@@ -1113,7 +1114,7 @@ class Jetpack {
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-twitter-timeline',
-				self::get_file_url_for_environment( '_inc/build/twitter-timeline.min.js', '_inc/twitter-timeline.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/twitter-timeline.min.js', '_inc/twitter-timeline.js' ),
 				array( 'jquery' ),
 				'4.0.0',
 				true
@@ -1123,7 +1124,7 @@ class Jetpack {
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-facebook-embed',
-				self::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
 				array( 'jquery' ),
 				null,
 				true
@@ -6993,11 +6994,7 @@ p {
 	 * @return string The URL to the file
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
-		$path = ( Constants::is_defined( 'SCRIPT_DEBUG' ) && Constants::get_constant( 'SCRIPT_DEBUG' ) )
-			? $non_min_path
-			: $min_path;
-
-		return plugins_url( $path, JETPACK__PLUGIN_FILE );
+		return Assets::get_file_url_for_environment( $min_path, $non_min_path );
 	}
 
 	/**

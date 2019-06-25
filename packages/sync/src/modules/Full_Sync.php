@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
-
+use Automattic\Jetpack\Sync\Settings;
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -18,7 +18,7 @@ use Automattic\Jetpack\Sync\Queue;
  * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
 
-class Full_Sync extends \Jetpack_Sync_Module {
+class Full_Sync extends Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT    = 3600;
 
@@ -128,7 +128,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		}
 
 		// if full sync queue is full, don't enqueue more items
-		$max_queue_size_full_sync = \Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
+		$max_queue_size_full_sync = Settings::get_setting( 'max_queue_size_full_sync' );
 		$full_sync_queue          = new Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
@@ -136,7 +136,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		if ( $available_queue_slots <= 0 ) {
 			return;
 		} else {
-			$remaining_items_to_enqueue = min( \Jetpack_Sync_Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
+			$remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
 		}
 
 		if ( ! $configs ) {
@@ -208,13 +208,13 @@ class Full_Sync extends \Jetpack_Sync_Module {
 			case 'posts':
 				$table     = $wpdb->posts;
 				$id        = 'ID';
-				$where_sql = \Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+				$where_sql = Settings::get_blacklisted_post_types_sql();
 
 				break;
 			case 'comments':
 				$table     = $wpdb->comments;
 				$id        = 'comment_ID';
-				$where_sql = \Jetpack_Sync_Settings::get_comments_filter_sql();
+				$where_sql = Settings::get_comments_filter_sql();
 				break;
 		}
 		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE {$where_sql}" );
