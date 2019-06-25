@@ -63,6 +63,8 @@ class Invocations extends PersistentList {
 	 * Scans the file for any invocations that depend on missing or different classes, methods, properties and functions
 	 */
 	public function scan_file( $root, $file_path ) {
+		$file_path_relative = str_replace( $root, '', $file_path );
+
 		$source = file_get_contents( $file_path );
 		try {
 			$ast    = $this->parser->parse( $source );
@@ -84,7 +86,7 @@ class Invocations extends PersistentList {
 
 		$traverser         = new NodeTraverser();
 		$invocations       = new Invocations();
-		$invocation_finder = new Invocations\Visitor( $file_path, $this );
+		$invocation_finder = new Invocations\Visitor( $file_path_relative, $this );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );
 	}
