@@ -35,6 +35,10 @@ class Declarations extends PersistentList {
 
 	public function scan_dir( $root, $exclude = array() ) {
 
+		if ( is_null( $exclude ) || ! is_array( $exclude ) ) {
+			throw new Exception( "Exclude must be an array" );
+		}
+
 		$filter  = function ( $file, $key, $iterator ) use ( $exclude ) {
 			if ( $iterator->hasChildren() && ! in_array( $file->getFilename(), $exclude ) ) {
 				return true;
@@ -101,7 +105,7 @@ class Declarations extends PersistentList {
 						break;
 
 					case 'method':
-						$params = json_decode( $params_json, TRUE );
+						$params = json_decode( $params_json );
 						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static );
 						if ( is_array( $params ) ) {
 							foreach( $params as $param ) {
@@ -114,7 +118,7 @@ class Declarations extends PersistentList {
 						break;
 
 					case 'function':
-						$params = json_decode( $params_json, TRUE );
+						$params = json_decode( $params_json );
 						$declaration = new Declarations\Function_( $file, $line, $name );
 						if ( is_array( $params ) ) {
 							foreach( $params as $param ) {
