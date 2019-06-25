@@ -4,10 +4,10 @@ require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 $base_path = dirname( dirname( dirname( __DIR__ ) ) );
 
-$jetpack_75_path = $base_path;
-$jetpack_74_path = '/path/to/Downloads/jetpack';
+$jetpack_75_path    = $base_path;
+$jetpack_74_path    = '/path/to/Downloads/jetpack';
 $external_repo_path = '/path/to/workspace/a8c/some-repo';
-$jetpack_exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
+$jetpack_exclude    = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
 echo "Scan master declarations\n";
 $jetpack_75_declarations = new Automattic\Jetpack\Analyzer\Declarations();
@@ -28,4 +28,4 @@ $invocations->scan( $external_repo_path );
 echo "Generate warnings\n";
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();
 $warnings->generate( $invocations, $differences );
-$warnings->print();
+$warnings->output();

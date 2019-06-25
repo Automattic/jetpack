@@ -1,6 +1,7 @@
 <?php
 
 namespace Automattic\Jetpack\Analyzer;
+
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 
 /**
@@ -19,12 +20,12 @@ class PersistentList {
 
 	public function add( $item ) {
 		if ( ! is_subclass_of( $item, 'Automattic\Jetpack\Analyzer\PersistentList\Item' ) ) {
-			throw new \Exception( "item must extend Automattic\Jetpack\Analyzer\PersistentList\Item");
+			throw new \Exception( 'item must extend Automattic\Jetpack\Analyzer\PersistentList\Item' );
 		}
 		$this->items[] = $item;
 	}
 
-	public function print() {
+	public function output() {
 		echo $this->save( 'php://memory' );
 	}
 
@@ -32,7 +33,7 @@ class PersistentList {
 	 * Saves the items to a file and returns the file contents
 	 */
 	public function save( $file_path ) {
-		$handle = fopen( $file_path, 'w+');
+		$handle = fopen( $file_path, 'w+' );
 		foreach ( $this->items as $item ) {
 			fputcsv( $handle, $item->to_csv_array() );
 		}
