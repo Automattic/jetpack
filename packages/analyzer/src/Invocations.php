@@ -71,7 +71,10 @@ class Invocations extends PersistentList {
 		$source = file_get_contents( $file_path );
 		try {
 			$ast = $this->parser->parse( $source );
-		} catch ( Error $error ) {
+		} catch ( \Error $error ) {
+			echo "Parse error: {$error->getMessage()}\n";
+			return;
+		} catch ( \RuntimeException $error ) {
 			echo "Parse error: {$error->getMessage()}\n";
 			return;
 		}

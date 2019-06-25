@@ -16,26 +16,20 @@ class Visitor extends NodeVisitorAbstract {
 
 	public function enterNode( Node $node ) {
 		if ( $node instanceof Node\Expr\New_ ) {
-			if (
-				$node->class instanceof Node\Expr\Variable
-				|| $node->class instanceof Node\Stmt\Class_
-			) {
-				$this->invocations->add(
-					new New_( $this->file_path, $node->getLine(), $node->class->name )
-				);
-			} else {
-				$this->invocations->add(
-					new New_( $this->file_path, $node->getLine(), $node->class->toCodeString() )
-				);
-			}
+			$this->invocations->add(
+				new New_( $this->file_path, $node->getLine(), $this->node_to_class_name( $node->class ) )
+			);
 		} elseif ( $node instanceof Node\Expr\StaticCall ) {
 			// TODO - args
-			$this->invocations->add( new Static_Call( $this->file_path, $node->getLine(), $node->class->toCodeString(), $node->name->name ) );
+			$this->invocations->add(
+				new Static_Call( $this->file_path, $node->getLine(), $this->node_to_class_name( $node->class ), $node->name->name )
+			);
 		} elseif ( $node instanceof Node\Expr\StaticPropertyFetch ) {
-			$this->invocations->add( new Static_Property( $this->file_path, $node->getLine(), $node->class->toCodeString(), $node->name->name ) );
+			$this->invocations->add(
+				new Static_Property( $this->file_path, $node->getLine(), $this->node_to_class_name( $node->class ), $node->name->name )
+			);
 		} elseif ( $node instanceof Node\Expr\FuncCall ) {
 			// TODO - args
-
 			if ( $node->name instanceof Node\Expr\Variable ) {
 				$function_name = '$' . $node->name->name;
 			} else {
@@ -49,5 +43,18 @@ class Visitor extends NodeVisitorAbstract {
 	}
 
 	public function leaveNode( Node $node ) {
+	}
+
+	private function node_to_class_name( $node ) {
+		if ( $node instanceof Node\Expr\Variable
+			|| $node instanceof Node\Stmt\Class_ ) {
+			$class_name = $node->name;
+		} elseif ( $node instanceof Node\Name ) {
+			$class_name = '\\' . implode( '\\', $node->parts );
+		} else {
+			$class_name = $node->toCodeString();
+		}
+
+		return $class_name;
 	}
 }
