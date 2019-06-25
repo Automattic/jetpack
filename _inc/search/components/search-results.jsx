@@ -1,7 +1,14 @@
 /** @jsx h */
 
-import SearchResult from './search-result';
+/**
+ * External dependencies
+ */
 import { h, Component } from 'preact';
+
+/**
+ * Internal dependencies
+ */
+import SearchResult from './search-result';
 
 class SearchResults extends Component {
 	render() {

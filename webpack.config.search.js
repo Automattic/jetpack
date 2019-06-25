@@ -1,7 +1,7 @@
 const path = require( 'path' );
 
 module.exports = {
-	entry: path.join( __dirname, '_inc/search/src/index.js' ),
+	entry: path.join( __dirname, '_inc/search/src/index.jsx' ),
 	output: {
 		path: path.resolve( __dirname, '_inc/search/dist' ),
 		filename: 'jp-search.bundle.js',
@@ -16,5 +16,8 @@ module.exports = {
 				},
 			},
 		],
+	},
+	resolve: {
+		extensions: [ '.js', '.jsx' ],
 	},
 };

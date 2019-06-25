@@ -1,5 +1,8 @@
 /** @jsx h */
 
+/**
+ * External dependencies
+ */
 import { h, Component } from 'preact';
 
 class SearchResult extends Component {

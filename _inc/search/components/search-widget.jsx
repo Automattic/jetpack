@@ -1,8 +1,11 @@
 /** @jsx h */
 
+/**
+ * External dependencies
+ */
 import { h, Component } from 'preact';
 import Portal from 'preact-portal';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 
 class SearchWidget extends Component {
 	constructor() {
@@ -16,6 +19,19 @@ class SearchWidget extends Component {
 		this.getResults = debounce( this.getResults.bind( this ), 500 );
 		this.getResults( this.props.initialValue );
 	}
+	componentDidMount() {
+		if ( this.props.grabFocus ) {
+			this.input.focus();
+		}
+	}
+
+	bindInput = input => ( this.input = input );
+	onChangeQuery = event => {
+		const query = event.target.value;
+		this.setState( { query } );
+		this.getResults( query );
+	};
+
 	getResults( query ) {
 		if ( query ) {
 			const { api } = this.props;
@@ -37,16 +53,7 @@ class SearchWidget extends Component {
 			this.setState( { results: [] } );
 		}
 	}
-	onChangeQuery( event ) {
-		const query = event.target.value;
-		this.setState( { query } );
-		this.getResults( query );
-	}
-	componentDidMount() {
-		if ( this.props.grabFocus ) {
-			this.input.focus();
-		}
-	}
+
 	render() {
 		const { query, results } = this.state;
 		const { SearchResults, api } = this.props;
@@ -57,7 +64,7 @@ class SearchWidget extends Component {
 						type="text"
 						value={ query }
 						onInput={ this.onChangeQuery }
-						ref={ input => ( this.input = input ) }
+						ref={ this.bindInput }
 					/>
 				</p>
 				<Portal into="#results">
