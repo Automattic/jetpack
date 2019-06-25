@@ -51,6 +51,8 @@ class Visitor extends NodeVisitorAbstract {
 			$class_name = $node->name;
 		} elseif ( $node instanceof Node\Name ) {
 			$class_name = '\\' . implode( '\\', $node->parts );
+		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
+			$class_name = '$' . $node->var->name . '->' . $node->name->name;
 		} else {
 			$class_name = $node->toCodeString();
 		}
