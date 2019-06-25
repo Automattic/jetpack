@@ -25,7 +25,7 @@ class Function_Moved extends PersistentListItem implements Invocation_Warner {
 	}
 
 	public function type() {
-		return 'function_missing';
+		return 'function_moved';
 	}
 
 	public function display_name() {
@@ -36,7 +36,7 @@ class Function_Moved extends PersistentListItem implements Invocation_Warner {
 		if ( $invocation instanceof Function_Call ) {
 			// check if it's instantiating this missing class
 			if ( $invocation->func_name === $this->old_declaration->func_name ) {
-				$warnings->add( new Warning( $invocation->path, $invocation->line, 'Function ' . $this->old_declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path ) );
+				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Function ' . $this->old_declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path ) );
 			}
 		}
 	}

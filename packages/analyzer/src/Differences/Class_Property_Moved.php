@@ -34,7 +34,7 @@ class Class_Property_Moved extends PersistentListItem implements Invocation_Warn
 			if ( $invocation->class_name === $this->old_declaration->class_name
 				&& $invocation->prop_name === $this->old_declaration->prop_name
 				&& $this->old_declaration->static ) {
-				$warnings->add( new Warning( $invocation->path, $invocation->line, 'Class static property ' . $this->declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path ) );
+				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class static property ' . $this->old_declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path ) );
 			}
 		}
 	}

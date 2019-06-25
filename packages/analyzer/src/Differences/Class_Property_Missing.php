@@ -32,7 +32,7 @@ class Class_Property_Missing extends PersistentListItem implements Invocation_Wa
 			if ( $invocation->class_name === $this->declaration->class_name
 				&& $invocation->prop_name === $this->declaration->prop_name
 				&& $this->declaration->static ) {
-				$warnings->add( new Warning( $invocation->path, $invocation->line, 'Class static property ' . $this->declaration->display_name() . ' is missing' ) );
+				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class static property ' . $this->declaration->display_name() . ' is missing' ) );
 			}
 		}
 	}
