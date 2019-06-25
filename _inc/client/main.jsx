@@ -24,6 +24,7 @@ import {
 	getApiRootUrl,
 	userCanManageModules,
 	userCanConnectSite,
+	getCurrentVersion,
 	getTracksUserData,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
@@ -59,7 +60,10 @@ class Main extends React.Component {
 
 		// Track initial page view
 		this.props.isSiteConnected &&
-			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
+			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
+				path: this.props.route.path,
+				current_version: this.props.currentVersion,
+			} );
 	}
 
 	componentDidMount() {
@@ -138,7 +142,10 @@ class Main extends React.Component {
 		// Track page view on change only
 		prevProps.route.path !== this.props.route.path &&
 			this.props.isSiteConnected &&
-			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: this.props.route.path } );
+			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
+				path: this.props.route.path,
+				current_version: this.props.currentVersion,
+			} );
 
 		// Not taking into account development mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
@@ -294,6 +301,7 @@ export default connect(
 			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
 			rewindStatus: getRewindStatus( state ),
+			currentVersion: getCurrentVersion( state ),
 		};
 	},
 	dispatch => ( {
