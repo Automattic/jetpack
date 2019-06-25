@@ -57,9 +57,20 @@ function wp_cache_serve_cache_file() {
 		return false;
 	}
 
+	if ( defined( 'WPSC_SERVE_DISABLED' ) ) {
+		wp_cache_debug( 'wp_cache_serve_cache_file: WPSC_SERVE_DISABLED defined. Not serving cached files.' );
+		return false;
+	}
+
 	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
 
-	if ( ( $cache_file && file_exists( $cache_file ) ) || file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
+	if (
+		! defined( 'WPSC_SUPERCACHE_ONLY' ) &&
+		(
+			( $cache_file && file_exists( $cache_file ) ) ||
+			file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename )
+		)
+	) {
 		if ( file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
 			$cache_file = get_current_url_supercache_dir() . $cache_filename;
 			$meta_pathname = get_current_url_supercache_dir() . 'meta-' . $cache_filename;
@@ -1996,7 +2007,13 @@ function wp_cache_get_ob(&$buffer) {
 
 	$tmp_wpcache_filename = $cache_path . uniqid( mt_rand(), true ) . '.tmp';
 
-	$supercacheonly = false;
+	if ( defined( 'WPSC_SUPERCACHE_ONLY' ) ) {
+		$supercacheonly = true;
+		wp_cache_debug( 'wp_cache_get_ob: WPSC_SUPERCACHE_ONLY defined. Only creating supercache files.' );
+	} else {
+		$supercacheonly = false;
+	}
+
 	if( $super_cache_enabled ) {
 		if ( wp_cache_get_cookies_values() == '' && empty( $_GET ) ) {
 			wp_cache_debug( 'Anonymous user detected. Only creating Supercache file.', 3 );
@@ -2635,7 +2652,7 @@ function wp_cache_shutdown_callback() {
 			}
 		}
 	} else {
-		wp_cache_debug( "Did not write meta file: meta-{$meta_file} *$supercacheonly* *$wp_cache_not_logged_in* *$new_cache*", 2 );
+		wp_cache_debug( "Did not write meta file: meta-{$meta_file}\nsupercacheonly: $supercacheonly\nwp_cache_not_logged_in: $wp_cache_not_logged_in\nnew_cache:$new_cache" );
 	}
 	global $time_to_gc_cache;
 	if( isset( $time_to_gc_cache ) && $time_to_gc_cache == 1 ) {
