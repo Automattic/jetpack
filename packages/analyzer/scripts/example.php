@@ -47,7 +47,7 @@ $differences->find( $master_declarations, $jp74_declarations );
 echo "*** Checking compatibility of single external file\n";
 $invocations = new Automattic\Jetpack\Analyzer\Invocations();
 $invocations->scan( $external_base_path . '/example-external.php' );
-// $invocations->scan( '/Users/dan/workspace/a8c/wpcomsh', array( '.git', '.gitmodules', 'assets' ) );
+// $invocations->scan( '/Users/dan/workspace/a8c/some-repo', array( '.git', '.gitmodules', 'assets' ) );
 // $invocations->print();
 
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();

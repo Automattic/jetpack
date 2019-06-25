@@ -6,7 +6,7 @@ $base_path = dirname( dirname( dirname( __DIR__ ) ) );
 
 $jetpack_75_path = $base_path;
 $jetpack_74_path = '/Users/dan/Downloads/jetpack';
-$wpcomsh_path = '/Users/dan/workspace/a8c/wpcomsh';
+$external_repo_path = '/Users/dan/workspace/a8c/some-repo';
 $jetpack_exclude = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
 echo "Scan master declarations\n";
@@ -23,7 +23,7 @@ $differences->find( $jetpack_75_declarations, $jetpack_74_declarations );
 
 echo "Find invocations\n";
 $invocations = new Automattic\Jetpack\Analyzer\Invocations();
-$invocations->scan( $wpcomsh_path );
+$invocations->scan( $external_repo_path );
 
 echo "Generate warnings\n";
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();
