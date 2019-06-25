@@ -1,9 +1,9 @@
 const path = require( 'path' );
 
 module.exports = {
-	entry: path.join( __dirname, '_inc', 'search' ),
+	entry: path.join( __dirname, '_inc/search/src/index.js' ),
 	output: {
-		path: path.resolve( __dirname, '_inc', 'search', 'dist' ),
+		path: path.resolve( __dirname, '_inc/search/dist' ),
 		filename: 'jp-search.bundle.js',
 	},
 	module: {
