@@ -56,8 +56,11 @@ This is performed by parsing any external file looking for invocations. If those
 
 ```php
 // load declarations from a file, or scan using ->scan()
-$master_declarations->load( 'path/to/jetpack-master.csv' );
-$jp74_declarations->load( 'path/to/jetpack-branch-7.4.csv' );
+$master_declarations->load( 'path/to/codebase-1.0.csv' );
+$other_declarations->load( 'path/to/codebase-2.0.csv' );
+// OR
+$master_declarations->scan( 'path/to/master_branch', array( '.git', 'node_modules' ) );
+$other_declarations->scan( 'path/to/other_branch', array( '.git', 'node_modules' ) );
 
 $differences = new Automattic\Jetpack\Analyzer\Differences();
 $differences->find( $master_declarations, $jp74_declarations );
@@ -78,6 +81,9 @@ This is ALL invocations of these types. To find just the invocations of missing/
 ```php
 $invocations = new Automattic\Jetpack\Analyzer\Invocations();
 $invocations->scan( 'path/to/example.php' ); // can be a file or directory
+// OR
+$invocations->scan( 'path/to/repo', array( '.git', '.gitmodules', 'assets' ) );
+
 $invocations->print();
 ```
 
