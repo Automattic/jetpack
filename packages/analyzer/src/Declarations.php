@@ -29,7 +29,7 @@ class Declarations extends PersistentList {
 		} elseif( is_file( $root ) ) {
 			return $this->scan_file( $this->slashit( dirname( $root ) ), $root );
 		} else {
-			throw new \Exception( 'input_error', "Expected $root to be a file or directory" );
+			throw new \Exception( "Expected $root to be a file or directory" );
 		}
 	}
 
