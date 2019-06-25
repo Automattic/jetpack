@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { noop, size } from 'lodash';
 
@@ -15,6 +16,7 @@ import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import PlanIcon from 'components/plans/plan-icon';
+import { getCurrentVersion } from 'state/initial-state';
 
 import './style.scss';
 
@@ -22,6 +24,7 @@ class Banner extends Component {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
+		currentVersion: PropTypes.string.isRequired,
 		description: PropTypes.node,
 		eventFeature: PropTypes.string,
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
@@ -54,7 +57,7 @@ class Banner extends Component {
 	handleClick = () => {
 		this.props.onClick();
 
-		const { eventFeature, path } = this.props;
+		const { eventFeature, path, currentVersion } = this.props;
 		if ( eventFeature || path ) {
 			const eventFeatureProp = eventFeature ? { feature: eventFeature } : {};
 			const pathProp = path ? { path } : {};
@@ -62,6 +65,7 @@ class Banner extends Component {
 			const eventProps = {
 				target: 'banner',
 				type: 'upgrade',
+				current_version: currentVersion,
 				...eventFeatureProp,
 				...pathProp,
 			};
@@ -151,4 +155,6 @@ class Banner extends Component {
 	}
 }
 
-export default Banner;
+export default connect( state => ( {
+	currentVersion: getCurrentVersion( state ),
+} ) )( Banner );
