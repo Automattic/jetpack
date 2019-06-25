@@ -8,8 +8,13 @@ import { createNewPost } from '@wordpress/e2e-test-utils/build/create-new-post';
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
+import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 
 describe( 'First test suite', () => {
+	it( 'Can login and connect Jetpack if needed', async () => {
+		await connectThroughWPAdminIfNeeded();
+	} );
+
 	it( 'Can publish a post with a Simple Payments block', async () => {
 		await createNewPost();
 

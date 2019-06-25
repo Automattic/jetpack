@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { wrap } from 'lodash';
+/**
  * Internal dependencies
  */
 import { sendFailedTestScreenshotToSlack, sendFailedTestMessageToSlack } from './reporters/slack';
@@ -12,15 +16,14 @@ import { takeScreenshot } from './reporters/screenshot';
 let currentBlock;
 const { CI, E2E_DEBUG } = process.env;
 
-global.describe = ( name, func ) => {
-	currentBlock = name;
-
+// Use wrap to preserve all previous `wrap`s
+jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) => {
 	try {
-		func();
+		func( ...args );
 	} catch ( e ) {
 		throw e;
 	}
-};
+} );
 
 global.it = async ( name, func ) => {
 	return await test( name, async () => {

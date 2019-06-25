@@ -8,6 +8,7 @@ import { createNewPost } from '@wordpress/e2e-test-utils/build/create-new-post';
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
+import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -26,15 +27,21 @@ function execShellCommand( cmd ) {
 	} );
 }
 
+// Activate WordAds module if in CI
+beforeAll( async () => {
+	let cmd =
+		'docker-compose -f ./tests/e2e/bin/docker-compose.yml run --rm -u 33 cli_e2e_tests wp jetpack module activate wordads';
+	if ( process.env.CI ) {
+		cmd = 'wp jetpack module activate wordads --path="/home/travis/wordpress"';
+	}
+
+	const out = await execShellCommand( cmd );
+	console.log( out );
+} );
+
 describe( 'WordAds block', () => {
-	// Activate WordAds module if in CI
-	beforeAll( async () => {
-		if ( process.env.CI ) {
-			const out = await execShellCommand(
-				'wp jetpack module activate wordads --path="/home/travis/wordpress"'
-			);
-			console.log( out );
-		}
+	it( 'Can login and connect Jetpack if needed', async () => {
+		await connectThroughWPAdminIfNeeded();
 	} );
 
 	it( 'Can publish a post with a WordAds block', async () => {

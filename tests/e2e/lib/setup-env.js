@@ -1,16 +1,17 @@
 /**
  * WordPress dependencies
  */
-import { setBrowserViewport } from '@wordpress/e2e-test-utils';
+import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
  * Internal dependencies
  */
-import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
-import { enablePageDialogAccept } from '@wordpress/e2e-test-utils/build/enable-page-dialog-accept';
+import { registerFailFastReporter } from './reporters/fail-fast';
 /**
  * Environment variables
  */
 const { PUPPETEER_TIMEOUT, E2E_DEBUG } = process.env;
+
+registerFailFastReporter();
 
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );
@@ -32,8 +33,6 @@ beforeAll( async () => {
 
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
-
-	await connectThroughWPAdminIfNeeded();
 } );
 
 afterEach( async () => {
