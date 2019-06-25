@@ -20,7 +20,7 @@ class Shortlinks extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ __( 'Shortlinks', { context: 'Settings header' } ) }
+				header={ __( 'WP.me Shortlinks', { context: 'Settings header' } ) }
 				module="shortlinks"
 				hideButton
 			>
