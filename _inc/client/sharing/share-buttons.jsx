@@ -83,7 +83,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						disableInDevMode
 						module={ { module: 'sharing' } }
 						support={ {
-							text: __( 'You can choose which services appear and customize the buttons.' ),
+							text: __(
+								'You can customize the sharing buttons and choose which services to display.'
+							),
 							link: 'https://jetpack.com/support/sharing/',
 						} }
 					>
