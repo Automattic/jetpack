@@ -36,7 +36,7 @@ class Class_Method_Missing extends PersistentListItem implements Invocation_Warn
 			if ( $invocation->class_name === $this->declaration->class_name
 				&& $invocation->method_name === $this->declaration->method_name
 				&& $this->declaration->static ) {
-				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class static method ' . $this->declaration->display_name() . ' is missing' ) );
+				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class static method ' . $this->declaration->display_name() . ' is missing', $this->declaration ) );
 			}
 		}
 	}
