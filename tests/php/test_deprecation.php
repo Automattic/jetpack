@@ -58,6 +58,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		return array(
 			array( 'Jetpack_Options', 'get_option' ),
 			array( 'Jetpack_Client', 'remote_request' ),
+			array( 'Jetpack_Sync_Settings', 'is_syncing' ),
 		);
 	}
 
