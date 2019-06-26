@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "51f287e8979a35dbc8024875617d074c",
+    "content-hash": "c09d9b77fbe174fad981ff2c454e926b",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -40,7 +40,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -73,8 +73,40 @@
             "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
+            "name": "automattic/jetpack-compat",
+            "version": "dev-add/jetpack-compat-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/compat",
+                "reference": "cd47566548267b29b0df1574a7c6be67de9c5cc9"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "classmap": [
+                    "legacy"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Compatibility layer with previous versions of Jetpack"
+        },
+        {
             "name": "automattic/jetpack-connection",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -110,7 +142,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -138,7 +170,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -176,7 +208,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -205,7 +237,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -231,7 +263,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -255,7 +287,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-psr4-jetpack-sync-module",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -669,7 +701,8 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
-        "automattic/jetpack-autoloader": 20
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-compat": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
