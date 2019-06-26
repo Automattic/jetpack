@@ -31,7 +31,7 @@ class Warning extends PersistentListItem {
 			$this->path,
 			$this->line,
 			$this->message,
-			$this->old_declaration ? $this->old_declaration->display_name() : "No declaration for " . $this->message
+			$this->old_declaration->display_name(),
 		);
 	}
 }
