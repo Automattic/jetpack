@@ -17,7 +17,7 @@ class Warnings extends PersistentList {
 
 	public function summary() {
 		if ( $this->count() === 0 ) {
-			return "Empty";
+			return '';
 		}
 
 		// assoc array of issues and counts
@@ -31,6 +31,8 @@ class Warnings extends PersistentList {
 
 			$summary[$unique_issue_key] += 1;
 		}
+
+		arsort( $summary );
 
 		$summary_string = '';
 		foreach( $summary as $issue => $count ) {
