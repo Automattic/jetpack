@@ -25,7 +25,7 @@ class Jetpack_Client {
 	 * @param array $args Arguments.
 	 * @param null  $body Request body.
 	 *
-	 * @return array|\Automattic\Jetpack\Connection\WP_Error
+	 * @return array|WP_Error
 	 */
 	public static function remote_request( $args, $body = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Connection\Client' );
