@@ -1,3 +1,5 @@
 <?php
 
-echo "executing functions.php\n";
+/**
+ * TODO: Legacy global scope functions here
+ */
