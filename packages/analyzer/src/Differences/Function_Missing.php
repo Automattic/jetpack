@@ -34,7 +34,7 @@ class Function_Missing extends PersistentListItem implements Invocation_Warner {
 		if ( $invocation instanceof Function_Call ) {
 			// check if it's instantiating this missing class
 			if ( $invocation->func_name === $this->declaration->func_name ) {
-				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Function ' . $this->declaration->display_name() . ' is missing' ) );
+				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Function ' . $this->declaration->display_name() . ' is missing', $this->declaration ) );
 			}
 		}
 	}
