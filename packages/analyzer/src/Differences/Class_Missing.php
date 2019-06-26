@@ -31,7 +31,7 @@ class Class_Missing extends PersistentListItem implements Invocation_Warner {
 			// check if it's instantiating this missing class
 			// echo "Checking " . $invocation->class_name . " matches " . $this->declaration->class_name . "\n";
 			if ( $invocation->class_name === $this->declaration->class_name ) {
-				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class ' . $this->declaration->display_name() . ' is missing' ) );
+				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class ' . $this->declaration->display_name() . ' is missing', $this->declaration ) );
 			}
 		}
 	}

@@ -25,6 +25,10 @@ class PersistentList {
 		$this->items[] = $item;
 	}
 
+	public function count() {
+		return count( $this->items );
+	}
+
 	public function output() {
 		echo $this->save( 'php://memory' );
 	}

@@ -14,4 +14,29 @@ class Warnings extends PersistentList {
 			}
 		}
 	}
+
+	public function summary() {
+		if ( $this->count() === 0 ) {
+			return "Empty";
+		}
+
+		// assoc array of issues and counts
+		$summary = array();
+		foreach( $this->get() as $warning ) {
+			$unique_issue_key = $warning->unique_issue_key();
+
+			if ( ! isset( $summary[$unique_issue_key] ) ) {
+				$summary[$unique_issue_key] = 0;
+			}
+
+			$summary[$unique_issue_key] += 1;
+		}
+
+		$summary_string = '';
+		foreach( $summary as $issue => $count ) {
+			$summary_string .= "$issue,$count\n";
+		}
+
+		return $summary_string;
+	}
 }
