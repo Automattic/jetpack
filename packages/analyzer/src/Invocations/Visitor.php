@@ -31,7 +31,7 @@ class Visitor extends NodeVisitorAbstract {
 		} elseif ( $node instanceof Node\Expr\FuncCall ) {
 			// TODO - args
 			if ( $node->name instanceof Node\Expr\Variable ) {
-				$function_name = '$' . $node->name->name;
+				$function_name = '$' . $this->maybe_stringify( $node->name->name );
 			} else {
 				$function_name = implode( '\\', $node->name->parts );
 			}
@@ -52,11 +52,44 @@ class Visitor extends NodeVisitorAbstract {
 		} elseif ( $node instanceof Node\Name ) {
 			$class_name = '\\' . implode( '\\', $node->parts );
 		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
-			$class_name = '$' . $node->var->name . '->' . $node->name->name;
+			$class_name =
+						'$'
+						. $this->maybe_stringify( $node->var->name )
+						. '->' . $this->maybe_stringify( $node->name->name );
+		} elseif ( $node instanceof Node\Expr\ArrayDimFetch ) {
+
+			$class_name =
+						'$'
+						. $this->maybe_stringify( $node->var->name )
+						. '[' . $this->maybe_stringify( $node->dim->value )
+						. ']';
 		} else {
-			$class_name = $node->toCodeString();
+			if ( method_exists( $node, 'toCodeString' ) ) {
+				$class_name = $node->toCodeString();
+			} else {
+				$class_name = get_class( $node );
+			}
 		}
 
 		return $class_name;
+	}
+
+	private function maybe_stringify( $object ) {
+		$is_stringifiable = (
+			is_string( $object )
+			|| (
+				is_object( $object )
+				&& method_exists( $object, '__toString' )
+			)
+		);
+
+		if ( $is_stringifiable ) {
+			return (string) $object;
+		}
+
+		// Objects that need additional recursion to properly stringify
+		// are of no interest to us because we won't know what classes
+		// or methods they use without runtime analysis.
+		return get_class( $object );
 	}
 }
