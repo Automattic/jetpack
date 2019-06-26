@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { endsWith } from 'lodash';
 import { registerBlockType } from '@wordpress/blocks';
 
 /**
@@ -13,9 +12,9 @@ import wrapPaidBlock from './wrap-paid-block';
 
 const betaExtensions = extensionList.beta || [];
 
-function requiresPlan( unavailableReason ) {
-	if ( endsWith( unavailableReason, '_plan_required' ) ) {
-		return unavailableReason.substring( 0, unavailableReason.length - '_plan_required'.length );
+function requiresPlan( unavailableReason, details ) {
+	if ( unavailableReason === 'missing_plan' ) {
+		return details.required_plan;
 	}
 	return false;
 }
@@ -33,9 +32,9 @@ const blockFeatureMap = {
  * @returns {object|false} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
-	const { available, unavailableReason } = getJetpackExtensionAvailability( name );
+	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
-	const requiredPlan = requiresPlan( unavailableReason );
+	const requiredPlan = requiresPlan( unavailableReason, details );
 
 	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
