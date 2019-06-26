@@ -123,11 +123,13 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 				E_USER_NOTICE,
 			),
 			*/
+			/*
 			array(
 				'class.jetpack-signature.php',
 				'',
 				E_USER_NOTICE,
 			),
+			*/
 			array(
 				'class.jetpack-tracks.php',
 				'',
