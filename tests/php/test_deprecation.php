@@ -66,6 +66,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Client', 'wpcom_json_api_request_as_blog' ),
 			array( 'Jetpack_Options', 'get_option' ),
 			array( 'Jetpack_Options', 'get_option_and_ensure_autoload' ),
+			array( 'Jetpack_Options', 'update_option' ),
 			array( 'Jetpack_Sync_Actions', 'initialize_listener' ),
 			array( 'Jetpack_Sync_Actions', 'initialize_sender' ),
 			array( 'Jetpack_Sync_Modules', 'get_module' ),
