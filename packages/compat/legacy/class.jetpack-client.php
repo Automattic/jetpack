@@ -2,7 +2,7 @@
 /**
  * Jetpack Client
  *
- * Methods for Jetpack to act as client with wpcom.
+ * Deprecated methods for Jetpack to act as client with wpcom, provided for back-compatibility.
  *
  * @category   Connection
  * @package    Client
