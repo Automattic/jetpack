@@ -54,4 +54,7 @@ $warnings = new Automattic\Jetpack\Analyzer\Warnings();
 $warnings->generate( $invocations, $differences );
 $warnings->output();
 
+echo "*** Summary of issues and counts\n";
+echo $warnings->summary() . "\n";
+
 echo "*** Done\n";
