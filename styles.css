@@ -556,13 +556,14 @@ Helpers
 	background-size: 300px 420px;
 }
 
-#no-access-credentials p {
+#vp-wrap #no-access-credentials p {
 	margin: 20px 0;
 	color: #333;
 	font-size: 14px;
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 	text-align: left;
 	line-height: 1.4;
+	background: none;
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3, '/', 2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
@@ -798,10 +799,6 @@ Tabs
 Progress Bars
 ========================================================================== */
 
-#vp_progress {
-	padding-right: 20px;
-}
-
 #vp_progress:after {
 	/* clearfix */
 	content: ".";
@@ -854,7 +851,6 @@ Progress Bars
 	}
 }
 
-
 .vp_graphs ul {
 	padding: 0 0 5px 0;
 	float: left;
@@ -879,6 +875,10 @@ Progress Bars
 	background: -webkit-linear-gradient(top, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#299a0b', endColorstr='#299a0b',GradientType=0 );
 	background: linear-gradient(top, rgba(41,154,11,1) 0%,rgba(41,154,11,1) 100%);
+}
+
+#vp-wrap #vp_progress .vp_graphs ul li {
+	width: 100%;
 }
 
 #vp_progress .completed .percentage,
@@ -909,7 +909,6 @@ Progress Bars
 		width: 58%;
 	}
 }
-
 
 #vp_progress .bar span {
 	float: left;
