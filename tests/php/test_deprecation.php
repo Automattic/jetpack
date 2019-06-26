@@ -37,8 +37,19 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		restore_error_handler();
 	}
 
-	function test_jetpack_options__get_option() {
-		$this->assertTrue( method_exists( 'Jetpack_Options', 'get_option' ) );
+	function test_jetpack_deprecated_class_methods() {
+		$deprecated = array(
+			'Jetpack_Options'   => array(
+				'get_option',
+				'update_option'
+			),
+		);
+
+		foreach ( $deprecated as $class => $methods ) {
+			foreach ( $methods as $method ) {
+				$this->assertTrue( method_exists( $class, $method ) );
+			}
+		}
 	}
 
 }
