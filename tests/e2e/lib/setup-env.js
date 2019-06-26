@@ -1,12 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { setBrowserViewport } from '@wordpress/e2e-test-utils';
-/**
- * Internal dependencies
- */
-import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
-import { enablePageDialogAccept } from '@wordpress/e2e-test-utils/build/enable-page-dialog-accept';
+import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
  * Environment variables
  */
@@ -32,8 +27,6 @@ beforeAll( async () => {
 
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
-
-	await connectThroughWPAdminIfNeeded();
 } );
 
 afterEach( async () => {
