@@ -114,11 +114,13 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 				'',
 				E_USER_NOTICE,
 			),
+			/* Skipping because we have a global Jetpack_Options class
 			array(
 				'class.jetpack-options.php',
 				'',
 				E_USER_NOTICE,
 			),
+			*/
 			array(
 				'class.jetpack-signature.php',
 				'',
