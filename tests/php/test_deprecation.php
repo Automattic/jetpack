@@ -27,6 +27,11 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	public function assertDeprecatedFileError( $deprecated, $replacement, $errno ) {
 		foreach ( $this->errors as $error ) {
 			if ( $error['errno'] === $errno ) {
+				// The error uses only the file name, not the path. Remove relative path if present so they can match.
+				if ( false !== strrpos( $deprecated, DIRECTORY_SEPARATOR ) ) {
+					$deprecated = substr($deprecated, strrpos( $deprecated, DIRECTORY_SEPARATOR) + 1);
+				}
+
 				if ( $error['errcontext']['file'] === $deprecated && $error['errcontext']['replacement'] === $replacement ) {
 					self::assertTrue( true );
 
@@ -79,13 +84,12 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 
 	function provider_deprecated_file_paths() {
 		return array(
-			/*
+
 			array(
 				'class.jetpack-options.php',
 				'packages/options/legacy/class.jetpack-options.php',
 				E_USER_NOTICE,
 			),
-			*/
 			array(
 				'class.jetpack-client.php',
 				'packages/connection/src/Client.php',
@@ -93,226 +97,212 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			),
 			array(
 				'_inc/lib/tracks/class.tracks-client.php',
-				'',
+				'packages/tracking/legacy/class.tracks-client.php',
 				E_USER_NOTICE,
 			),
 			array(
 				'_inc/lib/tracks/class.tracks-event.php',
-				'',
-				E_USER_NOTICE,
-			),
-			array(
-				'class.jetpack-client.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'class.jetpack-constants.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'class.jetpack-jitm.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
-			/* Skipping because we have a global Jetpack_Options class
-			array(
-				'class.jetpack-options.php',
-				'',
-				E_USER_NOTICE,
-			),
-			*/
-			/*
 			array(
 				'class.jetpack-signature.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
-			*/
 			array(
 				'class.jetpack-tracks.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-actions.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-defaults.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-functions.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-json-deflate-array-codec.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-listener.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-attachments.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-callables.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-comments.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-constants.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-full-sync.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-import.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-menus.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-meta.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-network-options.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-options.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-plugins.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-posts.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-protect.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-stats.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-terms.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-themes.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-updates.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-users.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-woocommerce.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module-wp-super-cache.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-module.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-modules.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-queue.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-sender.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-server.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-settings.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-simple-codec.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-users.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/class.jetpack-sync-wp-replicastore.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/interface.jetpack-sync-codec.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 			array(
 				'sync/interface.jetpack-sync-replicastore.php',
-				'',
+				'ADD REPLACEMENT_PATH',
 				E_USER_NOTICE,
 			),
 		);
