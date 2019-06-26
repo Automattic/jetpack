@@ -51,7 +51,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		...settings,
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
 		edit: requiredPlan
-			? wrapPaidBlock( settings.edit, { feature: blockFeatureMap[ name ], requiredPlan } )
+			? wrapPaidBlock( { feature: blockFeatureMap[ name ], requiredPlan } )( settings.edit )
 			: settings.edit,
 	} );
 
