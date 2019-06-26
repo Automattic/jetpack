@@ -54,10 +54,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 
-	function test_jetpack_client__remote_request() {
-		$this->assertTrue( method_exists( 'Jetpack_Client', 'remote_request' ) );
-	}
-
 	function provider_deprecated_method_stubs() {
 		return array(
 			array( 'Jetpack_Options', 'get_option' ),
