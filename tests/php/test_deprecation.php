@@ -4,6 +4,16 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 
 	private $errors;
 
+	public function setUp() {
+		parent::setUp();
+		$this->set_error_handler();
+	}
+
+	public function tearDown() {
+		parent::tearDown();
+		restore_error_handler();
+	}
+
 	public function errorHandler( $errno, $errstr, $errfile, $errline, $errcontext ) {
 		$this->errors[] = compact( "errno", "errstr", "errfile",
 			"errline", "errcontext" );
@@ -28,17 +38,46 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$this->fail( "Error for $deprecated not found" );
 	}
 
-	function test_require_old_jetpack_options() {
-		$this->set_error_handler();
-		require_once JETPACK__PLUGIN_DIR . '/class.jetpack-options.php';
+	/**
+	 * @dataProvider provider_deprecated_file_paths
+	 */
+	function test_deprecated_file_paths( $file_path, $replacement_path, $error_level ) {
+		require_once JETPACK__PLUGIN_DIR . $file_path;
 
-		$this->assertDeprecatedFileError( 'class.jetpack-options.php', 'packages/options/legacy/class.jetpack-options.php',
-			E_USER_NOTICE );
-		restore_error_handler();
+		$this->assertDeprecatedFileError( $file_path, $replacement_path, $error_level );
 	}
 
-	function test_jetpack_options__get_option() {
-		$this->assertTrue( method_exists( 'Jetpack_Options', 'get_option' ) );
+	/**
+	 * @dataProvider provider_deprecated_method_stubs
+	 */
+	function test_deprecated_method_stubs( $class_name, $method_name ) {
+		$this->assertTrue( method_exists( $class_name, $method_name ) );
+	}
+
+	function test_jetpack_client__remote_request() {
+		$this->assertTrue( method_exists( 'Jetpack_Client', 'remote_request' ) );
+	}
+
+	function provider_deprecated_method_stubs() {
+		return array(
+			array( 'Jetpack_Options', 'get_option' ),
+			array( 'Jetpack_Client', 'remote_request' ),
+		);
+	}
+
+	function provider_deprecated_file_paths() {
+		return array(
+			array(
+				'class.jetpack-options.php',
+				'packages/options/legacy/class.jetpack-options.php',
+				E_USER_NOTICE,
+			),
+			array(
+				'class.jetpack-client.php',
+				'packages/connection/src/Client.php',
+				E_USER_NOTICE,
+			),
+		);
 	}
 
 }
