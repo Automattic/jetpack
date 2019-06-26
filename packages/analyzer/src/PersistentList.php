@@ -32,7 +32,13 @@ class PersistentList {
 	/**
 	 * Saves the items to a file and returns the file contents
 	 */
-	public function save( $file_path ) {
+	public function save( $file_path, $allow_empty = true ) {
+
+		// Not saving empty files if empty files are not allowed to be saved
+		if ( ! $allow_empty && empty( $this->items ) ) {
+			return '';
+		}
+
 		$handle = fopen( $file_path, 'w+' );
 		foreach ( $this->items as $item ) {
 			fputcsv( $handle, $item->to_csv_array() );
