@@ -79,11 +79,13 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 
 	function provider_deprecated_file_paths() {
 		return array(
+			/*
 			array(
 				'class.jetpack-options.php',
 				'packages/options/legacy/class.jetpack-options.php',
 				E_USER_NOTICE,
 			),
+			*/
 			array(
 				'class.jetpack-client.php',
 				'packages/connection/src/Client.php',
