@@ -43,7 +43,7 @@ class Jetpack_Client {
 	 * @param null   $body Request body.
 	 * @param string $base_api_path Endpoint base prefix.
 	 *
-	 * @return \Automattic\Jetpack\Connection\Array|\Automattic\Jetpack\Connection\WP_Error
+	 * @return Array|WP_Error
 	 */
 	public static function wpcom_json_api_request_as_blog( $path, $version, $args, $body, $base_api_path ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Connection\Client' );
