@@ -41,6 +41,7 @@ $jp74_declarations->load( $data_path . 'jp74.csv' );
 echo "*** Finding differences between the two versions\n";
 $differences = new Automattic\Jetpack\Analyzer\Differences();
 $differences->find( $master_declarations, $jp74_declarations, $base_path );
+
 // $differences->output();
 // $differences->save( $data_path . 'differences.csv' );
 

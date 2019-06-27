@@ -206,6 +206,7 @@ class Defaults {
 		'PHP_VERSION',
 		'WP_MEMORY_LIMIT',
 		'WP_MAX_MEMORY_LIMIT',
+		'WP_DEBUG',
 	);
 
 	public static function get_constants_whitelist() {
