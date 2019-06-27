@@ -2753,7 +2753,7 @@ function wp_cache_clear_cache( $blog_id = 0 ) {
 }
 
 function wpsc_delete_post_archives( $post ) {
-	$post = get_post( $post );
+	$post = @get_post( $post );
 	if ( ! is_object( $post ) ) {
 		return;
 	}
