@@ -28,12 +28,37 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='marketing/connections']" );
+		const connectionsUrl = await ( await ( await waitForSelector(
+			this.page,
+			setupFormSelector
+		) ).getProperty( 'href' ) ).jsonValue();
 		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
 		}
-		await ( await ConnectionsPage.init( loginTab ) ).connectMailchimp();
+
+		// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
+		// TODO:
+		// explore a better way to sync the site. Maybe enable all the required modules as part of connection flow
+		// Or implement a way to trigger a sync manually.
+		let loaded = false;
+		let count = 0;
+		while ( ! loaded ) {
+			try {
+				count++;
+				await ConnectionsPage.init( loginTab );
+				loaded = true;
+			} catch ( e ) {
+				console.log( 'ConnectionsPage is not available yet. Attempt: ' + count );
+				await loginTab.goto( connectionsUrl, { waitUntil: 'networkidle2' } );
+				if ( count > 9 ) {
+					throw new Error( 'ConnectionsPage is not available is not available after 10th attempt' );
+				}
+			}
+		}
+
+		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 
 		const reCheckSelector = this.getSelector( 'button.is-link' );
 		await waitAndClick( this.page, reCheckSelector );

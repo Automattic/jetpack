@@ -44,9 +44,6 @@ describe( 'Mailchimp Block', () => {
 		await connectThroughWPAdminIfNeeded();
 
 		await activatePublicizeModule();
-		// Wait some time to make sure that Calypso is aware of activated module
-		await page.waitFor( 20000 );
-
 		await createNewPost();
 
 		const blockEditor = await BlockEditorPage.init( page );

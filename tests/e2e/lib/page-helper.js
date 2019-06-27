@@ -34,7 +34,6 @@ export async function waitForSelector( page, selector, options = {} ) {
 		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
 			const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 			console.log( page.url() );
-
 			console.log( bodyHTML );
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
@@ -84,15 +83,29 @@ export async function waitAndType( page, selector, value, options = { visible: t
  * @return {boolean} true if visible, false if not
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
-	try {
-		return !! ( await waitForSelector( page, selector, {
-			visible: true,
-			timeout,
-			logHTML: false,
-		} ) );
-	} catch ( e ) {
-		// eslint-disable-next-line no-console
+	const isPresent = await isEventuallyPresent( this.page, selector, { visible: true, timeout } );
+	if ( ! isPresent ) {
 		console.log( `Element is not visible by locator: ${ selector }` );
+	}
+	return isPresent;
+}
+
+/**
+ * Waits for element to be present, returns false if element was not found after timeout.
+ * A bit low level than `isEventuallyVisible`, which allows to wait for an element to appear in DOM but not visible yet,
+ *
+ * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {string} selector CSS selector of the element
+ * @param {Object} options Custom options to modify wait behavior.
+ *
+ * @return {boolean} true if element is present, false if not
+ */
+export async function isEventuallyPresent( page, selector, options = {} ) {
+	const defaultOptions = { timeout: 5000, logHTML: false };
+	options = Object.assign( defaultOptions, options );
+	try {
+		return !! ( await waitForSelector( page, selector, options ) );
+	} catch ( e ) {
 		return false;
 	}
 }
@@ -118,10 +131,18 @@ export function getAccountCredentials( accountName ) {
  *
  * @param {Puppeteer.Page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
+ * @param {number} timeout Wait timeout
  *
  * @return {Puppeteer.Page} New instance of the opened page.
  */
-export async function clickAndWaitForNewPage( page, selector ) {
+export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) {
+	// Create a promise that rejects in <ms> milliseconds
+	const timeoutPromise = new Promise( ( resolve, reject ) => {
+		const id = setTimeout( () => {
+			clearTimeout( id );
+			reject( 'Timed out in ' + timeout + 'ms.' );
+		}, timeout );
+	} );
 	const newTabTarget = new Promise( resolve => {
 		const listener = async target => {
 			if ( target.type() === 'page' ) {
@@ -133,5 +154,7 @@ export async function clickAndWaitForNewPage( page, selector ) {
 	} );
 
 	await waitAndClick( page, selector );
-	return await ( await newTabTarget ).page();
+
+	const target = await Promise.race( [ newTabTarget, timeoutPromise ] );
+	return await target.page();
 }
