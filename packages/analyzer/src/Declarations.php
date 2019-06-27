@@ -109,6 +109,11 @@ class Declarations extends PersistentList {
 						$this->add( new Declarations\Class_Property( $file, $line, $class_name, $name, $static ) );
 						break;
 
+					case 'class_const':
+						echo "Loading class const declaration\n";
+						$this->add( new Declarations\Class_Const( $file, $line, $class_name, $name ) );
+						break;
+
 					case 'method':
 						$params      = json_decode( $params_json );
 						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static );
