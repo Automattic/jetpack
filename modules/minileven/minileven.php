@@ -350,11 +350,6 @@ function jetpack_mobile_customizer_controls( $wp_customize ) {
 
 add_action( 'jetpack_custom_css_customizer_controls', 'jetpack_mobile_customizer_controls' );
 
-// Hide edit post link if mobile app.
-if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
-	add_filter( 'edit_post_link', '__return_empty_string' );
-}
-
 function jetpack_mobile_save_css_settings() {
 	update_option( 'wp_mobile_custom_css', isset( $_POST['mobile_css'] ) && ! empty( $_POST['mobile_css'] ) );
 }
