@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../../page-helper';
-import LoginPage from '../wpcom/login';
-import ConnectionsPage from '../wpcom/connections';
+import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../page-helper';
+import LoginPage from '../pages/wpcom/login';
+import ConnectionsPage from '../pages/wpcom/connections';
 
 export default class MailchimpBlock {
 	constructor( block, page ) {
