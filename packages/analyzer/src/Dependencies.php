@@ -16,7 +16,6 @@ class Dependencies extends PersistentList {
 		 */
 		foreach( $invocations->get() as $invocation ) {
 			foreach( $declarations->get() as $declaration ) {
-				// $warning = $
 				if ( $invocation->depends_on( $declaration ) ) {
 					$this->add( new Dependencies\Dependency( $invocation, $declaration, $invocation_root ) );
 				}
