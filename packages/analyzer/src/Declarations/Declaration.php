@@ -28,4 +28,22 @@ abstract class Declaration extends PersistentListItem {
 
 	// e.g. Jetpack::get_file_url_for_environment()
 	abstract function display_name();
+
+	// utility function
+	protected function get_params_as_string() {
+		return implode(
+			',',
+			array_map(
+				function( $param ) {
+					// echo $this->path . ':' . $this->line . ' ' . print_r($param->default,1)."\n";
+					// print_r( $this );
+					if ( ! empty( $param->default ) ) {
+						  return '$' . $param->name . '=' . $param->default;
+					}
+					return '$' . $param->name;
+				},
+				$this->params
+			)
+		);
+	}
 }
