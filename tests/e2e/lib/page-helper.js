@@ -33,6 +33,8 @@ export async function waitForSelector( page, selector, options = {} ) {
 	} catch ( e ) {
 		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
 			const bodyHTML = await page.evaluate( () => document.body.innerHTML );
+			console.log( page.url() );
+
 			console.log( bodyHTML );
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
