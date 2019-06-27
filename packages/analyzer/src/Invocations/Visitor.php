@@ -38,6 +38,10 @@ class Visitor extends NodeVisitorAbstract {
 			}
 
 			$this->invocations->add( new Function_Call( $this->file_path, $node->getLine(), $function_name ) );
+		} elseif ( $node instanceof Node\Expr\ClassConstFetch ) {
+			$this->invocations->add(
+				new Static_Const( $this->file_path, $node->getLine(), $this->node_to_class_name( $node->class ), $node->name->name )
+			);
 		} else {
 			// print_r( $node );
 		}

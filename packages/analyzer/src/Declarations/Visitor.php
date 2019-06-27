@@ -32,6 +32,13 @@ class Visitor extends NodeVisitorAbstract {
 			return;
 		}
 
+		if ( $node instanceof Node\Stmt\ClassConst && $node->isPublic() ) {
+			foreach( $node->consts as $const ) {
+				$this->declarations->add( new Class_Const( $this->current_relative_path, $node->getLine(), $this->current_class, $const->name->name ) );
+			}
+			return;
+		}
+
 		if ( $node instanceof Node\Stmt\ClassMethod && $node->isPublic() ) {
 			// ClassMethods are also listed inside interfaces, which means current_class is null
 			// so we ignore these
