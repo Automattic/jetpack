@@ -179,7 +179,6 @@
 		"eslint-plugin-wpcalypso": "4.1.0",
 		"glob": "7.1.4",
 		"husky": "2.3.0",
-		"i": "^0.3.6",
 		"jest": "24.7.1",
 		"jest-puppeteer": "4.3.0",
 		"lodash": "4.17.14",
