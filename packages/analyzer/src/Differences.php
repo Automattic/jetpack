@@ -54,13 +54,16 @@ class Differences extends PersistentList {
 
 			// do not add warnings for $moved_with_empty_file
 			if ( $matched && $moved_with_empty_file ) {
-				echo "Declaration " . $prev_declaration->display_name() . " moved from " . $prev_declaration->path . " to " . $new_declaration->path . " with matching empty file at original location\n";
+				// echo "Declaration " . $prev_declaration->display_name() . " moved from " . $prev_declaration->path . " to " . $new_declaration->path . " with matching empty file at original location\n";
 			}
 
 			if ( $matched && $moved ) {
 				switch ( $prev_declaration->type() ) {
 					case 'class':
 						$this->add( new Differences\Class_Moved( $prev_declaration, $new_declaration ) );
+						break;
+					case 'class_const':
+						$this->add( new Differences\Class_Const_Moved( $prev_declaration, $new_declaration ) );
 						break;
 					case 'method':
 						$this->add( new Differences\Class_Method_Moved( $prev_declaration, $new_declaration ) );
@@ -81,6 +84,9 @@ class Differences extends PersistentList {
 				switch ( $prev_declaration->type() ) {
 					case 'class':
 						$this->add( new Differences\Class_Missing( $prev_declaration ) );
+						break;
+					case 'class_const':
+						$this->add( new Differences\Class_Const_Missing( $prev_declaration ) );
 						break;
 					case 'method':
 						$this->add( new Differences\Class_Method_Missing( $prev_declaration ) );
