@@ -18,11 +18,11 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify function behavior.
  */
-export async function waitForSelector(
-	page,
-	selector,
-	options = { timeout: 30000, logHTML: true }
-) {
+export async function waitForSelector( page, selector, options = {} ) {
+	// set up default options
+	const defaultOptions = { timeout: 30000, logHTML: true };
+	options = Object.assign( defaultOptions, options );
+
 	let el;
 	const startTime = new Date();
 	try {
@@ -32,7 +32,7 @@ export async function waitForSelector(
 		return el;
 	} catch ( e ) {
 		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
-			const bodyHTML = await this.page.evaluate( () => document.body.innerHTML );
+			const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 			console.log( bodyHTML );
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
