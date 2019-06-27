@@ -22,12 +22,17 @@ export default class MailchimpBlock {
 	 * - Starts by logging in to WPCOM account in page opened in new tab
 	 * - Connects to Mailchimp once Connection page is loaded
 	 * - Closes WPCOM tab
+	 *
+	 * @param {boolean} isLoggedIn Whether we need to login before connecting
+	 *
 	 */
-	async connect() {
+	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='marketing/connections']" );
 		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
 
-		await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
+		if ( ! isLoggedIn ) {
+			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
+		}
 		await ( await ConnectionsPage.init( loginTab ) ).connectMailchimp();
 
 		const reCheckSelector = this.getSelector( 'button.is-link' );
