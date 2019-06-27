@@ -5,6 +5,7 @@
  * Deprecated methods for Jetpack to act as client with wpcom, provided for back-compatibility.
  *
  * @category   Connection
+ *
  * @package    Client
  */
 
@@ -16,6 +17,7 @@ use Automattic\Jetpack\Connection\Client;
  * @deprecated Use Automattic\Jetpack\Connection\Client
  */
 class Jetpack_Client {
+	const WPCOM_JSON_API_VERSION = Client::WPCOM_JSON_API_VERSION;
 
 	/**
 	 * Perform remote request.
