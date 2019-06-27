@@ -18,6 +18,13 @@ use Automattic\Jetpack\Connection\Client;
 class Jetpack_Client {
 
 	/**
+	 * Jetpack API version.
+	 *
+	 * @deprecated use Automattic\Jetpack\Connection\Client::WPCOM_JSON_API_VERSION
+	 */
+	const WPCOM_JSON_API_VERSION = '1.1';
+
+	/**
 	 * Perform remote request.
 	 *
 	 * @deprecated use Automattic\Jetpack\Connection\Client::remote_request
@@ -45,7 +52,13 @@ class Jetpack_Client {
 	 *
 	 * @return Array|WP_Error
 	 */
-	public static function wpcom_json_api_request_as_blog( $path, $version, $args, $body, $base_api_path ) {
+	public static function wpcom_json_api_request_as_blog(
+		$path,
+		$version = self::WPCOM_JSON_API_VERSION,
+		$args = array(),
+		$body = null,
+		$base_api_path = 'rest'
+	) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Connection\Client' );
 		return Client::wpcom_json_api_request_as_blog( $path, $version, $args, $body, $base_api_path );
 	}
