@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\Analyzer;
 
 /**
- * This simply lists dependencies of invocations in Codebase A to declarations in codebase B
+ * This collects dependencies of invocations in Codebase A to declarations in codebase B
  */
 class Dependencies extends PersistentList {
 	function generate( $invocations, $declarations, $invocation_root = null ) {
@@ -12,7 +12,7 @@ class Dependencies extends PersistentList {
 		}
 
 		/**
-		 * Scan every invocation to see if it depends on a Difference
+		 * Scan every invocation to see if it depends on a declaration
 		 */
 		foreach( $invocations->get() as $invocation ) {
 			foreach( $declarations->get() as $declaration ) {
@@ -34,7 +34,7 @@ class Dependencies extends PersistentList {
 			return '';
 		}
 
-		// assoc array of issues and counts
+		// assoc array of declarations and counts
 		$summary = array();
 		foreach( $this->get() as $dependency ) {
 			$unique_issue_key = $dependency->declaration->display_name();
@@ -61,7 +61,7 @@ class Dependencies extends PersistentList {
 			return '';
 		}
 
-		// assoc array of issues and counts
+		// assoc array of files and counts
 		$summary = array();
 		foreach( $this->get() as $dependency ) {
 			$unique_issue_key = $dependency->full_path();
