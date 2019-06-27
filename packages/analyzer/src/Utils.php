@@ -16,7 +16,7 @@ class Utils {
 			return 'array()';
 		} elseif ( $default instanceof Node\Expr\ConstFetch ) {
 			return $default->name->toCodeString();
-		} elseif ( $default instanceof Node\Scalar\LNumber ) {
+		} elseif ( $default instanceof Node\Scalar\LNumber || $default instanceof Node\Scalar\DNumber ) {
 			return $default->value;
 		} elseif ( $default instanceof Node\Scalar\String_ ) {
 			return '\'' . $default->value . '\'';
