@@ -15,13 +15,6 @@ class Dependency extends PersistentListItem {
 		$this->invocation_root = $invocation_root;
 	}
 
-	// /**
-	//  * This key is used to identify unique issues (e.g. Jetpack_Options has moved) across multiple invocations
-	//  */
-	// function unique_issue_key() {
-	// 	return $this->type . ',' . $this->old_declaration->path . ',' . $this->old_declaration->line . ',' . $this->old_declaration->display_name();
-	// }
-
 	function to_csv_array() {
 		return array(
 			'dependency',
