@@ -12,10 +12,10 @@ class Class_Method extends Declaration {
 	public $static;
 
 	function __construct( $path, $line, $class_name, $method_name, $static ) {
-		$this->class_name = $class_name;
+		$this->class_name  = $class_name;
 		$this->method_name = $method_name;
-		$this->params = array();
-		$this->static = $static;
+		$this->params      = array();
+		$this->static      = $static;
 		parent::__construct( $path, $line );
 	}
 
@@ -32,7 +32,7 @@ class Class_Method extends Declaration {
 			$this->class_name,
 			$this->method_name,
 			$this->static,
-			json_encode( $this->params )
+			json_encode( $this->params ),
 		);
 	}
 
@@ -42,6 +42,6 @@ class Class_Method extends Declaration {
 
 	function display_name() {
 		$sep = $this->static ? '::' : '->';
-		return $this->class_name . $sep . $this->method_name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
+		return $this->class_name . $sep . $this->method_name . '(' . $this->get_params_as_string() . ')';
 	}
 }

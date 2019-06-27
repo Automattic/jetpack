@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Analyzer\Declarations;
 
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Node;
+use Automattic\Jetpack\Analyzer\Utils;
 
 class Visitor extends NodeVisitorAbstract {
 	private $current_class;
@@ -12,14 +13,14 @@ class Visitor extends NodeVisitorAbstract {
 
 	public function __construct( $current_relative_path, $declarations ) {
 		$this->current_relative_path = $current_relative_path;
-		$this->declarations = $declarations;
-		$this->current_class = null;
+		$this->declarations          = $declarations;
+		$this->current_class         = null;
 	}
 
 	public function enterNode( Node $node ) {
 
 		if ( $node instanceof Node\Stmt\Class_ ) {
-			$namespaced_name = '\\' . implode( '\\', $node->namespacedName->parts );
+			$namespaced_name     = '\\' . implode( '\\', $node->namespacedName->parts );
 			$this->current_class = $namespaced_name;
 
 			$this->declarations->add( new Class_( $this->current_relative_path, $node->getLine(), $namespaced_name ) );
@@ -46,7 +47,8 @@ class Visitor extends NodeVisitorAbstract {
 			}
 			$method = new Class_Method( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
 			foreach ( $node->getParams() as $param ) {
-				$method->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+				$param_default = Utils::get_param_default_as_string( $param->default, $this->current_class );
+				$method->add_param( $param->var->name, $param_default, $param->type, $param->byRef, $param->variadic );
 			}
 			$this->declarations->add( $method );
 			return;
@@ -55,9 +57,10 @@ class Visitor extends NodeVisitorAbstract {
 		if ( $node instanceof Node\Stmt\Function_ ) {
 			$function = new Function_( $this->current_relative_path, $node->getLine(), $node->name->name );
 			foreach ( $node->getParams() as $param ) {
-				$function->add_param( $param->var->name, $param->default, $param->type, $param->byRef, $param->variadic );
+				$param_default = Utils::get_param_default_as_string( $param->default, $this->current_class );
+				$function->add_param( $param->var->name, $param_default, $param->type, $param->byRef, $param->variadic );
 			}
-			$this->declarations->add( $function  );
+			$this->declarations->add( $function );
 			return;
 		}
 	}
