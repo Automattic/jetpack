@@ -187,7 +187,7 @@ class Jetpack_Gutenberg {
 	 * @param string $reason A string representation of why the extension is unavailable.
 	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
-	public static function set_extension_unavailable( $slug, $reason, $details ) {
+	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
 		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
 			'reason'  => $reason,
 			'details' => $details,
