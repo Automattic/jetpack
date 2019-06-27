@@ -110,7 +110,6 @@ class Declarations extends PersistentList {
 						break;
 
 					case 'class_const':
-						echo "Loading class const declaration\n";
 						$this->add( new Declarations\Class_Const( $file, $line, $class_name, $name ) );
 						break;
 
