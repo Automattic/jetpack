@@ -54,6 +54,10 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
 	}
 
+	function test_jetpack_sync_action_sender_exists() {
+		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
+	}
+
 	function provider_deprecated_method_stubs() {
 		return array(
 			array( 'Jetpack_Options', 'get_option' ),
@@ -66,6 +70,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Sync_Settings', 'update_settings' ),
 			array( 'Jetpack_Sync_Settings', 'reset_data' ),
 			array( 'Jetpack_Tracks_Client', 'get_connected_user_tracks_identity' ),
+			array( 'Jetpack_Sync_Actions', 'initialize_listener' ),
 //			array( 'JetpackTracking', 'record_user_event' ),
 		);
 	}
