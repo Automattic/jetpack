@@ -58,7 +58,6 @@ class Utils {
 		}
 
 		if ( $class_name  === '\\self' && ! is_null( $class_for_self ) ) {
-			echo "Substituting $class_name with $class_for_self\n";
 			$class_name = $class_for_self;
 		}
 
