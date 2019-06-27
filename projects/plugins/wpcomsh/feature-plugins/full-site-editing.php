@@ -13,10 +13,18 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 	// `environment-id` is added to Gutenframe `iframe` query args
 	// within the Calypso repo
 	$is_horizon = ( ! empty( $_GET['environment-id'] ) && $_GET['environment-id'] === 'horizon' );
-
-	// Disable outside Horizon
-	if ( ! $is_horizon ) {
-		return true;
+	
+	// Never disable on Horizon.
+	if ( $is_horizon ) {
+		return false;
+	}
+	
+	// Disable for 80% of sites.
+	if ( class_exists( 'Jetpack' ) && Jetpack::is_active() ) {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+		if ( ! empty( $blog_id ) && 0 !== ( $blog_id % 5 ) ) {
+			return true;
+		}
 	}
 
 	$enabled_themes = [
@@ -55,20 +63,20 @@ add_filter( 'a8c_disable_full_site_editing', '__return_true', 99 );
  * @return array The modified config
  */
 function wpcom_fse_spt_add_tracking_identity_to_config( $config ) {
-    // Load identity.
-    $has_active_jetpack = ( class_exists('Jetpack') && Jetpack::is_active() );
-    if ( $has_active_jetpack && class_exists( 'Jetpack_Tracks_Client' ) ) {
-        $config['tracksUserData'] = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-        // Enqueue tracks script.
-        wp_enqueue_script(
-            'jp-tracks',
-            '//stats.wp.com/w.js',
-            [],
-            gmdate('YW'),
-            true
-        );
-    }
+	// Load identity.
+	$has_active_jetpack = ( class_exists( 'Jetpack' ) && Jetpack::is_active() );
+	if ( $has_active_jetpack && class_exists( 'Jetpack_Tracks_Client' ) ) {
+		$config['tracksUserData'] = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		// Enqueue tracks script.
+		wp_enqueue_script(
+			'jp-tracks',
+			'//stats.wp.com/w.js',
+			[],
+			gmdate( 'YW' ),
+			true
+		);
+	}
 
-    return $config;
+	return $config;
 }
 add_filter( 'fse_starter_page_templates_config', 'wpcom_fse_spt_add_tracking_identity_to_config' );
