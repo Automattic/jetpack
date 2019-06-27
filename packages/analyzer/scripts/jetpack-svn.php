@@ -14,9 +14,9 @@
 require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 // Args
-$external_repo_path   = $argv[1] ?? '/path/to/workspace/a8c/some-repo';
-$from_version         = $argv[2] ?? ''; // Defaults to latest stable version in wp.org svn
-$to_version           = $argv[3] ?? 'trunk';
+$external_repo_path = isset( $argv[1] ) ? $argv[1] : '/path/to/workspace/a8c/some-repo';
+$from_version       = isset( $argv[2] ) ? $argv[2] : ''; // Defaults to latest stable version in wp.org svn
+$to_version         = isset( $argv[3] ) ? $argv[3] : 'trunk';
 
 if ( ! file_exists( $external_repo_path ) ) {
 	echo "Need a path of another codebase to compare Jetpack changes against.\n";
