@@ -71,6 +71,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Sync_Settings', 'reset_data' ),
 			array( 'Jetpack_Tracks_Client', 'get_connected_user_tracks_identity' ),
 			array( 'Jetpack_Sync_Actions', 'initialize_listener' ),
+			array( 'Jetpack_Sync_Actions', 'initialize_sender' ),
 //			array( 'JetpackTracking', 'record_user_event' ),
 		);
 	}
