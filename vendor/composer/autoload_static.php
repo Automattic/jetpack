@@ -4,8 +4,12 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf5bd3b8680106d662aaac34c3fcd384b
+class ComposerStaticInit8cfd3a259ecce002f0973646373b6d9f
 {
+    public static $files = array (
+        '009de6aaa0d497eacea41fab13fc05f1' => __DIR__ . '/..' . '/automattic/jetpack-compat/functions.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'A' => 
         array (
@@ -101,8 +105,13 @@ class ComposerStaticInitf5bd3b8680106d662aaac34c3fcd384b
         'Automattic\\Jetpack\\Sync\\Users' => __DIR__ . '/..' . '/automattic/jetpack-sync/src/Users.php',
         'Automattic\\Jetpack\\Sync\\Utils' => __DIR__ . '/..' . '/automattic/jetpack-sync/src/Utils.php',
         'Automattic\\Jetpack\\Tracking' => __DIR__ . '/..' . '/automattic/jetpack-tracking/src/Tracking.php',
+        'JetpackTracking' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class.jetpack-tracks.php',
+        'Jetpack_Client' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class.jetpack-client.php',
         'Jetpack_Options' => __DIR__ . '/..' . '/automattic/jetpack-options/legacy/class.jetpack-options.php',
         'Jetpack_Signature' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/class.jetpack-signature.php',
+        'Jetpack_Sync_Actions' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class.jetpack-sync-actions.php',
+        'Jetpack_Sync_Modules' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class.jetpack-sync-modules.php',
+        'Jetpack_Sync_Settings' => __DIR__ . '/..' . '/automattic/jetpack-compat/legacy/class.jetpack-sync-settings.php',
         'Jetpack_Tracks_Client' => __DIR__ . '/..' . '/automattic/jetpack-tracking/legacy/class.tracks-client.php',
         'Jetpack_Tracks_Event' => __DIR__ . '/..' . '/automattic/jetpack-tracking/legacy/class.tracks-event.php',
     );
@@ -110,9 +119,9 @@ class ComposerStaticInitf5bd3b8680106d662aaac34c3fcd384b
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf5bd3b8680106d662aaac34c3fcd384b::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf5bd3b8680106d662aaac34c3fcd384b::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitf5bd3b8680106d662aaac34c3fcd384b::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8cfd3a259ecce002f0973646373b6d9f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8cfd3a259ecce002f0973646373b6d9f::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit8cfd3a259ecce002f0973646373b6d9f::$classMap;
 
         }, null, ClassLoader::class);
     }
