@@ -139,8 +139,8 @@ class AutoloadGenerator extends BaseGenerator {
 				foreach ( $autoload['classmap'] as $paths ) {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
-						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
-						$autoloads[] = array(
+						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
+						$autoloads[]  = array(
 							'path'    => $relativePath,
 							'version' => $package->getVersion(), // Version of the class comes from the package - should we try to parse it?
 						);
@@ -261,6 +261,16 @@ function enqueue_packages_$suffix() {
 	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 	foreach ( \$class_map as \$class_name => \$class_info ) {
 		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
+	}
+	
+	\$includeFiles = require __DIR__ . '/composer/autoload_files.php';
+
+	foreach ( \$includeFiles as \$fileIdentifier => \$file ) {
+		if ( empty( \$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] ) ) {
+			require \$file;
+
+			\$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] = true;
+		}
 	}
 }
 enqueue_packages_$suffix();
