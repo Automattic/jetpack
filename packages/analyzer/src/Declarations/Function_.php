@@ -11,7 +11,7 @@ class Function_ extends Declaration {
 
 	function __construct( $path, $line, $func_name ) {
 		$this->func_name = $func_name;
-		$this->params = array();
+		$this->params    = array();
 		parent::__construct( $path, $line );
 	}
 
@@ -28,7 +28,7 @@ class Function_ extends Declaration {
 			'',
 			$this->func_name,
 			'',
-			json_encode( $this->params )
+			json_encode( $this->params ),
 		);
 	}
 
@@ -37,6 +37,6 @@ class Function_ extends Declaration {
 	}
 
 	function display_name() {
-		return $this->func_name . '(' . implode( ', ', array_map( function( $param ) { return '$' . $param->name; }, $this->params ) ) . ')';
+		return $this->func_name . '(' . $this->get_params_as_string() . ')';
 	}
 }
