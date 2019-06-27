@@ -49,7 +49,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	function test_deprecated_file_paths( $file_path, $replacement_path, $error_level ) {
 		require_once JETPACK__PLUGIN_DIR . $file_path;
 
-		l( $file_path, $replacement_path, $error_level );
 		$this->assertDeprecatedFileError( $file_path, $replacement_path, $error_level );
 	}
 
