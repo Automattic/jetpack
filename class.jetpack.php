@@ -717,7 +717,7 @@ class Jetpack {
 			jetpack_require_lib( 'functions.wp-notify' );
 		}
 
-        // Hide edit post link if mobile app.
+		// Hide edit post link if mobile app.
 		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
 			add_filter( 'edit_post_link', '__return_empty_string' );
 		}
