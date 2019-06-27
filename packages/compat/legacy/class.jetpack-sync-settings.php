@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Sync\Settings;
 /**
  * Class Jetpack_Sync_Settings
  *
