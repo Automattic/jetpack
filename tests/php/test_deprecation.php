@@ -73,6 +73,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Sync_Actions', 'initialize_listener' ),
 			array( 'Jetpack_Sync_Actions', 'initialize_sender' ),
 //			array( 'JetpackTracking', 'record_user_event' ),
+			array( 'Jetpack_Sync_Modules', 'get_module' ),
 		);
 	}
 
