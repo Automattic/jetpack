@@ -11,7 +11,7 @@ class Utils {
 	/**
 	 * parses the node used to describe parameter defaults into a string for easy comparison
 	 */
-	static function get_param_default_as_string( $default ) {
+	static function get_param_default_as_string( $default, $current_class ) {
 		if ( $default instanceof Node\Expr\Array_ ) {
 			return 'array()';
 		} elseif ( $default instanceof Node\Expr\ConstFetch ) {
@@ -21,17 +21,17 @@ class Utils {
 		} elseif ( $default instanceof Node\Scalar\String_ ) {
 			return '\'' . $default->value . '\'';
 		} elseif ( $default instanceof Node\Expr\UnaryMinus ) {
-			return '-' . self::get_param_default_as_string( $default->expr );
+			return '-' . self::get_param_default_as_string( $default->expr, $current_class );
 		} elseif ( $default instanceof Node\Expr\UnaryPlus ) {
-			return '+' . self::get_param_default_as_string( $default->expr );
+			return '+' . self::get_param_default_as_string( $default->expr, $current_class );
 		} elseif ( $default instanceof Node\Expr\ClassConstFetch ) {
-			return self::node_to_class_name( $default->class ) . '::' . $default->name->name;
+			return self::node_to_class_name( $default->class, $current_class ) . '::' . $default->name->name;
 		} else {
 			return $default;
 		}
 	}
 
-	static function node_to_class_name( $node ) {
+	static function node_to_class_name( $node, $class_for_self = null ) {
 		if ( $node instanceof Node\Expr\Variable
 			|| $node instanceof Node\Stmt\Class_ ) {
 			$class_name = $node->name;
@@ -55,6 +55,11 @@ class Utils {
 			} else {
 				$class_name = get_class( $node );
 			}
+		}
+
+		if ( $class_name  === '\\self' && ! is_null( $class_for_self ) ) {
+			echo "Substituting $class_name with $class_for_self\n";
+			$class_name = $class_for_self;
 		}
 
 		return $class_name;

@@ -47,7 +47,7 @@ class Visitor extends NodeVisitorAbstract {
 			}
 			$method = new Class_Method( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
 			foreach ( $node->getParams() as $param ) {
-				$param_default = Utils::get_param_default_as_string( $param->default );
+				$param_default = Utils::get_param_default_as_string( $param->default, $this->current_class );
 				$method->add_param( $param->var->name, $param_default, $param->type, $param->byRef, $param->variadic );
 			}
 			$this->declarations->add( $method );
@@ -57,7 +57,7 @@ class Visitor extends NodeVisitorAbstract {
 		if ( $node instanceof Node\Stmt\Function_ ) {
 			$function = new Function_( $this->current_relative_path, $node->getLine(), $node->name->name );
 			foreach ( $node->getParams() as $param ) {
-				$param_default = Utils::get_param_default_as_string( $param->default );
+				$param_default = Utils::get_param_default_as_string( $param->default, $this->current_class );
 				$function->add_param( $param->var->name, $param_default, $param->type, $param->byRef, $param->variadic );
 			}
 			$this->declarations->add( $function );
