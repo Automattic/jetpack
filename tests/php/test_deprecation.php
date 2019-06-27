@@ -49,6 +49,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	function test_deprecated_file_paths( $file_path, $replacement_path, $error_level ) {
 		require_once JETPACK__PLUGIN_DIR . $file_path;
 
+		l( $file_path, $replacement_path, $error_level );
 		$this->assertDeprecatedFileError( $file_path, $replacement_path, $error_level );
 	}
 
@@ -87,17 +88,17 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 
 			array(
 				'class.jetpack-options.php',
-				'packages/options/legacy/class.jetpack-options.php',
+				null,
 				E_USER_NOTICE,
 			),
 			array(
 				'class.jetpack-client.php',
-				'packages/connection/src/Client.php',
+				null,
 				E_USER_NOTICE,
 			),
 			array(
 				'_inc/lib/tracks/class.tracks-client.php',
-				'packages/tracking/legacy/class.tracks-client.php',
+				null,
 				E_USER_NOTICE,
 			),
 			array(
