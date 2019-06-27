@@ -97,7 +97,9 @@ export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
 
 /**
  * Extracts a `accountName` configuration from the config file.
+ *
  * @param {string} accountName one of the keys of `testAccounts` entry in config file
+ *
  * @return {Array} username and password
  */
 export function getAccountCredentials( accountName ) {
@@ -107,4 +109,27 @@ export function getAccountCredentials( accountName ) {
 	}
 
 	return globalConfig.get( accountName );
+}
+
+/**
+ * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
+ *
+ * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {string} selector CSS selector of the element
+ *
+ * @return {Puppeteer.Page} New instance of the opened page.
+ */
+export async function clickAndWaitForNewPage( page, selector ) {
+	const newTabTarget = new Promise( resolve => {
+		const listener = async target => {
+			if ( target.type() === 'page' ) {
+				browser.removeListener( 'targetcreated', listener );
+				resolve( target );
+			}
+		};
+		browser.addListener( 'targetcreated', listener );
+	} );
+
+	await waitAndClick( page, selector );
+	return await ( await newTabTarget ).page();
 }
