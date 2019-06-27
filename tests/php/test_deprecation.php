@@ -89,6 +89,12 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 				'packages/connection/src/Client.php',
 				E_USER_NOTICE,
 			),
+			// this relies on test fixes already ported to branch list-of-deprecated-methods
+			// array(
+			// 	'sync/class.jetpack-sync-modules.php',
+			// 	'packages/compat/legacy/class.jetpack-sync-modules.php',
+			// 	E_USER_NOTICE,
+			// ),
 		);
 	}
 
