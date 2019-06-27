@@ -27,6 +27,11 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	public function assertDeprecatedFileError( $deprecated, $replacement, $errno ) {
 		foreach ( $this->errors as $error ) {
 			if ( $error['errno'] === $errno ) {
+				// The error uses only the file name, not the path. Remove relative path if present so they can match.
+				if ( false !== strrpos( $deprecated, DIRECTORY_SEPARATOR ) ) {
+					$deprecated = substr( $deprecated, strrpos( $deprecated, DIRECTORY_SEPARATOR ) + 1 );
+				}
+
 				if ( $error['errcontext']['file'] === $deprecated && $error['errcontext']['replacement'] === $replacement ) {
 					self::assertTrue( true );
 
@@ -74,27 +79,233 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Sync_Settings', 'reset_data' ),
 			array( 'Jetpack_Sync_Settings', 'update_settings' ),
 			array( 'Jetpack_Tracks_Client', 'get_connected_user_tracks_identity' ),
+			array( 'Jetpack_Sync_Settings', 'is_syncing' ),
 		);
 	}
 
 	function provider_deprecated_file_paths() {
 		return array(
+
 			array(
 				'class.jetpack-options.php',
-				'packages/options/legacy/class.jetpack-options.php',
+				null,
 				E_USER_NOTICE,
 			),
 			array(
 				'class.jetpack-client.php',
-				'packages/connection/src/Client.php',
+				null,
 				E_USER_NOTICE,
 			),
-			// this relies on test fixes already ported to branch list-of-deprecated-methods
-			// array(
-			// 	'sync/class.jetpack-sync-modules.php',
-			// 	'packages/compat/legacy/class.jetpack-sync-modules.php',
-			// 	E_USER_NOTICE,
-			// ),
+			array(
+				'_inc/lib/tracks/class.tracks-client.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'_inc/lib/tracks/class.tracks-event.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'class.jetpack-constants.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'class.jetpack-jitm.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'class.jetpack-signature.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'class.jetpack-tracks.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-actions.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-defaults.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-functions.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-json-deflate-array-codec.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-listener.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-attachments.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-callables.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-comments.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-constants.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-full-sync.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-import.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-menus.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-meta.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-network-options.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-options.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-plugins.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-posts.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-protect.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-stats.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-terms.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-themes.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-updates.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-users.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-woocommerce.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module-wp-super-cache.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-module.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-modules.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-queue.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-sender.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-server.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-settings.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-simple-codec.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-users.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/class.jetpack-sync-wp-replicastore.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/interface.jetpack-sync-codec.php',
+				null,
+				E_USER_NOTICE,
+			),
+			array(
+				'sync/interface.jetpack-sync-replicastore.php',
+				null,
+				E_USER_NOTICE,
+			),
 		);
 	}
 
