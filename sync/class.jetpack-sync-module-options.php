@@ -1,5 +1,5 @@
 <?php
 /**
- * Deprecated since 7.5 – Jetpack_Sync_Module_Options are autoloaded from REPLACEMENT
+ * Deprecated since 7.5
  */
-_deprecated_file( basename( __FILE__ ), 'jetpack-7.5', 'ADD REPLACEMENT_PATH' );
+_deprecated_file( basename( __FILE__ ), 'jetpack-7.5' );
