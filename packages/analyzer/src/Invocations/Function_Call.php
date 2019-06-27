@@ -3,13 +3,14 @@
 namespace Automattic\Jetpack\Analyzer\Invocations;
 
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
+use Automattic\Jetpack\Analyzer\Declarations\Function_;
 
 /**
  * Invocations of a function
  *
  * TODO: detect dynamic invocations like `$function_name( 'hi' )`
  */
-class Function_Call extends PersistentListItem {
+class Function_Call extends PersistentListItem implements Depends_On {
 	public $path;
 	public $line;
 	public $func_name;
@@ -36,5 +37,10 @@ class Function_Call extends PersistentListItem {
 
 	function display_name() {
 		return $this->func_name;
+	}
+
+	function depends_on( $declaration ) {
+		return $declaration instanceof Function_
+			&& $this->func_name === $declaration->func_name;
 	}
 }

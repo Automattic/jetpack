@@ -3,13 +3,14 @@
 namespace Automattic\Jetpack\Analyzer\Invocations;
 
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
+use Automattic\Jetpack\Analyzer\Declarations\Class_Const;
 
 /**
  * Instantiation of a class
  *
  * TODO: detect dynamic instantiations like `$shape = new $class_name( $this->images )`
  */
-class Static_Const extends PersistentListItem {
+class Static_Const extends PersistentListItem implements Depends_On {
 	public $path;
 	public $line;
 	public $class_name;
@@ -38,5 +39,11 @@ class Static_Const extends PersistentListItem {
 
 	function display_name() {
 		return $this->class_name . '::' . $this->const_name;
+	}
+
+	function depends_on( $declaration ) {
+		return $declaration instanceof Class_Const
+			&& $this->class_name === $declaration->class_name
+			&& $this->const_name === $declaration->const_name;
 	}
 }
