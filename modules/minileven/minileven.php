@@ -350,19 +350,10 @@ function jetpack_mobile_customizer_controls( $wp_customize ) {
 
 add_action( 'jetpack_custom_css_customizer_controls', 'jetpack_mobile_customizer_controls' );
 
-/**
- * Process edit post link tags for mobile apps.
- *
- * @param $link
- */
-function jetpack_mobile_app_edit_post_link( $link ) {
-	// If WordPress mobile apps, then hide edit links to avoid confusion/conflict.
-	if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
-		return '';
-	}
-	return $link;
+// Hide edit post link if mobile app.
+if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+	add_filter( 'edit_post_link', '__return_empty_string' );
 }
-add_filter( 'edit_post_link', 'jetpack_mobile_app_edit_post_link', 20 );
 
 function jetpack_mobile_save_css_settings() {
 	update_option( 'wp_mobile_custom_css', isset( $_POST['mobile_css'] ) && ! empty( $_POST['mobile_css'] ) );
