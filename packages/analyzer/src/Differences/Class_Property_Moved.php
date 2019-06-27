@@ -29,13 +29,10 @@ class Class_Property_Moved extends PersistentListItem implements Invocation_Warn
 	}
 
 	public function find_invocation_warnings( $invocation, $warnings ) {
-		if ( $invocation instanceof Static_Property ) {
-			// check if it's using this missing property
-			if ( $invocation->class_name === $this->old_declaration->class_name
-				&& $invocation->prop_name === $this->old_declaration->prop_name
-				&& $this->old_declaration->static ) {
-				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class static property ' . $this->old_declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path, $this->old_declaration ) );
-			}
+		if ( $invocation->depends_on( $this->old_declaration ) ) {
+			$warnings->add(
+				new Warning( $this->type(), $invocation->path, $invocation->line, 'Class static property ' . $this->old_declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path, $this->old_declaration )
+			);
 		}
 	}
 }

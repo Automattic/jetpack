@@ -51,6 +51,19 @@ $invocations->scan( $external_base_path . '/example-external.php' );
 // $invocations->scan( '/Users/dan/workspace/a8c/some-repo', array( '.git', '.gitmodules', 'assets' ) );
 // $invocations->output();
 
+echo "\n*** List of dependencies\n";
+$dependencies = new Automattic\Jetpack\Analyzer\Dependencies();
+$dependencies->generate( $invocations, $jp74_declarations, $repo_path );
+$dependencies->output();
+
+echo "\n*** Summary of dependencies by declaration\n";
+echo $dependencies->declaration_summary();
+
+echo "\n*** Summary of dependencies by external file\n";
+echo $dependencies->external_file_summary();
+
+
+echo "\n*** List of warnings\n";
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();
 $warnings->generate( $invocations, $differences );
 $warnings->output();
