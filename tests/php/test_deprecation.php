@@ -9,6 +9,11 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$this->set_error_handler();
 	}
 
+	private function set_error_handler() {
+		$this->errors = array();
+		set_error_handler( array( $this, "errorHandler" ) );
+	}
+
 	public function tearDown() {
 		parent::tearDown();
 		restore_error_handler();
@@ -19,9 +24,13 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			"errline", "errcontext" );
 	}
 
-	private function set_error_handler() {
-		$this->errors = array();
-		set_error_handler( array( $this, "errorHandler" ) );
+	/**
+	 * @dataProvider provider_deprecated_file_paths
+	 */
+	function test_deprecated_file_paths( $file_path, $replacement_path, $error_level ) {
+		require_once JETPACK__PLUGIN_DIR . $file_path;
+
+		$this->assertDeprecatedFileError( $file_path, $replacement_path, $error_level );
 	}
 
 	public function assertDeprecatedFileError( $deprecated, $replacement, $errno ) {
@@ -44,23 +53,10 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider provider_deprecated_file_paths
-	 */
-	function test_deprecated_file_paths( $file_path, $replacement_path, $error_level ) {
-		require_once JETPACK__PLUGIN_DIR . $file_path;
-
-		$this->assertDeprecatedFileError( $file_path, $replacement_path, $error_level );
-	}
-
-	/**
 	 * @dataProvider provider_deprecated_method_stubs
 	 */
 	function test_deprecated_method_stubs( $class_name, $method_name ) {
 		$this->assertTrue( method_exists( $class_name, $method_name ) );
-	}
-
-	function test_jetpack_sync_action_sender_exists() {
-		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}
 
 	function provider_deprecated_method_stubs() {
@@ -81,6 +77,41 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Tracks_Client', 'get_connected_user_tracks_identity' ),
 			array( 'Jetpack_Sync_Settings', 'is_syncing' ),
 		);
+	}
+
+	/**
+	 * @dataProvider provider_deprecated_defined_functions
+	 */
+	function test_deprecated_defined_functions( $function ) {
+		$this->assertTrue( function_exists( $function ) );
+	}
+
+	function provider_deprecated_defined_functions() {
+		return array(
+			array( 'jetpack_tracks_get_identity' ),
+			array( 'jetpack_tracks_record_event_raw' ),
+			array( 'jetpack_tracks_record_event' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provider_deprecated_lib_stubs
+	 */
+	function test_deprecated_lib( $lib, $functions = array() ) {
+		jetpack_require_lib( $lib );
+		foreach ( $functions as $function ) {
+			$this->assertTrue( function_exists( $function ) );
+		}
+	}
+
+	function provider_deprecated_lib_stubs() {
+		return array(
+			array( 'tracks/client', array( 'jetpack_tracks_record_event' ) ),
+		);
+	}
+
+	function test_jetpack_sync_action_sender_exists() {
+		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}
 
 	function provider_deprecated_file_paths() {
