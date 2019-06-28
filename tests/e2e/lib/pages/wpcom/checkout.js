@@ -42,15 +42,10 @@ export default class CheckoutPage extends Page {
 	}
 
 	async waitForPaymentProcessing() {
-		const paymentButtonSelector = '.credit-card-payment-box button.is-primary:not([disabled])';
 		const progressBarSelector = '.checkout__credit-card-payment-box-progress-bar';
-		await waitForSelector( this.page, progressBarSelector, { hidden: true, timeout: 3 * 30000 } );
-		// For some reason first purchase attempt fails quite often. Going to try for a second time.
-		if ( ! this.paymentFailed && this.page.$( paymentButtonSelector ) ) {
-			this.paymentFailed = true;
-			// eslint-disable-next-line no-console
-			console.log( 'First payment attempt failed. Trying one more time!' );
-			return this.submitPaymentDetails();
+		if ( await isEventuallyVisible( this.page, progressBarSelector ) ) {
+			// Wait for the progress bar to finish.
+			await waitForSelector( this.page, progressBarSelector, { hidden: true, timeout: 3 * 30000 } );
 		}
 	}
 
