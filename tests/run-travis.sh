@@ -21,6 +21,19 @@ function run_packages_tests {
 	done
 }
 
+function print_build_info {
+	echo
+	echo "--------------------------------------------"
+	echo "Running \`$WP_TRAVISCI\` with:"
+	echo " - $(phpunit --version)"
+	echo " - WordPress branch: $WP_BRANCH"
+	if [ "master" == "$WP_BRANCH" ]; then
+		echo " - Because WordPress is in master branch, will also attempt to test multisite."
+	fi
+	echo "--------------------------------------------"
+	echo
+}
+
 echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
@@ -38,12 +51,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	fi
 
-	echo "Running \`$WP_TRAVISCI\` with:"
-	echo " - $(phpunit --version)"
-	echo " - WordPress branch: $WP_BRANCH"
-	if [ "master" == "$WP_BRANCH" ]; then
-		echo " - Because WordPress is in master branch, will also attempt to test multisite."
-	fi
+	print_build_info
 
 	# WP_BRANCH = master | latest | previous
 	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"
