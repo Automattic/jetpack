@@ -40,7 +40,7 @@ registerStore( 'wordpress-com/plans', {
 
 	controls: {
 		FETCH_FROM_API( { url } ) {
-			return apiFetch( { url } );
+			return apiFetch( { url, credentials: 'omit', mode: 'no-cors' } );
 		},
 	},
 
