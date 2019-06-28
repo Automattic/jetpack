@@ -14,6 +14,7 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
   - [How to run tests](#how-to-run-tests)
 - [Writing tests](#writing-tests)
 - [Tests Architecture](#tests-architecture)
+- [CI configuration](#ci-configuration)
 
 ## Pre-requisites
 
@@ -109,4 +110,15 @@ constructor( page ) {
 }
 ```
 
-Since most of Puppeteer functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSele
+Since most of Puppeteer functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelector` to become visible.
+
+## CI Configuration
+
+The heart of CI infrastructure is a [`setup-e2e-travis.sh`](./bin/setup-e2e-travis.sh) script. This script doing a few things:
+
+- Installs and launches `ngrok` which is tunneling `localhost:80` to the public domain
+- Installs and sets-up the `nginx`
+- Installs and sets-up WordPress installation
+- Activates Jetpack plugin
+
+You disable e2e tests in Travis by setting Travis env variable `RUN_E2E` to false (or just removing it completely) in on project's [settings page](https://travis-ci.org/Automattic/jetpack/settings). To re-enable them - just set it to `true`
