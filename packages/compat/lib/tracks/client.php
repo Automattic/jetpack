@@ -1,23 +1,13 @@
 <?php
 
 /**
- * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_record_event_raw instead
- */
-function jetpack_tracks_record_event_raw( $event ) {
-	_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Tracking->tracks_record_event_raw' );
-
-	$tracking = new Automattic\Jetpack\Tracking( 'jetpack', Jetpack::connection() );
-	return $tracking->jetpack_tracks_record_event_raw( $event );
-}
-
-/**
  * @deprecated 7.5.0 use Automattic\Jetpack\Tracking->tracks_get_identity instead
  */
 function jetpack_tracks_get_identity( $user_id ) {
 	_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Tracking->tracks_get_identity' );
 
 	$tracking = new Automattic\Jetpack\Tracking( 'jetpack', Jetpack::connection() );
-	return $tracking->jetpack_tracks_get_identity( $user_id );
+	return $tracking->tracks_get_identity( $user_id );
 }
 
 /**
@@ -27,5 +17,5 @@ function jetpack_tracks_record_event( $user, $event_name, $properties = array(),
 	_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Tracking->tracks_record_event' );
 
 	$tracking = new Automattic\Jetpack\Tracking( 'jetpack', Jetpack::connection() );
-	return $tracking->jetpack_tracks_record_event( $user, $event_name, $properties, $event_timestamp_millis );
+	return $tracking->tracks_record_event( $user, $event_name, $properties, $event_timestamp_millis );
 }

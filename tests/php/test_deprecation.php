@@ -89,7 +89,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	function provider_deprecated_defined_functions() {
 		return array(
 			array( 'jetpack_tracks_get_identity' ),
-			array( 'jetpack_tracks_record_event_raw' ),
 			array( 'jetpack_tracks_record_event' ),
 		);
 	}
