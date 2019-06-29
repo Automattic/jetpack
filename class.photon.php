@@ -471,7 +471,7 @@ class Jetpack_Photon {
 					 * @since 2.0.0
 					 *
 					 * @param array $args Array of Photon Arguments.
-					 * @param array $args {
+					 * @param array $details {
 					 *     Array of image details.
 					 *
 					 *     @type string    $tag            Image tag (Image HTML output).
@@ -481,10 +481,11 @@ class Jetpack_Photon {
 					 *     @type int|false $height         Image height.
 					 *     @type int|false $width_orig     Original image width before constrained by content_width.
 					 *     @type int|false $height_orig    Original Image height before constrained by content_width.
+					 *     @type string    $transform      Transform.
 					 *     @type string    $transform_orig Original transform before constrained by content_width.
 					 * }
 					 */
-					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform_orig' ) );
+					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform', 'transform_orig' ) );
 
 					$photon_url = jetpack_photon_url( $src, $args );
 
