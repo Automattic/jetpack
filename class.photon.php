@@ -543,7 +543,7 @@ class Jetpack_Photon {
 						}
 
 						// Tag an image for dimension checking
-						if ( ! Jetpack_AMP_Support::is_amp_request() ) {
+						if ( ! self::is_amp_endpoint() ) {
 							$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
 						}
 
@@ -1190,7 +1190,7 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	public function action_wp_enqueue_scripts() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( self::is_amp_endpoint() ) {
 			return;
 		}
 		wp_enqueue_script(
@@ -1272,5 +1272,17 @@ class Jetpack_Photon {
 	 */
 	public function _override_image_downsize_in_rest_edit_context() {
 		return true;
+	}
+
+	/**
+	 * Return whether the current page is AMP.
+	 *
+	 * This is only present for the sake of WordPress.com where the Jetpack_AMP_Support
+	 * class does not yet exist. This mehod may only be called at the wp action or later.
+	 *
+	 * @return bool Whether AMP page.
+	 */
+	private static function is_amp_endpoint() {
+		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 	}
 }
