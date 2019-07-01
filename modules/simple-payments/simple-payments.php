@@ -64,12 +64,13 @@ class Jetpack_Simple_Payments {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
 			jetpack_register_block( 'jetpack/simple-payments' );
 		} else {
+			$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 			Jetpack_Gutenberg::set_extension_unavailable(
 				'jetpack/simple-payments',
 				'missing_plan',
 				array(
 					'required_feature' => 'simple-payments',
-					'required_plan' => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium'
+					'required_plan' => ( defined( 'SHOW_BLOCK_UPGRADE_NUDGE' ) && SHOW_BLOCK_UPGRADE_NUDGE ) ? $required_plan : false
 				)
 			);
 		}
