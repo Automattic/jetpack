@@ -20,7 +20,7 @@ class UpgradeTest extends Component {
 				source="aag-backups"
 				target="at-a-glance"
 				feature="backups"
-			>
+			/>
 		);
 	}
 	
