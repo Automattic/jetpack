@@ -475,6 +475,7 @@ class Jetpack_SSO {
 							);
 						?>
 					</h2>
+					<?php do_action( 'jetpack_sso_login_form' ); ?>
 				</div>
 
 			<?php endif; ?>
