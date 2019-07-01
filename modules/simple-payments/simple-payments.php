@@ -69,7 +69,8 @@ class Jetpack_Simple_Payments {
 				'missing_plan',
 				array(
 					'required_feature' => 'simple-payments',
-					'required_plan' => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium'				)
+					'required_plan' => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium'
+				)
 			);
 		}
 	}
