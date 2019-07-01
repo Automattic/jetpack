@@ -21,11 +21,13 @@ const UpgradeNudge = ( { feature, plan, planName } ) => (
 		<Gridicon className="upgrade-nudge__icon" icon="star" size={ 18 } />
 		<div className="upgrade-nudge__info">
 			<span className="upgrade-nudge__title">
-				{ sprintf( __( 'You need at least the following plan: %(planName)s', 'jetpack' ), {
+				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
 					planName,
 				} ) }
 			</span>
-			<span className="upgrade-nudge__message">{ __( 'To gain access to this block.' ) }</span>
+			<span className="upgrade-nudge__message">
+				{ __( 'To make this block visible on your site' ) }
+			</span>
 		</div>
 		<Button
 			className="upgrade-nudge__button"
