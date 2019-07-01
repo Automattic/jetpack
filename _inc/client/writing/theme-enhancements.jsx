@@ -159,7 +159,7 @@ class ThemeEnhancements extends React.Component {
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
 						<p>
 							{ __(
-								'Create a smooth, uninterrupted reading experience on your site by loading more content as visitors scroll to the bottom of your archive pages.'
+								'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.'
 							) }
 						</p>
 						{ this.props.isInfiniteScrollSupported ? (
@@ -170,11 +170,11 @@ class ThemeEnhancements extends React.Component {
 								},
 								{
 									key: 'infinite_button',
-									label: __( 'Add a button that visitors can click to see more content' ),
+									label: __( 'Add a button to let users load content manually' ),
 								},
 								{
 									key: 'infinite_scroll',
-									label: __( 'Load more content automatically as the reader scrolls down' ),
+									label: __( 'Enable infinite scrolling' ),
 								},
 							].map( radio => (
 								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
@@ -221,10 +221,8 @@ class ThemeEnhancements extends React.Component {
 						<FormLegend className="jp-form-label-wide">{ __( ' Mobile Theme' ) }</FormLegend>
 						<p>
 							{ __(
-								'The Jetpack Mobile Theme gives your content a clean, uncluttered look on mobile devices. ' +
-									'It loads fast and gives your mobile visitors an excellent reading experience. ' +
-									'Jetpack uses the mobile theme when detecting a mobile device, on all other screen sizes ' +
-									'visitors will see your regular theme.'
+								'Give your site a fast-loading, streamlined look for mobile devices. Visitors will ' +
+									'still see your regular theme on other screen sizes.'
 							) }
 						</p>
 						<ModuleToggle
