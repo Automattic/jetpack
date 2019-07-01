@@ -19,10 +19,6 @@ function requiresPlan( unavailableReason, details ) {
 	return false;
 }
 
-const blockFeatureMap = {
-	'simple-payments': 'simple-payments',
-};
-
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
@@ -50,7 +46,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		...settings,
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
 		edit: requiredPlan
-			? wrapPaidBlock( { feature: blockFeatureMap[ name ], requiredPlan } )( settings.edit )
+			? wrapPaidBlock( { feature: details.required_feature, requiredPlan } )( settings.edit )
 			: settings.edit,
 	} );
 
