@@ -51,14 +51,14 @@ __( "Error updating %(slug)s settings. %(error)s", "jetpack" ), // _inc/client/s
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:294
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:318
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:339
-__( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js:89
-__( "Updating privacy settings…", "jetpack" ), // _inc/client/state/tracking/actions.js:46
-__( "Updated privacy settings.", "jetpack" ), // _inc/client/state/tracking/actions.js:47
-__( "Error updating privacy settings. %(error)s", "jetpack" ), // _inc/client/state/tracking/actions.js:52
 __( "Updating settings…", "jetpack" ), // _inc/client/state/settings/actions.js:91
 __( "Updated settings.", "jetpack" ), // _inc/client/state/settings/actions.js:92
 __( "Error updating settings. %(error)s", "jetpack" ), // _inc/client/state/settings/actions.js:97
 __( "Updated settings. Refreshing page…", "jetpack" ), // _inc/client/state/settings/actions.js:112
+__( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js:89
+__( "Updating privacy settings…", "jetpack" ), // _inc/client/state/tracking/actions.js:46
+__( "Updated privacy settings.", "jetpack" ), // _inc/client/state/tracking/actions.js:47
+__( "Error updating privacy settings. %(error)s", "jetpack" ), // _inc/client/state/tracking/actions.js:52
 /* translators: Onboarding task list progress */
 __( "Your Jetpack setup progress", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-progress-card/index.js:40
 /* translators: Text on link to list of onboarding tasks */
@@ -314,6 +314,8 @@ _x( "Secure", "Short message informing user that the site is secure.", "jetpack"
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:134
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:167
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:36
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:41
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -370,8 +372,6 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:36
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:41
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
 __( "Share your content to social media, reaching new audiences and increasing engagement.", "jetpack" ), // _inc/client/sharing/index.jsx:60
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
