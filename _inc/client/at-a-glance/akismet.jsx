@@ -42,7 +42,7 @@ class DashAkismet extends Component {
 		analytics.tracks.recordJetpackClick( {
 			type: 'install-link',
 			target: 'at-a-glance',
-			feature: 'akismet',
+			feature: 'anti-spam',
 		} );
 	}
 
@@ -50,7 +50,7 @@ class DashAkismet extends Component {
 		analytics.tracks.recordJetpackClick( {
 			type: 'activate-link',
 			target: 'at-a-glance',
-			feature: 'akismet',
+			feature: 'anti-spam',
 		} );
 	}
 
