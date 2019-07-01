@@ -107,7 +107,7 @@ var jetpackLazyImagesModule = function( $ ) {
 
 		srcset = theImage.attr( 'data-lazy-srcset' );
 		sizes = theImage.attr( 'data-lazy-sizes' );
-		theClone = theImage.clone();
+		theClone = theImage.clone(true);
 
 		// Remove lazy attributes from the clone.
 		theClone.removeAttr( 'data-lazy-srcset' ),

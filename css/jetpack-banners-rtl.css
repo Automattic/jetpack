@@ -408,12 +408,12 @@ https://github.com/thoughtbot/bourbon
   margin: 0 auto;
 }
 
-.jp-connect-illo img.jetpack-logo {
+.jp-connect-illo .jetpack-logo {
   margin-bottom: 2.25rem;
 }
 
 @media (max-width: 530px) {
-  .jp-connect-illo img.jetpack-logo {
+  .jp-connect-illo .jetpack-logo {
     margin-right: 0;
   }
 }

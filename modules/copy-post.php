@@ -1,8 +1,7 @@
 <?php
 /**
  * Module Name: Copy Post
- * Module Description: Copy an existing post's content into a new draft post
- * Jumpstart Description: Copy an existing post's content into a new draft post
+ * Module Description: Enable the option to copy entire posts and pages, including tags and settings
  * Sort Order: 15
  * First Introduced: 7.0
  * Requires Connection: No

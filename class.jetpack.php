@@ -438,7 +438,7 @@ class Jetpack {
 
 	/**
 	 * Saves all the currently active modules to options.
-	 * Also fires Action hooks for each newly activated and deactived module.
+	 * Also fires Action hooks for each newly activated and deactivated module.
 	 *
 	 * @param $modules Array Array of active modules to be saved in options.
 	 *
@@ -2472,7 +2472,6 @@ class Jetpack {
 		$headers = array(
 			'name'                      => 'Module Name',
 			'description'               => 'Module Description',
-			'jumpstart_desc'            => 'Jumpstart Description',
 			'sort'                      => 'Sort Order',
 			'recommendation_order'      => 'Recommendation Order',
 			'introduced'                => 'First Introduced',
@@ -2532,12 +2531,11 @@ class Jetpack {
 		 * Filters the feature array on a module.
 		 *
 		 * This filter allows you to control where each module is filtered: Recommended,
-		 * Jumpstart, and the default "Other" listing.
+		 * and the default "Other" listing.
 		 *
 		 * @since 3.5.0
 		 *
 		 * @param array   $mod['feature'] The areas to feature this module:
-		 *     'Jumpstart' adds to the "Jumpstart" option to activate many modules at once.
 		 *     'Recommended' shows on the main Jetpack admin screen.
 		 *     'Other' should be the default if no other value is in the array.
 		 * @param string  $module The slug of the module, e.g. sharedaddy.
@@ -5060,7 +5058,8 @@ p {
 				'_ui'             => $tracks_identity['_ui'],
 				'_ut'             => $tracks_identity['_ut'],
 				'site_created'    => Jetpack::get_assumed_site_creation_date(),
-				'jetpack_version' => JETPACK__VERSION
+				'jetpack_version' => JETPACK__VERSION,
+				'ABSPATH'         => defined( 'ABSPATH' ) ? ABSPATH : '',
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
@@ -5109,15 +5108,7 @@ p {
 		 */
 		do_action( 'jetpack_site_registered', $registration_details->jetpack_id, $registration_details->jetpack_secret, $jetpack_public );
 
-		// Initialize Jump Start for the first and only time.
-		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
-			Jetpack_Options::update_option( 'jumpstart', 'new_connection' );
-
-			$jetpack = Jetpack::init();
-
-			$jetpack->stat( 'jumpstart', 'unique-views' );
-			$jetpack->do_stats( 'server_side' );
-		};
+		$jetpack = Jetpack::init();
 
 		return true;
 	}
@@ -5991,14 +5982,15 @@ p {
 			'urls' => array(
 				'#\.staging\.wpengine\.com$#i', // WP Engine
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com
-				),
+				'#\.stage\.site$#i'             // DreamPress
+			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine
 				'KINSTA_DEV_ENV',       // Kinsta.com
 				'WPSTAGECOACH_STAGING', // WP Stagecoach
 				'JETPACK_STAGING_MODE', // Generic
-				)
-			);
+			)
+		);
 		/**
 		 * Filters the flags of known staging sites.
 		 *
