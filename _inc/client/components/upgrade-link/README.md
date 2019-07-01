@@ -15,7 +15,13 @@ import UpgradeLink from 'components/upgrade-link';
 class UpgradeTest extends Component {
 
 	render() {
-		return <UpgradeLink source="aag-backups">;
+		return (
+			<UpgradeLink
+				source="aag-backups"
+				target="at-a-glance"
+				feature="backups"
+			/>
+		);
 	}
 	
 }
@@ -31,5 +37,23 @@ The following props can be passed to the UpgradeLink component:
 	<tr><td>Required</td><td>Yes</td></tr>
 </table>
 
-Pass a string describing the context where this link was found and clicked.
+Pass a string describing the local context (like a card) where this link was found and clicked.
+
+### `target`
+
+<table>
+	<tr><td>Type</td><td>String</td></tr>
+	<tr><td>Required</td><td>Yes</td></tr>
+</table>
+
+Pass a string pointing the view (like a tab) where this link was found and clicked.
+
+### `target`
+
+<table>
+	<tr><td>Type</td><td>String</td></tr>
+	<tr><td>Required</td><td>No</td></tr>
+</table>
+
+Pass a string with the name of the feature related to this upgrade link.
 
