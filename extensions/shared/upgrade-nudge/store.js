@@ -40,10 +40,11 @@ registerStore( 'wordpress-com/plans', {
 	controls: {
 		FETCH_FROM_API( { url } ) {
 			// We cannot use `@wordpress/api-fetch` here since it unconditionally sends
-			// the `X-WP-Nonce` header, which is disallowed by WordPress.com
-			return fetch( url, { credentials: 'same-origin', mode: 'cors' } ).then( response =>
-				response.json()
-			);
+			// the `X-WP-Nonce` header, which is disallowed by WordPress.com.
+			// (To reproduce, note that you need to call `apiFetch` with `
+			// `{ credentials: 'same-origin', mode: 'cors' }`, since its defaults are
+			// different from `fetch`'s.)
+			return fetch( url ).then( response => response.json() );
 		},
 	},
 
