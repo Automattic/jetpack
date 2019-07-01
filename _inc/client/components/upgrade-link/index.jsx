@@ -18,7 +18,7 @@ class UpgradeLink extends PureComponent {
 	static propTypes = {
 		source: PropTypes.string.isRequired,
 		target: PropTypes.string.isRequired,
-		feature: PropTypes.string.isRequired,
+		feature: PropTypes.string,
 
 		// Connected
 		upgradeUrl: PropTypes.string.isRequired,
