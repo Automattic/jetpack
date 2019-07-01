@@ -20,7 +20,7 @@ const actions = {
 };
 
 registerStore( 'wordpress-com/plans', {
-	reducer( state = {}, action ) {
+	reducer( state = [], action ) {
 		switch ( action.type ) {
 			case 'SET_PLANS':
 				return action.plans;
@@ -32,8 +32,8 @@ registerStore( 'wordpress-com/plans', {
 	actions,
 
 	selectors: {
-		getPlan( state ) {
-			return state; // TODO: Find and return plan by planSlug
+		getPlan( state, planSlug ) {
+			return state.find( plan => plan.product_slug === planSlug );
 		},
 	},
 

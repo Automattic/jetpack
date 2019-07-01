@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { get } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
@@ -15,12 +16,14 @@ import './store';
 
 import './style.scss';
 
-const UpgradeNudge = ( { feature, plan } ) => (
+const UpgradeNudge = ( { feature, plan, planName } ) => (
 	<div className="upgrade-nudge">
 		<Gridicon className="upgrade-nudge__icon" icon="star" size={ 18 } />
 		<div className="upgrade-nudge__info">
 			<span className="upgrade-nudge__title">
-				{ sprintf( __( 'You need at least the following plan: %(plan)s', 'jetpack' ), { plan } ) }
+				{ sprintf( __( 'You need at least the following plan: %(planName)s', 'jetpack' ), {
+					planName,
+				} ) }
 			</span>
 			<span className="upgrade-nudge__message">{ __( 'To gain access to this block.' ) }</span>
 		</div>
@@ -36,8 +39,7 @@ const UpgradeNudge = ( { feature, plan } ) => (
 		</Button>
 	</div>
 );
-export default withSelect( ( select, { plan } ) => {
-	const plans = select( 'wordpress-com/plans' ).getPlan();
-	console.log( plan, plans );
-	return { plans };
+export default withSelect( ( select, { plan: planSlug } ) => {
+	const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
+	return { planName: get( plan, [ 'product_name_short' ] ) };
 } )( UpgradeNudge );
