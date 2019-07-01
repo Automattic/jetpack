@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { registerStore } from '@wordpress/data';
 
 const actions = {
@@ -40,7 +39,11 @@ registerStore( 'wordpress-com/plans', {
 
 	controls: {
 		FETCH_FROM_API( { url } ) {
-			return apiFetch( { url, credentials: 'omit', mode: 'no-cors' } );
+			// We cannot use `@wordpress/api-fetch` here since it unconditionally sends
+			// the `X-WP-Nonce` header, which is disallowed by WordPress.com
+			return fetch( url, { credentials: 'same-origin', mode: 'cors' } ).then( response =>
+				response.json()
+			);
 		},
 	},
 
