@@ -905,12 +905,15 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @covers Jetpack_Photon::filter_the_content
 	 * @dataProvider photon_attributes_when_amp_response
 	 * @since 7.6.0
+	 *
+	 * @param string $sample_html Sample HTML.
+	 * @param string $photon_src  Photon URL suffix (after the subdomain).
 	 */
 	public function test_photon_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
-		$this->assertSame( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
+		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
 		$this->assertArrayHasKey( 'width', $attributes );
 		$this->assertArrayHasKey( 'height', $attributes );
 		$this->assertNotContains( 'data-recalc-dims', $filtered_content );
@@ -925,11 +928,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		return array(
 			'amp-img' => array(
 				'<amp-img class="aligncenter wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="102" height="61"></amp-img>',
-				'https://i1.wp.com/www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg?resize=102%2C61',
+				'.wp.com/www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg?resize=102%2C61',
 			),
 			'amp-anim' => array(
 				'<amp-anim alt="LOL" src="https://example.com/lol.gif" width="32" height="32"></amp-anim>',
-				'https://i0.wp.com/example.com/lol.gif?resize=32%2C32&ssl=1',
+				'.wp.com/example.com/lol.gif?resize=32%2C32&ssl=1',
 			),
 		);
 	}
@@ -961,7 +964,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
 
 		$this->assertContains(
-			'https://i0.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1440&#038;ssl=1',
+			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1440&#038;ssl=1',
 			$filtered_content
 		);
 

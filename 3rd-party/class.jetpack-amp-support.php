@@ -356,6 +356,20 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
+	 * Tells Jetpack not to enqueue CSS for share buttons.
+	 *
+	 * @param  bool $enqueue Whether or not to enqueue.
+	 * @return bool          Whether or not to enqueue.
+	 */
+	public static function amp_disable_sharedaddy_css( $enqueue ) {
+		if ( self::is_amp_request() ) {
+			$enqueue = false;
+		}
+
+		return $enqueue;
+	}
+
+	/**
 	 * Ensure proper Photon image dimensions for AMP Stories.
 	 *
 	 * @param array $args Array of Photon Arguments.
