@@ -27,11 +27,13 @@ class UpgradeLink extends PureComponent {
 	trackClick = () => {
 		const { target, feature } = this.props;
 
-		if ( target && feature ) {
+		if ( target ) {
+			const featureProp = feature ? { feature } : {};
+
 			analytics.tracks.recordJetpackClick( {
 				type: 'upgrade-link',
 				target,
-				feature,
+				...featureProp,
 			} );
 		}
 	};
