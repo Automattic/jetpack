@@ -183,7 +183,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 		$get_image_options = array(
 			'from_html' => true,
 			'fallback_to_avatars' => true,
-			'gravatar_default' => 'https://en.wordpress.com/i/logo/white-gray-80.png',
+			'gravatar_default' => 'https://s0.wp.com/i/logo/white-gray-80.png',
 		);
 
 		if ( 'grid' === $instance['display'] ) {

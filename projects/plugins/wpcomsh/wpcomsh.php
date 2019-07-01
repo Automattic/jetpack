@@ -345,7 +345,7 @@ add_action( 'init', 'wpcomsh_register_theme_hooks' );
  */
 function wpcomsh_site_icon_url( $url ) {
 	if ( empty( $url ) ) {
-		$url = 'https://en.wordpress.com/i/webclip.png';
+		$url = 'https://s0.wp.com/i/webclip.png';
 	}
 
 	return $url;
