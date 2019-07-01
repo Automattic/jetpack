@@ -18,5 +18,4 @@ class Test_Logo extends TestCase {
 		$this->assertEquals( 2, preg_match_all( '/class="jetpack-logo__icon-triangle"/', $logo_render ) );
 		$this->assertContains( 'class="jetpack-logo__text"', $logo_render );
 	}
-
 }
