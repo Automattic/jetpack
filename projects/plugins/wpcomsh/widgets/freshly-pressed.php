@@ -67,7 +67,7 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 	}
 
 	function get_badge_url( $badge ) {
-		return 'https://en.wordpress.com/i/badges/freshly-pressed-' . $badge . '.png';
+		return 'https://s0.wp.com/i/badges/freshly-pressed-' . $badge . '.png';
 	}
 
 	function badges() {
