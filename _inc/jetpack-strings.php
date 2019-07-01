@@ -288,10 +288,6 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
-__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
-__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
-__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
-__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
@@ -304,6 +300,10 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
+__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
+__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
+__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
+__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 __( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:77
 __( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:82
 __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:87
