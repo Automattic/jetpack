@@ -27,8 +27,6 @@
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php && yarn build-extensions",
 		"build-client": "gulp",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
-		"build-search": "webpack --config ./webpack.config.search.js --mode production",
-		"build-search-dev": "webpack --config ./webpack.config.search.js --mode development --watch",
 		"build-php": "composer install",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",

@@ -74,4 +74,13 @@ module.exports = [
 			} ),
 		],
 	},
+	{
+		...sharedWebpackConfig,
+		entry: { search: path.join( __dirname, './_inc/search/src/index.jsx' ) },
+		output: {
+			...sharedWebpackConfig.output,
+			path: path.resolve( __dirname, '_inc/search/dist' ),
+			filename: 'jp-search.bundle.js',
+		},
+	},
 ];
