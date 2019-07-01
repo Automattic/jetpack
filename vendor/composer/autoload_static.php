@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit49f1579d042e4d22f01be14d9e20b9e8
+class ComposerStaticInit37a642a8c7f9ee37f5780bc66e7368de
 {
     public static $files = array (
         '009de6aaa0d497eacea41fab13fc05f1' => __DIR__ . '/..' . '/automattic/jetpack-compat/functions.php',
@@ -119,9 +119,9 @@ class ComposerStaticInit49f1579d042e4d22f01be14d9e20b9e8
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit49f1579d042e4d22f01be14d9e20b9e8::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit49f1579d042e4d22f01be14d9e20b9e8::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit49f1579d042e4d22f01be14d9e20b9e8::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit37a642a8c7f9ee37f5780bc66e7368de::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit37a642a8c7f9ee37f5780bc66e7368de::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit37a642a8c7f9ee37f5780bc66e7368de::$classMap;
 
         }, null, ClassLoader::class);
     }
