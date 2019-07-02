@@ -36,6 +36,9 @@ __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
+__( "Sending login email…", "jetpack" ), // _inc/client/state/mobile/actions.js:22
+__( "Login email sent", "jetpack" ), // _inc/client/state/mobile/actions.js:34
+__( "Failed to send login email", "jetpack" ), // _inc/client/state/mobile/actions.js:49
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:87
 __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/actions.js:107
 __( "%(slug)s failed to activate. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:130
@@ -48,17 +51,14 @@ __( "Error updating %(slug)s settings. %(error)s", "jetpack" ), // _inc/client/s
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:294
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:318
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:339
-__( "Sending login email…", "jetpack" ), // _inc/client/state/mobile/actions.js:22
-__( "Login email sent", "jetpack" ), // _inc/client/state/mobile/actions.js:34
-__( "Failed to send login email", "jetpack" ), // _inc/client/state/mobile/actions.js:49
 __( "Updating settings…", "jetpack" ), // _inc/client/state/settings/actions.js:91
 __( "Updated settings.", "jetpack" ), // _inc/client/state/settings/actions.js:92
 __( "Error updating settings. %(error)s", "jetpack" ), // _inc/client/state/settings/actions.js:97
 __( "Updated settings. Refreshing page…", "jetpack" ), // _inc/client/state/settings/actions.js:112
+__( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js:89
 __( "Updating privacy settings…", "jetpack" ), // _inc/client/state/tracking/actions.js:46
 __( "Updated privacy settings.", "jetpack" ), // _inc/client/state/tracking/actions.js:47
 __( "Error updating privacy settings. %(error)s", "jetpack" ), // _inc/client/state/tracking/actions.js:52
-__( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js:89
 /* translators: Onboarding task list progress */
 __( "Your Jetpack setup progress", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-progress-card/index.js:40
 /* translators: Text on link to list of onboarding tasks */
