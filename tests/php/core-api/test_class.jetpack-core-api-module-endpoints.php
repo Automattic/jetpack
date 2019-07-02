@@ -14,7 +14,6 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_
 	/**
 	 * @author zinigor
 	 * @covers Jetpack_Core_API_Module_Activate_Endpoint
-	 * @requires PHP 5.2
 	 * @dataProvider api_routes
 	 */
 	public function test_register_routes( $route_string = false, $method = false, $classname = false ) {

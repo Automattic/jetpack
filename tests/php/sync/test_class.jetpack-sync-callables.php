@@ -642,12 +642,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_register_post_types_callback_error() {
-		if ( version_compare(PHP_VERSION, '5.4', '<' ) ) {
-			$this->markTestSkipped( 'Callbacks are only available in PHP 5.4 and greater' );
-			return;
-		}
-		// This file needs to be included conditionally so PHP 5.2 does not error due to static analysis of this file.
-		require_once dirname( __FILE__ ) . '/anonymous_function_test_for_register_post_types_callback_error.php';
+		register_post_type( 'testing', array( 'register_meta_box_cb' => function() {} ) );
 		$this->sender->do_sync();
 
 		$post_types =  $this->server_replica_storage->get_callable( 'post_types' );

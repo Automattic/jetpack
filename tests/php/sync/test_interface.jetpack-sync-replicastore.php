@@ -11,8 +11,6 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 
 /*
  * Tests all known implementations of the replicastore
- *
- * @requires PHP 5.3
  */
 
 class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
@@ -36,13 +34,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	public function setUp() {
 		parent::setUp();
-
-		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
-			$this->markTestSkipped(
-				'PHP 5.2 and below does not support ReflectionProperty to the extent that we need.'
-			);
-			return;
-		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			switch_to_blog( self::$token->blog_id );
@@ -69,7 +60,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Test that the checksum values between implementations are the same
-	 * @requires PHP 5.3
 	 */
 	function test_all_checksums_match() {
 		$post           = self::$factory->post( 5 );
@@ -161,7 +151,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_checksum_with_id_range( $store ) {
 		$post           = self::$factory->post( 5 );
@@ -213,7 +202,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_does_not_checksum_spam_comments( $store ) {
 		$comment        = self::$factory->comment( 3, 1 );
@@ -233,7 +221,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_strips_non_ascii_chars_for_checksum( $store ) {
 		$utf8_post = self::$factory->post( 1, array( 'post_content' => 'Panamá' ) );
@@ -262,7 +249,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_checksum_histogram( $store ) {
 
@@ -334,7 +320,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_checksum_posts_return_different_values_on_enej_case( $store ) {
 		$store->reset();
@@ -359,7 +344,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_histogram_accepts_columns( $store ) {
 		for ( $i = 1; $i <= 20; $i += 1 ) {
@@ -379,7 +363,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_histogram_detects_missing_columns( $store ) {
 		global $wpdb;
@@ -410,7 +393,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_upsert_post( $store ) {
 		$this->assertEquals( 0, $store->post_count() );
@@ -440,7 +422,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_get_posts( $store ) {
 		$store->upsert_post( self::$factory->post( 1, array( 'post_status' => 'draft' ) ) );
@@ -465,7 +446,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_checksum_posts( $store ) {
 		$before_checksum = $store->posts_checksum();
@@ -483,7 +463,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_upsert_comment( $store ) {
 		$this->assertEquals( 0, $store->comment_count() );
@@ -511,7 +490,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_checksum_comments( $store ) {
 		$before_checksum = $store->comments_checksum();
@@ -525,7 +503,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_get_comments( $store ) {
 		$post_id = 1;
@@ -548,7 +525,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
@@ -561,7 +537,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_delete_option( $store ) {
 		$option_name  = 'test_replicastore_' . rand();
@@ -575,7 +550,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_set_theme_support( $store ) {
 
@@ -685,7 +659,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_reset_preserves_internal_keys( $store ) {
 		if ( $store instanceof Jetpack_Sync_Test_Replicastore ) {
@@ -709,7 +682,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_update_meta( $store ) {
 		$store->upsert_post( self::$factory->post( 1 ) );
@@ -725,7 +697,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_update_meta_array( $store ) {
 		$meta_array = array( 'trees' => 'green', 'ocean' => 'blue' );
@@ -772,7 +743,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_set_constant( $store ) {
 		$this->assertNull( $store->get_constant( 'FOO' ) );
@@ -788,7 +758,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_set_updates( $store ) {
 		$this->assertNull( $store->get_updates( 'core' ) );
@@ -804,7 +773,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_set_callables( $store ) {
 		if ( $store instanceof Replicastore ) {
@@ -824,7 +792,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_set_site_options( $store ) {
 		$this->assertFalse( $store->get_site_option( 'foo' ), 'Site option Not empty.' );
@@ -836,7 +803,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_delete_site_option( $store ) {
 		$store->update_site_option( 'to_delete', 'me' );
@@ -854,7 +820,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_update_users( $store ) {
 		if ( $store instanceof Replicastore ) {
@@ -896,7 +861,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_get_allowed_mime_types( $store ) {
 		if ( $store instanceof Replicastore ) {
@@ -917,7 +881,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	public function test_replica_update_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
@@ -944,7 +907,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_delete_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
@@ -969,7 +931,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_update_post_terms( $store ) {
 		$taxonomy = 'test_shadow_taxonomy_term';
@@ -1003,7 +964,6 @@ class WP_Test_iJetpack_Sync_Replicastore extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider store_provider
-	 * @requires PHP 5.3
 	 */
 	function test_replica_delete_post_terms( $store ) {
 		$this->markTestIncomplete( 'contains SQL' );

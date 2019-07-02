@@ -1089,10 +1089,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_can_sync_individual_comments() {
-		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
-			$this->markTestSkipped( 'This test fails in PHP 5.2.' );
-		}
-
 		$post_id = $this->factory->post->create();
 		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 );
 
@@ -1223,10 +1219,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
-		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
-			$this->markTestSkipped( 'This test fails in PHP 5.2.' );
-		}
-
 		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
