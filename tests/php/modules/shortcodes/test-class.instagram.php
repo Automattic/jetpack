@@ -124,8 +124,8 @@ BODY;
 	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_image_url_with_embed() {
-		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped('must be revisited.');
+		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped( 'must be revisited.' );
 		}
 		global $post;
 
@@ -149,8 +149,8 @@ BODY;
 	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_video_url_with_embed() {
-		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped('must be revisited.');
+		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped( 'must be revisited.' );
 		}
 		global $post;
 
@@ -174,8 +174,8 @@ BODY;
 	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_profile_image_url_with_embed() {
-		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped('must be revisited.');
+		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped( 'must be revisited.' );
 		}
 		global $post;
 
@@ -202,8 +202,8 @@ BODY;
 	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_profile_video_url_with_embed() {
-		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
-			$this->markTestSkipped('must be revisited.');
+		if ( 'master' === getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped( 'must be revisited.' );
 		}
 		global $post;
 
