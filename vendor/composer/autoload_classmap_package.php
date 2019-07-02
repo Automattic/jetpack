@@ -6,265 +6,265 @@ $vendorDir = dirname(__DIR__);
 $baseDir   = dirname($vendorDir);
 
 return array( 
-	'Automattic\\Jetpack\\Sync\\Modules\\Options' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Options.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Plugins' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Plugins.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Callables' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Callables.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Full_Sync.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Themes' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Themes.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Posts' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Posts.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Menus' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Menus.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Updates' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Updates.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WooCommerce.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WP_Super_Cache.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Attachments' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Attachments.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Users' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Users.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Terms' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Terms.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Comments' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Comments.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Protect' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Protect.php'
-	),
 	'Automattic\\Jetpack\\Sync\\Modules\\Network_Options' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Network_Options.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Stats' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Stats.php'
 	),
 	'Automattic\\Jetpack\\Sync\\Modules\\Import' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Import.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Module' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Terms' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Module.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Constants' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Constants.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Meta' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Meta.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Server' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Server.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Sender' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Sender.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Options' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Options.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Plugins' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Plugins.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Callables' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Callables.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Full_Sync.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Terms.php'
 	),
 	'Automattic\\Jetpack\\Sync\\Modules\\Themes' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Themes.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Posts' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Comments' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Posts.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Menus' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Menus.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Updates' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Updates.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Comments.php'
 	),
 	'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WooCommerce.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WP_Super_Cache.php'
-	),
 	'Automattic\\Jetpack\\Sync\\Modules\\Attachments' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Attachments.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Users' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Users.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Terms' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Terms.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Comments' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Comments.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Protect' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Protect.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Network_Options' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Network_Options.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Stats' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Stats.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Import' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Import.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Module' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Module.php'
-	),
-	'Automattic\\Jetpack\\Sync\\Modules\\Constants' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Constants.php'
 	),
 	'Automattic\\Jetpack\\Sync\\Modules\\Meta' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Meta.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Codec_Interface' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Plugins' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Codec_Interface.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Plugins.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Actions' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Actions.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Full_Sync.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Users' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Constants' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Users.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Constants.php'
 	),
-	'Automattic\\Jetpack\\Sync\\JSON_Deflate_Array_Codec' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Stats' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Json_Deflate_Array_Codec.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Stats.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Replicastore' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Menus' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Replicastore.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Menus.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Queue' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Users' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Queue.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Users.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Queue_Buffer' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Module' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Queue_Buffer.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Module.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Settings' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Options' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Settings.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Options.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Simple_Codec' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Updates' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Simple_Codec.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Updates.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Utils' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Utils.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WP_Super_Cache.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Replicastore_Interface' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Protect' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Replicastore_Interface.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Protect.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Defaults' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Callables' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Defaults.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Callables.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Modules' => array(
+	'Automattic\\Jetpack\\Sync\\Modules\\Posts' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Modules.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Posts.php'
 	),
 	'Automattic\\Jetpack\\Sync\\Functions' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Functions.php'
 	),
-	'Automattic\\Jetpack\\Sync\\Listener' => array(
+	'Automattic\\Jetpack\\Sync\\JSON_Deflate_Array_Codec' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Listener.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Json_Deflate_Array_Codec.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Replicastore_Interface' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Replicastore_Interface.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Actions' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Actions.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Server' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Server.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Codec_Interface' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Codec_Interface.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Settings' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Settings.php'
 	),
 	'Automattic\\Jetpack\\Sync\\Main' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Main.php'
 	),
-	'Automattic\\Jetpack\\Connection\\Manager' => array(
+	'Automattic\\Jetpack\\Sync\\Listener' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Manager.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Listener.php'
 	),
-	'Automattic\\Jetpack\\Connection\\Client' => array(
+	'Automattic\\Jetpack\\Sync\\Queue' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Client.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Queue.php'
 	),
-	'Automattic\\Jetpack\\Connection\\Manager_Interface' => array(
+	'Automattic\\Jetpack\\Sync\\Users' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Manager_Interface.php'
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Users.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Simple_Codec' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Simple_Codec.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Modules.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Queue_Buffer' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Queue_Buffer.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Utils' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Utils.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Defaults' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Defaults.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Sender' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Sender.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Network_Options' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Network_Options.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Import' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Import.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Terms' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Terms.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Themes' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Themes.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Comments' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Comments.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WooCommerce.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Attachments' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Attachments.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Meta' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Meta.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Plugins' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Plugins.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Full_Sync.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Constants' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Constants.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Stats' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Stats.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Menus' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Menus.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Users' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Users.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Module' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Module.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Options' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Options.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Updates' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Updates.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/WP_Super_Cache.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Protect' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Protect.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Callables' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Callables.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Modules\\Posts' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/modules/Posts.php'
+	),
+	'Automattic\\Jetpack\\Sync\\Replicastore' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-sync/src/Replicastore.php'
+	),
+	'Automattic\\Jetpack\\Connection\\REST_Connector' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-connection/src/REST_Connector.php'
 	),
 	'Automattic\\Jetpack\\Connection\\XMLRPC_Connector' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-connection/src/XMLRPC_Connector.php'
 	),
-	'Automattic\\Jetpack\\Connection\\REST_Connector' => array(
+	'Automattic\\Jetpack\\Connection\\Manager' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-connection/src/REST_Connector.php'
+		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Manager.php'
+	),
+	'Automattic\\Jetpack\\Connection\\Manager_Interface' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Manager_Interface.php'
+	),
+	'Automattic\\Jetpack\\Connection\\Client' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Client.php'
 	),
 	'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => array(
 		'version' => 'dev-add/jetpack-compat-package',
@@ -298,37 +298,37 @@ return array(
 		'version' => 'dev-branch-7.5',
 		'path'    => $baseDir . '/src/Tracking.php'
 	),
-	'Jetpack_Client' => array(
+	'JetpackTracking' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-client.php'
-	),
-	'Jetpack_Sync_Settings' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-sync-settings.php'
-	),
-	'Jetpack_Sync_Actions' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-sync-actions.php'
+		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-tracks.php'
 	),
 	'Jetpack_Sync_Modules' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-sync-modules.php'
 	),
-	'JetpackTracking' => array(
+	'Jetpack_Client' => array(
 		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-tracks.php'
+		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-client.php'
+	),
+	'Jetpack_Sync_Actions' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-sync-actions.php'
+	),
+	'Jetpack_Sync_Settings' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class.jetpack-sync-settings.php'
 	),
 	'Jetpack_Signature' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-connection/legacy/class.jetpack-signature.php'
 	),
-	'Jetpack_Tracks_Event' => array(
-		'version' => 'dev-add/jetpack-compat-package',
-		'path'    => $vendorDir . '/automattic/jetpack-tracking/legacy/class.tracks-event.php'
-	),
 	'Jetpack_Tracks_Client' => array(
 		'version' => 'dev-add/jetpack-compat-package',
 		'path'    => $vendorDir . '/automattic/jetpack-tracking/legacy/class.tracks-client.php'
+	),
+	'Jetpack_Tracks_Event' => array(
+		'version' => 'dev-add/jetpack-compat-package',
+		'path'    => $vendorDir . '/automattic/jetpack-tracking/legacy/class.tracks-event.php'
 	),
 	'Jetpack_Options' => array(
 		'version' => 'dev-add/jetpack-compat-package',

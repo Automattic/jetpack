@@ -288,10 +288,6 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
-__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
-__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
-__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
-__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
@@ -304,6 +300,10 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
+__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
+__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
+__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
+__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 __( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:77
 __( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:82
 __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:87
@@ -314,6 +314,8 @@ _x( "Secure", "Short message informing user that the site is secure.", "jetpack"
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:134
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:167
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:36
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:41
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -370,8 +372,6 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:36
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:41
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
 __( "Share your content to social media, reaching new audiences and increasing engagement.", "jetpack" ), // _inc/client/sharing/index.jsx:60
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
