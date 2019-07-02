@@ -213,33 +213,15 @@ class Jetpack_Debugger {
 				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
 				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
 				<?php
-				/**
-				 * Offload to new WordPress debug data in WP 5.2+
-				 *
-				 * @todo remove fallback when 5.2 is the minimum supported.
-				 */
-				if ( version_compare( $wp_version, '5.2-alpha', '>=' ) ) {
-					echo sprintf(
-						wp_kses(
-							/* translators: URL for Jetpack support. URL for WordPress's Site Health */
-							__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						'https://jetpack.com/contact-support/',
-						esc_url( admin_url() . 'site-health.php?tab=debug' )
-					);
-					$hide_debug = true;
-				} else { // Versions before 5.2, fallback.
-					echo sprintf(
-						wp_kses(
-							/* translators: URL for Jetpack support. */
-							__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						'https://jetpack.com/contact-support/'
-					);
-					$hide_debug = false;
-				}
+				echo sprintf(
+					wp_kses(
+						/* translators: URL for Jetpack support. URL for WordPress's Site Health */
+						__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),
+						array( 'a' => array( 'href' => array() ) )
+					),
+					'https://jetpack.com/contact-support/',
+					esc_url( admin_url() . 'site-health.php?tab=debug' )
+				);
 				?>
 						</p>
 				<hr />
@@ -294,18 +276,12 @@ class Jetpack_Debugger {
 				}
 				?>
 			</div>
-		<hr />
-			<?php
-			if ( ! $hide_debug ) {
-				?>
+			<hr />
 			<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
 			<div id="debug_info_div">
 				<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
 				<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
 			</div>
-				<?php
-			}
-			?>
 		</div>
 		<?php
 	}
