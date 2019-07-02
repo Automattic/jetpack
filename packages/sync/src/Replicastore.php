@@ -7,7 +7,7 @@ namespace Automattic\Jetpack\Sync;
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Replicastore implements Replicastore_Interface {
-	
+
 	public function reset() {
 		global $wpdb;
 
@@ -36,6 +36,11 @@ class Replicastore implements Replicastore_Interface {
 
 	function full_sync_end( $checksum ) {
 		// noop right now
+	}
+
+	public function term_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
 	}
 
 	public function post_count( $status = null, $min_id = null, $max_id = null ) {
@@ -683,6 +688,15 @@ class Replicastore implements Replicastore_Interface {
 				$id_field     = 'meta_id';
 				if ( empty( $columns ) ) {
 					$columns = Defaults::$default_post_meta_checksum_columns;
+				}
+				break;
+			case "terms":
+				$object_table = $wpdb->terms;
+				$object_count = $this->term_count();
+				$id_field     = 'term_id';
+				$where_sql    = '';
+				if ( empty( $columns ) ) {
+					$columns  = Jetpack_Sync_Defaults::$default_term_checksum_column;
 				}
 				break;
 			default:
