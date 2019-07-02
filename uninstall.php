@@ -18,6 +18,7 @@ if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
 }
 
 $jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
+require $jetpack_autoloader;
 
 Jetpack_Options::delete_all_known_options();
 
