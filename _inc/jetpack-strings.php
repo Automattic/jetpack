@@ -16,19 +16,16 @@ __( "View your setup checklist", "jetpack" ), // _inc/client/my-plan/my-plan-hea
 __( "Jetpack Free Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:49
 __( "Your plan: Jetpack Free", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:54
 __( "Worried about security? Get backups, automated security fixes and more: {{a}}Upgrade now{{/a}}", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:57
-__( "Jetpack Personal Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:79
-__( "Your plan: Jetpack Personal", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:84
-__( "Daily backups, spam filtering, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:88
-__( "Spam filtering and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:92
-__( "Jetpack Premium Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:108
-__( "Your plan: Jetpack Premium", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:113
-__( "Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:116
-__( "Jetpack Business Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:133
-__( "Your plan: Jetpack Professional", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:138
-__( "Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:141
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
+__( "Jetpack Personal Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:81
+__( "Your plan: Jetpack Personal", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:86
+__( "Daily backups, spam filtering, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:90
+__( "Spam filtering and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:94
+__( "Jetpack Premium Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:110
+__( "Your plan: Jetpack Premium", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:115
+__( "Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:118
+__( "Jetpack Business Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:135
+__( "Your plan: Jetpack Professional", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:140
+__( "Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:143
 __( "Testing Jetpack Connection", "jetpack" ), // _inc/client/state/connection/actions.js:42
 __( "There was an error testing Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:67
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:129
@@ -36,6 +33,9 @@ __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), /
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:173
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:184
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:199
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
 __( "Sending login email…", "jetpack" ), // _inc/client/state/mobile/actions.js:22
 __( "Login email sent", "jetpack" ), // _inc/client/state/mobile/actions.js:34
 __( "Failed to send login email", "jetpack" ), // _inc/client/state/mobile/actions.js:49
@@ -288,10 +288,6 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
-__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
-__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
-__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
-__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
@@ -304,6 +300,10 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
+__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
+__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
+__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
+__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 __( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:77
 __( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:82
 __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:87
