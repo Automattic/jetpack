@@ -209,13 +209,12 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$json_obj = json_decode( $json );
 
-				if ( 'ZERO_RESULTS' == $json_obj->status ) {
+				if ( 'ZERO_RESULTS' == $json_obj->status || empty( $json_obj->results ) ) {
 					// The address supplied does not have a matching lat / lon.
 					// No map is available.
 					$instance['lat'] = '0';
 					$instance['lon'] = '0';
 				} else {
-
 					$loc = $json_obj->results[0]->geometry->location;
 
 					$lat = floatval( $loc->lat );
