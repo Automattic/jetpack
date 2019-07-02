@@ -65,23 +65,6 @@ __( "Your Jetpack setup progress", "jetpack" ), // _inc/client/my-plan/my-plan-h
 __( "Complete Jetpack Setup", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-progress-card/index.js:55
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:87
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:106
-__( "Comments", "jetpack" ), // _inc/client/discussion/comments.jsx:70
-__( "Replaces the standard WordPress comment form with a new comment system that includes social media login options.", "jetpack" ), // _inc/client/discussion/comments.jsx:83
-__( "Comment form introduction", "jetpack" ), // _inc/client/discussion/comments.jsx:102
-__( "A few catchy words to motivate your visitors to comment.", "jetpack" ), // _inc/client/discussion/comments.jsx:115
-__( "Color scheme", "jetpack" ), // _inc/client/discussion/comments.jsx:118
-__( "Show Gravatar hovercards alongside comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:154
-__( "Enable Markdown use for comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:183
-__( "Allow readers to use markdown in comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:188
-__( "Enable comment likes.", "jetpack" ), // _inc/client/discussion/comments.jsx:206
-__( "Allow readers to like individual comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:211
-__( "Discussion", "jetpack" ), // _inc/client/discussion/index.jsx:62
-__( "Manage advanced comment settings and grow your audience with email subscriptions.", "jetpack" ), // _inc/client/discussion/index.jsx:63
-__( "View your Email Followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:73
-__( "Create a Jetpack account to view your email followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:81
-__( "Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:93
-__( "Enable the “subscribe to site” option on your comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:121
-__( "Enable the “subscribe to comments” option on your comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:134
 __( "Jetpack keeps a complete record of everything that happens on your site, taking the guesswork out of site management, debugging, and repair.", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:51
 __( "Activity", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:58
 __( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:66
@@ -172,6 +155,23 @@ __( "Jetpack Search is a powerful replacement for the search capability built in
 __( "Jetpack Search is powering search on your site.", "jetpack" ), // _inc/client/at-a-glance/search.jsx:123
 __( "Add Search (Jetpack) Widget", "jetpack" ), // _inc/client/at-a-glance/search.jsx:131
 __( "{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack Search, an advanced search experience.", "jetpack" ), // _inc/client/at-a-glance/search.jsx:140
+__( "Comments", "jetpack" ), // _inc/client/discussion/comments.jsx:70
+__( "Replaces the standard WordPress comment form with a new comment system that includes social media login options.", "jetpack" ), // _inc/client/discussion/comments.jsx:83
+__( "Comment form introduction", "jetpack" ), // _inc/client/discussion/comments.jsx:102
+__( "A few catchy words to motivate your visitors to comment.", "jetpack" ), // _inc/client/discussion/comments.jsx:115
+__( "Color scheme", "jetpack" ), // _inc/client/discussion/comments.jsx:118
+__( "Show Gravatar hovercards alongside comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:154
+__( "Enable Markdown use for comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:183
+__( "Allow readers to use markdown in comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:188
+__( "Enable comment likes.", "jetpack" ), // _inc/client/discussion/comments.jsx:206
+__( "Allow readers to like individual comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:211
+__( "Discussion", "jetpack" ), // _inc/client/discussion/index.jsx:62
+__( "Manage advanced comment settings and grow your audience with email subscriptions.", "jetpack" ), // _inc/client/discussion/index.jsx:63
+__( "View your Email Followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:73
+__( "Create a Jetpack account to view your email followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:81
+__( "Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:93
+__( "Enable the “subscribe to site” option on your comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:121
+__( "Enable the “subscribe to comments” option on your comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:134
 __( "Daily backup of all your site data with unlimited space and one-click restores", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:104
 __( "Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:109
 __( "Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:114
@@ -634,9 +634,6 @@ _x( "Cancel", "A caption for a button to cancel an action.", "jetpack" ), // _in
 _x( "Send link", "A caption for a button to log in to the WordPress mobile app.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:68
 __( "Log in to the WordPress mobile app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:89
 __( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:52
-__( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:78
-__( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:83
-__( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:88
 __( "Updating Post by Email address…", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:63
 __( "Regenerated Post by Email address.", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:64
 __( "Error regenerating Post by Email address. %(error)s", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:66
@@ -656,6 +653,9 @@ __( "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}", "jetp
 __( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:199
 __( "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:224
 __( "Display an ad unit at the top of your site.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:233
+__( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:78
+__( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:83
+__( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:88
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:53
 _x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:61
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:70
