@@ -214,10 +214,7 @@ gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
 // Default task
 gulp.task(
 	'default',
-	gulp.series(
-		gulp.parallel( react_build, 'old-styles', 'js:hint', 'php:module-headings' ),
-		sass_build
-	)
+	gulp.series( gulp.parallel( react_build, 'old-styles', 'php:module-headings' ), sass_build )
 );
 gulp.task( 'watch', gulp.parallel( react_watch, sass_watch, 'old-styles:watch' ) );
 
