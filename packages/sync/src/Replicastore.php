@@ -647,10 +647,29 @@ class Replicastore implements Replicastore_Interface {
 		);
 	}
 
+	function get_columns_for_object_type( $object_type ) {
+		switch( $object_type ) {
+			case "post_meta":
+				return Defaults::$default_post_meta_checksum_columns;
+			case "comments":
+				return Defaults::$default_comment_checksum_columns;
+			case "comment_meta":
+				return Defaults::$default_post_meta_checksum_columns;
+			case "terms":
+				return Defaults::$default_term_checksum_columns;
+			default:
+				return Defaults::$default_post_checksum_columns;
+		}
+	}
+
 	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
+
+		if ( empty( $columns ) ) {
+			$columns = $this->get_columns_for_object_type( $object_type );
+		}
 
 		switch ( $object_type ) {
 			case 'posts':
@@ -658,46 +677,30 @@ class Replicastore implements Replicastore_Interface {
 				$object_table = $wpdb->posts;
 				$id_field     = 'ID';
 				$where_sql    = Settings::get_blacklisted_post_types_sql();
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_post_checksum_columns;
-				}
 				break;
 			case 'post_meta':
 				$object_table = $wpdb->postmeta;
 				$where_sql    = Settings::get_whitelisted_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
-
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_post_meta_checksum_columns;
-				}
 				break;
 			case 'comments':
 				$object_count = $this->comment_count( null, $start_id, $end_id );
 				$object_table = $wpdb->comments;
 				$id_field     = 'comment_ID';
 				$where_sql    = Settings::get_comments_filter_sql();
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_comment_checksum_columns;
-				}
 				break;
 			case 'comment_meta':
 				$object_table = $wpdb->commentmeta;
 				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_post_meta_checksum_columns;
-				}
 				break;
 			case "terms":
 				$object_table = $wpdb->terms;
 				$object_count = $this->term_count();
 				$id_field     = 'term_id';
-				$where_sql    = '';
-				if ( empty( $columns ) ) {
-					$columns  = Jetpack_Sync_Defaults::$default_term_checksum_column;
-				}
+				$where_sql    = '1=1';
 				break;
 			default:
 				return false;

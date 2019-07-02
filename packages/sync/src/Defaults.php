@@ -357,6 +357,13 @@ class Defaults {
 		'option_value',
 	);
 
+	static $default_term_checksum_columns = array(
+		'term_id',
+		'name',
+		'slug',
+		'term_group',
+	);
+
 	static $default_multisite_callable_whitelist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
 		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
