@@ -17,20 +17,20 @@ import './store';
 import './style.scss';
 
 const UpgradeNudge = ( { feature, plan, planName } ) => (
-	<div className="upgrade-nudge">
-		<Gridicon className="upgrade-nudge__icon" icon="star" size={ 18 } />
-		<div className="upgrade-nudge__info">
-			<span className="upgrade-nudge__title">
+	<div className="jetpack-upgrade-nudge">
+		<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
+		<div className="jetpack-upgrade-nudge__info">
+			<span className="jetpack-upgrade-nudge__title">
 				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
 					planName,
 				} ) }
 			</span>
-			<span className="upgrade-nudge__message">
+			<span className="jetpack-upgrade-nudge__message">
 				{ __( 'To make this block visible on your site', 'jetpack' ) }
 			</span>
 		</div>
 		<Button
-			className="upgrade-nudge__button"
+			className="jetpack-upgrade-nudge__button"
 			href={ addQueryArgs( `https://wordpress.com/plans/${ getSiteFragment() }`, {
 				feature,
 				plan,
