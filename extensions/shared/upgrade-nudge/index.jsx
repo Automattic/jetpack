@@ -26,7 +26,7 @@ const UpgradeNudge = ( { feature, plan, planName } ) => (
 				} ) }
 			</span>
 			<span className="upgrade-nudge__message">
-				{ __( 'To make this block visible on your site' ) }
+				{ __( 'To make this block visible on your site', 'jetpack' ) }
 			</span>
 		</div>
 		<Button
@@ -37,7 +37,7 @@ const UpgradeNudge = ( { feature, plan, planName } ) => (
 			} ) }
 			isDefault
 		>
-			{ __( 'Upgrade' ) }
+			{ __( 'Upgrade', 'jetpack' ) }
 		</Button>
 	</div>
 );
