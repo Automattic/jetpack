@@ -121,8 +121,12 @@ BODY;
 
 	/**
 	 * @covers ::jetpack_instagram_handler
+	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_image_url_with_embed() {
+		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped('must be revisited.');
+		}
 		global $post;
 
 		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
@@ -142,8 +146,12 @@ BODY;
 
 	/**
 	 * @covers ::jetpack_instagram_handler
+	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_video_url_with_embed() {
+		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped('must be revisited.');
+		}
 		global $post;
 
 		$instagram_url = 'https://www.instagram.com/tv/BkQjCfsBIzi/';
@@ -163,8 +171,12 @@ BODY;
 
 	/**
 	 * @covers ::jetpack_instagram_handler
+	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_profile_image_url_with_embed() {
+		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped('must be revisited.');
+		}
 		global $post;
 
 		$instagram_username      = 'jeherve';
@@ -187,8 +199,12 @@ BODY;
 
 	/**
 	 * @covers ::jetpack_instagram_handler
+	 * @todo Enable this test on WP master https://github.com/Automattic/jetpack/issues/12918
 	 */
 	public function test_instagram_replace_profile_video_url_with_embed() {
+		if ( 'master'===getenv( 'WP_BRANCH' ) ) {
+			$this->markTestSkipped('must be revisited.');
+		}
 		global $post;
 
 		$instagram_username      = 'instagram';
