@@ -225,12 +225,15 @@ class Test_Status extends TestCase {
 	 */
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
+
 		$wpdb = $this->getMockBuilder( 'Mock_wpdb' )
 		             ->setMockClassName( 'wpdb' )
 		             ->setMethods( array( 'get_var' ) )
 		             ->getMock();
 		$wpdb->method( 'get_var' )
 		     ->willReturn( $return_value );
+
+		$wpdb->site = 'wp_site';
 	}
 
 	/**
