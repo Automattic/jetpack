@@ -41,4 +41,27 @@ class Status {
 
 		return $development_mode;
 	}
+
+	/**
+	 * Whether this is a system with a multiple networks.
+	 * Implemented since there is no core is_multi_network function.
+	 * Right now there is no way to tell which network is the dominant network on the system.
+	 *
+	 * @return boolean
+	 */
+	public function is_multi_network() {
+		global $wpdb;
+
+		// if we don't have a multi site setup no need to do any more
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		$num_sites = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->site}" );
+		if ( $num_sites > 1 ) {
+			return true;
+		}
+
+		return false;
+	}
 }
