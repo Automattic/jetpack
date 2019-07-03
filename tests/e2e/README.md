@@ -67,7 +67,7 @@ You can run the e2e tests locally using this command:
 yarn test-e2e
 ```
 
-Puppeteer runs headless by default(i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `PUPPETEER_HEADLESS=false` as follows:
+Puppeteer runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window and the running tests you can pass `PUPPETEER_HEADLESS=false` as follows:
 
 ```bash
 PUPPETEER_HEADLESS=false npm run test-e2e
