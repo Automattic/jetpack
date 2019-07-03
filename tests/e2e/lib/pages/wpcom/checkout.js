@@ -43,10 +43,8 @@ export default class CheckoutPage extends Page {
 
 	async waitForPaymentProcessing() {
 		const progressBarSelector = '.checkout__credit-card-payment-box-progress-bar';
-		if ( await isEventuallyVisible( this.page, progressBarSelector ) ) {
-			// Wait for the progress bar to finish.
-			await waitForSelector( this.page, progressBarSelector, { hidden: true, timeout: 3 * 30000 } );
-		}
+		await waitForSelector( this.page, progressBarSelector );
+		await waitForSelector( this.page, progressBarSelector, { hidden: true, timeout: 3 * 30000 } );
 	}
 
 	async waitToDisappear() {
