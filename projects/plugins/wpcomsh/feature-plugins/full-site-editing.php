@@ -19,10 +19,12 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 		return false;
 	}
 	
-	// Disable for 80% of sites.
+	// Disable for 50% of sites.
 	if ( class_exists( 'Jetpack' ) && Jetpack::is_active() ) {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
-		if ( ! empty( $blog_id ) && 0 !== ( $blog_id % 5 ) ) {
+		// Originally, we launched for site ids ending with zero or five.
+		// To get to 50%, we additionally allow those ending with 1, 2 and 3.
+		if ( ! empty( $blog_id ) && ! in_array( $blog_id % 10, [ 0, 1, 2, 3, 5 ] ) ) {
 			return true;
 		}
 	}
