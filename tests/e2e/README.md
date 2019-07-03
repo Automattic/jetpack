@@ -44,7 +44,7 @@ The tests require a WP installation with installed Jetpack, and which could be c
 1. A fresh site with not connected Jetpack which does not have any purchased plan
 2. Jetpack connected site with purchased Professional _sandboxed_ plan. More on sandboxed plans: PCYsg-IA-p2
 
-By default, tests expect that your site is accessible on `localhost`, and it's admin credentials are `wordpress` / `wordpress`. All these values could be overridden by environment variables that could be passed along with the test execution command. The default values are defined in default (non-encrypted) config file: [`./config/default.js`](./config/default.js)
+By default, tests expect that your site is accessible on `localhost`, and its admin credentials are `wordpress` / `wordpress`. All these values could be overridden by environment variables that could be passed along with the test execution command. The default values are defined in default (non-encrypted) config file: [`./config/default.js`](./config/default.js)
 
 #### Environment variables
 
