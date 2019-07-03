@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.4.1
+Stable tag: 7.5.1
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.2
@@ -96,67 +96,16 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.5.3 =
+= 7.6 =
 
-* Release date: July 17, 2019
-* Release post: https://wp.me/p1moTy-k9A
-
-**Bug fixes**
-
-* General: Fixes plugin activation/deactivation hooks that were accidentally disabled.
-* General: Fixes fatal errors that were possible when using pre-7.5 Jetpack internal API.
-
-= 7.5.2 =
-
-* Release date: July 4, 2019
-* Release post: https://wp.me/p1moTy-k9A
-
-**Bug fixes**
-
-* General: Fixes an error when a site's connection to WordPress.com is set to "Safe Mode".
-
-= 7.5.1 =
-
-* Release date: July 2, 2019
-* Release post: https://wp.me/p1moTy-k9A
-
-**Bug fixes**
-
-* General: Fixes an error when trying to delete the Jetpack plugin.
-* General: Fixes supported PHP version declaration.
-
-= 7.5 =
-
-* Release date: July 2, 2019
-* Release post: https://wp.me/p1moTy-k9A
+* Release date: August 6, 2019
+* Release post: https://wp.me/p1moTy-ljs
 
 **Enhancements**
 
-* Admin Page: add an option to send a magic link that will help you log in to the mobile apps in one click.
-* Admin Page: improve style and wording of many different sections of the dashboard to clarify the role of each feature.
-* Admin Page: remove feature that would offer you to activate a list of recommended features upon connecting your site to WordPress.com.
-* Backups: include updates to term relationships when backing up Post object changes.
-* Backups: synchronize ABSPATH value to help setting up SSH credentials when using Jetpack Backups.
-* Faceboook Embeds: support new video URL format.
-* Lazy Load: allow adding event handlers to images.
-* Recurring Payments Block: improve the display of the block in the editor.
-* WordAds: update link to daily earnings stats on WordPress.com.
-* WordAds: provide additional details for custom ads.txt entries in the Jetpack dashboard.
-* WordPress.com Toolbar: add colors to Recovery Mode button.
-
 **Improved compatibility**
 
-* Admin Page: improve display of the Jetpack Dashboard in IE11.
-* Sharing: avoid displaying extra list items below the sharing buttons when using the AMP plugin.
-* Staging enviroments: add staging enviroment detection for DreamPress sites.
-
 **Bug fixes**
-
-* Admin Page: fix display of backup details in the Jetpack dashboard.
-* Admin Page: do not disable Widget Visibility and Widgets toggles in Development mode.
-* Sitemaps: ensure links to sitemaps appear in robots.txt
-* Slideshow Block: fix CSS class name.
-* Videos: ensure that Video Poster images are always displayed properly.
 
 --------
 
