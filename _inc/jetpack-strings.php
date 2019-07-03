@@ -263,6 +263,22 @@ __( "Customize your social posting schedule.", "jetpack" ), // _inc/client/my-pl
 __( "Monetize your site by running high quality ads.", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:705
 __( "Upgrade Jetpack now", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:712
 _n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:21
+__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
+__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
+__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
+__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
+_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
+_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
+_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
+_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
+_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:72
+_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:73
+_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:105
+__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:109
+__( "Share information with our analytics tool about your use of services while logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:120
+__( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
+__( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
+__( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
 __( "Performance", "jetpack" ), // _inc/client/performance/index.jsx:50
 __( "Load pages faster, optimize images, and speed up your visitors’ experience.", "jetpack" ), // _inc/client/performance/index.jsx:51
 __( "Video", "jetpack" ), // _inc/client/performance/media.jsx:42
@@ -288,22 +304,6 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
-_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
-_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
-_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
-_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
-_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:72
-_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:73
-_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:105
-__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:109
-__( "Share information with our analytics tool about your use of services while logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:120
-__( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
-__( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
-__( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
-__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
-__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
-__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
-__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
 __( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:77
 __( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:82
 __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:87
