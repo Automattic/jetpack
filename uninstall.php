@@ -17,6 +17,8 @@ if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
 	define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
 }
 
+require JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
+
 Jetpack_Options::delete_all_known_options();
 
 // Delete all legacy options
