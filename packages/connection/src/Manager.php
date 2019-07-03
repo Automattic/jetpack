@@ -610,7 +610,6 @@ class Manager implements Manager_Interface {
 
 			if ( $defined_tokens_string ) {
 				$defined_tokens = explode( ',', $defined_tokens_string );
-
 				foreach ( $defined_tokens as $defined_token ) {
 					if ( ';' === $defined_token[0] ) {
 						$possible_special_tokens[] = $defined_token;
