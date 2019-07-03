@@ -7,7 +7,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Partners\Affiliate as Affiliate;
+use Automattic\Jetpack\Partners\Affiliate;
 
 /**
  * Jetpack just in time messaging through out the admin

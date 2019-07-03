@@ -1,5 +1,5 @@
 <?php
-use Automattic\Jetpack\Partners\Affiliate as Affiliate;
+use Automattic\Jetpack\Partners\Affiliate;
 
 include_once( 'class.jetpack-admin-page.php' );
 

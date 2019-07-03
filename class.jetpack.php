@@ -11,7 +11,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Partners\Affiliate as Affiliate;
+use Automattic\Jetpack\Partners\Affiliate;
 
 /*
 Options:

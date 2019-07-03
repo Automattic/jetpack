@@ -1,25 +1,23 @@
 <?php
+/**
+ * Class to handle affiliate codes.
+ *
+ * @package affiliate
+ */
+
 namespace Automattic\Jetpack\Partners;
 
-use Jetpack;
-
-if ( ! defined( 'ABSPATH' ) || ! is_admin() ) {
-	exit; // Exit if accessed directly or not in admin.
-}
+use Automattic\Jetpack\Status;
 
 /**
  * This class introduces routines to get an affiliate code, that might be obtained from:
  * - a `jetpack_affiliate_code` option in the WP database
  * - an affiliate code returned by a filter bound to the `jetpack_affiliate_code` filter hook
- *
- * @since 6.9.0
  */
 class Affiliate {
 
 	/**
 	 * Class instance
-	 *
-	 * @since 6.9.0
 	 *
 	 * @var Affiliate This class instance.
 	 **/
@@ -29,15 +27,14 @@ class Affiliate {
 	 * Affiliate constructor.
 	 */
 	private function __construct() {
-		if ( Jetpack::is_development_mode() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			return;
 		}
 	}
 
 	/**
 	 * Initializes the class or returns the singleton
-	 *
-	 * @since 6.9.0
 	 *
 	 * @return Affiliate | false
 	 */
@@ -51,15 +48,11 @@ class Affiliate {
 	/**
 	 * Returns the affiliate code from database after filtering it.
 	 *
-	 * @since 6.9.0
-	 *
 	 * @return string The affiliate code.
 	 */
 	public function get_affiliate_code() {
 		/**
 		 * Allow to filter the affiliate code.
-		 *
-		 * @since 6.9.0
 		 *
 		 * @param string $aff_code The affiliate code, blank by default.
 		 */
@@ -68,8 +61,6 @@ class Affiliate {
 
 	/**
 	 * Returns the passed URL with the affiliate code added as a URL query arg.
-	 *
-	 * @since 6.9.0
 	 *
 	 * @param string $url The URL where the code will be added.
 	 *
@@ -83,6 +74,3 @@ class Affiliate {
 		return $url;
 	}
 }
-
-add_action( 'init', array( 'Automattic\Jetpack\Partners\Affiliate', 'init' ) );
-
