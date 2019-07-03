@@ -24,12 +24,6 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 
 		parent::setUp();
 
-		if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
-			// Loading the API breaks in 5.2.x due to `const` declarations, and
-			// this will still happen even though all tests are skipped (why?)
-			return;
-		}
-
 		$this->set_globals();
 	}
 
@@ -55,7 +49,6 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
-	 * @requires PHP 5.3
 	 */
 	public function test_get_term_feed_url_pretty_permalinks() {
 		global $blog_id;
@@ -86,7 +79,6 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 	 * @author nylen
 	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
-	 * @requires PHP 5.3
 	 */
 	public function test_get_term_feed_url_ugly_permalinks() {
 		global $blog_id;
