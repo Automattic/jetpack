@@ -1,14 +1,9 @@
 /**
- * Returns the site fragment in the environment we're running Gutenberg in.
+ * Returns the site fragment (slug) in the environment we're running Gutenberg in.
  *
- * @returns {?Number|String} Site fragment (ID or slug); null for WP.org wp-admin.
+ * @returns {?String} Site fragment (slug)
  */
 export default function getSiteFragment() {
-	// WP.com wp-admin exposes the site ID in window._currentSiteId
-	if ( window && window._currentSiteId ) {
-		return window._currentSiteId;
-	}
-
 	// Gutenberg in Jetpack adds a site fragment in the initial state
 	if (
 		window &&
