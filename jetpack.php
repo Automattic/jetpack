@@ -14,7 +14,7 @@
  */
 
 define( 'JETPACK__MINIMUM_WP_VERSION',  '5.1' );
-define( 'JETPACK__MINIMUM_PHP_VERSION', '5.3.2' );
+define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
 define( 'JETPACK__VERSION',             '7.6-alpha' );
 define( 'JETPACK_MASTER_USER',           true );
 define( 'JETPACK__API_VERSION',          1 );
