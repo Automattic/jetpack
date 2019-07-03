@@ -169,6 +169,36 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
+            "name": "automattic/jetpack-status",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/status",
+                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9",
+                "shasum": null
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+        },
+        {
             "name": "automattic/jetpack-jitm",
             "version": "dev-add/jetpack-compat-package",
             "dist": {
@@ -697,6 +727,7 @@
         "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-status": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-sync": 20,
