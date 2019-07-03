@@ -647,17 +647,17 @@ class Replicastore implements Replicastore_Interface {
 		);
 	}
 
-	function get_columns_for_object_type( $object_type ) {
+	function get_checksum_columns_for_object_type( $object_type ) {
 		switch( $object_type ) {
-			case "posts":
+			case 'posts':
 				return Defaults::$default_post_checksum_columns;
-			case "post_meta":
+			case 'post_meta':
 				return Defaults::$default_post_meta_checksum_columns;
-			case "comments":
+			case 'comments':
 				return Defaults::$default_comment_checksum_columns;
-			case "comment_meta":
+			case 'comment_meta':
 				return Defaults::$default_post_meta_checksum_columns;
-			case "terms":
+			case 'terms':
 				return Defaults::$default_term_checksum_columns;
 			default:
 				return false;
@@ -670,7 +670,7 @@ class Replicastore implements Replicastore_Interface {
 		$wpdb->queries = array();
 
 		if ( empty( $columns ) ) {
-			$columns = $this->get_columns_for_object_type( $object_type );
+			$columns = $this->get_checksum_columns_for_object_type( $object_type );
 		}
 
 		switch ( $object_type ) {
