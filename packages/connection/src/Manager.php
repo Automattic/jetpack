@@ -606,7 +606,8 @@ class Manager implements Manager_Interface {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}
 
-			$defined_tokens = Constants::is_defined( 'JETPACK_BLOG_TOKEN' )
+			$defined_tokens = Constants::is_defined( 'JETPACK_BLOG_TOKEN' ) &&
+							  Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) != ''
 				? explode( ',', Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) )
 				: array();
 
