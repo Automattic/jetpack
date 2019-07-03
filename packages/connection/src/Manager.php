@@ -609,7 +609,9 @@ class Manager implements Manager_Interface {
 			$defined_tokens_string = Constants::get_constant( 'JETPACK_BLOG_TOKEN' );
 
 			if ( $defined_tokens_string ) {
-				foreach ( $defined_tokens_string as $defined_token ) {
+				$defined_tokens = explode( ',', $defined_tokens_string );
+
+				foreach ( $defined_tokens as $defined_token ) {
 					if ( ';' === $defined_token[0] ) {
 						$possible_special_tokens[] = $defined_token;
 					} else {
