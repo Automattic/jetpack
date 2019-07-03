@@ -649,6 +649,8 @@ class Replicastore implements Replicastore_Interface {
 
 	function get_columns_for_object_type( $object_type ) {
 		switch( $object_type ) {
+			case "posts":
+				return Defaults::$default_post_checksum_columns;
 			case "post_meta":
 				return Defaults::$default_post_meta_checksum_columns;
 			case "comments":
@@ -658,7 +660,7 @@ class Replicastore implements Replicastore_Interface {
 			case "terms":
 				return Defaults::$default_term_checksum_columns;
 			default:
-				return Defaults::$default_post_checksum_columns;
+				return false;
 		}
 	}
 

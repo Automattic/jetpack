@@ -361,7 +361,6 @@ class Defaults {
 		'term_id',
 		'name',
 		'slug',
-		'term_group',
 	);
 
 	static $default_multisite_callable_whitelist = array(
