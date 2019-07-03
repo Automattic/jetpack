@@ -6950,34 +6950,12 @@ p {
 	}
 
 	/**
-	 * Checks if one or more function names is in debug_backtrace
+	 * @deprecated
 	 *
-	 * @param $names Mixed string name of function or array of string names of functions
-	 *
-	 * @return bool
+	 * @see Automattic\Jetpack\Sync\Modules\Users::is_function_in_backtrace
 	 */
-	public static function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.debug_backtrace_optionsFound
-		if ( ! is_array( $names ) ) {
-			$names = array( $names );
-		}
-		$names_as_keys = array_flip( $names );
-
-		//Do check in constant O(1) time for PHP5.5+
-		if ( function_exists( 'array_column' ) ) {
-			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.array_columnFound
-			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
-			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
-			return ! empty ( $intersection );
-		}
-
-		//Do check in linear O(n) time for < PHP5.5 ( using isset at least prevents O(n^2) )
-		foreach ( $backtrace as $call ) {
-			if ( isset( $names_as_keys[ $call['function'] ] ) ) {
-				return true;
-			}
-		}
-		return false;
+	public static function is_function_in_backtrace() {
+		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
 	}
 
 	/**
