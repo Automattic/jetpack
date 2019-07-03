@@ -698,7 +698,7 @@ class Replicastore implements Replicastore_Interface {
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 				break;
-			case "terms":
+			case 'terms':
 				$object_table = $wpdb->terms;
 				$object_count = $this->term_count();
 				$id_field     = 'term_id';
