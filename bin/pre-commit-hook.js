@@ -68,7 +68,6 @@ function checkFileAgainstDirtyList( file ) {
 
 /**
  * Captures a pre-commit date to be used later in prepare-commit-msg.js hook to figure out whether pre-commit was executed
- *
  */
 function capturePreCommitDate() {
 	if ( exitCode === 0 ) {
