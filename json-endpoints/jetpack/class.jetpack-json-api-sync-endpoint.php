@@ -90,7 +90,6 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		}
 		$histogram = $store->checksum_histogram( $args['object_type'], $args['buckets'], $args['start_id'], $args['end_id'], $columns, $args['strip_non_ascii'], $args['shared_salt'] );
 
-		l( $histogram );
 
 		return array( 'histogram' => $histogram, 'type' => $store->get_checksum_type() );
 	}
