@@ -220,4 +220,12 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 		$this->assertFalse( $token );
 	}
+
+	public function test_get_access_token_with_empty_constant_does_not_generate_notice() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', '' );
+
+		$token = $this->connection->get_access_token();
+
+		$this->assertEquals( self::STORED, $token->secret );
+	}
 }
