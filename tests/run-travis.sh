@@ -22,7 +22,7 @@ function run_packages_tests {
 }
 
 function run_php_compatibility {
-	export PHPCOMP_EXEC="composer php:compatibility"
+	export PHPCOMP_EXEC="composer php:compatibility ."
 	echo "Running PHP:Compatibility checks:"
 	echo "PHP Compatibility command: \`$PHPCOMP_EXEC\` "
 
