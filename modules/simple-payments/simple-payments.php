@@ -70,7 +70,7 @@ class Jetpack_Simple_Payments {
 				'missing_plan',
 				array(
 					'required_feature' => 'simple-payments',
-					'required_plan' => ( defined( 'SHOW_BLOCK_UPGRADE_NUDGE' ) && SHOW_BLOCK_UPGRADE_NUDGE ) ? $required_plan : false
+					'required_plan' => ( defined( 'JETPACK_SHOW_BLOCK_UPGRADE_NUDGE' ) && JETPACK_SHOW_BLOCK_UPGRADE_NUDGE ) ? $required_plan : false
 				)
 			);
 		}
