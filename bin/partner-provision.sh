@@ -21,7 +21,7 @@ usage () {
 	[--ssh-host=example.com] \
 	[--ssh-user=user_name] \
 	[--ssh-pass=user_pass] \
-	[--ssh-private-key=private_key] \
+	[--ssh-private-key=/path/to/private_key] \
 	[--ssh-port=22] '
 }
 
@@ -101,7 +101,7 @@ for i in "$@"; do
 			shift
 			;;
 		--ssh-private-key=* )
-			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_private_key=${i#*=}"
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_private_key=<${i#*=}"
 			shift
 			;;
 		--ssh-port=* )
