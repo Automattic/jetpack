@@ -69,7 +69,8 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "node bin/pre-commit-hook.js"
+			"pre-commit": "node bin/pre-commit-hook.js",
+			"prepare-commit-msg": "node bin/prepare-commit-msg.js"
 		}
 	},
 	"dependencies": {
