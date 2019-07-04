@@ -14,6 +14,12 @@ if ( pr.body.length < 10 ) {
 	warn( 'Please include a description of your PR changes.' );
 }
 
+// Keep track of commits which skipped pre-commit hook
+const commitMessages = danger.git.commits.map( commit => commit.message );
+if ( commitMessages.includes( '[not verified]' ) ) {
+	warn( '`pre-commit` hook was skipped for one or more commits' );
+}
+
 // Use labels please!
 const ghLabels = github.issue.labels;
 if ( ! ghLabels.find( l => l.name.toLowerCase().includes( '[status]' ) ) ) {
