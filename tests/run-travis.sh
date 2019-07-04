@@ -23,10 +23,18 @@ function run_packages_tests {
 
 function run_php_compatibility {
 	export PHPCOMP_EXEC="composer php:compatibility ."
+	export PHPCS_CHECK_EXEC="./vendor/bin/phpcs --version | grep -e PHP_CodeSniffer"
 	echo "Running PHP:Compatibility checks:"
 	echo "PHP Compatibility command: \`$PHPCOMP_EXEC\` "
 
-	if $PHPCOMP_EXEC; then
+	if $PHPCS_CHECK_EXEC; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+
+		if $PHPCOMP_EXEC; then
 		# Everything is fine
 		:
 	else
