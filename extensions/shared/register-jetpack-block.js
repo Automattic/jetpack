@@ -45,9 +45,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
-		edit: requiredPlan
-			? wrapPaidBlock( { feature: details.required_feature, requiredPlan } )( settings.edit )
-			: settings.edit,
+		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 	} );
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
