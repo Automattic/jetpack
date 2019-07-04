@@ -15,7 +15,7 @@ $status = new Status();
 $is_development_mode = $status->is_development_mode();
 ```
 
-Find out whether this is a system with a multiple networks:
+Find out whether this is a system with multiple networks:
 
 ```php
 use Automattic\Jetpack\Status;
