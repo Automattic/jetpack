@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
 
 class Terms extends Module {
 	private $taxonomy_whitelist;
@@ -19,6 +20,8 @@ class Terms extends Module {
 		add_action( 'delete_term', $callable, 10, 4 );
 		add_action( 'set_object_terms', $callable, 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_term', array( $this, 'filter_blacklisted_taxonomies' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_term', array( $this, 'filter_blacklisted_taxonomies' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -36,11 +39,13 @@ class Terms extends Module {
 	}
 
 	private function get_where_sql( $config ) {
+		$where_sql = Settings::get_blacklisted_taxonomies_sql();
+
 		if ( is_array( $config ) ) {
-			return 'term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+			$where_sql .= ' AND term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
-		return '';
+		return $where_sql;
 	}
 
 	public function estimate_full_sync_actions( $config ) {
@@ -90,6 +95,16 @@ class Terms extends Module {
 		 * @param object the Term object
 		 */
 		do_action( 'jetpack_sync_save_term', $term_object );
+	}
+
+	function filter_blacklisted_taxonomies( $args ) {
+		$term = $args[0];
+
+		if ( in_array( $term->taxonomy, Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
+			return false;
+		}
+
+		return $args;
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {

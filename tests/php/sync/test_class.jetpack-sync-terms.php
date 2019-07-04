@@ -1,6 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing CRUD on Terms
@@ -132,6 +134,44 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 
 		$this->assertEquals( $object_terms, $server_object_terms );
+	}
+
+	public function test_filters_out_blacklisted_taxonomies() {
+		register_taxonomy( 'bloginfo_rss', 'post' );
+
+		$term_id = $this->factory->term->create( array( 'taxonomy' => 'bloginfo_rss' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( array(), $this->server_replica_storage->get_term( 'bloginfo_rss', $term_id ) );
+	}
+
+	public function test_taxonomies_blacklist_can_be_appended_in_settings() {
+		register_taxonomy( 'filter_me', 'post' );
+
+		$term_id = $this->factory->term->create( array( 'taxonomy' => 'filter_me' ) );
+
+		$this->sender->do_sync();
+
+		// first, show that term is being synced
+		$this->assertTrue( !! $this->server_replica_storage->get_term( 'filter_me', $term_id ) );
+
+		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
+
+		$term_id = $this->factory->term->create( array( 'taxonomy' => 'filter_me' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( array(), $this->server_replica_storage->get_term( 'filter_me', $term_id ) );
+
+		// also assert that the taxonomies blacklist still contains the hard-coded values
+		$setting = Settings::get_setting( 'taxonomies_blacklist' );
+
+		$this->assertTrue( in_array( 'filter_me', $setting, true ) );
+
+		foreach ( Defaults::$blacklisted_taxonomies as $hardcoded_blacklist_taxonomy ) {
+			$this->assertTrue( in_array( $hardcoded_blacklist_taxonomy, $setting, true ) );
+		}
 	}
 
 	function get_terms() {
