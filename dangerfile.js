@@ -16,9 +16,11 @@ if ( pr.body.length < 10 ) {
 
 // Keep track of commits which skipped pre-commit hook
 const commitMessages = danger.git.commits.map( commit => commit.message );
-if ( commitMessages.includes( '[not verified]' ) ) {
-	warn( '`pre-commit` hook was skipped for one or more commits' );
-}
+commitMessages.forEach( message => {
+	if ( message.includes( '[not verified]' ) ) {
+		warn( '`pre-commit` hook was skipped for one or more commits' );
+	}
+} );
 
 // Use labels please!
 const ghLabels = github.issue.labels;
