@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Partners;
 
-use Automattic\Jetpack\Status;
-
 /**
  * This class introduces routines to get an affiliate code, that might be obtained from:
  * - a `jetpack_affiliate_code` option in the WP database
@@ -22,16 +20,6 @@ class Affiliate {
 	 * @var Affiliate This class instance.
 	 **/
 	private static $instance = null;
-
-	/**
-	 * Affiliate constructor.
-	 */
-	private function __construct() {
-		$status = new Status();
-		if ( $status->is_development_mode() ) {
-			return;
-		}
-	}
 
 	/**
 	 * Initializes the class or returns the singleton

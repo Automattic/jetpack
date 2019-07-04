@@ -1,49 +1,94 @@
 <?php
-use Automattic\Jetpack\Partners\Affiliate;
+namespace Automattic\Jetpack\Partners;
+
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use phpmock\Mock;
+use phpmock\MockBuilder;
+use PHPUnit\Framework\TestCase;
 
-class Test_Affiliate extends WP_UnitTestCase {
+class Test_Affiliate extends TestCase {
 
-	public function setUp() {
-		Jetpack_Constants::set_constant(
-			'JETPACK__PLUGIN_DIR',
-			dirname( dirname( dirname( dirname( __DIR__ ) ) ) )
-		);
-		require_once Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . '/class.jetpack.php';
+	/**
+	 * Mock affiliate code.
+	 *
+	 * @var string
+	 */
+	private $aff_code = 'abc123';
+
+	/**
+	 * Test teardown.
+	 */
+	public function tearDown() {
+		Mock::disableAll();
 	}
 
 	function test_affiliate_code_missing() {
+		$this->mock_function_with_args( 'get_option', [
+			[
+				'jetpack_affiliate_code',
+				'',
+				''
+			]
+		] );
+
+		$this->mock_function_with_args( 'apply_filters', [
+			[
+				'jetpack_affiliate_code',
+				get_option( 'jetpack_affiliate_code', '' ),
+				get_option( 'jetpack_affiliate_code', '' )
+			]
+		] );
+
 		$this->assertEmpty( Affiliate::init()->get_affiliate_code() );
 	}
 
 	function test_affiliate_code_exists() {
-		add_option( 'jetpack_affiliate_code', 'abc123' );
+		$this->mock_function_with_args( 'get_option', [
+			[
+				'jetpack_affiliate_code',
+				'',
+				$this->aff_code
+			]
+		] );
+
+		$this->mock_function_with_args( 'apply_filters', [
+			[
+				'jetpack_affiliate_code',
+				get_option( 'jetpack_affiliate_code', '' ),
+				get_option( 'jetpack_affiliate_code', '' )
+			]
+		] );
+
 		$this->assertEquals( 'abc123', Affiliate::init()->get_affiliate_code() );
 	}
 
-	function test_affiliate_connect_url_missing() {
-		$this->assertNotContains( 'aff=', Jetpack::init()->build_connect_url() );
-	}
+	/**
+	 * Mock a global function with particular arguments and make it return a certain value.
+	 *
+	 * @param string $function_name Name of the function.
+	 * @param array  $args          Array of argument sets, last value of each set is used as a return value.
+	 * @return phpmock\Mock The mock object.
+	 */
+	protected function mock_function_with_args( $function_name, $args = array() ) {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+		        ->setName( $function_name )
+		        ->setFunction(
+			        function() use ( &$args ) {
+				        $current_args = func_get_args();
 
-	function test_affiliate_connect_url_exists() {
-		add_option( 'jetpack_affiliate_code', 'abc123' );
-		$this->assertContains( 'aff=abc123', Jetpack::init()->build_connect_url() );
-	}
+				        foreach ( $args as $arg ) {
+					        if ( array_slice( $arg, 0, -1 ) === $current_args ) {
+						        return array_pop( $arg );
+					        }
+				        }
+			        }
+		        );
 
-	function test_affiliate_add_code_to_url() {
-		add_option( 'jetpack_affiliate_code', 'abc123' );
+		$mock = $builder->build();
+		$mock->enable();
 
-		$source = 'somesource123';
-		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$user = 123;
-		$url = Affiliate::init()->add_code_as_query_arg(
-			"https://jetpack.com/redirect/?source={$source}&site={$normalized_site_url}&u={$user}"
-		);
-
-		$this->assertContains( "source={$source}", $url );
-		$this->assertContains( "site={$normalized_site_url}", $url );
-		$this->assertContains( "u=$user", $url );
-		$this->assertContains( 'aff=abc123', $url );
+		return $mock;
 	}
 
 }

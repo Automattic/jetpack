@@ -68,7 +68,7 @@ class Test_Status extends TestCase {
 		) );
 
 		$this->assertFalse( $this->status->is_development_mode() );
-		
+
 		$filters_mock->disable();
 	}
 
@@ -77,7 +77,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_development_mode_localhost() {
 		$this->mock_function( 'site_url', 'localhost' );
-		
+
 		$filters_mock = $this->mock_filters( array(
 			array( 'jetpack_development_mode', false, false ),
 			array( 'jetpack_development_mode', true, true ),
@@ -92,7 +92,7 @@ class Test_Status extends TestCase {
      * @covers Automattic\Jetpack\Status::is_development_mode
      *
      * @runInSeparateProcess
-     */	
+     */
 	public function test_is_development_mode_constant() {
 		$this->mock_function( 'site_url', $this->site_url );
 		$filters_mock = $this->mock_filters( array(
