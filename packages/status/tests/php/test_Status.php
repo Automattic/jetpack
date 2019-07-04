@@ -112,6 +112,39 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * @covers Automattic\Jetpack\Status::is_multi_network
+	 */
+	public function test_is_multi_network_not_multisite() {
+		$this->mock_function( 'is_multisite', false );
+
+		$this->assertFalse( $this->status->is_multi_network() );
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Status::is_multi_network
+	 */
+	public function test_is_multi_network_when_single_network() {
+		$this->mock_wpdb_get_var( 1 );
+		$this->mock_function( 'is_multisite', true );
+
+		$this->assertFalse( $this->status->is_multi_network() );
+
+		$this->clean_mock_wpdb_get_var();
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Status::is_multi_network
+	 */
+	public function test_is_multi_network_when_multiple_networks() {
+		$this->mock_wpdb_get_var( 2 );
+		$this->mock_function( 'is_multisite', true );
+
+		$this->assertTrue( $this->status->is_multi_network() );
+
+		$this->clean_mock_wpdb_get_var();
+	}
+
+	/**
 	 * Mock a global function with particular arguments and make it return a certain value.
 	 *
 	 * @param string $function_name Name of the function.
@@ -182,5 +215,32 @@ class Test_Status extends TestCase {
 				return $return_value;
 			} );
 		return $builder->build()->enable();
+	}
+
+	/**
+	 * Mock $wpdb->get_var() and make it return a certain value.
+	 *
+	 * @param mixed  $return_value  Return value of the function.
+	 * @return PHPUnit\Framework\MockObject\MockObject The mock object.
+	 */
+	protected function mock_wpdb_get_var( $return_value = null ) {
+		global $wpdb;
+
+		$wpdb = $this->getMockBuilder( 'Mock_wpdb' )
+		             ->setMockClassName( 'wpdb' )
+		             ->setMethods( array( 'get_var' ) )
+		             ->getMock();
+		$wpdb->method( 'get_var' )
+		     ->willReturn( $return_value );
+
+		$wpdb->site = 'wp_site';
+	}
+
+	/**
+	 * Clean up the existing $wpdb->get_var() mock.
+	 */
+	protected function clean_mock_wpdb_get_var() {
+		global $wpdb;
+		unset( $wpdb );
 	}
 }
