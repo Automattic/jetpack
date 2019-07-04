@@ -717,6 +717,11 @@ class Jetpack {
 			jetpack_require_lib( 'functions.wp-notify' );
 		}
 
+		// Hide edit post link if mobile app.
+		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+			add_filter( 'edit_post_link', '__return_empty_string' );
+		}
+
 		// Update the Jetpack plan from API on heartbeats
 		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
 
