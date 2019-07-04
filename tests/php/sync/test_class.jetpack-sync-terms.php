@@ -154,7 +154,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// first, show that term is being synced
-		$this->assertTrue( !! $this->server_replica_storage->get_term( 'filter_me', $term_id ) );
+		$this->assertTrue( ! ! $this->server_replica_storage->get_term( 'filter_me', $term_id ) );
 
 		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
 
@@ -172,6 +172,21 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		foreach ( Defaults::$blacklisted_taxonomies as $hardcoded_blacklist_taxonomy ) {
 			$this->assertTrue( in_array( $hardcoded_blacklist_taxonomy, $setting, true ) );
 		}
+	}
+
+	function test_returns_term_object_by_id() {
+		$term_sync_module = Modules::get_module( 'terms' );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_term' );
+		$synced_term = $event->args[0];
+
+		$codec = $this->sender->get_codec();
+
+		$retrieved_term = $codec->decode( $codec->encode(
+			$term_sync_module->get_object_by_id( 'term', $synced_term->term_id )
+		) );
+
+		$this->assertEquals( $synced_term, $retrieved_term );
 	}
 
 	function get_terms() {

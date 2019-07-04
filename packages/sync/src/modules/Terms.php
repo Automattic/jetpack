@@ -12,6 +12,14 @@ class Terms extends Module {
 		return 'terms';
 	}
 
+	public function get_object_by_id( $object_type, $id ) {
+		if ( $object_type === 'term' && $term = get_term( intval( $id ) ) ) {
+			return $term;
+		}
+
+		return false;
+	}
+
 	function init_listeners( $callable ) {
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
