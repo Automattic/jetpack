@@ -34,7 +34,7 @@ function run_php_compatibility {
 		exit 1
 	fi
 
-		if $PHPCOMP_EXEC; then
+	if $PHPCOMP_EXEC; then
 		# Everything is fine
 		:
 	else
