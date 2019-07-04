@@ -37,6 +37,7 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 					redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
 				}
 			) }
+			target="_top"
 			isDefault
 		>
 			{ __( 'Upgrade', 'jetpack' ) }
