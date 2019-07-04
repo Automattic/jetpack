@@ -52,7 +52,7 @@ class Status {
 	public function is_multi_network() {
 		global $wpdb;
 
-		// if we don't have a multi site setup no need to do any more
+		// If we don't have a multi site setup no need to do any more.
 		if ( ! is_multisite() ) {
 			return false;
 		}
@@ -63,5 +63,21 @@ class Status {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Whether the current site is single user site.
+	 *
+	 * @return bool
+	 */
+	public function is_single_user_site() {
+		global $wpdb;
+
+		$some_users = get_transient( 'jetpack_is_single_user' );
+		if ( false === $some_users ) {
+			$some_users = $wpdb->get_var( "SELECT COUNT(*) FROM (SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' LIMIT 2) AS someusers" );
+			set_transient( 'jetpack_is_single_user', (int) $some_users, 12 * HOUR_IN_SECONDS );
+		}
+		return 1 === (int) $some_users;
 	}
 }

@@ -16,6 +16,15 @@ class Test_Status extends TestCase {
 	private $site_url = 'https://yourjetpack.blog';
 
 	/**
+	 * Setup before running any of the tests.
+	 */
+	public static function setUpBeforeClass() {
+		if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+			define( 'HOUR_IN_SECONDS', 60 * 60 );
+		}
+	}
+
+	/**
 	 * Test setup.
 	 */
 	public function setUp() {
@@ -143,6 +152,45 @@ class Test_Status extends TestCase {
 
 		$this->clean_mock_wpdb_get_var();
 	}
+
+	/**
+	 * @covers Automattic\Jetpack\Status::is_single_user_site
+	 */
+	public function test_is_single_user_site_with_transient() {
+		$this->mock_wpdb_get_var( 3 );
+		$this->mock_function( 'get_transient', '1' );
+
+		$this->assertTrue( $this->status->is_single_user_site() );
+
+		$this->clean_mock_wpdb_get_var();
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Status::is_single_user_site
+	 */
+	public function test_is_single_user_site_with_one_user() {
+		$this->mock_wpdb_get_var( 1 );
+		$this->mock_function( 'get_transient', false );
+		$this->mock_function( 'set_transient' );
+
+		$this->assertTrue( $this->status->is_single_user_site() );
+
+		$this->clean_mock_wpdb_get_var();
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Status::is_single_user_site
+	 */
+	public function test_is_single_user_site_with_multiple_users() {
+		$this->mock_wpdb_get_var( 3 );
+		$this->mock_function( 'get_transient', false );
+		$this->mock_function( 'set_transient' );
+
+		$this->assertFalse( $this->status->is_single_user_site() );
+
+		$this->clean_mock_wpdb_get_var();
+	}
+
 
 	/**
 	 * Mock a global function with particular arguments and make it return a certain value.
