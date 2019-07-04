@@ -185,9 +185,13 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $slug Slug of the extension.
 	 * @param string $reason A string representation of why the extension is unavailable.
+	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
-	public static function set_extension_unavailable( $slug, $reason ) {
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = $reason;
+	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
+		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
+			'reason'  => $reason,
+			'details' => $details,
+		);
 	}
 
 	/**
@@ -371,8 +375,10 @@ class Jetpack_Gutenberg {
 			);
 
 			if ( ! $is_available ) {
-				$reason = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ] : 'missing_module';
+				$reason  = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['reason'] : 'missing_module';
+				$details = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['details'] : array();
 				$available_extensions[ $extension ]['unavailable_reason'] = $reason;
+				$available_extensions[ $extension ]['details']            = $details;
 			}
 		}
 
