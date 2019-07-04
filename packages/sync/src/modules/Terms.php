@@ -12,9 +12,18 @@ class Terms extends Module {
 		return 'terms';
 	}
 
+	/**
+	 * Allows WordPress.com servers to retrieve a term object via the sync API.
+	 *
+	 * @param string $object_type The type of object.
+	 * @param int $id The id of the object.
+	 *
+	 * @return bool|\WP_Term
+	 */
 	public function get_object_by_id( $object_type, $id ) {
-		if ( $object_type === 'term' && $term = get_term( intval( $id ) ) ) {
-			return $term;
+		if ( $object_type === 'term' ) {
+			$term = get_term( intval( $id ) );
+			return $term ? $term : false;
 		}
 
 		return false;

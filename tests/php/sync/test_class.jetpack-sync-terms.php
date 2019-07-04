@@ -180,6 +180,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_term' );
 		$synced_term = $event->args[0];
 
+		// Grab the codec - we need to simulate the stripping of types that comes with encoding/decoding.
 		$codec = $this->sender->get_codec();
 
 		$retrieved_term = $codec->decode( $codec->encode(
