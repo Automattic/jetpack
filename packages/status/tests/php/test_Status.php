@@ -281,7 +281,9 @@ class Test_Status extends TestCase {
 		$wpdb->method( 'get_var' )
 		     ->willReturn( $return_value );
 
-		$wpdb->site = 'wp_site';
+		$wpdb->prefix   = 'wp_';
+		$wpdb->site     = 'wp_site';
+		$wpdb->usermeta = 'wp_usermeta';
 	}
 
 	/**
