@@ -606,15 +606,16 @@ class Manager implements Manager_Interface {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}
 
-			$defined_tokens = Constants::is_defined( 'JETPACK_BLOG_TOKEN' )
-				? explode( ',', Constants::get_constant( 'JETPACK_BLOG_TOKEN' ) )
-				: array();
+			$defined_tokens_string = Constants::get_constant( 'JETPACK_BLOG_TOKEN' );
 
-			foreach ( $defined_tokens as $defined_token ) {
-				if ( ';' === $defined_token[0] ) {
-					$possible_special_tokens[] = $defined_token;
-				} else {
-					$possible_normal_tokens[] = $defined_token;
+			if ( $defined_tokens_string ) {
+				$defined_tokens = explode( ',', $defined_tokens_string );
+				foreach ( $defined_tokens as $defined_token ) {
+					if ( ';' === $defined_token[0] ) {
+						$possible_special_tokens[] = $defined_token;
+					} else {
+						$possible_normal_tokens[] = $defined_token;
+					}
 				}
 			}
 		}
