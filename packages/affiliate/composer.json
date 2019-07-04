@@ -21,6 +21,12 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true
 }
