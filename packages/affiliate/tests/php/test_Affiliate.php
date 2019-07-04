@@ -1,13 +1,16 @@
 <?php
 use Automattic\Jetpack\Partners\Affiliate;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
-use Automattic\Jetpack\JITM;
-use PHPUnit\Framework\TestCase;
 
-// Load required class to get the affiliate code
-require_once Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . 'class.jetpack.php';
+class Test_Affiliate extends WP_UnitTestCase {
 
-class Test_Affiliate extends TestCase {
+	public function setUp() {
+		Jetpack_Constants::set_constant(
+			'JETPACK__PLUGIN_DIR',
+			dirname( dirname( dirname( dirname( __DIR__ ) ) ) )
+		);
+		require_once Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . '/class.jetpack.php';
+	}
 
 	function test_affiliate_code_missing() {
 		$this->assertEmpty( Affiliate::init()->get_affiliate_code() );
