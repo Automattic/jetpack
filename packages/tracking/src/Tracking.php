@@ -14,9 +14,13 @@ class Tracking {
 	private $product_name;
 	private $connection;
 
-	function __construct( $product_name = 'jetpack' ) {
+	function __construct( $product_name = 'jetpack', $connection = null ) {
 		$this->product_name = $product_name;
-		$this->connection   = new Connection\Manager();
+		$this->connection   = $connection;
+		if ( is_null( $this->connection ) ) {
+			// TODO We should always pass a Connection.
+			$this->connection = new Connection\Manager();
+		}
 	}
 
 	function enqueue_tracks_scripts() {

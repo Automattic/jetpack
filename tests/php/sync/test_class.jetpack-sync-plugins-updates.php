@@ -15,9 +15,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		parent::setUp();
 
 		require ABSPATH . 'wp-includes/version.php';
-		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2" );
-		}
 
 		if (
 			version_compare( $wp_version, '4.9.0', '<' )
@@ -101,7 +98,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		 * in WP Plugin_Upgrader->update() doesn't fire the upgrader_process_complete action
 		 * when it encounters an error so right now we do not have a way to hook into why a plugin failed.
 		 */
-		$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2" );
+		$this->markTestIncomplete( "Right now this doesn't work." );
 
 		$this->server_event_storage->reset();
 		$plugin_defaults = array(

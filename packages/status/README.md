@@ -11,5 +11,15 @@ Find out whether the site is in development mode:
 ```php
 use Automattic\Jetpack\Status;
 
-$is_development_mode = Status::is_development_mode();
+$status = new Status();
+$is_development_mode = $status->is_development_mode();
+```
+
+Find out whether this is a system with multiple networks:
+
+```php
+use Automattic\Jetpack\Status;
+
+$status = new Status();
+$is_multi_network = $status->is_multi_network();
 ```

@@ -16,6 +16,7 @@ class Settings {
 		'max_queue_lag'            => true,
 		'queue_max_writes_sec'     => true,
 		'post_types_blacklist'     => true,
+		'taxonomies_blacklist'     => true,
 		'disable'                  => true,
 		'network_disable'          => true,
 		'render_filtered_content'  => true,
@@ -86,6 +87,9 @@ class Settings {
 			case 'post_types_blacklist':
 				$default_array_value = Defaults::$blacklisted_post_types;
 				break;
+			case 'taxonomies_blacklist':
+				$default_array_value = Defaults::$blacklisted_taxonomies;
+				break;
 			case 'post_meta_whitelist':
 				$default_array_value = Defaults::get_post_meta_whitelist();
 				break;
@@ -140,6 +144,10 @@ class Settings {
 	// returns escapted SQL that can be injected into a WHERE clause
 	static function get_blacklisted_post_types_sql() {
 		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+	}
+
+	static function get_blacklisted_taxonomies_sql() {
+		return 'taxonomy NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . '\')';
 	}
 
 	static function get_whitelisted_post_meta_sql() {

@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -110,12 +111,16 @@ class Actions {
 		if ( ! Settings::is_sync_enabled() ) {
 			return false;
 		}
-		if ( \Jetpack::is_development_mode() ) {
+
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			return false;
 		}
+
 		if ( \Jetpack::is_staging_site() ) {
 			return false;
 		}
+
 		if ( ! \Jetpack::is_active() ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;

@@ -34,6 +34,27 @@ function print_build_info {
 	echo
 }
 
+function run_php_compatibility {
+	export PHPCOMP_EXEC="composer php:compatibility ."
+	export PHPCS_CHECK_EXEC="./vendor/bin/phpcs --version | grep -e PHP_CodeSniffer"
+	echo "Running PHP:Compatibility checks:"
+	echo "PHP Compatibility command: \`$PHPCOMP_EXEC\` "
+
+	if $PHPCS_CHECK_EXEC; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+
+	if $PHPCOMP_EXEC; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+}
+
 echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
@@ -43,6 +64,11 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	if [ "latest" == "$WP_BRANCH" ]; then
 		run_packages_tests
 	fi
+
+	if [ "previous" == "$WP_BRANCH" ]; then
+		run_php_compatibility
+	fi
+
 
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then

@@ -26,6 +26,8 @@ import {
 	isActivatingModule,
 	getModuleOverride,
 } from 'state/modules';
+import { updateSettings } from 'state/settings/actions';
+import { getSetting, isUpdatingSetting } from 'state/settings/reducer';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { showBackups } from 'state/initial-state';
 
@@ -66,7 +68,7 @@ class MyPlanBody extends React.Component {
 	};
 
 	activateVideoPress = () => {
-		this.props.activateModule( 'videopress' );
+		this.props.activateFeature( 'videopress' );
 		this.trackPlansClick( 'activate_videopress' );
 	};
 
@@ -271,7 +273,7 @@ class MyPlanBody extends React.Component {
 										<p>
 											{ __( 'High-speed, high-definition video hosting with no third-party ads.' ) }
 										</p>
-										{ this.props.isModuleActivated( 'videopress' ) ? (
+										{ this.props.getFeatureState( 'videopress' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
 												href={ this.props.siteAdminUrl + 'upload.php' }
@@ -281,7 +283,7 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateVideoPress }
-												disabled={ this.props.isActivatingModule( 'videopress' ) }
+												disabled={ this.props.isActivatingFeature( 'videopress' ) }
 											>
 												{ __( 'Activate video hosting' ) }
 											</Button>
@@ -756,6 +758,8 @@ export default connect(
 			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
 			getModuleOverride: module_slug => getModuleOverride( state, module_slug ),
 			showBackups: showBackups( state ),
+			getFeatureState: feature => getSetting( state, feature ),
+			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
 		};
 	},
 	dispatch => {
@@ -764,6 +768,7 @@ export default connect(
 			activateModule: slug => {
 				return dispatch( activateModule( slug ) );
 			},
+			activateFeature: feature => dispatch( updateSettings( { [ feature ]: true } ) ),
 		};
 	}
 )( MyPlanBody );

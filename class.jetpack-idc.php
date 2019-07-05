@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
