@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.27
+ * Version: 2.4.28
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.27' );
+define( 'WPCOMSH_VERSION', '2.4.28' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -46,7 +46,7 @@ require_once( 'widgets/top-clicks.php' );
 require_once( 'widgets/top-rated.php' );
 require_once( 'widgets/twitter.php' );
 
-# autoload composer sourced plugins
+// autoload composer sourced plugins
 require_once( 'vendor/autoload.php' );
 
 // REST API
@@ -226,7 +226,7 @@ add_action(
 );
 
 function wpcomsh_managed_plugins_action_links() {
-	foreach( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {
+	foreach ( WPCOM_CORE_ATOMIC_PLUGINS as $plugin ) {
 		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
 			add_filter(
 				"plugin_action_links_{$plugin}",
@@ -235,7 +235,9 @@ function wpcomsh_managed_plugins_action_links() {
 
 			add_action(
 				"after_plugin_row_{$plugin}",
-				'wpcomsh_show_plugin_auto_managed_notice', 10, 2
+				'wpcomsh_show_plugin_auto_managed_notice',
+				10,
+				2
 			);
 		}
 	}
@@ -243,7 +245,9 @@ function wpcomsh_managed_plugins_action_links() {
 	foreach ( WPCOM_FEATURE_PLUGINS as $plugin ) {
 		add_action(
 			"after_plugin_row_{$plugin}",
-			'wpcomsh_show_plugin_auto_managed_notice', 10, 2
+			'wpcomsh_show_plugin_auto_managed_notice',
+			10,
+			2
 		);
 	}
 }
@@ -251,9 +255,9 @@ add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
 function wpcomsh_hide_update_notice_for_managed_plugins() {
 	$plugin_files = array_keys( get_plugins() );
-	foreach( $plugin_files as $plugin ) {
+	foreach ( $plugin_files as $plugin ) {
 		if ( wpcomsh_is_managed_plugin( $plugin ) ) {
-			remove_action( "after_plugin_row_{$plugin}", "wp_plugin_update_row", 10, 2 );
+			remove_action( "after_plugin_row_{$plugin}", 'wp_plugin_update_row', 10, 2 );
 		}
 	}
 }
@@ -262,13 +266,13 @@ add_action( 'load-plugins.php', 'wpcomsh_hide_update_notice_for_managed_plugins'
 function wpcomsh_is_managed_plugin( $plugin_file ) {
 	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 		if ( class_exists( 'Pressable_Mu_Plugin' ) ) {
-			return ( new Pressable_Mu_Plugin )->is_managed_plugin( $plugin_file );
+			return ( new Pressable_Mu_Plugin() )->is_managed_plugin( $plugin_file );
 		}
 	}
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		if ( class_exists( 'Atomic_Mu_Plugin' ) ) {
-			return ( new Atomic_Mu_Plugin )->is_managed_plugin( $plugin_file );
+			return ( new Atomic_Mu_Plugin() )->is_managed_plugin( $plugin_file );
 		}
 	}
 
@@ -310,8 +314,7 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 		$message = esc_html__( 'This plugin was installed by WordPress.com and provides features offered in your plan subscription.' );
 	}
 
-	echo
-		'<tr class="plugin-update-tr' . $active . '">' .
+	echo '<tr class="plugin-update-tr' . $active . '">' .
 			'<td colspan="4" class="plugin-update colspanchange">' .
 				'<div class="notice inline notice-success notice-alt">' .
 					"<p>{$message}</p>" .
@@ -435,7 +438,7 @@ function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 	// Skip the theme installation as we've "installed" (symlinked) it manually above.
 	add_filter(
 		'jetpack_wpcom_theme_install',
-		function() use( $was_theme_symlinked ) {
+		function() use ( $was_theme_symlinked ) {
 			return $was_theme_symlinked;
 		},
 		10,
@@ -501,7 +504,7 @@ add_action( 'wp_dashboard_setup', 'wpcomsh_remove_dashboard_widgets' );
  * be removed, preventing further stats.
  *
  * @param string $url The attachment URL
- * @param int $post_id The post id
+ * @param int    $post_id The post id
  * @return string The filtered attachment URL
  */
 function wpcomsh_get_attachment_url( $url, $post_id ) {
@@ -679,21 +682,20 @@ function wpcomsh_activate_masterbar_module() {
 add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
 
 function require_lib( $slug ) {
-	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
+	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
 		return;
 	}
 
 	// these are whitelisted libraries that Jetpack has
 	$in_jetpack = array(
 		'tonesque',
-		'class.color'
+		'class.color',
 	);
 
 	// hand off to `jetpack_require_lib`, if possible.
 	if ( in_array( $slug, $in_jetpack ) && function_exists( 'jetpack_require_lib' ) ) {
 		return jetpack_require_lib( $slug );
 	}
-
 
 	$basename = basename( $slug );
 
@@ -713,7 +715,7 @@ function require_lib( $slug ) {
 		"$lib_dir/$slug/0-load.php",
 		"$lib_dir/$slug/$basename.php",
 	);
-	foreach( $choices as $file_name ) {
+	foreach ( $choices as $file_name ) {
 		if ( is_readable( $file_name ) ) {
 			require_once $file_name;
 			return;
@@ -811,8 +813,8 @@ add_filter( 'pre_option_link_manager_enabled', '__return_true' );
  * More detail here: 235-gh-Automattic/automated-transfer
  */
 function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
-	if ( isset( $exif_data[ 'track_number' ] ) ) {
-		$exif_data[ 'track_number' ] = intval( $exif_data[ 'track_number' ] );
+	if ( isset( $exif_data['track_number'] ) ) {
+		$exif_data['track_number'] = intval( $exif_data['track_number'] );
 	}
 	return $exif_data;
 }
@@ -858,7 +860,7 @@ function wpcomsh_wp_die_handler( $message, $title, $args ) {
 	error_log( $e );
 
 	if ( function_exists( '_default_wp_die_handler' ) ) {
-		_default_wp_die_handler( $message, $title, $args ) ;
+		_default_wp_die_handler( $message, $title, $args );
 		return;
 	}
 	// if the default wp_die handler is not available just die.
