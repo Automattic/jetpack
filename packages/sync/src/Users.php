@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Roles;
+
 /**
  * Class Users
  *
@@ -35,7 +37,8 @@ class Users {
 
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( $user_id );
-		$role = \Jetpack::translate_current_user_to_role();
+		$roles = new Roles();
+		$role  = $roles->translate_current_user_to_role();
 		wp_set_current_user( $current_user_id );
 		$user_roles[ $user_id ] = $role;
 
