@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Sync;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -224,7 +225,7 @@ class Defaults {
 
 	static $default_callable_whitelist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
-		'is_main_network'                  => array( 'Jetpack', 'is_multi_network' ),
+		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
 		'main_network_site'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_url' ),
 		'site_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_url' ),
@@ -733,6 +734,21 @@ class Defaults {
 		 * @param array The default list of known importers.
 		 */
 		return apply_filters( 'jetpack_sync_known_importers', self::$default_known_importers );
+	}
+
+	/**
+	 * Whether this is a system with a multiple networks.
+	 * We currently need this static wrapper because we statically define our default list of callables.
+	 *
+	 * @since 7.6.0
+	 *
+	 * @uses Automattic\Jetpack\Status::is_multi_network
+	 *
+	 * @return boolean
+	 */
+	public static function is_multi_network() {
+		$status = new Status();
+		return $status->is_multi_network();
 	}
 
 	static $default_taxonomy_whitelist       = array();
