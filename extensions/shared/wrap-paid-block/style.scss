@@ -5,6 +5,6 @@
 	border: $border-width solid $light-gray-500; // To reflect the `Warning` component from `@wordpress/editor`
 	margin-left: -14px;
 	margin-right: -14px;
-	padding-left: 14px;
-	padding-right: 14px;
+	padding-left: calc( 14px - #{$border-width} );
+	padding-right: calc( 14px - #{$border-width} );
 }
