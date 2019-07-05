@@ -17,9 +17,9 @@ import './store';
 import './style.scss';
 
 const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
-	<div className="jetpack-upgrade-nudge">
+	<div className="block-editor-warning">
 		<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
-		<div className="jetpack-upgrade-nudge__info">
+		<div className="block-editor-warning__message">
 			<span className="jetpack-upgrade-nudge__title">
 				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
 					planName,
