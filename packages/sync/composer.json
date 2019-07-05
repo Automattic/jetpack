@@ -14,5 +14,13 @@
 			"Automattic\\Jetpack\\Sync\\": "src/",
 			"Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
 		}
-	}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
