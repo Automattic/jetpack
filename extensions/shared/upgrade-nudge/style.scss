@@ -1,7 +1,11 @@
+@import '../styles/gutenberg-variables.scss';
+
 .jetpack-upgrade-nudge {
 	border-left: 3px solid var( --color-plan-premium );
 	box-shadow: 0 0 0 1px var( --color-border-subtle );
 	display: flex;
+	font-family: $default-font;
+	line-height: $default-line-height;
 	margin: 0 -1px 1em 0;
 	padding: 12px 16px;
 	text-align: left;
