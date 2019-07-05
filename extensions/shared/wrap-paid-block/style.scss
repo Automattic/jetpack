@@ -3,8 +3,8 @@
 
 .block-editor-block-list__block:not( .is-selected ) .jetpack-paid-block__wrapper {
 	border: $border-width solid $light-gray-500; // To reflect the `Warning` component from `@wordpress/editor`
-	margin-left: -14px;
-	margin-right: -14px;
-	padding-left: calc( 14px - #{$border-width} );
-	padding-right: calc( 14px - #{$border-width} );
+	margin-left: -#{$block-padding};
+	margin-right: -#{$block-padding};
+	padding-left: calc( #{$block-padding} - #{$border-width} );
+	padding-right: calc( #{$block-padding} - #{$border-width} );
 }
