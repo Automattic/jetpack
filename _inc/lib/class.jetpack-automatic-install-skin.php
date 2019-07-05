@@ -86,6 +86,7 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 		}
 
 		if ( strpos( $string, '%' ) !== false ) {
+			// phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 			$args = func_get_args();
 			$args = array_splice( $args, 1 );
 			if ( ! empty( $args ) ) {
