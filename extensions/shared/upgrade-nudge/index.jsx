@@ -33,6 +33,7 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 				{ __( 'Upgrade', 'jetpack' ) }
 			</Button>,
 		] }
+		className="jetpack-upgrade-nudge"
 	>
 		<div className="jetpack-upgrade-nudge__info">
 			<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
