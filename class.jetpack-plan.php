@@ -46,13 +46,6 @@ class Jetpack_Plan {
 			return false;
 		}
 
-		$current_plan = get_option( self::PLAN_OPTION, array() );
-
-		// If the plans don't differ, then there's nothing to do.
-		if ( ! empty( $current_plan ) && $current_plan['product_slug'] === $results['plan']['product_slug'] ) {
-			return false;
-		}
-
 		// Store the new plan in an option and return true if updated.
 		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		if ( ! $result ) {
