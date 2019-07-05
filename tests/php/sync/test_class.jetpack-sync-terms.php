@@ -174,6 +174,22 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
+	function test_returns_term_object_by_id() {
+		$term_sync_module = Modules::get_module( 'terms' );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_term' );
+		$synced_term = $event->args[0];
+
+		// Grab the codec - we need to simulate the stripping of types that comes with encoding/decoding.
+		$codec = $this->sender->get_codec();
+
+		$retrieved_term = $codec->decode( $codec->encode(
+			$term_sync_module->get_object_by_id( 'term', $synced_term->term_id )
+		) );
+
+		$this->assertEquals( $synced_term, $retrieved_term );
+	}
+
 	function get_terms() {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.5', '>=' ) ) {

@@ -702,7 +702,7 @@ class Replicastore implements Replicastore_Interface {
 				$object_table = $wpdb->terms;
 				$object_count = $this->term_count();
 				$id_field     = 'term_id';
-				$where_sql    = Settings::get_blacklisted_taxonomies_sql();
+				$where_sql    = '1=1';
 				break;
 			default:
 				return false;
