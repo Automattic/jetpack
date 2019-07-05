@@ -13,22 +13,15 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 	// `environment-id` is added to Gutenframe `iframe` query args
 	// within the Calypso repo
 	$is_horizon = ( ! empty( $_GET['environment-id'] ) && $_GET['environment-id'] === 'horizon' );
-	
+
 	// Never disable on Horizon.
 	if ( $is_horizon ) {
 		return false;
 	}
-	
-	// Disable for 50% of sites.
-	if ( class_exists( 'Jetpack' ) && Jetpack::is_active() ) {
-		$blog_id = (int) Jetpack_Options::get_option( 'id' );
-		// Originally, we launched for site ids ending with zero or five.
-		// To get to 50%, we additionally allow those ending with 1, 2 and 3.
-		if ( ! empty( $blog_id ) && ! in_array( $blog_id % 10, [ 0, 1, 2, 3, 5 ] ) ) {
-			return true;
-		}
-	}
 
+	/**
+	 * Only support a limited subset of Themes
+	 */
 	$enabled_themes = [
 		'business',
 		'business-wpcom',
