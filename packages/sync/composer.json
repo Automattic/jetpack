@@ -6,6 +6,7 @@
 	"require": {
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"autoload": {
