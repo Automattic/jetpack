@@ -7,6 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { Warning } from '@wordpress/editor';
+import Gridicon from 'gridicons';
 
 /**
  * Internal dependencies
@@ -33,14 +34,17 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 			</Button>,
 		] }
 	>
-		<span className="jetpack-upgrade-nudge__title">
-			{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
-				planName,
-			} ) }
-		</span>
-		<span className="jetpack-upgrade-nudge__message">
-			{ __( 'To make this block visible on your site', 'jetpack' ) }
-		</span>
+		<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
+		<div>
+			<span className="jetpack-upgrade-nudge__title">
+				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
+					planName,
+				} ) }
+			</span>
+			<span className="jetpack-upgrade-nudge__message">
+				{ __( 'To make this block visible on your site', 'jetpack' ) }
+			</span>
+		</div>
 	</Warning>
 );
 
