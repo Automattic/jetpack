@@ -16,14 +16,23 @@ class Terms extends Module {
 	 * Allows WordPress.com servers to retrieve a term object via the sync API.
 	 *
 	 * @param string $object_type The type of object.
-	 * @param int $id The id of the object.
+	 * @param int    $id The id of the object.
 	 *
 	 * @return bool|\WP_Term
 	 */
 	public function get_object_by_id( $object_type, $id ) {
+
 		if ( $object_type === 'term' ) {
+
 			$term = get_term( intval( $id ) );
-			return ( $term && ! is_wp_error( $term ) ) ? $term : false;
+
+			if ( is_wp_error( $term ) && $term->get_error_code() === 'invalid_taxonomy' ) {
+				// get raw term
+				global $wpdb;
+				$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_checksum_columns, [ 'term_group' ] ) ) );
+				$term    = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->terms WHERE term_id = %d", $id ) );
+			}
+			return $term ? $term : false;
 		}
 
 		return false;
