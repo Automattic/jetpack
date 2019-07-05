@@ -23,7 +23,7 @@ class Terms extends Module {
 	public function get_object_by_id( $object_type, $id ) {
 		if ( $object_type === 'term' ) {
 			$term = get_term( intval( $id ) );
-			return $term ? $term : false;
+			return ( $term && ! is_wp_error( $term ) ) ? $term : false;
 		}
 
 		return false;
