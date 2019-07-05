@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -16,6 +17,8 @@ import QueryAkismetData from 'components/data/query-akismet-data';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
+import { getUpgradeUrl } from 'state/initial-state';
+import JetpackBanner from 'components/jetpack-banner';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -25,6 +28,7 @@ class DashAkismet extends Component {
 		// Connected props
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 		isDevMode: PropTypes.bool.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -38,7 +42,7 @@ class DashAkismet extends Component {
 		analytics.tracks.recordJetpackClick( {
 			type: 'install-link',
 			target: 'at-a-glance',
-			feature: 'akismet',
+			feature: 'anti-spam',
 		} );
 	}
 
@@ -46,13 +50,13 @@ class DashAkismet extends Component {
 		analytics.tracks.recordJetpackClick( {
 			type: 'activate-link',
 			target: 'at-a-glance',
-			feature: 'akismet',
+			feature: 'anti-spam',
 		} );
 	}
 
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Jetpack Anti-spam' );
+		const labelName = __( 'Anti-spam' );
 
 		const support = {
 			text: __(
@@ -62,7 +66,7 @@ class DashAkismet extends Component {
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
-		if ( akismetData === 'N/A' ) {
+		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
 					<p className="jp-dash-item__description">{ __( 'Loading…' ) }</p>
@@ -72,7 +76,7 @@ class DashAkismet extends Component {
 
 		const hasSitePlan = false !== this.props.sitePlan;
 
-		if ( akismetData === 'not_installed' ) {
+		if ( 'not_installed' === akismetData ) {
 			return (
 				<DashItem
 					label={ labelName }
@@ -100,7 +104,7 @@ class DashAkismet extends Component {
 			);
 		}
 
-		if ( akismetData === 'not_active' ) {
+		if ( 'not_active' === akismetData ) {
 			return (
 				<DashItem
 					label={ labelName }
@@ -128,30 +132,29 @@ class DashAkismet extends Component {
 			);
 		}
 
-		if ( akismetData === 'invalid_key' ) {
+		if ( 'invalid_key' === akismetData ) {
 			return (
 				<DashItem
 					label={ labelName }
 					module="akismet"
 					support={ support }
 					className="jp-dash-item__is-inactive"
-					status="is-warning"
-					statusText={ __( 'Invalid key' ) }
 					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __(
-							'Whoops! Your Jetpack Anti-spam (powered by Akismet) key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.',
-							{
-								components: {
-									akismetSettings: (
-										<a href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config` } />
-									),
-								},
-							}
-						) }
-					</p>
-				</DashItem>
+					overrideContent={
+						<JetpackBanner
+							callToAction={ __( 'Upgrade' ) }
+							title={ __(
+								'Automatically clear spam from your comments and forms so you can get back to your business.'
+							) }
+							disableHref="false"
+							href={ this.props.upgradeUrl }
+							eventFeature="akismet"
+							path="dashboard"
+							plan={ PLAN_JETPACK_PREMIUM }
+							icon="flag"
+						/>
+					}
+				/>
 			);
 		}
 
@@ -198,4 +201,5 @@ export default connect( state => ( {
 	akismetData: getAkismetData( state ),
 	sitePlan: getSitePlan( state ),
 	isDevMode: isDevMode( state ),
+	upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
 } ) )( DashAkismet );

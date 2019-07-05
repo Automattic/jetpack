@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
 Stable tag: 7.4.1
 Requires at least: 5.1
-Requires PHP: 5.3
+Requires PHP: 5.6
 Tested up to: 5.2
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
@@ -23,7 +23,7 @@ Jetpack is your site's security detail, guarding you against brute-force attacks
 * Fast, priority support from WordPress experts.
 
 = Peak Performance =
-Activate site accelerator tools and watch your page load times and hosting costs drop -- we'll optimize your images and serve them from our own powerful global network, and speed up your mobile site to reduce bandwidth usage (and save money!). Connect Jetpack to take advantage of:
+Activate site accelerator tools and watch your page load times decrease -- we'll optimize your images and serve them from our own powerful global network, and speed up your mobile site to reduce bandwidth usage (and save money!). Connect Jetpack to take advantage of:
 
 * Images and static files, like CSS and JavaScript, served from our servers, not yours.
 * Elasticsearch-powered related content and site search, for relevant results with no drain on your servers.
@@ -112,7 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Lazy Load: allow adding event handlers to images.
 * Recurring Payments Block: improve the display of the block in the editor.
 * WordAds: update link to daily earnings stats on WordPress.com.
-* WordAds: provide dditional details for custom ads.txt entries in the Jetpack dashboard.
+* WordAds: provide additional details for custom ads.txt entries in the Jetpack dashboard.
 * WordPress.com Toolbar: add colors to Recovery Mode button.
 
 **Improved compatibility**
@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: fix display of backup details in the Jetpack dashboard.
+* Admin Page: do not disable Widget Visibility and Widgets toggles in Development mode.
 * Sitemaps: ensure links to sitemaps appear in robots.txt
 * Slideshow Block: fix CSS class name.
 * Videos: ensure that Video Poster images are always displayed properly.

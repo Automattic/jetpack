@@ -2,7 +2,9 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class Options extends \Jetpack_Sync_Module {
+use Automattic\Jetpack\Sync\Defaults;
+
+class Options extends Module {
 	private $options_whitelist, $options_contentless;
 
 	public function name() {
@@ -94,7 +96,7 @@ class Options extends \Jetpack_Sync_Module {
 	}
 
 	function update_options_whitelist() {
-		$this->options_whitelist = \Jetpack_Sync_Defaults::get_options_whitelist();
+		$this->options_whitelist = Defaults::get_options_whitelist();
 	}
 
 	function set_options_whitelist( $options ) {
@@ -106,7 +108,7 @@ class Options extends \Jetpack_Sync_Module {
 	}
 
 	function update_options_contentless() {
-		$this->options_contentless = \Jetpack_Sync_Defaults::get_options_contentless();
+		$this->options_contentless = Defaults::get_options_contentless();
 	}
 
 	function get_options_contentless() {

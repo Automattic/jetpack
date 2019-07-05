@@ -1,4 +1,8 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sync\Settings;
+
 class Jetpack_RelatedPosts {
 	const VERSION   = '20190204';
 	const SHORTCODE = 'jetpack-related-posts';
@@ -51,6 +55,7 @@ class Jetpack_RelatedPosts {
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
 	 * @uses get_option, add_action, apply_filters
+	 *
 	 * @return null
 	 */
 	public function __construct() {
@@ -197,7 +202,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return '';
 		}
 
@@ -231,7 +236,7 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return '';
 		}
 		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
@@ -1651,7 +1656,7 @@ EOT;
 		if ( $script ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/related-posts/related-posts.min.js',
 					'modules/related-posts/related-posts.js'
 				),

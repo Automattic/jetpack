@@ -5,12 +5,10 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev"
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"autoload": {
-		"classmap": [
-			"/legacy"
-		],
 		"psr-4": {
 			"Automattic\\Jetpack\\Sync\\": "src/",
 			"Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"

@@ -8,6 +8,8 @@
  *  - https://dev.twitter.com/docs/embedded-timelines
  */
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */
@@ -65,7 +67,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		if ( 'widgets.php' === $hook ) {
 			wp_enqueue_script(
 				'twitter-timeline-admin',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/twitter-timeline-admin.min.js',
 					'modules/widgets/twitter-timeline-admin.js'
 				)

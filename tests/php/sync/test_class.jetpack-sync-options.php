@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing CRUD on Options
  */
@@ -10,7 +12,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
-		$this->options_module = Jetpack_Sync_Modules::get_module( "options" );
+		$this->options_module = Modules::get_module( "options" );
 
 		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 

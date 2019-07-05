@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Sync\Defaults;
+
 /**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
@@ -347,7 +349,7 @@ class Queue {
 	private function set_checkout_id( $checkout_id ) {
 		global $wpdb;
 
-		$expires     = time() + \Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
+		$expires     = time() + Defaults::$default_sync_queue_lock_timeout;
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",

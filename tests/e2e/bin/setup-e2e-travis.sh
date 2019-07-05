@@ -14,7 +14,6 @@ DB_PASS=${4-}
 DB_HOST=${4-localhost}
 WP_VERSION=${5-latest}
 
-WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
 
 BRANCH=$TRAVIS_BRANCH
@@ -30,6 +29,7 @@ install_ngrok() {
 	# download and install ngrok
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
 	unzip ngrok.zip
+	./ngrok authtoken $NGROK_KEY
 	./ngrok http -log=stdout 80 > /dev/null &
 	sleep 3
 	WP_SITE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
@@ -121,7 +121,6 @@ export_env_variables() {
 	cat <<EOT >> env-file
 WP_SITE_URL=${WP_SITE_URL}
 WORKING_DIR=${WORKING_DIR}
-WHATEVER_VAR="${WP_SITE_URL}${WORKING_DIR}"
 EOT
 }
 

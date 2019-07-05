@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { setBrowserViewport } from '@wordpress/e2e-test-utils';
+import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
  * Environment variables
  */
@@ -24,6 +24,9 @@ async function setupBrowser() {
 // each other's side-effects.
 beforeAll( async () => {
 	await setupBrowser();
+
+	// Handles not saved changed dialog in block editor
+	await enablePageDialogAccept();
 } );
 
 afterEach( async () => {

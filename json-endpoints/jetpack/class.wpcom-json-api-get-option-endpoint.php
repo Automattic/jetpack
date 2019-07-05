@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Defaults;
+
 class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $needed_capabilities = 'manage_options';
@@ -32,7 +34,7 @@ class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 		 * @param array The default list of site options.
 		 * @param bool Is the option a site option.
 		 */
-		if ( ! in_array( $this->option_name, apply_filters( 'jetpack_options_whitelist', Jetpack_Sync_Defaults::$default_options_whitelist, $this->site_option ) ) ) {
+		if ( ! in_array( $this->option_name, apply_filters( 'jetpack_options_whitelist', Defaults::$default_options_whitelist, $this->site_option ) ) ) {
 			return new WP_Error( 'option_name_not_in_whitelist', __( 'You must specify a whitelisted option_name', 'jetpack' ) );
 		}
 		return true;

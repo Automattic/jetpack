@@ -5,21 +5,21 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import { getPlanClass } from 'lib/plans/constants';
+import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import UpgradeLink from 'components/upgrade-link';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import JetpackBanner from 'components/jetpack-banner';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -29,7 +29,7 @@ import { showBackups } from 'state/initial-state';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Security Scanning' ) }
+		label={ __( 'Scan' ) }
 		module={ props.feature || 'scan' }
 		support={ {
 			text: __(
@@ -40,6 +40,7 @@ const renderCard = props => (
 		className={ props.className || '' }
 		status={ props.status || '' }
 		pro={ true }
+		overrideContent={ props.overrideContent }
 	>
 		{ isArray( props.content ) ? (
 			props.content
@@ -61,6 +62,7 @@ class DashScan extends Component {
 		isDevMode: PropTypes.bool.isRequired,
 		isPluginInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
@@ -137,36 +139,45 @@ class DashScan extends Component {
 		const hasPremium = 'is-premium-plan' === planClass;
 		const hasBusiness = 'is-business-plan' === planClass;
 
+		const scanContent =
+			hasPremium || hasBusiness || scanEnabled ? (
+				<p className="jp-dash-item__description" key="inactive-scanning">
+					{ __(
+						'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
+						{
+							components: {
+								a: (
+									<a
+										href="https://wordpress.com/plugins/vaultpress"
+										target="_blank"
+										rel="noopener noreferrer"
+									/>
+								),
+							},
+						}
+					) }
+				</p>
+			) : null;
+
+		const overrideContent =
+			null === scanContent ? (
+				<JetpackBanner
+					callToAction={ __( 'Upgrade' ) }
+					title={ __( 'Find threats early so we can help fix them fast.' ) }
+					disableHref="false"
+					href={ this.props.upgradeUrl }
+					eventFeature="scan"
+					path="dashboard"
+					plan={ PLAN_JETPACK_PREMIUM }
+					icon="lock"
+				/>
+			) : null;
+
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
 			status: hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive',
-			content: [
-				<p className="jp-dash-item__description" key="inactive-scanning">
-					{ hasPremium || hasBusiness || scanEnabled
-						? __(
-								'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
-								{
-									components: {
-										a: (
-											<a
-												href="https://wordpress.com/plugins/vaultpress"
-												target="_blank"
-												rel="noopener noreferrer"
-											/>
-										),
-									},
-								}
-						  )
-						: __(
-								'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.',
-								{
-									components: {
-										a: <UpgradeLink source="aag-scan" target="at-a-glance" feature="scan" />,
-									},
-								}
-						  ) }
-				</p>,
-			],
+			content: [ scanContent ],
+			overrideContent,
 		} );
 	}
 
@@ -259,5 +270,6 @@ export default connect( state => {
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		showBackups: showBackups( state ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
 	};
 } )( DashScan );

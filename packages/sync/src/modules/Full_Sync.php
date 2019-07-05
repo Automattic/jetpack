@@ -3,8 +3,9 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
-
+use Automattic\Jetpack\Sync\Settings;
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -17,7 +18,7 @@ use Automattic\Jetpack\Sync\Queue;
  * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
 
-class Full_Sync extends \Jetpack_Sync_Module {
+class Full_Sync extends Module {
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
 	const FULL_SYNC_TIMEOUT    = 3600;
 
@@ -63,13 +64,13 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
 			$include_empty  = true;
-			foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+			foreach ( Modules::get_modules() as $module ) {
 				$module_configs[ $module->name() ] = true;
 			}
 		}
 
 		// set default configuration, calculate totals, and save configuration if totals > 0
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
 
@@ -127,7 +128,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		}
 
 		// if full sync queue is full, don't enqueue more items
-		$max_queue_size_full_sync = \Jetpack_Sync_Settings::get_setting( 'max_queue_size_full_sync' );
+		$max_queue_size_full_sync = Settings::get_setting( 'max_queue_size_full_sync' );
 		$full_sync_queue          = new Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
@@ -135,7 +136,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 		if ( $available_queue_slots <= 0 ) {
 			return;
 		} else {
-			$remaining_items_to_enqueue = min( \Jetpack_Sync_Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
+			$remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
 		}
 
 		if ( ! $configs ) {
@@ -146,7 +147,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 			$enqueue_status = $this->get_enqueue_status();
 		}
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 
 			// skip module if not configured for this sync or module is done
@@ -207,13 +208,13 @@ class Full_Sync extends \Jetpack_Sync_Module {
 			case 'posts':
 				$table     = $wpdb->posts;
 				$id        = 'ID';
-				$where_sql = \Jetpack_Sync_Settings::get_blacklisted_post_types_sql();
+				$where_sql = Settings::get_blacklisted_post_types_sql();
 
 				break;
 			case 'comments':
 				$table     = $wpdb->comments;
 				$id        = 'comment_ID';
-				$where_sql = \Jetpack_Sync_Settings::get_comments_filter_sql();
+				$where_sql = Settings::get_comments_filter_sql();
 				break;
 		}
 		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE {$where_sql}" );
@@ -252,7 +253,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 			$this->update_status_option( 'send_started', time() );
 		}
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_actions     = $module->get_full_sync_actions();
 			$status_option_name = "{$module->name()}_sent";
 			$total_option_name  = "{$status_option_name}_total";
@@ -354,7 +355,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 
 		$enqueue_status = $this->get_enqueue_status();
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$name = $module->name();
 
 			if ( ! isset( $enqueue_status[ $name ] ) ) {
@@ -394,7 +395,7 @@ class Full_Sync extends \Jetpack_Sync_Module {
 
 		$this->delete_enqueue_status();
 
-		foreach ( \Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			\Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
 			\Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent_total" );
 		}

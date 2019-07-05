@@ -60,3 +60,29 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 
 $logo = new Jetpack_Logo();
 ```
+
+## Deploying packages
+
+While the script we use to deploy the package takes care of everything, we might need to setup some stuff online in GitHub and Packagist. Let's use the Autoload package as an example. 
+
+You must first have an online repository in GitHub for the package. In this case, it's https://github.com/Automattic/jetpack-autoloader. The code here comes from the Jetpack plugin in `packages/autoloader`.
+
+You also need a package home in Packagist. For the Autoloader, it's https://packagist.org/packages/automattic/jetpack-autoloader. To create a new one, go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
+
+To establish a link between the two, so the packages are updated in Packagist when they're updated in GitHub, you need to add a Webhook to the GitHub repo. You can find more information about it on the [Packagist docs](https://packagist.org/about#how-to-update-packages), and you can also check the [Packagist Webhook in Autoloader](https://github.com/Automattic/jetpack-autoloader/settings/hooks) to see how it's setup.
+
+Once you've all this ready, you should be standing in the Jetpack plugin root and run:
+
+```
+php bin/release-package.php autoloader 5.6.7 
+```
+
+The PHP script admits two parameters, the package name and the new target version (`5.6.7` is just an example). Once it's run, the script will:
+
+- create and push a new `automattic/jetpack-autoloader@5.6.7` tag in the main Jetpack repository.
+- filter the current Jetpack repository to the contents and history of the package subdirectory.
+- add the `automattic/jetpack-autoloader` package as a git remote.
+- push the new contents and history to the package repository.
+- fetch all current tags of the package repository.
+- create and push a new `v5.6.7` tag in the package repository.
+- reset the local repository to its original state and clean up.

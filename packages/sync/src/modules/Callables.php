@@ -2,7 +2,11 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-class Callables extends \Jetpack_Sync_Module {
+use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
+
+class Callables extends Module {
 	const CALLABLES_CHECKSUM_OPTION_NAME = 'jetpack_callables_sync_checksum';
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
 
@@ -14,9 +18,9 @@ class Callables extends \Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		if ( is_multisite() ) {
-			$this->callable_whitelist = array_merge( \Jetpack_Sync_Defaults::get_callable_whitelist(), \Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
+			$this->callable_whitelist = array_merge( Defaults::get_callable_whitelist(), Defaults::get_multisite_callable_whitelist() );
 		} else {
-			$this->callable_whitelist = \Jetpack_Sync_Defaults::get_callable_whitelist();
+			$this->callable_whitelist = Defaults::get_callable_whitelist();
 		}
 	}
 
@@ -65,7 +69,7 @@ class Callables extends \Jetpack_Sync_Module {
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach ( $url_callables as $callable ) {
-			delete_option( \Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
+			delete_option( Functions::HTTPS_CHECK_OPTION_PREFIX . $callable );
 		}
 	}
 
@@ -142,7 +146,7 @@ class Callables extends \Jetpack_Sync_Module {
 		if ( ! empty( $plugins_lock ) && ( isset( $current_screeen->id ) && $current_screeen->id !== 'plugins' ) ) {
 			return;
 		}
-		$plugins = array_keys( \Jetpack_Sync_Functions::get_plugins() );
+		$plugins = array_keys( Functions::get_plugins() );
 		foreach ( $plugins as $plugin_file ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.
@@ -212,7 +216,7 @@ class Callables extends \Jetpack_Sync_Module {
 
 	public function maybe_sync_callables() {
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
-			if ( ! is_admin() || \Jetpack_Sync_Settings::is_doing_cron() ) {
+			if ( ! is_admin() || Settings::is_doing_cron() ) {
 				return;
 			}
 
@@ -221,7 +225,7 @@ class Callables extends \Jetpack_Sync_Module {
 			}
 		}
 
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), \Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
 
 		$callables = $this->get_all_callables();
 

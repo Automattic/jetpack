@@ -21,6 +21,40 @@ function run_packages_tests {
 	done
 }
 
+function print_build_info {
+	echo
+	echo "--------------------------------------------"
+	echo "Running \`$WP_TRAVISCI\` with:"
+	echo " - $(phpunit --version)"
+	echo " - WordPress branch: $WP_BRANCH"
+	if [ "master" == "$WP_BRANCH" ]; then
+		echo " - Because WordPress is in master branch, will also attempt to test multisite."
+	fi
+	echo "--------------------------------------------"
+	echo
+}
+
+function run_php_compatibility {
+	export PHPCOMP_EXEC="composer php:compatibility ."
+	export PHPCS_CHECK_EXEC="./vendor/bin/phpcs --version | grep -e PHP_CodeSniffer"
+	echo "Running PHP:Compatibility checks:"
+	echo "PHP Compatibility command: \`$PHPCOMP_EXEC\` "
+
+	if $PHPCS_CHECK_EXEC; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+
+	if $PHPCOMP_EXEC; then
+		# Everything is fine
+		:
+	else
+		exit 1
+	fi
+}
+
 echo "Travis CI command: $WP_TRAVISCI"
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
@@ -31,6 +65,11 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		run_packages_tests
 	fi
 
+	if [ "previous" == "$WP_BRANCH" ]; then
+		run_php_compatibility
+	fi
+
+
 	# Run a external-html group tests
 	if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
@@ -38,12 +77,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	fi
 
-	echo "Running \`$WP_TRAVISCI\` with:"
-	echo " - $(phpunit --version)"
-	echo " - WordPress branch: $WP_BRANCH"
-	if [ "master" == "$WP_BRANCH" ]; then
-		echo " - Because WordPress is in master branch, will also attempt to test multisite."
-	fi
+	print_build_info
 
 	# WP_BRANCH = master | latest | previous
 	cd "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$PLUGIN_SLUG"

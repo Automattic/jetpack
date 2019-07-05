@@ -22,6 +22,7 @@ import MyPlanPage from '../pages/wpcom/my-plan';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
+const siteUrl = new URL( process.env.WP_BASE_URL ).host;
 
 /**
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
@@ -33,7 +34,7 @@ export async function connectThroughWPAdminIfNeeded( {
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
 	await ( await WPLoginPage.visit( page ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, '.eu.ngrok.io' );
+	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -65,4 +66,5 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	await ( await JetpackPage.init( page ) ).waitForPage();
+	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 }

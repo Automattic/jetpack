@@ -2,7 +2,12 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, getAccountCredentials } from '../../page-helper';
+import {
+	waitForSelector,
+	getAccountCredentials,
+	waitAndClick,
+	waitAndType,
+} from '../../page-helper';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
@@ -14,22 +19,16 @@ export default class LoginPage extends Page {
 	async login( wpcomUser ) {
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
-		const userNameSelector = '#usernameOrEmail';
+		const usernameSelector = '#usernameOrEmail';
 		const passwordSelector = '#password';
+		const continueButtonSelector = '.login__form-action button';
+		const submitButtonSelector = '.login__form-action button[type="submit"]';
 
-		const userNameInput = await waitForSelector( this.page, userNameSelector, { visible: true } );
-		await userNameInput.click( { clickCount: 3 } );
-		await userNameInput.type( username );
-		await ( await waitForSelector( this.page, '.login__form-action button' ) ).click();
+		await waitAndType( this.page, usernameSelector, username );
+		await waitAndClick( this.page, continueButtonSelector );
 
-		const passwordInput = await waitForSelector( this.page, passwordSelector, { visible: true } );
-		await passwordInput.click( { clickCount: 3 } );
-		await passwordInput.type( password );
-
-		await ( await waitForSelector(
-			this.page,
-			'.login__form-action button[type="submit"]'
-		) ).click();
+		await waitAndType( this.page, passwordSelector, password );
+		await waitAndClick( this.page, submitButtonSelector );
 
 		await waitForSelector( this.page, passwordSelector, { hidden: true, timeout: 60000 } );
 		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );

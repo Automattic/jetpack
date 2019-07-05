@@ -3,17 +3,20 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { noop, size } from 'lodash';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import PlanIcon from 'components/plans/plan-icon';
+import { getCurrentVersion } from 'state/initial-state';
 
 import './style.scss';
 
@@ -21,13 +24,15 @@ class Banner extends Component {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
+		currentVersion: PropTypes.string.isRequired,
 		description: PropTypes.node,
-		event: PropTypes.string,
+		eventFeature: PropTypes.string,
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
 		href: PropTypes.string,
 		icon: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
+		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
 		title: PropTypes.string.isRequired,
@@ -51,6 +56,22 @@ class Banner extends Component {
 
 	handleClick = () => {
 		this.props.onClick();
+
+		const { eventFeature, path, currentVersion } = this.props;
+		if ( eventFeature || path ) {
+			const eventFeatureProp = eventFeature ? { feature: eventFeature } : {};
+			const pathProp = path ? { path } : {};
+
+			const eventProps = {
+				target: 'banner',
+				type: 'upgrade',
+				current_version: currentVersion,
+				...eventFeatureProp,
+				...pathProp,
+			};
+
+			analytics.tracks.recordJetpackClick( eventProps );
+		}
 	};
 
 	getIcon() {
@@ -134,4 +155,6 @@ class Banner extends Component {
 	}
 }
 
-export default Banner;
+export default connect( state => ( {
+	currentVersion: getCurrentVersion( state ),
+} ) )( Banner );

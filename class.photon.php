@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 class Jetpack_Photon {
 	/**
 	 * Class variables
@@ -1184,7 +1186,7 @@ class Jetpack_Photon {
 		}
 		wp_enqueue_script(
 			'jetpack-photon',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),

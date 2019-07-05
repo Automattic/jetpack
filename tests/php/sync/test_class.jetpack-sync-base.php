@@ -2,12 +2,15 @@
 
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Main;
 use Automattic\Jetpack\Sync\Modules\Constants;
+use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 use Automattic\Jetpack\Sync\Modules\Posts;
 
-Jetpack_Sync_Main::init();
+Main::init();
 
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
 
@@ -64,7 +67,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
-		Jetpack_Sync_Modules::set_defaults();
+		Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 		// don't sync callables or constants every time - slows down tests
@@ -83,7 +86,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	}
 
 	protected function assertDataIsSynced() {
-		$local  = new Jetpack_Sync_WP_Replicastore();
+		$local  = new Replicastore();
 		$remote = $this->server_replica_storage;
 
 		// Also pass the posts though the same filter other wise they woun't match any more.

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules\Callables;
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
@@ -264,7 +266,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_reset_module_also_resets_full_sync_lock() {
-		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$full_sync = Modules::get_module( 'full-sync' );
 		$full_sync->start();
 		$status = $full_sync->get_status();
 		$this->assertTrue( $full_sync->is_started() );
@@ -337,16 +339,16 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// test with strings, non-strings, 0 and null
 
 		ini_set( 'max_execution_time', '30' );
-		$this->assertEquals( 10, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 10, Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', 65 );
-		$this->assertEquals( 21, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 21, Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', '0' );
-		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 20, Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', null );
-		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 20, Defaults::get_max_sync_execution_time() );
 	}
 
 	function test_limits_execution_time_of_do_sync() {

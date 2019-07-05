@@ -8,8 +8,16 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import wrapPaidBlock from './wrap-paid-block';
 
 const betaExtensions = extensionList.beta || [];
+
+function requiresPlan( unavailableReason, details ) {
+	if ( unavailableReason === 'missing_plan' ) {
+		return details.required_plan;
+	}
+	return false;
+}
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -20,9 +28,11 @@ const betaExtensions = extensionList.beta || [];
  * @returns {object|false} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
-	const { available, unavailableReason } = getJetpackExtensionAvailability( name );
+	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
-	if ( ! available ) {
+	const requiredPlan = requiresPlan( unavailableReason, details );
+
+	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
@@ -32,12 +42,11 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		return false;
 	}
 
-	const result = registerBlockType(
-		`jetpack/${ name }`,
-		betaExtensions.includes( name )
-			? { ...settings, title: `${ settings.title } (beta)` }
-			: settings
-	);
+	const result = registerBlockType( `jetpack/${ name }`, {
+		...settings,
+		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
+		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
+	} );
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.

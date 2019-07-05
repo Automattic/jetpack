@@ -16,9 +16,13 @@ babel.config*
 phpunit.xml.dist
 dangerfile.js
 renovate.json
-bin
+bin/phpcs-whitelist.js
+bin/pre-commit-hook.js
+bin/release-package.php
+css/*.css.map
 docs
 tests
+scss
 tools
 vendor/bin
 vendor/dealerdirect
@@ -27,6 +31,11 @@ vendor/sirbrillig
 vendor/squizlabs
 vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
+vendor/automattic/**/tests/
+vendor/automattic/**/README.md
+vendor/automattic/**/phpunit.xml
+vendor/automattic/**/phpunit.xml.dist
+vendor/automattic/**/composer.json
 composer.lock
 package.json
 gulpfile.js

@@ -4,24 +4,34 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d014deecdb9650743cd7ccb279d640d8",
+    "content-hash": "c09d9b77fbe174fad981ff2c454e926b",
     "packages": [
         {
-            "name": "automattic/jetpack-asset-tools",
-            "version": "dev-master",
+            "name": "automattic/jetpack-assets",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
-                "url": "./packages/asset-tools",
-                "reference": "5733de68bc0616f37ed3813b092908767df2cf68"
+                "url": "./packages/assets",
+                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\": "src/"
                 }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -30,7 +40,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -63,8 +73,40 @@
             "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
+            "name": "automattic/jetpack-compat",
+            "version": "dev-add/jetpack-compat-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/compat",
+                "reference": "cd47566548267b29b0df1574a7c6be67de9c5cc9"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "classmap": [
+                    "legacy"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Compatibility layer with previous versions of Jetpack"
+        },
+        {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -100,7 +142,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -127,15 +169,45 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
-            "name": "automattic/jetpack-jitm",
+            "name": "automattic/jetpack-status",
             "version": "dev-master",
             "dist": {
                 "type": "path",
+                "url": "./packages/status",
+                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9",
+                "shasum": null
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+        },
+        {
+            "name": "automattic/jetpack-jitm",
+            "version": "dev-add/jetpack-compat-package",
+            "dist": {
+                "type": "path",
                 "url": "./packages/jitm",
-                "reference": "4b1cb00db6b55a600855ed7a1300736b6e09e818"
+                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
             },
             "require": {
-                "automattic/jetpack-asset-tools": "@dev",
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-logo": "@dev",
@@ -143,6 +215,7 @@
                 "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
+                "mockery/mockery": "^1.2",
                 "php-mock/php-mock": "^2.1",
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
@@ -165,7 +238,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -194,7 +267,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -220,11 +293,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "336567b54eac83d362df88f0ece78c81275d8f2a"
+                "reference": "b0d6e62ff20115d1ef5575ff46940fcbdb4bd2b0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -232,9 +305,6 @@
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "/legacy"
-                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Sync\\": "src/",
                     "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
@@ -247,7 +317,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-add/jetpack-compat-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -279,126 +349,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tracking for Jetpack"
-        },
-        {
-            "name": "composer/installers",
-            "version": "v1.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/composer/installers.git",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/cfcca6b1b60bc4974324efb5783c13dca6932b5b",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0"
-            },
-            "replace": {
-                "roundcube/plugin-installer": "*",
-                "shama/baton": "*"
-            },
-            "require-dev": {
-                "composer/composer": "1.0.*@dev",
-                "phpunit/phpunit": "^4.8.36"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Composer\\Installers\\Plugin",
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Composer\\Installers\\": "src/Composer/Installers"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kyle Robinson Young",
-                    "email": "kyle@dontkry.com",
-                    "homepage": "https://github.com/shama"
-                }
-            ],
-            "description": "A multi-framework Composer library installer",
-            "homepage": "https://composer.github.io/installers/",
-            "keywords": [
-                "Craft",
-                "Dolibarr",
-                "Eliasis",
-                "Hurad",
-                "ImageCMS",
-                "Kanboard",
-                "Lan Management System",
-                "MODX Evo",
-                "Mautic",
-                "Maya",
-                "OXID",
-                "Plentymarkets",
-                "Porto",
-                "RadPHP",
-                "SMF",
-                "Thelia",
-                "WolfCMS",
-                "agl",
-                "aimeos",
-                "annotatecms",
-                "attogram",
-                "bitrix",
-                "cakephp",
-                "chef",
-                "cockpit",
-                "codeigniter",
-                "concrete5",
-                "croogo",
-                "dokuwiki",
-                "drupal",
-                "eZ Platform",
-                "elgg",
-                "expressionengine",
-                "fuelphp",
-                "grav",
-                "installer",
-                "itop",
-                "joomla",
-                "kohana",
-                "laravel",
-                "lavalite",
-                "lithium",
-                "magento",
-                "majima",
-                "mako",
-                "mediawiki",
-                "modulework",
-                "modx",
-                "moodle",
-                "osclass",
-                "phpbb",
-                "piwik",
-                "ppi",
-                "puppet",
-                "pxcms",
-                "reindex",
-                "roundcube",
-                "shopware",
-                "silverstripe",
-                "sydes",
-                "symfony",
-                "typo3",
-                "wordpress",
-                "yawik",
-                "zend",
-                "zikula"
-            ],
-            "time": "2018-08-27T06:10:37+00:00"
         }
     ],
     "packages-dev": [
@@ -777,11 +727,13 @@
         "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-status": 20,
         "automattic/jetpack-jitm": 20,
-        "automattic/jetpack-asset-tools": 20,
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
-        "automattic/jetpack-autoloader": 20
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-compat": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

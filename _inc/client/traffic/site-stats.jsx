@@ -200,7 +200,9 @@ class SiteStatsComponent extends React.Component {
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Put a chart showing 48 hours of views in the admin bar' ) }
+									{ __(
+										'Include a small chart in your admin bar with a 48-hour traffic snapshot'
+									) }
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle

@@ -1,9 +1,12 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
+use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Settings;
 
 // POST /sites/%s/sync
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
@@ -64,7 +67,7 @@ class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 // GET /sites/%s/data-check
 class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		$store = new Jetpack_Sync_WP_Replicastore();
+		$store = new Replicastore();
 		return $store->checksum_all();
 	}
 }
@@ -80,7 +83,7 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 			$columns = null; // go with defaults
 		}
 
-		$store = new Jetpack_Sync_WP_Replicastore();
+		$store = new Replicastore();
 
 		if ( ! isset( $args['strip_non_ascii'] ) ) {
 			$args['strip_non_ascii'] = true;
@@ -96,7 +99,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 	protected function result() {
 		$args = $this->input();
 
-		$sync_settings = Jetpack_Sync_Settings::get_settings();
+		$sync_settings = Settings::get_settings();
 
 		foreach ( $args as $key => $value ) {
 			if ( $value !== false ) {
@@ -113,10 +116,10 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 			}
 		}
 
-		Jetpack_Sync_Settings::update_settings( $sync_settings );
+		Settings::update_settings( $sync_settings );
 
 		// re-fetch so we see what's really being stored
-		return Jetpack_Sync_Settings::get_settings();
+		return Settings::get_settings();
 	}
 }
 
@@ -124,7 +127,7 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 
-		return Jetpack_Sync_Settings::get_settings();
+		return Settings::get_settings();
 	}
 }
 
@@ -135,7 +138,7 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 		$module_name = $args['module_name'];
 
-		if ( ! $sync_module = Jetpack_Sync_Modules::get_module( $module_name ) ) {
+		if ( ! $sync_module = Modules::get_module( $module_name ) ) {
 			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
 		}
 
@@ -144,9 +147,9 @@ class Jetpack_JSON_API_Sync_Object extends Jetpack_JSON_API_Sync_Endpoint {
 
 		$codec = Sender::get_instance()->get_codec();
 
-		Jetpack_Sync_Settings::set_is_syncing( true );
+		Settings::set_is_syncing( true );
 		$objects = $codec->encode( $sync_module->get_objects_by_id( $object_type, $object_ids ) );
-		Jetpack_Sync_Settings::set_is_syncing( false );
+		Settings::set_is_syncing( false );
 
 		return array(
 			'objects' => $objects,
@@ -213,9 +216,9 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			return new WP_Error( 'buffer_non-object', 'Buffer is not an object', 400 );
 		}
 
-		Jetpack_Sync_Settings::set_is_syncing( true );
+		Settings::set_is_syncing( true );
 		list( $items_to_send, $skipped_items_ids, $items ) = $sender->get_items_to_send( $buffer, $args['encode'] );
-		Jetpack_Sync_Settings::set_is_syncing( false );
+		Settings::set_is_syncing( false );
 
 		return array(
 			'buffer_id'      => $buffer->id,

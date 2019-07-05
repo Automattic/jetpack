@@ -7,6 +7,7 @@ const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
 const whitelist = require( './phpcs-whitelist' );
+const fs = require( 'fs' );
 let exitCode = 0;
 
 /**
@@ -63,6 +64,15 @@ const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
  */
 function checkFileAgainstDirtyList( file ) {
 	return -1 === dirtyFiles.indexOf( file );
+}
+
+/**
+ * Captures a pre-commit date to be used later in prepare-commit-msg.js hook to figure out whether pre-commit was executed
+ */
+function capturePreCommitDate() {
+	if ( exitCode === 0 ) {
+		fs.writeFileSync( '.git/last-commit-date', Date.now() );
+	}
 }
 
 dirtyFiles.forEach( file =>
@@ -152,5 +162,7 @@ if ( phpcsResult && phpcsResult.status ) {
 	);
 	exitCode = 1;
 }
+
+capturePreCommitDate();
 
 process.exit( exitCode );
