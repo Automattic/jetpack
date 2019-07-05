@@ -10,6 +10,11 @@
 	fill: var( --color-white );
 }
 
+.jetpack-upgrade-nudge__info {
+	display: flex;
+	flex-direction: row;
+}
+
 .jetpack-upgrade-nudge__title {
 	font-size: 14px;
 }

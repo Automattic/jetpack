@@ -34,16 +34,18 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 			</Button>,
 		] }
 	>
-		<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
-		<div>
-			<span className="jetpack-upgrade-nudge__title">
-				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
-					planName,
-				} ) }
-			</span>
-			<span className="jetpack-upgrade-nudge__message">
-				{ __( 'To make this block visible on your site', 'jetpack' ) }
-			</span>
+		<div className="jetpack-upgrade-nudge__info">
+			<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
+			<div>
+				<span className="jetpack-upgrade-nudge__title">
+					{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
+						planName,
+					} ) }
+				</span>
+				<span className="jetpack-upgrade-nudge__message">
+					{ __( 'To make this block visible on your site', 'jetpack' ) }
+				</span>
+			</div>
 		</div>
 	</Warning>
 );
