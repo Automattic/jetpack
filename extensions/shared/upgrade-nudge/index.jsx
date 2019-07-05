@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import { compact, get, startsWith } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
+import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Warning } from '@wordpress/editor';
@@ -13,6 +13,7 @@ import Gridicon from 'gridicons';
 /**
  * Internal dependencies
  */
+import analytics from '../../../_inc/client/lib/analytics';
 import getSiteFragment from '../get-site-fragment';
 import './store';
 
@@ -70,11 +71,13 @@ export default compose( [
 
 		return {
 			planName: get( plan, [ 'product_name_short' ] ),
+			planPathSlug,
 			upgradeUrl,
 		};
 	} ),
-	withDispatch( ( dispatch, { upgradeUrl } ) => ( {
+	withDispatch( ( dispatch, { planPathSlug, upgradeUrl } ) => ( {
 		autosaveAndRedirectToUpgrade: async () => {
+			analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', { planPathSlug } );
 			await dispatch( 'core/editor' ).autosave();
 			// Using window.top to escape from the editor iframe on WordPress.com
 			window.top.location.href = upgradeUrl;
