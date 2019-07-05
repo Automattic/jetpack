@@ -1,7 +1,9 @@
 @import '../styles/gutenberg-colors.scss';
 @import '../styles/gutenberg-variables.scss';
 
-.block-editor-block-list__block:not( .is-selected ) .jetpack-paid-block__wrapper {
+// The block gets a border from Gutenberg if it is selected,
+// so we only add ours if it isn't.
+.jetpack-paid-block__wrapper:not( .is-selected ) {
 	border: $border-width solid $light-gray-500; // To reflect the `Warning` component from `@wordpress/editor`
 	margin-left: -#{$block-padding};
 	margin-right: -#{$block-padding};
