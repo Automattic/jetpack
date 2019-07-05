@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-import Gridicon from 'gridicons';
+import { Warning } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -17,33 +17,33 @@ import './store';
 import './style.scss';
 
 const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
-	<div className="block-editor-warning">
-		<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
-		<div className="block-editor-warning__message">
-			<span className="jetpack-upgrade-nudge__title">
-				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
-					planName,
-				} ) }
-			</span>
-			<span className="jetpack-upgrade-nudge__message">
-				{ __( 'To make this block visible on your site', 'jetpack' ) }
-			</span>
-		</div>
-		<Button
-			className="jetpack-upgrade-nudge__button"
-			href={ addQueryArgs(
-				`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
-				{
-					redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
-				}
-			) }
-			target="_top"
-			isDefault
-		>
-			{ __( 'Upgrade', 'jetpack' ) }
-		</Button>
-	</div>
+	<Warning
+		actions={ [
+			<Button
+				href={ addQueryArgs(
+					`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
+					{
+						redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
+					}
+				) }
+				target="_top"
+				isDefault
+			>
+				{ __( 'Upgrade', 'jetpack' ) }
+			</Button>,
+		] }
+	>
+		<span className="jetpack-upgrade-nudge__title">
+			{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
+				planName,
+			} ) }
+		</span>
+		<span className="jetpack-upgrade-nudge__message">
+			{ __( 'To make this block visible on your site', 'jetpack' ) }
+		</span>
+	</Warning>
 );
+
 export default withSelect( ( select, { plan: planSlug } ) => {
 	const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
 
