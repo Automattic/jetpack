@@ -45,7 +45,8 @@ class Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = \Jetpack_Data::get_access_token( $args['user_id'] );
+		$manager = new Manager();
+		$token = $manager->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new \WP_Error( 'missing_token' );
 		}
@@ -130,7 +131,8 @@ class Client {
 		}
 
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
-		$url = \Jetpack::fix_url_for_bad_hosts( $url );
+		// TODO: fix_url_for_bad_hosts but accesible from the Connection package
+		// $url = \Jetpack::fix_url_for_bad_hosts( $url );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
