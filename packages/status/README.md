@@ -23,3 +23,12 @@ use Automattic\Jetpack\Status;
 $status = new Status();
 $is_multi_network = $status->is_multi_network();
 ```
+
+Find out whether this site is a single user site:
+
+```php
+use Automattic\Jetpack\Status;
+
+$status = new Status();
+$is_single_user_site = $status->is_single_user_site();
+```
