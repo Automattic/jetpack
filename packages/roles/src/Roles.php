@@ -34,7 +34,7 @@ class Roles {
 	 *
 	 * @return string|boolean Current user's role, false if not enough capabilities for any of the roles.
 	 */
-	public static function translate_current_user_to_role() {
+	public function translate_current_user_to_role() {
 		foreach ( self::$capability_translations as $role => $cap ) {
 			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
 				return $role;
@@ -50,7 +50,7 @@ class Roles {
 	 * @param \WP_User $user User object.
 	 * @return string|boolean User's role, false if not enough capabilities for any of the roles.
 	 */
-	public static function translate_user_to_role( $user ) {
+	public function translate_user_to_role( $user ) {
 		foreach ( self::$capability_translations as $role => $cap ) {
 			if ( user_can( $user, $role ) || user_can( $user, $cap ) ) {
 				return $role;
@@ -66,7 +66,7 @@ class Roles {
 	 * @param string $role Role name.
 	 * @return string|boolean Capability, false if role isn't mapped to any capabilities.
 	 */
-	public static function translate_role_to_cap( $role ) {
+	public function translate_role_to_cap( $role ) {
 		if ( ! isset( self::$capability_translations[ $role ] ) ) {
 			return false;
 		}
