@@ -2,6 +2,13 @@
 	margin-bottom: 0;
 }
 
+.jetpack-upgrade-nudge {
+	// Override `.editor-styles-wrapper p` style overrides on WordPress.com
+	.editor-warning__message {
+		margin: 1em 0;
+	}
+}
+
 .jetpack-upgrade-nudge__icon {
 	background: var( --color-plan-premium );
 	border-radius: 50%;
