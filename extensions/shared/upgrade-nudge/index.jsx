@@ -43,7 +43,7 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 					} ) }
 				</span>
 				<span className="jetpack-upgrade-nudge__message">
-					{ __( 'To make this block visible on your site', 'jetpack' ) }
+					{ __( 'The block will be hidden from your visitors until you upgrade.', 'jetpack' ) }
 				</span>
 			</div>
 		</div>
