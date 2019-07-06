@@ -1058,6 +1058,10 @@ if ( isset( $_GET[ "filter" ] ) ) {
 
 unset( $checks[1] ); // exclude_filter
 ?' . '>
+<h2>WP Super Cache Log Viewer</h2>
+<h3>Warning! Do not copy and paste this log file to a public website!</h3>
+<p>This log file contains sensitive information about your website such as cookies and directories.</p>
+<p>If you must share it please remove any cookies and remove any directories such as ' . ABSPATH . '.</p>
 Exclude requests: <br />
 <' . '?php foreach ( $checks as $check ) { ?>
 	<label><input type="checkbox" name="<' . '?php echo $check; ?' . '>" value="1" <' . '?php if ( $$check ) { echo "checked"; } ?' . '> /> <' . '?php echo $check; ?' . '></label><br />
