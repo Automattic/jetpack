@@ -1,24 +1,50 @@
 <?php
+/**
+ * Protect sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 /**
- * logs bruteprotect failed logins via sync
+ * Class to handle sync for Protect.
+ * Logs BruteProtect failed logins via sync.
  */
 class Protect extends Module {
-
-	function name() {
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function name() {
 		return 'protect';
 	}
 
-	function init_listeners( $callback ) {
+	/**
+	 * Initialize Protect action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callback Action handler callable.
+	 */
+	public function init_listeners( $callback ) {
 		add_action( 'jpp_log_failed_attempt', array( $this, 'maybe_log_failed_login_attempt' ) );
 		add_action( 'jetpack_valid_failed_login_attempt', $callback );
 	}
 
-	function maybe_log_failed_login_attempt( $failed_attempt ) {
+	/**
+	 * Maybe log a failed login attempt.
+	 *
+	 * @access public
+	 *
+	 * @param array $failed_attempt Failed attempt data.
+	 */
+	public function maybe_log_failed_login_attempt( $failed_attempt ) {
 		$protect = \Jetpack_Protect_Module::instance();
 		if ( $protect->has_login_ability() && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
