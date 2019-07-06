@@ -1,8 +1,23 @@
 <?php
+/**
+ * Meta sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+/**
+ * Class to handle sync for meta.
+ */
 class Meta extends Module {
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'meta';
 	}
@@ -15,8 +30,10 @@ class Meta extends Module {
 	 * This seemed to be required since if we have missing meta on WP.com and need to fetch it, we don't know what
 	 * the meta key is, but we do know that we have missing meta for a given post or comment.
 	 *
-	 * @param string $object_type The type of object for which we retrieve meta. Either 'post' or 'comment'
-	 * @param array  $config Must include 'meta_key' and 'ids' keys
+	 * @todo Refactor the $wpdb->prepare call to use placeholders.
+	 *
+	 * @param string $object_type The type of object for which we retrieve meta. Either 'post' or 'comment'.
+	 * @param array  $config      Must include 'meta_key' and 'ids' keys.
 	 *
 	 * @return array
 	 */
@@ -37,10 +54,11 @@ class Meta extends Module {
 		$ids              = $config['ids'];
 		$object_id_column = $object_type . '_id';
 
-		// Sanitize so that the array only has integer values
+		// Sanitize so that the array only has integer values.
 		$ids_string = implode( ', ', array_map( 'intval', $ids ) );
 		$metas      = $wpdb->get_results(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT * FROM {$table} WHERE {$object_id_column} IN ( {$ids_string} ) AND meta_key = %s",
 				$meta_key
 			)
