@@ -476,6 +476,26 @@ class Defaults {
 		'slug',
 	);
 
+	static $default_termmeta_checksum_columns = array(
+		'meta_id',
+		'meta_value',
+	);
+
+	static $default_term_relationships_checksum_columns = array(
+		'object_id',
+		'term_taxonomy_id',
+		'term_order',
+	);
+
+	static $default_term_taxonomy_checksum_columns = array(
+		'term_taxonomy_id',
+		'term_id',
+		'taxonomy',
+		'description',
+		'parent',
+		'count',
+	);
+
 	static $default_multisite_callable_whitelist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
 		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
