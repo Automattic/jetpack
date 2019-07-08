@@ -276,7 +276,7 @@ class Users extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param array $args    The hook arguments.
+	 * @param array $args The hook arguments.
 	 * @param int   $user_id ID of the user.
 	 * @return array $args Expanded hook arguments.
 	 */
