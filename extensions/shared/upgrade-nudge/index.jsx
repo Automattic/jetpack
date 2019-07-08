@@ -39,12 +39,12 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 			<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
 			<div>
 				<span className="jetpack-upgrade-nudge__title">
-					{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
+					{ sprintf( __( 'This block is available under the %(planName)s Plan.', 'jetpack' ), {
 						planName,
 					} ) }
 				</span>
 				<span className="jetpack-upgrade-nudge__message">
-					{ __( 'The block will be hidden from your visitors until you upgrade.', 'jetpack' ) }
+					{ __( 'It will be hidden from site visitors until you upgrade.', 'jetpack' ) }
 				</span>
 			</div>
 		</div>
