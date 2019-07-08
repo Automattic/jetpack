@@ -1224,9 +1224,9 @@ jQuery( document ).ready( function( $ ) {
 		},
 
 		originalDimensions: function() {
-			var splitted = $( this )
-				.data( 'orig-size' )
-				.split( ',' );
+			var splitted = $( this ).data( 'orig-size' ) || ',';
+
+			splitted = splitted.split( ',' );
 			return { width: parseInt( splitted[ 0 ], 10 ), height: parseInt( splitted[ 1 ], 10 ) };
 		},
 
@@ -1270,7 +1270,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 
 		parseTitleDesc: function( value ) {
-			if ( ! value.match( ' ' ) && value.match( '_' ) ) {
+			if ( value && ! value.match( ' ' ) && value.match( '_' ) ) {
 				return '';
 			}
 
@@ -1358,19 +1358,24 @@ jQuery( document ).ready( function( $ ) {
 				return false;
 			}
 			var original,
-				origSize = current.data( 'orig-size' ).split( ',' ),
+				permalink,
+				origSize = current.data( 'orig-size' ) || '',
+				origFile = current.data( 'orig-file' ) || '',
+				origSrc = current.data( 'src' ) || '',
 				imageLinkParser = document.createElement( 'a' );
 
-			imageLinkParser.href = current.data( 'src' ).replace( /\?.+$/, '' );
+			origSize = origSize.split( ',' );
+
+			imageLinkParser.href = origSrc.replace( /\?.+$/, '' );
 
 			// Is this a Photon URL?
 			if ( imageLinkParser.hostname.match( /^i[\d]{1}.wp.com$/i ) !== null ) {
 				original = imageLinkParser.href;
 			} else {
-				original = current.data( 'orig-file' ).replace( /\?.+$/, '' );
+				original = origFile.replace( /\?.+$/, '' );
 			}
 
-			var permalink = $(
+			permalink = $(
 				'<a>' +
 					gallery.jp_carousel( 'format', {
 						text: jetpackCarouselStrings.download_original,
@@ -1388,6 +1393,7 @@ jQuery( document ).ready( function( $ ) {
 
 		updateMap: function( meta ) {
 			if (
+				! meta ||
 				! meta.latitude ||
 				! meta.longitude ||
 				1 !== Number( jetpackCarouselStrings.display_geo )
