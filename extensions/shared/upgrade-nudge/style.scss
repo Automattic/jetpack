@@ -13,14 +13,15 @@
 	}
 
 	.jetpack-upgrade-nudge__icon {
+		align-self: center;
 		background: var( --color-plan-premium );
 		border-radius: 50%;
 		box-sizing: content-box;
-		margin-right: 16px;
 		color: var( --color-white );
-		padding: 6px;
-		align-self: center;
 		fill: var( --color-white );
+		flex-shrink: 0;
+		margin-right: 16px;
+		padding: 6px;
 	}
 
 	.jetpack-upgrade-nudge__info {
