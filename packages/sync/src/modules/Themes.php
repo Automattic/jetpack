@@ -480,7 +480,7 @@ class Themes extends Module {
 	 * @param array   $config               Full sync configuration for this sync module.
 	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
 	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
+	 * @return array  Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		/**
