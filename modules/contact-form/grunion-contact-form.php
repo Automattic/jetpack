@@ -3366,8 +3366,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+
 		$field = $this->render_label( 'date', $id, $label, $required, $required_field_text );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
+
+		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return sprintf(
+				'<%1$s mode="overlay" layout="container" type="single" input-selector="[name=%2$s]">%3$s</%1$s>',
+				'amp-date-picker',
+				esc_attr( $id ),
+				$field
+			);
+		}
 
 		wp_enqueue_script(
 			'grunion-frontend',
