@@ -277,7 +277,7 @@ class Users extends Module {
 	 * @access public
 	 *
 	 * @param array $args The hook arguments.
-	 * @param int   $user_id ID of the user.
+	 * @param int $user_id ID of the user.
 	 * @return array $args Expanded hook arguments.
 	 */
 	public function expand_logout_username( $args, $user_id ) {
