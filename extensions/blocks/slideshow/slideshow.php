@@ -88,16 +88,16 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 	);
 	$carousel   = sprintf(
 		'<amp-carousel height="300" width="400" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s id="%s">%s</amp-carousel>',
-		__( 'Next Slide', 'jetpack' ),
-		__( 'Previous Slide', 'jetpack' ),
-		$autoplay ? 'autoplay delay=' . ( $delay * 1000 ) : '',
+		esc_attr__( 'Next Slide', 'jetpack' ),
+		esc_attr__( 'Previous Slide', 'jetpack' ),
+		$autoplay ? 'autoplay delay=' . esc_attr( $delay * 1000 ) : '',
 		esc_attr( $amp_carousel_id ),
 		implode( '', $slides )
 	);
 
 	return sprintf(
 		'<div class="%s"><div class="wp-block-jetpack-slideshow_container swiper-container">%s%s</div></div>',
-		implode( $classes, ' ' ),
+		esc_attr( implode( $classes, ' ' ) ),
 		$carousel,
 		$pagination
 	);
