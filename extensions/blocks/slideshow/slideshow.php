@@ -47,7 +47,6 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 
 	$ids        = empty( $attr['ids'] ) ? array() : $attr['ids'];
 	$autoplay   = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
-	$autoplay   = false;
 	$delay      = empty( $attr['delay'] ) ? 3 : intval( $attr['delay'] );
 	$align      = isset( $attr['align'] ) ? $attr['align'] : 'center';
 	$classes    = array(
