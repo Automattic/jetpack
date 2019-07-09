@@ -1,14 +1,22 @@
 <?php
+/**
+ * Import sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * Class to handle sync for imports.
+ */
 class Import extends Module {
 
 	/**
 	 * Tracks which actions have already been synced for the import
-	 * to prevent the same event from being triggered a second time
+	 * to prevent the same event from being triggered a second time.
 	 *
 	 * @var array
 	 */
@@ -32,10 +40,24 @@ class Import extends Module {
 		'import_end'   => 'jetpack_sync_import_end',
 	);
 
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'import';
 	}
 
+	/**
+	 * Initialize imports action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
 		add_action( 'export_wp', $callable );
 		add_action( 'jetpack_sync_import_start', $callable, 10, 2 );
@@ -51,10 +73,23 @@ class Import extends Module {
 		add_action( 'import_end', array( $this, 'sync_import_action' ) );
 	}
 
+	/**
+	 * Set module defaults.
+	 * Define an empty list of synced actions for us to fill later.
+	 *
+	 * @access public
+	 */
 	public function set_defaults() {
 		$this->synced_actions = array();
 	}
 
+	/**
+	 * Generic handler for import actions.
+	 *
+	 * @access public
+	 *
+	 * @param string $importer Either a string reported by the importer, the class name of the importer, or 'unknown'.
+	 */
 	public function sync_import_action( $importer ) {
 		$import_action = current_filter();
 		// Map action to event name.
@@ -113,6 +148,14 @@ class Import extends Module {
 		}
 	}
 
+	/**
+	 * Retrieve the name of the importer.
+	 *
+	 * @access private
+	 *
+	 * @param string $importer Either a string reported by the importer, the class name of the importer, or 'unknown'.
+	 * @return string Name of the importer, or "Unknown Importer" if importer is unknown.
+	 */
 	private function get_importer_name( $importer ) {
 		$importers = get_importers();
 		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
@@ -122,7 +165,10 @@ class Import extends Module {
 	 * Determine the class that extends `WP_Importer` which is responsible for
 	 * the current action. Designed to be used within an action handler.
 	 *
-	 * @return string  The name of the calling class, or 'unknown'.
+	 * @access private
+	 * @static
+	 *
+	 * @return string The name of the calling class, or 'unknown'.
 	 */
 	private static function get_calling_importer_class() {
 		// If WP_Importer doesn't exist, neither will any importer that extends it.
