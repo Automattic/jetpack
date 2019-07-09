@@ -1,18 +1,63 @@
 <?php
+/**
+ * Plugins sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
+
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
+/**
+ * Class to handle sync for plugins.
+ */
 class Plugins extends Module {
-
+	/**
+	 * Action handler callable.
+	 *
+	 * @access private
+	 *
+	 * @var callable
+	 */
 	private $action_handler;
-	private $plugin_info = array();
-	private $plugins     = array();
 
+	/**
+	 * Information about plugins we store temporarily.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $plugin_info = array();
+
+	/**
+	 * List of all plugins in the installation.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $plugins = array();
+
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'plugins';
 	}
 
+	/**
+	 * Initialize plugins action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
@@ -30,20 +75,42 @@ class Plugins extends Module {
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
 	}
 
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_activated_plugin', array( $this, 'expand_plugin_data' ) );
 		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
-		// Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
+		// Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes.
 	}
+
+	/**
+	 * Fetch and populate all current plugins before upgrader installation.
+	 *
+	 * @access public
+	 *
+	 * @param bool|WP_Error $response Install response, true if successful, WP_Error if not.
+	 */
 	public function populate_plugins( $response ) {
 		$this->plugins = get_plugins();
 		return $response;
 	}
+
+	/**
+	 * Handler for the upgrader success finishes.
+	 *
+	 * @access public
+	 *
+	 * @param \WP_Upgrader $upgrader Upgrader instance.
+	 * @param array        $details  Array of bulk item update data.
+	 */
 	public function on_upgrader_completion( $upgrader, $details ) {
 		if ( ! isset( $details['type'] ) ) {
 			return;
 		}
-		if ( 'plugin' != $details['type'] ) {
+		if ( 'plugin' !== $details['type'] ) {
 			return;
 		}
 
@@ -56,13 +123,13 @@ class Plugins extends Module {
 			$plugins = ( isset( $details['plugin'] ) ? array( $details['plugin'] ) : null );
 		}
 
-		// for plugin installer
+		// For plugin installer.
 		if ( empty( $plugins ) && method_exists( $upgrader, 'plugin_info' ) ) {
 			$plugins = array( $upgrader->plugin_info() );
 		}
 
 		if ( empty( $plugins ) ) {
-			return; // We shouldn't be here
+			return; // We shouldn't be here.
 		}
 
 		switch ( $details['action'] ) {
@@ -120,15 +187,31 @@ class Plugins extends Module {
 		}
 	}
 
+	/**
+	 * Retrieve the plugin information by a plugin slug.
+	 *
+	 * @access private
+	 *
+	 * @param string $slug Plugin slug.
+	 * @return array Plugin information.
+	 */
 	private function get_plugin_info( $slug ) {
-		$plugins = get_plugins(); // Get the most up to date info
+		$plugins = get_plugins(); // Get the most up to date info.
 		if ( isset( $plugins[ $slug ] ) ) {
 			return array_merge( array( 'slug' => $slug ), $plugins[ $slug ] );
 		};
-		// Try grabbing the info from before the update
+		// Try grabbing the info from before the update.
 		return isset( $this->plugins[ $slug ] ) ? array_merge( array( 'slug' => $slug ), $this->plugins[ $slug ] ) : array( 'slug' => $slug );
 	}
 
+	/**
+	 * Retrieve upgrade errors.
+	 *
+	 * @access private
+	 *
+	 * @param \Automatic_Upgrader_Skin|\WP_Upgrader_Skin $skin The upgrader skin being used.
+	 * @return array|boolean Error on error, false otherwise.
+	 */
 	private function get_errors( $skin ) {
 		$errors = method_exists( $skin, 'get_errors' ) ? $skin->get_errors() : null;
 		if ( is_wp_error( $errors ) ) {
@@ -150,7 +233,7 @@ class Plugins extends Module {
 				);
 			}
 
-			if ( false == $skin->result ) {
+			if ( empty( $skin->result ) ) {
 				return array(
 					'code'    => 'unknown',
 					'message' => __( 'Unknown Plugin Update Failure', 'jetpack' ),
@@ -160,15 +243,21 @@ class Plugins extends Module {
 		return false;
 	}
 
+	/**
+	 * Handle plugin edit in the administration.
+	 *
+	 * @access public
+	 *
+	 * @todo The `admin_action_update` hook is called only for logged in users, but maybe implement nonce verification?
+	 */
 	public function check_plugin_edit() {
 		$screen = get_current_screen();
-		if ( 'plugin-editor' !== $screen->base ||
-			 ! isset( $_POST['newcontent'] ) ||
-			 ! isset( $_POST['plugin'] )
-		) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( 'plugin-editor' !== $screen->base || ! isset( $_POST['newcontent'] ) || ! isset( $_POST['plugin'] ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$plugin  = $_POST['plugin'];
 		$plugins = get_plugins();
 		if ( ! isset( $plugins[ $plugin ] ) ) {
@@ -186,8 +275,15 @@ class Plugins extends Module {
 		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
 	}
 
+	/**
+	 * Handle plugin ajax edit in the administration.
+	 *
+	 * @access public
+	 *
+	 * @todo Update this method to use WP_Filesystem instead of fopen/fclose.
+	 */
 	public function plugin_edit_ajax() {
-		// this validation is based on wp_edit_theme_plugin_file()
+		// This validation is based on wp_edit_theme_plugin_file().
 		$args = wp_unslash( $_POST );
 		if ( empty( $args['file'] ) ) {
 			return;
@@ -233,10 +329,12 @@ class Plugins extends Module {
 			return;
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		$file_pointer = fopen( $real_file, 'w+' );
 		if ( false === $file_pointer ) {
 			return;
 		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 		fclose( $file_pointer );
 		/**
 		 * This action is documented already in this file
@@ -244,10 +342,17 @@ class Plugins extends Module {
 		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
 	}
 
+	/**
+	 * Handle plugin deletion.
+	 *
+	 * @access public
+	 *
+	 * @param string $plugin_path Path to the plugin main file.
+	 */
 	public function delete_plugin( $plugin_path ) {
 		$full_plugin_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_path;
 
-		// Checking for file existence because some sync plugin module tests simulate plugin installation and deletion without putting file on disk
+		// Checking for file existence because some sync plugin module tests simulate plugin installation and deletion without putting file on disk.
 		if ( file_exists( $full_plugin_path ) ) {
 			$all_plugin_data = get_plugin_data( $full_plugin_path );
 			$data            = array(
@@ -264,11 +369,27 @@ class Plugins extends Module {
 		$this->plugin_info[ $plugin_path ] = $data;
 	}
 
+	/**
+	 * Invoked after plugin deletion.
+	 *
+	 * @access public
+	 *
+	 * @param string  $plugin_path Path to the plugin main file.
+	 * @param boolean $is_deleted  Whether the plugin was deleted successfully.
+	 */
 	public function deleted_plugin( $plugin_path, $is_deleted ) {
 		call_user_func( $this->action_handler, $plugin_path, $is_deleted, $this->plugin_info[ $plugin_path ] );
 		unset( $this->plugin_info[ $plugin_path ] );
 	}
 
+	/**
+	 * Expand the plugins within a hook before they are serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array $args The expanded hook parameters.
+	 */
 	public function expand_plugin_data( $args ) {
 		$plugin_path = $args[0];
 		$plugin_data = array();
