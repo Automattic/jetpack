@@ -60,7 +60,9 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 			$ids
 		);
 		$carousel = sprintf(
-			'<amp-carousel height="300" width="400" layout="responsive" type="slides" controls loop %s>%s</amp-carousel>',
+			'<amp-carousel height="300" width="400" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s>%s</amp-carousel>',
+			__( 'Next Slide', 'jetpack' ),
+			__( 'Previous Slide', 'jetpack' ),
 			$autoplay ? 'autoplay delay=' . ( $delay * 1000 ) : '',
 			implode( '', $slides )
 		);
