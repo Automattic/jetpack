@@ -1,8 +1,12 @@
-.jetpack-paid-block__wrapper {
-	border: 1px solid var( --color-border-subtle );
-}
+@import '../styles/gutenberg-colors.scss';
+@import '../styles/gutenberg-variables.scss';
 
-.jetpack-paid-block__disabled {
-	opacity: 0.5;
-	padding: 10px;
+// The block gets a border from Gutenberg if it is selected,
+// so we only add ours if it isn't.
+.jetpack-paid-block__wrapper:not( .is-selected ) {
+	border: $border-width solid $light-gray-500; // To reflect the `Warning` component from `@wordpress/editor`
+	margin-left: -#{$block-padding};
+	margin-right: -#{$block-padding};
+	padding-left: calc( #{$block-padding} - #{$border-width} );
+	padding-right: calc( #{$block-padding} - #{$border-width} );
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-
+import classNames from 'classnames';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 /**
@@ -15,11 +15,13 @@ export default ( { requiredPlan } ) =>
 	createHigherOrderComponent(
 		WrappedComponent => props => (
 			// Wraps the input component in a container, without mutating it. Good!
-			<div className="jetpack-paid-block__wrapper">
+			<div
+				className={ classNames( 'jetpack-paid-block__wrapper', {
+					'is-selected': props.isSelected,
+				} ) }
+			>
 				<UpgradeNudge plan={ requiredPlan } />
-				<div className="jetpack-paid-block__disabled">
-					<WrappedComponent { ...props } />
-				</div>
+				<WrappedComponent { ...props } />
 			</div>
 		),
 		'wrapPaidBlock'

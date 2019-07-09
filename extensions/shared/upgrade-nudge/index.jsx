@@ -6,6 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
+import { Warning } from '@wordpress/editor';
 import Gridicon from 'gridicons';
 
 /**
@@ -17,33 +18,39 @@ import './store';
 import './style.scss';
 
 const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
-	<div className="jetpack-upgrade-nudge">
-		<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
+	<Warning
+		actions={ [
+			<Button
+				href={ addQueryArgs(
+					`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
+					{
+						redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
+					}
+				) }
+				target="_top"
+				isDefault
+			>
+				{ __( 'Upgrade', 'jetpack' ) }
+			</Button>,
+		] }
+		className="jetpack-upgrade-nudge"
+	>
 		<div className="jetpack-upgrade-nudge__info">
-			<span className="jetpack-upgrade-nudge__title">
-				{ sprintf( __( 'Upgrade to %(planName)s', 'jetpack' ), {
-					planName,
-				} ) }
-			</span>
-			<span className="jetpack-upgrade-nudge__message">
-				{ __( 'To make this block visible on your site', 'jetpack' ) }
-			</span>
+			<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
+			<div>
+				<span className="jetpack-upgrade-nudge__title">
+					{ sprintf( __( 'This block is available under the %(planName)s Plan.', 'jetpack' ), {
+						planName,
+					} ) }
+				</span>
+				<span className="jetpack-upgrade-nudge__message">
+					{ __( 'It will be hidden from site visitors until you upgrade.', 'jetpack' ) }
+				</span>
+			</div>
 		</div>
-		<Button
-			className="jetpack-upgrade-nudge__button"
-			href={ addQueryArgs(
-				`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
-				{
-					redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
-				}
-			) }
-			target="_top"
-			isDefault
-		>
-			{ __( 'Upgrade', 'jetpack' ) }
-		</Button>
-	</div>
+	</Warning>
 );
+
 export default withSelect( ( select, { plan: planSlug } ) => {
 	const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
 
