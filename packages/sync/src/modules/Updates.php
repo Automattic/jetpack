@@ -34,7 +34,7 @@ class Updates extends Module {
 	 *
 	 * @access private
 	 *
-	 * @var string
+	 * @var array
 	 */
 	private $updates = array();
 
