@@ -166,8 +166,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-staging/wp-staging.php' => 'wp-staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
 
 		// misc
-		'anywhere-elementor/anywhere-elementor.php' => '"anywhere-elementor" is not supported on WordPress.com.',
-		'anywhere-elementor-pro/anywhere-elementor-pro.php' => '"anywhere-elementor-pro" is not supported on WordPress.com.',
 		'ari-adminer/ari-adminer.php' => '"ari-adminer" is not supported on WordPress.com.',
 		'automatic-video-posts' => '"automatic-video-posts" is not supported on WordPress.com.',
 		'bwp-minify/bwp-minify.php' => '"bwp-minify" is not supported on WordPress.com.',
