@@ -26,9 +26,9 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 	$type = 'slideshow';
 	Jetpack_Gutenberg::load_assets_as_required( $type );
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		global $slideshow_id;
-		$slideshow_id    = ( $slideshow_id || 0 ) + 1;
-		$amp_carousel_id = sprintf( 'wp-block-jetpack-slideshow__%s', $slideshow_id );
+		global $wp_block_jetpack_slideshow_id;
+		$wp_block_jetpack_slideshow_id = ( $wp_block_jetpack_slideshow_id || 0 ) + 1;
+		$amp_carousel_id               = sprintf( 'wp-block-jetpack-slideshow__%s', $wp_block_jetpack_slideshow_id );
 
 		$ids        = empty( $attr['ids'] ) ? array() : $attr['ids'];
 		$autoplay   = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
