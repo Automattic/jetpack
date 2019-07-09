@@ -237,29 +237,53 @@ class VaultPress {
 	}
 
 	function admin_head() {
-		if ( !current_user_can( 'manage_options' ) )
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
+		}
+
+		// Array of hooks where we want to hook our notices.
+		$notice_hooks = array( 'user_admin_notices' );
+
+		/*
+		 * In the VaultPress dashboard, move the notices.
+		 */
+		$screen = get_current_screen();
+		if (
+			! is_null( $screen )
+			&& in_array(
+				$screen->id,
+				array( 'jetpack_page_vaultpress', 'toplevel_page_vaultpress' ),
+				true
+			)
+		) {
+			$notice_hooks[] = 'vaultpress_notices';
+		} else {
+			$notice_hooks[] = 'admin_notices';
+		}
 
 		if ( $activated = $this->get_option( 'activated' ) ) {
 			if ( 'network' == $activated ) {
 				add_action( 'network_admin_notices', array( $this, 'activated_notice' ) );
 			} else {
-				foreach ( array( 'user_admin_notices', 'admin_notices' ) as $filter )
+				foreach ( $notice_hooks as $filter ) {
 					add_action( $filter, array( $this, 'activated_notice' ) );
+				}
 			}
 		}
 
 		// ask the user to connect their site w/ VP
 		if ( !$this->is_registered() ) {
-			foreach ( array( 'user_admin_notices', 'admin_notices' ) as $filter )
+			foreach ( $notice_hooks as $filter ) {
 				add_action( $filter, array( $this, 'connect_notice' ) );
+			}
 
 		// if we have an error make sure to let the user know about it
 		} else {
 			$error_code = $this->get_option( 'connection_error_code' );
-		 	if ( !empty( $error_code ) ) {
-				foreach ( array( 'user_admin_notices', 'admin_notices' ) as $filter )
+		 	if ( ! empty( $error_code ) ) {
+				foreach ( $notice_hooks as $filter ) {
 					add_action( $filter, array( $this, 'error_notice' ) );
+				}
 			}
 		}
 	}
@@ -405,6 +429,14 @@ class VaultPress {
 			<div id="jp-plugin-container">
 				<?php $this->ui_masthead( $ui_state[ 'dashboard_link' ] ); ?>
 				<div class="vp-wrap">
+					<?php
+					/**
+					 * Allow the display of custom notices.
+					 *
+					 * @since 2.0.0
+					 */
+					do_action( 'vaultpress_notices' );
+					?>
 					<?php echo $ui_state[ 'ui' ]; // This content is sanitized when it's produced. ?>
 				</div>
 				<?php $this->ui_footer(); ?>
@@ -720,13 +752,15 @@ class VaultPress {
 			}
 		}
 
+		$classes = in_array( get_current_screen()->parent_base, array( 'jetpack', 'vaultpress' ), true )
+			? ''
+			: "notice notice-$type";
+
 		$this->render_notice(
 			"<strong>$heading</strong><br/>$message",
 			$level,
 			array(),
-			'jetpack' !== get_current_screen()->parent_base
-				? "notice notice-$type"
-				: ''
+			$classes
 		);
 	}
 
