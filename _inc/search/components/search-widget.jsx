@@ -5,7 +5,10 @@
  */
 import { h, Component } from 'preact';
 import Portal from 'preact-portal';
-import { debounce } from 'lodash';
+// NOTE: We only import the debounce package here for to reduced bundle size.
+//       Do not import the entire lodash library!
+// eslint-disable-next-line lodash/import-scope
+import debounce from 'lodash/debounce';
 
 class SearchWidget extends Component {
 	constructor() {
