@@ -3,6 +3,7 @@
 /**
  * External dependencies
  */
+import { __, sprintf } from '@wordpress/i18n';
 import { h, Component } from 'preact';
 
 /**
@@ -15,7 +16,7 @@ class SearchResults extends Component {
 		const { results = [], query } = this.props;
 		return (
 			<div>
-				<p>You are searching for "{ query }".</p>
+				<p>{ sprintf( __( 'You are searching for "%s"' ), query ) }.</p>
 				{ results.map( result => (
 					<SearchResult result={ result } />
 				) ) }
