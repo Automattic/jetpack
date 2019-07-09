@@ -18,16 +18,16 @@ import './store';
 
 import './style.scss';
 
+const getUpgradeUrl = ( { planPathSlug, postId, postType } ) =>
+	addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
+		redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
+	} );
+
 const UpgradeNudge = ( { autosave, planName, planPathSlug, postId, postType } ) => (
 	<Warning
 		actions={ [
 			<Button
-				href={ addQueryArgs(
-					`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
-					{
-						redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
-					}
-				) }
+				href={ getUpgradeUrl( { planPathSlug, postId, postType } ) }
 				onClick={ autosave }
 				target="_top"
 				isDefault
