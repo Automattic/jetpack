@@ -5,7 +5,8 @@ import { get, startsWith } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
-import { withSelect } from '@wordpress/data';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
 import { Warning } from '@wordpress/editor';
 import Gridicon from 'gridicons';
 
@@ -17,7 +18,7 @@ import './store';
 
 import './style.scss';
 
-const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
+const UpgradeNudge = ( { autosave, planName, planPathSlug, postId, postType } ) => (
 	<Warning
 		actions={ [
 			<Button
@@ -27,6 +28,7 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 						redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
 					}
 				) }
+				onClick={ autosave }
 				target="_top"
 				isDefault
 			>
@@ -51,19 +53,24 @@ const UpgradeNudge = ( { planName, planPathSlug, postId, postType } ) => (
 	</Warning>
 );
 
-export default withSelect( ( select, { plan: planSlug } ) => {
-	const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
+export default compose( [
+	withSelect( ( select, { plan: planSlug } ) => {
+		const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
 
-	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
-	// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
-	const planPathSlug = startsWith( planSlug, 'jetpack_' )
-		? planSlug.substr( 'jetpack_'.length )
-		: get( plan, [ 'path_slug' ] );
+		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
+		// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
+		const planPathSlug = startsWith( planSlug, 'jetpack_' )
+			? planSlug.substr( 'jetpack_'.length )
+			: get( plan, [ 'path_slug' ] );
 
-	return {
-		planName: get( plan, [ 'product_name_short' ] ),
-		planPathSlug,
-		postId: select( 'core/editor' ).getCurrentPostId(),
-		postType: select( 'core/editor' ).getCurrentPostType(),
-	};
-} )( UpgradeNudge );
+		return {
+			planName: get( plan, [ 'product_name_short' ] ),
+			planPathSlug,
+			postId: select( 'core/editor' ).getCurrentPostId(),
+			postType: select( 'core/editor' ).getCurrentPostType(),
+		};
+	} ),
+	withDispatch( dispatch => ( {
+		autosave: () => dispatch( 'core/editor' ).autosave(),
+	} ) ),
+] )( UpgradeNudge );
