@@ -23,15 +23,10 @@ const getUpgradeUrl = ( { planPathSlug, postId, postType } ) =>
 		redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
 	} );
 
-const UpgradeNudge = ( { autosave, planName, planPathSlug, postId, postType } ) => (
+const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 	<Warning
 		actions={ [
-			<Button
-				href={ getUpgradeUrl( { planPathSlug, postId, postType } ) }
-				onClick={ autosave }
-				target="_top"
-				isDefault
-			>
+			<Button onClick={ autosaveAndRedirectToUpgrade } target="_top" isDefault>
 				{ __( 'Upgrade', 'jetpack' ) }
 			</Button>,
 		] }
@@ -70,7 +65,10 @@ export default compose( [
 			postType: select( 'core/editor' ).getCurrentPostType(),
 		};
 	} ),
-	withDispatch( dispatch => ( {
-		autosave: () => dispatch( 'core/editor' ).autosave(),
+	withDispatch( ( dispatch, { planPathSlug, postId, postType } ) => ( {
+		autosaveAndRedirectToUpgrade: () => {
+			dispatch( 'core/editor' ).autosave();
+			window.location.href = getUpgradeUrl( { planPathSlug, postId, postType } );
+		},
 	} ) ),
 ] )( UpgradeNudge );
