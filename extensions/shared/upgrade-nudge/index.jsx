@@ -66,8 +66,8 @@ export default compose( [
 		};
 	} ),
 	withDispatch( ( dispatch, { planPathSlug, postId, postType } ) => ( {
-		autosaveAndRedirectToUpgrade: () => {
-			dispatch( 'core/editor' ).autosave();
+		autosaveAndRedirectToUpgrade: async () => {
+			await dispatch( 'core/editor' ).autosave();
 			window.location.href = getUpgradeUrl( { planPathSlug, postId, postType } );
 		},
 	} ) ),
