@@ -58,21 +58,14 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 	$slides     = array_map(
 		function( $id ) {
 			$caption    = wp_get_attachment_caption( $id );
-			$src        = wp_get_attachment_image_src( $id, 'full' );
 			$figcaption = $caption ? sprintf(
 				'<figcaption class="wp-block-jetpack-slideshow_caption gallery-caption">%s</figcaption>',
 				wp_kses_post( $caption )
 			) : '';
-			$amp_img    = sprintf(
-				'<amp-img src="%s" width="%s" height="%s" alt="%s" class="wp-block-jetpack-slideshow_image" />',
-				esc_url( $src[0] ),
-				esc_attr( $src[1] ),
-				esc_attr( $src[2] ),
-				esc_attr( $caption )
-			);
+			$image      = wp_get_attachment_image( $id, 'large', false, array( 'class' => 'wp-block-jetpack-slideshow_image' ) );
 			return sprintf(
 				'<div class="wp-block-jetpack-slideshow_slide"><figure>%s%s</figure></div>',
-				$amp_img,
+				$image,
 				$figcaption
 			);
 		},
