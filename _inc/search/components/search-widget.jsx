@@ -64,7 +64,7 @@ class SearchWidget extends Component {
 			<div>
 				<p>
 					<input
-						type="text"
+						type="search"
 						value={ query }
 						onInput={ this.onChangeQuery }
 						ref={ this.bindInput }
