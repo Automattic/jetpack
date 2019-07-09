@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Settings;
@@ -1044,7 +1044,8 @@ That was a cool video.';
 		$this->assertEquals( $author->display_name, $event->args[1]['author']['display_name'] ); // since 5.4 ?
 		$this->assertEquals( $author->ID, $event->args[1]['author']['id'] ); // since 5.4 ?
 		$this->assertEquals( $author->user_email, $event->args[1]['author']['email'] ); // since 5.4 ?
-		$this->assertEquals( Jetpack::translate_user_to_role( $author ), $event->args[1]['author']['translated_role'] ); // since 5.4 ?
+		$roles = new Roles();
+		$this->assertEquals( $roles->translate_user_to_role( $author ), $event->args[1]['author']['translated_role'] ); // since 5.4 ?
 		$this->assertTrue( isset( $event->args[1]['author']['wpcom_user_id'] ) );
 	}
 

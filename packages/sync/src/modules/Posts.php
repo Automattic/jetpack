@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -559,12 +560,14 @@ class Posts extends Module {
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
 		if ( $author_user_object ) {
+			$roles = new Roles();
+
 			$post_flags['author'] = array(
 				'id'              => $post->post_author,
 				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
 				'display_name'    => $author_user_object->display_name,
 				'email'           => $author_user_object->user_email,
-				'translated_role' => \Jetpack::translate_user_to_role( $author_user_object ),
+				'translated_role' => $roles->translate_user_to_role( $author_user_object ),
 			);
 		}
 

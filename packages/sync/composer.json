@@ -6,6 +6,7 @@
 	"require": {
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"autoload": {
@@ -13,5 +14,13 @@
 			"Automattic\\Jetpack\\Sync\\": "src/",
 			"Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
 		}
-	}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
