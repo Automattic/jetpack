@@ -28,7 +28,10 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		global $wp_block_jetpack_slideshow_id;
 		$wp_block_jetpack_slideshow_id = ( $wp_block_jetpack_slideshow_id || 0 ) + 1;
-		$amp_carousel_id               = sprintf( 'wp-block-jetpack-slideshow__%s', $wp_block_jetpack_slideshow_id );
+		$amp_carousel_id               = sprintf(
+			'wp-block-jetpack-slideshow__%s',
+			intval( $wp_block_jetpack_slideshow_id )
+		);
 
 		$ids        = empty( $attr['ids'] ) ? array() : $attr['ids'];
 		$autoplay   = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
@@ -46,14 +49,14 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 				$src        = wp_get_attachment_image_src( $id, 'full' );
 				$figcaption = $caption ? sprintf(
 					'<figcaption class="wp-block-jetpack-slideshow_caption gallery-caption">%s</figcaption>',
-					$caption
+					wp_kses_post( $caption )
 				) : '';
 				$amp_img    = sprintf(
 					'<amp-img src="%s" width="%s" height="%s" alt="%s" class="wp-block-jetpack-slideshow_image" />',
-					$src[0],
-					$src[1],
-					$src[2],
-					$caption
+					esc_url( $src[0] ),
+					esc_attr( $src[1] ),
+					esc_attr( $src[2] ),
+					esc_attr( $caption )
 				);
 				return sprintf(
 					'<div class="wp-block-jetpack-slideshow_slide"><figure>%s%s</figure></div>',
@@ -68,7 +71,7 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 				return sprintf(
 					'<button class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide %s" on="tap:%s.goToSlide(index=%s)"></button>',
 					( $index + 1 ),
-					$amp_carousel_id,
+					esc_attr( $amp_carousel_id ),
 					$index
 				);
 			},
@@ -83,7 +86,7 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 			__( 'Next Slide', 'jetpack' ),
 			__( 'Previous Slide', 'jetpack' ),
 			$autoplay ? 'autoplay delay=' . ( $delay * 1000 ) : '',
-			$amp_carousel_id,
+			esc_attr( $amp_carousel_id ),
 			implode( '', $slides )
 		);
 
