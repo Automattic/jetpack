@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"clean": "yarn clean-composer",
-		"clean-composer": "rm -rf composer.lock vendor/",
+		"clean-composer": "rm -rf vendor/",
 		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files",
 		"distclean": "rm -rf node_modules && yarn clean",
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-php",
