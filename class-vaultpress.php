@@ -2619,6 +2619,7 @@ JS;
 		add_filter( 'jetpack_options_whitelist',                   array( $this, 'add_to_jetpack_options_whitelist' ) );
 		add_action( "update_option_{$this->auto_register_option}", array( $this, 'updated_auto_register_option' ), 10, 2 );
 		add_action( "add_option_{$this->auto_register_option}",    array( $this, 'updated_auto_register_option' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts',                       array( $this, 'styles' ) );
 	}
 
 	function add_admin_actions_and_filters() {
@@ -2629,7 +2630,6 @@ JS;
 
 	function add_listener_actions_and_filters() {
 		add_action( 'admin_bar_menu', array( $this, 'toolbar' ), 999 );
-		add_action( 'admin_bar_init', array( $this, 'styles' ) );
 
 		// Comments
 		add_action( 'delete_comment',        array( $this, 'comment_action_handler' ) );
