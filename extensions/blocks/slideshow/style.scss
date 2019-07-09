@@ -190,6 +190,17 @@
 	}
 }
 
+.wp-block-jetpack-slideshow_pagination.amp-pagination {
+	text-align: center;
+	.swiper-pagination-bullet {
+		margin: 0 4px;
+		border-radius: 100%;
+		display: inline-block;
+		padding: 0;
+		border: 0;
+	}
+}
+
 @media ( min-width: $break-small ) {
 	.wp-block-jetpack-slideshow {
 		.wp-block-jetpack-slideshow_button-prev,
