@@ -1,18 +1,56 @@
 <?php
+/**
+ * Options sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
 
+/**
+ * Class to handle sync for options.
+ */
 class Options extends Module {
-	private $options_whitelist, $options_contentless;
+	/**
+	 * Whitelist for options we want to sync.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $options_whitelist;
 
+	/**
+	 * Contentless options we want to sync.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $options_contentless;
+
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'options';
 	}
 
+	/**
+	 * Initialize options action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
-		// options
+		// Options.
 		add_action( 'added_option', $callable, 10, 2 );
 		add_action( 'updated_option', $callable, 10, 3 );
 		add_action( 'deleted_option', $callable, 10, 1 );
@@ -28,22 +66,44 @@ class Options extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_updated_option', $whitelist_option_handler );
 	}
 
+	/**
+	 * Initialize options action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_options', $callable );
 	}
 
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
 	public function init_before_send() {
-		// full sync
+		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_options', array( $this, 'expand_options' ) );
 	}
 
+	/**
+	 * Set module defaults.
+	 * Define the options whitelist and contentless options.
+	 *
+	 * @access public
+	 */
 	public function set_defaults() {
 		$this->update_options_whitelist();
 		$this->update_options_contentless();
 	}
 
+	/**
+	 * Set module defaults at a later time.
+	 *
+	 * @access public
+	 */
 	public function set_late_default() {
-
 		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
 		$late_options = apply_filters( 'jetpack_options_whitelist', array() );
 		if ( ! empty( $late_options ) && is_array( $late_options ) ) {
@@ -51,7 +111,17 @@ class Options extends Module {
 		}
 	}
 
-	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	/**
+	 * Enqueue the options actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		/**
 		 * Tells the client to sync all options to the server
 		 *
@@ -61,20 +131,42 @@ class Options extends Module {
 		 */
 		do_action( 'jetpack_full_sync_options', true );
 
-		// The number of actions enqueued, and next module state (true == done)
+		// The number of actions enqueued, and next module state (true == done).
 		return array( 1, true );
 	}
 
-	public function estimate_full_sync_actions( $config ) {
+	/**
+	 * Retrieve an estimated number of actions that will be enqueued.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return int Number of items yet to be enqueued.
+	 */
+	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
 	}
 
-	function get_full_sync_actions() {
+	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
+	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_options' );
 	}
 
-	// Is public so that we don't have to store so much data all the options twice.
-	function get_all_options() {
+	/**
+	 * Retrieve all options as per the current options whitelist.
+	 * Public so that we don't have to store so much data all the options twice.
+	 *
+	 * @access public
+	 *
+	 * @return array All options.
+	 */
+	public function get_all_options() {
 		$options       = array();
 		$random_string = wp_generate_password();
 		foreach ( $this->options_whitelist as $option ) {
@@ -84,7 +176,7 @@ class Options extends Module {
 			}
 		}
 
-		// add theme mods
+		// Add theme mods.
 		$theme_mods_option = 'theme_mods_' . get_option( 'stylesheet' );
 		$theme_mods_value  = get_option( $theme_mods_option, $random_string );
 		if ( $theme_mods_value === $random_string ) {
@@ -95,33 +187,72 @@ class Options extends Module {
 		return $options;
 	}
 
-	function update_options_whitelist() {
+	/**
+	 * Update the options whitelist to the default one.
+	 *
+	 * @access public
+	 */
+	public function update_options_whitelist() {
 		$this->options_whitelist = Defaults::get_options_whitelist();
 	}
 
-	function set_options_whitelist( $options ) {
+	/**
+	 * Set the options whitelist.
+	 *
+	 * @access public
+	 *
+	 * @param array $options The new options whitelist.
+	 */
+	public function set_options_whitelist( $options ) {
 		$this->options_whitelist = $options;
 	}
 
-	function get_options_whitelist() {
+	/**
+	 * Get the options whitelist.
+	 *
+	 * @access public
+	 *
+	 * @return array The options whitelist.
+	 */
+	public function get_options_whitelist() {
 		return $this->options_whitelist;
 	}
 
-	function update_options_contentless() {
+	/**
+	 * Update the contentless options to the defaults.
+	 *
+	 * @access public
+	 */
+	public function update_options_contentless() {
 		$this->options_contentless = Defaults::get_options_contentless();
 	}
 
-	function get_options_contentless() {
+	/**
+	 * Get the contentless options.
+	 *
+	 * @access public
+	 *
+	 * @return array Array of the contentless options.
+	 */
+	public function get_options_contentless() {
 		return $this->options_contentless;
 	}
 
-	function whitelist_options( $args ) {
-		// Reject non-whitelisted options
+	/**
+	 * Reject any options that aren't whitelisted or contentless.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array $args The hook parameters.
+	 */
+	public function whitelist_options( $args ) {
+		// Reject non-whitelisted options.
 		if ( ! $this->is_whitelisted_option( $args[0] ) ) {
 			return false;
 		}
 
-		// filter our weird array( false ) value for theme_mods_*
+		// Filter our weird array( false ) value for theme_mods_*.
 		if ( 'theme_mods_' === substr( $args[0], 0, 11 ) ) {
 			$this->filter_theme_mods( $args[1] );
 			if ( isset( $args[2] ) ) {
@@ -129,9 +260,9 @@ class Options extends Module {
 			}
 		}
 
-		// Set value(s) of contentless option to empty string(s)
+		// Set value(s) of contentless option to empty string(s).
 		if ( $this->is_contentless_option( $args[0] ) ) {
-			// Create a new array matching length of $args, containing empty strings
+			// Create a new array matching length of $args, containing empty strings.
 			$empty    = array_fill( 0, count( $args ), '' );
 			$empty[0] = $args[0];
 			return $empty;
@@ -140,33 +271,69 @@ class Options extends Module {
 		return $args;
 	}
 
-	function is_whitelisted_option( $option ) {
-		return in_array( $option, $this->options_whitelist ) || 'theme_mods_' === substr( $option, 0, 11 );
+	/**
+	 * Whether a certain option is whitelisted for sync.
+	 *
+	 * @access public
+	 *
+	 * @param string $option Option name.
+	 * @return boolean Whether the option is whitelisted.
+	 */
+	public function is_whitelisted_option( $option ) {
+		return in_array( $option, $this->options_whitelist, true ) || 'theme_mods_' === substr( $option, 0, 11 );
 	}
 
+	/**
+	 * Whether a certain option is a contentless one.
+	 *
+	 * @access private
+	 *
+	 * @param string $option Option name.
+	 * @return boolean Whether the option is contentless.
+	 */
 	private function is_contentless_option( $option ) {
-		return in_array( $option, $this->options_contentless );
+		return in_array( $option, $this->options_contentless, true );
 	}
 
+	/**
+	 * Filters out falsy values from theme mod options.
+	 *
+	 * @access private
+	 *
+	 * @param array $value Option value.
+	 */
 	private function filter_theme_mods( &$value ) {
 		if ( is_array( $value ) && isset( $value[0] ) ) {
 			unset( $value[0] );
 		}
 	}
 
-	function jetpack_sync_core_icon() {
+	/**
+	 * Handle changes in the core site icon and sync them.
+	 *
+	 * @access public
+	 */
+	public function jetpack_sync_core_icon() {
 		$url = get_site_icon_url();
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php';
 		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
-		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
-			// This is the option that is synced with dotcom
+		if ( ! empty( $url ) && jetpack_site_icon_url() !== $url ) {
+			// This is the option that is synced with dotcom.
 			\Jetpack_Options::update_option( 'site_icon_url', $url );
 		} elseif ( empty( $url ) ) {
 			\Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
 
+	/**
+	 * Expand all options within a hook before they are serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array $args The hook parameters.
+	 */
 	public function expand_options( $args ) {
 		if ( $args[0] ) {
 			return $this->get_all_options();
