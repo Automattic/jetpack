@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.28
+ * Version: 2.4.29
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.28' );
+define( 'WPCOMSH_VERSION', '2.4.29' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -568,6 +568,24 @@ function wpcomsh_add_wpcom_suffix_to_theme_endpoint_response( $formatted_theme )
 }
 add_filter( 'jetpack_format_theme_details', 'wpcomsh_add_wpcom_suffix_to_theme_endpoint_response' );
 
+/**
+ * Returns the value for the `at_wpcom_premium_theme` option, which
+ * makes sure a stylesheet is returned only if the current theme has been
+ * symlinked and is a WPCOM premium theme.
+ *
+ * @return string The wpcom premium theme stylesheet
+ */
+function wpcomsh_handle_atomic_premium_theme_option() {
+	$stylesheet = wp_get_theme()->get_stylesheet();
+	if ( wpcomsh_is_theme_symlinked( $stylesheet )
+		&& wpcomsh_is_wpcom_premium_theme( $stylesheet ) ) {
+			return sprintf( 'premium/%s', $stylesheet );
+	}
+
+	return FALSE;
+}
+add_filter( 'pre_option_at_wpcom_premium_theme', 'wpcomsh_handle_atomic_premium_theme_option' );
+
 function wpcomsh_disable_bulk_plugin_deactivation( $actions ) {
 	if ( array_key_exists( 'deactivate-selected', $actions ) ) {
 		unset( $actions['deactivate-selected'] );
@@ -591,6 +609,7 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
 	$options[] = 'at_options_logging_on';
+	$options[] = 'at_wpcom_premium_theme';
 	$options[] = 'jetpack_fonts';
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
@@ -868,5 +887,3 @@ function wpcomsh_get_wp_die_handler() {
 	return 'wpcomsh_wp_die_handler';
 }
 add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
-
-
