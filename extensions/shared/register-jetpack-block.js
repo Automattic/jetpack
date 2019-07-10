@@ -23,10 +23,13 @@ function requiresPlan( unavailableReason, details ) {
 
 // Injecting the `has-warning` class into the block wrapper component gives us
 // the right kind of borders around the block, both visually and conceptually.
-const withHasWarningClassName = createHigherOrderComponent(
-	BlockListBlock => props => <BlockListBlock { ...props } className="has-warning" />,
-	'withHasWarningClassName'
-);
+const withHasWarningClassName = name =>
+	createHigherOrderComponent(
+		BlockListBlock => props => (
+			<BlockListBlock { ...props } className={ props.name === name ? 'has-warning' : '' } />
+		),
+		'withHasWarningClassName'
+	);
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -60,8 +63,8 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			'jetpack/with-paid-block-class-name',
-			withHasWarningClassName
+			`jetpack/${ name }-with-paid-block-class-name`,
+			withHasWarningClassName( `jetpack/${ name }` )
 		);
 	}
 
