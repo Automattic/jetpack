@@ -59,10 +59,6 @@
 		max-width: 100%;
 		width: auto;
 		object-fit: contain;
-		/* For amp-img */
-		& > * {
-			object-fit: contain;
-		}
 	}
 
 	.wp-block-jetpack-slideshow_button-prev,
