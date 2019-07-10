@@ -15,6 +15,7 @@ class Main {
 	 * Initialize the main sync actions.
 	 */
 	public static function init() {
+		error_log( "initializing sync modules\n" );
 		// Check for WooCommerce support.
 		add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Sync\\Actions', 'initialize_woocommerce' ), 5 );
 

@@ -39,6 +39,22 @@ class Callables extends Module {
 	private $callable_whitelist;
 
 	/**
+	 * For some options, we should always send the change right away!
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
+	const ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS = array(
+		'jetpack_active_modules',
+		'home',
+		'siteurl',
+		'jetpack_sync_error_idc',
+		'paused_plugins',
+		'paused_themes',
+	);
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -71,19 +87,13 @@ class Callables extends Module {
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
+		l( "CALLABLES INITIATED\n" );
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late.
 
-		// For some options, we should always send the change right away!
-		$always_send_updates_to_these_options = array(
-			'jetpack_active_modules',
-			'home',
-			'siteurl',
-			'jetpack_sync_error_idc',
-			'paused_plugins',
-			'paused_themes',
-		);
-		foreach ( $always_send_updates_to_these_options as $option ) {
+		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $option ) {
+			error_log( "specifying always send updates for $option\n" );
+
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
@@ -245,6 +255,7 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function unlock_sync_callable() {
+		l( "deleted transient\n" );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
 
@@ -371,19 +382,50 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function maybe_sync_callables() {
+		$callables = array();
+
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
-			if ( ! is_admin() || Settings::is_doing_cron() ) {
-				return;
+			if ( ! is_admin() ) {
+				// If we're not an admin and we're not doing cron, don't sync anything
+				if ( ! Settings::is_doing_cron() ) {
+					l( 'NOT DOING CRON' );
+					return;
+				}
+				// If we're not an admin and we are doing cron, sync the callables that are always supposed to sync
+				$callables      = $this->get_all_callables();
+				$callable_keys  = array_keys( $callables );
+				$cron_callables = array();
+				// l( $callables );
+				l( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS );
+				foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $key ) {
+					l( "checking callables for $key" );
+					if ( isset( $callables[ $key ] ) ) {
+						$cron_callables[ $key ] = $callables[ $key ];
+					}
+				}
+				$callables = $cron_callables;
+
+				l( $callables );
 			}
 
-			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
-				return;
+			if ( ! is_admin() ) {
+				l( 'NOT ADMIN!' );
 			}
+			if ( Settings::is_doing_cron() ) {
+				l( 'IS DOING CRON!' );
+			}
+		}
+
+		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+			return;
 		}
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
 
-		$callables = $this->get_all_callables();
+		// If callables wasn't set when we weren't admin and are doing cron, set them now
+		if ( empty( $callables ) ) {
+			$callables = $this->get_all_callables();
+		}
 
 		if ( empty( $callables ) ) {
 			return;

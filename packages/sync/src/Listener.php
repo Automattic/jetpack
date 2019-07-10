@@ -20,6 +20,7 @@ class Listener {
 	private static $instance;
 
 	public static function get_instance() {
+		error_log( "hi\n" );
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -29,6 +30,7 @@ class Listener {
 
 	// this is necessary because you can't use "new" when you declare instance properties >:(
 	protected function __construct() {
+		error_log( "constructing listener\n" );
 		Main::init();
 		$this->set_defaults();
 		$this->init();

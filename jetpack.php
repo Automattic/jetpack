@@ -12,7 +12,7 @@
  *
  * @package Jetpack
  */
-
+error_log("jetpack.php\n");
 define( 'JETPACK__MINIMUM_WP_VERSION',  '5.1' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
 define( 'JETPACK__VERSION',             '7.6-alpha' );
@@ -24,7 +24,7 @@ define( 'JETPACK__PLUGIN_FILE',          __FILE__ );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' )           || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
-defined( 'JETPACK__API_BASE' )               || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+defined( 'JETPACK__API_BASE' )               || define( 'JETPACK__API_BASE', 'https://jollycodertest.wordpress.com/jetpack.' );
 defined( 'JETPACK_PROTECT__API_HOST' )       || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    || define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
 defined( 'JETPACK__SANDBOX_DOMAIN' )         || define( 'JETPACK__SANDBOX_DOMAIN', '' );
