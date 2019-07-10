@@ -616,8 +616,6 @@ class Jetpack {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
 
-		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
-
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -4603,10 +4601,13 @@ p {
 	/**
 	 * Returns the requested Jetpack API URL
 	 *
+	 * @deprecated since 7.6
 	 * @return string
 	 */
 	public static function api_url( $relative_url ) {
-		return trailingslashit( JETPACK__API_BASE . $relative_url  ) . JETPACK__API_VERSION . '/';
+		_deprecated_function( __METHOD__, 'jetpack-7.6', '\\Automattic\\Jetpack\\Connection\\Manager::api_url' );
+		$connection = self::connection();
+		return $connection->api_url( $relative_url );
 	}
 
 	/**
@@ -4924,156 +4925,44 @@ p {
 		return $timeout;
 	}
 
-
-	/**
-	 * Takes the response from the Jetpack register new site endpoint and
-	 * verifies it worked properly.
-	 *
-	 * @since 2.6
-	 * @return string|Jetpack_Error A JSON object on success or Jetpack_Error on failures
-	 **/
-	public function validate_remote_register_response( $response ) {
-	  if ( is_wp_error( $response ) ) {
-			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
-		}
-
-		$code   = wp_remote_retrieve_response_code( $response );
-		$entity = wp_remote_retrieve_body( $response );
-		if ( $entity )
-			$registration_response = json_decode( $entity );
-		else
-			$registration_response = false;
-
-		$code_type = intval( $code / 100 );
-		if ( 5 == $code_type ) {
-			return new Jetpack_Error( 'wpcom_5??', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
-		} elseif ( 408 == $code ) {
-			return new Jetpack_Error( 'wpcom_408', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
-		} elseif ( ! empty( $registration_response->error ) ) {
-			if ( 'xml_rpc-32700' == $registration_response->error && ! function_exists( 'xml_parser_create' ) ) {
-				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
-			} else {
-				$error_description = isset( $registration_response->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $registration_response->error_description ) : '';
-			}
-
-			return new Jetpack_Error( (string) $registration_response->error, $error_description, $code );
-		} elseif ( 200 != $code ) {
-			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
-		}
-
-		// Jetpack ID error block
-		if ( empty( $registration_response->jetpack_id ) ) {
-			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack' ), $entity ), $entity );
-		} elseif ( ! is_scalar( $registration_response->jetpack_id ) ) {
-			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
-		} elseif ( preg_match( '/[^0-9]/', $registration_response->jetpack_id ) ) {
-			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
-		}
-
-	    return $registration_response;
-	}
 	/**
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
 		$tracking = new Tracking();
 		$tracking->record_user_event( 'jpc_register_begin' );
-		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
-		$secrets = Jetpack::generate_secrets( 'register' );
 
-		if (
-			empty( $secrets['secret_1'] ) ||
-			empty( $secrets['secret_2'] ) ||
-			empty( $secrets['exp'] )
-		) {
-			return new Jetpack_Error( 'missing_secrets' );
+		add_filter( 'jetpack_register_request_body', array( __CLASS__, 'filter_register_request_body' ) );
+
+		$connection = self::connection();
+		$registration = $connection->register();
+
+		remove_filter( 'jetpack_register_request_body', array( __CLASS__, 'filter_register_request_body' ) );
+
+		if ( ! $registration || is_wp_error( $registration ) ) {
+			return $registration;
 		}
-
-		// better to try (and fail) to set a higher timeout than this system
-		// supports than to have register fail for more users than it should
-		$timeout = Jetpack::set_min_time_limit( 60 ) / 2;
-
-		$gmt_offset = get_option( 'gmt_offset' );
-		if ( ! $gmt_offset ) {
-			$gmt_offset = 0;
-		}
-
-		$stats_options = get_option( 'stats_options' );
-		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
-
-		$tracks = new Tracking();
-		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
-
-		$args = array(
-			'method'  => 'POST',
-			'body'    => array(
-				'siteurl'         => site_url(),
-				'home'            => home_url(),
-				'gmt_offset'      => $gmt_offset,
-				'timezone_string' => (string) get_option( 'timezone_string' ),
-				'site_name'       => (string) get_option( 'blogname' ),
-				'secret_1'        => $secrets['secret_1'],
-				'secret_2'        => $secrets['secret_2'],
-				'site_lang'       => get_locale(),
-				'timeout'         => $timeout,
-				'stats_id'        => $stats_id,
-				'state'           => get_current_user_id(),
-				'_ui'             => $tracks_identity['_ui'],
-				'_ut'             => $tracks_identity['_ut'],
-				'site_created'    => Jetpack::get_assumed_site_creation_date(),
-				'jetpack_version' => JETPACK__VERSION,
-				'ABSPATH'         => defined( 'ABSPATH' ) ? ABSPATH : '',
-			),
-			'headers' => array(
-				'Accept' => 'application/json',
-			),
-			'timeout' => $timeout,
-		);
-
-		self::apply_activation_source_to_args( $args['body'] );
-
-		$response = Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
-
-		// Make sure the response is valid and does not contain any Jetpack errors
-		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
-		if ( is_wp_error( $registration_details ) ) {
-			return $registration_details;
-		} elseif ( ! $registration_details ) {
-			return new Jetpack_Error( 'unknown_error', __( 'Unknown error registering your Jetpack site', 'jetpack' ), wp_remote_retrieve_response_code( $response ) );
-		}
-
-		if ( empty( $registration_details->jetpack_secret ) || ! is_string( $registration_details->jetpack_secret ) ) {
-			return new Jetpack_Error( 'jetpack_secret', '', wp_remote_retrieve_response_code( $response ) );
-		}
-
-		if ( isset( $registration_details->jetpack_public ) ) {
-			$jetpack_public = (int) $registration_details->jetpack_public;
-		} else {
-			$jetpack_public = false;
-		}
-
-		Jetpack_Options::update_options(
-			array(
-				'id'         => (int)    $registration_details->jetpack_id,
-				'blog_token' => (string) $registration_details->jetpack_secret,
-				'public'     => $jetpack_public,
-			)
-		);
-
-		/**
-		 * Fires when a site is registered on WordPress.com.
-		 *
-		 * @since 3.7.0
-		 *
-		 * @param int $json->jetpack_id Jetpack Blog ID.
-		 * @param string $json->jetpack_secret Jetpack Blog Token.
-		 * @param int|bool $jetpack_public Is the site public.
-		 */
-		do_action( 'jetpack_site_registered', $registration_details->jetpack_id, $registration_details->jetpack_secret, $jetpack_public );
-
-		$jetpack = Jetpack::init();
 
 		return true;
+	}
+
+	/**
+	 * Filters the registration request body to include tracking properties.
+	 *
+	 * @param Array $properties
+	 * @return Array amended properties.
+	 */
+	public static function filter_register_request_body( $properties ) {
+		$tracking = new Tracking();
+		$tracks_identity = $tracking->tracks_get_identity( get_current_user_id() );
+
+		return array_merge(
+			$properties,
+			array(
+				'_ui' => $tracks_identity['_ui'],
+				'_ut' => $tracks_identity['_ut'],
+			)
+		);
 	}
 
 	/**
@@ -5237,82 +5126,6 @@ p {
 		$nonces_used_this_request["$timestamp:$nonce"] = $return;
 
 		return $return;
-	}
-
-	/**
-	 * In some setups, $HTTP_RAW_POST_DATA can be emptied during some IXR_Server paths since it is passed by reference to various methods.
-	 * Capture it here so we can verify the signature later.
-	 */
-	function xmlrpc_methods( $methods ) {
-		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
-		return $methods;
-	}
-
-	function public_xmlrpc_methods( $methods ) {
-		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
-			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
-		}
-		return $methods;
-	}
-
-	function jetpack_getOptions( $args ) {
-		global $wp_xmlrpc_server;
-
-		$wp_xmlrpc_server->escape( $args );
-
-		$username	= $args[1];
-		$password	= $args[2];
-
-		if ( !$user = $wp_xmlrpc_server->login($username, $password) ) {
-			return $wp_xmlrpc_server->error;
-		}
-
-		$options = array();
-		$user_data = $this->get_connected_user_data();
-		if ( is_array( $user_data ) ) {
-			$options['jetpack_user_id'] = array(
-				'desc'          => __( 'The WP.com user ID of the connected user', 'jetpack' ),
-				'readonly'      => true,
-				'value'         => $user_data['ID'],
-			);
-			$options['jetpack_user_login'] = array(
-				'desc'          => __( 'The WP.com username of the connected user', 'jetpack' ),
-				'readonly'      => true,
-				'value'         => $user_data['login'],
-			);
-			$options['jetpack_user_email'] = array(
-				'desc'          => __( 'The WP.com user email of the connected user', 'jetpack' ),
-				'readonly'      => true,
-				'value'         => $user_data['email'],
-			);
-			$options['jetpack_user_site_count'] = array(
-				'desc'          => __( 'The number of sites of the connected WP.com user', 'jetpack' ),
-				'readonly'      => true,
-				'value'         => $user_data['site_count'],
-			);
-		}
-		$wp_xmlrpc_server->blog_options = array_merge( $wp_xmlrpc_server->blog_options, $options );
-		$args = stripslashes_deep( $args );
-		return $wp_xmlrpc_server->wp_getOptions( $args );
-	}
-
-	function xmlrpc_options( $options ) {
-		$jetpack_client_id = false;
-		if ( self::is_active() ) {
-			$jetpack_client_id = Jetpack_Options::get_option( 'id' );
-		}
-		$options['jetpack_version'] = array(
-				'desc'          => __( 'Jetpack Plugin Version', 'jetpack' ),
-				'readonly'      => true,
-				'value'         => JETPACK__VERSION,
-		);
-
-		$options['jetpack_client_id'] = array(
-				'desc'          => __( 'The Client ID/WP.com Blog ID of this site', 'jetpack' ),
-				'readonly'      => true,
-				'value'         => $jetpack_client_id,
-		);
-		return $options;
 	}
 
 	public static function clean_nonces( $all = false ) {

@@ -30,6 +30,13 @@ class Manager implements Manager_Interface {
 	protected $secret_callable;
 
 	/**
+	 * A copy of the raw POST data for signature verification purposes.
+	 *
+	 * @var String
+	 */
+	protected $raw_post_data;
+
+	/**
 	 * Creates an instance of the connection manager.
 	 */
 	public function __construct() {
@@ -108,7 +115,6 @@ class Manager implements Manager_Interface {
 		if ( ! Constants::get_constant( 'XMLRPC_REQUEST' ) ) {
 			return false;
 		}
-
 		// Display errors can cause the XML to be not well formed.
 		@ini_set( 'display_errors', false ); // phpcs:ignore
 
@@ -182,6 +188,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function alternate_xmlrpc() {
 		// phpcs:disable PHPCompatibility.Variables.RemovedPredefinedGlobalVariables.http_raw_post_dataDeprecatedRemoved
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 		global $HTTP_RAW_POST_DATA;
 
 		// Some browser-embedded clients send cookies. We don't want them.
@@ -193,7 +200,7 @@ class Manager implements Manager_Interface {
 			$HTTP_RAW_POST_DATA = file_get_contents( 'php://input' );
 		}
 
-		// fix for mozBlog and other cases where '<?xml' isn't on the very first line
+		// A fix for mozBlog and other cases where '<?xml' isn't on the very first line.
 		if ( isset( $HTTP_RAW_POST_DATA ) ) {
 			$HTTP_RAW_POST_DATA = trim( $HTTP_RAW_POST_DATA );
 		}
@@ -226,7 +233,7 @@ class Manager implements Manager_Interface {
 	 * Only used in our alternate XML-RPC endpoint, where we want to
 	 * ensure that Core and other plugins' methods are not exposed.
 	 *
-	 * @param array $methods
+	 * @param array $methods a list of registered WordPress XMLRPC methods.
 	 * @return array filtered $methods
 	 */
 	public function remove_non_jetpack_xmlrpc_methods( $methods ) {
@@ -246,7 +253,7 @@ class Manager implements Manager_Interface {
 	 * methods to validate unauthenticated requests.
 	 */
 	public function require_jetpack_authentication() {
-		// Don't let anyone authenticate
+		// Don't let anyone authenticate.
 		$_COOKIE = array();
 		remove_all_filters( 'authenticate' );
 		remove_all_actions( 'wp_login_failed' );
@@ -330,7 +337,7 @@ class Manager implements Manager_Interface {
 	 * @internal
 	 */
 	private function internal_verify_xml_rpc_signature() {
-		// It's not for us
+		// It's not for us.
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
 		}
@@ -391,6 +398,7 @@ class Manager implements Manager_Interface {
 		}
 
 		$jetpack_signature = new \Jetpack_Signature( $token->secret, (int) \Jetpack_Options::get_option( 'time_diff' ) );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
 			$post_data   = $_POST;
 			$file_hashes = array();
@@ -410,14 +418,15 @@ class Manager implements Manager_Interface {
 			ksort( $post_data );
 
 			$body = http_build_query( stripslashes_deep( $post_data ) );
-		} elseif ( is_null( $this->HTTP_RAW_POST_DATA ) ) {
+		} elseif ( is_null( $this->raw_post_data ) ) {
 			$body = file_get_contents( 'php://input' );
 		} else {
 			$body = null;
 		}
+		// phpcs:enable
 
 		$signature = $jetpack_signature->sign_current_request(
-			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body )
+			array( 'body' => is_null( $body ) ? $this->raw_post_data : $body )
 		);
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
@@ -473,7 +482,7 @@ class Manager implements Manager_Interface {
 				'user_id'   => $token->external_user_id,
 			),
 			$token,
-			$this->HTTP_RAW_POST_DATA
+			$this->raw_post_data
 		);
 	}
 
@@ -630,27 +639,38 @@ class Manager implements Manager_Interface {
 			? $stats_options['blog_id']
 			: null;
 
-		$args = array(
-			'method'  => 'POST',
-			'body'    => array(
-				'siteurl'         => site_url(),
-				'home'            => home_url(),
-				'gmt_offset'      => $gmt_offset,
-				'timezone_string' => (string) get_option( 'timezone_string' ),
-				'site_name'       => (string) get_option( 'blogname' ),
-				'secret_1'        => $secrets['secret_1'],
-				'secret_2'        => $secrets['secret_2'],
-				'site_lang'       => get_locale(),
-				'timeout'         => $timeout,
-				'stats_id'        => $stats_id,
-				'state'           => get_current_user_id(),
-				'site_created'    => $this->get_assumed_site_creation_date(),
-				'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
-			),
-			'headers' => array(
-				'Accept' => 'application/json',
-			),
-			'timeout' => $timeout,
+		/**
+		 * Filters the request body for additional property addition.
+		 *
+		 * @since 7.5.0
+		 *
+		 * @param Array $post_data request data.
+		 * @param Array $token_data token data.
+		 */
+		$args = apply_filters(
+			'jetpack_register_request_body',
+			array(
+				'method'  => 'POST',
+				'body'    => array(
+					'siteurl'         => site_url(),
+					'home'            => home_url(),
+					'gmt_offset'      => $gmt_offset,
+					'timezone_string' => (string) get_option( 'timezone_string' ),
+					'site_name'       => (string) get_option( 'blogname' ),
+					'secret_1'        => $secrets['secret_1'],
+					'secret_2'        => $secrets['secret_2'],
+					'site_lang'       => get_locale(),
+					'timeout'         => $timeout,
+					'stats_id'        => $stats_id,
+					'state'           => get_current_user_id(),
+					'site_created'    => $this->get_assumed_site_creation_date(),
+					'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
+				),
+				'headers' => array(
+					'Accept' => 'application/json',
+				),
+				'timeout' => $timeout,
+			)
 		);
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
@@ -1395,5 +1415,104 @@ class Manager implements Manager_Interface {
 			'secret'           => $valid_token,
 			'external_user_id' => (int) $user_id,
 		);
+	}
+
+	/**
+	 * In some setups, $HTTP_RAW_POST_DATA can be emptied during some IXR_Server paths
+	 * since it is passed by reference to various methods.
+	 * Capture it here so we can verify the signature later.
+	 *
+	 * @param Array $methods an array of available XMLRPC methods.
+	 * @return Array the same array, since this method doesn't add or remove anything.
+	 */
+	public function xmlrpc_methods( $methods ) {
+		$this->raw_post_data = $GLOBALS['HTTP_RAW_POST_DATA'];
+		return $methods;
+	}
+
+	/**
+	 * Registering an additional method.
+	 *
+	 * @param Array $methods an array of available XMLRPC methods.
+	 * @return Array the amended array in case the method is added.
+	 */
+	public function public_xmlrpc_methods( $methods ) {
+		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
+			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
+		}
+		return $methods;
+	}
+
+	/**
+	 * Handles a getOptions XMLRPC method call.
+	 *
+	 * @param Array $args method call arguments.
+	 * @return an amended XMLRPC server options array.
+	 */
+	public function jetpack_getOptions( $args ) {
+		global $wp_xmlrpc_server;
+
+		$wp_xmlrpc_server->escape( $args );
+
+		$username = $args[1];
+		$password = $args[2];
+
+		$user = $wp_xmlrpc_server->login( $username, $password );
+		if ( ! $user ) {
+			return $wp_xmlrpc_server->error;
+		}
+
+		$options   = array();
+		$user_data = $this->get_connected_user_data();
+		if ( is_array( $user_data ) ) {
+			$options['jetpack_user_id']         = array(
+				'desc'     => __( 'The WP.com user ID of the connected user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'readonly' => true,
+				'value'    => $user_data['ID'],
+			);
+			$options['jetpack_user_login']      = array(
+				'desc'     => __( 'The WP.com username of the connected user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'readonly' => true,
+				'value'    => $user_data['login'],
+			);
+			$options['jetpack_user_email']      = array(
+				'desc'     => __( 'The WP.com user email of the connected user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'readonly' => true,
+				'value'    => $user_data['email'],
+			);
+			$options['jetpack_user_site_count'] = array(
+				'desc'     => __( 'The number of sites of the connected WP.com user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'readonly' => true,
+				'value'    => $user_data['site_count'],
+			);
+		}
+		$wp_xmlrpc_server->blog_options = array_merge( $wp_xmlrpc_server->blog_options, $options );
+		$args                           = stripslashes_deep( $args );
+		return $wp_xmlrpc_server->wp_getOptions( $args );
+	}
+
+	/**
+	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
+	 *
+	 * @param Array $options standard Core options.
+	 * @return Array amended options.
+	 */
+	public function xmlrpc_options( $options ) {
+		$jetpack_client_id = false;
+		if ( $this->is_active() ) {
+			$jetpack_client_id = \Jetpack_Options::get_option( 'id' );
+		}
+		$options['jetpack_version'] = array(
+			'desc'     => __( 'Jetpack Plugin Version' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+			'readonly' => true,
+			'value'    => JETPACK__VERSION,
+		);
+
+		$options['jetpack_client_id'] = array(
+			'desc'     => __( 'The Client ID/WP.com Blog ID of this site' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+			'readonly' => true,
+			'value'    => $jetpack_client_id,
+		);
+		return $options;
 	}
 }
