@@ -10,6 +10,14 @@ import Portal from 'preact-portal';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 
+/**
+ * Internal dependencies
+ */
+import SearchResults from './search-results';
+import JetpackSearchAPI from '../components/api';
+
+const api = new JetpackSearchAPI();
+
 class SearchWidget extends Component {
 	constructor() {
 		super( ...arguments );
@@ -37,7 +45,6 @@ class SearchWidget extends Component {
 
 	getResults( query ) {
 		if ( query ) {
-			const { api } = this.props;
 			if ( api ) {
 				this.requestId++;
 				const requestId = this.requestId;
@@ -59,7 +66,6 @@ class SearchWidget extends Component {
 
 	render() {
 		const { query, results } = this.state;
-		const { SearchResults, api } = this.props;
 		return (
 			<div>
 				<p>
@@ -71,7 +77,7 @@ class SearchWidget extends Component {
 					/>
 				</p>
 				<Portal into="#results">
-					<SearchResults api={ api } query={ query } { ...results } />
+					<SearchResults query={ query } { ...results } />
 				</Portal>
 			</div>
 		);
