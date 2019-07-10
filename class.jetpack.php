@@ -34,8 +34,6 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
-require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
-
 class Jetpack {
 	public $xmlrpc_server = null;
 
