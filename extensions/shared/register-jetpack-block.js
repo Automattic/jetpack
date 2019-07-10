@@ -63,7 +63,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			`jetpack/${ name }-with-paid-block-class-name`,
+			`jetpack/${ name }-with-has-warning-class-name`,
 			withHasWarningClassName( `jetpack/${ name }` )
 		);
 	}
