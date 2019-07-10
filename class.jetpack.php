@@ -40,7 +40,6 @@ require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
 class Jetpack {
 	public $xmlrpc_server = null;
 
-	private $xmlrpc_verification = null;
 	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
@@ -4999,7 +4998,6 @@ p {
 	 * Resets the saved authentication state in between testing requests.
 	 */
 	public function reset_saved_auth_state() {
-		$this->xmlrpc_verification = null;
 		$this->rest_authentication_status = null;
 	}
 

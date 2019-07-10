@@ -37,6 +37,13 @@ class Manager implements Manager_Interface {
 	protected $raw_post_data;
 
 	/**
+	 * Verification data needs to be stored to properly verify everything.
+	 *
+	 * @var Object
+	 */
+	private $xmlrpc_verification = null;
+
+	/**
 	 * Creates an instance of the connection manager.
 	 */
 	public function __construct() {
