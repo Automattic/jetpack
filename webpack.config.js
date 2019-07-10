@@ -82,10 +82,12 @@ module.exports = [
 			path: path.resolve( __dirname, '_inc/search/dist' ),
 			filename: 'jp-search.bundle.js',
 		},
-		performance: {
-			maxAssetSize: 30000,
-			maxEntrypointSize: 30000,
-			hints: 'error',
-		},
+		performance: isDevelopment
+			? {}
+			: {
+					maxAssetSize: 30000,
+					maxEntrypointSize: 30000,
+					hints: 'error',
+			  },
 	},
 ];
