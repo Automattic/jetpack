@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
-
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 
@@ -240,12 +238,13 @@ class Defaults {
 		'shortcodes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_shortcodes' ),
 		'rest_api_allowed_post_types'      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_post_types' ),
 		'rest_api_allowed_public_metadata' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_public_metadata' ),
-		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
-		'sso_should_hide_login_form'       => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
-		'sso_match_by_email'               => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
-		'sso_new_user_override'            => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
-		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
-		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		// TODO remove these from the Sync Package
+		// 'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
+		// 'sso_should_hide_login_form'       => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
+		// 'sso_match_by_email'               => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
+		// 'sso_new_user_override'            => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
+		// 'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
+			'wp_version'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
