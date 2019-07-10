@@ -21,6 +21,8 @@ function requiresPlan( unavailableReason, details ) {
 	return false;
 }
 
+// Injecting the `has-warning` class into the block wrapper component gives us
+// the right kind of borders around the block, both visually and conceptually.
 const withHasWarningClassName = createHigherOrderComponent(
 	BlockListBlock => props => <BlockListBlock { ...props } className="has-warning" />,
 	'withHasWarningClassName'
