@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { addFilter } from '@wordpress/hooks';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { registerBlockType } from '@wordpress/blocks';
 
 /**
@@ -18,6 +20,11 @@ function requiresPlan( unavailableReason, details ) {
 	}
 	return false;
 }
+
+const withHasWarningClassName = createHigherOrderComponent(
+	BlockListBlock => props => <BlockListBlock { ...props } className="has-warning" />,
+	'withHasWarningClassName'
+);
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -47,6 +54,14 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
 		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 	} );
+
+	if ( requiredPlan ) {
+		addFilter(
+			'editor.BlockListBlock',
+			'jetpack/with-paid-block-class-name',
+			withHasWarningClassName
+		);
+	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
