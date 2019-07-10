@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
-import { createHigherOrderComponent } from '@wordpress/compose';
 import { registerBlockType } from '@wordpress/blocks';
 
 /**
@@ -10,6 +9,7 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interactive-class-names';
 import wrapPaidBlock from './wrap-paid-block';
 
 const betaExtensions = extensionList.beta || [];
@@ -20,16 +20,6 @@ function requiresPlan( unavailableReason, details ) {
 	}
 	return false;
 }
-
-// Injecting the `has-warning` class into the block wrapper component gives us
-// the right kind of borders around the block, both visually and conceptually.
-const withHasWarningClassName = name =>
-	createHigherOrderComponent(
-		BlockListBlock => props => (
-			<BlockListBlock { ...props } className={ props.name === name ? 'has-warning' : '' } />
-		),
-		'withHasWarningClassName'
-	);
 
 /**
  * Registers a gutenberg block if the availability requirements are met.
@@ -63,8 +53,8 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			`jetpack/${ name }-with-has-warning-class-name`,
-			withHasWarningClassName( `jetpack/${ name }` )
+			`jetpack/${ name }-with-has-warning-is-interactive-class-names`,
+			withHasWarningIsInteractiveClassNames( `jetpack/${ name }` )
 		);
 	}
 
