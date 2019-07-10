@@ -1,12 +1,16 @@
 <?php
-
 /**
- * simple wrapper that allows enumerating cached static instances
- * of sync modules
+ * Simple wrapper that allows enumerating cached static instances
+ * of sync modules.
+ *
+ * @package automattic/jetpack-sync
  */
 
 namespace Automattic\Jetpack\Sync;
 
+/**
+ * A class to handle loading of sync modules.
+ */
 class Modules {
 
 	const DEFAULT_SYNC_MODULES = array(
@@ -51,8 +55,18 @@ class Modules {
 		'Jetpack_Sync_Modules_Full_Sync'       => 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync',
 	);
 
+	/**
+	 * Keeps track of initialized sync modules.
+	 *
+	 * @var null|array
+	 */
 	private static $initialized_modules = null;
 
+	/**
+	 * Gets a list of initialized moudles.
+	 *
+	 * @return array|null
+	 */
 	public static function get_modules() {
 		if ( null === self::$initialized_modules ) {
 			self::$initialized_modules = self::initialize_modules();
@@ -61,12 +75,22 @@ class Modules {
 		return self::$initialized_modules;
 	}
 
+	/**
+	 * Sets defaults for all initialized modules.
+	 */
 	public static function set_defaults() {
 		foreach ( self::get_modules() as $module ) {
 			$module->set_defaults();
 		}
 	}
 
+	/**
+	 * Gets the name of an initialized module. Returns false if given module has not been initialized.
+	 *
+	 * @param string $module_name A module name.
+	 *
+	 * @return bool|string
+	 */
 	public static function get_module( $module_name ) {
 		foreach ( self::get_modules() as $module ) {
 			if ( $module->name() === $module_name ) {
@@ -77,7 +101,12 @@ class Modules {
 		return false;
 	}
 
-	static function initialize_modules() {
+	/**
+	 * Loads and sets defaults for all declared modules.
+	 *
+	 * @return array
+	 */
+	public static function initialize_modules() {
 		/**
 		 * Filters the list of class names of sync modules.
 		 * If you add to this list, make sure any classes implement the
@@ -94,11 +123,26 @@ class Modules {
 		return array_map( array( 'Automattic\\Jetpack\\Sync\\Modules', 'set_module_defaults' ), $modules );
 	}
 
-	static function load_module( $module_class ) {
+	/**
+	 * Returns an instance of the given module class.
+	 *
+	 * @param string $module_class The classname of a Jetpack sync module.
+	 *
+	 * @return \Automattic\Jetpack\Sync\Modules\Module
+	 */
+	public static function load_module( $module_class ) {
 		return new $module_class();
 	}
 
-	static function map_legacy_modules( $module_class ) {
+	/**
+	 * For backwards compat, takes the classname of a given module pre Jetpack 7.5,
+	 * and returns the new namespaced classname.
+	 *
+	 * @param string $module_class The classname of a Jetpack sync module.
+	 *
+	 * @return string
+	 */
+	public static function map_legacy_modules( $module_class ) {
 		$legacy_map = self::LEGACY_SYNC_MODULES_MAP;
 		if ( isset( $legacy_map[ $module_class ] ) ) {
 			return $legacy_map[ $module_class ];
@@ -106,7 +150,14 @@ class Modules {
 		return $module_class;
 	}
 
-	static function set_module_defaults( $module ) {
+	/**
+	 * Sets defaults for the given instance of a Jetpack sync module.
+	 *
+	 * @param \Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
+	 *
+	 * @return \Automattic\Jetpack\Sync\Modules\Module
+	 */
+	public static function set_module_defaults( $module ) {
 		$module->set_defaults();
 		if ( method_exists( $module, 'set_late_default' ) ) {
 			add_action( 'init', array( $module, 'set_late_default' ), 90 );
