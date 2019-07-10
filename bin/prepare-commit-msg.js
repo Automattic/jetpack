@@ -3,9 +3,7 @@ const fs = require( 'fs' );
 
 fs.readFile( '.git/last-commit-date', ( err, data ) => {
 	if ( err ) {
-		console.log( err );
 		console.log( 'skipping prepare-commit-msg hook' );
-
 		return;
 	}
 	const commitDate = data.toString();
