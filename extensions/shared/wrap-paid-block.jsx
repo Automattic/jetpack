@@ -7,7 +7,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import UpgradeNudge from '../upgrade-nudge';
+import UpgradeNudge from './upgrade-nudge';
 
 export default ( { requiredPlan } ) =>
 	createHigherOrderComponent(
