@@ -68,7 +68,8 @@ export default compose( [
 	withDispatch( ( dispatch, { planPathSlug, postId, postType } ) => ( {
 		autosaveAndRedirectToUpgrade: async () => {
 			await dispatch( 'core/editor' ).autosave();
-			window.location.href = getUpgradeUrl( { planPathSlug, postId, postType } );
+			// Using window.top to escape from the editor iframe on WordPress.com
+			window.top.location.href = getUpgradeUrl( { planPathSlug, postId, postType } );
 		},
 	} ) ),
 ] )( UpgradeNudge );
