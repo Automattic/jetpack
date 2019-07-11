@@ -120,7 +120,7 @@ class Jetpack_RelatedPosts {
 	 */
 	public function action_frontend_init() {
 		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content
-		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html_unsupported' ) );
+		add_shortcode( self::SHORTCODE, array( $this, 'get_client_rendered_html_unsupported' ) );
 
 		if ( ! $this->_enabled_for_request() )
 			return;
@@ -176,9 +176,9 @@ class Jetpack_RelatedPosts {
 
 		if ( ! $this->_found_shortcode ) {
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-				$content .= "\n" . $this->get_amp_html();
+				$content .= "\n" . $this->get_server_rendered_html();
 			} else {
-				$content .= "\n" . $this->get_target_html();
+				$content .= "\n" . $this->get_client_rendered_html();
 			}
 		}
 
@@ -187,8 +187,10 @@ class Jetpack_RelatedPosts {
 
 	/**
 	 * Render static markup based on the Gutenberg block code
+	 *
+	 * @return string Rendered related posts HTML.
 	 */
-	function get_amp_html() {
+	function get_server_rendered_html() {
 		$rp_settings = Jetpack_Options::get_option( 'relatedposts', array() );
 		$block_rp_settings = array(
 			'displayThumbnails' => $rp_settings['show_thumbnails'],
@@ -222,7 +224,7 @@ class Jetpack_RelatedPosts {
 	 * @uses esc_html__, apply_filters
 	 * @returns string
 	 */
-	public function get_target_html() {
+	public function get_client_rendered_html() {
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -256,7 +258,7 @@ EOT;
 	 *
 	 * @returns string
 	 */
-	public function get_target_html_unsupported() {
+	public function get_client_rendered_html_unsupported() {
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
@@ -1709,7 +1711,7 @@ EOT;
 	protected function _setup_shortcode() {
 		add_filter( 'the_content', array( $this, 'test_for_shortcode' ), 0 );
 
-		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html' ) );
+		add_shortcode( self::SHORTCODE, array( $this, 'get_client_rendered_html' ) );
 	}
 
 	protected function _allow_feature_toggle() {
