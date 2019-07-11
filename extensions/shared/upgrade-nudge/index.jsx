@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { get, startsWith } from 'lodash';
+import { compact, get, startsWith } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
@@ -56,10 +56,18 @@ export default compose( [
 		const postId = select( 'core/editor' ).getCurrentPostId();
 		const postType = select( 'core/editor' ).getCurrentPostType();
 
+		// The editor for CPTs has an `edit/` route fragment prefixed
+		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
+
 		const upgradeUrl = addQueryArgs(
 			`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
 			{
-				redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
+				redirect_to: compact( [
+					postTypeEditorRoutePrefix,
+					postType,
+					getSiteFragment(),
+					postId,
+				] ).join( '/' ),
 			}
 		);
 
