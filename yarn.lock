@@ -2,17 +2,15 @@
 # yarn lockfile v1
 
 
-"@automattic/calypso-build@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-1.0.0.tgz#ee6598d300d1d5776d34b2a31d5ebfa6b8a0c042"
-  integrity sha512-B5THsLP8vvIUYCfgOXUNtxtFcA5xiBTptC3wp/EzdUnC1e7qWWvw6SrzB4+xgJ87coWKA2KjXphI5k2L21p8BQ==
+"@automattic/calypso-build@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-build/-/calypso-build-2.0.0.tgz#37ca90a0e005910a1bd51f247aecd51bb0b8b249"
+  integrity sha512-TZqoa+MHFyRHzqBrKgg0aQCmpEp8gpOgDFa2RIRBc2pbyJX6N1rDmQMgJb93FsSW68vlz60NhDZ0J7CkT8ZgBg==
   dependencies:
     "@automattic/calypso-color-schemes" "^1.0.0"
     "@automattic/wordpress-external-dependencies-plugin" "^1.0.0"
     "@babel/core" "7.4.0"
     "@babel/plugin-proposal-class-properties" "7.4.0"
-    "@babel/plugin-proposal-export-default-from" "7.2.0"
-    "@babel/plugin-proposal-export-namespace-from" "7.2.0"
     "@babel/plugin-syntax-dynamic-import" "7.2.0"
     "@babel/plugin-transform-react-jsx" "7.3.0"
     "@babel/plugin-transform-runtime" "7.4.0"
@@ -385,20 +383,6 @@
     "@babel/helper-create-class-features-plugin" "^7.4.0"
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/plugin-proposal-export-default-from@7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-export-default-from/-/plugin-proposal-export-default-from-7.2.0.tgz#737b0da44b9254b6152fe29bb99c64e5691f6f68"
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
-    "@babel/plugin-syntax-export-default-from" "^7.2.0"
-
-"@babel/plugin-proposal-export-namespace-from@7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-export-namespace-from/-/plugin-proposal-export-namespace-from-7.2.0.tgz#308fd4d04ff257fc3e4be090550840eeabad5dd9"
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
-    "@babel/plugin-syntax-export-namespace-from" "^7.2.0"
-
 "@babel/plugin-proposal-json-strings@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-json-strings/-/plugin-proposal-json-strings-7.2.0.tgz#568ecc446c6148ae6b267f02551130891e29f317"
@@ -438,18 +422,6 @@
 "@babel/plugin-syntax-dynamic-import@7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-dynamic-import/-/plugin-syntax-dynamic-import-7.2.0.tgz#69c159ffaf4998122161ad8ebc5e6d1f55df8612"
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
-
-"@babel/plugin-syntax-export-default-from@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-export-default-from/-/plugin-syntax-export-default-from-7.2.0.tgz#edd83b7adc2e0d059e2467ca96c650ab6d2f3820"
-  dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
-
-"@babel/plugin-syntax-export-namespace-from@^7.2.0":
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-export-namespace-from/-/plugin-syntax-export-namespace-from-7.2.0.tgz#8d257838c6b3b779db52c0224443459bd27fb039"
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
