@@ -1,5 +1,4 @@
-Analytics
-=========
+# Analytics
 
 This module includes functionality for interacting with analytics packages.
 
