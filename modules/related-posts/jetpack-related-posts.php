@@ -175,7 +175,7 @@ class Jetpack_RelatedPosts {
 		}
 
 		if ( ! $this->_found_shortcode ) {
-			if ( Jetpack_AMP_Support::is_amp_request() ) {
+			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 				$content .= "\n" . $this->get_amp_html();
 			} else {
 				$content .= "\n" . $this->get_target_html();
