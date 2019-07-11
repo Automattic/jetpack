@@ -62,12 +62,9 @@ export default compose( [
 		const upgradeUrl = addQueryArgs(
 			`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
 			{
-				redirect_to: compact( [
-					postTypeEditorRoutePrefix,
-					postType,
-					getSiteFragment(),
-					postId,
-				] ).join( '/' ),
+				redirect_to:
+					'/' +
+					compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' ),
 			}
 		);
 
