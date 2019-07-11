@@ -175,10 +175,31 @@ class Jetpack_RelatedPosts {
 		}
 
 		if ( ! $this->_found_shortcode ) {
-			$content .= "\n" . $this->get_target_html();
+			if ( Jetpack_AMP_Support::is_amp_request() ) {
+				$content .= "\n" . $this->get_amp_html();
+			} else {
+				$content .= "\n" . $this->get_target_html();
+			}
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Render static markup based on the Gutenberg block code
+	 */
+	function get_amp_html() {
+		$rp_settings = Jetpack_Options::get_option( 'relatedposts', array() );
+		$block_rp_settings = array(
+			'displayThumbnails' => $rp_settings['show_thumbnails'],
+			'showHeadline' => $rp_settings['show_headline'],
+			'displayDate' => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
+			'displayContext' => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
+			'postLayout' => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
+			'postsToShow' => isset( $rp_settings['size'] ) ? $rp_settings['size'] : 3,
+			'headline' => apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() )
+		);
+		return $this->render_block( $block_rp_settings );
 	}
 
 	/**
@@ -334,6 +355,7 @@ EOT;
 	 */
 	public function render_block( $attributes ) {
 		$block_attributes = array(
+			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
@@ -342,6 +364,17 @@ EOT;
 		);
 
 		$excludes      = $this->parse_numeric_get_arg( 'relatedposts_origin' );
+
+		$target_to_dom_priority = has_filter(
+			'the_content',
+			array( $this, 'filter_add_target_to_dom' )
+		);
+		remove_filter(
+			'the_content',
+			array( $this, 'filter_add_target_to_dom' ),
+			$target_to_dom_priority
+		);
+
 		$related_posts = $this->get_for_post_id(
 			get_the_ID(),
 			array(
@@ -376,16 +409,6 @@ EOT;
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
 
-		$target_to_dom_priority = has_filter(
-			'the_content',
-			array( $this, 'filter_add_target_to_dom' )
-		);
-		remove_filter(
-			'the_content',
-			array( $this, 'filter_add_target_to_dom' ),
-			$target_to_dom_priority
-		);
-
 		/*
 		 * Below is a hack to get the block content to render correctly.
 		 *
@@ -403,8 +426,9 @@ EOT;
 		add_filter( 'the_content', '_restore_wpautop_hook', $priority + 1 );
 
 		return sprintf(
-			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s</nav>',
+			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s%3$s</nav>',
 			esc_attr( $block_attributes['layout'] ),
+			$block_attributes['headline'],
 			$rows_markup
 		);
 	}
@@ -1612,13 +1636,6 @@ EOT;
 			&& ! is_attachment()
 			&& ! is_admin()
 			&& ( ! $this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
-
-		if (
-			class_exists( 'Jetpack_AMP_Support' )
-			&& Jetpack_AMP_Support::is_amp_request()
-		) {
-			$enabled = false;
-		}
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
