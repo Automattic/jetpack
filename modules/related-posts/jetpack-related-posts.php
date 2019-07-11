@@ -1656,7 +1656,9 @@ EOT;
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
-		$this->_enqueue_assets( true, true );
+
+		$enqueue_script = ! ( class_exists( 'Jetpack_AMP_Support' ) || Jetpack_AMP_Support::is_amp_request() );
+		$this->_enqueue_assets( $enqueue_script, true );
 		$this->_setup_shortcode();
 
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
