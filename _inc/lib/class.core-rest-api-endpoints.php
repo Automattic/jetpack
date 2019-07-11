@@ -447,6 +447,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		register_rest_route( 'jetpack/v4', '/universal-clients', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_universal_clients'
+		) );
+	}
+
+	public static function get_universal_clients( $request ) {
+		// get plugins path for all our clients
+		return array(
+			'photon' => plugins_url( '_inc/build/client/universal/photon.js', JETPACK__PLUGIN_FILE )
+		);
 	}
 
 	public static function get_plans( $request ) {

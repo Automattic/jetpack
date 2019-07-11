@@ -5,7 +5,7 @@ const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
-
+const glob = require( 'glob' );
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const baseWebpackConfig = getBaseWebpackConfig(
@@ -31,7 +31,7 @@ const sharedWebpackConfig = {
 };
 
 // We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
-module.exports = [
+let webpackConfig = [
 	{
 		...sharedWebpackConfig,
 		// Entry points point to the javascript module
@@ -39,6 +39,23 @@ module.exports = [
 		// The key is used as the name of the script.
 		entry: { admin: path.join( __dirname, './_inc/client/admin.js' ) },
 		plugins: [ ...sharedWebpackConfig.plugins, new WordPressExternalDependenciesPlugin() ],
+	},
+	{
+		...sharedWebpackConfig,
+		// Entry points to universal UI components which are intended to render from
+		// webworkers locally or remotely
+		entry: glob
+			.sync( path.join( __dirname, './_inc/client-universal/**/index.js' ) )
+			.reduce( ( entries, fullpath ) => {
+				let dirname = path.basename( path.dirname( fullpath ) );
+				entries[ dirname ] = fullpath;
+				return entries;
+			}, {} ),
+		output: {
+			...sharedWebpackConfig.output,
+			path: path.join( __dirname, '_inc', 'build', 'universal' ),
+		},
+		plugins: [ ...sharedWebpackConfig.plugins ], //, new WordPressExternalDependenciesPlugin()
 	},
 	{
 		...sharedWebpackConfig,
@@ -75,3 +92,7 @@ module.exports = [
 		],
 	},
 ];
+
+console.log( webpackConfig );
+
+module.exports = webpackConfig;
