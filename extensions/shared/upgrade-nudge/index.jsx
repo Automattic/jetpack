@@ -18,11 +18,6 @@ import './store';
 
 import './style.scss';
 
-const getUpgradeUrl = ( { planPathSlug, postId, postType } ) =>
-	addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
-		redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
-	} );
-
 const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 	<Warning
 		actions={ [
@@ -58,18 +53,26 @@ export default compose( [
 			? planSlug.substr( 'jetpack_'.length )
 			: get( plan, [ 'path_slug' ] );
 
+		const postId = select( 'core/editor' ).getCurrentPostId();
+		const postType = select( 'core/editor' ).getCurrentPostType();
+
+		const upgradeUrl = addQueryArgs(
+			`https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`,
+			{
+				redirect_to: `/${ postType }/${ getSiteFragment() }/${ postId }`,
+			}
+		);
+
 		return {
 			planName: get( plan, [ 'product_name_short' ] ),
-			planPathSlug,
-			postId: select( 'core/editor' ).getCurrentPostId(),
-			postType: select( 'core/editor' ).getCurrentPostType(),
+			upgradeUrl,
 		};
 	} ),
-	withDispatch( ( dispatch, { planPathSlug, postId, postType } ) => ( {
+	withDispatch( ( dispatch, { upgradeUrl } ) => ( {
 		autosaveAndRedirectToUpgrade: async () => {
 			await dispatch( 'core/editor' ).autosave();
 			// Using window.top to escape from the editor iframe on WordPress.com
-			window.top.location.href = getUpgradeUrl( { planPathSlug, postId, postType } );
+			window.top.location.href = upgradeUrl;
 		},
 	} ) ),
 ] )( UpgradeNudge );
