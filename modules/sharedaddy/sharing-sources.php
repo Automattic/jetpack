@@ -1702,11 +1702,11 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Firefox for desktop doesn't handle the "api.whatsapp.com" URL properly, so use "web.whatsapp.com"
+		// Firefox for desktop doesn't handle the "wa.me" URL properly, so use "web.whatsapp.com"
 		if ( Jetpack_User_Agent_Info::is_firefox_desktop() ) {
 			$url = 'https://web.whatsapp.com/send?text=';
 		} else {
-			$url = 'https://api.whatsapp.com/send?text=';
+			$url = 'https://wa.me/send?text=';
 		}
 
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
