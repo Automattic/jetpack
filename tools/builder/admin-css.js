@@ -9,7 +9,7 @@ import cleanCSS from 'gulp-clean-css';
 import gulp from 'gulp';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
-import util from 'gulp-util';
+import log from 'fancy-log';
 
 const admincss = [
 	// Non-concatenated, non-admin styles to be processed
@@ -50,7 +50,7 @@ gulp.task( 'admincss', function() {
 		)
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
-			util.log( 'Admin modules CSS finished.' );
+			log( 'Admin modules CSS finished.' );
 		} );
 } );
 
@@ -71,7 +71,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
-			util.log( 'Admin modules RTL CSS finished.' );
+			log( 'Admin modules RTL CSS finished.' );
 		} );
 } );
 
