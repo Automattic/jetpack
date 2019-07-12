@@ -1,25 +1,6 @@
 module.exports = {
 	plugins: [ 'es5' ],
 	extends: [ 'eslint:recommended', 'plugin:es5/no-es2015' ],
-	// files: [
-	// 	'_inc/*.js',
-	// 	'modules/*.js',
-	// 	'modules/**/*.js',
-	// 	'modules/**/**/*.js',
-	// 	// '!modules/*.min.',
-	// 	// '!extensions/**/*',
-	// 	// '!_inc/*.min.js',
-	// 	// '!modules/**/*.min.js',
-	// 	// '!_inc/jquery.spin.js',
-	// 	// '!_inc/postmessage.js',
-	// 	// '!_inc/spin.js',
-	// 	// '!modules/custom-css/custom-css/js/codemirror.min.js',
-	// 	// '!modules/shortcodes/js/jmpress.js',
-	// 	// '!modules/shortcodes/js/jquery.cycle.min.js',
-	// 	// '!modules/theme-tools/responsive-videos/responsive-videos.min.js',
-	// 	// '!modules/infinite-scroll/infinity.js',
-	// 	// '!modules/**/test-*.js',
-	// ],
 	env: {
 		browser: true,
 		jquery: true,
@@ -45,36 +26,15 @@ module.exports = {
 		'no-control-regex': 0,
 		'no-unused-expressions': 'warn',
 
-		'es5/no-block-scoping': [ 'error', { let: true } ],
+		'es5/no-block-scoping': [ 'error' ],
 		'no-caller': 'error',
 		'no-cond-assign': [ 'error', 'except-parens' ],
 		'no-eq-null': 'error',
 		'no-irregular-whitespace': 'error',
 		'no-trailing-spaces': 'error',
 		'no-undef': 'error',
-		'no-unused-expressions': 'error',
-		// 'no-unused-vars': 'error',
 		// 'one-var': [ 'error', 'always' ],
 		quotes: [ 'warn', 'single', { avoidEscape: true } ],
 		'wrap-iife': [ 'error', 'any' ],
-		/*
-				jshint
-			{
-				"boss": true,
-				"curly": true,
-				"esversion": 5,
-				"eqeqeq": true,
-				"eqnull": true,
-				"expr": true,
-				"immed": true,
-				"laxbreak": true,
-				"noarg": true,
-				"onevar": true,
-				"quotmark": false,
-				"undef": true,
-				"unused": true,
-				"browser": true,
-			}
-			*/
 	},
 };

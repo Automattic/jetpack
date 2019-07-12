@@ -52,7 +52,7 @@
 		"docker:clean": "yarn docker:compose down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
 		"docker:env": "node -e \"require('fs').createWriteStream( 'docker/.env', { flags: 'a' } );\"",
 		"docker:update-core-unit-tests": "yarn docker:compose exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
-		"lint": "eslint --ext .js --ext .jsx ./*.js _inc/client extensions -c .eslintrc.js",
+		"lint": "eslint --ext .js --ext .jsx ./*.js _inc/client extensions -c .eslintrc.js && eslint -c modules/.eslintrc.js _inc/*.js modules",
 		"php:compatibility": "composer php:compatibility",
 		"php:lint": "composer php:lint",
 		"php:autofix": "composer php:autofix",
