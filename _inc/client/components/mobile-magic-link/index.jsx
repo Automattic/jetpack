@@ -52,7 +52,7 @@ export class MobileMagicLink extends React.Component {
 					<h2>{ __( 'Email me a link to log in to the app' ) }</h2>
 					<h4>
 						{ __(
-							"Easily log in to the WordPress.com app by clicking the link we'll send to the email address on your account."
+							"Easily log in to the WordPress app by clicking the link we'll send to the email address on your account."
 						) }
 					</h4>
 					<div className="mobile-magic-link__modal-actions">
