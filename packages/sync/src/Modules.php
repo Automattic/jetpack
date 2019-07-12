@@ -133,7 +133,7 @@ class Modules {
 	 *
 	 * @param string $module_class The classname of a Jetpack sync module.
 	 *
-	 * @return \Automattic\Jetpack\Sync\Modules\Module
+	 * @return Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function load_module( $module_class ) {
 		return new $module_class();
