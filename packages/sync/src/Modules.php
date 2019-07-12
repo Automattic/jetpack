@@ -68,7 +68,7 @@ class Modules {
 	private static $initialized_modules = null;
 
 	/**
-	 * Gets a list of initialized moudles.
+	 * Gets a list of initialized modules.
 	 *
 	 * @return array|null
 	 */
