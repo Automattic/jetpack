@@ -12,10 +12,12 @@ use Automattic\Jetpack\Roles;
  */
 class Users {
 	static $user_roles = array();
+	static $connection = null;
 
 	static function init() {
-		$connection = new Jetpack_Connection();
-		if ( $connection->is_active() ) {
+		// TODO: Eventually, this needs to be instantiated at the top level in the sync package.
+		self::$connection = new Jetpack_Connection();
+		if ( self::$connection->is_active() ) {
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}
@@ -25,7 +27,7 @@ class Users {
 	 * Synchronize connected user role changes
 	 */
 	static function user_role_change( $user_id ) {
-		if ( \Jetpack::is_user_connected( $user_id ) ) {
+		if ( self::$connection->is_user_connected( $user_id ) ) {
 			self::update_role_on_com( $user_id );
 			// try to choose a new master if we're demoting the current one
 			self::maybe_demote_master_user( $user_id );
@@ -71,7 +73,7 @@ class Users {
 			$new_master = false;
 			foreach ( $query->results as $result ) {
 				$found_user_id = absint( $result->id );
-				if ( $found_user_id && \Jetpack::is_user_connected( $found_user_id ) ) {
+				if ( $found_user_id && self::$connection->is_user_connected( $found_user_id ) ) {
 					$new_master = $found_user_id;
 					break;
 				}
