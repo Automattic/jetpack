@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import ButtonGroup from 'components/button-group';
 import analytics from 'lib/analytics';
 
@@ -66,7 +66,7 @@ export class Masthead extends React.Component {
 				''
 			),
 			isDashboardView = includes(
-				[ '/', '/dashboard', '/apps', '/my-plan', '/plans' ],
+				[ '/', '/dashboard', '/my-plan', '/plans' ],
 				this.props.route.path
 			),
 			isStatic = '' === this.props.route.path;

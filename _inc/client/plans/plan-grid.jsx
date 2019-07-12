@@ -4,9 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import map from 'lodash/map';
-import reduce from 'lodash/reduce';
-import includes from 'lodash/includes';
+import { includes, map, reduce } from 'lodash';
 
 /**
  * Internal dependencies

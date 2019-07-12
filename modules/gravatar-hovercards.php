@@ -6,7 +6,7 @@
  * Recommendation Order: 13
  * First Introduced: 1.1
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Appearance
  * Additional Search Queries: gravatar, hovercards
@@ -25,13 +25,11 @@ function grofiles_hovercards_init() {
 	add_action( 'load-edit-comments.php',      'grofiles_admin_cards' );
 	add_action( 'load-options-discussion.php', 'grofiles_admin_cards_forced' );
 
-	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'gravatar_hovercards_configuration_load' );
+	add_filter( 'jetpack_module_configuration_url_gravatar-hovercards', 'gravatar_hovercards_configuration_url' );
 }
 
-function gravatar_hovercards_configuration_load() {
-	wp_safe_redirect( admin_url( 'options-discussion.php#show_avatars' ) );
-	exit;
+function gravatar_hovercards_configuration_url() {
+	return admin_url( 'options-discussion.php#show_avatars' );
 }
 
 add_action( 'jetpack_modules_loaded', 'grofiles_hovercards_init' );

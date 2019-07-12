@@ -43,7 +43,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						onClick={ this.trackClickConfigure }
 						target="_blank"
 						rel="noopener noreferrer"
-						href={ 'https://wordpress.com/sharing/' + siteRawUrl }
+						href={ 'https://wordpress.com/marketing/connections/' + siteRawUrl }
 					>
 						{ __( 'Connect your social media accounts' ) }
 					</Card>

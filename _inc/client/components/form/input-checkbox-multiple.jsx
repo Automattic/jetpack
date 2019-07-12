@@ -4,8 +4,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import isArray from 'lodash/isArray';
-import map from 'lodash/map';
+import { isArray, map } from 'lodash';
 import Formsy from 'formsy-react';
 import createReactClass from 'create-react-class';
 

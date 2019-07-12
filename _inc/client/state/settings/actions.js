@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import get from 'lodash/get';
+import { get, some } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
-import some from 'lodash/some';
 
 /**
  * Internal dependencies
@@ -116,11 +115,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		dispatch( removeNotice( 'module-setting-update' ) );
 		dispatch( removeNotice( 'module-setting-update-success' ) );
 
-		const suppressNoticeFor = [
-			'dismiss_dash_app_card',
-			'dismiss_empty_stats_card',
-			'show_welcome_for_new_plan',
-		];
+		const suppressNoticeFor = [ 'dismiss_dash_app_card', 'dismiss_empty_stats_card' ];
 		if (
 			'object' === typeof newOptionValues &&
 			! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )

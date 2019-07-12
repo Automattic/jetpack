@@ -16,7 +16,7 @@ import {
 	userCanManageOptions,
 	getSiteAdminUrl,
 } from 'state/initial-state';
-import { isInIdentityCrisis } from 'state/connection';
+import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -52,11 +52,25 @@ export class Footer extends React.Component {
 		} );
 	};
 
+	trackAboutClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'about',
+		} );
+	};
+
 	trackPrivacyClick = () => {
 		window.requestAnimationFrame( smoothScroll );
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'privacy',
+		} );
+	};
+
+	trackModulesClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'modules',
 		} );
 	};
 
@@ -71,6 +85,7 @@ export class Footer extends React.Component {
 		const classes = classNames( this.props.className, 'jp-footer' );
 
 		const version = this.props.currentVersion;
+
 		const maybeShowReset = () => {
 			if ( this.props.isDevVersion && this.props.userCanManageOptions ) {
 				return (
@@ -88,6 +103,25 @@ export class Footer extends React.Component {
 				);
 			}
 			return '';
+		};
+
+		const maybeShowModules = () => {
+			if ( this.props.siteConnectionStatus && this.props.userCanManageOptions ) {
+				return (
+					<li className="jp-footer__link-item">
+						<a
+							onClick={ this.trackModulesClick }
+							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack_modules' }
+							title={ __( 'Access the full list of Jetpack modules available on your site.' ) }
+							className="jp-footer__link"
+						>
+							{ __( 'Modules', {
+								context: 'Navigation item. Noun. Links to a list of modules for Jetpack.',
+							} ) }
+						</a>
+					</li>
+				);
+			}
 		};
 
 		const maybeShowDebug = () => {
@@ -134,10 +168,14 @@ export class Footer extends React.Component {
 			}
 		};
 
+		const aboutPageUrl = this.props.siteConnectionStatus
+			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
+			: 'https://jetpack.com';
+
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
-					<a href="https://automattic.com" target="_blank" rel="noopener noreferrer">
+					<a href={ aboutPageUrl }>
 						<svg
 							role="img"
 							className="jp-footer__a8c-attr"
@@ -169,6 +207,16 @@ export class Footer extends React.Component {
 					</li>
 					<li className="jp-footer__link-item">
 						<a
+							onClick={ this.trackAboutClick }
+							href={ aboutPageUrl }
+							className="jp-footer__link"
+							title={ __( 'About Jetpack' ) }
+						>
+							{ __( 'About', { context: 'Link to learn more about Jetpack.' } ) }
+						</a>
+					</li>
+					<li className="jp-footer__link-item">
+						<a
 							onClick={ this.trackTermsClick }
 							href="https://wordpress.com/tos/"
 							target="_blank"
@@ -190,6 +238,7 @@ export class Footer extends React.Component {
 							{ __( 'Privacy', { context: 'Shorthand for Privacy Policy.' } ) }
 						</a>
 					</li>
+					{ maybeShowModules() }
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
 					{ maybeShowDevCardFooterLink() }
@@ -204,11 +253,12 @@ export default connect(
 	state => {
 		return {
 			currentVersion: getCurrentVersion( state ),
-			userCanManageOptions: userCanManageOptions( state ),
-			isDevVersion: _isDevVersion( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			isInIdentityCrisis: isInIdentityCrisis( state ),
 			displayDevCard: canDisplayDevCard( state ),
+			isDevVersion: _isDevVersion( state ),
+			isInIdentityCrisis: isInIdentityCrisis( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
+			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
 	dispatch => {

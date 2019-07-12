@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-require( 'es6-promise' ).polyfill();
-import 'whatwg-fetch';
-import assign from 'lodash/assign';
+import { assign } from 'lodash';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -105,21 +103,6 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
-
-		jumpStart: action => {
-			let active;
-			if ( action === 'activate' ) {
-				active = true;
-			}
-			if ( action === 'deactivate' ) {
-				active = false;
-			}
-			return postRequest( `${ apiRoot }jetpack/v4/jumpstart`, postParams, {
-				body: JSON.stringify( { active } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse );
-		},
 
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
@@ -262,6 +245,11 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
 				body: JSON.stringify( { keyring_id: keyringId } ),
 			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		sendMobileLoginEmail: () =>
+			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};

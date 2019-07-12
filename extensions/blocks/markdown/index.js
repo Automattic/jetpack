@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -49,7 +49,11 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ __( 'formatting', 'jetpack' ), __( 'syntax', 'jetpack' ), __( 'markup', 'jetpack' ) ],
+	keywords: [
+		_x( 'formatting', 'block search term', 'jetpack' ),
+		_x( 'syntax', 'block search term', 'jetpack' ),
+		_x( 'markup', 'block search term', 'jetpack' ),
+	],
 
 	attributes: {
 		//The Markdown source is saved in the block content comments delimiter

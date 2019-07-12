@@ -1,12 +1,29 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Assets;
+
+/**
+ * Slideshow shortcode.
+ * Adds a new "slideshow" gallery type when adding a gallery using the classic editor.
+ *
+ * @package Jetpack
+ */
 
 /**
  * Slideshow shortcode usage: [gallery type="slideshow"] or the older [slideshow]
  */
 class Jetpack_Slideshow_Shortcode {
+	/**
+	 * Number of slideshows on a page.
+	 *
+	 * @var int
+	 */
 	public $instance_count = 0;
 
-	function __construct() {
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
 		global $shortcode_tags;
 
 		// Only if the slideshow shortcode has not already been defined.
@@ -19,31 +36,24 @@ class Jetpack_Slideshow_Shortcode {
 			add_filter( 'post_gallery', array( $this, 'post_gallery' ), 1002, 2 );
 			add_filter( 'jetpack_gallery_types', array( $this, 'add_gallery_type' ), 10 );
 		}
-
-		/**
-		 * For the moment, comment out the setting for v2.8.
-		 * The remainder should work as it always has.
-		 * See: https://github.com/Automattic/jetpack/pull/85/files
-		 */
-		// add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 	}
 
 	/**
 	 * Responds to the [gallery] shortcode, but not an actual shortcode callback.
 	 *
-	 * @param $value string An empty string if nothing has modified the gallery output, the output html otherwise
-	 * @param $attr  array The shortcode attributes array
+	 * @param string $value An empty string if nothing has modified the gallery output, the output html otherwise.
+	 * @param array  $attr  The shortcode attributes array.
 	 *
 	 * @return string The (un)modified $value
 	 */
-	function post_gallery( $value, $attr ) {
-		// Bail if somebody else has done something
+	public function post_gallery( $value, $attr ) {
+		// Bail if somebody else has done something.
 		if ( ! empty( $value ) ) {
 			return $value;
 		}
 
-		// If [gallery type="slideshow"] have it behave just like [slideshow]
-		if ( ! empty( $attr['type'] ) && 'slideshow' == $attr['type'] ) {
+		// If [gallery type="slideshow"] have it behave just like [slideshow].
+		if ( ! empty( $attr['type'] ) && 'slideshow' === $attr['type'] ) {
 			return $this->shortcode_callback( $attr );
 		}
 
@@ -55,58 +65,22 @@ class Jetpack_Slideshow_Shortcode {
 	 *
 	 * @see Jetpack_Tiled_Gallery::media_ui_print_templates
 	 *
-	 * @param $types array An array of types where the key is the value, and the value is the caption.
+	 * @param array $types An array of types where the key is the value, and the value is the caption.
 	 *
 	 * @return array
 	 */
-	function add_gallery_type( $types = array() ) {
+	public function add_gallery_type( $types = array() ) {
 		$types['slideshow'] = esc_html__( 'Slideshow', 'jetpack' );
 
 		return $types;
 	}
 
-	function register_settings() {
-		add_settings_section( 'slideshow_section', __( 'Image Gallery Slideshow', 'jetpack' ), '__return_empty_string', 'media' );
-
-		add_settings_field( 'jetpack_slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
-
-		register_setting( 'media', 'jetpack_slideshow_background_color', array( $this, 'slideshow_background_color_sanitize' ) );
-	}
-
-	function slideshow_background_color_callback() {
-		$options = array(
-			'black' => __( 'Black', 'jetpack' ),
-			'white' => __( 'White', 'jetpack' ),
-		);
-		$this->settings_select( 'jetpack_slideshow_background_color', $options );
-	}
-
-	function settings_select( $name, $values, $extra_text = '' ) {
-		if ( empty( $name ) || empty( $values ) || ! is_array( $values ) ) {
-			return;
-		}
-		$option = get_option( $name );
-		?>
-		<fieldset>
-			<select name="<?php echo esc_attr( $name ); ?>" id="<?php echo esc_attr( $name ); ?>">
-				<?php foreach ( $values as $key => $value ) : ?>
-					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $key, $option ); ?>>
-						<?php echo esc_html( $value ); ?>
-					</option>
-				<?php endforeach; ?>
-			</select>
-			<?php if ( ! empty( $extra_text ) ) : ?>
-				<p class="description"><?php echo esc_html( $extra_text ); ?></p>
-			<?php endif; ?>
-		</fieldset>
-		<?php
-	}
-
-	function slideshow_background_color_sanitize( $value ) {
-		return ( 'white' == $value ) ? 'white' : 'black';
-	}
-
-	function shortcode_callback( $attr ) {
+	/**
+	 * Display shortcode.
+	 *
+	 * @param array $attr Shortcode attributes.
+	 */
+	public function shortcode_callback( $attr ) {
 		$post_id = get_the_ID();
 
 		$attr = shortcode_atts(
@@ -124,7 +98,7 @@ class Jetpack_Slideshow_Shortcode {
 			'slideshow'
 		);
 
-		if ( 'rand' == strtolower( $attr['order'] ) ) {
+		if ( 'rand' === strtolower( $attr['order'] ) ) {
 			$attr['orderby'] = 'none';
 		}
 
@@ -137,7 +111,7 @@ class Jetpack_Slideshow_Shortcode {
 			$attr['size'] = 'full';
 		}
 
-		// Don't restrict to the current post if include
+		// Don't restrict to the current post if include.
 		$post_parent = ( empty( $attr['include'] ) ) ? intval( $attr['id'] ) : null;
 
 		$attachments = get_posts(
@@ -164,7 +138,7 @@ class Jetpack_Slideshow_Shortcode {
 		$gallery = array();
 		foreach ( $attachments as $attachment ) {
 			$attachment_image_src   = wp_get_attachment_image_src( $attachment->ID, $attr['size'] );
-			$attachment_image_src   = $attachment_image_src[0]; // [url, width, height]
+			$attachment_image_src   = $attachment_image_src[0]; // [url, width, height].
 			$attachment_image_title = get_the_title( $attachment->ID );
 			$attachment_image_alt   = get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true );
 			/**
@@ -177,7 +151,7 @@ class Jetpack_Slideshow_Shortcode {
 			 * @param string wptexturize( strip_tags( $attachment->post_excerpt ) ) Post excerpt.
 			 * @param string $attachment ->ID Attachment ID.
 			 */
-			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
+			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( wp_strip_all_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
 				'src'      => (string) esc_url_raw( $attachment_image_src ),
@@ -216,52 +190,57 @@ class Jetpack_Slideshow_Shortcode {
 	 *
 	 * Returns the necessary markup and js to fire a slideshow.
 	 *
-	 * @param $attr array Attributes for the slideshow.
+	 * @param array $attr Attributes for the slideshow.
 	 *
 	 * @uses $this->enqueue_scripts()
 	 *
 	 * @return string HTML output.
 	 */
-	function slideshow_js( $attr ) {
-		// Enqueue scripts
+	public function slideshow_js( $attr ) {
+		// Enqueue scripts.
 		$this->enqueue_scripts();
 
 		$output = '';
 
 		if ( defined( 'JSON_HEX_AMP' ) ) {
-			// This is nice to have, but not strictly necessary since we use _wp_specialchars() below
-			$gallery = json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore PHPCompatibility
+			// This is nice to have, but not strictly necessary since we use _wp_specialchars() below.
+			$gallery = wp_json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore PHPCompatibility
 		} else {
-			$gallery = json_encode( $attr['gallery'] );
+			$gallery = wp_json_encode( $attr['gallery'] );
 		}
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
+
+		/*
+		 * The input to json_encode() above can contain '&quot;'.
+		 *
+		 * For calls to json_encode() lacking the JSON_HEX_AMP option,
+		 * that '&quot;' is left unaltered.  Running '&quot;' through esc_attr()
+		 * also leaves it unaltered since esc_attr() does not double-encode.
+		 *
+		 * This means we end up with an attribute like
+		 * `data-gallery="{&quot;foo&quot;:&quot;&quot;&quot;}"`,
+		 * which is interpreted by the browser as `{"foo":"""}`,
+		 * which cannot be JSON decoded.
+		 *
+		 * The preferred workaround is to include the JSON_HEX_AMP (and friends)
+		 * options, but these are not available until 5.3.0.
+		 * Alternatively, we can use _wp_specialchars( , , , true ) instead of
+		 * esc_attr(), which will double-encode.
+		 *
+		 * Since we can't rely on JSON_HEX_AMP, we do both.
+		 *
+		 * @todo Update when minimum is PHP 5.3+
+		 */
+		$gallery_attributes = _wp_specialchars( wp_check_invalid_utf8( $gallery ), ENT_QUOTES, false, true );
+
 		$output .= sprintf(
 			'<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-autostart="%s" data-gallery="%s" itemscope itemtype="https://schema.org/ImageGallery"></div>',
 			esc_attr( $attr['selector'] . '-slideshow' ),
 			esc_attr( $attr['color'] ),
 			esc_attr( $attr['trans'] ),
 			esc_attr( $attr['autostart'] ),
-			/*
-			 * The input to json_encode() above can contain '&quot;'.
-			 *
-			 * For calls to json_encode() lacking the JSON_HEX_AMP option,
-			 * that '&quot;' is left unaltered.  Running '&quot;' through esc_attr()
-			 * also leaves it unaltered since esc_attr() does not double-encode.
-			 *
-			 * This means we end up with an attribute like
-			 * `data-gallery="{&quot;foo&quot;:&quot;&quot;&quot;}"`,
-			 * which is interpreted by the browser as `{"foo":"""}`,
-			 * which cannot be JSON decoded.
-			 *
-			 * The preferred workaround is to include the JSON_HEX_AMP (and friends)
-			 * options, but these are not available until 5.3.0.
-			 * Alternatively, we can use _wp_specialchars( , , , true ) instead of
-			 * esc_attr(), which will double-encode.
-			 *
-			 * Since we can't rely on JSON_HEX_AMP, we do both.
-			 */
-			_wp_specialchars( wp_check_invalid_utf8( $gallery ), ENT_QUOTES, false, true )
+			$gallery_attributes
 		);
 
 		return $output;
@@ -270,17 +249,22 @@ class Jetpack_Slideshow_Shortcode {
 	/**
 	 * Actually enqueues the scripts and styles.
 	 */
-	function enqueue_scripts() {
+	public function enqueue_scripts() {
 
 		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
 		wp_enqueue_script(
 			'jetpack-slideshow',
-			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
 			array( 'jquery-cycle' ),
 			'20160119.1',
 			true
 		);
-		wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
+		wp_enqueue_style(
+			'jetpack-slideshow',
+			plugins_url( '/css/slideshow-shortcode.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 		wp_style_add_data( 'jetpack-slideshow', 'rtl', 'replace' );
 
 		wp_localize_script(
@@ -308,6 +292,9 @@ class Jetpack_Slideshow_Shortcode {
 		);
 	}
 
+	/**
+	 * Instantiate shortcode.
+	 */
 	public static function init() {
 		new Jetpack_Slideshow_Shortcode();
 	}

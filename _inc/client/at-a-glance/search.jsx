@@ -5,17 +5,20 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
+import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import DashItem from 'components/dash-item';
 import Card from 'components/card';
+import JetpackBanner from 'components/jetpack-banner';
 import { isModuleFound } from 'state/search';
 import { isDevMode } from 'state/connection';
 import { getSitePlan } from 'state/site';
-import { getPlanClass } from 'lib/plans/constants';
+import { getUpgradeUrl } from 'state/initial-state';
 
 /**
  * Displays a card for Search based on the props given.
@@ -37,6 +40,7 @@ const renderCard = props => (
 		status={ props.status }
 		isModule={ props.pro_inactive }
 		pro={ true }
+		overrideContent={ props.overrideContent }
 	>
 		<p className="jp-dash-item__description">{ props.content }</p>
 	</DashItem>
@@ -54,6 +58,14 @@ class DashSearch extends Component {
 		getOptionValue: noop,
 		isDevMode: false,
 	};
+
+	trackSearchLink() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'upgrade-link',
+			target: 'at-a-glance',
+			feature: 'search',
+		} );
+	}
 
 	activateSearch = () => this.props.updateOptions( { search: true } );
 
@@ -74,19 +86,19 @@ class DashSearch extends Component {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
-				content: __(
-					'Replace the built-in search with a fast, scalable, customizable, and highly-relevant search {{a}}hosted in the WordPress.com cloud{{/a}}.',
-					{
-						components: {
-							a: (
-								<a
-									href={ 'https://jetpack.com/features/design/elasticsearch-powered-search/' }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
-						},
-					}
+				overrideContent: (
+					<JetpackBanner
+						callToAction={ __( 'Upgrade' ) }
+						title={ __(
+							"Replace your site's basic search with customizable search that helps visitors find answers faster."
+						) }
+						disableHref="false"
+						href={ this.props.upgradeUrl }
+						eventFeature="search"
+						path="dashboard"
+						plan={ PLAN_JETPACK_PREMIUM }
+						icon="search"
+					/>
 				),
 			} );
 		}
@@ -142,5 +154,6 @@ export default connect( state => {
 		foundSearch: isModuleFound( state, 'search' ),
 		planClass: getPlanClass( getSitePlan( state ).product_slug ),
 		isDevMode: isDevMode( state ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
 	};
 } )( DashSearch );

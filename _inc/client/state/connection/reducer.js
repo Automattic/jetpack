@@ -2,10 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import assign from 'lodash/assign';
-import merge from 'lodash/merge';
-import get from 'lodash/get';
-import includes from 'lodash/includes';
+import { assign, get, includes, merge } from 'lodash';
 
 /**
  * Internal dependencies

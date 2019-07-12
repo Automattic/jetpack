@@ -695,6 +695,28 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
+	/*
+	 * Detects if the current browser is Firefox for desktop
+	 *
+	 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent/Firefox
+	 * Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion
+	 * The platform section will include 'Mobile' for phones and 'Tablet' for tablets.
+	 *
+	 */
+	static function is_firefox_desktop() {
+
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+
+		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+
+		if ( false !== strpos( $ua, 'firefox' ) && false === strpos( $ua, 'mobile' ) && false === strpos( $ua, 'tablet' ) ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	/*
 	 * Detects if the current browser is FirefoxOS Native browser
@@ -1172,6 +1194,20 @@ class Jetpack_User_Agent_Info {
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos   = strpos( $agent, 'wp-windows8' );
+		if ( false !== $pos )
+			return true;
+		else
+			return false;
+	}
+
+
+	// Detect if user agent is the WordPress.com Desktop app.
+	static function is_wordpress_desktop_app( ) {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
+			return false;
+
+		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$pos   = strpos( $agent, 'WordPressDesktop' );
 		if ( false !== $pos )
 			return true;
 		else

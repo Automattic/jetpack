@@ -6,7 +6,7 @@
  * First Introduced: 2.0
  * Sort Order: 14
  * Requires Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: post by email, email
@@ -15,7 +15,6 @@
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
-Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
 
 class Jetpack_Post_By_Email {
 	public static function init() {
@@ -30,11 +29,6 @@ class Jetpack_Post_By_Email {
 
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
-	}
-
-	static function configuration_redirect() {
-		wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#post-by-email' );
-		exit;
 	}
 
 	function action_init() {

@@ -9,6 +9,7 @@ import { isBlobURL } from '@wordpress/blob';
 import { withDispatch } from '@wordpress/data';
 import {
 	BlockControls,
+	BlockIcon,
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
@@ -29,6 +30,7 @@ import {
 /**
  * Internal dependencies
  */
+import { icon } from '.';
 import Slideshow from './slideshow';
 import './editor.scss';
 
@@ -49,10 +51,25 @@ class SlideshowEdit extends Component {
 			selectedImage: null,
 		};
 	}
+	setAttributes( attributes ) {
+		if ( attributes.ids ) {
+			throw new Error(
+				'The "ids" attribute should not be changed directly. It is managed automatically when "images" attribute changes'
+			);
+		}
+
+		if ( attributes.images ) {
+			attributes = {
+				...attributes,
+				ids: attributes.images.map( ( { id } ) => parseInt( id, 10 ) ),
+			};
+		}
+
+		this.props.setAttributes( attributes );
+	}
 	onSelectImages = images => {
-		const { setAttributes } = this.props;
 		const mapped = images.map( image => pickRelevantMediaFiles( image ) );
-		setAttributes( {
+		this.setAttributes( {
 			images: mapped,
 		} );
 	};
@@ -60,12 +77,12 @@ class SlideshowEdit extends Component {
 		return () => {
 			const images = filter( this.props.attributes.images, ( img, i ) => index !== i );
 			this.setState( { selectedImage: null } );
-			this.props.setAttributes( { images } );
+			this.setAttributes( { images } );
 		};
 	};
 	addFiles = files => {
 		const currentImages = this.props.attributes.images || [];
-		const { lockPostSaving, unlockPostSaving, noticeOperations, setAttributes } = this.props;
+		const { lockPostSaving, unlockPostSaving, noticeOperations } = this.props;
 		const lockName = 'slideshowBlockLock';
 		lockPostSaving( lockName );
 		mediaUpload( {
@@ -73,7 +90,7 @@ class SlideshowEdit extends Component {
 			filesList: files,
 			onFileChange: images => {
 				const imagesNormalized = images.map( image => pickRelevantMediaFiles( image ) );
-				setAttributes( {
+				this.setAttributes( {
 					images: [ ...currentImages, ...imagesNormalized ],
 				} );
 				if ( ! imagesNormalized.every( image => isBlobURL( image.url ) ) ) {
@@ -169,7 +186,7 @@ class SlideshowEdit extends Component {
 				<Fragment>
 					{ controls }
 					<MediaPlaceholder
-						icon="format-gallery"
+						icon={ <BlockIcon icon={ icon } /> }
 						className={ className }
 						labels={ {
 							title: __( 'Slideshow', 'jetpack' ),

@@ -67,7 +67,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				403
 			);
 		}
-		$connect_url = sprintf( 'https://wordpress.com/sharing/%s', rawurlencode( $site_id ) );
+		$connect_url = sprintf( 'https://wordpress.com/marketing/connections/%s', rawurlencode( $site_id ) );
 		return array(
 			'code'        => $this->is_connected() ? 'connected' : 'not_connected',
 			'connect_url' => $connect_url,

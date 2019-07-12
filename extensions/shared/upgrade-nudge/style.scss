@@ -1,0 +1,40 @@
+.jetpack-upgrade-nudge {
+	&.block-editor-warning {
+		margin-bottom: 0;
+	}
+
+	// Override `.editor-styles-wrapper p` style overrides on WordPress.com
+	.editor-warning__message {
+		margin: 1em 0;
+	}
+
+	.editor-warning__actions {
+		line-height: 1;
+	}
+
+	.jetpack-upgrade-nudge__icon {
+		align-self: center;
+		background: var( --color-plan-premium );
+		border-radius: 50%;
+		box-sizing: content-box;
+		color: var( --color-white );
+		fill: var( --color-white );
+		flex-shrink: 0;
+		margin-right: 16px;
+		padding: 6px;
+	}
+
+	.jetpack-upgrade-nudge__info {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.jetpack-upgrade-nudge__title {
+		font-size: 14px;
+	}
+
+	.jetpack-upgrade-nudge__message {
+		color: var( --color-text-subtle );
+		display: block;
+	}
+}

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Replicastore_Interface;
+
 /**
  * Translates incoming actions from the Jetpack site into mutations on core types
  * In other words: this tries to keep a local datastore in sync with the remote one
@@ -7,7 +9,7 @@
 class Jetpack_Sync_Server_Replicator {
 	private $store;
 
-	function __construct( iJetpack_Sync_Replicastore $store ) {
+	function __construct( Replicastore_Interface $store ) {
 		$this->store = $store;
 	}
 
@@ -207,12 +209,13 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_users':
-				foreach ( $args as $user ) {
+
+				foreach ( $args['users'] as $user ) {
 					$this->store->upsert_user( $user );
 				}
 				break;
 			case 'jetpack_full_sync_terms':
-				foreach ( $args as $term_object ) {
+				foreach ( $args['terms'] as $term_object ) {
 					$this->store->update_term( $term_object );
 				}
 				break;

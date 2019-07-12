@@ -14,7 +14,7 @@ export class Tracker extends Component {
 	UNSAFE_componentWillReceiveProps( nextProps ) {
 		const record = this.props.analytics.tracks.recordEvent;
 
-		if ( nextProps.searchTerm !== this.props.searchTerm ) {
+		if ( nextProps.searchTerm !== this.props.searchTerm && nextProps.searchTerm.length >= 3 ) {
 			record( 'jetpack_wpa_search_term', { term: nextProps.searchTerm } );
 		}
 	}

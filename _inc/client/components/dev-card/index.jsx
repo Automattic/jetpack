@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { getPlanClass } from 'lib/plans/constants';
-import get from 'lodash/get';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -289,7 +289,7 @@ export class DevCard extends React.Component {
 				</ul>
 				<hr />
 				<ul>
-					<strong>Rewind</strong>
+					<strong>Backup & Scan</strong>
 					<li>
 						<label htmlFor="rewindUnavailable">
 							<input

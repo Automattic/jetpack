@@ -1,4 +1,27 @@
+.plugin-card-jetpack-plugin-search h3 {
+	margin: 0 0 4px 0;
+}
+
+.plugin-card-jetpack-plugin-search .column-name,
+.plugin-card-jetpack-plugin-search .column-description {
+	margin-right: 20px;
+}
+
+.plugin-card-jetpack-plugin-search .action-links {
+	overflow: auto;
+	position: static;
+}
+
+@media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px) {
+	.plugin-card-jetpack-plugin-search .action-links {
+		margin-left: 0;
+	}
+}
+
 .plugin-card-jetpack-plugin-search .plugin-action-buttons {
+	margin: 0;
+	width: 100%;
+	text-align: left;
 	white-space: nowrap;
 }
 
@@ -33,6 +56,15 @@
 .jetpack-plugin-search__text {
 	flex: 1;
 	margin: 0 24px 0 16px;
+}
+
+@media screen and (max-width: 1100px) and (min-width: 782px), (max-width: 480px) {
+	.plugin-card-jetpack-plugin-search .plugin-action-buttons li {
+		display: block;
+	}
+	.plugin-card-jetpack-plugin-search .plugin-action-buttons li button {
+		margin-right: 0;
+	}
 }
 
 /* Hides the link to dismiss cards when it's in action links are before being moved to bottom row*/

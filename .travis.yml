@@ -19,35 +19,44 @@ env:
   - WP_TRAVISCI=phpunit
   # Run phpunit in Travis matrix for these combinations
   matrix:
-  - WP_MODE=single WP_BRANCH=master
-  - WP_MODE=single WP_BRANCH=latest
-  - WP_MODE=single WP_BRANCH=previous
-  - WP_MODE=multi  WP_BRANCH=master
+  - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
+  - WP_BRANCH=latest
+  - WP_BRANCH=previous PHP_LINT=1
 
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 matrix:
   include:
-  # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=latest
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=previous
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=multi  WP_BRANCH=master
-    dist: precise
   - if: branch !~ /(^branch-.*-built)/
+    name: "JavaScript & CSS lint"
     language: node_js
     env: WP_TRAVISCI="yarn lint"
   - if: branch !~ /(^branch-.*-built)/
+    name: "Danger CI, test dashboard & extensions"
     language: node_js
-    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
+    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
+  - if: branch !~ /(^branch-.*-built)/
+    name: "Build dashboard & extensions"
+    language: node_js
+    env: WP_TRAVISCI="yarn build"
+  - php: "7.3"
+    name: "E2E tests"
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    before_script:
+    - nvm install
+    - yarn && yarn build
+    - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
+    - source ./env-file
+    - yarn test-decrypt-config
+    script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e --runInBand
+    addons:
+      apt:
+        packages:
+          - nginx
+
+  allow_failures:
+    - name: "E2E tests"
 
 cache:
   directories:
@@ -71,6 +80,7 @@ git:
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - composer install
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh
@@ -87,15 +97,12 @@ notifications:
      recipients:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
-       - jeremy@automattic.com
        - miguel@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
        - eric.binnion@automattic.com
        - allendav@automattic.com
        - beau@automattic.com
-       - kraft@automattic.com
-       - oscar@automattic.com
        # Encrypted Slack notification address
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
 

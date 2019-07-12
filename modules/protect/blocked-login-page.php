@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * Class Jetpack_Protect_Blocked_Login_Page
@@ -159,7 +160,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
 		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack::get_option( 'id' ) );
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
 			array(
@@ -243,7 +244,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
 
 
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
 			array(

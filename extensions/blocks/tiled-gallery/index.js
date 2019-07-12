@@ -41,6 +41,16 @@ const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {
 	label: styleNames[ style.name ],
 } ) );
 
+/**
+ * Filter valid images
+ *
+ * @param {array} images Array of image objects
+ * @return {array} Array of image objects which have id and url
+ */
+function getValidImages( images ) {
+	return filter( images, ( { id, url } ) => id && url );
+}
+
 const blockAttributes = {
 	// Set default align
 	align: {
@@ -73,11 +83,6 @@ const blockAttributes = {
 				default: '',
 				selector: 'img',
 				source: 'attribute',
-			},
-			caption: {
-				selector: 'figcaption',
-				source: 'html',
-				type: 'string',
 			},
 			height: {
 				attribute: 'data-height',
@@ -146,17 +151,34 @@ export const settings = {
 		from: [
 			{
 				type: 'block',
-				blocks: [ 'core/gallery' ],
-				transform: attributes => {
-					const validImages = filter( attributes.images, ( { id, url } ) => id && url );
+				isMultiBlock: true,
+				blocks: [ 'core/image' ],
+				isMatch: images => getValidImages( images ).length > 0,
+				transform: images => {
+					const validImages = getValidImages( images );
+					return createBlock( `jetpack/${ name }`, {
+						images: validImages.map( ( { id, url, alt } ) => ( {
+							id,
+							url,
+							alt,
+						} ) ),
+						ids: validImages.map( ( { id } ) => id ),
+					} );
+				},
+			},
+			{
+				type: 'block',
+				blocks: [ 'core/gallery', 'jetpack/slideshow' ],
+				transform: ( { images } ) => {
+					const validImages = getValidImages( images );
 					if ( validImages.length > 0 ) {
 						return createBlock( `jetpack/${ name }`, {
-							images: validImages.map( ( { id, url, alt, caption } ) => ( {
+							images: validImages.map( ( { id, url, alt } ) => ( {
 								id,
 								url,
 								alt,
-								caption,
 							} ) ),
+							ids: validImages.map( ( { id } ) => id ),
 						} );
 					}
 					return createBlock( `jetpack/${ name }` );
@@ -167,16 +189,16 @@ export const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/gallery' ],
-				transform: ( { images, columns, linkTo } ) =>
-					createBlock( 'core/gallery', { images, columns, imageCrop: true, linkTo } ),
+				transform: ( { images, ids, columns, linkTo } ) =>
+					createBlock( 'core/gallery', { images, ids, columns, imageCrop: true, linkTo } ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'core/image' ],
-				transform: ( { images } ) => {
+				transform: ( { align, images } ) => {
 					if ( images.length > 0 ) {
-						return images.map( ( { id, url, alt, caption } ) =>
-							createBlock( 'core/image', { id, url, alt, caption } )
+						return images.map( ( { id, url, alt } ) =>
+							createBlock( 'core/image', { align, id, url, alt } )
 						);
 					}
 					return createBlock( 'core/image' );

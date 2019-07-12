@@ -1,12 +1,9 @@
 /**
  * External dependencies
- *
- * @format
  */
-
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
+import { get } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -76,34 +73,29 @@ export class Security extends Component {
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
 			foundMonitor = this.props.isModuleFound( 'monitor' ),
-			foundManage = this.props.isModuleFound( 'manage' );
+			isSearchTerm = this.props.searchTerm;
 
-		if ( ! this.props.searchTerm && ! this.props.active ) {
+		if ( ! isSearchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if (
-			! foundSso &&
-			! foundProtect &&
-			! foundAkismet &&
-			! foundBackups &&
-			! foundMonitor &&
-			! foundManage
-		) {
+		if ( ! foundSso && ! foundProtect && ! foundAkismet && ! foundBackups && ! foundMonitor ) {
 			return null;
 		}
 
 		return (
 			<div>
 				<QuerySite />
-
 				<Card
-					title={ __(
-						'Keep your site safe with state-of-the-art security and receive notifications of technical problems.'
-					) }
+					title={
+						isSearchTerm
+							? __( 'Security' )
+							: __(
+									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.'
+							  )
+					}
 					className="jp-settings-description"
 				/>
-
 				{ foundBackups && <BackupsScan { ...commonProps } /> }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
@@ -112,7 +104,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</div>
 				) }
-				{ foundManage && <ManagePlugins { ...commonProps } /> }
+				{ ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>

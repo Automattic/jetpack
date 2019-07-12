@@ -2,7 +2,6 @@
  * External dependencies
  */
 import banner from 'gulp-banner';
-import fs from 'fs';
 import log from 'fancy-log';
 import gulp from 'gulp';
 import gulpif from 'gulp-if';
@@ -11,9 +10,7 @@ import PluginError from 'plugin-error';
 import rename from 'gulp-rename';
 import saveLicense from 'uglify-save-license';
 import sourcemaps from 'gulp-sourcemaps';
-import tap from 'gulp-tap';
 import webpack from 'webpack';
-import { JSDOM } from 'jsdom';
 
 function getWebpackConfig() {
 	return require( './../../webpack.config.js' );
@@ -29,7 +26,6 @@ export const watch = function() {
 				log( error );
 				return;
 			}
-			buildStatic( function() {} );
 		} )
 	);
 };
@@ -37,34 +33,19 @@ export const watch = function() {
 gulp.task( 'react:master', function( done ) {
 	const config = getWebpackConfig();
 
-	if ( 'production' !== process.env.NODE_ENV ) {
-		config.plugins.push(
-			new webpack.LoaderOptionsPlugin( {
-				debug: true,
-			} )
-		);
-	}
-
-	return webpack( config ).run(
-		onBuild.bind( this, function( error ) {
-			if ( error ) {
-				done( error );
-				return;
-			}
-
-			buildStatic( done );
-		} )
-	);
+	return webpack( config ).run( onBuild.bind( this, done ) );
 } );
 
 function onBuild( done, err, stats ) {
 	// Webpack doesn't populate err in case the build fails
 	// @see https://github.com/webpack/webpack/issues/708
-	if ( stats.compilation.errors && stats.compilation.errors.length ) {
-		if ( done ) {
-			done( new PluginError( 'webpack', stats.compilation.errors[ 0 ] ) );
-			return; // Otherwise gulp complains about done called twice
-		}
+	const erroringStats = stats.stats.find(
+		( { compilation } ) => compilation.errors && compilation.errors.length
+	);
+
+	if ( erroringStats && done ) {
+		done( new PluginError( 'webpack', erroringStats.compilation.errors[ 0 ] ) );
+		return; // Otherwise gulp complains about done called twice
 	}
 
 	log(
@@ -88,28 +69,11 @@ function onBuild( done, err, stats ) {
 		Date.now()
 	);
 
-	if ( 'production' === process.env.NODE_ENV ) {
-		log( 'Uglifying JS...' );
-		gulp
-			.src( '_inc/build/admin.js' )
-			.pipe(
-				minify( {
-					noSource: true,
-					ext: { min: '.js' },
-				} )
-			)
-			.pipe( gulp.dest( '_inc/build' ) )
-			.on( 'end', function() {
-				log( 'Your JS is now uglified!' );
-			} );
-	}
-
 	const is_prod = 'production' === process.env.NODE_ENV;
 
 	const supportedModules = [
 		'shortcodes',
 		'widgets',
-		'after-the-deadline',
 		'widget-visibility',
 		'custom-css',
 		'publicize',
@@ -162,61 +126,3 @@ function onBuild( done, err, stats ) {
 }
 
 export const build = gulp.series( 'react:master' );
-
-function buildStatic( done ) {
-	log( 'Building static HTML from built JS…' );
-	const { window } = new JSDOM();
-	const { document } = new JSDOM( '' ).window;
-
-	global.window = window;
-	global.document = document;
-	global.navigator = window.navigator;
-
-	window.Initial_State = {
-		dismissedNotices: [],
-		connectionStatus: {
-			devMode: {
-				isActive: false,
-			},
-		},
-		userData: {
-			currentUser: {
-				permissions: {},
-			},
-		},
-	};
-
-	try {
-		// normalize path
-		const path = require.resolve( __dirname + '/../../_inc/build/static.js' );
-
-		// Making sure NodeJS requires this file every time this is called
-		delete require.cache[ path ];
-
-		// Will throw when `path` does not exist, skipping file generation below that depends on `path`.
-		require( path );
-
-		gulp
-			.src( [ '_inc/build/static*' ] )
-			.pipe(
-				tap( function( file ) {
-					fs.unlinkSync( file.path );
-				} )
-			)
-			.on( 'end', function() {
-				fs.writeFileSync( __dirname + '/../../_inc/build/static.html', window.staticHtml );
-				fs.writeFileSync(
-					__dirname + '/../../_inc/build/static-noscript-notice.html',
-					window.noscriptNotice
-				);
-				fs.writeFileSync(
-					__dirname + '/../../_inc/build/static-version-notice.html',
-					window.versionNotice
-				);
-
-				done();
-			} );
-	} catch ( error ) {
-		done( error );
-	}
-}

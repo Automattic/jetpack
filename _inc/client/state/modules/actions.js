@@ -3,7 +3,7 @@
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { translate as __ } from 'i18n-calypso';
-import forEach from 'lodash/forEach';
+import { forEach, some } from 'lodash';
 
 /**
  * Internal dependencies
@@ -27,7 +27,6 @@ import {
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
-import some from 'lodash/some';
 
 export const fetchModules = () => {
 	return dispatch => {

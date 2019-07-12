@@ -1,11 +1,11 @@
-// @TODO: Use Gutenberg variables
-$break-xlarge: 1080px;
-$break-large: 960px; // admin sidebar auto folds
-$break-medium: 782px; // editor sidebar auto folds
-$break-small: 600px;
+@import '../../shared/styles/gutenberg-variables.scss';
 
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
+
+	dd span {
+		display: block;
+	}
 
 	.business-hours__row {
 		display: flex;

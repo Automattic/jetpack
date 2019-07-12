@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Settings;
+
 class Jetpack_Likes_Settings {
 	function __construct() {
 		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
@@ -43,7 +45,7 @@ class Jetpack_Likes_Settings {
 		 */
 		$title = apply_filters( 'likes_meta_box_title', __( 'Likes', 'jetpack' ) );
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default' );
+			add_meta_box( 'likes_meta', $title, array( $this, 'meta_box_content' ), $post_type, 'side', 'default', array( '__back_compat_meta_box' => true ) );
 		}
 	}
 
@@ -269,8 +271,7 @@ class Jetpack_Likes_Settings {
 	 * similar logic and filters apply here, too.
 	 */
 	function is_likes_visible() {
-		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
-		if ( Jetpack_Sync_Settings::is_syncing() ) {
+		if ( Settings::is_syncing() ) {
 			return false;
 		}
 

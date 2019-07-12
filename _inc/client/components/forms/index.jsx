@@ -3,9 +3,7 @@
  */
 import React from 'react';
 import classNames from 'classnames';
-import omit from 'lodash/omit';
-import forOwn from 'lodash/forOwn';
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty, forOwn, omit } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';

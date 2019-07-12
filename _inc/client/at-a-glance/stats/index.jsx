@@ -3,9 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import forEach from 'lodash/forEach';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
+import { forEach, get, isEmpty } from 'lodash';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import { connect } from 'react-redux';

@@ -154,7 +154,6 @@ Fetch a list of Jetpack settings.
 	"Redundant Expression":true,
 	"guess_lang":false,
 	"ignored_phrases":"billy,asdf,lola,y,l,asd,jsd",
-	"after-the-deadline":true,
 	"carousel_background_color":"white",
 	"carousel_display_exif":true
 }
@@ -301,7 +300,6 @@ The response is huge. Try it on your browser's console for discovery. Here's a c
 	"protect": {
 	        "name": "Protect",
 		"description": "Block suspicious-looking sign in activity",
-		"jumpstart_desc": "",
 		"sort": 1,
 		"recommendation_order": 4,
 		"introduced": "3.4",
@@ -340,7 +338,6 @@ Get a single module description and properties by its slug.
 {
     "name": "Likes",
     "description": "Give visitors an easy way to show they appreciate your content.",
-    "jumpstart_desc": "Give visitors an easy way to show they appreciate your content.",
     "sort": 23,
     "recommendation_order": 20,
     "introduced": "2.2",
@@ -353,8 +350,7 @@ Get a single module description and properties by its slug.
         "Social"
     ],
     "feature": [
-        "Engagement",
-        "Jumpstart"
+        "Engagement"
     ],
     "additional_search_queries": "like, likes, wordpress.com",
     "options": {
@@ -436,18 +432,6 @@ Accepts a JSON object in the body like:
 	"option-key": "new-option-value"
 }
 ```
-
-#### POST /wp-json/jetpack/v4/jumpstart/activate
-
-Activate Jumpstart turning on some options and settings to a recommended state.
-
-**This endpoint does not take Body parameters**
-
-#### POST /wp-json/jetpack/v4/jumpstart/deactivate
-
-Deactivate Jumpstart reverting options to their default state.
-
-**This endpoint does not take Body parameters**
 
 #### POST /wp-json/jetpack/v4/reset/:options_or_modules
 

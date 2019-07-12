@@ -44,14 +44,14 @@ class Performance extends Component {
 		return (
 			<div>
 				<QuerySite />
-
 				<Card
-					title={ __(
-						'Load pages faster, optimize images, and speed up your visitors’ experience.'
-					) }
+					title={
+						this.props.searchTerm
+							? __( 'Performance' )
+							: __( 'Load pages faster, optimize images, and speed up your visitors’ experience.' )
+					}
 					className="jp-settings-description"
 				/>
-
 				<SpeedUpSite { ...commonProps } />
 				<Media { ...commonProps } />
 				<Search { ...commonProps } />

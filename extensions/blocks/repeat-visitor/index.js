@@ -7,7 +7,7 @@ import { Path } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../../utils/render-material-icon';
+import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './components/edit';
 import save from './components/save';
 import { CRITERIA_AFTER, DEFAULT_THRESHOLD } from './constants';

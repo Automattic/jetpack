@@ -29,9 +29,10 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		return null;
 	}
 	$values  = array();
-	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
-		get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp', array( 'wp-polyfill' ) );
+	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		? get_current_blog_id()
+		: Jetpack_Options::get_option( 'id' );
+	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp' );
 	$defaults = array(
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
 		'submitButtonText' => esc_html__( 'Join my email list', 'jetpack' ),

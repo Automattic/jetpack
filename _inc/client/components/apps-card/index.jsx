@@ -47,6 +47,17 @@ class AppsCard extends React.Component {
 		return (
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
+					{ this.props.userCanManageOptions && (
+						<Button
+							borderless
+							compact
+							className="jp-apps-card__dismiss"
+							href="javascript:void(0)"
+							onClick={ this.dismissCard }
+						>
+							<span className="dashicons dashicons-no" />
+						</Button>
+					) }
 					<div className="jp-apps-card__top">
 						<img src={ imagePath + 'get-apps.svg' } alt="" />
 					</div>
@@ -69,12 +80,6 @@ class AppsCard extends React.Component {
 						>
 							{ __( 'Download the free apps' ) }
 						</Button>
-						<br />
-						{ this.props.userCanManageOptions && (
-							<a href="javascript:void(0)" onClick={ this.dismissCard }>
-								{ __( 'I already use this app.' ) }
-							</a>
-						) }
 					</div>
 				</Card>
 			</div>

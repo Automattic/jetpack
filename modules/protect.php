@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Protect yourself from brute force and distributed brute force attacks, which are the most common way for hackers to get into your site.
+ * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -11,6 +11,8 @@
  * Feature: Security
  * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
+
+use Automattic\Jetpack\Constants;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -311,9 +313,6 @@ class Jetpack_Protect_Module {
 	 */
 	public function modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, array ( $this, 'configuration_load' ) );
-		Jetpack::module_configuration_head( __FILE__, array ( $this, 'configuration_head' ) );
-		Jetpack::module_configuration_screen( __FILE__, array ( $this, 'configuration_screen' ) );
 	}
 
 	/**
@@ -441,7 +440,7 @@ class Jetpack_Protect_Module {
 		/**
 		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
 		 */
-		if ( Jetpack_Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
+		if ( Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
 			$this->kill_login();
 		}
 
@@ -624,44 +623,6 @@ class Jetpack_Protect_Module {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
 		}
-	}
-
-	/**
-	 * Get or delete API key
-	 */
-	public function configuration_load() {
-
-		if ( isset( $_POST['action'] ) && $_POST['action'] == 'jetpack_protect_save_whitelist' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			$whitelist             = str_replace( ' ', '', $_POST['whitelist'] );
-			$whitelist             = explode( PHP_EOL, $whitelist );
-			$result                = jetpack_protect_save_whitelist( $whitelist );
-			$this->whitelist_saved = ! is_wp_error( $result );
-			$this->whitelist_error = is_wp_error( $result );
-		}
-
-		if ( isset( $_POST['action'] ) && 'get_protect_key' == $_POST['action'] && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			$result = $this->get_protect_key();
-			// Only redirect on success
-			// If it fails we need access to $this->api_key_error
-			if ( $result ) {
-				wp_safe_redirect( Jetpack::module_configuration_url( 'protect' ) );
-				exit;
-			}
-		}
-
-		$this->api_key = get_site_option( 'jetpack_protect_key', false );
-		$this->user_ip = jetpack_protect_get_ip();
-	}
-
-	public function configuration_head() {
-		wp_enqueue_style( 'jetpack-protect' );
-	}
-
-	/**
-	 * Prints the configuration screen
-	 */
-	public function configuration_screen() {
-		require_once dirname( __FILE__ ) . '/protect/config-ui.php';
 	}
 
 	/**

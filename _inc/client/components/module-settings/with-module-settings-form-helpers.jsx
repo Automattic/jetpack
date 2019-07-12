@@ -2,10 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-import get from 'lodash/get';
-import each from 'lodash/each';
 import analytics from 'lib/analytics';
-import omit from 'lodash/omit';
+import { each, get, omit } from 'lodash';
 
 /**
  * Internal dependencies

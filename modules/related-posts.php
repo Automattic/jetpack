@@ -41,7 +41,7 @@ class Jetpack_RelatedPosts_Module {
 	/**
 	 * This action triggers if the module is in an active state, load related posts and options.
 	 *
-	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack::module_configuration_load, Jetpack_Sync::sync_posts
+	 * @uses Jetpack_RelatedPosts::init, is_admin, Jetpack::enable_module_configurable, Jetpack_Sync::sync_posts
 	 * @return null
 	 */
 	public function action_on_load() {
@@ -49,9 +49,7 @@ class Jetpack_RelatedPosts_Module {
 		Jetpack_RelatedPosts::init();
 
 		if ( is_admin() ) {
-			// Enable "Configure" button on module card
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
 		}
 
 		// Load Customizer controls.
@@ -59,18 +57,6 @@ class Jetpack_RelatedPosts_Module {
 			require_once 'related-posts/class.related-posts-customize.php';
 		}
 	}
-
-	/**
-	 * Redirect configure button to Settings > Reading
-	 *
-	 * @uses wp_safe_redirect, admin_url
-	 * @return null
-	 */
-	public function module_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-reading.php#jetpack_relatedposts' ) );
-		exit;
-	}
-
 }
 
 // Do it.

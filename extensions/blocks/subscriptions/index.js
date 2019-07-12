@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 import { Path } from '@wordpress/components';
 import { RawHTML } from '@wordpress/element';
@@ -11,7 +11,7 @@ import { RawHTML } from '@wordpress/element';
  */
 import edit from './edit';
 import save from './save';
-import renderMaterialIcon from '../../utils/render-material-icon';
+import renderMaterialIcon from '../../shared/render-material-icon';
 
 export const name = 'subscriptions';
 export const settings = {
@@ -30,7 +30,11 @@ export const settings = {
 	),
 	category: 'jetpack',
 
-	keywords: [ __( 'subscribe', 'jetpack' ), __( 'join', 'jetpack' ), __( 'follow', 'jetpack' ) ],
+	keywords: [
+		_x( 'subscribe', 'block search term', 'jetpack' ),
+		_x( 'join', 'block search term', 'jetpack' ),
+		_x( 'follow', 'block search term', 'jetpack' ),
+	],
 
 	attributes: {
 		subscribePlaceholder: { type: 'string', default: __( 'Email Address', 'jetpack' ) },

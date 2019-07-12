@@ -1,20 +1,36 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Wordads shortcode.
+ *
+ * Examples:
+ * [wordads]
+ *
+ * @package Jetpack
+ */
 
 /**
  * Embed WordAds 'ad' in post
  */
 class Jetpack_WordAds_Shortcode {
 
+	/**
+	 * Used to determine whether scripts and styles have been enqueued already.
+	 *
+	 * @var bool false Should we enqueue scripts and styles.
+	 */
 	private $scripts_and_style_included = false;
 
-	function __construct() {
+	/**
+	 * Initialize.
+	 */
+	public function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
 	}
 
 	/**
 	 * Register our shortcode and enqueue necessary files.
 	 */
-	function action_init() {
+	public function action_init() {
 		global $wordads;
 
 		if ( empty( $wordads ) ) {
@@ -33,7 +49,7 @@ class Jetpack_WordAds_Shortcode {
 	 *
 	 * @return string HTML for WordAds shortcode.
 	 */
-	static function wordads_shortcode( $atts, $content = '' ) {
+	public static function wordads_shortcode( $atts, $content = '' ) {
 		$atts = shortcode_atts( array(), $atts, 'wordads' );
 
 		return self::wordads_shortcode_html( $atts, $content );
@@ -47,7 +63,7 @@ class Jetpack_WordAds_Shortcode {
 	 *
 	 * @return string HTML output
 	 */
-	static function wordads_shortcode_html( $atts, $content = '' ) {
+	private static function wordads_shortcode_html( $atts, $content = '' ) {
 		global $wordads;
 
 		if ( empty( $wordads ) ) {

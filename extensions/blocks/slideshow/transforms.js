@@ -4,21 +4,50 @@
 import { createBlock } from '@wordpress/blocks';
 import { filter } from 'lodash';
 
+/**
+ * Filter valid images
+ *
+ * @param {array} images Array of image objects
+ * @return {array} Array of image objects which have id and url
+ */
+function getValidImages( images ) {
+	return filter( images, ( { id, url } ) => id && url );
+}
+
 const transforms = {
 	from: [
 		{
 			type: 'block',
+			isMultiBlock: true,
+			blocks: [ 'core/image' ],
+			isMatch: images => getValidImages( images ).length > 0,
+			transform: images => {
+				const validImages = getValidImages( images );
+				return createBlock( 'jetpack/slideshow', {
+					images: validImages.map( ( { alt, caption, id, url } ) => ( {
+						alt,
+						caption,
+						id,
+						url,
+					} ) ),
+					ids: validImages.map( ( { id } ) => id ),
+				} );
+			},
+		},
+		{
+			type: 'block',
 			blocks: [ 'core/gallery', 'jetpack/tiled-gallery' ],
-			transform: attributes => {
-				const validImages = filter( attributes.images, ( { id, url } ) => id && url );
+			transform: ( { images } ) => {
+				const validImages = getValidImages( images );
 				if ( validImages.length > 0 ) {
 					return createBlock( 'jetpack/slideshow', {
-						images: validImages.map( ( { id, url, alt, caption } ) => ( {
-							id,
-							url,
+						images: validImages.map( ( { alt, caption, id, url } ) => ( {
 							alt,
 							caption,
+							id,
+							url,
 						} ) ),
+						ids: validImages.map( ( { id } ) => id ),
 					} );
 				}
 				return createBlock( 'jetpack/slideshow' );
@@ -29,12 +58,7 @@ const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'core/gallery' ],
-			transform: ( { images } ) => createBlock( 'core/gallery', { images } ),
-		},
-		{
-			type: 'block',
-			blocks: [ 'jetpack/tiled-gallery' ],
-			transform: ( { images } ) => createBlock( 'jetpack/tiled-gallery', { images }, [] ),
+			transform: ( { images, ids } ) => createBlock( 'core/gallery', { images, ids } ),
 		},
 		{
 			type: 'block',

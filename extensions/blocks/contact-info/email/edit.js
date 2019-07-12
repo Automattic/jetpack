@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import save from './save';
-import simpleInput from '../../../utils/simple-input';
+import simpleInput from '../../../shared/simple-input';
 import { __ } from '@wordpress/i18n';
 
 const EmailEdit = props => {

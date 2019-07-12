@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Tracking;
+
 /**
  * Client = Plugin
  * Client Server = API Methods the Plugin must respond to
@@ -17,10 +20,12 @@ class Jetpack_Client_Server {
 
 		check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
+		$tracking = new Tracking();
 		$result = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
-			JetpackTracking::record_user_event( 'jpc_client_authorize_fail', array(
+
+			$tracking->record_user_event( 'jpc_client_authorize_fail', array(
 				'error_code' => $result->get_error_code(),
 				'error_message' => $result->get_error_message()
 			) );
@@ -43,7 +48,7 @@ class Jetpack_Client_Server {
 			wp_safe_redirect( Jetpack::admin_url() );
 		}
 
-		JetpackTracking::record_user_event( 'jpc_client_authorize_success' );
+		$tracking->record_user_event( 'jpc_client_authorize_success' );
 
 		$this->do_exit();
 	}
@@ -197,7 +202,8 @@ class Jetpack_Client_Server {
 			), menu_page_url( 'jetpack', false ) );
 
 		// inject identity for analytics
-		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+		$tracks = new Automattic\Jetpack\Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
@@ -216,7 +222,7 @@ class Jetpack_Client_Server {
 				'Accept' => 'application/json',
 			),
 		);
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), $args );
+		$response = Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), $args );
 
 		if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'token_http_request_failed', $response->get_error_message() );

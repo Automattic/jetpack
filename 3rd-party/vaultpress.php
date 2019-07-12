@@ -24,7 +24,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 }
 
 /**
- * If Rewind is enabled, remove its entry in sidebar, deactivate VaultPress, and show a notification.
+ * If Backup & Scan is enabled, remove its entry in sidebar, deactivate VaultPress, and show a notification.
  *
  * @since 5.8
  */

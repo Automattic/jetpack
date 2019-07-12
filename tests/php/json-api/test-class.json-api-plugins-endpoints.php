@@ -4,6 +4,12 @@ require_jetpack_file( 'class.json-api.php' );
 require_jetpack_file( 'class.json-api-endpoints.php' );
 
 class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
+	private static $super_admin_user_id;
+
+	public static function wpSetUpBeforeClass( $factory ) {
+		self::$super_admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		grant_super_admin( self::$super_admin_user_id );
+	}
 
 	public function setUp() {
 		if ( ! defined( 'WPCOM_JSON_API__BASE' ) ) {
@@ -11,12 +17,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		}
 
 		parent::setUp();
-
-		if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
-			// Loading the API breaks in 5.2.x due to `const` declarations, and
-			// this will still happen even though all tests are skipped (why?)
-			return;
-		}
 
 		$this->set_globals();
 
@@ -28,7 +28,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 * @author lezama
 	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 * @group external-http
-	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
@@ -97,9 +96,12 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 * @author tonykova
 	 * @covers Jetpack_API_Plugins_Install_Endpoint
 	 * @group external-http
-	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_API_Plugins_Install_Endpoint() {
+		if ( is_multisite() ) {
+			wp_set_current_user( self::$super_admin_user_id );
+		}
+
 		$endpoint = new Jetpack_JSON_API_Plugins_Install_Endpoint( array(
 			'stat'            => 'plugins:1:new',
 			'method'          => 'POST',

@@ -3,6 +3,7 @@
 /_inc/blocks
 /_inc/build
 /_inc/client/**/test/*.js
+/_inc/jetpack-modules.models.js
 /_inc/jquery.spin.js
 /_inc/postmessage.js
 /_inc/spin.js

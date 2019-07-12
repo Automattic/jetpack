@@ -17,8 +17,6 @@ const admincss = [
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
 	'modules/shortcodes/css/slideshow-shortcode.css',
-	'modules/after-the-deadline/atd.css',
-	'modules/after-the-deadline/tinymce/css/content.css',
 	'modules/contact-form/css/editor-inline-editing-style.css',
 	'modules/contact-form/css/editor-style.css',
 	'modules/contact-form/css/editor-ui.css',

@@ -51,7 +51,6 @@ describe( 'SettingsGroup', () => {
 			'photon'
 		],
 		allGroupsForNonAdmin = [
-			'after-the-deadline',
 			'post-by-email'
 		];
 

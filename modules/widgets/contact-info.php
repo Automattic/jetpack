@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 	//register Contact_Info_Widget widget
@@ -245,7 +247,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			wp_enqueue_script(
 				'contact-info-admin',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/contact-info/contact-info-admin.min.js',
 					'modules/widgets/contact-info/contact-info-admin.js'
 				),
@@ -343,7 +345,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			$iframe_html = sprintf( '<iframe width="600" %s></iframe>', $iframe_attributes );
 
-			if ( ! Jetpack_AMP_Support::is_amp_request() ) {
+			if (
+				! class_exists( 'Jetpack_AMP_Support' )
+				|| ! Jetpack_AMP_Support::is_amp_request()
+			) {
 				return $iframe_html;
 			}
 

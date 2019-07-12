@@ -8,8 +8,7 @@ import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
-import includes from 'lodash/includes';
-import get from 'lodash/get';
+import { get, includes } from 'lodash';
 
 /**
  * Internal dependencies
@@ -27,6 +26,8 @@ import {
 	isActivatingModule,
 	getModuleOverride,
 } from 'state/modules';
+import { updateSettings } from 'state/settings/actions';
+import { getSetting, isUpdatingSetting } from 'state/settings/reducer';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { showBackups } from 'state/initial-state';
 
@@ -67,7 +68,7 @@ class MyPlanBody extends React.Component {
 	};
 
 	activateVideoPress = () => {
-		this.props.activateModule( 'videopress' );
+		this.props.activateFeature( 'videopress' );
 		this.trackPlansClick( 'activate_videopress' );
 	};
 
@@ -176,7 +177,6 @@ class MyPlanBody extends React.Component {
 									this.props.siteRawUrl +
 									'?only=vaultpress'
 								}
-								className="is-primary"
 							>
 								{ __( 'View settings' ) }
 							</Button>
@@ -208,7 +208,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Built-in Performance' ) }
+									{ __( 'Optimized performance' ) }
 								</h3>
 								<p>
 									{ __(
@@ -251,7 +251,6 @@ class MyPlanBody extends React.Component {
 											this.props.siteRawUrl +
 											'?only=akismet'
 										}
-										className="is-primary"
 									>
 										{ __( 'View settings' ) }
 									</Button>
@@ -274,7 +273,7 @@ class MyPlanBody extends React.Component {
 										<p>
 											{ __( 'High-speed, high-definition video hosting with no third-party ads.' ) }
 										</p>
-										{ this.props.isModuleActivated( 'videopress' ) ? (
+										{ this.props.getFeatureState( 'videopress' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
 												href={ this.props.siteAdminUrl + 'upload.php' }
@@ -284,8 +283,7 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateVideoPress }
-												className="is-primary"
-												disabled={ this.props.isActivatingModule( 'videopress' ) }
+												disabled={ this.props.isActivatingFeature( 'videopress' ) }
 											>
 												{ __( 'Activate video hosting' ) }
 											</Button>
@@ -349,7 +347,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateAds }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'wordads' ) }
 											>
 												{ __( 'Start earning' ) }
@@ -387,7 +384,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activateSearch }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'search' ) }
 											>
 												{ __( 'Activate Jetpack Search' ) }
@@ -417,14 +413,13 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'seo-tools' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
-												href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl }
+												href={ 'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl }
 											>
 												{ __( 'Configure site SEO' ) }
 											</Button>
 										) : (
 											<Button
 												onClick={ this.activateSeo }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'seo-tools' ) }
 											>
 												{ __( 'Activate SEO tools' ) }
@@ -456,14 +451,13 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'google-analytics' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-												href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl }
+												href={ 'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl }
 											>
 												{ __( 'Configure Google Analytics' ) }
 											</Button>
 										) : (
 											<Button
 												onClick={ this.activateGoogleAnalytics }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
 											>
 												{ __( 'Activate Google Analytics' ) }
@@ -530,7 +524,6 @@ class MyPlanBody extends React.Component {
 										) : (
 											<Button
 												onClick={ this.activatePublicize }
-												className="is-primary"
 												disabled={ this.props.isActivatingModule( 'publicize' ) }
 											>
 												{ __( 'Activate Publicize' ) }
@@ -556,7 +549,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Always-on security' ) }</h3>
 								<p>
 									{ __(
 										'Prevent login attacks, and get instant notifications when there’s an issue with your site.'
@@ -581,7 +574,7 @@ class MyPlanBody extends React.Component {
 							</div>
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Built-in Performance' ) }
+									{ __( 'Optimized performance' ) }
 								</h3>
 								<p>
 									{ __(
@@ -642,9 +635,9 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-									href={ 'https://wordpress.com/sharing/' + this.props.siteRawUrl }
+									href={ 'https://wordpress.com/marketing/connections/' + this.props.siteRawUrl }
 								>
-									{ __( 'Start publicizing now' ) }
+									{ __( 'Start sharing' ) }
 								</Button>
 							</div>
 						</div>
@@ -660,7 +653,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Site Activity' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Site activity' ) }</h3>
 								<p>
 									{ __(
 										'View a chronological list of all the changes and updates to your site in an organized, readable way.'
@@ -689,14 +682,14 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Need help? Search our support site to find out about your site, your account, and how to make the most of WordPress.'
+										'Need help? Learn about getting started, customizing your site, using advanced code snippets, and more.'
 									) }
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
 									href="https://jetpack.com/support/"
 								>
-									{ __( 'Support documentation' ) }
+									{ __( 'Search support docs' ) }
 								</Button>
 							</div>
 						</div>
@@ -704,19 +697,21 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-text">
 								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Jetpack offers so much more' ) }
+									{ __( 'Take your site to the next level!' ) }
 								</h3>
-								<p>
-									{ __(
-										'Get peace of mind of automated backups and priority support, reach a wider audience by using advanced SEO tools, monetize your site by running ads, and customize your site with any of our 200+ premium themes.'
-									) }
-								</p>
+								<ul className="jp-landing__plan-features-list">
+									<li>{ __( 'Get peace of mind with automated backups.' ) }</li>
+									<li>{ __( 'Resolve issues quickly with priority support.' ) }</li>
+									<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
+									<li>{ __( 'Customize your social posting schedule.' ) }</li>
+									<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>
+								</ul>
 								<Button
+									className="is-primary"
 									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
 									href={ '#/plans' }
-									className="is-primary"
 								>
-									{ __( 'Explore Jetpack plans' ) }
+									{ __( 'Upgrade Jetpack now' ) }
 								</Button>
 							</div>
 						</div>
@@ -763,6 +758,8 @@ export default connect(
 			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
 			getModuleOverride: module_slug => getModuleOverride( state, module_slug ),
 			showBackups: showBackups( state ),
+			getFeatureState: feature => getSetting( state, feature ),
+			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
 		};
 	},
 	dispatch => {
@@ -771,6 +768,7 @@ export default connect(
 			activateModule: slug => {
 				return dispatch( activateModule( slug ) );
 			},
+			activateFeature: feature => dispatch( updateSettings( { [ feature ]: true } ) ),
 		};
 	}
 )( MyPlanBody );

@@ -12,11 +12,11 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import { getPluginUpdates } from 'state/at-a-glance';
-import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
 class DashPluginUpdates extends Component {
@@ -25,16 +25,14 @@ class DashPluginUpdates extends Component {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
 		pluginUpdates: PropTypes.any.isRequired,
-		isModuleAvailable: PropTypes.bool.isRequired,
 	};
 
-	activateAndRedirect( e ) {
-		e.preventDefault();
-		this.props
-			.activateManage()
-			.then(
-				( window.location = 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl )
-			);
+	trackManagePlugins() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'link',
+			target: 'at-a-glance',
+			feature: 'manage-plugins',
+		} );
 	}
 
 	getContent() {
@@ -97,6 +95,7 @@ class DashPluginUpdates extends Component {
 					className="jp-dash-item__manage-in-wpcom"
 					compact
 					href={ managePluginsUrl }
+					onClick={ this.trackManagePlugins }
 					target="_blank"
 				>
 					{ __( 'Manage your plugins' ) }
@@ -107,12 +106,10 @@ class DashPluginUpdates extends Component {
 
 	render() {
 		return (
-			this.props.isModuleAvailable && (
-				<div>
-					<QueryPluginUpdates />
-					{ this.getContent() }
-				</div>
-			)
+			<div>
+				<QueryPluginUpdates />
+				{ this.getContent() }
+			</div>
 		);
 	}
 }
@@ -120,5 +117,4 @@ class DashPluginUpdates extends Component {
 export default connect( state => ( {
 	pluginUpdates: getPluginUpdates( state ),
 	isDevMode: isDevMode( state ),
-	isModuleAvailable: isModuleAvailable( state, 'manage' ),
 } ) )( DashPluginUpdates );

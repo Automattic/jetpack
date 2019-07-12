@@ -2,11 +2,12 @@
  * External dependencies
  */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
-import get from 'lodash/get';
+import { get, includes } from 'lodash';
 import Banner from 'components/banner';
 
 /**
@@ -18,7 +19,6 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
-import includes from 'lodash/includes';
 import { isModuleActivated } from 'state/modules';
 import { showBackups } from 'state/initial-state';
 
@@ -49,21 +49,65 @@ class LoadingCard extends Component {
 }
 
 class BackupsScanRewind extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool,
+		siteRawUrl: PropTypes.string,
+		rewindState: PropTypes.string,
+	};
+
+	static defaultProps = {
+		isDevMode: false,
+		siteRawUrl: '',
+		rewindState: '',
+	};
+
+	getRewindMessage() {
+		const { siteRawUrl, rewindState } = this.props;
+
+		switch ( rewindState ) {
+			case 'provisioning':
+				return {
+					title: __( 'Provisioning' ),
+					icon: 'info',
+					description: __( 'Backups and Scan are being configured for your site.' ),
+					url: '',
+				};
+			case 'awaiting_credentials':
+				return {
+					title: __( 'Awaiting credentials' ),
+					icon: 'notice',
+					description: __(
+						'You need to enter your server credentials to finish configuring Backups and Scan.'
+					),
+					url: 'https://wordpress.com/settings/security/' + siteRawUrl,
+				};
+			case 'active':
+				return {
+					title: __( 'Active' ),
+					icon: 'checkmark-circle',
+					description: __(
+						'Your site is being backed up in real time and regularly scanned for security threats.'
+					),
+					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
+				};
+		}
+	}
+
 	getCardText = () => {
 		if ( this.props.isDevMode ) {
 			return __( 'Unavailable in Dev Mode.' );
 		}
 
+		const { title, icon, description, url } = this.getRewindMessage();
+
 		return (
 			<Banner
-				title={ __( 'Connected' ) }
-				icon="checkmark-circle"
+				title={ title }
+				icon={ icon }
 				feature={ 'rewind' }
-				description={ __(
-					'Your site is being backed up in real time and regularly scanned for security threats.'
-				) }
+				description={ description }
 				className="is-upgrade-premium jp-banner__no-border"
-				href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+				href={ url }
 			/>
 		);
 	};
@@ -171,18 +215,19 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				[ 'data', 'features', 'security' ],
 				false
 			);
-			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
-			const hasRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false );
+			const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
+			const hasRewindData = false !== rewindState;
 			const hasVpData =
 				this.props.vaultPressData !== 'N/A' &&
 				false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( ! hasRewindData || ( this.props.vaultPressActive && ! hasVpData ) ) {
+			if ( ! hasRewindData && ( this.props.vaultPressActive && ! hasVpData ) ) {
 				return <LoadingCard />;
 			}
 
-			if ( rewindActive ) {
-				return <BackupsScanRewind { ...this.props } />;
+			// Backup & Scan is working in this site.
+			if ( includes( [ 'provisioning', 'awaiting_credentials', 'active' ], rewindState ) ) {
+				return <BackupsScanRewind { ...this.props } rewindState={ rewindState } />;
 			}
 
 			return (

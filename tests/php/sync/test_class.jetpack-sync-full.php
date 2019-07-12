@@ -1,5 +1,10 @@
 <?php
 
+use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Modules\Full_Sync;
+use Automattic\Jetpack\Sync\Settings;
+
 function jetpack_foo_full_sync_callable() {
 	return 'the value';
 }
@@ -11,17 +16,72 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
+	private $test_posts_count    = 20;
+	private $test_comments_count = 11;
+
 	public function setUp() {
 		parent::setUp();
-		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$this->full_sync = Modules::get_module( 'full-sync' );
 	}
 
 	function test_enqueues_sync_start_action() {
+		$post = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post, 11 );
+
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
 		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 		$this->assertTrue( $start_event !== false );
+
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+
+		list( $config, $range ) = $start_event->args;
+
+		$this->assertTrue( $config !== false );
+
+		$this->assertTrue( isset( $range['posts']->max ) );
+		$this->assertTrue( isset( $range['posts']->min ) );
+		$this->assertTrue( isset( $range['posts']->count ) );
+
+		$this->assertTrue( isset( $range['comments']->max ) );
+		$this->assertTrue( isset( $range['comments']->min ) );
+		$this->assertTrue( isset( $range['comments']->count ) );
+
+	}
+
+	function test_enqueues_sync_start_action_without_post_sends_empty_range() {
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+
+		list( $config, $range, $empty ) = $start_event->args;
+
+		$posts = get_posts();
+		if ( empty( $posts ) ) {
+			$this->assertTrue( $empty['posts'] );
+		}
+
+		$comments = get_comments();
+		if ( empty( $comments ) ) {
+			$this->assertTrue( $empty['comments'] );
+		}
+
+		$this->full_sync->reset_data();
+
+		$post = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post, 1 );
+
+
+		$this->full_sync->start();
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+		list( $config, $range, $empty ) = $start_event->args;
+
+		$this->assertFalse( isset( $empty['posts'] ) );
+		$this->assertFalse( isset( $empty['comments'] ) );
+
 	}
 
 	// this only applies to the test replicastore - in production we overlay data
@@ -70,7 +130,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
-		$prefix = Jetpack_Sync_Module_Full_Sync::STATUS_OPTION_PREFIX;
+		$prefix = Full_Sync::STATUS_OPTION_PREFIX;
 		update_option( "{$prefix}_started", time() - 3700 );
 
 		$this->full_sync->start();
@@ -93,10 +153,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 
-		$options_full_sync_actions = Jetpack_Sync_Modules::get_module( 'options' )->get_full_sync_actions();
+		$options_full_sync_actions = Modules::get_module( 'options' )->get_full_sync_actions();
 		$options_event             = $this->server_event_storage->get_most_recent_event( $options_full_sync_actions[0] );
 
-		$posts_full_sync_actions = Jetpack_Sync_Modules::get_module( 'posts' )->get_full_sync_actions();
+		$posts_full_sync_actions = Modules::get_module( 'posts' )->get_full_sync_actions();
 		$posts_event             = $this->server_event_storage->get_most_recent_event( $posts_full_sync_actions[0] );
 
 		$this->assertTrue( $start_event !== false );
@@ -124,7 +184,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
@@ -154,9 +214,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_terms() {
-
-		for ( $i = 0; $i < 11; $i += 1 ) {
-			wp_insert_term( 'term' . $i, 'post_tag' );
+		$NUMBER_OF_TERMS_TO_CREATE = 11;
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+		for ( $i = 0; $i < $NUMBER_OF_TERMS_TO_CREATE; $i += 1 ) {
+			wp_insert_term( 'category ' . $i, 'category' );
+			wp_insert_term( 'term ' . $i, 'post_tag' );
 		}
 
 		// simulate emptying the server storage
@@ -167,7 +230,54 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$terms = $this->server_replica_storage->get_terms( 'post_tag' );
-		$this->assertEquals( 11, count( $terms ) );
+		$this->assertEquals( $NUMBER_OF_TERMS_TO_CREATE, count( $terms ) );
+
+		$terms = $this->server_replica_storage->get_terms( 'category' );
+		$this->assertEquals( $NUMBER_OF_TERMS_TO_CREATE + 1, count( $terms ) ); // 11 + 1 (for uncategorized term)
+	}
+
+	function test_full_sync_sends_all_terms_with_previous_interval_end() {
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+
+		for ( $i = 0; $i < 25; $i += 1 ) {
+			wp_insert_term( 'term' . $i, 'post_tag' );
+		}
+
+		// The first event is for full sync start.
+		$this->full_sync->start( array( 'terms' => true ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		$terms = $event->args['terms'];
+		$previous_interval_end = $event->args['previous_end'];
+		// The first batch has the previous_min_is not set.
+		// We user ~0 to denote that the previous min id unknown.
+		$this->assertEquals( $previous_interval_end, '~0' );
+
+		// Since posts are order by id and the ids are in decending order
+		// the very last post should be the id with the smallest ID. ( previous_interval_end )
+		$last_term = end( $terms );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		$second_batch_terms = $event->args['terms'];
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
+
+		$last_term = end( $second_batch_terms );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
+
+		$this->full_sync->reset_data();
 	}
 
 	function test_full_sync_sends_all_users() {
@@ -194,6 +304,57 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// Lets make sure that we don't send users passwords around.
 		$this->assertFalse( isset( $user->data->user_pass ) );
+	}
+
+	function test_full_sync_sends_previous_interval_end_for_users() {
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+
+		for ( $i = 0; $i < 45; $i += 1 ) {
+			$user_ids[] = $this->factory->user->create();
+		}
+
+		// The first event is for full sync start.
+		$this->full_sync->start( array( 'users' => true ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$users = $event->args['users'];
+		$previous_interval_end = $event->args['previous_end'];
+
+		// The first batch has the previous_min_is not set.
+		// We user ~0 to denote that the previous min id unknown.
+		$this->assertEquals( $previous_interval_end, '~0' );
+
+		// Since posts are order by id and the ids are in decending order
+		// the very last post should be the id with the smallest ID. ( previous_interval_end )
+		$last_user = end( $users );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$second_batch_users = $event->args['users'];
+		$previous_interval_end = $event->args['previous_end'];
+
+		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
+
+		$last_user = end( $second_batch_users );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+		$previous_interval_end = $event->args['previous_end'];
+
+		$this->assertEquals( intval( $previous_interval_end ), $last_user->ID );
+
+		Settings::reset_data();
+		$this->full_sync->reset_data();
+
 	}
 
 	// phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_only_current_blog_users_in_multisite
@@ -317,7 +478,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions() {
-		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -332,7 +493,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions_inverse() {
-		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
@@ -355,7 +516,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_options() {
 		delete_option( 'non_existant' );
-		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
+		Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
 		update_option( 'my_non_synced_option', 'baz' );
@@ -395,7 +556,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Jetpack_Sync_Modules::get_module( "network_options" )->set_network_options_whitelist( array(
+		Modules::get_module( "network_options" )->set_network_options_whitelist( array(
 			'my_option',
 			'my_prefix_value'
 		) );
@@ -427,7 +588,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_post_meta() {
 		$post_id = $this->factory->post->create();
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'test_meta_key', 'test_meta_array' ) ) );
+		Settings::update_settings( array( 'post_meta_whitelist' => array( 'test_meta_key', 'test_meta_array' ) ) );
 
 		add_post_meta( $post_id, 'test_meta_key', 'foo' );
 		add_post_meta( $post_id, 'test_meta_array', array( 'foo', 'bar' ) );
@@ -453,8 +614,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_doesnt_sends_forbiden_private_or_public_post_meta() {
 		$post_id = $this->factory->post->create();
 
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
-		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
+		$meta_module = Modules::get_module( "meta" );
+		Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
 
 		// forbidden private meta
 		add_post_meta( $post_id, '_test_meta_key', 'foo1' );
@@ -514,7 +675,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
 		$comment_id  = $comment_ids[0];
 
-		Jetpack_Sync_Settings::update_settings( array( 'comment_meta_whitelist' => array( 'test_meta_key' ) ) );
+		Settings::update_settings( array( 'comment_meta_whitelist' => array( 'test_meta_key' ) ) );
 
 		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
 
@@ -573,7 +734,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function check_for_updates_to_sync() {
-		$updates_module = Jetpack_Sync_Modules::get_module( 'updates' );
+		$updates_module = Modules::get_module( 'updates' );
 		$updates_module->sync_last_event();
 	}
 
@@ -708,8 +869,38 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $this->full_sync_end_checksum['comments'] ) );
 	}
 
-	function record_full_sync_end_checksum( $checksum ) {
-		$this->full_sync_end_checksum = $checksum;
+	function test_full_sync_end_sends_range() {
+		$this->create_dummy_data_and_empty_the_queue();
+		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 2 );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+
+		$this->assertTrue( isset( $this->full_sync_end_range ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->max ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->min ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['posts']->count ) );
+
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->max ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->min ) );
+		$this->assertTrue( isset( $this->full_sync_end_range['comments']->count ) );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_end' );
+
+		list( $checksum, $range ) = $event->args;
+		$this->assertTrue( isset( $range['posts']->max ) );
+		$this->assertTrue( isset( $range['posts']->min ) );
+		$this->assertTrue( isset( $range['posts']->count ) );
+
+		$this->assertTrue( isset( $range['comments']->max ) );
+		$this->assertTrue( isset( $range['comments']->min ) );
+		$this->assertTrue( isset( $range['comments']->count ) );
+	}
+	function record_full_sync_end_checksum( $checksum, $range ) {
+		// $checksum  has been deprecated...
+		$this->full_sync_end_range = $range;
 	}
 
 	function record_full_sync_start_config( $modules ) {
@@ -718,11 +909,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function create_dummy_data_and_empty_the_queue() {
 		// lets create a bunch of posts
-		for ( $i = 0; $i < 20; $i += 1 ) {
+		for ( $i = 0; $i < $this->test_posts_count; $i += 1 ) {
 			$post = $this->factory->post->create();
 		}
 		// lets create a bunch of comments
-		$this->factory->comment->create_post_comments( $post, 11 );
+		$this->factory->comment->create_post_comments( $post, $this->test_comments_count );
 
 		// reset the data before the full sync
 		$this->sender->reset_data();
@@ -741,6 +932,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'finished'       => null,
 				'total'          => array(),
 				'sent'           => array(),
+				'sent_total'     => array(),
 				'queue'          => array(),
 				'config'         => null,
 			)
@@ -779,6 +971,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $full_sync_status['send_started'] );
 		$this->assertNull( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['sent'] );
+		$this->assertInternalType( 'array', $full_sync_status['sent_total'] );
 	}
 
 	function test_full_sync_status_after_end() {
@@ -801,6 +994,17 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'users'     => 1,
 				'terms'     => 1
 			),
+			'sent_total'  => array(
+				'constants' => -1,
+				'functions' => -1,
+				'options'   => -1,
+				'themes'    => -1,
+				'updates'   => -1,
+				'posts'     => $this->test_posts_count,
+				'comments'  => $this->test_comments_count,
+				'users'     => 1,
+				'terms'     => 1
+			),
 			'queue' => array(
 				'constants' => 1,
 				'functions' => 1,
@@ -814,12 +1018,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 		if ( is_multisite() ) {
-			$should_be_status['queue']['network_options'] = 1;
-			$should_be_status['sent']['network_options']  = 1;
+			$should_be_status['queue']['network_options']       = 1;
+			$should_be_status['sent']['network_options']        = 1;
+			$should_be_status['sent_total']['network_options']  = -1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
+		$this->assertEquals( $full_sync_status['sent_total'], $should_be_status['sent_total'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertInternalType( 'int', $full_sync_status['send_started'] );
@@ -883,10 +1089,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_can_sync_individual_comments() {
-		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
-			$this->markTestSkipped( 'This test fails in PHP 5.2.' );
-		}
-
 		$post_id = $this->factory->post->create();
 		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 );
 
@@ -917,11 +1119,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( 2, count( $users ) );
-		$this->assertEquals( $sync_user_id, $users[0]->ID );
-		$this->assertEquals( $sync_user_id_2, $users[1]->ID );
+		// The users are ordered in reverse order now.
+		$this->assertEquals( $sync_user_id_2, $users[0]->ID );
+		$this->assertEquals( $sync_user_id, $users[1]->ID );
 
 		$sync_status = $this->full_sync->get_status();
 		$this->assertEquals( array( $sync_user_id, $sync_user_id_2 ), $sync_status['config']['users'] );
@@ -981,10 +1184,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( $existing_user_count+1, count( $users ) );
-		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
+		// the last created user should be the fist sent out.
+		$this->assertEquals( $keep_user_id, $users[ 0 ]->ID );
 	}
 
 	function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {
@@ -1015,10 +1219,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
-		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
-			$this->markTestSkipped( 'This test fails in PHP 5.2.' );
-		}
-
 		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
@@ -1101,7 +1301,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->factory->comment->create_post_comments( $post_id, 2 );
 		}
 
-		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+		foreach ( Modules::get_modules() as $module ) {
 			$module_name            = $module->name();
 			$estimate               = $module->estimate_full_sync_actions( true );
 			list( $actual, $state ) = $module->enqueue_full_sync_actions( true, 100, false );
@@ -1131,13 +1331,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
-		$user_ids = Jetpack_Sync_Modules::get_module( 'users' )->get_initial_sync_user_config();
+		$user_ids = Modules::get_module( 'users' )->get_initial_sync_user_config();
 		$this->assertEquals( 3, count( $user_ids ) );
 		$this->full_sync->start( array( 'users' => 'initial' ) );
 		$this->sender->do_full_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		Actions::do_initial_sync( '4.2', '4.1' );
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array(
@@ -1159,7 +1359,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_enqueues_limited_number_of_items() {
-		Jetpack_Sync_Settings::update_settings( array( 'max_enqueue_full_sync' => 2 ) );
+		Settings::update_settings( array( 'max_enqueue_full_sync' => 2 ) );
 
 		global $wpdb;
 
@@ -1196,7 +1396,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_stops_enqueuing_at_max_queue_size() {
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 2, 'max_enqueue_full_sync' => 10 ) );
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 2, 'max_enqueue_full_sync' => 10 ) );
 
 		// this should become three items
 		$synced_post_ids = $this->factory->post->create_many( 25 );
@@ -1233,7 +1433,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_previous_interval_end_on_posts() {
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		$this->factory->post->create_many( 25 );
 
@@ -1274,7 +1474,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_previous_interval_end_on_comments() {
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 		$this->post_id = $this->factory->post->create();
 		for( $i = 0; $i < 25; $i++ ) {
 			$this->factory->comment->create_post_comments( $this->post_id );

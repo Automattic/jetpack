@@ -10,7 +10,7 @@ import { Path, Circle } from '@wordpress/components';
  */
 import edit from './edit';
 import save from './save';
-import renderMaterialIcon from '../../../utils/render-material-icon';
+import renderMaterialIcon from '../../../shared/render-material-icon';
 
 const attributes = {
 	address: {

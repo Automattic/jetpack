@@ -52,7 +52,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }
+							href={ 'https://wordpress.com/marketing/sharing-buttons/' + siteRawUrl }
 						>
 							{ __( 'Configure your sharing buttons' ) }
 						</Card>
@@ -84,18 +84,23 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						module={ { module: 'sharing' } }
 						support={ {
 							text: __(
-								'Adds sharing buttons to your content so that visitors can share it on social media sites.'
+								'You can customize the sharing buttons and choose which services to display.'
 							),
 							link: 'https://jetpack.com/support/sharing/',
 						} }
 					>
+						<p>
+							{ __(
+								'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.'
+							) }
+						</p>
 						<ModuleToggle
 							slug="sharedaddy"
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Add sharing buttons to your posts' ) }
+							{ __( 'Add sharing buttons to your posts and pages' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isActive && configCard() }

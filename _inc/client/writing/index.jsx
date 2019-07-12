@@ -24,6 +24,7 @@ import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
 import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
+import Widgets from './widgets';
 import { Masterbar } from './masterbar';
 import WritingMedia from './writing-media';
 
@@ -43,13 +44,17 @@ export class Writing extends React.Component {
 		const found = [
 			'carousel',
 			'copy-post',
+			'custom-css',
+			'latex',
 			'masterbar',
 			'markdown',
-			'after-the-deadline',
+			'shortcodes',
 			'custom-content-types',
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
+			'widgets',
+			'widget-visibility',
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -60,9 +65,7 @@ export class Writing extends React.Component {
 			return null;
 		}
 
-		const showComposing =
-				this.props.userCanManageModules ||
-				( this.props.userCanEditPosts && this.props.isModuleActivated( 'after-the-deadline' ) ),
+		const showComposing = this.props.userCanManageModules || this.props.userCanEditPosts,
 			showPostByEmail =
 				this.props.userCanManageModules ||
 				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
@@ -70,18 +73,17 @@ export class Writing extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-
 				<Card
-					title={ __(
-						'Compose content the way you want to and streamline your publishing experience.'
-					) }
+					title={
+						this.props.searchTerm
+							? __( 'Writing' )
+							: __(
+									'Compose content the way you want to and streamline your publishing experience.'
+							  )
+					}
 					className="jp-settings-description"
 				/>
-
 				{ this.props.isModuleFound( 'carousel' ) && <WritingMedia { ...commonProps } /> }
-				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
-					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
-				) }
 				{ showComposing && (
 					<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 				) }
@@ -89,6 +91,7 @@ export class Writing extends React.Component {
 					<CustomContentTypes { ...commonProps } />
 				) }
 				<ThemeEnhancements { ...commonProps } />
+				<Widgets { ...commonProps } />
 				{ this.props.isModuleFound( 'post-by-email' ) && showPostByEmail && (
 					<PostByEmail
 						{ ...commonProps }
@@ -96,6 +99,9 @@ export class Writing extends React.Component {
 						isLinked={ this.props.isLinked }
 						userCanManageModules={ this.props.userCanManageModules }
 					/>
+				) }
+				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
+					<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 				) }
 				{ ! showComposing && ! showPostByEmail && (
 					<Card>

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
@@ -32,6 +33,14 @@ import { userCanManageOptions } from 'state/initial-state';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class GoogleVerificationServiceComponent extends React.Component {
+	static propTypes = {
+		disabled: PropTypes.bool,
+	};
+
+	static defaultProps = {
+		disabled: false,
+	};
+
 	state = {
 		inputVisible: false,
 	};
@@ -181,7 +190,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							value={ this.props.value }
 							placeholder={ this.props.placeholder }
 							className="code"
-							disabled={ this.props.isUpdating( 'google' ) }
+							disabled={ this.props.disabled }
 							onChange={ this.props.onOptionChange }
 							onKeyPress={ this.handleOnTextInputKeyPress }
 						/>
@@ -191,7 +200,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 									primary
 									type="button"
 									className="jp-form-site-verification-edit-button"
-									disabled={ this.props.isUpdating( 'google' ) }
+									disabled={ this.props.disabled }
 									onClick={ this.quickSave }
 								>
 									{ __( 'Save' ) }
@@ -199,7 +208,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 								<Button
 									type="button"
 									className="jp-form-site-verification-edit-button"
-									disabled={ this.props.isUpdating( 'google' ) }
+									disabled={ this.props.disabled }
 									onClick={ this.handleClickCancel }
 								>
 									{ __( 'Cancel' ) }
@@ -292,7 +301,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 			this.props.fetchingSiteData ||
 			this.props.fetchingGoogleSiteVerify ||
 			this.props.isVerifyingGoogleSite ||
-			this.props.isUpdating( 'google' );
+			this.props.disabled;
 
 		return (
 			<div

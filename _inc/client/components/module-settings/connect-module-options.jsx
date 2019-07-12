@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
-import get from 'lodash/get';
+import { get } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 
 /**

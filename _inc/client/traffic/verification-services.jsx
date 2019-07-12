@@ -5,13 +5,13 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
-import get from 'lodash/get';
-import includes from 'lodash/includes';
+import { get, includes } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import { FormFieldset, FormLabel } from 'components/forms';
+import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -24,10 +24,6 @@ class VerificationServicesComponent extends React.Component {
 		bing: 'msvalidate.01',
 		pinterest: 'p:domain_verify',
 		yandex: 'yandex-verification',
-	};
-
-	activateVerificationTools = () => {
-		return this.props.updateOptions( { 'verification-tools': true } );
 	};
 
 	getMetaTag( serviceName = '', content = '' ) {
@@ -65,7 +61,7 @@ class VerificationServicesComponent extends React.Component {
 	render() {
 		const verification = this.props.getModule( 'verification-tools' );
 
-		if ( 'inactive' === this.props.getModuleOverride( 'google-analytics' ) ) {
+		if ( 'inactive' === this.props.getModuleOverride( 'verification-tools' ) ) {
 			return (
 				<JetpackBanner
 					title={ verification.name }
@@ -79,23 +75,12 @@ class VerificationServicesComponent extends React.Component {
 			);
 		}
 
-		// Show one-way activation banner if not active
-		if ( ! this.props.getOptionValue( 'verification-tools' ) ) {
-			return (
-				<JetpackBanner
-					callToAction={ __( 'Activate' ) }
-					title={ verification.name }
-					icon="cog"
-					description={ verification.long_description }
-					onClick={ this.activateVerificationTools }
-				/>
-			);
-		}
+		const isVerificationActive = !! this.props.getOptionValue( verification.module );
 
 		return (
 			<SettingsCard
 				{ ...this.props }
-				module="verification-tools"
+				module={ verification.module }
 				saveDisabled={ this.props.isSavingAnyOption( [ 'google', 'bing', 'pinterest', 'yandex' ] ) }
 			>
 				<SettingsGroup
@@ -107,6 +92,17 @@ class VerificationServicesComponent extends React.Component {
 						link: 'https://jetpack.com/support/site-verification-tools',
 					} }
 				>
+					<ModuleToggle
+						slug={ verification.module }
+						activated={ isVerificationActive }
+						toggling={ this.props.isSavingAnyOption( [ verification.module ] ) }
+						disabled={ this.props.isSavingAnyOption( [ verification.module ] ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Verify site ownership with third party services' ) }
+						</span>
+					</ModuleToggle>
 					<p>
 						{ __(
 							'Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}.',
@@ -155,6 +151,7 @@ class VerificationServicesComponent extends React.Component {
 							value={ this.getSiteVerificationValue( 'google' ) }
 							placeholder={ this.getMetaTag( 'google', '1234' ) }
 							{ ...this.props }
+							disabled={ this.props.isUpdating( 'google' ) || ! isVerificationActive }
 						/>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
 							<span>{ __( 'Bing' ) }</span>
@@ -163,7 +160,7 @@ class VerificationServicesComponent extends React.Component {
 								value={ this.getSiteVerificationValue( 'bing' ) }
 								placeholder={ this.getMetaTag( 'bing', '1234' ) }
 								className="code"
-								disabled={ this.props.isUpdating( 'bing' ) }
+								disabled={ this.props.isUpdating( 'bing' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
 						</FormLabel>
@@ -174,7 +171,7 @@ class VerificationServicesComponent extends React.Component {
 								value={ this.getSiteVerificationValue( 'pinterest' ) }
 								placeholder={ this.getMetaTag( 'pinterest', '1234' ) }
 								className="code"
-								disabled={ this.props.isUpdating( 'pinterest' ) }
+								disabled={ this.props.isUpdating( 'pinterest' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
 						</FormLabel>
@@ -185,7 +182,7 @@ class VerificationServicesComponent extends React.Component {
 								value={ this.getSiteVerificationValue( 'yandex' ) }
 								placeholder={ this.getMetaTag( 'yandex', '1234' ) }
 								className="code"
-								disabled={ this.props.isUpdating( 'yandex' ) }
+								disabled={ this.props.isUpdating( 'yandex' ) || ! isVerificationActive }
 								onChange={ this.props.onOptionChange }
 							/>
 						</FormLabel>

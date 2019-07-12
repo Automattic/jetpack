@@ -1,14 +1,23 @@
 <?php
+/**
+ * Vimeo Shortcode.
+ *
+ * Examples:
+ * [vimeo 141358]
+ * [vimeo http://vimeo.com/141358]
+ * [vimeo 141358 h=500&w=350]
+ * [vimeo id=141358 width=350 height=500]
+ *
+ * <iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo 'We Got More' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>
+ *
+ * @package Jetpack
+ */
 
-/*
-[vimeo 141358]
-[vimeo http://vimeo.com/141358]
-[vimeo 141358 h=500&w=350]
-[vimeo id=141358 width=350 height=500]
-
-<iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo 'We Got More' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>
-*/
-
+/**
+ * Extract Vimeo ID from shortcode.
+ *
+ * @param array $atts Shortcode attributes.
+ */
 function jetpack_shortcode_get_vimeo_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
 		$atts[0] = trim( $atts[0], '=' );
@@ -59,8 +68,8 @@ function vimeo_shortcode( $atts ) {
 		return '<!-- vimeo error: not a vimeo video -->';
 	}
 
-	// [vimeo 141358 h=500&w=350]
-	$params = shortcode_new_to_old_params( $atts ); // h=500&w=350
+	// Handle old shortcode params such as h=500&w=350.
+	$params = shortcode_new_to_old_params( $atts );
 	$params = str_replace( array( '&amp;', '&#038;' ), '&', $params );
 	parse_str( $params, $args );
 
@@ -90,7 +99,7 @@ function vimeo_shortcode( $atts ) {
 		$width = absint( $content_width );
 	}
 
-	// If setting the width with content_width has failed, defaulting
+	// If setting the width with content_width has failed, defaulting.
 	if ( ! $width ) {
 		$width = 640;
 	}
@@ -127,7 +136,7 @@ function vimeo_shortcode( $atts ) {
 	if (
 		isset( $args['autoplay'] ) && '1' === $args['autoplay'] // Parsed from the embedded URL.
 		|| $attr['autoplay']                                    // Parsed from shortcode arguments.
-		|| in_array( 'autoplay', $atts )                        // Catch the argument passed without a value.
+		|| in_array( 'autoplay', $atts, true )                  // Catch the argument passed without a value.
 	) {
 		$url = add_query_arg( 'autoplay', 1, $url );
 	}
@@ -135,7 +144,7 @@ function vimeo_shortcode( $atts ) {
 	if (
 		isset( $args['loop'] ) && '1' === $args['loop'] // Parsed from the embedded URL.
 		|| $attr['loop']                                // Parsed from shortcode arguments.
-		|| in_array( 'loop', $atts )                    // Catch the argument passed without a value.
+		|| in_array( 'loop', $atts, true )              // Catch the argument passed without a value.
 	) {
 		$url = add_query_arg( 'loop', 1, $url );
 	}
@@ -169,8 +178,8 @@ add_shortcode( 'vimeo', 'vimeo_shortcode' );
  * @since 3.9
  *
  * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr Attributes received in embed response
- * @param array $url Requested URL to be embedded
+ * @param array $attr    Attributes received in embed response.
+ * @param array $url     Requested URL to be embedded.
  *
  * @return string Return output of Vimeo shortcode with the proper markup.
  */
@@ -190,9 +199,19 @@ function wpcom_vimeo_embed_url_init() {
 	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?://(.+\.)?vimeo\.com/#i', 'wpcom_vimeo_embed_url' );
 }
 
-// Register handler to modify Vimeo embeds using Jetpack's shortcode output.
-add_action( 'init', 'wpcom_vimeo_embed_url_init' );
+/*
+ * Register handler to modify Vimeo embeds using Jetpack's shortcode output.
+ * This does not happen on WordPress.com, since embeds are handled by core there.
+ */
+if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	add_action( 'init', 'wpcom_vimeo_embed_url_init' );
+}
 
+/**
+ * Transform a Vimeo embed iFrame into a Vimeo shortcode.
+ *
+ * @param string $content Post content.
+ */
 function vimeo_embed_to_shortcode( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'player.vimeo.com/video/' ) ) {
 		return $content;
@@ -201,8 +220,8 @@ function vimeo_embed_to_shortcode( $content ) {
 	$regexp     = '!<iframe\s+src=[\'"](https?:)?//player\.vimeo\.com/video/(\d+)[\w=&;?]*[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)((?:[\s\w]*))></iframe>!i';
 	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
 
-	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
-		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) ) {
+	foreach ( compact( 'regexp', 'regexp_ent' ) as $reg => $regexp ) {
+		if ( ! preg_match_all( $regexp, $content, $matches, PREG_SET_ORDER ) ) {
 			continue;
 		}
 
@@ -211,7 +230,7 @@ function vimeo_embed_to_shortcode( $content ) {
 
 			$params = $match[3];
 
-			if ( 'regexp_ent' == $reg ) {
+			if ( 'regexp_ent' === $reg ) {
 				$params = html_entity_decode( $params );
 			}
 
@@ -232,7 +251,6 @@ function vimeo_embed_to_shortcode( $content ) {
 
 	return $content;
 }
-
 add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
 
 /**
@@ -244,7 +262,8 @@ add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
  * @since 3.7.0
  * @since 3.9.5 One regular expression matches shortcodes and plain URLs.
  *
- * @param string $content HTML content
+ * @param string $content HTML content.
+ *
  * @return string The content with embeds instead of URLs
  */
 function vimeo_link( $content ) {
@@ -255,10 +274,12 @@ function vimeo_link( $content ) {
 	$shortcode = '(?:\[vimeo\s+[^0-9]*)([0-9]+)(?:\])';
 
 	/**
-	 *  http://vimeo.com/12345
-	 *  https://vimeo.com/12345
-	 *  //vimeo.com/12345
-	 *  vimeo.com/some/descender/12345
+	 * Regex to look for a Vimeo link.
+	 *
+	 * - http://vimeo.com/12345
+	 * - https://vimeo.com/12345
+	 * - //vimeo.com/12345
+	 * - vimeo.com/some/descender/12345
 	 *
 	 *  Should not capture inside HTML attributes
 	 *  [Not] <a href="vimeo.com/12345">Cool Video</a>
@@ -293,9 +314,17 @@ function vimeo_link_callback( $matches ) {
 	return $matches[0];
 }
 
-/** This filter is documented in modules/shortcodes/youtube.php */
-if ( ! is_admin() && apply_filters( 'jetpack_comments_allow_oembed', true ) ) {
-	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
-	// Higher priority because we need it before auto-link and autop get to it
+if (
+	! is_admin()
+	/** This filter is documented in modules/shortcodes/youtube.php */
+	&& apply_filters( 'jetpack_comments_allow_oembed', true )
+	// No need for this on WordPress.com, this is done for multiple shortcodes at a time there.
+	&& ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
+) {
+	/*
+	 * We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway,
+	 * so the iframe gets filtered out.
+	 * Higher priority because we need it before auto-link and autop get to it
+	 */
 	add_filter( 'comment_text', 'vimeo_link', 1 );
 }

@@ -1,11 +1,11 @@
 <?php
 /**
  * Module Name: WP.me Shortlinks
- * Module Description: Create short and simple links for all posts and pages.
+ * Module Description: Generates shorter links so you can have more space to write on social media sites.
  * Sort Order: 8
  * First Introduced: 1.1
  * Requires Connection: Yes
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Social
  * Feature: Writing
  * Additional Search Queries: shortlinks, wp.me
@@ -89,7 +89,7 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
 }
 
 /**
- * Add Shortlinks to the REST API Post response.
+ * Add Shortlinks to the REST API responses.
  *
  * @since 6.9.0
  *
@@ -98,7 +98,11 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
  */
 function wpme_rest_register_shortlinks() {
 	register_rest_field(
-		'post',
+		array(
+			'attachment',
+			'page',
+			'post',
+		),
 		'jetpack_shortlink',
 		array(
 			'get_callback'    => 'wpme_rest_get_shortlink',

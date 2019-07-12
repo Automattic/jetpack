@@ -2,13 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import get from 'lodash/get';
-import assign from 'lodash/assign';
-import merge from 'lodash/merge';
-import includes from 'lodash/includes';
-import some from 'lodash/some';
-import filter from 'lodash/filter';
-import mapValues from 'lodash/mapValues';
+import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
 
 /**
  * Internal dependencies
@@ -195,13 +189,4 @@ export function appsCardDismissed( state ) {
  */
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
-}
-
-/**
- * Returns true if a new plan has been purchased.
- * @param  {Object}  state Global state tree
- * @return {Boolean} Whether a new plan has been purchased.
- */
-export function showWelcomeForNewPlan( state ) {
-	return get( state.jetpack.settings.items, 'show_welcome_for_new_plan', false );
 }

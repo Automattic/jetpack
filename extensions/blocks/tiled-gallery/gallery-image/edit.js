@@ -9,39 +9,13 @@ import { IconButton, Spinner } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
 import { withSelect } from '@wordpress/data';
 
-/* @TODO Caption has been commented out */
-// import { RichText } from '@wordpress/editor';
-
 class GalleryImageEdit extends Component {
 	img = createRef();
-
-	/* @TODO Caption has been commented out */
-	// state = {
-	// 	captionSelected: false,
-	// };
-
-	// onSelectCaption = () => {
-	// 	if ( ! this.state.captionSelected ) {
-	// 		this.setState( {
-	// 			captionSelected: true,
-	// 		} );
-	// 	}
-
-	// 	if ( ! this.props.isSelected ) {
-	// 		this.props.onSelect();
-	// 	}
-	// };
 
 	onImageClick = () => {
 		if ( ! this.props.isSelected ) {
 			this.props.onSelect();
 		}
-
-		// if ( this.state.captionSelected ) {
-		// 	this.setState( {
-		// 		captionSelected: false,
-		// 	} );
-		// }
 	};
 
 	onImageKeyDown = event => {
@@ -53,16 +27,6 @@ class GalleryImageEdit extends Component {
 			this.props.onRemove();
 		}
 	};
-
-	/* @TODO Caption has been commented out */
-	// static getDerivedStateFromProps( props, state ) {
-	// 	// unselect the caption so when the user selects other image and comeback
-	// 	// the caption is not immediately selected
-	// 	if ( ! props.isSelected && state.captionSelected ) {
-	// 		return { captionSelected: false };
-	// 	}
-	// 	return null;
-	// }
 
 	componentDidUpdate() {
 		const { alt, height, image, link, url, width } = this.props;
@@ -96,7 +60,6 @@ class GalleryImageEdit extends Component {
 		const {
 			'aria-label': ariaLabel,
 			alt,
-			// caption,
 			height,
 			id,
 			imageFilter,
@@ -105,7 +68,7 @@ class GalleryImageEdit extends Component {
 			linkTo,
 			onRemove,
 			origUrl,
-			// setAttributes,
+			srcSet,
 			url,
 			width,
 		} = this.props;
@@ -120,6 +83,8 @@ class GalleryImageEdit extends Component {
 				href = link;
 				break;
 		}
+
+		const isTransient = isBlobURL( origUrl );
 
 		const img = (
 			// Disable reason: Image itself is not meant to be interactive, but should
@@ -137,10 +102,12 @@ class GalleryImageEdit extends Component {
 					onClick={ this.onImageClick }
 					onKeyDown={ this.onImageKeyDown }
 					ref={ this.img }
-					src={ url }
+					src={ isTransient ? undefined : url }
+					srcSet={ isTransient ? undefined : srcSet }
 					tabIndex="0"
+					style={ isTransient ? { backgroundImage: `url(${ origUrl })` } : undefined }
 				/>
-				{ isBlobURL( origUrl ) && <Spinner /> }
+				{ isTransient && <Spinner /> }
 			</Fragment>
 			/* eslint-enable jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex */
 		);
@@ -150,7 +117,7 @@ class GalleryImageEdit extends Component {
 			<figure
 				className={ classnames( 'tiled-gallery__item', {
 					'is-selected': isSelected,
-					'is-transient': isBlobURL( origUrl ),
+					'is-transient': isTransient,
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 			>
@@ -167,17 +134,6 @@ class GalleryImageEdit extends Component {
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */
 				/* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 				{ href ? <a>{ img }</a> : img }
-				{ /* ( ! RichText.isEmpty( caption ) || isSelected ) && (
-					<RichText
-						tagName="figcaption"
-						placeholder={ __( 'Write caption…' ) }
-						value={ caption }
-						isSelected={ this.state.captionSelected }
-						onChange={ newCaption => setAttributes( { caption: newCaption } ) }
-						unstableOnFocus={ this.onSelectCaption }
-						inlineToolbar
-					/>
-				) */ }
 			</figure>
 		);
 	}

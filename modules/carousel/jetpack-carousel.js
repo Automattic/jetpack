@@ -474,6 +474,9 @@ jQuery( document ).ready( function( $ ) {
 					$( window ).scrollTop( scroll );
 					$( '.jp-carousel-previous-button' ).hide();
 					$( '.jp-carousel-next-button' ).hide();
+					// Set height to original value
+					// Fix some themes where closing carousel brings view back to top
+					$( 'html' ).css( 'height', '' );
 				} )
 				.bind( 'jp_carousel.afterClose', function() {
 					if ( window.location.hash && history.back ) {
@@ -1270,32 +1273,7 @@ jQuery( document ).ready( function( $ ) {
 			if ( ! value.match( ' ' ) && value.match( '_' ) ) {
 				return '';
 			}
-			// Prefix list originally based on http://commons.wikimedia.org/wiki/MediaWiki:Filename-prefix-blacklist
-			$( [
-				'CIMG', // Casio
-				'DSC_', // Nikon
-				'DSCF', // Fuji
-				'DSCN', // Nikon
-				'DUW', // some mobile phones
-				'GEDC', // GE
-				'IMG', // generic
-				'JD', // Jenoptik
-				'MGP', // Pentax
-				'PICT', // misc.
-				'Imagen', // misc.
-				'Foto', // misc.
-				'DSC', // misc.
-				'Scan', // Scanners
-				'SANY', // Sanyo
-				'SAM', // Samsung
-				'Screen Shot [0-9]+', // Mac screenshots
-			] ).each( function( key, val ) {
-				var regex = new RegExp( '^' + val );
-				if ( regex.test( value ) ) {
-					value = '';
-					return;
-				}
-			} );
+
 			return value;
 		},
 
@@ -1715,6 +1693,10 @@ jQuery( document ).ready( function( $ ) {
 			) {
 				return;
 			}
+
+			// Set height to auto
+			// Fix some themes where closing carousel brings view back to top
+			$( 'html' ).css( 'height', 'auto' );
 
 			e.preventDefault();
 

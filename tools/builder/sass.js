@@ -48,19 +48,6 @@ gulp.task( 'sass:calypsoify', function( done ) {
 		} );
 } );
 
-gulp.task( 'sass:dops', function( done ) {
-	log( 'Building dops-components CSS bundle...' );
-
-	return gulp
-		.src( './_inc/build/*dops-style.css' )
-		.pipe( autoprefixer() )
-		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
-			log( 'dops-components CSS finished.' );
-			doRTL( 'dops', done );
-		} );
-} );
-
 function doRTL( files, done ) {
 	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
@@ -71,10 +58,6 @@ function doRTL( files, done ) {
 		case 'main':
 			path = './_inc/build/style.min.css';
 			success = 'Dashboard RTL CSS finished.';
-			break;
-		case 'dops':
-			path = './_inc/build/*dops-style.css';
-			success = 'DOPS Components RTL CSS finished.';
 			break;
 		case 'calypsoify':
 			path = [ './modules/calypsoify/style*.min.css', '!./modules/calypsoify/style*rtl.min.css' ];
@@ -163,13 +146,13 @@ gulp.task(
 );
 
 export const build = gulp.parallel(
-	gulp.series( 'sass:dashboard', 'sass:dops', 'sass:calypsoify' ),
+	gulp.series( 'sass:dashboard', 'sass:calypsoify' ),
 	'sass:old'
 );
 
 export const watch = function() {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:dops', 'sass:old' )
+		gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:old' )
 	);
 };

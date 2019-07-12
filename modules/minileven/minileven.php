@@ -117,7 +117,20 @@ function jetpack_mobile_template( $theme ) {
 }
 
 function jetpack_mobile_available() {
-	echo '<div class="jetpack-mobile-link" style="text-align:center;margin:10px 0;"><a href="'. esc_url( home_url( add_query_arg('ak_action', 'accept_mobile') ) ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a></div>';
+	/*
+	 * Create HTML markup with a link to "View Mobile Site".
+	 * The link adds "ak_action=accept_mobile" to the current URL.
+	 */
+	global $wp;
+	$url_params = array(
+		'ak_action' => 'accept_mobile',
+	);
+	if ( is_array( $_GET ) && ! empty( $_GET ) ) {
+		$url_params[] = $_GET;
+	}
+	$target_url = home_url( add_query_arg( $url_params, $wp->request ) );
+	$anchor = '<a href="' . esc_url( $target_url ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a>';
+	echo '<div class="jetpack-mobile-link" style="text-align:center;margin:10px 0;">' . $anchor . '</div>';
 }
 
 function jetpack_mobile_request_handler() {

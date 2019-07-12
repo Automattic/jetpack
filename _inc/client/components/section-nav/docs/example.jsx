@@ -2,10 +2,9 @@
  * External dependencies
  */
 import React from 'react';
-
 import PureRenderMixin from 'react-pure-render/mixin';
-import forEach from 'lodash/forEach';
 import createReactClass from 'create-react-class';
+import { forEach } from 'lodash';
 
 /**
  * Internal dependencies

@@ -59,7 +59,7 @@ export const SSO = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					hideButton
 					module="sso"
-					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }
+					header={ __( 'WordPress.com login', { context: 'Settings header, noun.' } ) }
 				>
 					<SettingsGroup
 						hasChild
@@ -74,8 +74,8 @@ export const SSO = withModuleSettingsFormHelpers(
 					>
 						<p>
 							{ __(
-								'Add an extra layer of security to your website by enabling WordPress.com log in and secure ' +
-									'authentication. If you have multiple sites with this option enabled, you will be able to log into every ' +
+								'Add an extra layer of security to your website by enabling WordPress.com login and secure ' +
+									'authentication. If you have multiple sites with this option enabled, you will be able to log in to every ' +
 									'one of them with the same credentials.'
 							) }
 						</p>

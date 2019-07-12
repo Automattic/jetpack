@@ -1,9 +1,7 @@
-
-// @TODO: Replace with Gutenberg variables
-$dark-gray-500: #555d66;
+@import '../../shared/styles/gutenberg-colors.scss';
 
 .jetpack-publicize-message-box {
-	background-color: #edeff0;
+	background-color: $light-gray-300;
 	border-radius: 4px;
 }
 
@@ -40,9 +38,6 @@ $dark-gray-500: #555d66;
 	}
 	&.is-tumblr {
 		fill: var( --color-tumblr );
-	}
-	&.is-google-plus {
-		fill: var( --color-gplus );
 	}
 }
 

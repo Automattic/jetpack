@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
  *
@@ -254,7 +257,7 @@ class Jetpack_IDC {
 
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
@@ -278,7 +281,7 @@ class Jetpack_IDC {
 		if ( ! wp_style_is( 'jetpack-dops-style' ) ) {
 			wp_register_style(
 				'jetpack-dops-style',
-				plugins_url( '_inc/build/admin.dops-style.css', JETPACK__PLUGIN_FILE ),
+				plugins_url( '_inc/build/admin.css', JETPACK__PLUGIN_FILE ),
 				array(),
 				JETPACK__VERSION
 			);
@@ -312,7 +315,7 @@ class Jetpack_IDC {
 	function render_notice_header() { ?>
 		<div class="jp-idc-notice__header">
 			<div class="jp-idc-notice__header__emblem">
-				<?php echo Jetpack::get_jp_emblem(); ?>
+				<?php $jetpack_logo = new Jetpack_Logo(); echo $jetpack_logo->get_jp_emblem(); ?>
 			</div>
 			<p class="jp-idc-notice__header__text">
 				<?php esc_html_e( 'Jetpack Safe Mode', 'jetpack' ); ?>

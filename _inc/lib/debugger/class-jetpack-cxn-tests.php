@@ -5,6 +5,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */
@@ -22,7 +24,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			if ( false === strpos( $method, 'test__' ) ) {
 				continue;
 			}
-			$this->add_test( array( $this, $method ) );
+			$this->add_test( array( $this, $method ), $method, 'direct' );
 		}
 
 		/**
@@ -44,8 +46,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			 * Intentionally added last as it checks for an existing failure state before attempting.
 			 * Generally, any failed location condition would result in the WP.com check to fail too, so
 			 * we will skip it to avoid confusing error messages.
+			 *
+			 * Note: This really should be an 'async' test.
 			 */
-			$this->add_test( array( $this, 'last__wpcom_self_test' ) );
+			$this->add_test( array( $this, 'last__wpcom_self_test' ), 'test__wpcom_self_test', 'direct' );
 		}
 	}
 
@@ -223,9 +227,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			return self::skipped_test( $name );
 		}
 
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
-			Jetpack_Client::WPCOM_JSON_API_VERSION
+			Client::WPCOM_JSON_API_VERSION
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -240,9 +244,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			return self::failing_test( $name, $message );
 		}
 
+		if ( 404 === wp_remote_retrieve_response_code( $response ) ) {
+			return self::skipped_test( $name, __( 'The WordPress.com API returned a 404 error.', 'jetpack' ) );
+		}
+
 		$result       = json_decode( $body );
 		$is_connected = (bool) $result->connected;
-		$message      = $result->message . wp_remote_retrieve_response_code( $response );
+		$message      = $result->message . ': ' . wp_remote_retrieve_response_code( $response );
 
 		if ( $is_connected ) {
 			return self::passing_test( $name );

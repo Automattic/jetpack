@@ -6,21 +6,20 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import noop from 'lodash/noop';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
+import { get, isEmpty, noop } from 'lodash';
+import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
+import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import UpgradeLink from 'components/upgrade-link';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
-import { showBackups } from 'state/initial-state';
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -30,7 +29,7 @@ import { showBackups } from 'state/initial-state';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Backups' ) }
+		label={ __( 'Backup' ) }
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
@@ -41,6 +40,7 @@ const renderCard = props => (
 		className={ props.className }
 		status={ props.status }
 		pro={ true }
+		overrideContent={ props.overrideContent }
 	>
 		<p className="jp-dash-item__description">{ props.content }</p>
 	</DashItem>
@@ -50,23 +50,24 @@ class DashBackups extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		getOptionValue: PropTypes.func.isRequired,
-		isRewindActive: PropTypes.bool.isRequired,
+		rewindStatus: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
 		sitePlan: PropTypes.object.isRequired,
 		isDevMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
+		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
 		siteRawUrl: '',
 		getOptionValue: noop,
-		isRewindActive: false,
 		vaultPressData: '',
 		sitePlan: '',
 		isDevMode: false,
 		isVaultPressInstalled: false,
+		rewindStatus: '',
 	};
 
 	getVPContent() {
@@ -128,13 +129,19 @@ class DashBackups extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				content: __(
-					'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.',
-					{
-						components: {
-							a: <UpgradeLink source="aag-backups" />,
-						},
-					}
+				overrideContent: (
+					<JetpackBanner
+						callToAction={ __( 'Upgrade' ) }
+						title={ __(
+							'Never worry about losing your site – automatic backups keep your content safe.'
+						) }
+						disableHref="false"
+						href={ this.props.upgradeUrl }
+						eventFeature="backups"
+						path="dashboard"
+						plan={ PLAN_JETPACK_PREMIUM }
+						icon="history"
+					/>
 				),
 			} );
 		}
@@ -144,6 +151,55 @@ class DashBackups extends Component {
 			status: '',
 			content: __( 'Loading…' ),
 		} );
+	}
+
+	getRewindContent() {
+		const { rewindStatus, siteRawUrl } = this.props;
+		const buildAction = ( url, message ) => (
+			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
+				{ message }
+			</Card>
+		);
+		const buildCard = message =>
+			renderCard( {
+				className: 'jp-dash-item__is-active',
+				status: 'is-working',
+				feature: 'rewind',
+				content: message,
+			} );
+
+		switch ( rewindStatus ) {
+			case 'provisioning':
+				return (
+					<React.Fragment>
+						{ buildCard( __( "We are configuring your site's backups." ) ) }
+					</React.Fragment>
+				);
+			case 'awaiting_credentials':
+				return (
+					<React.Fragment>
+						{ buildCard(
+							__( "You need to enter your server's credentials to finish the setup." )
+						) }
+						{ buildAction(
+							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							__( 'Enter credentials' )
+						) }
+					</React.Fragment>
+				);
+			case 'active':
+				return (
+					<React.Fragment>
+						{ buildCard( __( 'We are backing up your site in real-time.' ) ) }
+						{ buildAction(
+							`https://wordpress.com/activity-log/${ siteRawUrl }?group=rewind`,
+							__( "View your site's backups" )
+						) }
+					</React.Fragment>
+				);
+		}
+
+		return false;
 	}
 
 	render() {
@@ -163,33 +219,13 @@ class DashBackups extends Component {
 			);
 		}
 
-		const data = get( this.props.vaultPressData, 'data', '' );
-		const siteId = data && data.site_id;
-
 		return (
 			<div>
 				<QueryVaultPressData />
-				{ this.props.isRewindActive ? (
-					<div className="jp-dash-item">
-						{ renderCard( {
-							className: 'jp-dash-item__is-active',
-							status: 'is-working',
-							content: __( 'Your site is being backed up in real-time.' ),
-							feature: 'rewind',
-						} ) }
-						{
-							<Card
-								key="manage-backups"
-								className="jp-dash-item__manage-in-wpcom"
-								compact
-								href={ `https://dashboard.vaultpress.com/${ siteId }/backups/` }
-							>
-								{ __( 'View backup history' ) }
-							</Card>
-						}
-					</div>
-				) : (
+				{ 'unavailable' === this.props.rewindStatus ? (
 					this.getVPContent()
+				) : (
+					<div className="jp-dash-item">{ this.getRewindContent() }</div>
 				) }
 			</div>
 		);
@@ -203,5 +239,6 @@ export default connect( state => {
 		isDevMode: isDevMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		showBackups: showBackups( state ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
 	};
 } )( DashBackups );

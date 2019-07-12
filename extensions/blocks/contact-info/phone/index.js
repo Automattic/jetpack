@@ -8,7 +8,7 @@ import { Path } from '@wordpress/components';
  * Internal dependencies
  */
 import edit from './edit';
-import renderMaterialIcon from '../../../utils/render-material-icon';
+import renderMaterialIcon from '../../../shared/render-material-icon';
 import save from './save';
 
 const attributes = {

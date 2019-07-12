@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import analytics from 'lib/analytics';
 
 /**
@@ -34,6 +34,7 @@ export class DashItem extends Component {
 		pro: PropTypes.bool,
 		isModule: PropTypes.bool,
 		support: PropTypes.object,
+		overrideContent: PropTypes.element,
 	};
 
 	static defaultProps = {
@@ -71,10 +72,13 @@ export class DashItem extends Component {
 
 		if ( '' !== this.props.module ) {
 			toggle =
-				includes(
+				( includes(
 					[ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ],
 					this.props.module
-				) && this.props.isDevMode ? (
+				) &&
+					this.props.isDevMode ) ||
+				// Avoid toggle for manage as it's no longer a module
+				'manage' === this.props.module ? (
 					''
 				) : (
 					<ModuleToggle
@@ -137,14 +141,18 @@ export class DashItem extends Component {
 				<SectionHeader label={ this.props.label } cardBadge={ proButton }>
 					{ this.props.userCanToggle ? toggle : '' }
 				</SectionHeader>
-				<Card className="jp-dash-item__card" href={ this.props.href }>
-					<div className="jp-dash-item__content">
-						{ this.props.support.link && (
-							<SupportInfo module={ module } { ...this.props.support } />
-						) }
-						{ this.props.children }
-					</div>
-				</Card>
+				{ this.props.overrideContent ? (
+					this.props.overrideContent
+				) : (
+					<Card className="jp-dash-item__card" href={ this.props.href }>
+						<div className="jp-dash-item__content">
+							{ this.props.support.link && (
+								<SupportInfo module={ module } { ...this.props.support } />
+							) }
+							{ this.props.children }
+						</div>
+					</Card>
+				) }
 			</div>
 		);
 	}

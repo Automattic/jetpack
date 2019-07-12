@@ -198,26 +198,6 @@ function sharedaddy_more_info() {
 add_action( 'jetpack_module_more_info_sharedaddy', 'sharedaddy_more_info' );
 
 /**
- * After The Deadline support link.
- */
-function jpatd_load_more_link() {
-	echo 'https://jetpack.com/support/spelling-and-grammar/';
-}
-add_filter( 'jetpack_learn_more_button_after-the-deadline', 'jpatd_load_more_link' );
-
-/**
- * After The Deadline description.
- */
-function jpatd_more_info() {
-	esc_html_e(
-		'The After the Deadline proofreading service improves your writing by using artificial intelligence to
-		find spelling and grammatical errors and offers smart suggestions.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_after-the-deadline', 'jpatd_more_info' );
-
-/**
  * Extra Sidebar Widgets support link.
  */
 function jetpack_widgets_load_more_link() {

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing CRUD on Comments
  */
@@ -350,7 +352,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_returns_comment_object_by_id() {
-		$comment_sync_module = Jetpack_Sync_Modules::get_module( "comments" );
+		$comment_sync_module = Modules::get_module( "comments" );
 
 		$comment_id = $this->comment_ids[0];
 		

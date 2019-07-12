@@ -1,10 +1,14 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 	define( 'WP_SHARING_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 }
 
 class Sharing_Admin {
+
 	public function __construct() {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
 
@@ -24,7 +28,7 @@ class Sharing_Admin {
 	public function sharing_head() {
 		wp_enqueue_script(
 			'sharing-js',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/sharedaddy/admin-sharing.min.js',
 				'modules/sharedaddy/admin-sharing.js'
 			),
@@ -604,16 +608,35 @@ function jetpack_post_sharing_register_rest_field() {
 				),
 			)
 		);
+
+		/**
+		 * Ensures all public internal post-types support `sharing`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
 	}
 }
 
 // Add Sharing post_meta to the REST API Post response.
 add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
 
+// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
+// restapi_theme_init because they depend on theme support, so let's also hook to that
+add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+
 function sharing_admin_init() {
 	global $sharing_admin;
 
 	$sharing_admin = new Sharing_Admin();
 }
+
+/**
+ * Set the Likes and Sharing Gutenberg extension as available
+ */
+function jetpack_sharing_set_extension_availability() {
+	Jetpack_Gutenberg::set_extension_available( 'sharing' );
+}
+
+add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_sharing_set_extension_availability' );
 
 add_action( 'init', 'sharing_admin_init' );

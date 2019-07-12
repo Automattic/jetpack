@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import uniqueId from 'lodash/uniqueId';
+import { uniqueId } from 'lodash';
 
 /**
  * Internal dependencies

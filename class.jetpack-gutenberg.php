@@ -6,6 +6,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Wrapper function to safely register a gutenberg block type
  *
@@ -183,9 +185,13 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $slug Slug of the extension.
 	 * @param string $reason A string representation of why the extension is unavailable.
+	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
-	public static function set_extension_unavailable( $slug, $reason ) {
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = $reason;
+	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
+		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
+			'reason'  => $reason,
+			'details' => $details,
+		);
 	}
 
 	/**
@@ -220,7 +226,7 @@ class Jetpack_Gutenberg {
 		 * @param boolean
 		 */
 		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
-			Jetpack_Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
+			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
 		}
 
 		/**
@@ -230,7 +236,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param array
 		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_jetpack_gutenberg_extensions_whitelist() );
+		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
 
 		/**
 		 * Filter the whitelist of block editor plugins that are available through Jetpack.
@@ -318,12 +324,26 @@ class Jetpack_Gutenberg {
 
 		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array();
 
-		if ( Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
 			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
 		}
 
 		return $preset_extensions;
+	}
+
+	/**
+	 * Returns a diff from a combined list of whitelisted extensions and extensions determined to be excluded
+	 *
+	 * @param  array $whitelisted_extensions An array of whitelisted extensions.
+	 *
+	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
+	 */
+	public static function get_available_extensions( $whitelisted_extensions = null ) {
+		$exclusions             = get_option( 'jetpack_excluded_extensions', array() );
+		$whitelisted_extensions = is_null( $whitelisted_extensions ) ? self::get_jetpack_gutenberg_extensions_whitelist() : $whitelisted_extensions;
+
+		return array_diff( $whitelisted_extensions, $exclusions );
 	}
 
 	/**
@@ -355,8 +375,10 @@ class Jetpack_Gutenberg {
 			);
 
 			if ( ! $is_available ) {
-				$reason = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ] : 'missing_module';
+				$reason  = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['reason'] : 'missing_module';
+				$details = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['details'] : array();
 				$available_extensions[ $extension ]['unavailable_reason'] = $reason;
+				$available_extensions[ $extension ]['details']            = $details;
 			}
 		}
 
@@ -416,7 +438,8 @@ class Jetpack_Gutenberg {
 	 * Only enqueue block assets when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
+	 *                                    detected script dependencies from the webpack build.
 	 *
 	 * @return void
 	 */
@@ -455,17 +478,19 @@ class Jetpack_Gutenberg {
 		}
 
 	}
+
 	/**
 	 * Only enqueue block scripts when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 * @param array  $dependencies Script dependencies. Will be merged with automatically
+	 *                             detected script dependencies from the webpack build.
 	 *
 	 * @since 7.2.0
 	 *
 	 * @return void
 	 */
-	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
+	public static function load_scripts_as_required( $type, $dependencies = array() ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
@@ -473,7 +498,15 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
-		if ( self::block_has_asset( $script_relative_path ) ) {
+		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
+
+		$script_dependencies = file_exists( $script_deps_path )
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			? json_decode( file_get_contents( $script_deps_path ) )
+			: array();
+		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
+
+		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
@@ -523,11 +556,18 @@ class Jetpack_Gutenberg {
 		}
 
 		$rtl        = is_rtl() ? '.rtl' : '';
-		$beta       = Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
+		$beta       = Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
 		$blocks_dir = self::get_blocks_directory();
 
 		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
 		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
+
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.deps.json";
+		$editor_deps      = file_exists( $editor_deps_path )
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			? json_decode( file_get_contents( $editor_deps_path ) )
+			: array();
+		$editor_deps[] = 'wp-polyfill';
 
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
@@ -544,28 +584,7 @@ class Jetpack_Gutenberg {
 		wp_enqueue_script(
 			'jetpack-blocks-editor',
 			$editor_script,
-			array(
-				'lodash',
-				'wp-api-fetch',
-				'wp-blob',
-				'wp-blocks',
-				'wp-components',
-				'wp-compose',
-				'wp-data',
-				'wp-date',
-				'wp-edit-post',
-				'wp-editor',
-				'wp-element',
-				'wp-escape-html',
-				'wp-hooks',
-				'wp-i18n',
-				'wp-keycodes',
-				'wp-plugins',
-				'wp-polyfill',
-				'wp-rich-text',
-				'wp-token-list',
-				'wp-url',
-			),
+			$editor_deps,
 			$version,
 			false
 		);

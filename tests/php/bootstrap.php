@@ -29,6 +29,9 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } else if ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
 	// VVV
 	$test_root = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
+} else if ( file_exists( '/srv/www/wordpress-trunk/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
+	// VVV 3.0
+	$test_root = '/srv/www/wordpress-trunk/public_html/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-develop/tests/phpunit/includes/bootstrap.php' ) ) {
 	// Manual checkout & Jetpack's docker environment
 	$test_root = '/tmp/wordpress-develop/tests/phpunit';
@@ -53,7 +56,7 @@ if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 
 if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	/**
-	 * "Mocking" function so that it exists and Jetpack_Sync_Actions will load Jetpack_Sync_Module_WP_Super_Cache
+	 * "Mocking" function so that it exists and Automattic\Jetpack\Sync\Actions will load Automattic\Jetpack\Sync\Modules\WP_Super_Cache
 	 */
 	function wp_cache_is_enabled() {
 
@@ -117,13 +120,4 @@ function in_running_uninstall_group() {
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
-// @todo Remove version check when 5.1 is the minimum WP version.
-if ( file_exists( $test_root . '/includes/listener-loader.php' ) ) {
-	// version 5.1 and higher could have this set.
-	require $test_root . '/includes/listener-loader.php';
-} else {
-	if ( file_exists( require $test_root . '/includes/speed-trap-listener.php' ) ) {
-		echo 'UPDATE YOUR WP CORE TESTS HELPERS!';
-		require $test_root . '/includes/speed-trap-listener.php';
-	}
-}
+require $test_root . '/includes/listener-loader.php';

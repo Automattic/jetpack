@@ -340,12 +340,27 @@ class Jetpack_Media_Summary {
 		return '';
 	}
 
+	/**
+	 * Split a string into an array of words.
+	 *
+	 * @param string $text Post content or excerpt.
+	 */
+	static function split_content_in_words( $text ) {
+		$words = preg_split( '/[\s!?;,.]+/', $text, null, PREG_SPLIT_NO_EMPTY );
+
+		// Return an empty array if the split above fails. 
+		return $words ? $words : array();	
+	}
+
 	static function get_word_count( $post_content ) {
-		return str_word_count( self::clean_text( $post_content ) );
+		return (int) count( self::split_content_in_words( self::clean_text( $post_content ) ) );
 	}
 
 	static function get_word_remaining_count( $post_content, $excerpt_content ) {
-		return str_word_count( self::clean_text( $post_content ) ) - str_word_count( self::clean_text( $excerpt_content ) );
+		$content_word_count = count( self::split_content_in_words( self::clean_text( $post_content ) ) );
+		$excerpt_word_count = count( self::split_content_in_words( self::clean_text( $excerpt_content ) ) ); 
+
+		return (int) $content_word_count - $excerpt_word_count;
 	}
 
 	static function get_link_count( $post_content ) {

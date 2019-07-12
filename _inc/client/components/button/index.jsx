@@ -4,8 +4,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 
+/**
+ * Internal dependencies
+ */
 import './style.scss';
 
 export default class Button extends React.Component {

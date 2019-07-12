@@ -4,8 +4,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import forEach from 'lodash/forEach';
-import includes from 'lodash/includes';
+import { includes, forEach } from 'lodash';
 import { translate as __ } from 'i18n-calypso';
 import Banner from 'components/banner';
 
@@ -39,18 +38,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			}
 
 			// Only should be features that don't already have a UI, and we want to reveal in search.
-			const whitelist = [
-				'contact-form',
-				'custom-css',
-				'enhanced-distribution',
-				'json-api',
-				'latex',
-				'notes',
-				'shortcodes',
-				'shortlinks',
-				'widget-visibility',
-				'widgets',
-			];
+			const whitelist = [ 'contact-form', 'enhanced-distribution', 'json-api', 'notes' ];
 
 			const allModules = this.props.modules,
 				results = [];

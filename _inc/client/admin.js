@@ -7,8 +7,7 @@ import { Provider } from 'react-redux';
 import { Route, Router, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history';
-import assign from 'lodash/assign';
-import get from 'lodash/get';
+import { assign, get } from 'lodash';
 
 /**
  * Internal dependencies

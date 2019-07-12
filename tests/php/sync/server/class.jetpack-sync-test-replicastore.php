@@ -1,10 +1,13 @@
 <?php
 
+use Automattic\Jetpack\Sync\Replicastore_Interface;
+use Automattic\Jetpack\Sync\Defaults;
+
 /**
  * A simple in-memory implementation of iJetpack_Sync_Replicastore
  * used for development and testing
  */
-class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
+class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 
 	private $posts;
 	private $post_status;
@@ -72,22 +75,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function posts_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->posts[ get_current_blog_id() ], 'ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_post_checksum_columns );
+		return $this->calculate_checksum( $this->posts[ get_current_blog_id() ], 'ID', $min_id, $max_id, Defaults::$default_post_checksum_columns );
 	}
 
 	function post_meta_checksum( $min_id = null, $max_id = null ) {
 		return null;
-	}
-
-	private function reduce_checksum( $carry, $object ) {
-		// append fields
-		$value = '';
-		foreach ( $this->checksum_fields[ get_current_blog_id() ] as $field ) {
-			$value .= preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
-		}
-
-		$result = $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
-		return $result;
 	}
 
 	function filter_post_status( $post ) {
@@ -129,7 +121,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( array_filter( $this->comments[ get_current_blog_id() ], array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+		return $this->calculate_checksum( array_filter( $this->comments[ get_current_blog_id() ], array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Defaults::$default_comment_checksum_columns );
 	}
 
 	function comment_meta_checksum( $min_id = null, $max_id = null ) {
@@ -213,7 +205,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function options_checksum() {
-		return strtoupper( dechex( array_reduce( Jetpack_Sync_Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
+		return strtoupper( dechex( array_reduce( Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
 	}
 
 	private function option_checksum( $carry, $option_name ) {
@@ -619,7 +611,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$get_function  = 'get_post';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_post_checksum_columns;
+					$fields = Defaults::$default_post_checksum_columns;
 				}
 
 				break;
@@ -630,7 +622,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$get_function = 'get_post_meta_by_id';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_post_meta_checksum_columns;
+					$fields = Defaults::$default_post_meta_checksum_columns;
 				}
 				break;
 			case 'comments':
@@ -640,7 +632,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$get_function = 'get_comment';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_comment_checksum_columns;
+					$fields = Defaults::$default_comment_checksum_columns;
 				}
 				break;
 			case 'comment_meta':
@@ -650,7 +642,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 				$get_function = 'get_comment_meta_by_id';
 
 				if ( empty( $fields ) ) {
-					$fields = Jetpack_Sync_Defaults::$default_comment_meta_checksum_columns;
+					$fields = Defaults::$default_comment_meta_checksum_columns;
 				}
 				break;
 			default:
@@ -708,6 +700,19 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			$array = $filtered_array;
 		}
 
-		return strtoupper( dechex( array_reduce( $array, array( $this, 'reduce_checksum' ), 0 ) ) );
+		return (string) array_sum( array_map( array( $this, 'concat_items' ), $array ) );
+
 	}
+
+	public function concat_items( $object ) {
+		$values = array();
+		foreach ( $this->checksum_fields[ get_current_blog_id() ] as $field ) {
+			$values[] = preg_replace( '/[^\x20-\x7E]/','', $object->{ $field } );
+		}
+		// array('') is the empty value of the salt.
+		$item_array = array_merge( array(''), $values );
+
+		return crc32( implode( '#', $item_array ) );
+	}
+
 }

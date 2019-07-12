@@ -8,10 +8,7 @@ import TextInput from 'components/text-input';
 import FoldableCard from 'components/foldable-card';
 import FormInputValidation from 'components/form-input-validation';
 import Gridicon from 'components/gridicon';
-import debounce from 'lodash/debounce';
-import assign from 'lodash/assign';
-import isEmpty from 'lodash/isEmpty';
-import trim from 'lodash/trim';
+import { assign, debounce, isEmpty, trim } from 'lodash';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import analytics from 'lib/analytics';
@@ -133,7 +130,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Spam filtering', { context: 'Settings header' } ) }
+					header={ __( 'Jetpack Anti-spam', { context: 'Settings header' } ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
 					feature={ FEATURE_SPAM_AKISMET_PLUS }
 				>

@@ -3,7 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
-import isArray from 'lodash/isArray';
+import { isArray } from 'lodash';
 import Formsy from 'formsy-react';
 
 /**

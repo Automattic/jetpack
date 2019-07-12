@@ -25,7 +25,7 @@ module.exports = {
 		'jsx-quotes': [ 2, 'prefer-double' ],
 		'key-spacing': 2,
 		'keyword-spacing': 2,
-		'lodash/import-scope': [ 2, 'method' ],
+		'lodash/import-scope': [ 2, 'member' ],
 		'max-len': 0, // Ignored for Jetpack
 		'new-cap': [ 2, { capIsNew: false, newIsCap: true } ],
 		'no-else-return': 2,
@@ -103,7 +103,6 @@ module.exports = {
 		{
 			files: [ 'extensions/**/*', 'webpack.config.extensions.js' ],
 			rules: {
-				'lodash/import-scope': 0,
 				'react/forbid-elements': [
 					'error',
 					{

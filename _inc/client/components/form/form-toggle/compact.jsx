@@ -2,9 +2,8 @@
  * External dependencies
  */
 import React from 'react';
-
 import classNames from 'classnames';
-import omit from 'lodash/omit';
+import { omit } from 'lodash';
 
 /**
  * Internal dependencies

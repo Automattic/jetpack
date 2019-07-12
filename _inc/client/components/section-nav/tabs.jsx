@@ -6,7 +6,7 @@
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import classNames from 'classnames';
 
 /**

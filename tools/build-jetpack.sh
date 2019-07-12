@@ -41,6 +41,7 @@ fi
 git clone \
     --branch $TARGET_BRANCH \
     --depth 1000 \
+    --no-single-branch \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
 
@@ -55,6 +56,13 @@ if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     echo "Now at version $CURRENT_VERSION!"
 fi
 
+# Checking for composer
+hash composer 2>/dev/null || {
+    echo >&2 "This script requires you to have composer package manager installed."
+    echo >&2 "Please install it following the instructions on https://getcomposer.org/. Aborting.";
+    exit 1;
+}
+
 # Checking for yarn
 hash yarn 2>/dev/null || {
     echo >&2 "This script requires you to have yarn package manager installed."
@@ -62,7 +70,7 @@ hash yarn 2>/dev/null || {
     exit 1;
 }
 yarn --cwd $TARGET_DIR cache clean
-yarn --cwd $TARGET_DIR run build
+COMPOSER_MIRROR_PATH_REPOS=1 yarn --cwd $TARGET_DIR run build
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore

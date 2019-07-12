@@ -2,12 +2,10 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
 import ReactDom from 'react-dom';
 import React from 'react';
 import Clipboard from 'clipboard';
-import omit from 'lodash/omit';
-import noop from 'lodash/noop';
+import { omit, noop } from 'lodash';
 import classNames from 'classnames';
 
 /**

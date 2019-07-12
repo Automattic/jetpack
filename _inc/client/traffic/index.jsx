@@ -11,13 +11,14 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isSiteConnected, isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
 import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
+import Shortlinks from './shortlinks';
 import { RelatedPosts } from './related-posts';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
@@ -31,6 +32,7 @@ export class Traffic extends React.Component {
 			settings: this.props.settings,
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
+			isSiteConnected: this.props.isSiteConnected,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
 			getModuleOverride: this.props.getModuleOverride,
@@ -39,6 +41,7 @@ export class Traffic extends React.Component {
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
 			foundAds = this.props.isModuleFound( 'wordads' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
+			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
@@ -52,6 +55,7 @@ export class Traffic extends React.Component {
 			! foundSeo &&
 			! foundAds &&
 			! foundStats &&
+			! foundShortlinks &&
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
@@ -63,18 +67,20 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
-
 				<Card
-					title={ __(
-						'Maximize your site’s visibility in search engines and view traffic stats in real time.'
-					) }
+					title={
+						this.props.searchTerm
+							? __( 'Traffic' )
+							: __(
+									'Maximize your site’s visibility in search engines and view traffic stats in real time.'
+							  )
+					}
 					className="jp-settings-description"
 				/>
-
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
-						configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
+						configureUrl={ 'https://wordpress.com/stats/ads/day/' + this.props.siteRawUrl }
 					/>
 				) }
 				{ foundRelated && (
@@ -94,7 +100,7 @@ export class Traffic extends React.Component {
 					<SEO
 						{ ...commonProps }
 						configureUrl={
-							'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#seo'
+							'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl + '#seo'
 						}
 					/>
 				) }
@@ -102,11 +108,12 @@ export class Traffic extends React.Component {
 					<GoogleAnalytics
 						{ ...commonProps }
 						configureUrl={
-							'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#analytics'
+							'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl + '#analytics'
 						}
 					/>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
+				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }
 			</div>
@@ -121,6 +128,7 @@ export default connect( state => {
 		isDevMode: isDevMode( state ),
 		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	};

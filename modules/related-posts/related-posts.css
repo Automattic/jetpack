@@ -54,9 +54,9 @@
 .jp-related-posts-i2__post-img-link {
 	order: -1;
 	line-height: 1em;
-	img {
-		width: 100%;
-	}
+}
+.jp-related-posts-i2__post-img-link img {
+	width: 100%;
 }
 
 /* List view */
@@ -88,9 +88,9 @@
 	}
 	.jp-related-posts-i2__post-img-link {
 		margin-top: 1rem;
-		img {
-			width: 350px;
-		}
+	}
+	.jp-related-posts-i2__post-img-link img {
+		width: 350px;
 	}
 }
 

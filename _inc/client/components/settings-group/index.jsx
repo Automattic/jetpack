@@ -6,8 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import classNames from 'classnames';
-import includes from 'lodash/includes';
-import noop from 'lodash/noop';
+import { includes, noop } from 'lodash';
 
 /**
  * Internal dependencies
@@ -25,7 +24,7 @@ export const SettingsGroup = props => {
 	if (
 		module.module &&
 		! props.userCanManageModules &&
-		! includes( [ 'after-the-deadline', 'post-by-email', 'publicize' ], module.module )
+		! includes( [ 'post-by-email', 'publicize' ], module.module )
 	) {
 		return <span />;
 	}
@@ -33,13 +32,7 @@ export const SettingsGroup = props => {
 	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
 	let displayFadeBlock = disableInDevMode;
 
-	if (
-		( 'post-by-email' === module.module && ! props.isLinked ) ||
-		( 'after-the-deadline' === module.module &&
-			( ! props.userCanManageModules &&
-				props.userCanEditPosts &&
-				! props.isModuleActivated( 'after-the-deadline' ) ) )
-	) {
+	if ( 'post-by-email' === module.module && ! props.isLinked ) {
 		displayFadeBlock = true;
 	}
 

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Sender;
+
 if (
 	!defined( 'WP_UNINSTALL_PLUGIN' )
 	||
@@ -11,8 +13,11 @@ if (
 	exit;
 }
 
-define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-options.php';
+if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+	define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
+}
+
+require JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 
 Jetpack_Options::delete_all_known_options();
 
@@ -30,5 +35,4 @@ delete_transient( 'jetpack_register'    );
 add_filter( 'jetpack_sync_modules', '__return_empty_array', 100 );
 
 // Jetpack Sync
-require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
-Jetpack_Sync_Sender::get_instance()->uninstall();
+Sender::get_instance()->uninstall();

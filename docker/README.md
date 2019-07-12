@@ -149,6 +149,11 @@ This will run unit tests for Jetpack. You can pass arguments to `phpunit` like s
 yarn docker:phpunit --filter=Protect
 ```
 
+This command runs the tests as a multi site install
+```sh
+yarn docker:phpunit:multisite --filter=Protect
+```
+
 ### Starting over
 
 To remove all docker images, all mysql data, and all docker-related files from your local machine run:
@@ -178,6 +183,8 @@ yarn docker:wp cron event list
 ```bash
 yarn docker:wp shell
 ```
+
+By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `yarn docker:wp shell --basic`
 
 Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
 
@@ -212,7 +219,7 @@ You can access WordPress and Jetpack files via SFTP server container.
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 ## Must Use Plugins directory
 
@@ -260,7 +267,7 @@ yarn docker:up -d
 ```
 ### Docker Ngrok
 
-Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts docker inside a container and you don't have to install it or configure as a standalone software on your machine.
+Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts ngrok inside a container and you don't have to install it or configure as a standalone software on your machine.
 
 **1. Configure environment**
 
@@ -311,9 +318,9 @@ ngrok start jetpack jetpack-sftp
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
 
-### Configuring Jetpack Rewind with Ngrok tunnel
+### Configuring Jetpack Backup & Scan with Ngrok tunnel
 
-You should now be able to configure [Jetpack Rewind](https://jetpack.com/support/backups/) credentials point to your Docker container:
+You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/support/backups/) credentials point to your Docker container:
 
 - Credential Type: `SSH/SFTP`
 - Server Address: `0.tcp.ngrok.io`
@@ -321,6 +328,29 @@ You should now be able to configure [Jetpack Rewind](https://jetpack.com/support
 - Server username: `wordpress`
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
+
+## Custom plugins & themes in the container
+
+Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
+
+Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
+
+1. First ensure your containers are stopped (`yarn docker:stop`).
+2. Create a docker-compose file. You can place it anywhere in your computer:
+	```yml
+	version: '3.3'
+	services:
+	  wordpress:
+	    volumes:
+	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
+	```
+	What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `plugins/my-plugin` with the path to your own plugin or theme.
+3. Start containers and include your custom volumes by running:
+	```bash
+	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
+	```
+
+You can pass multiple configuration files by adding more `-f/--file` arguments. Docker Compose [combines them into a single configuration](https://docs.docker.com/compose/reference/overview/#use--f-to-specify-name-and-path-of-one-or-more-compose-files).
 
 ## Debugging
 

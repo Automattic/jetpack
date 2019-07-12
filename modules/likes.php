@@ -11,6 +11,8 @@
  * Additional Search Queries: like, likes, wordpress.com
  */
 
+use Automattic\Jetpack\Assets;
+
 Jetpack::dns_prefetch( array(
 	'//widgets.wp.com',
 	'//s0.wp.com',
@@ -27,7 +29,7 @@ class Jetpack_Likes {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Likes;
+			$instance = new Jetpack_Likes();
 		}
 
 		return $instance;
@@ -48,9 +50,7 @@ class Jetpack_Likes {
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
 			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
@@ -117,13 +117,6 @@ class Jetpack_Likes {
 		delete_option( 'social_notifications_like' );
 	}
 
-	/**
-	 * Redirects to the likes section of the sharing page.
-	 */
-	function configuration_redirect() {
-		wp_safe_redirect( admin_url( 'options-general.php?page=sharing#likes' ) );
-		die();
-	}
 
 	/**
 	 * Overrides default configuration url
@@ -272,7 +265,10 @@ class Jetpack_Likes {
 			return;
 		}
 
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return;
 		}
 
@@ -297,14 +293,14 @@ class Jetpack_Likes {
 	function register_scripts() {
 		wp_register_script(
 			'postmessage',
-			Jetpack::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			false
 		);
 		wp_register_script(
 			'jetpack_resize',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),
@@ -314,7 +310,7 @@ class Jetpack_Likes {
 		);
 		wp_register_script(
 			'jetpack_likes_queuehandler',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/likes/queuehandler.min.js',
 				'modules/likes/queuehandler.js'
 			),
@@ -375,7 +371,7 @@ class Jetpack_Likes {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
-					Jetpack::get_file_url_for_environment(
+					Assets::get_file_url_for_environment(
 						'_inc/build/likes/post-count.min.js',
 						'modules/likes/post-count.js'
 					),
@@ -384,7 +380,7 @@ class Jetpack_Likes {
 				);
 				wp_enqueue_script(
 					'likes-post-count-jetpack',
-					Jetpack::get_file_url_for_environment(
+					Assets::get_file_url_for_environment(
 						'_inc/build/likes/post-count-jetpack.min.js',
 						'modules/likes/post-count-jetpack.js'
 					),
@@ -635,10 +631,29 @@ function jetpack_post_likes_register_rest_field() {
 				),
 			)
 		);
+
+		/**
+		 * Ensures all public internal post-types support `likes`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'jetpack-post-likes' );
 	}
 }
 
 // Add Likes post_meta to the REST API Post response.
 add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
+
+// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
+// restapi_theme_init because they depend on theme support, so let's also hook to that
+add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+
+/**
+ * Set the Likes and Sharing Gutenberg extension availability
+ */
+function jetpack_post_likes_set_extension_availability() {
+	Jetpack_Gutenberg::set_extension_available( 'likes' );
+}
+
+add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_post_likes_set_extension_availability' );
 
 Jetpack_Likes::init();

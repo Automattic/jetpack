@@ -261,7 +261,6 @@ class Jetpack_Portfolio {
 		}
 
 		register_post_type( self::CUSTOM_POST_TYPE, array(
-			'description' => __( 'Portfolio Items', 'jetpack' ),
 			'labels' => array(
 				'name'                  => esc_html__( 'Projects',                   'jetpack' ),
 				'singular_name'         => esc_html__( 'Project',                    'jetpack' ),

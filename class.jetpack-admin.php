@@ -39,11 +39,15 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
 		$this->fallback_page = new Jetpack_Settings_Page;
 
+		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
+		$this->jetpack_about = new Jetpack_About_Page;
+
 		add_action( 'admin_menu',                    array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu',            array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu',            array( $this->fallback_page, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu',            array( $this->jetpack_about, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ), 10, 2 );

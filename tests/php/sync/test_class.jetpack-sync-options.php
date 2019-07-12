@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing CRUD on Options
  */
@@ -10,7 +12,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
-		$this->options_module = Jetpack_Sync_Modules::get_module( "options" );
+		$this->options_module = Modules::get_module( "options" );
 
 		$this->options_module->set_options_whitelist( array( 'test_option' ) );
 
@@ -59,7 +61,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		// Priority is set earlier now plugins_loaded but we plugins should still be able to set whitelist_filters by
 		// using the plugins_loaded action.
 
-		$this->assertEquals( 90, has_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ) ) );
+		$this->assertEquals( 90, has_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Sync\\Actions', 'init' ) ) );
 	}
 
 	public function test_sync_default_options() {
@@ -136,6 +138,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_publish_posts_with_markdown'    => 'pineapple',
 			'wpcom_publish_comments_with_markdown' => 'pineapple',
 			'jetpack_activated'                    => 'pineapple',
+			'jetpack_allowed_xsite_search_ids'     => array( 99 ),
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
 			'jetpack_autoupdate_plugins_translations' => 'pineapple',
@@ -201,6 +204,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'site_user_type'                       => wp_json_encode( array( 1 => 'pineapple' ) ),
 			'site_segment'                         => 'pineapple',
 			'site_vertical'                        => 'pineapple',
+			'jetpack_excluded_extensions'          => 'pineapple',
+			'jetpack-memberships-connected-account-id' => '340',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

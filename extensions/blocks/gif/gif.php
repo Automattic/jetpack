@@ -42,19 +42,26 @@ function jetpack_gif_block_render( $attr ) {
 	if ( isset( $attr['className'] ) ) {
 		array_push( $classes, $attr['className'] );
 	}
-	$classes = implode( $classes, ' ' );
+	$classes     = implode( $classes, ' ' );
+	$placeholder = sprintf( '<a href="%s">%s</a>', esc_url( $giphy_url ), esc_attr( $search_text ) );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $classes ); ?>">
 		<figure>
-			<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
-				<iframe src="<?php echo esc_url( $giphy_url ); ?>"
-						title="<?php echo esc_attr( $search_text ); ?>"></iframe>
-			</div>
+			<?php if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) : ?>
+				<amp-iframe src="<?php echo esc_url( $giphy_url ); ?>" width="100" height="<?php echo absint( $padding_top ); ?>" sandbox="allow-scripts allow-same-origin" layout="responsive">
+					<div placeholder>
+						<?php echo wp_kses_post( $placeholder ); ?>
+					</div>
+				</amp-iframe>
+			<?php else : ?>
+				<div class="wp-block-jetpack-gif-wrapper" style="<?php echo esc_attr( $style ); ?>">
+					<iframe src="<?php echo esc_url( $giphy_url ); ?>" title="<?php echo esc_attr( $search_text ); ?>"></iframe>
+				</div>
+			<?php endif; ?>
 			<?php if ( $caption ) : ?>
-				<figcaption
-						class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
+				<figcaption class="wp-block-jetpack-gif-caption gallery-caption"><?php echo wp_kses_post( $caption ); ?></figcaption>
 			<?php endif; ?>
 		</figure>
 	</div>

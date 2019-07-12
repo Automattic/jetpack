@@ -152,6 +152,7 @@ function wpcom_shortcodereverse_getty( $content ) {
 			if ( ! empty( $height ) ) {
 				$shortcode .= ' height="' . esc_attr( $height ) . '"';
 			}
+
 			/*
 			 * While it does not appear to have any practical impact, Getty has
 			 * requested that we include TLD in the embed request

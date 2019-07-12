@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack\Assets;
 /*
 Plugin Name: Jetpack Carousel
 Plugin URL: https://wordpress.com/
@@ -84,9 +84,8 @@ class Jetpack_Carousel {
 			}
 		}
 
-		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
+		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
-			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
 		}
 	}
 
@@ -130,11 +129,6 @@ class Jetpack_Carousel {
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
 	}
 
-	function jetpack_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-media.php#carousel_background_color' ) );
-		exit;
-	}
-
 	function asset_version( $version ) {
 		/**
 		 * Filter the version string used when enqueuing Carousel assets.
@@ -159,7 +153,10 @@ class Jetpack_Carousel {
 	}
 
 	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $output;
 		}
 
@@ -214,7 +211,10 @@ class Jetpack_Carousel {
 	 * @return string $content Post content.
 	 */
 	function check_content_for_blocks( $content ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $content;
 		}
 
@@ -229,7 +229,7 @@ class Jetpack_Carousel {
 		if ( $this->first_run ) {
 			wp_enqueue_script(
 				'jetpack-carousel',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
@@ -360,7 +360,10 @@ class Jetpack_Carousel {
 	}
 
 	function set_in_gallery( $output ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $output;
 		}
 		$this->in_gallery = true;
@@ -378,7 +381,10 @@ class Jetpack_Carousel {
 	 * @return string Modified HTML content of the post
 	 */
 	function add_data_img_tags_and_enqueue_assets( $content ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $content;
 		}
 
@@ -432,7 +438,10 @@ class Jetpack_Carousel {
 	}
 
 	function add_data_to_images( $attr, $attachment = null ) {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $attr;
 		}
 
@@ -504,7 +513,10 @@ class Jetpack_Carousel {
 
 	function add_data_to_container( $html ) {
 		global $post;
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return $html;
 		}
 

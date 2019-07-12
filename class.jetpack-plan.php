@@ -5,6 +5,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * Provides methods methods for fetching the plan from WordPress.com.
  */
@@ -44,18 +46,6 @@ class Jetpack_Plan {
 			return false;
 		}
 
-		$current_plan = get_option( self::PLAN_OPTION, array() );
-
-		// If the plans don't differ, then there's nothing to do.
-		if ( ! empty( $current_plan ) && $current_plan['product_slug'] === $results['plan']['product_slug'] ) {
-			return false;
-		}
-
-		// Set flag for newly purchased plan.
-		if ( 'jetpack_free' !== $results['plan']['product_slug'] ) {
-			update_option( 'show_welcome_for_new_plan', true );
-		}
-
 		// Store the new plan in an option and return true if updated.
 		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		if ( ! $result ) {
@@ -77,7 +67,7 @@ class Jetpack_Plan {
 	 * Make an API call to WordPress.com for plan status
 	 *
 	 * @uses Jetpack_Options::get_option()
-	 * @uses Jetpack_Client::wpcom_json_api_request_as_blog()
+	 * @uses Client::wpcom_json_api_request_as_blog()
 	 * @uses update_option()
 	 *
 	 * @access public
@@ -88,7 +78,7 @@ class Jetpack_Plan {
 	public static function refresh_from_wpcom() {
 		// Make the API request.
 		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Jetpack_Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		return self::update_from_sites_response( $response );
 	}
@@ -130,6 +120,7 @@ class Jetpack_Plan {
 			'jetpack_personal',
 			'jetpack_personal_monthly',
 			'personal-bundle',
+			'personal-bundle-monthly',
 			'personal-bundle-2y',
 		);
 
@@ -144,6 +135,7 @@ class Jetpack_Plan {
 			'jetpack_premium',
 			'jetpack_premium_monthly',
 			'value_bundle',
+			'value_bundle-monthly',
 			'value_bundle-2y',
 		);
 
@@ -160,8 +152,10 @@ class Jetpack_Plan {
 			'jetpack_business',
 			'jetpack_business_monthly',
 			'business-bundle',
+			'business-bundle-monthly',
 			'business-bundle-2y',
 			'ecommerce-bundle',
+			'ecommerce-bundle-monthly',
 			'ecommerce-bundle-2y',
 			'vip',
 		);
