@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-global $maybe_invocations;
-$maybe_invocations = 0;
-
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Settings;
@@ -65,7 +62,7 @@ class Callables extends Module {
 	 *
 	 * @var array
 	 */
-	const OPTIONS_ALWAYS_UPDATED_TO_CALLABLES = array(
+	const OPTION_NAMES_TO_CALLABLE_NAMES = array(
 		'home' => 'home_url',
 	);
 
@@ -102,7 +99,6 @@ class Callables extends Module {
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
-		l( "CALLABLES INITIATED\n" );
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late.
 
@@ -268,7 +264,6 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function unlock_sync_callable() {
-		l( "1) Deleted transient that was blocking callable.\n" );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
 
@@ -385,7 +380,7 @@ class Callables extends Module {
 		if ( in_array( $name, $idc_override_callables, true ) && \Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
 			return true;
 		}
-		l( 'RETURNING FALSE!!!' );
+
 		return ! $this->still_valid_checksum( $callable_checksums, $name, $checksum );
 	}
 
@@ -395,73 +390,22 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function maybe_sync_callables() {
-
-		global $maybe_invocations;
-
-		error_log( 'MAYBE invocations ' . ++$maybe_invocations );
-
-		l( 'In action: ' . current_action() );
-
 		$callables = array();
-		l( 'IN MAYBE SYNC CALLABLES:' );
 
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
 			if ( ! is_admin() ) {
-				// If we're not an admin and we're not doing cron, don't sync anything
+				// If we're not an admin and we're not doing cron, don't sync anything.
 				if ( ! Settings::is_doing_cron() ) {
-					l( 'NOT DOING CRON' );
 					return;
 				}
-				// If we're not an admin and we are doing cron, sync the callables that are always supposed to sync
-				$callables      = $this->get_all_callables();
-				$callable_keys  = array_keys( $callables );
-				$cron_callables = array();
-				// l( $callables );
-				l( 'ALWAYS SEND FOR: ', self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS );
-				foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $key ) {
-					l( "checking callables for $key" );
-					if ( isset( $callables[ $key ] ) ) {
-						l( "Adding $key  to this send\n" );
-						$cron_callables[ $key ] = $callables[ $key ];
-						continue;
-					}
-
-					if ( isset( self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ) &&
-						isset( $callables[ self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ] )
-					) {
-						l( "Adding $key  to this send\n" );
-						$cron_callables[ self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ] = $callables[ self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ];
-					}
-				}
-				$callables = $cron_callables;
-
-				l( $callables );
+				// If we're not an admin and we are doing cron, sync the Callables that are always supposed to sync ( See https://github.com/Automattic/jetpack/issues/12924 ).
+				$callables = $this->get_always_sent_callables();
 			}
-
-			if ( ! is_admin() ) {
-				l( 'NOT ADMIN!' );
-			}
-			if ( Settings::is_doing_cron() ) {
-				l( 'IS DOING CRON!' );
-			}
-		}
-
-		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
-			l( 'ERROR: bad transient' );
-			return;
-		}
-
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
-
-		// If callables wasn't set when we weren't admin and are doing cron, set them now
-		if ( empty( $callables ) ) {
+		} else {
 			$callables = $this->get_all_callables();
 		}
 
-		if ( empty( $callables ) ) {
-			l( 'ERROR: callables is empty, bye' );
-			return;
-		}
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
 
 		$callable_checksums = (array) \Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 		$has_changed        = false;
@@ -481,16 +425,34 @@ class Callables extends Module {
 				do_action( 'jetpack_sync_callable', $name, $value );
 				$callable_checksums[ $name ] = $checksum;
 				$has_changed                 = true;
-				l( "$name has changed!" );
 			} else {
 				$callable_checksums[ $name ] = $checksum;
-				l( "error: $name has not changed" );
 			}
 		}
 		if ( $has_changed ) {
 			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 		}
 
+	}
+
+	protected function get_always_sent_callables() {
+		$callables      = $this->get_all_callables();
+		$cron_callables = array();
+		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $key ) {
+			if ( isset( $callables[ $key ] ) ) {
+				$cron_callables[ $key ] = $callables[ $key ];
+				continue;
+			}
+
+			// Check for the Callable name/key for the option, if different from option name.
+			if ( isset( self::OPTION_NAMES_TO_CALLABLE_NAMES[ $key ] ) ) {
+				$key = self::OPTION_NAMES_TO_CALLABLE_NAMES[ $key ];
+				if ( isset( $callables[ $key ] ) ) {
+					$cron_callables[ $key ] = $callables[ $key ];
+				}
+			}
+		}
+		return $cron_callables;
 	}
 
 	/**
