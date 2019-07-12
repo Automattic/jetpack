@@ -20,7 +20,7 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
  */
 export async function waitForSelector( page, selector, options = {} ) {
 	// set up default options
-	const defaultOptions = { timeout: 30000, logHTML: true };
+	const defaultOptions = { timeout: 30000, logHTML: false };
 	options = Object.assign( defaultOptions, options );
 
 	let el;
