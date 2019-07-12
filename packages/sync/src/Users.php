@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -13,7 +14,8 @@ class Users {
 	static $user_roles = array();
 
 	static function init() {
-		if ( \Jetpack::is_active() ) {
+		$connection = new Jetpack_Connection();
+		if ( $connection->is_active() ) {
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}

@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
@@ -121,7 +122,8 @@ class Actions {
 			return false;
 		}
 
-		if ( ! \Jetpack::is_active() ) {
+		$connection = new Jetpack_Connection();
+		if ( ! $connection->is_active() ) {
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}
