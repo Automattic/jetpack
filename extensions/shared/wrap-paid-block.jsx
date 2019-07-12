@@ -1,28 +1,22 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
+import { Fragment } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
-import UpgradeNudge from '../upgrade-nudge';
-
-import './style.scss';
+import UpgradeNudge from './upgrade-nudge';
 
 export default ( { requiredPlan } ) =>
 	createHigherOrderComponent(
 		WrappedComponent => props => (
 			// Wraps the input component in a container, without mutating it. Good!
-			<div
-				className={ classNames( 'jetpack-paid-block__wrapper', {
-					'is-selected': props.isSelected,
-				} ) }
-			>
+			<Fragment>
 				<UpgradeNudge plan={ requiredPlan } />
 				<WrappedComponent { ...props } />
-			</div>
+			</Fragment>
 		),
 		'wrapPaidBlock'
 	);
