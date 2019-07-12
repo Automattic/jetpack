@@ -13,6 +13,11 @@ namespace Automattic\Jetpack\Sync;
  */
 class Modules {
 
+	/**
+	 * List of sync modules we load by default.
+	 *
+	 * @var array
+	 */
 	const DEFAULT_SYNC_MODULES = array(
 		'Jetpack_Sync_Modules_Constants',
 		'Jetpack_Sync_Modules_Callables',
