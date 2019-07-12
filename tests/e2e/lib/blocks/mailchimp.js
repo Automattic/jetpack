@@ -33,6 +33,7 @@ export default class MailchimpBlock {
 			setupFormSelector
 		) ).getProperty( 'href' ) ).jsonValue();
 		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
+		global.page = loginTab;
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
@@ -60,6 +61,7 @@ export default class MailchimpBlock {
 
 		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 
+		global.page = this.page;
 		const reCheckSelector = this.getSelector( 'button.is-link' );
 		await waitAndClick( this.page, reCheckSelector );
 	}
