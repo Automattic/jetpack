@@ -1,4 +1,9 @@
 <?php
+/**
+ * Sync server.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
@@ -7,21 +12,74 @@ namespace Automattic\Jetpack\Sync;
  * issues them locally with the 'jetpack_sync_remote_action' action.
  */
 class Server {
+	/**
+	 * Codec used to decode sync events.
+	 *
+	 * @access private
+	 *
+	 * @var Automattic\Jetpack\Sync\Codec_Interface
+	 */
 	private $codec;
-	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
-	const BLOG_LOCK_TRANSIENT_PREFIX      = 'jp_sync_req_lock_';
-	const BLOG_LOCK_TRANSIENT_EXPIRY      = 60; // seconds
 
-	// this is necessary because you can't use "new" when you declare instance properties >:(
-	function __construct() {
+	/**
+	 * Maximum time for processing sync actions.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_TIME_PER_REQUEST_IN_SECONDS = 15;
+
+	/**
+	 * Prefix of the blog lock transient.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const BLOG_LOCK_TRANSIENT_PREFIX = 'jp_sync_req_lock_';
+
+	/**
+	 * Lifetime of the blog lock transient.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const BLOG_LOCK_TRANSIENT_EXPIRY = 60; // Seconds.
+
+	/**
+	 * Constructor.
+	 *
+	 * This is necessary because you can't use "new" when you declare instance properties >:(
+	 *
+	 * @access public
+	 */
+	public function __construct() {
 		$this->codec = new JSON_Deflate_Array_Codec();
 	}
 
-	function set_codec( Codec_Interface $codec ) {
+	/**
+	 * Set the codec instance.
+	 *
+	 * @access public
+	 *
+	 * @param Automattic\Jetpack\Sync\Codec_Interface $codec Codec instance.
+	 */
+	public function set_codec( Codec_Interface $codec ) {
 		$this->codec = $codec;
 	}
 
-	function attempt_request_lock( $blog_id, $expiry = self::BLOG_LOCK_TRANSIENT_EXPIRY ) {
+	/**
+	 * Attempt to lock the request when the server receives concurrent requests from the same blog.
+	 *
+	 * @access public
+	 *
+	 * @param int $blog_id ID of the blog.
+	 * @param int $expiry  Blog lock transient lifetime.
+	 * @return boolean True if succeeded, false otherwise.
+	 */
+	public function attempt_request_lock( $blog_id, $expiry = self::BLOG_LOCK_TRANSIENT_EXPIRY ) {
 		$transient_name = $this->get_concurrent_request_transient_name( $blog_id );
 		$locked_time    = get_site_transient( $transient_name );
 		if ( $locked_time ) {
@@ -32,15 +90,41 @@ class Server {
 		return true;
 	}
 
+	/**
+	 * Retrieve the blog lock transient name for a particular blog.
+	 *
+	 * @access public
+	 *
+	 * @param int $blog_id ID of the blog.
+	 * @return string Name of the blog lock transient.
+	 */
 	private function get_concurrent_request_transient_name( $blog_id ) {
 		return self::BLOG_LOCK_TRANSIENT_PREFIX . $blog_id;
 	}
 
-	function remove_request_lock( $blog_id ) {
+	/**
+	 * Remove the request lock from a particular blog ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $blog_id ID of the blog.
+	 */
+	public function remove_request_lock( $blog_id ) {
 		delete_site_transient( $this->get_concurrent_request_transient_name( $blog_id ) );
 	}
 
-	function receive( $data, $token = null, $sent_timestamp = null, $queue_id = null ) {
+	/**
+	 * Receive and process sync events.
+	 *
+	 * @access public
+	 *
+	 * @param array  $data           Sync events.
+	 * @param object $token          The auth token used to invoke the API.
+	 * @param int    $sent_timestamp Timestamp (in seconds) when the actions were transmitted.
+	 * @param string $queue_id       ID of the queue from which the event was sent (`sync` or `full_sync`).
+	 * @return array Processed sync events.
+	 */
+	public function receive( $data, $token = null, $sent_timestamp = null, $queue_id = null ) {
 		$start_time = microtime( true );
 		if ( ! is_array( $data ) ) {
 			return new \WP_Error( 'action_decoder_error', 'Events must be an array' );
