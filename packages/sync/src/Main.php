@@ -7,15 +7,30 @@
 
 namespace Automattic\Jetpack\Sync;
 
+global $jetpackInit;
+$jetpackInit = 0;
 /**
  * Jetpack Sync main class.
  */
 class Main {
+	static $is_initialized;
+
 	/**
 	 * Initialize the main sync actions.
 	 */
 	public static function init() {
+		if ( self::$is_initialized ) {
+			return;
+		}
+
 		error_log( "initializing sync modules\n" );
+		global $jetpackInit;
+		l( 'Jetpack was initialized ' . ++$jetpackInit );
+		$trace = debug_backtrace();
+		foreach ( $trace as $file ) {
+			error_log( $file['file'] . ':' . $file['line'] );
+		}
+
 		// Check for WooCommerce support.
 		add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Sync\\Actions', 'initialize_woocommerce' ), 5 );
 
@@ -31,5 +46,7 @@ class Main {
 		// We need to define this here so that it's hooked before `updating_jetpack_version` is called.
 		add_action( 'updating_jetpack_version', array( 'Automattic\\Jetpack\\Sync\\Actions', 'cleanup_on_upgrade' ), 10, 2 );
 		add_action( 'jetpack_user_authorized', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
+
+		self::$is_initialized = true;
 	}
 }

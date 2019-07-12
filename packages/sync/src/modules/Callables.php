@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+global $maybe_invocations;
+$maybe_invocations = 0;
+
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Settings;
@@ -47,11 +50,23 @@ class Callables extends Module {
 	 */
 	const ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS = array(
 		'jetpack_active_modules',
-		'home',
+		'home', // option is home, callable is home_url
 		'siteurl',
 		'jetpack_sync_error_idc',
 		'paused_plugins',
 		'paused_themes',
+	);
+
+
+	/**
+	 * For some options, the callable key differs from the option name/key
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
+	const OPTIONS_ALWAYS_UPDATED_TO_CALLABLES = array(
+		'home' => 'home_url',
 	);
 
 	/**
@@ -92,8 +107,6 @@ class Callables extends Module {
 		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late.
 
 		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $option ) {
-			error_log( "specifying always send updates for $option\n" );
-
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
@@ -255,7 +268,7 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function unlock_sync_callable() {
-		l( "deleted transient\n" );
+		l( "1) Deleted transient that was blocking callable.\n" );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
 
@@ -372,7 +385,7 @@ class Callables extends Module {
 		if ( in_array( $name, $idc_override_callables, true ) && \Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
 			return true;
 		}
-
+		l( 'RETURNING FALSE!!!' );
 		return ! $this->still_valid_checksum( $callable_checksums, $name, $checksum );
 	}
 
@@ -382,7 +395,15 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function maybe_sync_callables() {
+
+		global $maybe_invocations;
+
+		error_log( 'MAYBE invocations ' . ++$maybe_invocations );
+
+		l( 'In action: ' . current_action() );
+
 		$callables = array();
+		l( 'IN MAYBE SYNC CALLABLES:' );
 
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
 			if ( ! is_admin() ) {
@@ -396,11 +417,20 @@ class Callables extends Module {
 				$callable_keys  = array_keys( $callables );
 				$cron_callables = array();
 				// l( $callables );
-				l( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS );
+				l( 'ALWAYS SEND FOR: ', self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS );
 				foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $key ) {
 					l( "checking callables for $key" );
 					if ( isset( $callables[ $key ] ) ) {
+						l( "Adding $key  to this send\n" );
 						$cron_callables[ $key ] = $callables[ $key ];
+						continue;
+					}
+
+					if ( isset( self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ) &&
+						isset( $callables[ self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ] )
+					) {
+						l( "Adding $key  to this send\n" );
+						$cron_callables[ self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ] = $callables[ self::OPTIONS_ALWAYS_UPDATED_TO_CALLABLES[ $key ] ];
 					}
 				}
 				$callables = $cron_callables;
@@ -417,6 +447,7 @@ class Callables extends Module {
 		}
 
 		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+			l( 'ERROR: bad transient' );
 			return;
 		}
 
@@ -428,6 +459,7 @@ class Callables extends Module {
 		}
 
 		if ( empty( $callables ) ) {
+			l( 'ERROR: callables is empty, bye' );
 			return;
 		}
 
@@ -449,8 +481,10 @@ class Callables extends Module {
 				do_action( 'jetpack_sync_callable', $name, $value );
 				$callable_checksums[ $name ] = $checksum;
 				$has_changed                 = true;
+				l( "$name has changed!" );
 			} else {
 				$callable_checksums[ $name ] = $checksum;
+				l( "error: $name has not changed" );
 			}
 		}
 		if ( $has_changed ) {
