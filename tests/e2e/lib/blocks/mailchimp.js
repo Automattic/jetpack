@@ -51,8 +51,11 @@ export default class MailchimpBlock {
 				await ConnectionsPage.init( loginTab );
 				loaded = true;
 			} catch ( e ) {
-				console.log( 'ConnectionsPage is not available yet. Attempt: ' + count );
-				await loginTab.goto( connectionsUrl, { timeout: 60000 } );
+				console.log(
+					'ConnectionsPage is not available yet. Attempt: ' + count,
+					' URL: ' + connectionsUrl
+				);
+				await loginTab.goto( connectionsUrl );
 				if ( count > 9 ) {
 					throw new Error( 'ConnectionsPage is not available is not available after 10th attempt' );
 				}
