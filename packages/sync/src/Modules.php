@@ -158,7 +158,7 @@ class Modules {
 	/**
 	 * Sets defaults for the given instance of a Jetpack sync module.
 	 *
-	 * @param \Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
+	 * @param Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
 	 *
 	 * @return \Automattic\Jetpack\Sync\Modules\Module
 	 */
