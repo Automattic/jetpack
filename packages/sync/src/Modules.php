@@ -14,7 +14,9 @@ namespace Automattic\Jetpack\Sync;
 class Modules {
 
 	/**
-	 * List of sync modules we load by default.
+	 * Lists classnames of sync modules we load by default.
+	 *
+	 * @access public
 	 *
 	 * @var array
 	 */
@@ -39,6 +41,13 @@ class Modules {
 		'Jetpack_Sync_Modules_Full_Sync',
 	);
 
+	/**
+	 * Maps classnames of sync modules before to v7.5 to classnames of sync modules after v7.5.
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
 	const LEGACY_SYNC_MODULES_MAP = array(
 		'Jetpack_Sync_Modules_Constants'       => 'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 		'Jetpack_Sync_Modules_Callables'       => 'Automattic\\Jetpack\\Sync\\Modules\\Callables',
@@ -63,12 +72,18 @@ class Modules {
 	/**
 	 * Keeps track of initialized sync modules.
 	 *
+	 * @access private
+	 * @static
+	 *
 	 * @var null|array
 	 */
 	private static $initialized_modules = null;
 
 	/**
 	 * Gets a list of initialized modules.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @return array|null
 	 */
@@ -82,6 +97,9 @@ class Modules {
 
 	/**
 	 * Sets defaults for all initialized modules.
+	 *
+	 * @access public
+	 * @static
 	 */
 	public static function set_defaults() {
 		foreach ( self::get_modules() as $module ) {
@@ -91,6 +109,9 @@ class Modules {
 
 	/**
 	 * Gets the name of an initialized module. Returns false if given module has not been initialized.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @param string $module_name A module name.
 	 *
@@ -108,6 +129,9 @@ class Modules {
 
 	/**
 	 * Loads and sets defaults for all declared modules.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @return array
 	 */
@@ -131,6 +155,9 @@ class Modules {
 	/**
 	 * Returns an instance of the given module class.
 	 *
+	 * @access public
+	 * @static
+	 *
 	 * @param string $module_class The classname of a Jetpack sync module.
 	 *
 	 * @return Automattic\Jetpack\Sync\Modules\Module
@@ -142,6 +169,9 @@ class Modules {
 	/**
 	 * For backwards compat, takes the classname of a given module pre Jetpack 7.5,
 	 * and returns the new namespaced classname.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @param string $module_class The classname of a Jetpack sync module.
 	 *
@@ -158,9 +188,12 @@ class Modules {
 	/**
 	 * Sets defaults for the given instance of a Jetpack sync module.
 	 *
+	 * @access public
+	 * @static
+	 *
 	 * @param Automattic\Jetpack\Sync\Modules\Module $module Instance of a Jetpack sync module.
 	 *
-	 * @return \Automattic\Jetpack\Sync\Modules\Module
+	 * @return Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function set_module_defaults( $module ) {
 		$module->set_defaults();
