@@ -94,7 +94,7 @@ class Modules {
 	 *
 	 * @param string $module_name A module name.
 	 *
-	 * @return bool|string
+	 * @return bool|Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function get_module( $module_name ) {
 		foreach ( self::get_modules() as $module ) {
