@@ -4395,6 +4395,8 @@ p {
 	}
 
 	/**
+	 * Get the role of the current user.
+	 *
 	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_current_user_to_role() instead.
 	 *
 	 * @access public
