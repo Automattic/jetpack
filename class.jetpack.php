@@ -4394,14 +4394,19 @@ p {
 		return $url;
 	}
 
-	static function translate_current_user_to_role() {
-		foreach ( self::$capability_translations as $role => $cap ) {
-			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
-				return $role;
-			}
-		}
+	/**
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_current_user_to_role() instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string|boolean Current user's role, false if not enough capabilities for any of the roles.
+	 */
+	public static function translate_current_user_to_role() {
+		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
 
-		return false;
+		$roles = new Roles();
+		return $roles->translate_current_user_to_role();
 	}
 
 	static function translate_user_to_role( $user ) {
