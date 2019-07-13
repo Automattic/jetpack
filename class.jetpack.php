@@ -106,7 +106,17 @@ class Jetpack {
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
-	static $capability_translations = array(
+	/**
+	 * Map of roles we care about, and their corresponding minimum capabilities.
+	 *
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::$capability_translations instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var array
+	 */
+	public static $capability_translations = array(
 		'administrator' => 'manage_options',
 		'editor'        => 'edit_others_posts',
 		'author'        => 'publish_posts',
