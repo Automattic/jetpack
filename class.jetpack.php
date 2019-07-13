@@ -4429,12 +4429,22 @@ p {
 		return $roles->translate_user_to_role( $user );
 	}
 
-	static function translate_role_to_cap( $role ) {
-		if ( ! isset( self::$capability_translations[$role] ) ) {
-			return false;
-		}
+	/**
+	 * Get the minimum capability for a role.
+	 *
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_role_to_cap() instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $role Role name.
+	 * @return string|boolean Capability, false if role isn't mapped to any capabilities.
+	 */
+	public static function translate_role_to_cap( $role ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
 
-		return self::$capability_translations[$role];
+		$roles = new Roles();
+		return $roles->translate_role_to_cap( $role );
 	}
 
 	static function sign_role( $role, $user_id = null ) {
