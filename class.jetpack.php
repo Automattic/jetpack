@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
@@ -4494,7 +4495,8 @@ p {
 				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 			}
 
-			$role = self::translate_current_user_to_role();
+			$roles       = new Roles();
+			$role        = $roles->translate_current_user_to_role();
 			$signed_role = self::sign_role( $role );
 
 			$user = wp_get_current_user();
