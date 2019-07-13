@@ -88,7 +88,7 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'no_role', 'Invalid request.', 400 );
 		}
 
-		$cap = Jetpack::translate_role_to_cap( $role );
+		$cap = $roles->translate_role_to_cap( $role );
 		if ( ! $cap ) {
 			return new Jetpack_Error( 'no_cap', 'Invalid request.', 400 );
 		}
@@ -272,7 +272,8 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'scope', 'Invalid Scope', $code );
 		}
 
-		if ( ! $cap = Jetpack::translate_role_to_cap( $role ) ) {
+		$cap = $roles->translate_role_to_cap( $role );
+		if ( ! $cap ) {
 			return new Jetpack_Error( 'scope', 'No Cap', $code );
 		}
 
