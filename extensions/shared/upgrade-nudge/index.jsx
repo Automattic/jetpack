@@ -71,7 +71,6 @@ export default compose( [
 
 		return {
 			planName: get( plan, [ 'product_name_short' ] ),
-			planPathSlug,
 			upgradeUrl,
 		};
 	} ),
