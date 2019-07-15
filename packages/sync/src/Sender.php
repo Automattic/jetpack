@@ -1,4 +1,9 @@
 <?php
+/**
+ * Sync sender.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
@@ -8,26 +13,150 @@ use Automattic\Jetpack\Constants;
  * This class grabs pending actions from the queue and sends them
  */
 class Sender {
-
+	/**
+	 * Name of the option that stores the time of the next sync.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
-	const WPCOM_ERROR_SYNC_DELAY     = 60;
-	const QUEUE_LOCKED_SYNC_DELAY    = 10;
 
+	/**
+	 * Sync timeout after a WPCOM error.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const WPCOM_ERROR_SYNC_DELAY = 60;
+
+	/**
+	 * Sync timeout after a queue has been locked.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const QUEUE_LOCKED_SYNC_DELAY = 10;
+
+	/**
+	 * Maximum bytes to checkout without exceeding the memory limit.
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $dequeue_max_bytes;
+
+	/**
+	 * Maximum bytes in a single encoded item.
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $upload_max_bytes;
+
+	/**
+	 * Maximum number of sync items in a single action.
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $upload_max_rows;
+
+	/**
+	 * Maximum time for perfirming a checkout of items from the queue (in seconds).
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $max_dequeue_time;
+
+	/**
+	 * How many seconds to wait after sending sync items after exceeding the sync wait threshold (in seconds).
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $sync_wait_time;
+
+	/**
+	 * How much maximum time to wait for the checkout to finish (in seconds).
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $sync_wait_threshold;
+
+	/**
+	 * How much maximum time to wait for the sync items to be queued for sending (in seconds).
+	 *
+	 * @access private
+	 *
+	 * @var int
+	 */
 	private $enqueue_wait_time;
+
+	/**
+	 * Incremental sync queue object.
+	 *
+	 * @access private
+	 *
+	 * @var Automattic\Jetpack\Sync\Queue
+	 */
 	private $sync_queue;
+
+	/**
+	 * Full sync queue object.
+	 *
+	 * @access private
+	 *
+	 * @var Automattic\Jetpack\Sync\Queue
+	 */
 	private $full_sync_queue;
+
+	/**
+	 * Codec object for encoding and decoding sync items.
+	 *
+	 * @access private
+	 *
+	 * @var Automattic\Jetpack\Sync\Codec_Interface
+	 */
 	private $codec;
+
+	/**
+	 * The current user before we change or clear it.
+	 *
+	 * @access private
+	 *
+	 * @var \WP_User
+	 */
 	private $old_user;
 
-	// singleton functions
+	/**
+	 * Container for the singleton instance of this class.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var Automattic\Jetpack\Sync\Sender
+	 */
 	private static $instance;
 
+	/**
+	 * Retrieve the singleton instance of this class.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return Automattic\Jetpack\Sync\Sender
+	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -36,12 +165,24 @@ class Sender {
 		return self::$instance;
 	}
 
-	// this is necessary because you can't use "new" when you declare instance properties >:(
+	/**
+	 * Constructor.
+	 * This is necessary because you can't use "new" when you declare instance properties >:(
+	 *
+	 * @access protected
+	 * @static
+	 */
 	protected function __construct() {
 		$this->set_defaults();
 		$this->init();
 	}
 
+	/**
+	 * Initialize the sender.
+	 * Prepares the current user and initializes all sync modules.
+	 *
+	 * @access private
+	 */
 	private function init() {
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
@@ -50,6 +191,12 @@ class Sender {
 		}
 	}
 
+	/**
+	 * Detect if this is a XMLRPC request with a valid signature.
+	 * If so, changes the user to the new one.
+	 *
+	 * @access public
+	 */
 	public function maybe_set_user_from_token() {
 		$jetpack       = \Jetpack::init();
 		$verified_user = $jetpack->verify_xml_rpc_signature();
@@ -63,20 +210,49 @@ class Sender {
 		}
 	}
 
+	/**
+	 * If we used to have a previous current user, revert back to it.
+	 *
+	 * @access public
+	 */
 	public function maybe_clear_user_from_token() {
 		if ( isset( $this->old_user ) ) {
 			wp_set_current_user( $this->old_user );
 		}
 	}
 
+	/**
+	 * Retrieve the next sync time.
+	 *
+	 * @access public
+	 *
+	 * @param string $queue_name Name of the queue.
+	 * @return float Timestamp of the next sync.
+	 */
 	public function get_next_sync_time( $queue_name ) {
 		return (float) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
 	}
 
+	/**
+	 * Set the next sync time.
+	 *
+	 * @access public
+	 *
+	 * @param int    $time       Timestamp of the next sync.
+	 * @param string $queue_name Name of the queue.
+	 * @return boolean True if update was successful, false otherwise.
+	 */
 	public function set_next_sync_time( $time, $queue_name ) {
 		return update_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, $time, true );
 	}
 
+	/**
+	 * Trigger a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return boolean|\WP_Error True if this sync sending was successful, error object otherwise.
+	 */
 	public function do_full_sync() {
 		if ( ! Modules::get_module( 'full-sync' ) ) {
 			return;
@@ -85,6 +261,13 @@ class Sender {
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
 	}
 
+	/**
+	 * Enqueue the next sync items for sending.
+	 * Will not be done if the current request is a WP import one.
+	 * Will be delayed until the next sync time comes.
+	 *
+	 * @access private
+	 */
 	private function continue_full_sync_enqueue() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return false;
@@ -99,17 +282,35 @@ class Sender {
 		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-enqueue' );
 	}
 
+	/**
+	 * Trigger incremental sync.
+	 *
+	 * @access public
+	 *
+	 * @return boolean|\WP_Error True if this sync sending was successful, error object otherwise.
+	 */
 	public function do_sync() {
 		return $this->do_sync_and_set_delays( $this->sync_queue );
 	}
 
+	/**
+	 * Trigger sync for a certain sync queue.
+	 * Responsible for setting next sync time.
+	 * Will not be delayed if the current request is a WP import one.
+	 * Will be delayed until the next sync time comes.
+	 *
+	 * @access public
+	 *
+	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @return boolean|\WP_Error True if this sync sending was successful, error object otherwise.
+	 */
 	public function do_sync_and_set_delays( $queue ) {
-		// don't sync if importing
+		// Don't sync if importing.
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return new \WP_Error( 'is_importing' );
 		}
 
-		// don't sync if we are throttled
+		// Don't sync if we are throttled.
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
 			return new \WP_Error( 'sync_throttled' );
 		}
@@ -132,26 +333,37 @@ class Sender {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
 		} elseif ( $exceeded_sync_wait_threshold ) {
-			// if we actually sent data and it took a while, wait before sending again
+			// If we actually sent data and it took a while, wait before sending again.
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
 		}
 
 		return $sync_result;
 	}
 
+	/**
+	 * Retrieve the next sync items to send.
+	 *
+	 * @access public
+	 *
+	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue buffer object.
+	 * @param boolean                              $encode Whether to encode the items.
+	 * @return array Sync items to send.
+	 */
 	public function get_items_to_send( $buffer, $encode = true ) {
-		// track how long we've been processing so we can avoid request timeouts
+		// Track how long we've been processing so we can avoid request timeouts.
 		$start_time    = microtime( true );
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = $buffer->get_items();
-		// set up current screen to avoid errors rendering content
+		// Set up current screen to avoid errors rendering content.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'sync' );
 		$skipped_items_ids = array();
-		// we estimate the total encoded size as we go by encoding each item individually
-		// this is expensive, but the only way to really know :/
+		/**
+		 * We estimate the total encoded size as we go by encoding each item individually.
+		 * This is expensive, but the only way to really know :/
+		 */
 		foreach ( $items as $key => $item ) {
 			// Suspending cache addition help prevent overloading in memory cache of large sites.
 			wp_suspend_cache_addition( true );
@@ -167,7 +379,7 @@ class Sender {
 			 */
 			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 			wp_suspend_cache_addition( false );
-			if ( $item[1] === false ) {
+			if ( false === $item[1] ) {
 				$skipped_items_ids[] = $key;
 				continue;
 			}
@@ -185,20 +397,35 @@ class Sender {
 		return array( $items_to_send, $skipped_items_ids, $items, microtime( true ) - $start_time );
 	}
 
+	/**
+	 * If supported, flush all response data to the client and finish the request.
+	 * This allows for time consuming tasks to be performed without leaving the connection open.
+	 *
+	 * @access private
+	 */
 	private function fastcgi_finish_request() {
 		if ( function_exists( 'fastcgi_finish_request' ) && version_compare( phpversion(), '7.0.16', '>=' ) ) {
 			fastcgi_finish_request();
 		}
 	}
 
+	/**
+	 * Perform sync for a certain sync queue.
+	 *
+	 * @access public
+	 *
+	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @return boolean|\WP_Error True if this sync sending was successful, error object otherwise.
+	 */
 	public function do_sync_for_queue( $queue ) {
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
 			return new \WP_Error( 'empty_queue_' . $queue->id );
 		}
-		// now that we're sure we are about to sync, try to
-		// ignore user abort so we can avoid getting into a
-		// bad state
+		/**
+		 * Now that we're sure we are about to sync, try to ignore user abort
+		 * so we can avoid getting into a bad state.
+		 */
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
@@ -213,7 +440,7 @@ class Sender {
 		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
 
 		if ( ! $buffer ) {
-			// buffer has no items
+			// Buffer has no items.
 			return new \WP_Error( 'empty_buffer' );
 		}
 
@@ -248,22 +475,22 @@ class Sender {
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
 			$checked_in_item_ids = $queue->checkin( $buffer );
 			if ( is_wp_error( $checked_in_item_ids ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'Error checking in buffer: ' . $checked_in_item_ids->get_error_message() );
 				$queue->force_checkin();
 			}
 			if ( is_wp_error( $processed_item_ids ) ) {
 				return new \WP_Error( 'wpcom_error', $processed_item_ids->get_error_code() );
 			}
-			// returning a WP_Error('wpcom_error') is a sign to the caller that we should wait a while
-			// before syncing again
+			// Returning a wpcom_error is a sign to the caller that we should wait a while before syncing again.
 			return new \WP_Error( 'wpcom_error', 'jetpack_sync_send_data_false' );
 		} else {
-			// detect if the last item ID was an error
+			// Detect if the last item ID was an error.
 			$had_wp_error = is_wp_error( end( $processed_item_ids ) );
 			if ( $had_wp_error ) {
 				$wp_error = array_pop( $processed_item_ids );
 			}
-			// also checkin any items that were skipped
+			// Also checkin any items that were skipped.
 			if ( count( $skipped_items_ids ) > 0 ) {
 				$processed_item_ids = array_merge( $processed_item_ids, $skipped_items_ids );
 			}
@@ -278,8 +505,7 @@ class Sender {
 			 */
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 			$queue->close( $buffer, $processed_item_ids );
-			// returning a WP_Error is a sign to the caller that we should wait a while
-			// before syncing again
+			// Returning a WP_Error is a sign to the caller that we should wait a while before syncing again.
 			if ( $had_wp_error ) {
 				return new \WP_Error( 'wpcom_error', $wp_error->get_error_code() );
 			}
@@ -287,18 +513,46 @@ class Sender {
 		return true;
 	}
 
-	function get_sync_queue() {
+	/**
+	 * Get the incremental sync queue object.
+	 *
+	 * @access public
+	 *
+	 * @return Automattic\Jetpack\Sync\Queue Queue object.
+	 */
+	public function get_sync_queue() {
 		return $this->sync_queue;
 	}
 
-	function get_full_sync_queue() {
+	/**
+	 * Get the full sync queue object.
+	 *
+	 * @access public
+	 *
+	 * @return Automattic\Jetpack\Sync\Queue Queue object.
+	 */
+	public function get_full_sync_queue() {
 		return $this->full_sync_queue;
 	}
 
-	function get_codec() {
+	/**
+	 * Get the codec object.
+	 *
+	 * @access public
+	 *
+	 * @return Automattic\Jetpack\Sync\Codec_Interface Codec object.
+	 */
+	public function get_codec() {
 		return $this->codec;
 	}
-	function set_codec() {
+
+	/**
+	 * Determine the codec object.
+	 * Use gzip deflate if supported.
+	 *
+	 * @access public
+	 */
+	public function set_codec() {
 		if ( function_exists( 'gzinflate' ) ) {
 			$this->codec = new JSON_Deflate_Array_Codec();
 		} else {
@@ -306,72 +560,155 @@ class Sender {
 		}
 	}
 
-	function send_checksum() {
+	/**
+	 * Compute and send all the checksums.
+	 *
+	 * @access public
+	 */
+	public function send_checksum() {
 		$store = new Replicastore();
 		do_action( 'jetpack_sync_checksum', $store->checksum_all() );
 	}
 
-	function reset_sync_queue() {
+	/**
+	 * Reset the incremental sync queue.
+	 *
+	 * @access public
+	 */
+	public function reset_sync_queue() {
 		$this->sync_queue->reset();
 	}
 
-	function reset_full_sync_queue() {
+	/**
+	 * Reset the full sync queue.
+	 *
+	 * @access public
+	 */
+	public function reset_full_sync_queue() {
 		$this->full_sync_queue->reset();
 	}
 
-	function set_dequeue_max_bytes( $size ) {
+	/**
+	 * Set the maximum bytes to checkout without exceeding the memory limit.
+	 *
+	 * @access public
+	 *
+	 * @param int $size Maximum bytes to checkout.
+	 */
+	public function set_dequeue_max_bytes( $size ) {
 		$this->dequeue_max_bytes = $size;
 	}
 
-	// in bytes
-	function set_upload_max_bytes( $max_bytes ) {
+	/**
+	 * Set the maximum bytes in a single encoded item.
+	 *
+	 * @access public
+	 *
+	 * @param int $max_bytes Maximum bytes in a single encoded item.
+	 */
+	public function set_upload_max_bytes( $max_bytes ) {
 		$this->upload_max_bytes = $max_bytes;
 	}
 
-	// in rows
-	function set_upload_max_rows( $max_rows ) {
+	/**
+	 * Set the maximum number of sync items in a single action.
+	 *
+	 * @access public
+	 *
+	 * @param int $max_rows Maximum number of sync items.
+	 */
+	public function set_upload_max_rows( $max_rows ) {
 		$this->upload_max_rows = $max_rows;
 	}
 
-	// in seconds
-	function set_sync_wait_time( $seconds ) {
+	/**
+	 * Set the sync wait time (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @param int $seconds Sync wait time.
+	 */
+	public function set_sync_wait_time( $seconds ) {
 		$this->sync_wait_time = $seconds;
 	}
 
-	function get_sync_wait_time() {
+	/**
+	 * Get current sync wait time (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @return int Sync wait time.
+	 */
+	public function get_sync_wait_time() {
 		return $this->sync_wait_time;
 	}
 
-	function set_enqueue_wait_time( $seconds ) {
+	/**
+	 * Set the enqueue wait time (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @param int $seconds Enqueue wait time.
+	 */
+	public function set_enqueue_wait_time( $seconds ) {
 		$this->enqueue_wait_time = $seconds;
 	}
 
-	function get_enqueue_wait_time() {
+	/**
+	 * Get current enqueue wait time (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @return int Enqueue wait time.
+	 */
+	public function get_enqueue_wait_time() {
 		return $this->enqueue_wait_time;
 	}
 
-	// in seconds
-	function set_sync_wait_threshold( $seconds ) {
+	/**
+	 * Set the sync wait threshold (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @param int $seconds Sync wait threshold.
+	 */
+	public function set_sync_wait_threshold( $seconds ) {
 		$this->sync_wait_threshold = $seconds;
 	}
 
-	function get_sync_wait_threshold() {
+	/**
+	 * Get current sync wait threshold (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @return int Sync wait threshold.
+	 */
+	public function get_sync_wait_threshold() {
 		return $this->sync_wait_threshold;
 	}
 
-	// in seconds
-	function set_max_dequeue_time( $seconds ) {
+	/**
+	 * Set the maximum time for perfirming a checkout of items from the queue (in seconds).
+	 *
+	 * @access public
+	 *
+	 * @param int $seconds Maximum dequeue time.
+	 */
+	public function set_max_dequeue_time( $seconds ) {
 		$this->max_dequeue_time = $seconds;
 	}
 
-
-
-	function set_defaults() {
+	/**
+	 * Initialize the sync queues, codec and set the default settings.
+	 *
+	 * @access public
+	 */
+	public function set_defaults() {
 		$this->sync_queue      = new Queue( 'sync' );
 		$this->full_sync_queue = new Queue( 'full_sync' );
 		$this->set_codec();
 
-		// saved settings
+		// Saved settings.
 		Settings::set_importing( null );
 		$settings = Settings::get_settings();
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
@@ -383,7 +720,12 @@ class Sender {
 		$this->set_max_dequeue_time( Defaults::get_max_sync_execution_time() );
 	}
 
-	function reset_data() {
+	/**
+	 * Reset sync queues, modules and settings.
+	 *
+	 * @access public
+	 */
+	public function reset_data() {
 		$this->reset_sync_queue();
 		$this->reset_full_sync_queue();
 
@@ -398,14 +740,19 @@ class Sender {
 		Settings::reset_data();
 	}
 
-	function uninstall() {
-		// Lets delete all the other fun stuff like transient and option and the sync queue
+	/**
+	 * Perform cleanup at the event of plugin uninstallation.
+	 *
+	 * @access public
+	 */
+	public function uninstall() {
+		// Lets delete all the other fun stuff like transient and option and the sync queue.
 		$this->reset_data();
 
-		// delete the full sync status
+		// Delete the full sync status.
 		delete_option( 'jetpack_full_sync_status' );
 
-		// clear the sync cron.
+		// Clear the sync cron.
 		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 	}
