@@ -166,15 +166,15 @@ class ThemeEnhancements extends React.Component {
 							[
 								{
 									key: 'infinite_default',
-									label: __( 'Don’t load more content automatically' ),
+									label: __( 'Load more posts using the default theme behavior' ),
 								},
 								{
 									key: 'infinite_button',
-									label: __( 'Add a button to let users load content manually' ),
+									label: __( 'Load more posts in page with a button' ),
 								},
 								{
 									key: 'infinite_scroll',
-									label: __( 'Enable infinite scrolling' ),
+									label: __( 'Load more posts as the reader scrolls down' ),
 								},
 							].map( radio => (
 								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
