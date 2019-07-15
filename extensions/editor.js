@@ -9,8 +9,11 @@ import analytics from '../_inc/client/lib/analytics';
 if (
 	typeof window === 'object' &&
 	typeof window.Jetpack_Editor_Initial_State === 'object' &&
-	typeof window.Jetpack_Editor_Initial_State.tracksUserData === 'object'
+	typeof window.Jetpack_Editor_Initial_State.tracksUserData === 'object' &&
+	typeof window.Jetpack_Editor_Initial_State.wpcomBlogId !== 'undefined'
 ) {
-	const { userid, username, blogid: blog_id } = window.Jetpack_Editor_Initial_State.tracksUserData;
-	analytics.initialize( userid, username, { blog_id } );
+	const { userid, username } = window.Jetpack_Editor_Initial_State.tracksUserData;
+	analytics.initialize( userid, username, {
+		blog_id: window.Jetpack_Editor_Initial_State.wpcomBlogId,
+	} );
 }

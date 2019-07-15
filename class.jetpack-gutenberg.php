@@ -600,6 +600,16 @@ class Jetpack_Gutenberg {
 			plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE )
 		);
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		} else {
+			$user      = wp_get_current_user();
+			$user_data = array(
+				'userid'   => $user->ID,
+				'username' => $user->user_login,
+			);
+		}
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
@@ -607,7 +617,8 @@ class Jetpack_Gutenberg {
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
 				'siteFragment'     => $site_fragment,
-				'tracksUserData'   => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				'tracksUserData'   => $user_data,
+				'wpcomBlogId'      => Jetpack_Options::get_option( 'id', 0 ),
 			)
 		);
 
