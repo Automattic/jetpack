@@ -1,4 +1,9 @@
 <?php
+/**
+ * A class that defines syncable actions for Jetpack.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
@@ -13,13 +18,36 @@ use Automattic\Jetpack\Status;
  * It also binds the action to send data to WPCOM to Jetpack's XMLRPC client object.
  */
 class Actions {
-	static $sender                         = null;
-	static $listener                       = null;
+	/**
+	 * A variable to hold a sync sender object.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var \Automattic\Jetpack\Sync\Sender
+	 */
+	public static $sender = null;
+	/**
+	 * A variable to hold a sync listener object.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var Automattic\Jetpack\Sync\Listener
+	 */
+	public static $listener                = null;
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
-	static function init() {
-		// everything below this point should only happen if we're a valid sync site
+	/**
+	 * Initialize Sync for cron jobs, set up listeners for WordPress Actions,
+	 * and set up a shut-down action for sending actions to WordPress.com
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function init() {
+		// Everything below this point should only happen if we're a valid sync site.
 		if ( ! self::sync_allowed() ) {
 			return;
 		}
@@ -29,13 +57,13 @@ class Actions {
 		} elseif ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			self::clear_sync_cron_jobs();
 		}
-		// When importing via cron, do not sync
+		// When importing via cron, do not sync.
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
-		// Sync connected user role changes to .com
+		// Sync connected user role changes to WordPress.com.
 		Users::init();
 
-		// publicize filter to prevent publicizing blacklisted post types
+		// Publicize filter to prevent publicizing blacklisted post types.
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
 
 		/**
@@ -57,7 +85,13 @@ class Actions {
 		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 	}
 
-	static function add_sender_shutdown() {
+	/**
+	 * Prepares sync to send actions on shutdown for the current request.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function add_sender_shutdown() {
 		/**
 		 * Fires on every request before default loading sync sender code.
 		 * Return false to not load sync sender code that serializes pending
@@ -80,7 +114,15 @@ class Actions {
 		}
 	}
 
-	static function should_initialize_sender() {
+	/**
+	 * Decides if the sender should run on shutdown for this request.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function should_initialize_sender() {
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
@@ -104,7 +146,15 @@ class Actions {
 		return false;
 	}
 
-	static function sync_allowed() {
+	/**
+	 * Decides if sync should run at all during this request.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function sync_allowed() {
 		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
 			return true;
 		}
@@ -132,34 +182,72 @@ class Actions {
 		return true;
 	}
 
-	static function sync_via_cron_allowed() {
+	/**
+	 * Determines if syncing during a cron job is allowed.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function sync_via_cron_allowed() {
 		return ( Settings::get_setting( 'sync_via_cron' ) );
 	}
 
-	static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
-		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ) ) ) {
+	/**
+	 * Decides if the given post should be Publicized based on its type.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param bool     $should_publicize Publicize status prior to this filter running.
+	 * @param \WP_Post $post The post to test for Publicizability.
+	 * @return bool
+	 */
+	public static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
 		}
 
 		return $should_publicize;
 	}
 
-	static function set_is_importing_true() {
+	/**
+	 * Set an importing flag to `true` in sync settings.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function set_is_importing_true() {
 		Settings::set_importing( true );
 	}
 
-	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
+	/**
+	 * Sends data to WordPress.com via ann XMLRPC request.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param object $data Data relating to a sync action.
+	 * @param string $codec_name The name of the codec that encodes the data.
+	 * @param float  $sent_timestamp Current server time so we can compensate for clock differences.
+	 * @param string $queue_id The queue the action belongs to, sync or full_sync.
+	 * @param float  $checkout_duration Time spent retrieving queue items from the DB.
+	 * @param float  $preprocess_duration Time spent converting queue items into data to send.
+	 * @return \Jetpack_Error|mixed|\WP_Error The result of the sending request.
+	 */
+	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
 		\Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
-			'sync'      => '1',             // add an extra parameter to the URL so we can tell it's a sync action
-			'codec'     => $codec_name,     // send the name of the codec used to encode the data
-			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
-			'queue'     => $queue_id,       // sync or full_sync
-			'home'      => Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
-			'siteurl'   => Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
-			'cd'        => sprintf( '%.4f', $checkout_duration ),   // Time spent retrieving queue items from the DB
-			'pd'        => sprintf( '%.4f', $preprocess_duration ), // Time spent converting queue items into data to send
+			'sync'      => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
+			'codec'     => $codec_name,
+			'timestamp' => $sent_timestamp,
+			'queue'     => $queue_id,
+			'home'      => Functions::home_url(),  // Send home url option to check for Identity Crisis server-side.
+			'siteurl'   => Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
+			'cd'        => sprintf( '%.4f', $checkout_duration ),
+			'pd'        => sprintf( '%.4f', $preprocess_duration ),
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -200,7 +288,7 @@ class Actions {
 
 		$response = $rpc->getResponse();
 
-		// Check if WordPress.com IDC mitigation blocked the sync request
+		// Check if WordPress.com IDC mitigation blocked the sync request.
 		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
 			$error_code              = $response['error_code'];
 			$allowed_idc_error_codes = array(
@@ -209,7 +297,7 @@ class Actions {
 				'jetpack_site_url_mismatch',
 			);
 
-			if ( in_array( $error_code, $allowed_idc_error_codes ) ) {
+			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
 				\Jetpack_Options::update_option(
 					'sync_error_idc',
 					\Jetpack::get_sync_error_idc_option( $response )
@@ -225,7 +313,13 @@ class Actions {
 		return $response;
 	}
 
-	static function do_initial_sync() {
+	/**
+	 * Kicks off the initial sync.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function do_initial_sync() {
 		// Lets not sync if we are not suppose to.
 		if ( ! self::sync_allowed() ) {
 			return false;
@@ -245,7 +339,16 @@ class Actions {
 		self::do_full_sync( $initial_sync_config );
 	}
 
-	static function do_full_sync( $modules = null ) {
+	/**
+	 * Kicks off a full sync.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $modules The sync modules should be included in this full sync. All will be included if null.
+	 * @return bool True if full sync was successfully started.
+	 */
+	public static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
@@ -263,24 +366,47 @@ class Actions {
 		return true;
 	}
 
-	static function jetpack_cron_schedule( $schedules ) {
+	/**
+	 * Adds a cron schedule for regular syncing via cron, unless the schedule already exists.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $schedules A list of WordPress cron schedules.
+	 * @return array
+	 */
+	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
+			$minutes = intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
+			$display = ( 1 === $minutes ) ?
+				__( 'Every minute', 'jetpack' ) :
+				/* translators: %d is an intereger indicating the number of minutes. */
+				sprintf( _n( 'Every %d minute', 'Every %d minutes', $minutes, 'jetpack' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
-				'display'  => sprintf(
-					esc_html( _n( 'Every minute', 'Every %d minutes', intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 ), 'jetpack' ) ),
-					intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 )
-				),
+				'display'  => $display,
 			);
 		}
 		return $schedules;
 	}
 
-	static function do_cron_sync() {
+	/**
+	 * Starts an incremental sync via cron.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function do_cron_sync() {
 		self::do_cron_sync_by_type( 'sync' );
 	}
 
-	static function do_cron_full_sync() {
+	/**
+	 * Starts a full sync via cron.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function do_cron_full_sync() {
 		self::do_cron_sync_by_type( 'full_sync' );
 	}
 
@@ -289,9 +415,12 @@ class Actions {
 	 * or have to wait more than 15s before sending again,
 	 * or we hit a lock or some other sending issue
 	 *
+	 * @access public
+	 * @static
+	 *
 	 * @param string $type Sync type. Can be `sync` or `full_sync`.
 	 */
-	static function do_cron_sync_by_type( $type ) {
+	public static function do_cron_sync_by_type( $type ) {
 		if ( ! self::sync_allowed() || ( 'sync' !== $type && 'full_sync' !== $type ) ) {
 			return;
 		}
@@ -317,42 +446,91 @@ class Actions {
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 	}
 
-	static function initialize_listener() {
+	/**
+	 * Initialize the sync listener.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_listener() {
 		self::$listener = Listener::get_instance();
 	}
 
-	static function initialize_sender() {
+	/**
+	 * Initializes the sync sender.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_sender() {
 		self::$sender = Sender::get_instance();
-
-		// bind the sending process
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
 	}
 
-	static function initialize_woocommerce() {
+	/**
+	 * Initializes sync for WooCommerce.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_woocommerce() {
 		if ( false === class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
 	}
 
-	static function add_woocommerce_sync_module( $sync_modules ) {
+	/**
+	 * Adds Woo's sync modules to existing modules for sending.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filer.
+	 * @return array A list of sync modules that now includes Woo's modules.
+	 */
+	public static function add_woocommerce_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce';
 		return $sync_modules;
 	}
 
-	static function initialize_wp_super_cache() {
+	/**
+	 * Initializes sync for WP Super Cache.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_wp_super_cache() {
 		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_wp_super_cache_sync_module' ) );
 	}
 
-	static function add_wp_super_cache_sync_module( $sync_modules ) {
+	/**
+	 * Adds WP Super Cache's sync modules to existing modules for sending.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filer.
+	 * @return array A list of sync modules that now includes WP Super Cache's modules.
+	 */
+	public static function add_wp_super_cache_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache';
 		return $sync_modules;
 	}
 
-	static function sanitize_filtered_sync_cron_schedule( $schedule ) {
+	/**
+	 * Sanitizes the name of sync's cron schedule.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $schedule The name of a WordPress cron schedule.
+	 * @return string The sanitized name of sync's cron schedule.
+	 */
+	public static function sanitize_filtered_sync_cron_schedule( $schedule ) {
 		$schedule  = sanitize_key( $schedule );
 		$schedules = wp_get_schedules();
 
@@ -364,9 +542,19 @@ class Actions {
 		return self::DEFAULT_SYNC_CRON_INTERVAL_NAME;
 	}
 
-	static function get_start_time_offset( $schedule = '', $hook = '' ) {
+	/**
+	 * Allows offsetting of start times for sync cron jobs.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $schedule The name of a cron schedule.
+	 * @param string $hook The hook that this method is responding to.
+	 * @return int The offset for the sync cron schedule.
+	 */
+	public static function get_start_time_offset( $schedule = '', $hook = '' ) {
 		$start_time_offset = is_multisite()
-			? mt_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
+			? wp_rand( 0, ( 2 * self::DEFAULT_SYNC_CRON_INTERVAL_VALUE ) )
 			: 0;
 
 		/**
@@ -389,7 +577,16 @@ class Actions {
 		);
 	}
 
-	static function maybe_schedule_sync_cron( $schedule, $hook ) {
+	/**
+	 * Decides if a sync cron should be scheduled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $schedule The name of a cron schedule.
+	 * @param string $hook The hook that this method is responding to.
+	 */
+	public static function maybe_schedule_sync_cron( $schedule, $hook ) {
 		if ( ! $hook ) {
 			return;
 		}
@@ -397,21 +594,33 @@ class Actions {
 
 		$start_time = time() + self::get_start_time_offset( $schedule, $hook );
 		if ( ! wp_next_scheduled( $hook ) ) {
-			// Schedule a job to send pending queue items once a minute
+			// Schedule a job to send pending queue items once a minute.
 			wp_schedule_event( $start_time, $schedule, $hook );
-		} elseif ( $schedule != wp_get_schedule( $hook ) ) {
-			// If the schedule has changed, update the schedule
+		} elseif ( wp_get_schedule( $hook ) !== $schedule ) {
+			// If the schedule has changed, update the schedule.
 			wp_clear_scheduled_hook( $hook );
 			wp_schedule_event( $start_time, $schedule, $hook );
 		}
 	}
 
-	static function clear_sync_cron_jobs() {
+	/**
+	 * Clears Jetpack sync cron jobs.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function clear_sync_cron_jobs() {
 		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 	}
 
-	static function init_sync_cron_jobs() {
+	/**
+	 * Initializes Jetpack sync cron jobs.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function init_sync_cron_jobs() {
 		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
 
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
@@ -438,7 +647,16 @@ class Actions {
 		self::maybe_schedule_sync_cron( $full_sync_cron_schedule, 'jetpack_sync_full_cron' );
 	}
 
-	static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+	/**
+	 * Perform maintenance when a plugin upgrade occurs.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $new_version New version of the plugin.
+	 * @param string $old_version Old version of the plugin.
+	 */
+	public static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}
@@ -455,12 +673,15 @@ class Actions {
 	}
 
 	/**
-	 * Get the sync status
+	 * Get syncing status for the given fields.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @param string|null $fields A comma-separated string of the fields to include in the array from the JSON response.
-	 * @return array
+	 * @return array An associative array with the status report.
 	 */
-	static function get_sync_status( $fields = null ) {
+	public static function get_sync_status( $fields = null ) {
 		self::initialize_sender();
 
 		$sync_module     = Modules::get_module( 'full-sync' );
