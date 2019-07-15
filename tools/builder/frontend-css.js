@@ -10,7 +10,7 @@ import modify from 'gulp-modify';
 import path from 'path';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
-import util from 'gulp-util';
+import log from 'fancy-log';
 
 /**
  * Internal dependencies
@@ -94,7 +94,7 @@ gulp.task( 'frontendcss', function() {
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css/' ) )
 		.on( 'end', function() {
-			util.log( 'Front end modules CSS finished.' );
+			log( 'Front end modules CSS finished.' );
 		} );
 } );
 
