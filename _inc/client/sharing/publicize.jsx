@@ -72,8 +72,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 					feature={ FEATURE_SCHEDULE_PUBLICIZE_JETPACK }
 					module="publicize"
 					hideButton
-					isActive
-					unavailableInDevMode
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
