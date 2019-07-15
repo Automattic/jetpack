@@ -214,7 +214,11 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SCHEDULE_PUBLICIZE_JETPACK:
-				if ( 'is-premium-plan' === planClass || 'is-business-plan' === planClass ) {
+				if (
+					'is-premium-plan' === planClass ||
+					'is-business-plan' === planClass ||
+					! props.UnavailableInDevMode
+				) {
 					return '';
 				}
 
