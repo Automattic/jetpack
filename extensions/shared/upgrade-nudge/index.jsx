@@ -75,9 +75,9 @@ export default compose( [
 			upgradeUrl,
 		};
 	} ),
-	withDispatch( ( dispatch, { planPathSlug, upgradeUrl } ) => ( {
+	withDispatch( ( dispatch, { plan: plan_slug, upgradeUrl } ) => ( {
 		autosaveAndRedirectToUpgrade: async () => {
-			analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', { planPathSlug } );
+			analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', { plan_slug } );
 			await dispatch( 'core/editor' ).autosave();
 			// Using window.top to escape from the editor iframe on WordPress.com
 			window.top.location.href = upgradeUrl;
