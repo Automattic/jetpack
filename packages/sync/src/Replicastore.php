@@ -43,6 +43,11 @@ class Replicastore implements Replicastore_Interface {
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
 	}
 
+	public function term_relationship_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+	}
+
 	public function post_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
@@ -659,6 +664,8 @@ class Replicastore implements Replicastore_Interface {
 				return Defaults::$default_post_meta_checksum_columns;
 			case 'terms':
 				return Defaults::$default_term_checksum_columns;
+			case 'term_relationships':
+				return Defaults::$default_term_relationships_checksum_columns;
 			default:
 				return false;
 		}
@@ -702,6 +709,12 @@ class Replicastore implements Replicastore_Interface {
 				$object_table = $wpdb->terms;
 				$object_count = $this->term_count();
 				$id_field     = 'term_id';
+				$where_sql    = '1=1';
+				break;
+			case 'term_relationships':
+				$object_table = $wpdb->term_relationships;
+				$object_count = $this->term_relationship_count();
+				$id_field     = 'object_id';
 				$where_sql    = '1=1';
 				break;
 			default:
