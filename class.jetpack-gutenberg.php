@@ -607,6 +607,7 @@ class Jetpack_Gutenberg {
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
 				'siteFragment'     => $site_fragment,
+				'tracksUserData'   => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			)
 		);
 
