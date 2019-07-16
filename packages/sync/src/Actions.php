@@ -46,6 +46,14 @@ class Actions {
 	 * @var string
 	 */
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
+
+	/**
+	 * Interval between the last and the next sync cron action.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
 	/**
