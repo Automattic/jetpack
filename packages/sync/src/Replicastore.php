@@ -73,6 +73,11 @@ class Replicastore implements Replicastore_Interface {
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
 	}
 
+	public function term_taxonomy_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
+	}
+	
 	/**
 	 * Retrieve the number of posts with a particular post status within a certain range.
 	 *
@@ -1169,6 +1174,8 @@ class Replicastore implements Replicastore_Interface {
 				return Defaults::$default_post_meta_checksum_columns;
 			case 'terms':
 				return Defaults::$default_term_checksum_columns;
+			case 'term_taxonomy':
+				return Defaults::$default_term_taxonomy_checksum_columns;
 			default:
 				return false;
 		}
@@ -1228,6 +1235,12 @@ class Replicastore implements Replicastore_Interface {
 				$object_table = $wpdb->terms;
 				$object_count = $this->term_count();
 				$id_field     = 'term_id';
+				$where_sql    = '1=1';
+				break;
+			case 'terms_taxonomy':
+				$object_table = $wpdb->term_taxonomy;
+				$object_count = $this->term_taxonomy_count();
+				$id_field     = 'term_taxonomy_id';
 				$where_sql    = '1=1';
 				break;
 			default:
