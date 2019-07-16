@@ -606,8 +606,10 @@ class Jetpack_Gutenberg {
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);
+			$blog_id   = get_current_blog_id();
 		} else {
 			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+			$blog_id   = Jetpack_Options::get_option( 'id', 0 );
 		}
 
 		wp_localize_script(
@@ -618,7 +620,7 @@ class Jetpack_Gutenberg {
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
-				'wpcomBlogId'      => Jetpack_Options::get_option( 'id', 0 ),
+				'wpcomBlogId'      => $blog_id,
 			)
 		);
 
