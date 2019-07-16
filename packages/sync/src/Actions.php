@@ -37,6 +37,14 @@ class Actions {
 	 * @var Automattic\Jetpack\Sync\Listener
 	 */
 	public static $listener                = null;
+
+	/**
+	 * Name of the sync cron schedule.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
 	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
