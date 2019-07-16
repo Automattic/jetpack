@@ -218,7 +218,7 @@ class Actions {
 	 * @static
 	 *
 	 * @param bool     $should_publicize Publicize status prior to this filter running.
-	 * @param \WP_Post $post The post to test for Publicizability.
+	 * @param \WP_Post $post                     The post to test for Publicizability.
 	 * @return bool
 	 */
 	public static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
