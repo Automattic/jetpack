@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import banner from 'gulp-banner';
 import log from 'fancy-log';
 import gulp from 'gulp';
 import gulpif from 'gulp-if';
 import minify from 'gulp-minify';
 import PluginError from 'plugin-error';
+import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import saveLicense from 'uglify-save-license';
 import sourcemaps from 'gulp-sourcemaps';
@@ -105,7 +105,11 @@ function onBuild( done, err, stats ) {
 	const sourceNegations = [ '!_inc/*.min.js', '!modules/**/*.min.js' ];
 	gulp
 		.src( [ ...sources, ...sourceNegations ] )
-		.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
+		.pipe(
+			prepend.prependText(
+				'/* Do not modify this file directly. It is compiled from other files. */\n'
+			)
+		)
 		.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
 		.pipe(
 			minify( {

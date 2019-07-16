@@ -2,12 +2,12 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
-import banner from 'gulp-banner';
 import cleanCSS from 'gulp-clean-css';
 import concat from 'gulp-concat';
 import gulp from 'gulp';
 import modify from 'gulp-modify';
 import path from 'path';
+import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
 import log from 'fancy-log';
@@ -83,7 +83,7 @@ gulp.task( 'frontendcss', function() {
 		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
 		.pipe(
-			banner(
+			prepend.prependText(
 				'/*!\n' +
 					'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
 					'*/\n'
