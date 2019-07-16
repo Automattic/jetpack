@@ -24,7 +24,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @var \Automattic\Jetpack\Sync\Sender
+	 * @var Automattic\Jetpack\Sync\Sender
 	 */
 	public static $sender = null;
 	/**
