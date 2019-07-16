@@ -96,6 +96,35 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 7.5.3 =
+
+* Release date: July 17, 2019
+* Release post: https://wp.me/p1moTy-k9A
+
+**Bug fixes**
+
+* General: Fixes plugin activation/deactivation hooks that were accidentally disabled.
+* General: Fixes fatal errors that were possible when using pre-7.5 Jetpack internal API.
+
+= 7.5.2 =
+
+* Release date: July 4, 2019
+* Release post: https://wp.me/p1moTy-k9A
+
+**Bug fixes**
+
+* General: Fixes an error when a site's connection to WordPress.com is set to "Safe Mode".
+
+= 7.5.1 =
+
+* Release date: July 2, 2019
+* Release post: https://wp.me/p1moTy-k9A
+
+**Bug fixes**
+
+* General: Fixes an error when trying to delete the Jetpack plugin.
+* General: Fixes supported PHP version declaration.
+
 = 7.5 =
 
 * Release date: July 2, 2019
