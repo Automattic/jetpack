@@ -5,7 +5,7 @@ import autoprefixer from 'gulp-autoprefixer';
 import cleanCSS from 'gulp-clean-css';
 import concat from 'gulp-concat';
 import gulp from 'gulp';
-import modify from 'gulp-modify';
+import modifyCssUrls from 'gulp-modify-css-urls';
 import path from 'path';
 import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
@@ -66,19 +66,18 @@ const separate_list = [
 	'modules/theme-tools/compat/twentynineteen.css',
 ];
 
-const pathModifier = function( file, contents ) {
-	const regex = /url\((.*)\)/g,
-		f = file.path.replace( file.cwd + '/', '' );
-	return contents.replace( regex, function( match, group ) {
-		return "url('" + transformRelativePath( group, f ) + "')";
-	} );
+const cwd = process.cwd() + '/';
+
+const pathModifier = function( url, filePath ) {
+	const f = filePath.replace( cwd, '' );
+	return transformRelativePath( url, f );
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
 gulp.task( 'frontendcss', function() {
 	return gulp
 		.src( concat_list )
-		.pipe( modify( { fileModifier: pathModifier } ) )
+		.pipe( modifyCssUrls( { modify: pathModifier } ) )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
@@ -101,7 +100,7 @@ gulp.task( 'frontendcss', function() {
 gulp.task( 'frontendcss:separate', function() {
 	return gulp
 		.src( separate_list )
-		.pipe( modify( { fileModifier: pathModifier } ) )
+		.pipe( modifyCssUrls( { modify: pathModifier } ) )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( rtlcss() )

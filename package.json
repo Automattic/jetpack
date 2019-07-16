@@ -111,7 +111,7 @@
 		"gulp-jshint": "2.1.0",
 		"gulp-json-transform": "0.4.7",
 		"gulp-minify": "3.1.0",
-		"gulp-modify": "0.1.1",
+		"gulp-modify-css-urls": "2.0.0",
 		"gulp-po2json": "1.0.0",
 		"gulp-rename": "1.4.0",
 		"gulp-rtlcss": "1.4.0",

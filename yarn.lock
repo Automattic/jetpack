@@ -3118,6 +3118,11 @@ convert-source-map@1.X, convert-source-map@^1.1.0, convert-source-map@^1.4.0, co
   dependencies:
     safe-buffer "~5.1.1"
 
+convert-source-map@^0.3.3:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/convert-source-map/-/convert-source-map-0.3.5.tgz#f1d802950af7dd2631a1febe0596550c86ab3190"
+  integrity sha1-8dgClQr33SYxof6+BZZVDIarMZA=
+
 cookie@0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.0.tgz#beb437e7022b3b6d49019d088665303ebe9c14ba"
@@ -3389,7 +3394,7 @@ css-what@2.1, css-what@^2.1.2:
   resolved "https://registry.yarnpkg.com/css-what/-/css-what-2.1.3.tgz#a6d7604573365fe74686c3f311c56513d88285f2"
   integrity sha512-a+EPoD+uZiNfh+5fxw2nO9QwFa6nJe2Or35fGY6Ipw1R3R4AGz1d1TEZrCegvw2YTmZ0jXirGYlzxxpYSHwpEg==
 
-css@2.X, css@^2.2.1:
+css@2.X, css@^2.0.0, css@^2.2.1:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/css/-/css-2.2.4.tgz#c646755c73971f2bba6a601e2cf2fd71b1298929"
   integrity sha512-oUnjmWpy0niI3x/mPL8dVEI1l7MnG3+HHyRPHf+YFSbK+svOhXpmSOcDURUh2aOCgl2grzrOPt1nHLuCVFULLw==
@@ -5456,13 +5461,18 @@ gulp-minify@3.1.0:
     through2 "^2.0.3"
     vinyl "^2.1.0"
 
-gulp-modify@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/gulp-modify/-/gulp-modify-0.1.1.tgz#4a99a0bb8b7769921c7b09618762ccc179da3675"
-  integrity sha1-Spmgu4t3aZIcewlhh2LMwXnaNnU=
+gulp-modify-css-urls@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/gulp-modify-css-urls/-/gulp-modify-css-urls-2.0.0.tgz#dc695b72763eb782d8025ed59b37addc647c7712"
+  integrity sha512-O3GEVjEgH+OGDQmXXivhw/SNiJ/fy6ayETqz2TsIYb0IoN75K/bLnbb6D+YCh/uU7FQkCQdkrqSeDrIo0pI5Ew==
   dependencies:
-    gulp-util "*"
-    through2 "*"
+    is-fn "^1.0.0"
+    plugin-error "^1.0.1"
+    rework "^1.0.1"
+    rework-plugin-function "^1.0.2"
+    through2 "^2.0.3"
+    vinyl "^2.1.0"
+    vinyl-sourcemaps-apply "^0.2.1"
 
 gulp-po2json@1.0.0:
   version "1.0.0"
@@ -5526,7 +5536,7 @@ gulp-tap@0.4.2:
   dependencies:
     through2 "^2.0.3"
 
-gulp-util@*, gulp-util@>=2.2.0, gulp-util@^3.0.8:
+gulp-util@>=2.2.0, gulp-util@^3.0.8:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/gulp-util/-/gulp-util-3.0.8.tgz#0054e1e744502e27c04c187c3ecc505dd54bbb4f"
   integrity sha1-AFTh50RQLifATBh8PsxQXdVLu08=
@@ -6219,6 +6229,11 @@ is-finite@^1.0.0:
   integrity sha1-zGZ3aVYCvlUO8R6LSqYwU0K20Ko=
   dependencies:
     number-is-nan "^1.0.0"
+
+is-fn@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/is-fn/-/is-fn-1.0.0.tgz#9543d5de7bcf5b08a22ec8a20bae6e286d510d8c"
+  integrity sha1-lUPV3nvPWwiiLsiiC65uKG1RDYw=
 
 is-fullwidth-code-point@^1.0.0:
   version "1.0.0"
@@ -10457,6 +10472,26 @@ retry@^0.12.0:
   resolved "https://registry.yarnpkg.com/retry/-/retry-0.12.0.tgz#1b42a6266a21f07421d1b0b54b7dc167b01c013b"
   integrity sha1-G0KmJmoh8HQh0bC1S33BZ7AcATs=
 
+rework-plugin-function@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/rework-plugin-function/-/rework-plugin-function-1.0.2.tgz#12ce46fb5b29b5d935146683f6b98cf49d2373b9"
+  integrity sha1-Es5G+1sptdk1FGaD9rmM9J0jc7k=
+  dependencies:
+    rework-visit "^1.0.0"
+
+rework-visit@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/rework-visit/-/rework-visit-1.0.0.tgz#9945b2803f219e2f7aca00adb8bc9f640f842c9a"
+  integrity sha1-mUWygD8hni96ygCtuLyfZA+ELJo=
+
+rework@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/rework/-/rework-1.0.1.tgz#30806a841342b54510aa4110850cd48534144aa7"
+  integrity sha1-MIBqhBNCtUUQqkEQhQzUhTQUSqc=
+  dependencies:
+    convert-source-map "^0.3.3"
+    css "^2.0.0"
+
 rfc6902@^3.0.1:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/rfc6902/-/rfc6902-3.0.4.tgz#82965f13536fd20cb7799ce0376e9ce7cd3ebfe6"
@@ -11478,13 +11513,6 @@ through2-filter@^3.0.0:
     through2 "~2.0.0"
     xtend "~4.0.0"
 
-through2@*, through2@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/through2/-/through2-3.0.1.tgz#39276e713c3302edf9e388dd9c812dd3b825bd5a"
-  integrity sha512-M96dvTalPT3YbYLaKaCuwu+j06D/8Jfib0o/PxbVt6Amhv3dUAtW6rTV1jPgJSBG83I/e04Y6xkVdVhSRhi0ww==
-  dependencies:
-    readable-stream "2 || 3"
-
 through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@^2.0.3, through2@^2.0.5, through2@~2.0.0:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/through2/-/through2-2.0.5.tgz#01c1e39eb31d07cb7d03a96a70823260b23132cd"
@@ -11492,6 +11520,13 @@ through2@2.X, through2@^2.0.0, through2@^2.0.1, through2@^2.0.3, through2@^2.0.5
   dependencies:
     readable-stream "~2.3.6"
     xtend "~4.0.1"
+
+through2@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/through2/-/through2-3.0.1.tgz#39276e713c3302edf9e388dd9c812dd3b825bd5a"
+  integrity sha512-M96dvTalPT3YbYLaKaCuwu+j06D/8Jfib0o/PxbVt6Amhv3dUAtW6rTV1jPgJSBG83I/e04Y6xkVdVhSRhi0ww==
+  dependencies:
+    readable-stream "2 || 3"
 
 through@2, through@^2.3.6, through@~2.3, through@~2.3.1:
   version "2.3.8"
