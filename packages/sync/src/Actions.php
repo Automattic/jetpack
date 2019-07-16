@@ -27,6 +27,7 @@ class Actions {
 	 * @var Automattic\Jetpack\Sync\Sender
 	 */
 	public static $sender = null;
+
 	/**
 	 * A variable to hold a sync listener object.
 	 *
