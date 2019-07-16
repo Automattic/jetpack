@@ -36,7 +36,7 @@ class Actions {
 	 *
 	 * @var Automattic\Jetpack\Sync\Listener
 	 */
-	public static $listener                = null;
+	public static $listener = null;
 
 	/**
 	 * Name of the sync cron schedule.
@@ -45,7 +45,7 @@ class Actions {
 	 *
 	 * @var string
 	 */
-	const DEFAULT_SYNC_CRON_INTERVAL_NAME  = 'jetpack_sync_interval';
+	const DEFAULT_SYNC_CRON_INTERVAL_NAME = 'jetpack_sync_interval';
 
 	/**
 	 * Interval between the last and the next sync cron action.
@@ -205,7 +205,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @return bool
+	 * @return bool|int
 	 */
 	public static function sync_via_cron_allowed() {
 		return ( Settings::get_setting( 'sync_via_cron' ) );
@@ -217,8 +217,8 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @param bool     $should_publicize Publicize status prior to this filter running.
-	 * @param \WP_Post $post                     The post to test for Publicizability.
+	 * @param bool     $should_publicize  Publicize status prior to this filter running.
+	 * @param \WP_Post $post              The post to test for Publicizability.
 	 * @return bool
 	 */
 	public static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
@@ -240,18 +240,18 @@ class Actions {
 	}
 
 	/**
-	 * Sends data to WordPress.com via ann XMLRPC request.
+	 * Sends data to WordPress.com via an XMLRPC request.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @param object $data Data relating to a sync action.
-	 * @param string $codec_name The name of the codec that encodes the data.
-	 * @param float  $sent_timestamp Current server time so we can compensate for clock differences.
-	 * @param string $queue_id The queue the action belongs to, sync or full_sync.
-	 * @param float  $checkout_duration Time spent retrieving queue items from the DB.
-	 * @param float  $preprocess_duration Time spent converting queue items into data to send.
-	 * @return \Jetpack_Error|mixed|\WP_Error The result of the sending request.
+	 * @param object $data                   Data relating to a sync action.
+	 * @param string $codec_name             The name of the codec that encodes the data.
+	 * @param float  $sent_timestamp         Current server time so we can compensate for clock differences.
+	 * @param string $queue_id               The queue the action belongs to, sync or full_sync.
+	 * @param float  $checkout_duration      Time spent retrieving queue items from the DB.
+	 * @param float  $preprocess_duration    Time spent converting queue items into data to send.
+	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
 	 */
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
 		\Jetpack::load_xml_rpc_client();
@@ -335,6 +335,8 @@ class Actions {
 	 *
 	 * @access public
 	 * @static
+	 *
+	 * @return bool False if sync is not allowed.
 	 */
 	public static function do_initial_sync() {
 		// Lets not sync if we are not suppose to.
@@ -362,8 +364,8 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @param array $modules The sync modules should be included in this full sync. All will be included if null.
-	 * @return bool True if full sync was successfully started.
+	 * @param array $modules  The sync modules should be included in this full sync. All will be included if null.
+	 * @return bool           True if full sync was successfully started.
 	 */
 	public static function do_full_sync( $modules = null ) {
 		if ( ! self::sync_allowed() ) {
@@ -389,15 +391,15 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @param array $schedules A list of WordPress cron schedules.
-	 * @return array
+	 * @param array $schedules  The list of WordPress cron schedules prior to this filter.
+	 * @return array            A list of WordPress cron schedules with the Jetpack sync interval added.
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
 			$minutes = intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
 			$display = ( 1 === $minutes ) ?
 				__( 'Every minute', 'jetpack' ) :
-				/* translators: %d is an intereger indicating the number of minutes. */
+				/* translators: %d is an integer indicating the number of minutes. */
 				sprintf( _n( 'Every %d minute', 'Every %d minutes', $minutes, 'jetpack' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
