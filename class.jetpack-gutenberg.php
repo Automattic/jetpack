@@ -601,13 +601,13 @@ class Jetpack_Gutenberg {
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-		} else {
 			$user      = wp_get_current_user();
 			$user_data = array(
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);
+		} else {
+			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
 		}
 
 		wp_localize_script(
