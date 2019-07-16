@@ -187,5 +187,8 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
+register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
+register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
+
 // Require everything else, that is not loaded via the autoloader.
 require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';
