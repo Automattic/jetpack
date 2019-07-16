@@ -503,7 +503,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @param array $sync_modules The list of sync modules declared prior to this filer.
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
 	 * @return array A list of sync modules that now includes Woo's modules.
 	 */
 	public static function add_woocommerce_sync_module( $sync_modules ) {
