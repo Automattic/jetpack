@@ -1237,7 +1237,7 @@ class Replicastore implements Replicastore_Interface {
 				$id_field     = 'term_id';
 				$where_sql    = '1=1';
 				break;
-			case 'terms_taxonomy':
+			case 'term_taxonomy':
 				$object_table = $wpdb->term_taxonomy;
 				$object_count = $this->term_taxonomy_count();
 				$id_field     = 'term_taxonomy_id';

@@ -47,7 +47,7 @@ class Terms extends Module {
 			$term = get_term( intval( $id ) );
 
 			if ( is_wp_error( $term ) && $term->get_error_code() === 'invalid_taxonomy' ) {
-				// Fet raw term.
+				// Fetch raw term.
 				global $wpdb;
 				$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_checksum_columns, array( 'term_group' ) ) ) );
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
