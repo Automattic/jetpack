@@ -156,6 +156,9 @@
 	},
 	"devDependencies": {
 		"@slack/web-api": "5.0.1",
+		"@wordpress/block-editor": "2.2.0",
+		"@wordpress/components": "8.0.0",
+		"@wordpress/core-data": "2.4.0",
 		"@wordpress/e2e-test-utils": "2.1.0",
 		"@wordpress/eslint-plugin": "2.3.0",
 		"@wordpress/jest-preset-default": "4.2.0",
@@ -189,11 +192,13 @@
 		"node-wp-i18n": "1.2.3",
 		"prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.17.0/wp-prettier-1.17.0.tgz",
 		"puppeteer": "1.18.1",
+		"react-autosize-textarea": "7.0.0",
 		"react-test-renderer": "16.8.6",
 		"sass-loader": "7.1.0",
 		"sinon": "7.3.2",
 		"sinon-chai": "3.3.0",
 		"style-loader": "0.23.1",
+		"traverse": "0.6.6",
 		"url-loader": "1.1.2"
 	},
 	"resolutions": {
