@@ -62,7 +62,6 @@ class Atomic_Record_Jetpack_Token_Errors {
 			'192.0.96.0/20',
 			'192.0.112.0/20',
 			'195.234.108.0/22',
-			'192.0.92.191', // goldsounds sandbox
 		);
 
 		return self::check_ip( $_SERVER[ 'REMOTE_ADDR' ], $jetpack_ips ) ||
