@@ -27,4 +27,48 @@ class Jetpack_Upgrade_Nudge {
 			esc_url( $support_url )
 		);
 	}
+
+	/**
+	 * Return a message telling the user to upgrade to enable the block.
+	 *
+	 * @since 7.6.0
+	 *
+	 * @return string The message telling the user to upgrade
+	 */
+	public static function get_upgrade_nudge( $plan_name = 'Premium' ) {
+		$title = sprintf( __( 'This block is available under the %1$s Plan.', 'jetpack' ),
+			$plan_name
+		);
+		$message = __( 'It will be hidden from site visitors until you upgrade.', 'jetpack' );
+		$button_label = __( 'Upgrade', 'jetpack' );
+
+		// TODO: Make button work
+
+		return <<<EOF
+<div class="editor-warning block-editor-warning">
+	<div class="editor-warning__contents block-editor-warning__contents">
+		<p class="editor-warning__message block-editor-warning__message">
+			<div class="jetpack-upgrade-nudge__info">
+			<!--<Gridicon class="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />-->
+			<div>
+				<span class="jetpack-upgrade-nudge__title">
+					$title
+				</span>
+				<span class="jetpack-upgrade-nudge__message">
+					$message
+				</span>
+			</div>
+		</p>
+
+		<div class="editor-warning__actions block-editor-warning__actions">
+			<span class="editor-warning__action block-editor-warning__action">
+				<button class="is-primary" onClick="" target="_top">
+					$button_label
+				</button>
+			</span>
+		</div>
+	</div>
+</div>
+EOF;
+	}
 }

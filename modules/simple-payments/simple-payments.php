@@ -176,30 +176,9 @@ class Jetpack_Simple_Payments {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$css_prefix = self::$css_classname_prefix;
 
 		jetpack_require_lib( 'upgrade-nudge' );
-
-		return sprintf( '
-<div class="%1$s">
-	<div class="%2$s">
-		<div class="%3$s">
-			<div class="%4$s" id="%5$s">
-				<p>%6$s</p>
-				<p>%7$s</p>
-			</div>
-		</div>
-	</div>
-</div>
-',
-			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
-			esc_attr( "${css_prefix}-product" ),
-			esc_attr( "${css_prefix}-details" ),
-			esc_attr( "${css_prefix}-purchase-message show error" ),
-			esc_attr( "{$data['dom_id']}-message-container" ),
-			Jetpack_Upgrade_Nudge::get_upgrade_message(),
-			esc_html__( '(Only administrators will see this message.)', 'jetpack' )
-		);
+		return Jetpack_Upgrade_Nudge::get_upgrade_nudge();
 	}
 
 	function output_shortcode( $data ) {
