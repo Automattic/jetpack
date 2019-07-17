@@ -603,7 +603,7 @@ class Actions {
 	 * @static
 	 *
 	 * @param string $schedule The name of a cron schedule.
-	 * @param string $hook The hook that this method is responding to.
+	 * @param string $hook     The hook that this method is responding to.
 	 */
 	public static function maybe_schedule_sync_cron( $schedule, $hook ) {
 		if ( ! $hook ) {
