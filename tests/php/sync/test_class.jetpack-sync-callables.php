@@ -438,23 +438,31 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
-	function test_only_syncs_if_is_admin_and_not_cron() {
+	function test_sync_limited_set_of_callables_if_cron() {
+		$all_callables = array_keys( \Automattic\Jetpack\Sync\Defaults::get_callable_whitelist() );
+		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
+
+		foreach ( $always_updated as $option ) {
+			if (isset(Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ])) {
+				unset( $always_updated[ $option ] );
+				$always_updated[] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
+			}
+
+		}
+
 		// non-admin
 		set_current_screen( 'front' );
-		$this->sender->do_sync();
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
-
-		set_current_screen( 'post-user' );
-
-		// admin but in cron (for some reason)
 		Settings::set_doing_cron( true );
 
 		$this->sender->do_sync();
-		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
 
-		Settings::set_doing_cron( false );
-		$this->sender->do_sync();
-		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
+		foreach ( $all_callables as $callable ) {
+			if ( in_array( $callable, $always_updated ) ) {
+				$this->assertNotNull($this->server_replica_storage->get_callable( $callable ) );
+			} else {
+				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
+			}
+		}
 	}
 
 	function test_site_icon_url_returns_false_when_no_site_icon() {
