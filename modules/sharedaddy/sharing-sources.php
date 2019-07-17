@@ -1706,7 +1706,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		if ( Jetpack_User_Agent_Info::is_firefox_desktop() ) {
 			$url = 'https://web.whatsapp.com/send?text=';
 		} else {
-			$url = 'https://wa.me/send?text=';
+			$url = 'https://wa.me/?text=';
 		}
 
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
