@@ -1,4 +1,4 @@
-@import url("modules/custom-css/csstidy/cssparsed.css");
+@import url("./cssparsed.css");
 
 html, body {
 font:0.8em Verdana,Helvetica,sans-serif;
