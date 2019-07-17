@@ -900,7 +900,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	if ( Jetpack_AMP_Support::is_amp_request() ) {
 		$menu['title'] = "<amp-img src='$img_src_2x' width=112 height=24 layout=fixed alt='$alt' title='$title'></amp-img>";
 	} else {
-		$menu['title'] = "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'>";
+		$menu['title'] = "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>";
 	}
 
 	$wp_admin_bar->add_menu( $menu );
