@@ -558,16 +558,6 @@ class Jetpack {
 			add_action( 'init', array( $tracking, 'init' ) );
 		}
 
-		/*
-		 * Load things that should only be in Network Admin.
-		 *
-		 * For now blow away everything else until a more full
-		 * understanding of what is needed at the network level is
-		 * available
-		 */
-		if ( is_multisite() ) {
-			Jetpack_Network::init();
-		}
 
 		add_filter( 'jetpack_connection_secret_generator', function( $callable ) {
 			return function() {
@@ -577,6 +567,18 @@ class Jetpack {
 
 		$this->connection_manager = new Connection_Manager();
 		$this->connection_manager->init();
+
+		/*
+		 * Load things that should only be in Network Admin.
+		 *
+		 * For now blow away everything else until a more full
+		 * understanding of what is needed at the network level is
+		 * available
+		 */
+		if ( is_multisite() ) {
+			$network = Jetpack_Network::init();
+			$network->set_connection( $this->connection_manager );
+		}
 
 		add_filter(
 			'jetpack_signature_check_token',
