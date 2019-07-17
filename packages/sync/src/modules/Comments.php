@@ -72,7 +72,7 @@ class Comments extends Module {
 		 * the edit_comment hook doesn't include the data
 		 * so this saves us a DB read for every comment event.
 		 */
-		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
+		foreach ( $this->get_hookable_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
@@ -135,6 +135,27 @@ class Comments extends Module {
 	}
 
 	/**
+	 * Gets a filtered list of comment types that sync can hook into.
+	 *
+	 * @access public
+	 *
+	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
+	 */
+	public function get_hookable_comment_types() {
+		/**
+		 * Comment types present in this list will sync their status changes to WordPress.com.
+		 *
+		 * @since 7.6.0
+		 *
+		 * @param array A list of comment types.
+		 */
+		return apply_filters(
+			'jetpack_sync_hookable_comment_types',
+			array( '', 'trackback', 'pingback' )
+		);
+	}
+
+	/**
 	 * Initialize the module in the sender.
 	 *
 	 * @access public
@@ -142,7 +163,7 @@ class Comments extends Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
 
-		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
+		foreach ( $this->get_hookable_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_filter(
