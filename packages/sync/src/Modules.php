@@ -39,7 +39,6 @@ class Modules {
 		'Jetpack_Sync_Modules_Plugins',
 		'Jetpack_Sync_Modules_Stats',
 		'Jetpack_Sync_Modules_Full_Sync',
-		'Automattic\\Jetpack\\Sync\\Modules\\Term_Taxonomy',
 	);
 
 	/**
