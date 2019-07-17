@@ -336,7 +336,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @return bool False if sync is not allowed.
+	 * @return bool|null False if sync is not allowed.
 	 */
 	public static function do_initial_sync() {
 		// Lets not sync if we are not suppose to.
