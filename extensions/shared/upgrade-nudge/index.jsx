@@ -28,7 +28,7 @@ const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 		] }
 		className="jetpack-upgrade-nudge"
 	>
-		<div className="jetpack-upgrade-nudge__info">
+		<span className="jetpack-upgrade-nudge__info">
 			<GridiconStar
 				className="jetpack-upgrade-nudge__icon"
 				size={ 18 }
@@ -36,7 +36,7 @@ const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 				role="img"
 				focusable="false"
 			/>
-			<div className="jetpack-upgrade-nudge__text-container">
+			<span className="jetpack-upgrade-nudge__text-container">
 				<span className="jetpack-upgrade-nudge__title">
 					{ sprintf( __( 'This block is available under the %(planName)s Plan.', 'jetpack' ), {
 						planName,
@@ -45,8 +45,8 @@ const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 				<span className="jetpack-upgrade-nudge__message">
 					{ __( 'It will be hidden from site visitors until you upgrade.', 'jetpack' ) }
 				</span>
-			</div>
-		</div>
+			</span>
+		</span>
 	</Warning>
 );
 
