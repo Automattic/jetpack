@@ -400,7 +400,7 @@ class Actions {
 			$display = ( 1 === $minutes ) ?
 				__( 'Every minute', 'jetpack' ) :
 				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( _n( 'Every %d minute', 'Every %d minutes', $minutes, 'jetpack' ), $minutes );
+				sprintf( __( 'Every %d minutes', 'jetpack' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
