@@ -610,11 +610,6 @@ class Jetpack {
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
-		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
-		}
-
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -3113,7 +3108,8 @@ p {
 	 */
 	public static function disconnect( $update_activated_state = true ) {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		Jetpack::clean_nonces( true );
+		$connection = self::connection();
+		$connection->clean_nonces( true );
 
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
@@ -3411,8 +3407,9 @@ p {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
+			$connection = self::connection();
 			Client::_wp_remote_request(
-				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test' ) ),
+				Jetpack::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
 				$args,
 				true
 			);
@@ -4457,7 +4454,8 @@ p {
 
 			self::apply_activation_source_to_args( $args );
 
-			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
+			$connection = self::connection();
+			$url = add_query_arg( $args, $connection->api_url( 'authorize' ) );
 		}
 
 		if ( $from ) {
@@ -5087,67 +5085,6 @@ p {
 		return $this->rest_authentication_status;
 	}
 
-	function add_nonce( $timestamp, $nonce ) {
-		global $wpdb;
-		static $nonces_used_this_request = array();
-
-		if ( isset( $nonces_used_this_request["$timestamp:$nonce"] ) ) {
-			return $nonces_used_this_request["$timestamp:$nonce"];
-		}
-
-		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce
-		$timestamp = (int) $timestamp;
-		$nonce     = esc_sql( $nonce );
-
-		// Raw query so we can avoid races: add_option will also update
-		$show_errors = $wpdb->show_errors( false );
-
-		$old_nonce = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
-		);
-
-		if ( is_null( $old_nonce ) ) {
-			$return = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
-					"jetpack_nonce_{$timestamp}_{$nonce}",
-					time(),
-					'no'
-				)
-			);
-		} else {
-			$return = false;
-		}
-
-		$wpdb->show_errors( $show_errors );
-
-		$nonces_used_this_request["$timestamp:$nonce"] = $return;
-
-		return $return;
-	}
-
-	public static function clean_nonces( $all = false ) {
-		global $wpdb;
-
-		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-
-		if ( true !== $all ) {
-			$sql .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
-			$sql_args[] = time() - 3600;
-		}
-
-		$sql .= ' ORDER BY `option_id` LIMIT 100';
-
-		$sql = $wpdb->prepare( $sql, $sql_args );
-
-		for ( $i = 0; $i < 1000; $i++ ) {
-			if ( ! $wpdb->query( $sql ) ) {
-				break;
-			}
-		}
-	}
-
 	/**
 	 * State is passed via cookies from one request to the next, but never to subsequent requests.
 	 * SET: state( $key, $value );
@@ -5481,7 +5418,7 @@ p {
 		$timestamp = (int) $environment['timestamp'];
 		$nonce     = stripslashes( (string) $environment['nonce'] );
 
-		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
+		if ( ! $this->connection->add_nonce( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );

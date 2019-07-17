@@ -158,6 +158,13 @@ class Manager implements Manager_Interface {
 			}
 		}
 
+		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
+
+		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
+
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 		add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
 
@@ -616,10 +623,10 @@ class Manager implements Manager_Interface {
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
 	 *
+	 * @param String $api_endpoint (optional) an API endpoint to use, defaults to 'register'.
 	 * @return Integer zero on success, or a bitmask on failure.
 	 */
-	public function register() {
-		// TODO: Tracking can't yet function without static Jetpack methods.
+	public function register( $api_endpoint = 'register' ) {
 
 		add_action( 'pre_update_jetpack_option_register', array( '\Jetpack_Options', 'delete_option' ) );
 		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
@@ -649,42 +656,44 @@ class Manager implements Manager_Interface {
 		/**
 		 * Filters the request body for additional property addition.
 		 *
-		 * @since 7.5.0
+		 * @since 7.6.0
 		 *
 		 * @param Array $post_data request data.
 		 * @param Array $token_data token data.
 		 */
-		$args = apply_filters(
+		$body = apply_filters(
 			'jetpack_register_request_body',
 			array(
-				'method'  => 'POST',
-				'body'    => array(
-					'siteurl'         => site_url(),
-					'home'            => home_url(),
-					'gmt_offset'      => $gmt_offset,
-					'timezone_string' => (string) get_option( 'timezone_string' ),
-					'site_name'       => (string) get_option( 'blogname' ),
-					'secret_1'        => $secrets['secret_1'],
-					'secret_2'        => $secrets['secret_2'],
-					'site_lang'       => get_locale(),
-					'timeout'         => $timeout,
-					'stats_id'        => $stats_id,
-					'state'           => get_current_user_id(),
-					'site_created'    => $this->get_assumed_site_creation_date(),
-					'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
-				),
-				'headers' => array(
-					'Accept' => 'application/json',
-				),
-				'timeout' => $timeout,
+				'siteurl'         => site_url(),
+				'home'            => home_url(),
+				'gmt_offset'      => $gmt_offset,
+				'timezone_string' => (string) get_option( 'timezone_string' ),
+				'site_name'       => (string) get_option( 'blogname' ),
+				'secret_1'        => $secrets['secret_1'],
+				'secret_2'        => $secrets['secret_2'],
+				'site_lang'       => get_locale(),
+				'timeout'         => $timeout,
+				'stats_id'        => $stats_id,
+				'state'           => get_current_user_id(),
+				'site_created'    => $this->get_assumed_site_creation_date(),
+				'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
 			)
+		);
+
+		$args = array(
+			'method'  => 'POST',
+			'body'    => $body,
+			'headers' => array(
+				'Accept' => 'application/json',
+			),
+			'timeout' => $timeout,
 		);
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
-			$this->api_url( 'register' ),
+			$this->api_url( $api_endpoint ),
 			$args,
 			true
 		);
@@ -740,7 +749,16 @@ class Manager implements Manager_Interface {
 			$jetpack_public
 		);
 
-		// TODO: Make jumpstart run on jetpack_site_registered action.
+		if ( isset( $registration_details->token ) ) {
+			/**
+			 * Fires when a user token is sent along with the registration data.
+			 *
+			 * @since 7.6.0
+			 *
+			 * @param object $token the administrator token for the newly registered site.
+			 */
+			do_action( 'jetpack_site_registered_user_token', $registration_details->token );
+		}
 
 		return true;
 	}
@@ -822,6 +840,79 @@ class Manager implements Manager_Interface {
 		}
 
 		return $registration_response;
+	}
+
+	/**
+	 * Adds a used nonce to a list of known nonces.
+	 *
+	 * @param int    $timestamp the current request timestamp.
+	 * @param string $nonce the nonce value.
+	 * @return bool whether the nonce is unique or not.
+	 */
+	public function add_nonce( $timestamp, $nonce ) {
+		global $wpdb;
+		static $nonces_used_this_request = array();
+
+		if ( isset( $nonces_used_this_request[ "$timestamp:$nonce" ] ) ) {
+			return $nonces_used_this_request[ "$timestamp:$nonce" ];
+		}
+
+		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce.
+		$timestamp = (int) $timestamp;
+		$nonce     = esc_sql( $nonce );
+
+		// Raw query so we can avoid races: add_option will also update.
+		$show_errors = $wpdb->show_errors( false );
+
+		$old_nonce = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
+		);
+
+		if ( is_null( $old_nonce ) ) {
+			$return = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
+					"jetpack_nonce_{$timestamp}_{$nonce}",
+					time(),
+					'no'
+				)
+			);
+		} else {
+			$return = false;
+		}
+
+		$wpdb->show_errors( $show_errors );
+
+		$nonces_used_this_request[ "$timestamp:$nonce" ] = $return;
+
+		return $return;
+	}
+
+	/**
+	 * Cleans nonces that were saved when calling ::add_nonce.
+	 *
+	 * @param bool $all whether to clean even non-expired nonces.
+	 */
+	public function clean_nonces( $all = false ) {
+		global $wpdb;
+
+		$sql      = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
+		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
+
+		if ( true !== $all ) {
+			$sql       .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
+			$sql_args[] = time() - 3600;
+		}
+
+		$sql .= ' ORDER BY `option_id` LIMIT 100';
+
+		$sql = $wpdb->prepare( $sql, $sql_args ); // phpcs:ignore
+
+		for ( $i = 0; $i < 1000; $i++ ) {
+			if ( ! $wpdb->query( $sql ) ) { // phpcs:ignore
+				break;
+			}
+		}
 	}
 
 	/**
