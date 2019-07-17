@@ -568,7 +568,7 @@ class Actions {
 	 * @static
 	 *
 	 * @param string $schedule The name of a cron schedule.
-	 * @param string $hook The hook that this method is responding to.
+	 * @param string $hook     The hook that this method is responding to.
 	 * @return int The offset for the sync cron schedule.
 	 */
 	public static function get_start_time_offset( $schedule = '', $hook = '' ) {
