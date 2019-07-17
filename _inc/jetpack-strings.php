@@ -262,7 +262,6 @@ __( "Expand your audience with pro SEO tools.", "jetpack" ), // _inc/client/my-p
 __( "Customize your social posting schedule.", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:704
 __( "Monetize your site by running high quality ads.", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:705
 __( "Upgrade Jetpack now", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:712
-_n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:21
 __( "Performance", "jetpack" ), // _inc/client/performance/index.jsx:50
 __( "Load pages faster, optimize images, and speed up your visitors’ experience.", "jetpack" ), // _inc/client/performance/index.jsx:51
 __( "Video", "jetpack" ), // _inc/client/performance/media.jsx:42
@@ -288,6 +287,7 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
+_n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:21
 __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
