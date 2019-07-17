@@ -157,6 +157,11 @@ class ThemeEnhancements extends React.Component {
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
+						<p>
+							{ __(
+								'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.'
+							) }
+						</p>
 						{ this.props.isInfiniteScrollSupported ? (
 							[
 								{
@@ -200,27 +205,6 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundCustomCSS && (
-					<SettingsGroup
-						module={ { module: customCSS.module } }
-						support={ {
-							text: customCSS.description,
-							link: 'https://jetpack.com/support/custom-css/',
-						} }
-					>
-						<ModuleToggle
-							slug="custom-css"
-							activated={ !! this.props.getOptionValue( 'custom-css' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Enhance CSS customization panel' ) }
-							</span>
-						</ModuleToggle>
-					</SettingsGroup>
-				) }
 				{ foundMinileven && (
 					<SettingsGroup
 						hasChild
@@ -234,6 +218,13 @@ class ThemeEnhancements extends React.Component {
 							link: 'https://jetpack.com/support/mobile-theme',
 						} }
 					>
+						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
+						<p>
+							{ __(
+								'Give your site a fast-loading, streamlined look for mobile devices. Visitors will ' +
+									'still see your regular theme on other screen sizes.'
+							) }
+						</p>
 						<ModuleToggle
 							slug={ minileven.module }
 							activated={ isMinilevenActive }
@@ -246,7 +237,9 @@ class ThemeEnhancements extends React.Component {
 							{ [
 								{
 									key: 'wp_mobile_excerpt',
-									label: __( 'Use excerpts instead of full posts on front page and archive pages' ),
+									label: __(
+										'Show excerpts instead of full posts on front page and archive pages'
+									),
 								},
 								{
 									key: 'wp_mobile_featured_images',
@@ -272,6 +265,27 @@ class ThemeEnhancements extends React.Component {
 								</CompactFormToggle>
 							) ) }
 						</FormFieldset>
+					</SettingsGroup>
+				) }
+				{ foundCustomCSS && (
+					<SettingsGroup
+						module={ { module: customCSS.module } }
+						support={ {
+							text: customCSS.description,
+							link: 'https://jetpack.com/support/custom-css/',
+						} }
+					>
+						<ModuleToggle
+							slug="custom-css"
+							activated={ !! this.props.getOptionValue( 'custom-css' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enhance CSS customization panel' ) }
+							</span>
+						</ModuleToggle>
 					</SettingsGroup>
 				) }
 			</SettingsCard>
