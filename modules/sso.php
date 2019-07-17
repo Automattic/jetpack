@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
@@ -787,12 +788,13 @@ class Jetpack_SSO {
 
 			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
 
-			$is_json_api_auth = ! empty( $json_api_auth_environment );
+			$is_json_api_auth  = ! empty( $json_api_auth_environment );
 			$is_user_connected = Jetpack::is_user_connected( $user->ID );
+			$roles             = new Roles();
 			$tracking->record_user_event( 'sso_user_logged_in', array(
 				'user_found_with'  => $user_found_with,
 				'user_connected'   => (bool) $is_user_connected,
-				'user_role'        => Jetpack::translate_current_user_to_role(),
+				'user_role'        => $roles->translate_current_user_to_role(),
 				'is_json_api_auth' => (bool) $is_json_api_auth,
 			) );
 

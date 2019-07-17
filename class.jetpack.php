@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
@@ -105,7 +106,17 @@ class Jetpack {
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
 
-	static $capability_translations = array(
+	/**
+	 * Map of roles we care about, and their corresponding minimum capabilities.
+	 *
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::$capability_translations instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var array
+	 */
+	public static $capability_translations = array(
 		'administrator' => 'manage_options',
 		'editor'        => 'edit_others_posts',
 		'author'        => 'publish_posts',
@@ -4393,32 +4404,57 @@ p {
 		return $url;
 	}
 
-	static function translate_current_user_to_role() {
-		foreach ( self::$capability_translations as $role => $cap ) {
-			if ( current_user_can( $role ) || current_user_can( $cap ) ) {
-				return $role;
-			}
-		}
+	/**
+	 * Get the role of the current user.
+	 *
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_current_user_to_role() instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string|boolean Current user's role, false if not enough capabilities for any of the roles.
+	 */
+	public static function translate_current_user_to_role() {
+		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
 
-		return false;
+		$roles = new Roles();
+		return $roles->translate_current_user_to_role();
 	}
 
-	static function translate_user_to_role( $user ) {
-		foreach ( self::$capability_translations as $role => $cap ) {
-			if ( user_can( $user, $role ) || user_can( $user, $cap ) ) {
-				return $role;
-			}
-		}
+	/**
+	 * Get the role of a particular user.
+	 *
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_user_to_role() instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param \WP_User $user User object.
+	 * @return string|boolean User's role, false if not enough capabilities for any of the roles.
+	 */
+	public static function translate_user_to_role( $user ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
 
-		return false;
-    }
+		$roles = new Roles();
+		return $roles->translate_user_to_role( $user );
+	}
 
-	static function translate_role_to_cap( $role ) {
-		if ( ! isset( self::$capability_translations[$role] ) ) {
-			return false;
-		}
+	/**
+	 * Get the minimum capability for a role.
+	 *
+	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_role_to_cap() instead.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $role Role name.
+	 * @return string|boolean Capability, false if role isn't mapped to any capabilities.
+	 */
+	public static function translate_role_to_cap( $role ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
 
-		return self::$capability_translations[$role];
+		$roles = new Roles();
+		return $roles->translate_role_to_cap( $role );
 	}
 
 	static function sign_role( $role, $user_id = null ) {
@@ -4494,7 +4530,8 @@ p {
 				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 			}
 
-			$role = self::translate_current_user_to_role();
+			$roles       = new Roles();
+			$role        = $roles->translate_current_user_to_role();
 			$signed_role = self::sign_role( $role );
 
 			$user = wp_get_current_user();

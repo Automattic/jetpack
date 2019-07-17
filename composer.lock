@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c09d9b77fbe174fad981ff2c454e926b",
+    "content-hash": "56dc3d84ef0f2644bbee524c63ee1a4d",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
@@ -335,10 +335,11 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "1d7998577b452db00de2a4aabd693379bae0a065",
+                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a",
                 "shasum": null
             },
             "require": {
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
@@ -771,6 +772,7 @@
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-assets": 20,
+        "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20,
