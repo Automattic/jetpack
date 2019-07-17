@@ -19,6 +19,7 @@ const { CI, E2E_DEBUG } = process.env;
 // Use wrap to preserve all previous `wrap`s
 jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) => {
 	try {
+		currentBlock = args[ 0 ];
 		func( ...args );
 	} catch ( e ) {
 		throw e;

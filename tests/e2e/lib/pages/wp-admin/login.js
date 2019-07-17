@@ -26,7 +26,8 @@ export default class WPLoginPage extends Page {
 		await waitAndType( this.page, '#user_login', username );
 		await waitAndType( this.page, '#user_pass', password );
 
-		await Promise.all( [ this.page.waitForNavigation(), this.page.click( '#wp-submit' ) ] );
+		// await Promise.all( [ this.page.waitForNavigation(), this.page.click( '#wp-submit' ) ] );
+		return await this.page.click( '#wp-submit' );
 	}
 
 	async loginSSO() {
