@@ -25,6 +25,7 @@ require_once( 'privacy/participating-plugins.php' );
 require_once( 'class.wpcomsh-log.php' );
 require_once( 'safeguard/plugins.php' );
 require_once( 'logo-tool/logo-tool.php' );
+require_once( 'jetpack-token-error-header/jetpack-token-header-error.php');
 
 /**
  * WP.com Widgets (in alphabetical order)
