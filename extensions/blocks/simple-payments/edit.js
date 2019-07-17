@@ -21,7 +21,7 @@ import {
 /**
  * Internal dependencies
  */
-import HelpMessage from './help-message';
+import HelpMessage from '../../shared/help-message';
 import ProductPlaceholder from './product-placeholder';
 import FeaturedMedia from './featured-media';
 import { decimalPlaces, formatPrice } from './utils';
