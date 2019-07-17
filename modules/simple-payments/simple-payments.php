@@ -178,9 +178,7 @@ class Jetpack_Simple_Payments {
 		}
 		$css_prefix = self::$css_classname_prefix;
 
-		$support_url = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			? 'https://support.wordpress.com/simple-payments/'
-			: 'https://jetpack.com/support/simple-payment-button/';
+		jetpack_require_lib( 'upgrade-nudge' );
 
 		return sprintf( '
 <div class="%1$s">
@@ -199,13 +197,7 @@ class Jetpack_Simple_Payments {
 			esc_attr( "${css_prefix}-details" ),
 			esc_attr( "${css_prefix}-purchase-message show error" ),
 			esc_attr( "{$data['dom_id']}-message-container" ),
-			sprintf(
-				wp_kses(
-					__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
-					array( 'a' => array( 'href' => array(), 'rel' => array(), 'target' => array() ) )
-				),
-				esc_url( $support_url )
-			),
+			Jetpack_Upgrade_Nudge::get_upgrade_message(),
 			esc_html__( '(Only administrators will see this message.)', 'jetpack' )
 		);
 	}
