@@ -47,7 +47,7 @@ class Callables extends Module {
 	 */
 	const ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS = array(
 		'jetpack_active_modules',
-		'home', // option is home, callable is home_url
+		'home', // option is home, callable is home_url.
 		'siteurl',
 		'jetpack_sync_error_idc',
 		'paused_plugins',
@@ -390,8 +390,8 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function maybe_sync_callables() {
-		$callables = array();
 
+		$callables = array();
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
 			if ( ! is_admin() ) {
 				// If we're not an admin and we're not doing cron, don't sync anything.
@@ -400,9 +400,12 @@ class Callables extends Module {
 				}
 				// If we're not an admin and we are doing cron, sync the Callables that are always supposed to sync ( See https://github.com/Automattic/jetpack/issues/12924 ).
 				$callables = $this->get_always_sent_callables();
+			} else { // Is admin.
+				$callables = $this->get_all_callables();
 			}
-		} else {
-			$callables = $this->get_all_callables();
+			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+				return;
+			}
 		}
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
@@ -435,6 +438,11 @@ class Callables extends Module {
 
 	}
 
+	/**
+	 * Get the callables that should always be sent, e.g. on cron.
+	 *
+	 * @return array Callables that should always be sent
+	 */
 	protected function get_always_sent_callables() {
 		$callables      = $this->get_all_callables();
 		$cron_callables = array();
