@@ -2,10 +2,10 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
-import banner from 'gulp-banner';
 import cleanCSS from 'gulp-clean-css';
 import gulp from 'gulp';
 import log from 'fancy-log';
+import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
 import sass from 'gulp-sass';
@@ -22,7 +22,9 @@ gulp.task( 'sass:dashboard', function( done ) {
 	return gulp
 		.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
+		.pipe(
+			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
+		)
 		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
@@ -38,7 +40,9 @@ gulp.task( 'sass:calypsoify', function( done ) {
 	return gulp
 		.src( './modules/calypsoify/*.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
+		.pipe(
+			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
+		)
 		.pipe( autoprefixer() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './modules/calypsoify' ) )
@@ -92,7 +96,7 @@ gulp.task( 'sass:old:rtl', function() {
 			.src( 'scss/*.scss' )
 			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
 			.pipe(
-				banner(
+				prepend.prependText(
 					'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
 				)
 			)
@@ -123,7 +127,7 @@ gulp.task(
 				.src( 'scss/**/*.scss' )
 				.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
 				.pipe(
-					banner(
+					prepend.prependText(
 						'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
 					)
 				)

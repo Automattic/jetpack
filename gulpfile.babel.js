@@ -3,7 +3,7 @@
  * External dependencies
  */
 import del from 'del';
-import deleteLines from 'gulp-delete-lines';
+import deleteLines from 'gulp-rm-lines';
 import fs from 'fs';
 import gulp from 'gulp';
 import i18n_calypso from 'i18n-calypso/cli';

@@ -4,9 +4,9 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
-import banner from 'gulp-banner';
 import cleanCSS from 'gulp-clean-css';
 import gulp from 'gulp';
+import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
 import log from 'fancy-log';
@@ -44,7 +44,7 @@ gulp.task( 'admincss', function() {
 		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe(
-			banner(
+			prepend.prependText(
 				'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
 			)
 		)
@@ -62,7 +62,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe(
-			banner(
+			prepend.prependText(
 				'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
 			)
 		)
