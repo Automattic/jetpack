@@ -54,7 +54,6 @@ class Callables extends Module {
 		'paused_themes',
 	);
 
-
 	/**
 	 * For some options, the callable key differs from the option name/key
 	 *
