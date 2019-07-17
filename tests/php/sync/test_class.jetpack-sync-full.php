@@ -280,6 +280,36 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
+	function test_full_sync_sends_all_term_relationships() {
+		$post_id = $this->factory->post->create();
+		$NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE = 11;
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+		for ( $i = 0; $i < $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE; $i += 1 ) {
+			$cat = wp_insert_term( 'cat ' . $i, 'category' );
+			$tag = wp_insert_term( 'tag ' . $i, 'post_tag' );
+			wp_set_object_terms( $post_id, array( $cat['term_id'] ), 'category', true );
+			wp_set_object_terms( $post_id, array( $tag['term_id'] ), 'post_tag', true );
+		}
+
+		// simulate emptying the server storage
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$term_relationships = $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' );
+		$this->assertEquals( $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE, count( $term_relationships ) );
+
+		$term_relationships = $this->server_replica_storage->get_the_terms( $post_id, 'category' );
+		$this->assertEquals( $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE + 1, count( $term_relationships ) ); // 11 + 1 (for uncategorized term)
+	}
+
+	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
+		// TODO: write this test
+	}
+
 	function test_full_sync_sends_all_users() {
 		$first_user_id = $this->factory->user->create();
 		for ( $i = 0; $i < 9; $i += 1 ) {
