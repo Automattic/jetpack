@@ -189,12 +189,8 @@ class Actions {
 			return false;
 		}
 
-<<<<<<< HEAD
 		$connection = new Jetpack_Connection();
 		if ( ! $connection->is_active() ) {
-=======
-		if ( ! \Jetpack::is_active() ) {
->>>>>>> [not verified] reverting to master version
 			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
 				return false;
 			}
