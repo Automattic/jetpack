@@ -8,7 +8,7 @@ import { Button } from '@wordpress/components';
 import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { Warning } from '@wordpress/editor';
+import { Warning } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
