@@ -218,7 +218,7 @@ class ThemeEnhancements extends React.Component {
 							link: 'https://jetpack.com/support/mobile-theme',
 						} }
 					>
-						<FormLegend className="jp-form-label-wide">{ __( ' Mobile Theme' ) }</FormLegend>
+						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
 						<p>
 							{ __(
 								'Give your site a fast-loading, streamlined look for mobile devices. Visitors will ' +
