@@ -150,6 +150,7 @@ class Jetpack_Simple_Payments {
 		$data['id'] = $attrs['id'];
 
 		if( ! wp_style_is( 'jetpack-simple-payments', 'enqueued' ) ) {
+			wp_enqueue_style( 'wp-block-editor' );
 			wp_enqueue_style( 'jetpack-simple-payments' );
 		}
 
