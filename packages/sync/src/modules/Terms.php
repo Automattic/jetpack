@@ -40,7 +40,7 @@ class Terms extends Module {
 	 * @param string $object_type The type of object.
 	 * @param int    $id          The id of the object.
 	 *
-	 * @return bool|object A WP_Term object, or a row from term_taxonomy table based on
+	 * @return bool|object A WP_Term object, or a row from term_taxonomy table depending on object type.
 	 */
 	public function get_object_by_id( $object_type, $id ) {
 		global $wpdb;
