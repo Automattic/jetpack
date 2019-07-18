@@ -464,6 +464,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
 			}
 		}
+
+		Settings::set_doing_cron( false );
+		set_current_screen( 'post-user' );
 	}
 
 	function test_site_icon_url_returns_false_when_no_site_icon() {
