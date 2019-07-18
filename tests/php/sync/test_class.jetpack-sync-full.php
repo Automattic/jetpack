@@ -864,6 +864,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			'functions' => true,
 			'options' => true,
 			'terms' => true,
+			'term_relationships' => true,
 			'themes' => true,
 			'users' => true,
 			'updates' => true,
