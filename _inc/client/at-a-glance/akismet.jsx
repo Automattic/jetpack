@@ -127,20 +127,7 @@ class DashAkismet extends Component {
 					support={ support }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
-					overrideContent={
-						<JetpackBanner
-							callToAction={ __( 'Upgrade' ) }
-							title={ __(
-								'Automatically clear spam from your comments and forms so you can get back to your business.'
-							) }
-							disableHref="false"
-							href={ this.props.upgradeUrl }
-							eventFeature="akismet"
-							path="dashboard"
-							plan={ PLAN_JETPACK_PREMIUM }
-							icon="flag"
-						/>
-					}
+					overrideContent={ akismetUpgradeBanner }
 				/>
 			);
 		}
