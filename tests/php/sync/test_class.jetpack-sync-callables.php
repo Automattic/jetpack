@@ -459,7 +459,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		foreach ( $all_callables as $callable ) {
 			if ( in_array( $callable, $always_updated, true ) ) {
-				$this->assertNotNull($this->server_replica_storage->get_callable( $callable ) );
+				$this->assertNotNull( $this->server_replica_storage->get_callable( $callable ) );
 			} else {
 				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
 			}
