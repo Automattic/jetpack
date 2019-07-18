@@ -472,8 +472,12 @@ class Jetpack_Network {
 	public function filter_register_request_body( $properties ) {
 		$blog_details = get_blog_details();
 
+		$network = get_network();
+
+		switch_to_blog( $network->blog_id );
 		// The blog id on WordPress.com of the primary network site.
 		$network_wpcom_blog_id = Jetpack_Options::get_option( 'id' );
+		restore_current_blog();
 
 		/**
 		 * Both `state` and `user_id` need to be sent in the request, even though they are the same value.
