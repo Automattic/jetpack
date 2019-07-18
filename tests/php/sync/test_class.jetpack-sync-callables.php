@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Callables;
@@ -439,7 +440,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_limited_set_of_callables_if_cron() {
-		$all_callables = array_keys( \Automattic\Jetpack\Sync\Defaults::get_callable_whitelist() );
+		$all_callables = array_keys( Defaults::get_callable_whitelist() );
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
 		foreach ( $always_updated as $option ) {
