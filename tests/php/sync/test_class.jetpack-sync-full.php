@@ -979,15 +979,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$should_be_status = array(
 			'queue' => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1,
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			),
 			'config' => null
 		);
