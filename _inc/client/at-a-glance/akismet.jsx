@@ -66,6 +66,21 @@ class DashAkismet extends Component {
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
+		const akismetUpgradeBanner = (
+			<JetpackBanner
+				callToAction={ __( 'Upgrade' ) }
+				title={ __(
+					'Automatically clear spam from your comments and forms so you can get back to your business.'
+				) }
+				disableHref="false"
+				href={ this.props.upgradeUrl }
+				eventFeature="akismet"
+				path="dashboard"
+				plan={ PLAN_JETPACK_PREMIUM }
+				icon="flag"
+			/>
+		);
+
 		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
@@ -85,22 +100,8 @@ class DashAkismet extends Component {
 					className="jp-dash-item__is-inactive"
 					status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __( 'For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}.', {
-							components: {
-								a: (
-									<a
-										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
-										onClick={ this.trackInstallClick }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
-						} ) }
-					</p>
-				</DashItem>
+					overrideContent={ akismetUpgradeBanner }
+				/>
 			);
 		}
 
@@ -113,22 +114,8 @@ class DashAkismet extends Component {
 					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
-							components: {
-								a: (
-									<a
-										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
-										onClick={ this.trackActivateClick }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
-						} ) }
-					</p>
-				</DashItem>
+					overrideContent={ akismetUpgradeBanner }
+				/>
 			);
 		}
 
