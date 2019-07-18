@@ -443,17 +443,17 @@ class Callables extends Module {
 	protected function get_always_sent_callables() {
 		$callables      = $this->get_all_callables();
 		$cron_callables = array();
-		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $key ) {
-			if ( array_key_exists( $key, $callables ) ) {
-				$cron_callables[ $key ] = $callables[ $key ];
+		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $option_name ) {
+			if ( array_key_exists( $option_name, $callables ) ) {
+				$cron_callables[ $option_name ] = $callables[ $option_name ];
 				continue;
 			}
 
 			// Check for the Callable name/key for the option, if different from option name.
-			if ( array_key_exists( $key, self::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
-				$key = self::OPTION_NAMES_TO_CALLABLE_NAMES[ $key ];
-				if ( array_key_exists( $key, $callables ) ) {
-					$cron_callables[ $key ] = $callables[ $key ];
+			if ( array_key_exists( $option_name, self::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
+				$callable_name = self::OPTION_NAMES_TO_CALLABLE_NAMES[ $option_name ];
+				if ( array_key_exists( $callable_name, $callables ) ) {
+					$cron_callables[ $callable_name ] = $callables[ $callable_name ];
 				}
 			}
 		}
