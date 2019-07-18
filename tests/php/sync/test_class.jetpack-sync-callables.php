@@ -444,7 +444,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
 		foreach ( $always_updated as $option ) {
-			if (isset(Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ])) {
+			if ( isset( Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ] ) ) {
 				unset( $always_updated[ $option ] );
 				$always_updated[] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
 			}
