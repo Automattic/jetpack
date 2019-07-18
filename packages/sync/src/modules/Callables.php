@@ -390,7 +390,7 @@ class Callables extends Module {
 	 */
 	public function maybe_sync_callables() {
 
-		$callables = array();
+		$callables = $this->get_all_callables();
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
 			if ( ! is_admin() ) {
 				// If we're not an admin and we're not doing cron, don't sync anything.
@@ -399,8 +399,6 @@ class Callables extends Module {
 				}
 				// If we're not an admin and we are doing cron, sync the Callables that are always supposed to sync ( See https://github.com/Automattic/jetpack/issues/12924 ).
 				$callables = $this->get_always_sent_callables();
-			} else { // Is admin.
-				$callables = $this->get_all_callables();
 			}
 			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 				return;
