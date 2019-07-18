@@ -443,10 +443,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$all_callables = array_keys( Defaults::get_callable_whitelist() );
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
-		foreach ( $always_updated as $option ) {
+		foreach ( $always_updated as $key => $option ) {
 			if ( array_key_exists( $option, Callables::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
-				unset( $always_updated[ $option ] );
-				$always_updated[] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
+				$always_updated[ $key ] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
 			}
 
 		}
