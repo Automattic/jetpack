@@ -45,7 +45,7 @@ class Jetpack_Upgrade_Nudge {
 		// TODO: Make button work
 
 		return <<<EOF
-<div class="editor-warning block-editor-warning">
+<div class="editor-warning block-editor-warning jetpack-upgrade-nudge">
 	<div class="editor-warning__contents block-editor-warning__contents">
 		<p class="editor-warning__message block-editor-warning__message">
 			<div class="jetpack-upgrade-nudge__info">
