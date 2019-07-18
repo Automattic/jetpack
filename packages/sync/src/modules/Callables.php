@@ -62,6 +62,7 @@ class Callables extends Module {
 	 * @var array
 	 */
 	const OPTION_NAMES_TO_CALLABLE_NAMES = array(
+		// @TODO: Audit the other option names for differences between the option names and callable names.
 		'home' => 'home_url',
 	);
 
