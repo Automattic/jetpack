@@ -76,6 +76,7 @@ class WooCommerce extends Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 	}
 
 	/**
@@ -308,6 +309,21 @@ class WooCommerce extends Module {
 	 */
 	public function add_woocommerce_comment_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_comment_meta_whitelist );
+	}
+
+	/**
+	 * Adds 'revew' to the list of comment types so Sync will listen for status changes on 'reviews'.
+	 *
+	 * @access public
+	 *
+	 * @param array $comment_types The list of comment types prior to this filter.
+	 * return array                The list of comment types with 'review' added.
+	 */
+	public function add_review_comment_types( $comment_types ) {
+		if ( is_array( $comment_types ) ) {
+			$comment_types[] = 'review';
+		}
+		return $comment_types;
 	}
 
 	/**
