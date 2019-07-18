@@ -45,27 +45,29 @@ class Jetpack_Upgrade_Nudge {
 		// TODO: Make button work
 
 		return <<<EOF
-<div class="editor-warning block-editor-warning jetpack-upgrade-nudge">
-	<div class="editor-warning__contents block-editor-warning__contents">
-		<p class="editor-warning__message block-editor-warning__message">
-			<div class="jetpack-upgrade-nudge__info">
-			<!--<Gridicon class="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />-->
-			<div>
-				<span class="jetpack-upgrade-nudge__title">
-					$title
-				</span>
-				<span class="jetpack-upgrade-nudge__message">
-					$message
+<div class="wp-block editor-block-list__block block-editor-block-list__block is-selected has-warning is-interactive">
+	<div class="editor-warning block-editor-warning jetpack-upgrade-nudge">
+		<div class="editor-warning__contents block-editor-warning__contents">
+			<p class="editor-warning__message block-editor-warning__message">
+				<div class="jetpack-upgrade-nudge__info">
+				<!--<Gridicon class="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />-->
+				<div>
+					<span class="jetpack-upgrade-nudge__title">
+						$title
+					</span>
+					<span class="jetpack-upgrade-nudge__message">
+						$message
+					</span>
+				</div>
+			</p>
+
+			<div class="editor-warning__actions block-editor-warning__actions">
+				<span class="editor-warning__action block-editor-warning__action">
+					<button class="is-primary" onClick="" target="_top">
+						$button_label
+					</button>
 				</span>
 			</div>
-		</p>
-
-		<div class="editor-warning__actions block-editor-warning__actions">
-			<span class="editor-warning__action block-editor-warning__action">
-				<button class="is-primary" onClick="" target="_top">
-					$button_label
-				</button>
-			</span>
 		</div>
 	</div>
 </div>
