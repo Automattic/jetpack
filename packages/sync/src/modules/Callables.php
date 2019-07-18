@@ -404,6 +404,10 @@ class Callables extends Module {
 				return;
 			}
 		}
+		
+		if ( empty( $callables ) ) {
+			return;
+		}
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
 
