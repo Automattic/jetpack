@@ -1016,37 +1016,40 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$should_be_status = array(
 			'sent'  => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			),
 			'sent_total'  => array(
-				'constants' => -1,
-				'functions' => -1,
-				'options'   => -1,
-				'themes'    => -1,
-				'updates'   => -1,
-				'posts'     => $this->test_posts_count,
-				'comments'  => $this->test_comments_count,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => -1,
+				'functions'          => -1,
+				'options'            => -1,
+				'themes'             => -1,
+				'updates'            => -1,
+				'posts'              => $this->test_posts_count,
+				'comments'           => $this->test_comments_count,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => $this->test_posts_count, // Intentional; each post is in minimum one category by default.
 			),
 			'queue' => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			)
 		);
 		if ( is_multisite() ) {
