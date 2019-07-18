@@ -29,18 +29,17 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		// This is taken from WooCommerce's bootstrap.php file
 
-		// factories
-		require_once( $woo_tests_dir . '/framework/factories/class-wc-unit-test-factory-for-webhook.php' );
-		require_once( $woo_tests_dir . '/framework/factories/class-wc-unit-test-factory-for-webhook-delivery.php' );
-
 		// framework
 		require_once( $woo_tests_dir . '/framework/class-wc-unit-test-factory.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-mock-session-handler.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-mock-wc-data.php' );
+		require_once( $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php' );
+		require_once( $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-payment-token-stub.php' );
 		// require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
 
 		// test cases
+		require_once( $woo_tests_dir . '/includes/wp-http-testcase.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-unit-test-case.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-api-unit-test-case.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-rest-unit-test-case.php' );
