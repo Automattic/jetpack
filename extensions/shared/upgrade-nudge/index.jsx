@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import GridiconStar from 'gridicons/dist/star';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { Button } from '@wordpress/components';
@@ -8,7 +9,6 @@ import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Warning } from '@wordpress/editor';
-import Gridicon from 'gridicons';
 
 /**
  * Internal dependencies
@@ -29,7 +29,7 @@ const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 		className="jetpack-upgrade-nudge"
 	>
 		<div className="jetpack-upgrade-nudge__info">
-			<Gridicon className="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />
+			<GridiconStar className="jetpack-upgrade-nudge__icon" size={ 18 } />
 			<div>
 				<span className="jetpack-upgrade-nudge__title">
 					{ sprintf( __( 'This block is available under the %(planName)s Plan.', 'jetpack' ), {
