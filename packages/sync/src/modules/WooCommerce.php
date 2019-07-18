@@ -76,9 +76,6 @@ class WooCommerce extends Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
-
-		// Blacklist Action Scheduler comment types.
-		add_filter( 'jetpack_sync_prevent_sending_comment_data', array( $this, 'filter_action_scheduler_comments' ), 10, 2 );
 	}
 
 	/**
@@ -311,24 +308,6 @@ class WooCommerce extends Module {
 	 */
 	public function add_woocommerce_comment_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_comment_meta_whitelist );
-	}
-
-	/**
-	 * Stop comments from the Action Scheduler from being synced.
-	 * https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler
-	 *
-	 * @since 7.6.0
-	 *
-	 * @param boolean $can_sync Should we prevent comment data from bing synced to WordPress.com.
-	 * @param mixed   $comment  WP_COMMENT object.
-	 *
-	 * @return bool
-	 */
-	public function filter_action_scheduler_comments( $can_sync, $comment ) {
-		if ( isset( $comment->comment_agent ) && 'ActionScheduler' === $comment->comment_agent ) {
-			return true;
-		}
-		return $can_sync;
 	}
 
 	/**
