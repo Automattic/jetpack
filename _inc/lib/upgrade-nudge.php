@@ -51,7 +51,7 @@ class Jetpack_Upgrade_Nudge {
 			<p class="editor-warning__message block-editor-warning__message">
 				<div class="jetpack-upgrade-nudge__info">
 				<!--<Gridicon class="jetpack-upgrade-nudge__icon" icon="star" size={ 18 } />-->
-				<div>
+				<div className="jetpack-upgrade-nudge__text-container">
 					<span class="jetpack-upgrade-nudge__title">
 						$title
 					</span>
