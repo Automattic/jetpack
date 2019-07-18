@@ -154,6 +154,7 @@ class Jetpack_Simple_Payments {
 		}
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
+			Jetpack_Gutenberg::load_assets_as_required( 'simple-payments' );
 			return $this->output_admin_warning( $data );
 		}
 
