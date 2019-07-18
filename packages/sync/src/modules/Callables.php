@@ -39,6 +39,34 @@ class Callables extends Module {
 	private $callable_whitelist;
 
 	/**
+	 * For some options, we should always send the change right away!
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
+	const ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS = array(
+		'jetpack_active_modules',
+		'home', // option is home, callable is home_url.
+		'siteurl',
+		'jetpack_sync_error_idc',
+		'paused_plugins',
+		'paused_themes',
+	);
+
+	/**
+	 * For some options, the callable key differs from the option name/key
+	 *
+	 * @access public
+	 *
+	 * @var array
+	 */
+	const OPTION_NAMES_TO_CALLABLE_NAMES = array(
+		// @TODO: Audit the other option names for differences between the option names and callable names.
+		'home' => 'home_url',
+	);
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -74,16 +102,7 @@ class Callables extends Module {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 		add_action( 'current_screen', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late.
 
-		// For some options, we should always send the change right away!
-		$always_send_updates_to_these_options = array(
-			'jetpack_active_modules',
-			'home',
-			'siteurl',
-			'jetpack_sync_error_idc',
-			'paused_plugins',
-			'paused_themes',
-		);
-		foreach ( $always_send_updates_to_these_options as $option ) {
+		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 			add_action( "delete_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
@@ -371,23 +390,27 @@ class Callables extends Module {
 	 * @access public
 	 */
 	public function maybe_sync_callables() {
-		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
-			if ( ! is_admin() || Settings::is_doing_cron() ) {
-				return;
-			}
 
+		$callables = $this->get_all_callables();
+		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
+			if ( ! is_admin() ) {
+				// If we're not an admin and we're not doing cron, don't sync anything.
+				if ( ! Settings::is_doing_cron() ) {
+					return;
+				}
+				// If we're not an admin and we are doing cron, sync the Callables that are always supposed to sync ( See https://github.com/Automattic/jetpack/issues/12924 ).
+				$callables = $this->get_always_sent_callables();
+			}
 			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
 				return;
 			}
 		}
-
-		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
-
-		$callables = $this->get_all_callables();
-
+		
 		if ( empty( $callables ) ) {
 			return;
 		}
+
+		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Defaults::$default_sync_callables_wait_time );
 
 		$callable_checksums = (array) \Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 		$has_changed        = false;
@@ -415,6 +438,31 @@ class Callables extends Module {
 			\Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 		}
 
+	}
+
+	/**
+	 * Get the callables that should always be sent, e.g. on cron.
+	 *
+	 * @return array Callables that should always be sent
+	 */
+	protected function get_always_sent_callables() {
+		$callables      = $this->get_all_callables();
+		$cron_callables = array();
+		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $option_name ) {
+			if ( array_key_exists( $option_name, $callables ) ) {
+				$cron_callables[ $option_name ] = $callables[ $option_name ];
+				continue;
+			}
+
+			// Check for the Callable name/key for the option, if different from option name.
+			if ( array_key_exists( $option_name, self::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
+				$callable_name = self::OPTION_NAMES_TO_CALLABLE_NAMES[ $option_name ];
+				if ( array_key_exists( $callable_name, $callables ) ) {
+					$cron_callables[ $callable_name ] = $callables[ $callable_name ];
+				}
+			}
+		}
+		return $cron_callables;
 	}
 
 	/**
