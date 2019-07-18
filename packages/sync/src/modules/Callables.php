@@ -446,15 +446,15 @@ class Callables extends Module {
 		$callables      = $this->get_all_callables();
 		$cron_callables = array();
 		foreach ( self::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS as $key ) {
-			if ( isset( $callables[ $key ] ) ) {
+			if ( array_key_exists( $key, $callables ) ) {
 				$cron_callables[ $key ] = $callables[ $key ];
 				continue;
 			}
 
 			// Check for the Callable name/key for the option, if different from option name.
-			if ( isset( self::OPTION_NAMES_TO_CALLABLE_NAMES[ $key ] ) ) {
+			if ( array_key_exists( $key, self::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
 				$key = self::OPTION_NAMES_TO_CALLABLE_NAMES[ $key ];
-				if ( isset( $callables[ $key ] ) ) {
+				if ( array_key_exists( $key, $callables ) ) {
 					$cron_callables[ $key ] = $callables[ $key ];
 				}
 			}
