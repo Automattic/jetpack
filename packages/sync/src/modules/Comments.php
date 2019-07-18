@@ -72,7 +72,7 @@ class Comments extends Module {
 		 * the edit_comment hook doesn't include the data
 		 * so this saves us a DB read for every comment event.
 		 */
-		foreach ( $this->get_hookable_comment_types() as $comment_type ) {
+		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
@@ -141,7 +141,7 @@ class Comments extends Module {
 	 *
 	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
 	 */
-	public function get_hookable_comment_types() {
+	public function get_whitelisted_comment_types() {
 		/**
 		 * Comment types present in this list will sync their status changes to WordPress.com.
 		 *
@@ -150,7 +150,7 @@ class Comments extends Module {
 		 * @param array A list of comment types.
 		 */
 		return apply_filters(
-			'jetpack_sync_hookable_comment_types',
+			'jetpack_sync_whitelisted_comment_types',
 			array( '', 'trackback', 'pingback' )
 		);
 	}
@@ -163,7 +163,7 @@ class Comments extends Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
 
-		foreach ( $this->get_hookable_comment_types() as $comment_type ) {
+		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_filter(

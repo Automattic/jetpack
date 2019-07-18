@@ -76,7 +76,7 @@ class WooCommerce extends Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
-		add_filter( 'jetpack_sync_hookable_comment_types', array( $this, 'add_review_comment_types' ) );
+		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 	}
 
 	/**
