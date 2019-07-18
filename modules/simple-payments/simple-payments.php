@@ -182,7 +182,8 @@ class Jetpack_Simple_Payments {
 		}
 
 		jetpack_require_lib( 'upgrade-nudge' );
-		return Jetpack_Upgrade_Nudge::get_upgrade_nudge();
+
+		return Jetpack_Upgrade_Nudge::get_upgrade_nudge( self::$required_plan );
 	}
 
 	function output_shortcode( $data ) {
