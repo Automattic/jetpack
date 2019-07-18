@@ -13,6 +13,8 @@ class Jetpack_Simple_Payments {
 
 	static $css_classname_prefix = 'jetpack-simple-payments';
 
+	static $required_plan;
+
 	// Increase this number each time there's a change in CSS or JS to bust cache.
 	static $version = '0.25';
 
@@ -23,6 +25,7 @@ class Jetpack_Simple_Payments {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 		}
 		return self::$instance;
 	}
@@ -64,13 +67,12 @@ class Jetpack_Simple_Payments {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
 			jetpack_register_block( 'jetpack/simple-payments' );
 		} else {
-			$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 			Jetpack_Gutenberg::set_extension_unavailable(
 				'jetpack/simple-payments',
 				'missing_plan',
 				array(
 					'required_feature' => 'simple-payments',
-					'required_plan' => ( defined( 'JETPACK_SHOW_BLOCK_UPGRADE_NUDGE' ) && JETPACK_SHOW_BLOCK_UPGRADE_NUDGE ) ? $required_plan : false
+					'required_plan' => ( defined( 'JETPACK_SHOW_BLOCK_UPGRADE_NUDGE' ) && JETPACK_SHOW_BLOCK_UPGRADE_NUDGE ) ? self::$required_plan : false
 				)
 			);
 		}
