@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+const _ = require( 'lodash' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
@@ -30,6 +31,30 @@ const sharedWebpackConfig = {
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
+const componentMocks = {
+	Mousetrap: {
+		init: _.noop,
+		prototype: {},
+	},
+	document: { addEventListener: _.noop, createElement: _.noop, head: { appendChild: _.noop } },
+	navigator: {},
+	window: {
+		addEventListener: _.noop,
+		// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
+		matchMedia: () => ( {
+			addListener: () => {},
+		} ),
+		navigator: { platform: '', userAgent: '' },
+		Node: {
+			TEXT_NODE: '',
+			ELEMENT_NODE: '',
+			DOCUMENT_POSITION_PRECEDING: '',
+			DOCUMENT_POSITION_FOLLOWING: '',
+		},
+		URL: {},
+	},
+};
+
 // We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
 module.exports = [
 	{
@@ -46,7 +71,6 @@ module.exports = [
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
 		entry: {
-			components: path.join( __dirname, './_inc/client/components.jsx' ),
 			static: path.join( __dirname, './_inc/client/static.jsx' ),
 		},
 		output: {
@@ -57,7 +81,7 @@ module.exports = [
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			new StaticSiteGeneratorPlugin( {
-				globals: {
+				globals: _.merge( {}, componentMocks, {
 					window: {
 						Initial_State: {
 							dismissedNotices: [],
@@ -73,7 +97,7 @@ module.exports = [
 							},
 						},
 					},
-				},
+				} ),
 			} ),
 		],
 	},
