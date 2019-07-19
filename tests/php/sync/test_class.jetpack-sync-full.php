@@ -1345,7 +1345,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'updates'            => 1,
 				'users'              => 1,
 				'terms'              => 1,
-				'term_relationships' => 2,
+				'term_relationships' => 1,
 			),
 			'queue' => array(
 				'constants'          => 1,
@@ -1357,7 +1357,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'updates'            => 1,
 				'users'              => 1,
 				'terms'              => 1,
-				'term_relationships' => 1,
+				'term_relationships' => 2,
 			),
 			'total' => array(
 				'constants'          => 1,
