@@ -4630,6 +4630,9 @@ p {
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
+		// Default to a blog token.
+		$token_type = 'blog';
+
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
 		if ( isset( $request_data ) || ! empty( $_GET['onboarding'] ) ) {
 			if ( ! empty( $_GET['onboarding'] ) ) {
