@@ -103,6 +103,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Sync: add a term taxonomy blacklist option.
+
 **Improved compatibility**
 
 **Bug fixes**
