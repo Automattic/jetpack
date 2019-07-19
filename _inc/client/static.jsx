@@ -11,7 +11,7 @@ import { Provider } from 'react-redux';
 import store from 'state/redux-store';
 import StaticMain from 'static-main';
 import StaticWarning from 'components/jetpack-notices/static-warning';
-import UpgradeNudge from '../../extensions/shared/upgrade-nudge';
+import { UpgradeNudge } from '../../extensions/shared/upgrade-nudge';
 
 const staticHtml = renderToStaticMarkup(
 	<div>
@@ -39,7 +39,10 @@ const versionNotice = renderToStaticMarkup(
 
 // Use dummy props that can be overwritten by a str_replace() on the server.
 const upgradeNudge = renderToStaticMarkup(
-	<UpgradeNudge plan="#PLAN#" blockName="#BLOCK_NAME#" />
+	<UpgradeNudge
+		autosaveAndRedirectToUpgrade="#autosaveAndRedirectToUpgrade#"
+		planName="#planName#"
+	/>
 );
 
 export default () => ( {
