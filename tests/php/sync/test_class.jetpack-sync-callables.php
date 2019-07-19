@@ -46,7 +46,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_jetpack_updates() {
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_callable( 'updates' );
-		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
+		$this->assertEqualsObject( Jetpack::get_updates(), $updates, 'The updates object should match' );
 	}
 
 
@@ -984,8 +984,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$jetpack = Jetpack::init();
 		$connection = Jetpack::connection();
 		$connection->xmlrpc_methods( array() );
-		$jetpack->require_jetpack_authentication();
-		$jetpack->verify_xml_rpc_signature();
+		$connection->require_jetpack_authentication();
+		$connection->verify_xml_rpc_signature();
 	}
 
 	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
