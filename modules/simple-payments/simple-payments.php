@@ -178,7 +178,9 @@ class Jetpack_Simple_Payments {
 		}
 
 		jetpack_require_lib( 'components' );
-		return Jetpack_Components::render_component( 'upgrade-nudge' );
+		return Jetpack_Components::render_component( 'upgrade-nudge', array(
+			'planName' => 'Jetpack Premium' // TODO: Get actual plan name
+		) );
 	}
 
 	function output_shortcode( $data ) {
