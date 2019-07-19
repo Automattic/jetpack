@@ -1307,7 +1307,7 @@
 			if ( item.length === 0 || item.closest( jmpress ).length === 0 ) {
 				item = $( jmpress )
 					.find( stepSelector )
-					[ prev ? 'last' : 'first' ]();
+					[ prev ? 'last' : 'first' ](); // eslint-disable-line no-unexpected-multiline
 			}
 			if ( ! item.length ) {
 				return false;
