@@ -982,7 +982,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// call one of the authenticated endpoints
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 		$jetpack = Jetpack::init();
-		$jetpack->xmlrpc_methods( array() );
+		$connection = Jetpack::connection();
+		$connection->xmlrpc_methods( array() );
 		$jetpack->require_jetpack_authentication();
 		$jetpack->verify_xml_rpc_signature();
 	}
