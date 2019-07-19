@@ -649,7 +649,7 @@ class Jetpack_XMLRPC_Server {
 	 * @return WP_User|bool
 	 */
 	public function login() {
-		Jetpack::init()->require_jetpack_authentication();
+		Jetpack::connection()->require_jetpack_authentication();
 		$user = wp_authenticate( 'username', 'password' );
 		if ( is_wp_error( $user ) ) {
 			if ( 'authentication_failed' == $user->get_error_code() ) { // Generic error could mean most anything.
