@@ -81,13 +81,13 @@ class Term_Relationships extends Module {
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
 				$remaining_items_count                      = $max_items_to_enqueue - $chunk_count;
 				$remaining_items                            = array_slice( $chunked_ids, 0, $remaining_items_count );
-				$remaining_items_with_previous_interval_end = $this->get_term_relationship_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
+				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
 				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
 				$last_chunk = end( $remaining_items );
 				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
 			}
-			$chunked_ids_with_previous_end = $this->get_term_relationship_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
+			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
 
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
@@ -98,29 +98,6 @@ class Term_Relationships extends Module {
 		}
 
 		return array( $chunk_count, true );
-	}
-
-	/**
-	 * Retrieve chunk IDs with previous interval end.
-	 *
-	 * @access protected
-	 *
-	 * @param array $chunks                All remaining items.
-	 * @param int   $previous_interval_end The last item from the previous interval.
-	 * @return array Chunk IDs with the previous interval end.
-	 */
-	protected function get_term_relationship_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
-		$chunks_with_ends = array();
-		foreach ( $chunks as $chunk ) {
-			$chunks_with_ends[] = array(
-				'ids'          => $chunk,
-				'previous_end' => $previous_interval_end,
-			);
-
-			// Chunks are ordered in descending order.
-			$previous_interval_end = end( $chunk );
-		}
-		return $chunks_with_ends;
 	}
 
 	/**
