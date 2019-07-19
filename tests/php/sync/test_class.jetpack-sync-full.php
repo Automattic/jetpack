@@ -307,7 +307,67 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
-		// TODO: write this test
+		$post_id = $this->factory->post->create();
+
+		$terms = array();
+		for ( $i = 0; $i < 25; $i += 1 ) {
+			$terms[] = wp_insert_term( 'term ' . $i, 'category' );
+		}
+
+		// Sync the posts and terms first.
+		$this->full_sync->start( array( 'posts' => true, 'terms' => true ) );
+		$this->sender->do_full_sync();
+
+		// Simulate emptying the server storage.
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+
+		foreach ( $terms as $term ) {
+			wp_set_object_terms( $post_id, array( $term['term_id'] ), 'category', true );
+		}
+
+		// The first event is for full sync start.
+		$this->full_sync->start( array( 'term_relationships' => 1 ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
+		$term_relationships = $event->args['term_relationships'];
+		$previous_interval_end = $event->args['previous_end'];
+		// The first batch has the previous_end not set.
+		// We use ~0 to denote that the previous_end is unknown.
+		$this->assertEquals( $previous_interval_end, array(
+			'object_id'        => '~0',
+			'term_taxonomy_id' => '~0',
+		) );
+
+		// Since term relationships are ordered by post IDs and term IDs and the IDs are in descending order
+		// the very last relationship should have the smallest post ID and term ID. (previous_interval_end)
+		$last_term = end( $term_relationships );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
+		$second_batch_terms = $event->args['term_relationships'];
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end['object_id'] ), $last_term['object_id'] );
+		$this->assertEquals( intval( $previous_interval_end['term_taxonomy_id'] ), $last_term['term_taxonomy_id'] );
+
+		$last_term = end( $second_batch_terms );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end['object_id'] ), $last_term['object_id'] );
+		$this->assertEquals( intval( $previous_interval_end['term_taxonomy_id'] ), $last_term['term_taxonomy_id'] );
+
+		$this->full_sync->reset_data();
 	}
 
 	function test_full_sync_sends_all_users() {
