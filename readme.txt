@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: fix the behaviour of the Jetpack Videos button in the "My Plan" tab.
 * Admin Page: fix a typo in the Magic Links modal.
+* Custom CSS: fix Media Width label layout issue in Firefox.
 
 --------
 
