@@ -488,7 +488,7 @@ class Manager implements Manager_Interface {
 		 * @param Array $post_data request data.
 		 * @param Array $token_data token data.
 		 */
-		return apply_filter(
+		return apply_filters(
 			'jetpack_signature_check_token',
 			array(
 				'type'      => $token_type,
@@ -1612,5 +1612,12 @@ class Manager implements Manager_Interface {
 			'value'    => $jetpack_client_id,
 		);
 		return $options;
+	}
+
+	/**
+	 * Resets the saved authentication state in between testing requests.
+	 */
+	public function reset_saved_auth_state() {
+		$this->xmlrpc_verification = null;
 	}
 }

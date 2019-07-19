@@ -4999,6 +4999,7 @@ p {
 	 */
 	public function reset_saved_auth_state() {
 		$this->rest_authentication_status = null;
+		$this->connection_manager->reset_saved_auth_state();
 	}
 
 	// Authenticates requests from Jetpack server to WP REST API endpoints.
@@ -5052,7 +5053,7 @@ p {
 			return null;
 		}
 
-		$verified = $this->verify_xml_rpc_signature();
+		$verified = $this->connection_manager->verify_xml_rpc_signature();
 
 		if (
 			$verified &&
