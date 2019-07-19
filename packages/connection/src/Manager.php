@@ -307,7 +307,7 @@ class Manager implements Manager_Interface {
 
 		nocache_headers();
 
-		return new WP_User( $token_details['user_id'] );
+		return new \WP_User( $token_details['user_id'] );
 	}
 
 	/**
