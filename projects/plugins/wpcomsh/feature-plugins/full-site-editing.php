@@ -75,3 +75,16 @@ function wpcom_fse_spt_add_tracking_identity_to_config( $config ) {
 	return $config;
 }
 add_filter( 'fse_starter_page_templates_config', 'wpcom_fse_spt_add_tracking_identity_to_config' );
+
+/**
+ * Adds site meta data for Gutenberg Tracking.
+ *
+ * @see https://github.com/Automattic/wp-calypso/pull/34655
+ */
+function wpcom_fse_global_editors_script() {
+	$script = sprintf( 'var _currentSiteId=%d,_currentSiteType="atomic";', (int) Jetpack_Options::get_option( 'id' ) );
+
+	wp_add_inline_script( 'editor', $script, 'before' );
+	wp_add_inline_script( 'wp-list-reusable-blocks', $script );
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_fse_global_editors_script' );
