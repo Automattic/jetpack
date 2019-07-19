@@ -109,6 +109,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Page: fix the behaviour of the Jetpack Videos button in the "My Plan" tab.
+
 --------
 
 [See the previous changelogs here](https://raw.githubusercontent.com/Automattic/jetpack/master/changelog.txt).
