@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Backups: add ability to send SSH credentials.
 * Blocks: allow the insertion and preview of any Jetpack block in the editor, even when the block is only available via a Paid plan.
 * Carousel: use a pointer cursor when hovering over galleries that utilise the Carousel feature.
 * General: hide edit post link on your site when viewing it via the WordPress mobile app.
