@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* General: hide edit post link on your site when viewing it via the WordPress mobile app.
 * Sync: add a term taxonomy blacklist option.
 
 **Improved compatibility**
