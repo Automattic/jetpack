@@ -1314,7 +1314,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
-		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
+		$this->sender->set_dequeue_max_bytes( 1250 ); // process 0.00125MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
 
@@ -1345,7 +1345,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'updates'            => 1,
 				'users'              => 1,
 				'terms'              => 1,
-				'term_relationships' => 1,
+				'term_relationships' => 2,
 			),
 			'queue' => array(
 				'constants'          => 1,
