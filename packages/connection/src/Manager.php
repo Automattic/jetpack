@@ -287,7 +287,7 @@ class Manager implements Manager_Interface {
 	 * @return WP_User|Mixed authenticated user or error.
 	 */
 	public function authenticate_jetpack( $user, $username, $password ) {
-		if ( is_a( $user, 'WP_User' ) ) {
+		if ( is_a( $user, '\WP_User' ) ) {
 			return $user;
 		}
 
