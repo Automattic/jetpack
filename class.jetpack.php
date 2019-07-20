@@ -4668,11 +4668,8 @@ p {
 				}
 			}
 
-			return array(
-				'type'      => $token_type,
-				'token_key' => $token_key,
-				'user_id'   => $token->external_user_id,
-			);
+			$token_data['type']    = $token_type;
+			$token_data['user_id'] = $token->external_user_id;
 		}
 
 		return $token_data;
