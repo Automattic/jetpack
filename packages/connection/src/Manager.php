@@ -1528,6 +1528,10 @@ class Manager implements Manager_Interface {
 		return $methods;
 	}
 
+	public function reset_raw_post_data() {
+		$this->raw_post_data = null;
+	}
+
 	/**
 	 * Registering an additional method.
 	 *

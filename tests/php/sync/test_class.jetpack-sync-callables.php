@@ -1002,6 +1002,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$jetpack = Jetpack::init();
 		$jetpack->reset_saved_auth_state();
+		Jetpack::connection()->reset_raw_post_data();
 		wp_set_current_user( $user_id );
 		self::$admin_id = null;
 	}
