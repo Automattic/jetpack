@@ -77,7 +77,7 @@
 		}
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "1.0.0",
+		"@automattic/calypso-build": "2.0.0",
 		"@automattic/calypso-color-schemes": "1.0.0",
 		"@automattic/custom-colors-loader": "automattic/custom-colors-loader",
 		"@automattic/format-currency": "1.0.0-alpha.0",
