@@ -691,6 +691,7 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
@@ -1247,6 +1248,23 @@ class Jetpack {
 	function devicepx() {
 		if ( Jetpack::is_active() && ! Jetpack_AMP_Support::is_amp_request() ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
+		}
+	}
+
+	function deactivate_dialog() {
+		if ( Jetpack::is_active() ) {
+			wp_enqueue_script(
+				'jetpack-deactivate-dialog-js',
+				Assets::get_file_url_for_environment(
+					'_inc/build/jetpack-deactivate-dialog.min.js',
+					'_inc/jetpack-deactivate-dialog.js'
+				),
+				array( 'jquery' ),
+				JETPACK__VERSION,
+				true
+			);
+			// required for modal popup JS and styling.
+			add_thickbox();
 		}
 	}
 
