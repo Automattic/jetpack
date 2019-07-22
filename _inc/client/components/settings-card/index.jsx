@@ -214,13 +214,10 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SCHEDULE_PUBLICIZE_JETPACK:
-				const isCurrentlyEnabled = props.getSettingCurrentValue( 'publicize' );
-
 				if (
 					'is-premium-plan' === planClass ||
 					'is-business-plan' === planClass ||
-					props.isDevMode ||
-					isCurrentlyEnabled
+					props.isDevMode
 				) {
 					return '';
 				}
