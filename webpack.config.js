@@ -74,4 +74,20 @@ module.exports = [
 			} ),
 		],
 	},
+	{
+		...sharedWebpackConfig,
+		entry: { search: path.join( __dirname, './_inc/search/src/index.jsx' ) },
+		output: {
+			...sharedWebpackConfig.output,
+			path: path.resolve( __dirname, '_inc/search/dist' ),
+			filename: 'jp-search.bundle.js',
+		},
+		performance: isDevelopment
+			? {}
+			: {
+					maxAssetSize: 30000,
+					maxEntrypointSize: 30000,
+					hints: 'error',
+			  },
+	},
 ];

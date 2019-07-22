@@ -186,11 +186,38 @@ class Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
 
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
+	}
+
+	/**
+	 * Loads assets for Jetpack Search Prototype featuring Search As You Type experience.
+	 */
+	public function load_assets() {
+		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+			$script_relative_path = '_inc/search/dist/jp-search.bundle.js';
+			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
+				$script_version = self::get_asset_version( $script_relative_path );
+				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+				wp_enqueue_script( 'jetpack-search', $script_path, array(), $script_version, false );
+			}
+		}
+	}
+
+	/**
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @param string $file Path of the file we are looking for.
+	 * @return string $script_version Version number.
+	 */
+	public static function get_asset_version( $file ) {
+		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
+			? filemtime( $file )
+			: JETPACK__VERSION;
 	}
 
 	/**
