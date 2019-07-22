@@ -467,6 +467,34 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Settings::set_doing_cron( false );
 	}
 
+	function test_sync_limited_set_of_callables_if_wp_cli() {
+		$all_callables = array_keys( Defaults::get_callable_whitelist() );
+		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
+
+		foreach ( $always_updated as $key => $option ) {
+			if ( array_key_exists( $option, Callables::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
+				$always_updated[ $key ] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
+			}
+
+		}
+
+		// non-admin
+		set_current_screen( 'front' );
+		Constants::set_constant( 'WP_CLI', true );
+
+		$this->sender->do_sync();
+
+		foreach ( $all_callables as $callable ) {
+			if ( in_array( $callable, $always_updated, true ) ) {
+				$this->assertNotNull( $this->server_replica_storage->get_callable( $callable ) );
+			} else {
+				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
+			}
+		}
+
+		Constants::set_constant( 'WP_CLI', false );
+	}
+
 	function test_site_icon_url_returns_false_when_no_site_icon() {
 		delete_option( 'jetpack_site_icon_url' );
 		$this->sender->do_sync();

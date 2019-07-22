@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 
 /**
  * Class to handle sync for callables.
@@ -395,7 +396,7 @@ class Callables extends Module {
 		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
 			if ( ! is_admin() ) {
 				// If we're not an admin and we're not doing cron and this isn't WP_CLI, don't sync anything.
-				if ( ! Settings::is_doing_cron() && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+				if ( ! Settings::is_doing_cron() && ! Jetpack_Constants::get_constant( 'WP_CLI' ) ) {
 					return;
 				}
 				// If we're not an admin and we are doing cron, sync the Callables that are always supposed to sync ( See https://github.com/Automattic/jetpack/issues/12924 ).
