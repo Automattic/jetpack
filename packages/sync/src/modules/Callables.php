@@ -405,7 +405,7 @@ class Callables extends Module {
 				return;
 			}
 		}
-		
+
 		if ( empty( $callables ) ) {
 			return;
 		}
