@@ -127,7 +127,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **dismissJetpackActionNotice( notice )**
 * **dismissJetpackNotice( notice )**
 * **fetchAkismetData()**
-* **fetchConnectUrl()**
 * **fetchLastDownTime()**
 * **fetchModule()**
 * **fetchModules()**

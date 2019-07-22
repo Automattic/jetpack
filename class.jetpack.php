@@ -3373,8 +3373,10 @@ p {
 		$result = Jetpack::register();
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
-		if ( ! $result || is_wp_error( $result ) ) {
+		if ( is_wp_error( $result ) ) {
 			return $result;
+		} elseif ( ! $result ) {
+			return new Jetpack_Error( 'unknown_error', 'Something went wrong attempting registration', 400 );
 		} else {
 			return true;
 		}
@@ -5062,6 +5064,13 @@ p {
 		}
 
 	    return $registration_response;
+	}
+
+	public static function is_registered() {
+		$blog_id    = Jetpack_Options::get_option( 'id' );
+		$blog_token = Jetpack_Data::get_access_token();
+
+		return $blog_id && $blog_token;
 	}
 	/**
 	 * @return bool|WP_Error

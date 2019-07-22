@@ -9,10 +9,9 @@ import { assign, get, includes, merge } from 'lodash';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
+	JETPACK_CONNECTION_STATUS_FETCH_FAIL,
 	JETPACK_SET_INITIAL_STATE,
-	CONNECT_URL_FETCH,
-	CONNECT_URL_FETCH_FAIL,
-	CONNECT_URL_FETCH_SUCCESS,
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
 	USER_CONNECTION_DATA_FETCH_SUCCESS,
@@ -27,14 +26,14 @@ import {
 import { getModulesThatRequireConnection } from 'state/modules';
 
 export const status = (
-	state = { siteConnected: window.Initial_State.connectionStatus },
+	state = { siteConnectionData: window.Initial_State.connectionStatus },
 	action
 ) => {
 	switch ( action.type ) {
-		case JETPACK_CONNECTION_STATUS_FETCH:
-			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case JETPACK_CONNECTION_STATUS_FETCH_SUCCESS:
+			return assign( {}, state, { siteConnectionData: action.siteConnectionData } );
 		case DISCONNECT_SITE_SUCCESS:
-			return assign( {}, state, { siteConnected: action.siteConnected } );
+			return assign( {}, state, { siteConnectionData: action.siteConnectionData } );
 
 		default:
 			return state;
@@ -45,8 +44,6 @@ export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
 			return get( action, 'initialState.connectUrl', state );
-		case CONNECT_URL_FETCH_SUCCESS:
-			return action.connectUrl;
 		default:
 			return state;
 	}
@@ -72,8 +69,8 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 export const connectionRequests = {
 	disconnectingSite: false,
 	unlinkingUser: false,
-	fetchingConnectUrl: false,
 	fetchingUserData: false,
+	fetchingConnectionStatus: false
 };
 
 export const requests = ( state = connectionRequests, action ) => {
@@ -82,10 +79,11 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, { disconnectingSite: true } );
 		case UNLINK_USER:
 			return assign( {}, state, { unlinkingUser: true } );
-		case CONNECT_URL_FETCH:
-			return assign( {}, state, { fetchingConnectUrl: true } );
 		case USER_CONNECTION_DATA_FETCH:
 			return assign( {}, state, { fetchingUserData: true } );
+		case JETPACK_CONNECTION_STATUS_FETCH:
+			return assign( {}, state, { fetchingConnectionStatus: true } );
+
 
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
@@ -95,13 +93,13 @@ export const requests = ( state = connectionRequests, action ) => {
 		case UNLINK_USER_SUCCESS:
 			return assign( {}, state, { unlinkingUser: false } );
 
-		case CONNECT_URL_FETCH_FAIL:
-		case CONNECT_URL_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingConnectUrl: false } );
-
 		case USER_CONNECTION_DATA_FETCH_FAIL:
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, { fetchingUserData: false } );
+
+		case JETPACK_CONNECTION_STATUS_FETCH_FAIL:
+		case JETPACK_CONNECTION_STATUS_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingConnectionStatus: false } );
 
 		default:
 			return state;
@@ -122,13 +120,36 @@ export const reducer = combineReducers( {
  * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
  */
 export function getSiteConnectionStatus( state ) {
-	if ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) {
+	if ( 'object' !== typeof state.jetpack.connection.status.siteConnectionData ) {
 		return false;
 	}
-	if ( state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+	if ( state.jetpack.connection.status.siteConnectionData.devMode.isActive ) {
 		return 'dev';
 	}
-	return state.jetpack.connection.status.siteConnected.isActive;
+	return state.jetpack.connection.status.siteConnectionData.isActive;
+}
+
+/**
+ * Returns true if site is registered with WordPress.com, but may or may not be fully connected
+ *
+ * @param  {Object}      state Global state tree
+ * @return {bool|string} True if site is registered, False if it is not
+ */
+export function isSiteRegistered( state ) {
+	if ( 'object' !== typeof state.jetpack.connection.status.siteConnectionData ) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnectionData.isRegistered;
+}
+
+/**
+ * Returns true if currently fetching connection status
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool} true if currently fetching connection status, false otherwise
+ */
+export function isFetchingConnectionStatus( state ) {
+	return !! state.jetpack.connection.requests.fetchingConnectionStatus;
 }
 
 /**
@@ -139,12 +160,12 @@ export function getSiteConnectionStatus( state ) {
  */
 export function isSiteConnected( state ) {
 	if (
-		'object' !== typeof state.jetpack.connection.status.siteConnected ||
-		true === state.jetpack.connection.status.siteConnected.devMode.isActive
+		'object' !== typeof state.jetpack.connection.status.siteConnectionData ||
+		true === state.jetpack.connection.status.siteConnectionData.devMode.isActive
 	) {
 		return false;
 	}
-	return state.jetpack.connection.status.siteConnected.isActive;
+	return state.jetpack.connection.status.siteConnectionData.isActive;
 }
 
 /**
@@ -154,8 +175,8 @@ export function isSiteConnected( state ) {
  * @return {bool|object} False if site is not in Dev Mode. If it is, returns an object with information about the Dev Mode.
  */
 export function getSiteDevMode( state ) {
-	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'devMode', 'isActive' ] ) ) {
-		return get( state.jetpack.connection.status, [ 'siteConnected', 'devMode' ] );
+	if ( get( state.jetpack.connection.status, [ 'siteConnectionData', 'devMode', 'isActive' ] ) ) {
+		return get( state.jetpack.connection.status, [ 'siteConnectionData', 'devMode' ] );
 	}
 	return false;
 }
@@ -178,16 +199,6 @@ export function getConnectUrl( state ) {
  */
 export function isDisconnectingSite( state ) {
 	return !! state.jetpack.connection.requests.disconnectingSite;
-}
-
-/**
- * Returns true if currently fetching connectUrl
- *
- * @param  {Object} state Global state tree
- * @return {bool} true if currently fetching connectUrl, false otherwise
- */
-export function isFetchingConnectUrl( state ) {
-	return !! state.jetpack.connection.requests.fetchingConnectUrl;
 }
 
 /**
@@ -237,7 +248,7 @@ export function isDevMode( state ) {
  * @return {boolean} True if site is in staging. False otherwise.
  */
 export function isStaging( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'isStaging' ], false );
+	return get( state.jetpack.connection.status, [ 'siteConnectionData', 'isStaging' ], false );
 }
 
 /**
@@ -247,7 +258,7 @@ export function isStaging( state ) {
  * @return {boolean} True if site is in IDC. False otherwise.
  */
 export function isInIdentityCrisis( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'isInIdentityCrisis' ], false );
+	return get( state.jetpack.connection.status, [ 'siteConnectionData', 'isInIdentityCrisis' ], false );
 }
 
 /**
@@ -279,5 +290,5 @@ export function isUnavailableInDevMode( state, module ) {
  * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
  */
 export function getSandboxDomain( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
+	return get( state.jetpack.connection.status, [ 'siteConnectionData', 'sandboxDomain' ], '' );
 }

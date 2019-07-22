@@ -2,7 +2,6 @@ import { expect } from 'chai';
 
 import {
 	isDisconnectingSite,
-	isFetchingConnectUrl,
 	isUnlinkingUser,
 	isFetchingUserData,
 	getSiteConnectionStatus,
@@ -15,7 +14,6 @@ let state = {
 		connection: {
 			requests: {
 				disconnectingSite: true,
-				fetchingConnectUrl: false,
 				unlinkingUser: true,
 				fetchingUserData: true,
 			},
@@ -43,14 +41,6 @@ describe( 'requests selectors', () => {
 			const stateIn = state;
 			const output = isDisconnectingSite( stateIn );
 			expect( output ).to.be.equal( state.jetpack.connection.requests.disconnectingSite );
-		} );
-	} );
-
-	describe( '#isFetchingConnectUrl', () => {
-		it( 'should return state.jetpack.connection.requests.fetchingConnectUrl', () => {
-			const stateIn = state;
-			const output = isFetchingConnectUrl( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.fetchingConnectUrl );
 		} );
 	} );
 

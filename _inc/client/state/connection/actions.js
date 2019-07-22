@@ -9,16 +9,18 @@ import { translate as __ } from 'i18n-calypso';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
+	JETPACK_CONNECTION_STATUS_FETCH_FAIL,
 	JETPACK_CONNECTION_TEST_FETCH,
-	CONNECT_URL_FETCH,
-	CONNECT_URL_FETCH_FAIL,
-	CONNECT_URL_FETCH_SUCCESS,
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
 	USER_CONNECTION_DATA_FETCH_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
+	REGISTER_SITE,
+	REGISTER_SITE_FAIL,
+	REGISTER_SITE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -27,12 +29,22 @@ import restApi from 'rest-api';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {
-		return restApi.fetchSiteConnectionStatus().then( siteConnected => {
-			dispatch( {
-				type: JETPACK_CONNECTION_STATUS_FETCH,
-				siteConnected: siteConnected,
-			} );
+		dispatch( {
+			type: JETPACK_CONNECTION_STATUS_FETCH,
 		} );
+		return restApi.fetchSiteConnectionStatus().then( siteConnectionData => {
+			console.warn("got connection info ", siteConnectionData);
+			dispatch( {
+				type: JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
+				siteConnected: siteConnectionData,
+				siteConnectionData: siteConnectionData,
+			} );
+		} ).catch( error => {
+			dispatch( {
+				type: JETPACK_CONNECTION_STATUS_FETCH_FAIL,
+				error: error,
+			} );
+		} );;
 	};
 };
 
@@ -72,28 +84,6 @@ export const fetchSiteConnectionTest = () => {
 						{ id: 'test-jetpack-connection' }
 					)
 				);
-			} );
-	};
-};
-
-export const fetchConnectUrl = () => {
-	return dispatch => {
-		dispatch( {
-			type: CONNECT_URL_FETCH,
-		} );
-		return restApi
-			.fetchConnectUrl()
-			.then( connectUrl => {
-				dispatch( {
-					type: CONNECT_URL_FETCH_SUCCESS,
-					connectUrl: connectUrl,
-				} );
-			} )
-			.catch( error => {
-				dispatch( {
-					type: CONNECT_URL_FETCH_FAIL,
-					error: error,
-				} );
 			} );
 	};
 };
@@ -158,6 +148,47 @@ export const disconnectSite = ( reloadAfter = false ) => {
 							},
 						} ),
 						{ id: 'disconnect-jetpack' }
+					)
+				);
+			} );
+	};
+};
+
+export const registerSite = ( reloadAfter = false ) => {
+	return dispatch => {
+		dispatch( {
+			type: REGISTER_SITE,
+		} );
+		dispatch(
+			createNotice( 'is-info', __( 'Registering Jetpack' ), { id: 'register-jetpack' } )
+		);
+		return restApi
+			.registerSite()
+			.then( registeringSite => {
+				dispatch( {
+					type: REGISTER_SITE_SUCCESS,
+					registeringSite: registeringSite,
+				} );
+				dispatch( removeNotice( 'register-jetpack' ) );
+			} )
+			.then( () => {
+				dispatch( fetchSiteConnectionStatus() );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: REGISTER_SITE_FAIL,
+					error: error,
+				} );
+				dispatch( removeNotice( 'register-jetpack' ) );
+				dispatch(
+					createNotice(
+						'is-error',
+						__( 'There was an error registering Jetpack. Error: %(error)s', {
+							args: {
+								error: error,
+							},
+						} ),
+						{ id: 'register-jetpack' }
 					)
 				);
 			} );

@@ -201,18 +201,6 @@ Fetch Jetpack's current connection status.
 }
 ```
 
-#### GET /wp-json/jetpack/v4/connection/url
-
-Fetch a fresh WordPress.com URL for connecting the Jetpack installation.
-
-**Note:** The response is not a JSON object, but a string enclosed in double quotes.
-
-**Example response**
-
-```
-"https:\/\/jetpack.wordpress.com\/jetpack.authorize\/1\/?response_type=code&client_id=107314117&redirect_uri=https%3A%2F%2Fmysite.mydomain.com%2Fwp-admin%2Fadmin.php%3Fpage%3Djetpack%26action%3Dauthorize%26_wpnonce%63Db10f339f8%26redirect%3Dhttps%253A%252F%252Fmysite.mydomain.com%252Fwp-admin%252Fadmin.php%253Fpage%253Djetpack&state=1&scope=administrator%3A6493e88f3b4130d138e051a48f3b417c5cf503a&user_email=siteowner%40company.com&user_login=mysite&is_active=1&jp_version=5.3&auth_type=calypso&secret=2ejv2bbhwE44GedSjwud7233TN2lGXkxh&locale=en&blogname=mysite+Sandbox&site_url=https%3A%2F%2Fmysite.mydomain.com&home_url=https%3A%2F%2Fmysite.mydomain.com&site_icon=https%3A%2F%2Fi2.wp.com%2Fmysite.mydomain.com%2Fwp-content%2Fuploads%2F2016%2F04%2Fcropped-jetpack-logo.png%3Ffit%3D512%252C512%26ssl%3D1&site_lang=en_US&_ui=7178474&_ut=wpcom%3Auser_id"
-```
-
 #### GET /wp-json/jetpack/v4/connection/data
 
 Fetch the data of the current's user WordPress.com account.

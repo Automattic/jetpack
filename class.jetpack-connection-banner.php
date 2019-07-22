@@ -85,6 +85,11 @@ class Jetpack_Connection_Banner {
 
 		add_action( 'admin_notices', array( $this, 'render_banner' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
+
+		// new fancy connect button
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_button_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_button_styles' ) );
+
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
 		if ( Jetpack::state( 'network_nag' ) ) {
@@ -92,7 +97,7 @@ class Jetpack_Connection_Banner {
 		}
 
 		// Only fires immediately after plugin activation
-		if ( get_transient( 'activated_jetpack' ) ) {
+		if ( true ) {//get_transient( 'activated_jetpack' )
 			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
 			delete_transient( 'activated_jetpack' );
 		}
@@ -122,6 +127,43 @@ class Jetpack_Connection_Banner {
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
 			)
+		);
+	}
+
+	public static function enqueue_button_scripts() {
+		// TODO - move this somewhere more central, where it can be a dependency of other stuff?
+		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/connect-button.deps.json';
+		$script_dependencies = file_exists( $script_deps_path )
+			? json_decode( file_get_contents( $script_deps_path ) )
+			: array();
+		$script_dependencies[] = 'wp-polyfill';
+
+		wp_enqueue_script(
+			'jetpack-connect-button',
+			Assets::get_file_url_for_environment(
+				'_inc/build/connect-button.js', // TODO - minify?
+				'_inc/build/connect-button.js'
+			),
+			$script_dependencies,
+			JETPACK__VERSION,
+			true
+		);
+
+		// hacked from admin.js
+		$jetpack_react_page = new Jetpack_React_Page();
+		wp_localize_script( 'jetpack-connect-button', 'Initial_State', $jetpack_react_page->get_initial_state() );
+	}
+
+	public static function enqueue_button_styles() {
+		wp_enqueue_style(
+			'jetpack-connect-button',
+			Assets::get_file_url_for_environment(
+				'_inc/build/connect-button.css', // TODO - minify?
+				'_inc/build/connect-button.css'
+			),
+			array(),
+			JETPACK__VERSION,
+			true
 		);
 	}
 
@@ -298,14 +340,9 @@ class Jetpack_Connection_Banner {
 					</div>
 				</div>
 
-				<p class="jp-connect-full__tos-blurb">
-					<?php jetpack_render_tos_blurb(); ?>
-				</p>
-				<p class="jp-connect-full__button-container">
-					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>" class="dops-button is-primary">
-						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-					</a>
-				</p>
+				<div id="jp-connect-full__button-container">
+				</div>
+
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<p class="jp-connect-full__dismiss-paragraph">
 						<a>

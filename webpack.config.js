@@ -45,6 +45,14 @@ module.exports = [
 		// Entry points point to the javascript module
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
+		entry: { 'connect-button': path.join( __dirname, './_inc/client/connect-button.js' ) },
+		plugins: [ ...sharedWebpackConfig.plugins, new WordPressExternalDependenciesPlugin() ],
+	},
+	{
+		...sharedWebpackConfig,
+		// Entry points point to the javascript module
+		// that is used to generate the script file.
+		// The key is used as the name of the script.
 		entry: { static: path.join( __dirname, './_inc/client/static.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,

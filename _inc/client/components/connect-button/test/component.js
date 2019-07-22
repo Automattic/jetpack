@@ -14,7 +14,6 @@ import { ConnectButton } from '../index';
 describe( 'ConnectButton', () => {
 
 	let testProps = {
-		fetchingConnectUrl: true,
 		connectUrl        : 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		connectUser       : true,
 		from              : '',
@@ -40,7 +39,7 @@ describe( 'ConnectButton', () => {
 	} );
 
 	// Fetching done
-	testProps.fetchingConnectUrl = false;
+	// testProps.fetchingConnectUrl = false;
 
 	describe( 'When it is used to link a user', () => {
 

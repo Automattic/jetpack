@@ -32,24 +32,6 @@ describe( 'status reducer', () => {
 	} );
 } );
 
-describe( 'connect url reducer', () => {
-	it( 'state should default to empty string', () => {
-		const state = connectUrlReducer( undefined, {} );
-		expect( state ).to.eql( '' );
-	} );
-	describe( '#fetchConnectUrl', () => {
-		it( 'should set connectUrl to action.connectUrl\'s value when fetching connect url', () => {
-			const stateIn = {};
-			const action = {
-				type: 'CONNECT_URL_FETCH_SUCCESS',
-				connectUrl: '/asdf'
-			};
-			let stateOut = connectUrlReducer( stateIn, action );
-			expect( stateOut ).to.equal( action.connectUrl );
-		} );
-	} );
-} );
-
 describe( 'user reducer', () => {
 	describe( '#fetchConnectUrl', () => {
 		it( 'should set state.user to action.userConnectionData when fetching connect url', () => {
@@ -128,36 +110,7 @@ describe( 'requests reducer', () => {
 		} );
 	} );
 
-	describe( '#fetchConnectUrl', () => {
-		it( 'should set fetchingConnectUrl to true when fetching connect URL', () => {
-			const stateIn = {};
-			const action = {
-				type: 'CONNECT_URL_FETCH'
-			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingConnectUrl ).to.be.true;
-		} );
-
-		it( 'should set fetchingConnectUrl to false when connect URL was fetched', () => {
-			const stateIn = {};
-			const action = {
-				type: 'CONNECT_URL_FETCH_SUCCESS'
-			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingConnectUrl ).to.be.false;
-		} );
-
-		it( 'should set fetchingConnectUrl to false when fecthing the connect URL', () => {
-			const stateIn = {};
-			const action = {
-				type: 'CONNECT_URL_FETCH_FAIL'
-			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingConnectUrl ).to.be.false;
-		} );
-	} );
-
-	describe( '#fetchUSerConnectionData', () => {
+	describe( '#fetchUserConnectionData', () => {
 		it( 'should set fetchingUserData to true when fetching User\'s connection data', () => {
 			const stateIn = {};
 			const action = {

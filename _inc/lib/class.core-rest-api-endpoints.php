@@ -123,13 +123,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
-		// Fetches a fresh connect URL
-		register_rest_route( 'jetpack/v4', '/connection/url', array(
-			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::build_connect_url',
-			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
-		) );
-
 		// Get current user connection data
 		register_rest_route( 'jetpack/v4', '/connection/data', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -166,6 +159,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => __CLASS__ . '::disconnect_site',
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
+		) );
+
+		// Disconnect site from WordPress.com servers
+		register_rest_route( 'jetpack/v4', '/connection/register', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::register_site',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
 		) );
 
 		// Disconnect/unlink user from WordPress.com servers
@@ -872,9 +872,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function jetpack_connection_status() {
 		return rest_ensure_response( array(
-				'isActive'  => Jetpack::is_active(),
-				'isStaging' => Jetpack::is_staging_site(),
-				'devMode'   => array(
+				'isRegistered' => Jetpack::is_registered(),
+				'isActive'     => Jetpack::is_active(),
+				'isStaging'    => Jetpack::is_staging_site(),
+				'devMode'      => array(
 					'isActive' => Jetpack::is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
@@ -1086,6 +1087,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Registers the Jetpack site
+	 *
+	 * @uses Jetpack::try_registration();
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if Jetpack successfully disconnected.
+	 */
+	public static function register_site( $request ) {
+		$response = Jetpack::try_registration();
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return rest_ensure_response( array( 'code' => 'success', 'blog_id' => Jetpack_Options::get_option( 'id' ) ) );
 	}
 
 	/**

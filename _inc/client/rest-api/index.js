@@ -92,10 +92,10 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		fetchConnectUrl: () =>
-			getRequest( `${ apiRoot }jetpack/v4/connection/url`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
+		registerSite: () =>
+				postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams )
+					.then( checkStatus )
+					.then( parseJsonResponse ),
 
 		unlinkUser: () =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {

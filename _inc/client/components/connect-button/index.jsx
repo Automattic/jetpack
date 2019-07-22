@@ -12,18 +12,20 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import {
-	getSiteConnectionStatus as _getSiteConnectionStatus,
+	getSiteConnectionStatus,
+	isFetchingConnectionStatus,
+	isSiteRegistered,
 	disconnectSite,
-	isDisconnectingSite as _isDisconnectingSite,
-	isFetchingConnectUrl as _isFetchingConnectUrl,
-	getConnectUrl as _getConnectUrl,
+	isDisconnectingSite,
 	unlinkUser,
-	isCurrentUserLinked as _isCurrentUserLinked,
-	isUnlinkingUser as _isUnlinkingUser,
+	isCurrentUserLinked,
+	isUnlinkingUser,
+	registerSite,
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
+import QueryConnectionStatus from 'components/data/query-connection-status';
 
 import './style.scss';
 
@@ -80,6 +82,7 @@ export class ConnectButton extends React.Component {
 			);
 		}
 
+		// TODO this isn't actually fetched any more
 		let connectUrl = this.props.connectUrl;
 		if ( this.props.from ) {
 			connectUrl += `&from=${ this.props.from }`;
@@ -89,7 +92,7 @@ export class ConnectButton extends React.Component {
 		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
+				disabled: this.props.fetchingConnectionStatus,
 			},
 			connectLegend = __( 'Link to WordPress.com' );
 
@@ -99,6 +102,12 @@ export class ConnectButton extends React.Component {
 			<Button { ...buttonProps }>{ connectLegend }</Button>
 		);
 	};
+
+	handleConnectButtonClick = ( event ) => {
+		event.stopPropagation();
+		console.log("clicked connect");
+		this.props.registerSite();
+	}
 
 	renderContent = () => {
 		if ( this.props.connectUser ) {
@@ -119,22 +128,32 @@ export class ConnectButton extends React.Component {
 			);
 		}
 
-		let connectUrl = this.props.connectUrl;
-		if ( this.props.from ) {
-			connectUrl += `&from=${ this.props.from }`;
+		// TODO fix later
+
+		// if ( this.props.from ) {
+		// 	connectUrl += `&from=${ this.props.from }`;
+		// }
+
+		let label = __( 'Set up Jetpack' );
+		if ( ! this.props.isRegistered ) {
+			label = __( '(TEST) Register' );
 		}
 
 		const buttonProps = {
 				className: 'jp-jetpack-connect__button',
-				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
-			},
-			connectLegend = __( 'Set up Jetpack' );
+				onClick: this.handleConnectButtonClick,
+				disabled: this.props.fetchingConnectionStatus,
+			};
 
-		return this.props.asLink ? (
-			<a { ...buttonProps }>{ connectLegend }</a>
-		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
+		return (
+			<React.Fragment>
+				<QueryConnectionStatus />
+				{ this.props.asLink ? (
+					<a { ...buttonProps }>{ label }</a>
+				) : (
+					<Button { ...buttonProps }>{ label }</Button>
+				) }
+			</React.Fragment>
 		);
 	};
 
@@ -178,12 +197,12 @@ export default connect(
 	state => {
 		return {
 			siteRawUrl: getSiteRawUrl( state ),
-			isSiteConnected: _getSiteConnectionStatus( state ),
-			isDisconnecting: _isDisconnectingSite( state ),
-			fetchingConnectUrl: _isFetchingConnectUrl( state ),
-			connectUrl: _getConnectUrl( state ),
-			isLinked: _isCurrentUserLinked( state ),
-			isUnlinking: _isUnlinkingUser( state ),
+			isSiteConnected: getSiteConnectionStatus( state ),
+			fetchingConnectionStatus: isFetchingConnectionStatus( state ),
+			isDisconnecting: isDisconnectingSite( state ),
+			isRegistered: isSiteRegistered( state ),
+			isLinked: isCurrentUserLinked( state ),
+			isUnlinking: isUnlinkingUser( state ),
 		};
 	},
 	dispatch => {
@@ -194,6 +213,9 @@ export default connect(
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
+			registerSite: () => {
+				return dispatch( registerSite() );
+			}
 		};
 	}
 )( ConnectButton );
