@@ -1054,4 +1054,37 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
 		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 		}
+	}
+
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 */
+	public function test_photon_strip_image_dimensions_maybe_ignores_external_files() {
+		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
+
+		$this->assertEquals( $ext_domain, Jetpack_Photon::strip_image_dimensions_maybe( $ext_domain ) );
+	}
+
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 */
+	public function test_photon_strip_image_dimensions_maybe_strips_resized_string() {
+		$orig_filename = '2004-07-22-DSC_0007.jpg';
+		$filename = '2004-07-22-DSC_0007-150x150.jpg';
+		$filepath = DIR_TESTDATA . '/images/' . $orig_filename;
+		$contents = file_get_contents( $filepath );
+
+		$upload = wp_upload_bits( basename( $filepath ), null, $contents );
+
+		$upload_dir = wp_get_upload_dir();
+
+		$id  = $this->_make_attachment( $upload );
+		$url = $upload_dir['url'] . '/' . $filename;
+
+		$expected = wp_get_attachment_url( $id );
+
+		$this->assertEquals( $expected, Jetpack_Photon::strip_image_dimensions_maybe( $url ) );
+
+		wp_delete_attachment( $id );
+	}
 }

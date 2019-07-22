@@ -1086,7 +1086,9 @@ class Jetpack_Photon {
 		$stripped_src = $src;
 
 		// Build URL, first removing WP's resized string so we pass the original image to Photon
-		if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
+		if ( self::is_local_upload( $src ) &&
+			preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
+		{
 			$stripped_src = str_replace( $src_parts[1], '', $src );
 			$upload_dir = wp_get_upload_dir();
 
