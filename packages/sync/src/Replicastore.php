@@ -73,11 +73,18 @@ class Replicastore implements Replicastore_Interface {
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
 	}
 
+	/**
+	 * Retrieve the number of rows in the `term_taxonomy` table.
+	 *
+	 * @access public
+	 *
+	 * @return int Number of terms.
+	 */
 	public function term_taxonomy_count() {
 		global $wpdb;
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
 	}
-	
+
 	/**
 	 * Retrieve the number of posts with a particular post status within a certain range.
 	 *
