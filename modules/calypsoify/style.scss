@@ -917,3 +917,13 @@ div.mce-toolbar-grp,
 		}
 	}
 }
+
+// Contact Form editor button.
+.wp-core-ui.wp-admin .wp-editor-wrap {
+	span.jetpack-contact-form-icon:before {
+		width: 16px;
+		height: 16px;
+		margin-top: -1px;
+		background-size: 16px;
+	}
+}
