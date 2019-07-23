@@ -82,6 +82,10 @@ add_filter( 'fse_starter_page_templates_config', 'wpcom_fse_spt_add_tracking_ide
  * @see https://github.com/Automattic/wp-calypso/pull/34655
  */
 function wpcom_fse_global_editors_script() {
+	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || ! Jetpack::is_active() ) {
+		return;
+	}
+
 	$script = sprintf( 'var _currentSiteId=%d,_currentSiteType="atomic";', (int) Jetpack_Options::get_option( 'id' ) );
 
 	wp_add_inline_script( 'editor', $script, 'before' );
