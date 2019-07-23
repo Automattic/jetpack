@@ -38,12 +38,15 @@ const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName } ) => (
 			/>
 			<span className="jetpack-upgrade-nudge__text-container">
 				<span className="jetpack-upgrade-nudge__title">
-					{ sprintf( __( 'This block is available under the %(planName)s Plan.', 'jetpack' ), {
+					{ sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
 						planName,
 					} ) }
 				</span>
 				<span className="jetpack-upgrade-nudge__message">
-					{ __( 'It will be hidden from site visitors until you upgrade.', 'jetpack' ) }
+					{ __(
+						'You can try it out before upgrading, but only you will see it. It will be hidden from visitors until you upgrade.',
+						'jetpack'
+					) }
 				</span>
 			</span>
 		</span>
@@ -76,7 +79,7 @@ export default compose( [
 		);
 
 		return {
-			planName: get( plan, [ 'product_name_short' ] ),
+			planName: get( plan, [ 'product_name' ] ),
 			upgradeUrl,
 		};
 	} ),
