@@ -1253,6 +1253,7 @@ class Jetpack {
 
 	function deactivate_dialog() {
 		if ( Jetpack::is_active() ) {
+			add_thickbox();
 			wp_enqueue_script(
 				'jetpack-deactivate-dialog-js',
 				Assets::get_file_url_for_environment(
@@ -1263,8 +1264,8 @@ class Jetpack {
 				JETPACK__VERSION,
 				true
 			);
-			// required for modal popup JS and styling.
-			add_thickbox();
+			wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
 		}
 	}
 
