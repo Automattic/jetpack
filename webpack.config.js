@@ -4,6 +4,7 @@
 const _ = require( 'lodash' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
+const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
@@ -80,6 +81,10 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
+			new webpack.NormalModuleReplacementPlugin(
+				/^@wordpress\/i18n$/,
+				path.join( __dirname, './_inc/client/i18n-to-php' )
+			),
 			new StaticSiteGeneratorPlugin( {
 				globals: _.merge( {}, componentMocks, {
 					window: {

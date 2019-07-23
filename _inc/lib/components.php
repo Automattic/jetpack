@@ -13,11 +13,13 @@ class Jetpack_Components {
 	 * @return string The component markup
 	 */
 	public static function render_component( $name, $props ) {
-		$markup = @file_get_contents( JETPACK__PLUGIN_DIR . "_inc/build/$name.html" );
+		ob_start();
+		require JETPACK__PLUGIN_DIR . "_inc/build/$name.html";
+		$markup = ob_get_clean();
 
 		foreach ( $props as $key => $value ) {
 			$markup = str_replace(
-				"#$key#",
+				"%($key)s",
 				$value,
 				$markup
 			);
