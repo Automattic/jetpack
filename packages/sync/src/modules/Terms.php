@@ -35,29 +35,34 @@ class Terms extends Module {
 	}
 
 	/**
-	 * Allows WordPress.com servers to retrieve a term object via the sync API.
+	 * Allows WordPress.com servers to retrieve term-related objects via the sync API.
 	 *
 	 * @param string $object_type The type of object.
 	 * @param int    $id          The id of the object.
 	 *
-	 * @return bool|\WP_Term
+	 * @return bool|object A WP_Term object, or a row from term_taxonomy table depending on object type.
 	 */
 	public function get_object_by_id( $object_type, $id ) {
+		global $wpdb;
+		$object = false;
 		if ( 'term' === $object_type ) {
-			$term = get_term( intval( $id ) );
+			$object = get_term( intval( $id ) );
 
-			if ( is_wp_error( $term ) && $term->get_error_code() === 'invalid_taxonomy' ) {
-				// Fet raw term.
-				global $wpdb;
+			if ( is_wp_error( $object ) && $object->get_error_code() === 'invalid_taxonomy' ) {
+				// Fetch raw term.
 				$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_checksum_columns, array( 'term_group' ) ) ) );
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$term = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->terms WHERE term_id = %d", $id ) );
+				$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->terms WHERE term_id = %d", $id ) );
 			}
-
-			return $term ? $term : false;
 		}
 
-		return false;
+		if ( 'term_taxonomy' === $object_type ) {
+			$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_taxonomy_checksum_columns, array( 'description' ) ) ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $id ) );
+		}
+
+		return $object ? $object : false;
 	}
 
 	/**

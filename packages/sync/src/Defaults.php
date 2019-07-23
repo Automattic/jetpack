@@ -525,6 +525,14 @@ class Defaults {
 		'slug',
 	);
 
+	static $default_term_taxonomy_checksum_columns = array(
+		'term_taxonomy_id',
+		'term_id',
+		'taxonomy',
+		'parent',
+		'count',
+	);
+
 	static $default_multisite_callable_whitelist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
 		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
