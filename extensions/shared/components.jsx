@@ -18,6 +18,8 @@ const upgradeNudge = renderToStaticMarkup(
 	/>
 );
 
+// StaticSiteGeneratorPlugin only supports `.html` extensions, even though
+// our rendered components contain some PHP.
 export default () => ( {
 	'upgrade-nudge.html': upgradeNudge,
 } );
