@@ -179,9 +179,6 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 
-		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'jetpack-upgrade-nudge', plugins_url( "_inc/build/static{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-
 		jetpack_require_lib( 'components' );
 		return Jetpack_Components::render_component( 'upgrade-nudge', array(
 			'planName' => 'Jetpack Premium', // TODO: Get actual plan name

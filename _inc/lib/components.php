@@ -13,6 +13,9 @@ class Jetpack_Components {
 	 * @return string The component markup
 	 */
 	public static function render_component( $name, $props ) {
+		$rtl = is_rtl() ? '.rtl' : '';
+		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/build/static{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
 		ob_start();
 		require JETPACK__PLUGIN_DIR . "_inc/build/$name.html";
 		$markup = ob_get_clean();
