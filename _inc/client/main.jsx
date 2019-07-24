@@ -38,6 +38,7 @@ import AppsCard from 'components/apps-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
+import JetpackDisconnectDialogContainer from 'components/jetpack-disconnect-dialog-v2/container';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
@@ -229,6 +230,9 @@ class Main extends React.Component {
 						rewindStatus={ this.props.rewindStatus }
 					/>
 				);
+				break;
+			case '/value':
+				pageComponent = <JetpackDisconnectDialogContainer />;
 				break;
 
 			default:
