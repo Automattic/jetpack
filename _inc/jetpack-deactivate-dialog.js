@@ -5,6 +5,12 @@
 		'tr[data-slug=jetpack] > td.plugin-title > div > span.deactivate > a'
 	);
 
+	const deactivateJetpackURL = deactivateLinkElem.attr( 'href' );
+
+	window.deactivateJetpack = function() {
+		window.location.href = deactivateJetpackURL;
+	};
+
 	// const deactivateURL = deactivateLinkElem.attr( 'href' );
 	const observer = new MutationObserver( function( mutations ) {
 		mutations.forEach( function( mutation ) {

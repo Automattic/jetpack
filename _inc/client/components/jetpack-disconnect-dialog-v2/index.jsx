@@ -24,6 +24,7 @@ class JetpackDisconnectDialog extends Component {
 		super( props );
 
 		this.state = { step: JETPACK_DISCONNECT_INITIAL_STEP };
+		this.handleCloseButtonClick = this.handleCloseButtonClick.bind( this );
 		this.handleFeaturesContinueClick = this.handleFeaturesContinueClick.bind( this );
 		this.handleSurveyDisableClick = this.handleSurveyDisableClick.bind( this );
 	}
@@ -35,13 +36,27 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	handleSurveyDisableClick() {
-		// noop for now
+		if ( parent.deactivateJetpack ) {
+			parent.deactivateJetpack();
+		}
+	}
+
+	handleCloseButtonClick() {
+		if ( parent.tb_remove ) {
+			parent.tb_remove();
+		}
 	}
 
 	renderInitialStep() {
 		return (
 			<FeaturesContainer>
-				<Button compact>{ __( 'Cancel' ) }</Button>
+				<Button
+					class="jetpack-disconnect-dialog-close-button"
+					compact
+					onClick={ this.handleCloseButtonClick }
+				>
+					{ __( 'Close' ) }
+				</Button>
 				<Button compact scary onClick={ this.handleFeaturesContinueClick }>
 					{ __( 'Continue Disabling Jetpack' ) }
 				</Button>
@@ -52,7 +67,13 @@ class JetpackDisconnectDialog extends Component {
 	renderSurveyStep() {
 		return (
 			<Survey>
-				<Button compact>{ __( 'Close' ) }</Button>
+				<Button
+					class="jetpack-disconnect-dialog-close-button"
+					compact
+					onClick={ this.handleCloseButtonClick }
+				>
+					{ __( 'Close' ) }
+				</Button>
 				<Button compact primary onClick={ this.handleSurveyDisableClick }>
 					{ __( 'Disable Jetpack' ) }
 				</Button>

@@ -19,7 +19,7 @@ class Jetpack_Admin {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 
 			// supress wpadmin stuffs when rendering iframes
-			if( $_GET['iframe_request'] && ! defined( 'IFRAME_REQUEST') ) {
+			if( isset( $_GET['iframe_request'] ) && $_GET['iframe_request'] && ! defined( 'IFRAME_REQUEST') ) {
 				define( 'IFRAME_REQUEST', true );
 			}
 
