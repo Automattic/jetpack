@@ -11,7 +11,7 @@ import { get } from 'lodash';
  */
 import QueryAkismetData from 'components/data/query-akismet-data';
 import QuerySite from 'components/data/query-site';
-import JetpackDisconnect from 'components/jetpack-disconnect-dialog-v2';
+import JetpackDisconnectFeatures from 'components/jetpack-disconnect-dialog-v2/features';
 import restApi from 'rest-api';
 import { getAkismetData } from 'state/at-a-glance';
 import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
@@ -58,7 +58,9 @@ class JetpackDisconnectDialogContainer extends React.Component {
 			<div>
 				<QuerySite />
 				<QueryAkismetData />
-				<JetpackDisconnect featureHighlights={ featureHighlights } />
+				<JetpackDisconnectFeatures featureHighlights={ featureHighlights }>
+					{ this.props.children }
+				</JetpackDisconnectFeatures>
 			</div>
 		);
 	}

@@ -1,72 +1,71 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import Button from 'components/button';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-import Card from 'components/card';
-import SingleFeature from './single-feature';
+import FeaturesContainer from './container';
+import Survey from './survey';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
-function getFeatureHighlightViewData( featureHighlightData ) {
-	switch ( featureHighlightData.name ) {
-		case 'akismet':
-			return {
-				title: 'Anti-spam',
-				iconPath: '',
-				iconAlt: '',
-				description: `${ featureHighlightData.props.number } spam comments blocked.`,
-			};
-		// TODO:
-		// 'vaultpress-backups'
-		// 'vaultpress-backup-archive'
-		// 'vaultpress-storage-space'
-		// 'vaultpress-automated-restores'
-		// 'simple-payments'
-		// 'support'
-		// 'wordads-jetpack'
-		default:
-			return null;
+const JETPACK_DISCONNECT_INITIAL_STEP = 'jetpack_disconnect_initial_step';
+const JETPACK_DISCONNECT_SURVEY_STEP = 'jetpack_disconnect_survey_step';
+
+class JetpackDisconnectDialog extends Component {
+	constructor( props ) {
+		super( props );
+
+		this.state = { step: JETPACK_DISCONNECT_INITIAL_STEP };
+		this.handleFeaturesContinueClick = this.handleFeaturesContinueClick.bind( this );
+		this.handleSurveyDisableClick = this.handleSurveyDisableClick.bind( this );
+	}
+
+	handleFeaturesContinueClick() {
+		this.setState( {
+			step: JETPACK_DISCONNECT_SURVEY_STEP,
+		} );
+	}
+
+	handleSurveyDisableClick() {
+		// noop for now
+	}
+
+	renderInitialStep() {
+		return (
+			<FeaturesContainer>
+				<Button compact>{ __( 'Cancel' ) }</Button>
+				<Button compact scary onClick={ this.handleFeaturesContinueClick }>
+					{ __( 'Continue Disabling Jetpack' ) }
+				</Button>
+			</FeaturesContainer>
+		);
+	}
+
+	renderSurveyStep() {
+		return (
+			<Survey>
+				<Button compact>{ __( 'Close' ) }</Button>
+				<Button compact primary onClick={ this.handleSurveyDisableClick }>
+					{ __( 'Disable Jetpack' ) }
+				</Button>
+			</Survey>
+		);
+	}
+
+	render() {
+		const { step } = this.state;
+		return JETPACK_DISCONNECT_SURVEY_STEP === step
+			? this.renderSurveyStep()
+			: this.renderInitialStep();
 	}
 }
 
-const JetpackDisconnectDialogFeatures = ( { featureHighlights, children } ) => {
-	return (
-		<Card>
-			<h2>{ __( 'Log Out of Jetpack (and deactivate)?' ) }</h2>
-			<p>
-				{ __(
-					'Before you log out of Jetpack we wanted to let you d know that there are a few features you are using that rely on the connection to the WordPress.com Cloud. Once the connection is broken these features will no longer be available.'
-				) }
-			</p>
-			<div>
-				{ featureHighlights
-					.map( getFeatureHighlightViewData )
-					.map( ( { title, description, iconPath, iconAlt } ) => (
-						<SingleFeature
-							title={ title }
-							description={ description }
-							iconPath={ iconPath }
-							iconAlt={ iconAlt }
-						/>
-					) ) }
-			</div>
-			<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
-			{ children }
-		</Card>
-	);
-};
-
-JetpackDisconnectDialogFeatures.propTypes = {
-	featureHighlights: PropTypes.array,
-};
-
-export default JetpackDisconnectDialogFeatures;
+export default JetpackDisconnectDialog;

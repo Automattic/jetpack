@@ -16,7 +16,7 @@ import accessibleFocus from 'lib/accessible-focus';
 import store from 'state/redux-store';
 import i18n from 'i18n-calypso';
 import Main from 'main';
-import JetpackDisconnectDialogContainer from 'components/jetpack-disconnect-dialog-v2/container';
+import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog-v2';
 import * as actionTypes from 'state/action-types';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
@@ -89,7 +89,7 @@ function render() {
 					<Route
 						path="/value"
 						name={ i18n.translate( 'Value', { context: 'Navigation item.' } ) }
-						component={ JetpackDisconnectDialogContainer }
+						component={ JetpackDisconnectDialog }
 					/>
 					<Route
 						path="/settings"
