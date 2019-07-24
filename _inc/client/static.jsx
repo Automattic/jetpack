@@ -42,6 +42,7 @@ const upgradeNudge = renderToStaticMarkup(
 	<UpgradeNudge
 		autosaveAndRedirectToUpgrade="#autosaveAndRedirectToUpgrade#"
 		planName="#planName#"
+		upgradeUrl="#upgradeUrl"
 	/>
 );
 
