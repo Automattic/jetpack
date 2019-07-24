@@ -82,6 +82,7 @@
 			return index === i ? false : true;
 		});
 		disable_activete_branch_links();
+		trackEvent(element);
 		clicked_activate = true;
 	}
 
@@ -105,6 +106,7 @@
 		}
 		clicked_toggle = true;
 		element.classList.toggle('is-active');
+		trackEvent(element);
 	}
 
 	// Helper functions
@@ -132,5 +134,22 @@
 
 	function show(element) {
 		element.style.display = '';
+	}
+
+	/**
+	 * Track user event such as a click on a button or a link.
+	 *
+	 * @param {string} element Element that was clicked.
+	 */
+	function trackEvent(element) {
+		// Do not track anything if TOS have not been accepted yet and the file isn't enqueued.
+		if (!window.jpTracksAJAX || 'function' !== typeof window.jpTracksAJAX.record_ajax_event) {
+			return;
+		}
+
+		const eventName = element.getAttribute('data-jptracks-name');
+		const eventProp = element.getAttribute('data-jptracks-prop');
+
+		jpTracksAJAX.record_ajax_event(eventName, 'click', eventProp);
 	}
 })();
