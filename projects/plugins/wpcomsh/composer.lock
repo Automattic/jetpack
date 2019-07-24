@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdea1c3d9b3b499e3f7a45e38631ecab",
+    "content-hash": "babb700b006445e2293fb7eaef4b6b38",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -260,28 +260,6 @@
                 "zikula"
             ],
             "time": "2018-08-27T06:10:37+00:00"
-        },
-        {
-            "name": "woocommerce/wc-api-dev",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "53cc7fd298f6109332fc749a5c50387b00827f14"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/53cc7fd298f6109332fc749a5c50387b00827f14",
-                "reference": "53cc7fd298f6109332fc749a5c50387b00827f14",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "wc-api-dev.php"
-                ]
-            },
-            "time": "2019-03-21T16:49:17+00:00"
         }
     ],
     "packages-dev": [],
