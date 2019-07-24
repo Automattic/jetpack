@@ -3,7 +3,7 @@
  */
 import React from 'react';
 
-const Feature = ( { title, description, iconPath, iconAlt } ) => {
+const SingleFeature = ( { title, description, iconPath, iconAlt } ) => {
 	return (
 		<div>
 			<div>
@@ -17,4 +17,4 @@ const Feature = ( { title, description, iconPath, iconAlt } ) => {
 	);
 };
 
-export default Feature;
+export default SingleFeature;

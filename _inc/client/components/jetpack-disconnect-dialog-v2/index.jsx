@@ -2,14 +2,14 @@
  * External dependencies
  */
 import Card from 'components/card';
-import Button from 'components/button';
+// import Button from 'components/button';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-import Feature from './feature';
+import SingleFeature from './single-feature';
 
 /**
  * Style dependencies
@@ -55,7 +55,7 @@ const features = [
 	},
 ];
 
-const JetpackDisconnectDialog = () => {
+const JetpackDisconnectDialog = ( { children } ) => {
 	return (
 		<Card>
 			<h2>{ __( 'Log Out of Jetpack (and deactivate)?' ) }</h2>
@@ -66,7 +66,7 @@ const JetpackDisconnectDialog = () => {
 			</p>
 			<div>
 				{ features.map( ( { title, description, iconPath, iconAlt } ) => (
-					<Feature
+					<SingleFeature
 						title={ title }
 						description={ description }
 						iconPath={ iconPath }
@@ -75,10 +75,11 @@ const JetpackDisconnectDialog = () => {
 				) ) }
 			</div>
 			<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
-			<Button compact>{ __( "I'd like to stay logged in" ) }</Button>
+			{ /* <Button compact>{ __( "I'd like to stay logged in" ) }</Button>
 			<Button compact scary>
 				{ __( 'Log out of Jetpack' ) }
-			</Button>
+			</Button> */ }
+			{ children }
 		</Card>
 	);
 };

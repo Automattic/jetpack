@@ -22,7 +22,10 @@
 
 	const body = $( 'body' )[ 0 ];
 
-	deactivateLinkElem.attr( 'href', 'admin.php?page=jetpack#/valueTB_iframe=true' );
+	deactivateLinkElem.attr(
+		'href',
+		'admin.php?page=jetpack&iframe_request=true#/valueTB_iframe=true'
+	);
 	deactivateLinkElem.addClass( 'thickbox' );
 	deactivateLinkElem.on( 'click', function() {
 		observer.observe( body, { childList: true } );
