@@ -262,6 +262,12 @@ class Jetpack_WPCOM_Block_Editor {
 			? '//widgets.wp.com/wpcom-block-editor/common.js?minify=false'
 			: '//widgets.wp.com/wpcom-block-editor/common.min.js';
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$plan = '';
+		} else {
+			$plan = '';
+		}
+
 		wp_enqueue_script(
 			'wpcom-block-editor-common',
 			$src_common,
@@ -273,6 +279,7 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcom-block-editor-common',
 			'wpcomGutenberg',
 			array(
+				'plan'            => $plan,
 				'switchToClassic' => array(
 					'isVisible' => $this->is_iframed_block_editor(),
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
