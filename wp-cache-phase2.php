@@ -391,7 +391,7 @@ function wp_cache_get_cookies_values() {
 	$regex .= "/";
 	while ($key = key($_COOKIE)) {
 		if ( preg_match( $regex, $key ) ) {
-			wp_cache_debug( "wp_cache_get_cookies_values: $regex Cookie detected: $key", 5 );
+			wp_cache_debug( "wp_cache_get_cookies_values: Login/postpass cookie detected" );
 			$string .= $_COOKIE[ $key ] . ",";
 		}
 		next($_COOKIE);
@@ -488,7 +488,7 @@ function wp_cache_check_mobile( $cache_key ) {
 	$user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 	foreach ($browsers as $browser) {
 		if ( strstr( $user_agent, trim( strtolower( $browser ) ) ) ) {
-			wp_cache_debug( 'mobile browser detected: ' . $_SERVER['HTTP_USER_AGENT'], 5 );
+			wp_cache_debug( 'mobile browser detected: ' . $browser );
 			return $cache_key . '-' . wp_cache_mobile_group( $user_agent );
 		}
 	}
@@ -501,7 +501,7 @@ function wp_cache_check_mobile( $cache_key ) {
 		$browsers = explode( ',', $wp_cache_mobile_prefixes );
 		foreach ($browsers as $browser_prefix) {
 			if ( substr($user_agent, 0, 4) == $browser_prefix ) {
-				wp_cache_debug( 'mobile browser (prefix) detected: ' . $_SERVER['HTTP_USER_AGENT'], 5 );
+				wp_cache_debug( 'mobile browser (prefix) detected: ' . $browser_prefix );
 				return $cache_key . '-' . $browser_prefix;
 			}
 		}
@@ -526,6 +526,12 @@ function wp_cache_check_mobile( $cache_key ) {
  */
 function wp_cache_debug( $message, $level = 1 ) {
 	global $wp_cache_debug_log, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
+	static $last_message = '';
+
+	if ( $last_message == $message ) {
+		return false;
+	}
+	$last_message = $message;
 
 	// If either of the debug or log globals aren't set, then we can stop
 	if ( !isset($wp_super_cache_debug)
@@ -1092,7 +1098,7 @@ foreach ( $debug_log as $t => $line ) {
 	}
 }
 foreach( $debug_log as $line ) {
-	echo $line . "<br />";
+	echo htmlspecialchars( $line ) . "<br />";
 }';
 		fwrite( $fp, $msg );
 		fclose( $fp );
