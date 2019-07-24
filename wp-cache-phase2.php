@@ -214,7 +214,7 @@ function wp_cache_serve_cache_file() {
 	} else {
 		$ungzip = false;
 	}
-	foreach ( $meta['headers'] as $t => $header ) {
+	foreach ( $meta[ 'headers' ] as $t => $header) {
 		// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
 		if ( strpos( $header, 'Last-Modified:' ) === false ) {
 			header( $header );
@@ -1213,7 +1213,7 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 	}
 
 	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], 'wpsc' );
-	rename( $tmp_config_filename, $tmp_config_filename. ".php" );
+	rename( $tmp_config_filename, $tmp_config_filename . ".php" );
 	$tmp_config_filename .= ".php";
 	wp_cache_debug( 'wp_cache_replace_line: writing to ' . $tmp_config_filename );
 	$fd = fopen( $tmp_config_filename, 'w' );
