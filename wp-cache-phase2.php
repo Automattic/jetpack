@@ -1083,7 +1083,10 @@ Text to filter by:
 <input type="submit" value="Submit" />
 </form>
 <' . '?php
+$path_to_site = "' . ABSPATH . '";
 foreach ( $debug_log as $t => $line ) {
+	$line = str_replace( $path_to_site, "ABSPATH/", $line );
+	$debug_log[ $t ] = $line;
 	foreach( $checks as $check ) {
 		if ( $$check && false !== strpos( $line, " /$check/" ) ) {
 			unset( $debug_log[ $t ] );
