@@ -32,6 +32,8 @@ const sharedWebpackConfig = {
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
+// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
+// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
 const componentMocks = {
 	Mousetrap: {
 		init: _.noop,
@@ -56,7 +58,8 @@ const componentMocks = {
 	},
 };
 
-// We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
+// We export two configuration files: One for admin.js, and one for static.jsx.
+// The latter produces pre-rendered HTML.
 module.exports = [
 	{
 		...sharedWebpackConfig,
