@@ -56,7 +56,7 @@ const editorBetaScript = [
 	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), allPresetBlocks ),
 ];
 
-const webpackConfig = getBaseWebpackConfig(
+const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
 		entry: {
@@ -69,21 +69,25 @@ const webpackConfig = getBaseWebpackConfig(
 	}
 );
 
-const transpileConfig = webpackConfig.module.rules.find( rule =>
+const transpileConfig = baseWebpackConfig.module.rules.find( rule =>
 	rule.use.some( loader => loader.options.presets )
 );
 
-module.exports = {
-	...webpackConfig,
+const webpackConfig = {
+	...baseWebpackConfig,
 	// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
 	// @TODO Remove once there's a fix in `@automattic/calypso-build`
 	module: {
-		...webpackConfig.module,
+		...baseWebpackConfig.module,
 		rules: [
 			{ ...transpileConfig, exclude: /node_modules\/(?!punycode)/ },
-			..._.without( webpackConfig.module.rules, transpileConfig ),
+			..._.without( baseWebpackConfig.module.rules, transpileConfig ),
 		],
 	},
+};
+
+module.exports = {
+	...webpackConfig,
 	plugins: [
 		...webpackConfig.plugins,
 		new CopyWebpackPlugin( [
