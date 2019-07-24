@@ -318,8 +318,13 @@ class Jetpack_Beta_Admin {
 		);
 		$url   = Jetpack_Beta::admin_url( '?' . build_query( $query ) );
 
-		return '<a href="' . esc_url( $url ) . '"
-				class="is-primary jp-form-button activate-branch dops-button is-compact" >' . __( 'Activate', 'jetpack-beta' ) . '</a>';
+		return sprintf(
+			'<a href="%1$s" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="%2$s" data-jptracks-prop="%3$s">%4$s</a>',
+			esc_url( $url ),
+			'jetpack_beta_activate_branch',
+			esc_attr( $branch ),
+			esc_html__( 'Activate', 'jetpack-beta' )
+		);
 	}
 
 	static function header( $title ) {
