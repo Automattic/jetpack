@@ -52,6 +52,15 @@
 </p>
 
 <p>
+	<label>
+		<?php esc_html_e( 'Open images in new tab?', 'jetpack' ); ?>
+	</label>
+    <input type="checkbox"
+           name="<?php echo esc_attr( $this->get_field_name( 'target' ) ); ?>"
+           <?php checked( $instance['target'] ); ?>
+    />
+</p>
+<p>
 	<div>
 		<?php esc_html_e( 'What size photos would you like to display?', 'jetpack' ); ?>
 	</div>
