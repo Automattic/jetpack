@@ -1014,13 +1014,7 @@ function wpsc_create_debug_log( $filename = '', $username = '' ) {
 		$wp_cache_debug_username = wpsc_debug_username();
 	}
 
-	$msg = '
-if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_username . '" ) ) {
-	header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
-	header( $_SERVER[ "SERVER_PROTOCOL" ] . " 401 Unauthorized" );
-	echo "You must login to view the debug log";
-	exit;
-}' . PHP_EOL;
+	$msg = 'die( "Please use the viewer" );' . PHP_EOL;
 	$fp = fopen( $cache_path . $wp_cache_debug_log, 'w' );
 	if ( $fp ) {
 		fwrite( $fp, '<' . "?php\n" );
@@ -1031,6 +1025,15 @@ if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "
 		wp_cache_setting( 'wp_cache_debug_log', $wp_cache_debug_log );
 		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
 	}
+
+	$msg = '
+if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_username . '" ) ) {
+	header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
+	header( $_SERVER[ "SERVER_PROTOCOL" ] . " 401 Unauthorized" );
+	echo "You must login to view the debug log";
+	exit;
+}' . PHP_EOL;
+
 	$fp = fopen( $cache_path . 'view_' . $wp_cache_debug_log, 'w' );
 	if ( $fp ) {
 		fwrite( $fp, '<' . "?php" . PHP_EOL );
