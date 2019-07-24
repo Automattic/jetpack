@@ -6,9 +6,9 @@ import { renderToStaticMarkup } from 'react-dom/server';
 /**
  * Internal dependencies
  */
-import { UpgradeNudge } from './upgrade-nudge';
+import { UpgradeNudge } from '../upgrade-nudge';
 
-import './components.scss';
+import './style.scss';
 
 // Use dummy props that can be overwritten by a str_replace() on the server.
 const upgradeNudge = renderToStaticMarkup(

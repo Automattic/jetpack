@@ -79,7 +79,7 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
 		entry: {
-			components: path.join( __dirname, './extensions/shared/components.jsx' ),
+			components: path.join( __dirname, './extensions/shared/components/index.jsx' ),
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-library-target': 'commonjs2',
