@@ -302,6 +302,46 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
+	static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
+		$is_compact = $is_last ? '' : 'is-compact';
+		if ( isset( $url ) ) {
+			$pr = sprintf( 'data-tag="%s"', esc_attr( $tag ) );
+		}
+
+		$branch_class = 'tag-card';
+		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
+		if ( $current_branch === $tag && $current_section === $section ) {
+			$action       = __( 'Active', 'jetpack-beta' );
+			$branch_class = 'tag-card-active';
+		} else {
+			$action = self::activate_button( $tag, $section );
+		}
+
+		$header = str_replace( '-', ' ', $header );
+		$header = str_replace( '_', ' / ', $header );
+		?>
+		<div <?php echo $pr; ?> " class="dops-foldable-card <?php echo esc_attr( $branch_class ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
+		<div class="dops-foldable-card__header has-border" >
+				<span class="dops-foldable-card__main">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
+						<div class="dops-foldable-card__subheader">
+						<?php
+						echo $tag;
+						?>
+						</div>
+					</div>
+				</span>
+			<span class="dops-foldable-card__secondary">
+					<span class="dops-foldable-card__summary">
+						<?php echo $action; ?>
+					</span>
+				</span>
+		</div>
+		</div>
+		<?php
+	}
+
 	static function activate_button( $branch, $section ) {
 		if ( is_object( $section ) && $branch === 'master' ) {
 			$section = 'master';
@@ -353,6 +393,28 @@ class Jetpack_Beta_Admin {
 		echo '</div>';
 	}
 
+	static function show_tags( $section, $title = null ) {
+		if ( $title ) {
+			$title .= ': ';
+		}
+		echo '<div id="section-' . esc_attr( $section ) . '">';
+
+		$manifest = Jetpack_Beta::get_org_data();
+		$count    = 0;
+		if ( empty( $manifest->versions ) ) {
+			return;
+		}
+		$tags = (array) $manifest->versions;
+		$count_all = count( $tags );
+
+		foreach ( $tags as $tag => $url ) {
+			$count ++;
+			$is_last = $count_all === $count ? true : false;
+			self::show_tag( $title . $tag, $tag, $url, $section, $is_last );
+		}
+		echo '</div>';
+	}
+
 	static function show_stable_branch() {
 		$org_data = Jetpack_Beta::get_org_data();
 
@@ -387,6 +449,42 @@ class Jetpack_Beta_Admin {
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component"
 						       placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+						<span aria-controls="search-component" id="search-component-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
+						      tabindex="0">
+							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
+							     viewbox="0 0 24 24" width="24">
+								<g>
+									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
+								</g>
+							</svg>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	static function show_search_org_tags() {
+		$org_data = Jetpack_Beta::get_org_data();
+		if ( empty( $org_data->versions ) ) {
+			return;
+		}
+		?>
+		<div class="dops-navigation">
+			<div class="dops-section-nav has-pinned-items">
+				<div class="dops-section-nav__panel">
+					<div class="is-pinned is-open dops-search" role="search">
+						<div aria-controls="search-component" aria-label="<?php esc_attr_e( 'Open Search', 'jetpack-beta' ); ?>" tabindex="-1">
+							<svg class="gridicon gridicons-search dops-search-open__icon" height="24"
+							     viewbox="0 0 24 24" width="24">
+								<g>
+									<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z"></path>
+								</g>
+							</svg>
+						</div>
+						<input aria-hidden="false" class="dops-search__input" id="search-component"
+						       placeholder="<?php esc_attr_e( 'Search for a Jetpack tag', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
 						      tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
