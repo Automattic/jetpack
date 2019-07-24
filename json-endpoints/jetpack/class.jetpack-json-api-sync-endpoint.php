@@ -274,6 +274,8 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$queue = new Queue( $queue_name );
 
+		/** This action is documented in Full_Sync.php */
+		do_action( 'jetpack_sync_processed_actions', $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
 		if ( is_wp_error( $response ) ) {
