@@ -1,56 +1,44 @@
 /**
  * External dependencies
  */
-import Card from 'components/card';
-// import Button from 'components/button';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
 import SingleFeature from './single-feature';
 
-const features = [
-	{
-		title: 'Tiled Galleries',
-		iconPath: '',
-		iconAlt: '',
-		description: '14 enabled',
-	},
-	{
-		title: 'Jetpack CDN',
-		iconPath: '',
-		iconAlt: '',
-		description: 'Fast loading images',
-	},
-	{
-		title: 'Shortcodes',
-		iconPath: '',
-		iconAlt: '',
-		description: '54 in-use',
-	},
-	{
-		title: 'Jetpack Protect',
-		iconPath: '',
-		iconAlt: '',
-		description: '140 Intrusions blocked',
-	},
-	{
-		title: 'Widget Visibility',
-		iconPath: '',
-		iconAlt: '',
-		description: 'Advanced widget control',
-	},
-	{
-		title: 'Sitemaps',
-		iconPath: '',
-		iconAlt: '',
-		description: 'SEO Feature',
-	},
-];
+/**
+ * Style dependencies
+ */
+import './style.scss';
 
-const JetpackDisconnectDialogFeatures = ( { children } ) => {
+function getFeatureHighlightViewData( featureHighlightData ) {
+	switch ( featureHighlightData.name ) {
+		case 'akismet':
+			return {
+				title: 'Anti-spam',
+				iconPath: '',
+				iconAlt: '',
+				description: `${ featureHighlightData.props.number } spam comments blocked.`,
+			};
+		// TODO:
+		// 'vaultpress-backups'
+		// 'vaultpress-backup-archive'
+		// 'vaultpress-storage-space'
+		// 'vaultpress-automated-restores'
+		// 'simple-payments'
+		// 'support'
+		// 'wordads-jetpack'
+		default:
+			return null;
+	}
+}
+
+const JetpackDisconnectDialogFeatures = ( { featureHighlights, children } ) => {
 	return (
 		<Card>
 			<h2>{ __( 'Log Out of Jetpack (and deactivate)?' ) }</h2>
@@ -60,23 +48,25 @@ const JetpackDisconnectDialogFeatures = ( { children } ) => {
 				) }
 			</p>
 			<div>
-				{ features.map( ( { title, description, iconPath, iconAlt } ) => (
-					<SingleFeature
-						title={ title }
-						description={ description }
-						iconPath={ iconPath }
-						iconAlt={ iconAlt }
-					/>
-				) ) }
+				{ featureHighlights
+					.map( getFeatureHighlightViewData )
+					.map( ( { title, description, iconPath, iconAlt } ) => (
+						<SingleFeature
+							title={ title }
+							description={ description }
+							iconPath={ iconPath }
+							iconAlt={ iconAlt }
+						/>
+					) ) }
 			</div>
 			<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
-			{ /* <Button compact>{ __( "I'd like to stay logged in" ) }</Button>
-			<Button compact scary>
-				{ __( 'Log out of Jetpack' ) }
-			</Button> */ }
 			{ children }
 		</Card>
 	);
+};
+
+JetpackDisconnectDialogFeatures.propTypes = {
+	featureHighlights: PropTypes.array,
 };
 
 export default JetpackDisconnectDialogFeatures;
