@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+// import superagent from 'superagent';
+// import { loadScript } from '@automattic/load-script';
 
 /**
  * Internal dependencies
@@ -14,13 +16,17 @@ import analytics from 'lib/analytics';
 import {
 	getSiteConnectionStatus,
 	isFetchingConnectionStatus,
+	isFetchingAuthorizeUrl,
+	getAuthorizeUrl,
 	isSiteRegistered,
+	isSiteRegistering,
 	disconnectSite,
 	isDisconnectingSite,
 	unlinkUser,
 	isCurrentUserLinked,
 	isUnlinkingUser,
 	registerSite,
+	fetchAuthorizeUrl,
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -28,6 +34,54 @@ import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 import QueryConnectionStatus from 'components/data/query-connection-status';
 
 import './style.scss';
+
+class AuthorizeIframe extends React.Component {
+	shouldComponentUpdate() {
+		return false;
+	}
+
+	componentDidMount() {
+		console.log( 'did mount', this.iframe );
+		// test
+		//this.iframe.contentWindow
+		window.addEventListener( 'message', this.receiveData );
+		// this.iframe.onload = () => {
+		// 	this.iframe.contentWindow.postMessage('hello', "*");
+		// }
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener( 'message', this.receiveData );
+	}
+
+	receiveData = e => {
+		if ( e.origin === 'https://jetpack.wordpress.com' && e.source === this.iframe.contentWindow ) {
+			console.log( 'iframe message', e );
+		} else {
+			console.log( 'other message', e );
+		}
+	};
+
+	// to update manually, do this:
+
+	// componentWillReceiveProps(nextProps) {
+	// 	if ( this.props(old) !== nextProps(new) ) {
+	// 	// send message...
+	// 	}
+	// }
+
+	render() {
+		return (
+			<React.Fragment>
+				<iframe
+					style={ { width: '300px', height: '120px' } }
+					src={ this.props.url }
+					ref={ el => ( this.iframe = el ) }
+				/>
+			</React.Fragment>
+		);
+	}
+}
 
 export class ConnectButton extends React.Component {
 	static displayName = 'ConnectButton';
@@ -103,11 +157,15 @@ export class ConnectButton extends React.Component {
 		);
 	};
 
-	handleConnectButtonClick = ( event ) => {
+	handleConnectButtonClick = event => {
 		event.stopPropagation();
-		console.log("clicked connect");
-		this.props.registerSite();
-	}
+		console.log( 'clicked connect' );
+		if ( ! this.props.isRegistered ) {
+			this.props.registerSite();
+		} else {
+			this.props.fetchAuthorizeUrl();
+		}
+	};
 
 	renderContent = () => {
 		if ( this.props.connectUser ) {
@@ -137,13 +195,32 @@ export class ConnectButton extends React.Component {
 		let label = __( 'Set up Jetpack' );
 		if ( ! this.props.isRegistered ) {
 			label = __( '(TEST) Register' );
+		} else if ( this.props.isRegistering ) {
+			label = __( '(TEST) Registering' );
+		} else if ( this.props.fetchingAuthorizeUrl ) {
+			label = __( '(TEST) Fetching authorise URL' );
+		}
+
+		console.log( 'authorize URL', this.props.authorizeUrl, this.props );
+
+		// render authorize iframe if site is registered but not authorized
+		if ( this.props.isRegistered && ! this.props.isSiteConnected && this.props.authorizeUrl ) {
+			return (
+				<React.Fragment>
+					<QueryConnectionStatus />
+					<AuthorizeIframe url={ this.props.authorizeUrl } />
+				</React.Fragment>
+			);
 		}
 
 		const buttonProps = {
-				className: 'jp-jetpack-connect__button',
-				onClick: this.handleConnectButtonClick,
-				disabled: this.props.fetchingConnectionStatus,
-			};
+			className: 'jp-jetpack-connect__button',
+			onClick: this.handleConnectButtonClick,
+			disabled:
+				this.props.fetchingConnectionStatus ||
+				this.props.isRegistering ||
+				this.props.fetchingAuthorizeUrl,
+		};
 
 		return (
 			<React.Fragment>
@@ -199,10 +276,13 @@ export default connect(
 			siteRawUrl: getSiteRawUrl( state ),
 			isSiteConnected: getSiteConnectionStatus( state ),
 			fetchingConnectionStatus: isFetchingConnectionStatus( state ),
+			isRegistering: isSiteRegistering( state ),
 			isDisconnecting: isDisconnectingSite( state ),
 			isRegistered: isSiteRegistered( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isUnlinking: isUnlinkingUser( state ),
+			fetchingAuthorizeUrl: isFetchingAuthorizeUrl( state ),
+			authorizeUrl: getAuthorizeUrl( state ),
 		};
 	},
 	dispatch => {
@@ -215,7 +295,10 @@ export default connect(
 			},
 			registerSite: () => {
 				return dispatch( registerSite() );
-			}
+			},
+			fetchAuthorizeUrl: () => {
+				return dispatch( fetchAuthorizeUrl() );
+			},
 		};
 	}
 )( ConnectButton );

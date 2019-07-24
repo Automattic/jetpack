@@ -168,6 +168,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
 		) );
 
+		// Disconnect site from WordPress.com servers
+		register_rest_route( 'jetpack/v4', '/connection/iframe_authorize_url', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_iframe_authorize_url',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+		) );
+
 		// Disconnect/unlink user from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection/user', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -1097,7 +1104,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return bool|WP_Error True if Jetpack successfully disconnected.
+	 * @return bool|WP_Error True if Jetpack successfully registered
 	 */
 	public static function register_site( $request ) {
 		$response = Jetpack::try_registration();
@@ -1107,6 +1114,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return rest_ensure_response( array( 'code' => 'success', 'blog_id' => Jetpack_Options::get_option( 'id' ) ) );
+	}
+
+	/**
+	 * Gets the iframe authorization URL for the current user
+	 *
+	 * @uses Jetpack::build_authorize_url();
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return string|WP_Error The authorization URL for the iframe
+	 */
+	public static function get_iframe_authorize_url( $request ) {
+		$url = Jetpack::build_authorize_url( false, true );
+		return rest_ensure_response( array( 'url' => $url ) );
 	}
 
 	/**

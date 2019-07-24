@@ -11,6 +11,9 @@ import {
 	JETPACK_CONNECTION_STATUS_FETCH,
 	JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
 	JETPACK_CONNECTION_STATUS_FETCH_FAIL,
+	AUTHORIZE_URL_FETCH,
+	AUTHORIZE_URL_FETCH_SUCCESS,
+	AUTHORIZE_URL_FETCH_FAIL,
 	JETPACK_CONNECTION_TEST_FETCH,
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
@@ -32,19 +35,22 @@ export const fetchSiteConnectionStatus = () => {
 		dispatch( {
 			type: JETPACK_CONNECTION_STATUS_FETCH,
 		} );
-		return restApi.fetchSiteConnectionStatus().then( siteConnectionData => {
-			console.warn("got connection info ", siteConnectionData);
-			dispatch( {
-				type: JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
-				siteConnected: siteConnectionData,
-				siteConnectionData: siteConnectionData,
+		return restApi
+			.fetchSiteConnectionStatus()
+			.then( siteConnectionData => {
+				console.warn( 'got connection info ', siteConnectionData );
+				dispatch( {
+					type: JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
+					siteConnected: siteConnectionData,
+					siteConnectionData: siteConnectionData,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_CONNECTION_STATUS_FETCH_FAIL,
+					error: error,
+				} );
 			} );
-		} ).catch( error => {
-			dispatch( {
-				type: JETPACK_CONNECTION_STATUS_FETCH_FAIL,
-				error: error,
-			} );
-		} );;
 	};
 };
 
@@ -110,6 +116,28 @@ export const fetchUserConnectionData = () => {
 	};
 };
 
+export const fetchAuthorizeUrl = () => {
+	return dispatch => {
+		dispatch( {
+			type: AUTHORIZE_URL_FETCH,
+		} );
+		return restApi
+			.fetchAuthorizeUrl()
+			.then( authorizeUrlData => {
+				dispatch( {
+					type: AUTHORIZE_URL_FETCH_SUCCESS,
+					authorizeUrl: authorizeUrlData.url,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: AUTHORIZE_URL_FETCH_FAIL,
+					error: error,
+				} );
+			} );
+	};
+};
+
 export const disconnectSite = ( reloadAfter = false ) => {
 	return dispatch => {
 		dispatch( {
@@ -159,9 +187,7 @@ export const registerSite = ( reloadAfter = false ) => {
 		dispatch( {
 			type: REGISTER_SITE,
 		} );
-		dispatch(
-			createNotice( 'is-info', __( 'Registering Jetpack' ), { id: 'register-jetpack' } )
-		);
+		dispatch( createNotice( 'is-info', __( 'Registering Jetpack' ), { id: 'register-jetpack' } ) );
 		return restApi
 			.registerSite()
 			.then( registeringSite => {
@@ -173,6 +199,7 @@ export const registerSite = ( reloadAfter = false ) => {
 			} )
 			.then( () => {
 				dispatch( fetchSiteConnectionStatus() );
+				dispatch( fetchAuthorizeUrl() );
 			} )
 			.catch( error => {
 				dispatch( {

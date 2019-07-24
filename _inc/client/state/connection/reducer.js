@@ -11,10 +11,16 @@ import {
 	JETPACK_CONNECTION_STATUS_FETCH,
 	JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
 	JETPACK_CONNECTION_STATUS_FETCH_FAIL,
+	AUTHORIZE_URL_FETCH,
+	AUTHORIZE_URL_FETCH_SUCCESS,
+	AUTHORIZE_URL_FETCH_FAIL,
 	JETPACK_SET_INITIAL_STATE,
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
 	USER_CONNECTION_DATA_FETCH_SUCCESS,
+	REGISTER_SITE,
+	REGISTER_SITE_FAIL,
+	REGISTER_SITE_SUCCESS,
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
@@ -49,6 +55,15 @@ export const connectUrl = ( state = '', action ) => {
 	}
 };
 
+export const authorizeUrl = ( state = '', action ) => {
+	switch ( action.type ) {
+		case AUTHORIZE_URL_FETCH_SUCCESS:
+			return get( action, 'authorizeUrl', state );
+		default:
+			return state;
+	}
+};
+
 export const user = ( state = window.Initial_State.userData, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
@@ -70,7 +85,9 @@ export const connectionRequests = {
 	disconnectingSite: false,
 	unlinkingUser: false,
 	fetchingUserData: false,
-	fetchingConnectionStatus: false
+	fetchingConnectionStatus: false,
+	registeringSite: false,
+	fetchingAuthorizeUrl: false,
 };
 
 export const requests = ( state = connectionRequests, action ) => {
@@ -83,7 +100,10 @@ export const requests = ( state = connectionRequests, action ) => {
 			return assign( {}, state, { fetchingUserData: true } );
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { fetchingConnectionStatus: true } );
-
+		case REGISTER_SITE:
+			return assign( {}, state, { registeringSite: true } );
+		case AUTHORIZE_URL_FETCH:
+			return assign( {}, state, { fetchingAuthorizeUrl: true } );
 
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
@@ -101,6 +121,14 @@ export const requests = ( state = connectionRequests, action ) => {
 		case JETPACK_CONNECTION_STATUS_FETCH_SUCCESS:
 			return assign( {}, state, { fetchingConnectionStatus: false } );
 
+		case REGISTER_SITE_FAIL:
+		case REGISTER_SITE_SUCCESS:
+			return assign( {}, state, { registeringSite: false } );
+
+		case AUTHORIZE_URL_FETCH_FAIL:
+		case AUTHORIZE_URL_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingAuthorizeUrl: false } );
+
 		default:
 			return state;
 	}
@@ -108,6 +136,7 @@ export const requests = ( state = connectionRequests, action ) => {
 
 export const reducer = combineReducers( {
 	connectUrl,
+	authorizeUrl,
 	status,
 	user,
 	requests,
@@ -142,6 +171,10 @@ export function isSiteRegistered( state ) {
 	return state.jetpack.connection.status.siteConnectionData.isRegistered;
 }
 
+export function isSiteRegistering( state ) {
+	return !! state.jetpack.connection.requests.registeringSite;
+}
+
 /**
  * Returns true if currently fetching connection status
  *
@@ -150,6 +183,16 @@ export function isSiteRegistered( state ) {
  */
 export function isFetchingConnectionStatus( state ) {
 	return !! state.jetpack.connection.requests.fetchingConnectionStatus;
+}
+
+/**
+ * Returns true if currently fetching connection status
+ *
+ * @param  {Object} state Global state tree
+ * @return {bool} true if currently fetching connection status, false otherwise
+ */
+export function isFetchingAuthorizeUrl( state ) {
+	return !! state.jetpack.connection.requests.fetchingAuthorizeUrl;
 }
 
 /**
@@ -189,6 +232,16 @@ export function getSiteDevMode( state ) {
  */
 export function getConnectUrl( state ) {
 	return state.jetpack.connection.connectUrl;
+}
+
+/**
+ * Returns string/URL to authorize to WordPress.com
+ *
+ * @param  {Object} state Global state tree
+ * @return {String}       URL for connecting to WordPress.com
+ */
+export function getAuthorizeUrl( state ) {
+	return state.jetpack.connection.authorizeUrl;
 }
 
 /**
@@ -258,7 +311,11 @@ export function isStaging( state ) {
  * @return {boolean} True if site is in IDC. False otherwise.
  */
 export function isInIdentityCrisis( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnectionData', 'isInIdentityCrisis' ], false );
+	return get(
+		state.jetpack.connection.status,
+		[ 'siteConnectionData', 'isInIdentityCrisis' ],
+		false
+	);
 }
 
 /**

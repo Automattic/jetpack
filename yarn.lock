@@ -60,6 +60,14 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
+"@automattic/load-script@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/load-script/-/load-script-1.0.0.tgz#7c22ec749626c7a5aa4f6b01603e43e3519f6468"
+  integrity sha512-Hc1mRmTK12OKrONnGhe7Ht1Gpo4B/ls8WQ1IZ1/qBws1bUZ6u7Crnpv3HZkN4UI7irG3OU4l4Pn1TXtoJLcKRw==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+    debug "^3.2.6"
+
 "@automattic/wordpress-external-dependencies-plugin@1.0.0", "@automattic/wordpress-external-dependencies-plugin@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/wordpress-external-dependencies-plugin/-/wordpress-external-dependencies-plugin-1.0.0.tgz#1f05e3eb6ff4647b3abe1d6a06aa5ac9bb111b4b"

@@ -151,6 +151,7 @@
 		"react-dom": "16.8.6"
 	},
 	"devDependencies": {
+		"@automattic/load-script": "1.0.0",
 		"@slack/web-api": "5.0.1",
 		"@wordpress/e2e-test-utils": "2.1.0",
 		"@wordpress/eslint-plugin": "2.3.0",

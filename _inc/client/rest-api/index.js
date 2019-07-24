@@ -73,6 +73,11 @@ function JetpackRestApiClient( root, nonce ) {
 		fetchUserConnectionData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams ).then( parseJsonResponse ),
 
+		fetchAuthorizeUrl: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/iframe_authorize_url`, getParams ).then(
+				parseJsonResponse
+			),
+
 		fetchUserTrackingSettings: () =>
 			getRequest( `${ apiRoot }jetpack/v4/tracking/settings`, getParams )
 				.then( checkStatus )
@@ -93,9 +98,9 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		registerSite: () =>
-				postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams )
-					.then( checkStatus )
-					.then( parseJsonResponse ),
+			postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
 		unlinkUser: () =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
