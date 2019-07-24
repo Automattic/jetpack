@@ -143,6 +143,161 @@ body,
 	margin-left: 272px;
 }
 
+/*
+ * Notices
+ */
+.wp-admin .wrap div.hidden {
+	display: none;
+}
+
+.wp-admin div.notice > p,
+.wp-admin div.updated > p,
+.wp-admin div.error > p,
+.wc-calypso-bridge-notice-content {
+	padding: 6px 13px;
+	margin: 0;
+	flex-direction: column;
+}
+
+.wp-admin .wc-calypso-bridge-notice-content p {
+	margin: 5px 0;
+	font-size: 14px;
+}
+
+.wp-admin div.notice a,
+.wp-admin div.updated a,
+.wp-admin div.error a {
+	color: #fff;
+}
+
+.wp-admin div.notice p.submit,
+.wp-admin div.updated p.submit,
+.wp-admin div.error p.submit {
+	display: flex;
+	-ms-flex-negative: 1;
+	flex-shrink: 1;
+	-webkit-box-flex: 0;
+	-ms-flex-positive: 0;
+	flex-grow: 0;
+	margin: 0 0 0 auto !important;
+	padding: 13px 16px;
+	justify-content: center;
+}
+
+.wp-admin div.notice .button,
+.wp-admin div.notice .button-primary,
+.wp-admin div.updated .button,
+.wp-admin div.updated .button-primary:not( .debug-report ),
+.wp-admin div.error .button,
+.wp-admin div.error .button-primary {
+	color: #a8bece;
+	background: transparent !important;
+	border-width: 0 !important;
+	font-size: 14px !important;
+	font-weight: 400 !important;
+	padding: 0 !important;
+}
+
+.wp-admin div.notice .button:hover,
+.wp-admin div.notice .button-primary:hover,
+.wp-admin div.updated .button:hover,
+.wp-admin div.updated .button-primary:hover:not( .debug-report ),
+.wp-admin div.error .button:hover,
+.wp-admin div.error .button-primary:hover {
+	color: #fff;
+	background: transparent !important;
+}
+
+.wp-admin div.notice .button:active,
+.wp-admin div.notice .button-primary:active,
+.wp-admin div.updated .button:active,
+.wp-admin div.updated .button-primary:active,
+.wp-admin div.error .button:active,
+.wp-admin div.error .button-primary:active {
+	vertical-align: baseline;
+}
+
+.wc-calypso-bridge-notice-icon-wrapper, .jitm-banner__icon-plan {
+	position: relative;
+	background: #537994;
+	color: #fff;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: baseline;
+	-ms-flex-align: baseline;
+	align-items: baseline;
+	width: 47px;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	border-radius: 3px 0 0 3px;
+	-ms-flex-negative: 0;
+	flex-shrink: 0;
+	-ms-flex-item-align: stretch;
+	align-self: stretch;
+	align-items: center;
+}
+
+.wc-calypso-bridge-notice-icon-wrapper svg path {
+	fill: #fff;
+}
+
+.error .wc-calypso-bridge-notice-icon-wrapper {
+	background: #ea4149;
+}
+
+.notice-success .wc-calypso-bridge-notice-icon-wrapper {
+	background: #4ab866;
+}
+
+.notice-warning .wc-calypso-bridge-notice-icon-wrapper {
+	background: #f0b849;
+}
+
+.notice-dismiss {
+	height: 100%;
+	margin: 0 0 0 auto !important;
+	position: static;
+	padding: 12px 12px 0 12px !important;
+}
+
+.notice-dismiss:before {
+	display: none;
+}
+
+.notice-dismiss:focus {
+	box-shadow: none;
+}
+
+.notice-dismiss svg path {
+	fill: #a8bece;
+}
+
+.notice-dismiss:hover svg path {
+	fill: #fff;
+}
+
+@media screen and (max-width: 480px) {
+	.wp-admin div.notice p,
+	.wp-admin div.notice a.button,
+	.wp-admin div.notice a.button-primary,
+	.wp-admin div.error p,
+	.wp-admin div.error a.button,
+	.wp-admin div.error a.button-primary,
+	.wp-admin div.updated p,
+	.wp-admin div.updated a.button,
+	.wp-admin div.updated a.button-primary {
+		font-size: 12px !important;
+	}
+}
+
+.wp-admin div.notice + br.clear,
+.wp-admin div.updated + br.clear,
+.wp-admin div.error + br.clear {
+	display: none;
+}
+
 #toplevel_page_plugins div.wp-menu-image.svg,
 #toplevel_page_plugin-install div.wp-menu-image.svg {
 	background-size: 24px auto;
