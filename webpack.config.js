@@ -1,10 +1,8 @@
 /**
  * External dependencies
  */
-const _ = require( 'lodash' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
 
@@ -30,32 +28,6 @@ const sharedWebpackConfig = {
 		process: true,
 	},
 	devtool: isDevelopment ? 'source-map' : false,
-};
-
-// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
-// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
-const componentMocks = {
-	Mousetrap: {
-		init: _.noop,
-		prototype: {},
-	},
-	document: { addEventListener: _.noop, createElement: _.noop, head: { appendChild: _.noop } },
-	navigator: {},
-	window: {
-		addEventListener: _.noop,
-		// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
-		matchMedia: () => ( {
-			addListener: () => {},
-		} ),
-		navigator: { platform: '', userAgent: '' },
-		Node: {
-			TEXT_NODE: '',
-			ELEMENT_NODE: '',
-			DOCUMENT_POSITION_PRECEDING: '',
-			DOCUMENT_POSITION_FOLLOWING: '',
-		},
-		URL: {},
-	},
 };
 
 // We export two configuration files: One for admin.js, and one for static.jsx.
@@ -84,12 +56,8 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			new webpack.NormalModuleReplacementPlugin(
-				/^@wordpress\/i18n$/,
-				path.join( __dirname, './_inc/client/i18n-to-php' )
-			),
 			new StaticSiteGeneratorPlugin( {
-				globals: _.merge( {}, componentMocks, {
+				globals: {
 					window: {
 						Initial_State: {
 							dismissedNotices: [],
@@ -105,7 +73,7 @@ module.exports = [
 							},
 						},
 					},
-				} ),
+				},
 			} ),
 		],
 	},

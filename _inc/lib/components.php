@@ -14,10 +14,10 @@ class Jetpack_Components {
 	 */
 	public static function render_component( $name, $props ) {
 		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/build/static{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
 		ob_start();
-		require JETPACK__PLUGIN_DIR . "_inc/build/$name.html";
+		require JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
 		$markup = ob_get_clean();
 
 		foreach ( $props as $key => $value ) {

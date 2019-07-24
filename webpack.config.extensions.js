@@ -11,6 +11,8 @@ const fs = require( 'fs' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
+const webpack = require( 'webpack' );
+const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 
 /**
  * Internal dependencies
@@ -56,7 +58,7 @@ const editorBetaScript = [
 	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), allPresetBlocks ),
 ];
 
-const baseWebpackConfig = getBaseWebpackConfig(
+const extensionsWebpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
 		entry: {
@@ -69,32 +71,92 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
-const transpileConfig = baseWebpackConfig.module.rules.find( rule =>
+const transpileConfig = extensionsWebpackConfig.module.rules.find( rule =>
 	rule.use.some( loader => loader.options.presets )
 );
 
-const webpackConfig = {
-	...baseWebpackConfig,
-	// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
-	// @TODO Remove once there's a fix in `@automattic/calypso-build`
-	module: {
-		...baseWebpackConfig.module,
-		rules: [
-			{ ...transpileConfig, exclude: /node_modules\/(?!punycode)/ },
-			..._.without( baseWebpackConfig.module.rules, transpileConfig ),
+const componentsWebpackConfig = getBaseWebpackConfig(
+	{ WP: false },
+	{
+		entry: {
+			components: path.join( __dirname, './extensions/shared/components.jsx' ),
+		},
+		'output-chunk-filename': '[name].[chunkhash].js',
+		'output-library-target': 'commonjs2',
+		'output-path': path.join( __dirname, '_inc', 'blocks' ),
+		'output-pathinfo': true,
+	}
+);
+
+// We export two configuration files: One for admin.js, and one for components.jsx.
+// The latter produces pre-rendered components HTML.
+module.exports = [
+	{
+		...extensionsWebpackConfig,
+		// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
+		// @TODO Remove once there's a fix in `@automattic/calypso-build`
+		module: {
+			...extensionsWebpackConfig.module,
+			rules: [
+				{ ...transpileConfig, exclude: /node_modules\/(?!punycode)/ },
+				..._.without( extensionsWebpackConfig.module.rules, transpileConfig ),
+			],
+		},
+		plugins: [
+			...extensionsWebpackConfig.plugins,
+			new CopyWebpackPlugin( [
+				{
+					from: presetPath,
+					to: 'index.json',
+				},
+			] ),
 		],
 	},
-};
-
-module.exports = {
-	...webpackConfig,
-	plugins: [
-		...webpackConfig.plugins,
-		new CopyWebpackPlugin( [
-			{
-				from: presetPath,
-				to: 'index.json',
-			},
-		] ),
-	],
-};
+	{
+		...componentsWebpackConfig,
+		output: {
+			...componentsWebpackConfig.output,
+			// The next line is required to work around https://github.com/Automattic/wp-calypso/pull/34860.
+			// Remove once Jetpack is using a version of `@automattic/calypso-build` that contains the fix.
+			libraryTarget: 'commonjs2',
+		},
+		plugins: [
+			...componentsWebpackConfig.plugins,
+			new webpack.NormalModuleReplacementPlugin(
+				/^@wordpress\/i18n$/,
+				path.join( __dirname, './_inc/client/i18n-to-php' )
+			),
+			new StaticSiteGeneratorPlugin( {
+				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
+				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
+				globals: {
+					Mousetrap: {
+						init: _.noop,
+						prototype: {},
+					},
+					document: {
+						addEventListener: _.noop,
+						createElement: _.noop,
+						head: { appendChild: _.noop },
+					},
+					navigator: {},
+					window: {
+						addEventListener: _.noop,
+						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
+						matchMedia: () => ( {
+							addListener: () => {},
+						} ),
+						navigator: { platform: '', userAgent: '' },
+						Node: {
+							TEXT_NODE: '',
+							ELEMENT_NODE: '',
+							DOCUMENT_POSITION_PRECEDING: '',
+							DOCUMENT_POSITION_FOLLOWING: '',
+						},
+						URL: {},
+					},
+				},
+			} ),
+		],
+	},
+];
