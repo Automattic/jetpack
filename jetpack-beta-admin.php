@@ -419,11 +419,15 @@ class Jetpack_Beta_Admin {
 		);
 
 		?>
-		<a href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>" class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"  >
-			<span class="form-toggle-explanation" ><?php esc_html_e( $name ); ?></span>
+		<a
+			href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>"
+			class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"
+			data-jptracks-name="jetpack_beta_toggle_<?php echo esc_attr( $option ); ?>"
+			data-jptracks-prop="<?php echo absint( ! $value ); ?>"
+		>
+			<span class="form-toggle-explanation" ><?php echo esc_html( $name ); ?></span>
 			<span class="form-toggle__switch" tabindex="0" ></span>
-			<span class="form-toggle__label-content" >
-			</span>
+			<span class="form-toggle__label-content" ></span>
 		</a>
 		<?php
 	}
