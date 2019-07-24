@@ -12,4 +12,10 @@
 		font-family: $default-font;
 		font-size: $default-font-size;
 	}
+
+	.block-editor-warning__actions {
+		.components-button {
+			font-weight: inherit;
+		}
+	}
 }
