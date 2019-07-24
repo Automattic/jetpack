@@ -1,71 +1,82 @@
 /**
  * External dependencies
  */
-import Button from 'components/button';
-import React, { Component } from 'react';
+import Card from 'components/card';
+// import Button from 'components/button';
+import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-import Features from './features';
-import Survey from './survey';
+import SingleFeature from './single-feature';
 
-/**
- * Style dependencies
- */
-import './style.scss';
+const features = [
+	{
+		title: 'Tiled Galleries',
+		iconPath: '',
+		iconAlt: '',
+		description: '14 enabled',
+	},
+	{
+		title: 'Jetpack CDN',
+		iconPath: '',
+		iconAlt: '',
+		description: 'Fast loading images',
+	},
+	{
+		title: 'Shortcodes',
+		iconPath: '',
+		iconAlt: '',
+		description: '54 in-use',
+	},
+	{
+		title: 'Jetpack Protect',
+		iconPath: '',
+		iconAlt: '',
+		description: '140 Intrusions blocked',
+	},
+	{
+		title: 'Widget Visibility',
+		iconPath: '',
+		iconAlt: '',
+		description: 'Advanced widget control',
+	},
+	{
+		title: 'Sitemaps',
+		iconPath: '',
+		iconAlt: '',
+		description: 'SEO Feature',
+	},
+];
 
-const JETPACK_DISCONNECT_INITIAL_STEP = 'jetpack_disconnect_initial_step';
-const JETPACK_DISCONNECT_SURVEY_STEP = 'jetpack_disconnect_survey_step';
+const JetpackDisconnectDialogFeatures = ( { children } ) => {
+	return (
+		<Card>
+			<h2>{ __( 'Log Out of Jetpack (and deactivate)?' ) }</h2>
+			<p>
+				{ __(
+					'Before you log out of Jetpack we wanted to let you d know that there are a few features you are using that rely on the connection to the WordPress.com Cloud. Once the connection is broken these features will no longer be available.'
+				) }
+			</p>
+			<div>
+				{ features.map( ( { title, description, iconPath, iconAlt } ) => (
+					<SingleFeature
+						title={ title }
+						description={ description }
+						iconPath={ iconPath }
+						iconAlt={ iconAlt }
+					/>
+				) ) }
+			</div>
+			<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
+			{ /* <Button compact>{ __( "I'd like to stay logged in" ) }</Button>
+			<Button compact scary>
+				{ __( 'Log out of Jetpack' ) }
+			</Button> */ }
+			{ children }
+		</Card>
+	);
+};
 
-class JetpackDisconnectDialog extends Component {
-	constructor( props ) {
-		super( props );
-
-		this.state = { step: JETPACK_DISCONNECT_INITIAL_STEP };
-		this.handleFeaturesContinueClick = this.handleFeaturesContinueClick.bind( this );
-		this.handleSurveyDisableClick = this.handleSurveyDisableClick.bind( this );
-	}
-
-	handleFeaturesContinueClick() {
-		this.setState( {
-			step: JETPACK_DISCONNECT_SURVEY_STEP,
-		} );
-	}
-
-	handleSurveyDisableClick() {
-		// noop for now
-	}
-
-	renderInitialStep() {
-		return (
-			<Features>
-				<Button compact>{ __( 'Cancel' ) }</Button>
-				<Button compact scary onClick={ this.handleFeaturesContinueClick }>
-					{ __( 'Continue Disabling Jetpack' ) }
-				</Button>
-			</Features>
-		);
-	}
-
-	renderSurveyStep() {
-		return (
-			<Survey>
-				<Button compact>{ __( 'Close' ) }</Button>
-				<Button compact primary onClick={ this.handleSurveyDisableClick }>
-					{ __( 'Disable Jetpack' ) }
-				</Button>
-			</Survey>
-		);
-	}
-
-	render() {
-		const { step } = this.state;
-		return JETPACK_DISCONNECT_SURVEY_STEP === step
-			? this.renderSurveyStep()
-			: this.renderInitialStep();
-	}
-}
-
-export default JetpackDisconnectDialog;
+export default JetpackDisconnectDialogFeatures;
