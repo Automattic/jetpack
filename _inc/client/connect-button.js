@@ -22,11 +22,13 @@ import {
 	// getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
+	getJetpackDashboardUrl,
 	// userCanManageModules,
 	// userCanConnectSite,
 	// getCurrentVersion,
 	getTracksUserData,
 } from 'state/initial-state';
+import { getSiteConnectionStatus } from 'state/connection';
 
 // TODO figure out what's actually necessary here. Most of this boilerplate was copied from admin.js
 
@@ -73,20 +75,36 @@ class Main extends React.Component {
 		restApi.setApiNonce( this.props.apiNonce );
 	}
 
+	componentDidUpdate( prevProps, prevState, snapshot ) {
+		if (
+			this.props.siteConnectionStatus &&
+			this.props.siteConnectionStatus != prevProps.siteConnectionStatus &&
+			this.props.redirectOnConnected
+		) {
+			window.location.href = this.props.redirectOnConnected;
+		}
+	}
+
+	handleOnConnected() {
+		if ( this.props.onConnected ) {
+			this.props.onConnected();
+		}
+	}
+
 	render() {
-		const from = 'full-screen-prompt'; // TODO - make this dynamic
-		return <ConnectButton from={ from } />;
+		return <ConnectButton from={ 'full-screen-prompt' } />;
 	}
 }
 
 const ConnectedMain = connect(
 	state => {
 		return {
-			// siteConnectionStatus: getSiteConnectionStatus( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 			// isLinked: isCurrentUserLinked( state ),
 			// siteRawUrl: getSiteRawUrl( state ),
 			// siteAdminUrl: getSiteAdminUrl( state ),
 			// searchTerm: getSearchTerm( state ),
+			redirectOnConnected: getJetpackDashboardUrl( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),

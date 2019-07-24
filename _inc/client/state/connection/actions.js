@@ -14,6 +14,7 @@ import {
 	AUTHORIZE_URL_FETCH,
 	AUTHORIZE_URL_FETCH_SUCCESS,
 	AUTHORIZE_URL_FETCH_FAIL,
+	REMOTE_AUTHORIZE_FINISHED,
 	JETPACK_CONNECTION_TEST_FETCH,
 	USER_CONNECTION_DATA_FETCH,
 	USER_CONNECTION_DATA_FETCH_FAIL,
@@ -38,10 +39,8 @@ export const fetchSiteConnectionStatus = () => {
 		return restApi
 			.fetchSiteConnectionStatus()
 			.then( siteConnectionData => {
-				console.warn( 'got connection info ', siteConnectionData );
 				dispatch( {
 					type: JETPACK_CONNECTION_STATUS_FETCH_SUCCESS,
-					siteConnected: siteConnectionData,
 					siteConnectionData: siteConnectionData,
 				} );
 			} )
@@ -138,6 +137,16 @@ export const fetchAuthorizeUrl = () => {
 	};
 };
 
+export const finishedRemoteAuthorize = () => {
+	return dispatch => {
+		dispatch( {
+			type: REMOTE_AUTHORIZE_FINISHED,
+		} );
+		// now fetch connection status!
+		dispatch( fetchSiteConnectionStatus() );
+	};
+};
+
 export const disconnectSite = ( reloadAfter = false ) => {
 	return dispatch => {
 		dispatch( {
@@ -156,7 +165,7 @@ export const disconnectSite = ( reloadAfter = false ) => {
 				dispatch( removeNotice( 'disconnect-jetpack' ) );
 			} )
 			.then( () => {
-				dispatch( fetchConnectUrl() );
+				// dispatch( fetchConnectUrl() );
 				if ( reloadAfter ) {
 					window.location.reload();
 				}

@@ -192,6 +192,10 @@ export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
 }
 
+export function getJetpackDashboardUrl( state ) {
+	return get( state.jetpack.initialState, 'jetpackDashboardUrl' );
+}
+
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }

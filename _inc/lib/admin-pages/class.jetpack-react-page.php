@@ -243,6 +243,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'is_gutenberg_available' => true,
 			'getModules' => $modules,
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
+			'jetpackDashboardUrl' => esc_url( admin_url('admin.php?page=jetpack') ),
 			'adminUrl' => esc_url( admin_url() ),
 			'stats' => array(
 				// data is populated asynchronously on page load

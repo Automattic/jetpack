@@ -27,6 +27,7 @@ import {
 	isUnlinkingUser,
 	registerSite,
 	fetchAuthorizeUrl,
+	finishedRemoteAuthorize,
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -41,13 +42,7 @@ class AuthorizeIframe extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log( 'did mount', this.iframe );
-		// test
-		//this.iframe.contentWindow
 		window.addEventListener( 'message', this.receiveData );
-		// this.iframe.onload = () => {
-		// 	this.iframe.contentWindow.postMessage('hello', "*");
-		// }
 	}
 
 	componentWillUnmount() {
@@ -56,19 +51,13 @@ class AuthorizeIframe extends React.Component {
 
 	receiveData = e => {
 		if ( e.origin === 'https://jetpack.wordpress.com' && e.source === this.iframe.contentWindow ) {
-			console.log( 'iframe message', e );
-		} else {
-			console.log( 'other message', e );
+			console.log( 'got message', e );
+			if ( e.data === 'close' ) {
+				console.log( 'closing iframe' );
+				this.props.finishedRemoteAuthorize();
+			}
 		}
 	};
-
-	// to update manually, do this:
-
-	// componentWillReceiveProps(nextProps) {
-	// 	if ( this.props(old) !== nextProps(new) ) {
-	// 	// send message...
-	// 	}
-	// }
 
 	render() {
 		return (
@@ -201,14 +190,15 @@ export class ConnectButton extends React.Component {
 			label = __( '(TEST) Fetching authorise URL' );
 		}
 
-		console.log( 'authorize URL', this.props.authorizeUrl, this.props );
-
 		// render authorize iframe if site is registered but not authorized
 		if ( this.props.isRegistered && ! this.props.isSiteConnected && this.props.authorizeUrl ) {
 			return (
 				<React.Fragment>
 					<QueryConnectionStatus />
-					<AuthorizeIframe url={ this.props.authorizeUrl } />
+					<AuthorizeIframe
+						url={ this.props.authorizeUrl }
+						finishedRemoteAuthorize={ this.props.finishedRemoteAuthorize }
+					/>
 				</React.Fragment>
 			);
 		}
@@ -298,6 +288,12 @@ export default connect(
 			},
 			fetchAuthorizeUrl: () => {
 				return dispatch( fetchAuthorizeUrl() );
+			},
+			showAuthorizeIframe: () => {
+				return dispatch( showAuthorizeIframe() );
+			},
+			finishedRemoteAuthorize: () => {
+				return dispatch( finishedRemoteAuthorize() );
 			},
 		};
 	}

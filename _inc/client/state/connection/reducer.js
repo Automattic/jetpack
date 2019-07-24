@@ -40,7 +40,6 @@ export const status = (
 			return assign( {}, state, { siteConnectionData: action.siteConnectionData } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnectionData: action.siteConnectionData } );
-
 		default:
 			return state;
 	}

@@ -18,7 +18,7 @@ let state = {
 				fetchingUserData: true,
 			},
 			status: {
-				siteConnected: {
+				siteConnectionData: {
 					isActive: true,
 					devMode: {
 						isActive: false
@@ -63,10 +63,10 @@ describe( 'requests selectors', () => {
 
 describe( 'status selectors', () => {
 	describe( '#getSiteConnectionStatus', () => {
-		it( 'should return state.jetpack.connection.status.siteConnected', () => {
+		it( 'should return state.jetpack.connection.status.siteConnectionData', () => {
 			const stateIn = state;
 			const output = getSiteConnectionStatus( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.status.siteConnected.isActive );
+			expect( output ).to.be.equal( state.jetpack.connection.status.siteConnectionData.isActive );
 		} );
 	} );
 } );
