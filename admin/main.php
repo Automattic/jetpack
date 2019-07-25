@@ -26,7 +26,9 @@
 				</span>
 				<span class="dops-foldable-card__secondary">
 					<?php Jetpack_Beta_Admin::show_toggle_emails(); ?>
+					<?php if ( ! Jetpack_Beta::is_on_tag() ) : ?>
 					<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+					<?php endif; ?>
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
@@ -68,6 +70,8 @@
 		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
+		Jetpack_Beta_Admin::show_search_org_tags();
+		Jetpack_Beta_Admin::show_tags( 'tags' );
 	?>
 	</div>
 

@@ -1,43 +1,65 @@
 (function() {
 	// Elements
-	var sections = document.getElementById('section-pr').querySelectorAll('.branch-card');
-	var search_input = document.getElementById('search-component');
-	var search_close_link = document.getElementById('search-component-close');
+	var prs = document.getElementById('section-pr').querySelectorAll('.branch-card');
+	var tags = document.getElementById('section-tags').querySelectorAll('.tag-card');
+	var search_input_prs = document.getElementById('search-component-prs');
+	var search_input_tags = document.getElementById('search-component-tags');
+	var search_close_link_prs = document.getElementById('search-component-prs-close');
+	var search_close_link_tags = document.getElementById('search-component-tags-close');
 	var activate_links = document.querySelectorAll('.activate-branch');
 	var toggle_links = document.querySelectorAll('.form-toggle__label');
 
-	var section_index = []; //
+	var pr_index = [];
+	var tag_index = [];
 	var each = Array.prototype.forEach;
 	var clicked_activate = false;
 	var clicked_toggle = false;
 
-	each.call(sections, function(element, index) {
+	// Build index of prs
+	each.call(prs, function(element, index) {
 		hide(element);
 		element.querySelector('.activate-branch').setAttribute('data-index', index);
-		section_index[index] = {
+		pr_index[index] = {
 			header: element.querySelector('.branch-card-header').textContent,
-			pr: element.getAttribute('data-pr'),
+			key: element.getAttribute('data-pr'),
 			element: element,
 		};
 	});
 
-	// Search input
-	search_input.addEventListener('keyup', function(event) {
-		var search_for = pr_to_header(search_input.value);
-
-		if (!search_for) {
-			hide(search_close_link);
-			hide_section();
-			return;
-		}
-
-		show(search_close_link);
-		section_index.forEach(show_found_branches.bind(this, search_for));
+	// Build index of tags
+	each.call(tags, function(element, index) {
+		hide(element);
+		element.querySelector('.activate-branch').setAttribute('data-index', index);
+		tag_index[index] = {
+			header: element.querySelector('.tag-card-header').textContent,
+			key: element.getAttribute('data-tag'),
+			element: element,
+		};
 	});
 
-	function show_found_branches(search_for, branch) {
-		var element = branch.element;
-		var header_text = parseInt(search_for) > 0 ? branch.pr.toString() : branch.header;
+	search_input_listener(search_input_prs);
+	search_input_listener(search_input_tags);
+	function search_input_listener(input_area) {
+		input_area.addEventListener('keyup', function(event) {
+			var section_id = event.srcElement.id;
+			var search_for = pr_to_header(input_area.value);
+			var index = 'search-component-tags' === section_id ? tag_index : pr_index;
+
+			if (!search_for) {
+				hide_section();
+				return;
+			}
+
+			show(search_close_link_tags);
+			index.forEach(show_found.bind(this, search_for, section_id));
+		});
+	}
+
+	function show_found(search_for, section, found) {
+		var element = found.element;
+		var header_text = parseInt(search_for) > 0 ? found.key.toString() : found.header;
+		var class_selector =
+			'search-component-tags' === section ? '.tag-card-header' : '.branch-card-header';
 
 		var found_position = header_text.indexOf(search_for);
 		if (-1 === found_position) {
@@ -45,21 +67,22 @@
 			return;
 		}
 
-		element.querySelector('.branch-card-header').innerHTML = highlight_word(
-			search_for,
-			header_text
-		);
+		element.querySelector(class_selector).innerHTML = highlight_word(search_for, header_text);
 		show(element);
 	}
 
-	// Search close link
-	hide(search_close_link);
-	search_close_link.addEventListener('click', function(event) {
-		hide_section();
-		hide(search_close_link);
-		search_input.value = '';
-		event.preventDefault();
-	});
+	// Hiding the search close link
+	hide_search_close_link(search_close_link_prs);
+	hide_search_close_link(search_close_link_tags);
+	function hide_search_close_link(section) {
+		hide(section);
+		section.addEventListener('click', function(event) {
+			hide_section();
+			hide(section);
+			search_input.value = '';
+			event.preventDefault();
+		});
+	}
 
 	// Activate Links
 	each.call(activate_links, function(element, index) {
@@ -78,7 +101,7 @@
 
 		var index = parseInt(element.getAttribute('data-index'));
 
-		sections = Array.prototype.filter.call(sections, function(element, i) {
+		prs = Array.prototype.filter.call(prs, function(element, i) {
 			return index === i ? false : true;
 		});
 		disable_activete_branch_links();
@@ -125,7 +148,8 @@
 	}
 
 	function hide_section() {
-		each.call(sections, hide);
+		each.call(prs, hide);
+		each.call(tags, hide);
 	}
 
 	function hide(element) {

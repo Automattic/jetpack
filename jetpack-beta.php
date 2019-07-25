@@ -246,7 +246,7 @@ class Jetpack_Beta {
 
 	public static function get_plugin_slug() {
 		$installed = self::get_branch_and_section();
-		if ( empty( $installed ) || $installed[1] === 'stable' ) {
+		if ( empty( $installed ) || $installed[1] === 'stable' || $installed[1] === 'tags' ) {
 			return 'jetpack';
 		}
 		return JETPACK_DEV_PLUGIN_SLUG;
@@ -478,6 +478,14 @@ class Jetpack_Beta {
 		return false;
 	}
 
+	static function is_on_tag() {
+		$option = (array) self::get_option();
+		if ( $option[1] == 'tags' ) {
+			return true;
+		}
+		return false;
+	}
+
 	static function get_branch_and_section_dev() {
 		$option = (array) self::get_dev_installed();
 		if ( false !== $option[0] && isset( $option[1] )) {
@@ -506,6 +514,13 @@ class Jetpack_Beta {
 
 		if ( 'stable' === $section ) {
 			return 'Latest Stable';
+		}
+
+		if ( 'tags' === $section ) {
+			return sprintf(
+				__( 'Public release (<a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%1$s" target="_blank" rel="noopener noreferrer">available on WordPress.org</a>)', 'jetpack-beta' ),
+				esc_attr( $branch )
+			);
 		}
 
 		if ( 'rc' === $section ) {
@@ -585,6 +600,9 @@ class Jetpack_Beta {
 		if ( 'stable' === $section ) {
 			$org_data = self::get_org_data();
 			return $org_data->download_link;
+		} else if ( 'tags' === $section ) {
+			$org_data = self::get_org_data();
+			return $org_data->versions->{$branch} ?: false;
 		}
 		$manifest = Jetpack_Beta::get_beta_manifest( true );
 
@@ -629,6 +647,7 @@ class Jetpack_Beta {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		$plugin_file_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_file;
+
 		if ( file_exists( $plugin_file_path ) ) {
 			return get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_file );
 		}
@@ -776,7 +795,7 @@ class Jetpack_Beta {
 	static function proceed_to_install_and_activate( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 		self::proceed_to_install( $url, $plugin_folder, $section );
 
-		if ( 'stable' === $section ) {
+		if ( 'stable' === $section || 'tags' === $section ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
 		} else {
 			self::replace_active_plugin( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE, true );
@@ -798,7 +817,7 @@ class Jetpack_Beta {
 		}
 
 		global $wp_filesystem;
-		if ( 'stable' === $section ) {
+		if ( 'stable' === $section || 'tags' === $section ) {
 			$plugin_path = WP_PLUGIN_DIR;
 		} else {
 			$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR  );
@@ -866,6 +885,11 @@ class Jetpack_Beta {
 			return false;
 		}
 
+		// Check if running a tag directly from svn
+		if ( Jetpack_Beta::is_on_tag() ) {
+			return false;
+		}
+
 		$updates = get_site_transient( 'update_plugins' );
 
 		if ( isset( $updates->response, $updates->response[ JETPACK_PLUGIN_FILE ] ) ) {
@@ -886,7 +910,7 @@ class Jetpack_Beta {
 	static function should_update_dev_to_master() {
 		list( $branch, $section ) = self::get_branch_and_section_dev();
 
-		if ( false === $branch || 'master' === $section || 'rc' === $section ) {
+		if ( false === $branch || 'master' === $section || 'rc' === $section || 'tags' === $section ) {
 			return false;
 		}
 		$manifest = self::get_beta_manifest();
