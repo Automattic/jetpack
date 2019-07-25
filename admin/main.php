@@ -43,8 +43,13 @@
 			</span>
 			<span class="dops-foldable-card__secondary" >
 				<span class="dops-foldable-card__summary">
-					<a type="button" href="<?php echo esc_url( JETPACK_BETA_REPORT_URL ); ?>"
-					   class="is-primary jp-form-button dops-button is-primary is-compact" >
+					<a
+						type="button"
+						href="<?php echo esc_url( JETPACK_BETA_REPORT_URL ); ?>"
+						class="is-primary jp-form-button dops-button is-primary is-compact jptracks"
+						data-jptracks-name="jetpack_beta_submit_report"
+						data-jptracks-prop="<?php echo esc_attr( Jetpack_Beta::get_jetpack_plugin_version() ); ?>"
+					>
 						<?php _e( 'Report it!', 'jetpack-beta' ); ?>
 					</a>
 				</span>

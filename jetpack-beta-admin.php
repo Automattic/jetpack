@@ -318,8 +318,13 @@ class Jetpack_Beta_Admin {
 		);
 		$url   = Jetpack_Beta::admin_url( '?' . build_query( $query ) );
 
-		return '<a href="' . esc_url( $url ) . '"
-				class="is-primary jp-form-button activate-branch dops-button is-compact" >' . __( 'Activate', 'jetpack-beta' ) . '</a>';
+		return sprintf(
+			'<a href="%1$s" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="%2$s" data-jptracks-prop="%3$s">%4$s</a>',
+			esc_url( $url ),
+			'jetpack_beta_activate_branch',
+			esc_attr( $branch ),
+			esc_html__( 'Activate', 'jetpack-beta' )
+		);
 	}
 
 	static function header( $title ) {
@@ -419,11 +424,15 @@ class Jetpack_Beta_Admin {
 		);
 
 		?>
-		<a href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>" class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"  >
-			<span class="form-toggle-explanation" ><?php esc_html_e( $name ); ?></span>
+		<a
+			href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>"
+			class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"
+			data-jptracks-name="jetpack_beta_toggle_<?php echo esc_attr( $option ); ?>"
+			data-jptracks-prop="<?php echo absint( ! $value ); ?>"
+		>
+			<span class="form-toggle-explanation" ><?php echo esc_html( $name ); ?></span>
 			<span class="form-toggle__switch" tabindex="0" ></span>
-			<span class="form-toggle__label-content" >
-			</span>
+			<span class="form-toggle__label-content" ></span>
 		</a>
 		<?php
 	}
