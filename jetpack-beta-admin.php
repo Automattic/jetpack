@@ -324,10 +324,13 @@ class Jetpack_Beta_Admin {
 		<div class="dops-foldable-card__header has-border" >
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
-						<div class="dops-foldable-card__header-text tag-card-header"><?php echo esc_html( $header ); ?></div>
+						<div class="dops-foldable-card__header-text tag-card-header">Jetpack <?php echo esc_html( $header ); ?></div>
 						<div class="dops-foldable-card__subheader">
 						<?php
-						echo $tag;
+						printf(
+							'Official tag <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%s" target="_blank">%s</a> downloaded from wp.org',
+							esc_attr( $tag ), esc_html( $tag )
+						);
 						?>
 						</div>
 					</div>
