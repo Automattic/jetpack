@@ -4,12 +4,12 @@ use Automattic\Jetpack\Connection\Client;
 
 /**
  * This is the endpoint class for `/site` endpoints.
- *
  */
 class Jetpack_Core_API_Site_Endpoint {
 
 	/**
 	 * Returns the result of `/sites/%s/features` endpoint call.
+	 *
 	 * @return object $features has 'active' and 'available' properties each of which contain feature slugs.
 	 *                  'active' is a simple array of slugs that are active on the current plan.
 	 *                  'available' is an object with keys that represent feature slugs and values are arrays
@@ -18,7 +18,7 @@ class Jetpack_Core_API_Site_Endpoint {
 	public static function get_features() {
 
 		// Make the API request
-		$request = sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) );
+		$request  = sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		// Bail if there was an error or malformed response
@@ -42,10 +42,11 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-		return rest_ensure_response( array(
-				'code' => 'success',
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
 				'message' => esc_html__( 'Site features correctly received.', 'jetpack' ),
-				'data' => wp_remote_retrieve_body( $response ),
+				'data'    => wp_remote_retrieve_body( $response ),
 			)
 		);
 	}
@@ -59,5 +60,15 @@ class Jetpack_Core_API_Site_Endpoint {
 	 */
 	public static function can_request() {
 		return current_user_can( 'jetpack_manage_modules' );
+	}
+
+	public static function get_benefits() {
+		return rest_ensure_response(
+			[
+				'code'    => 'success',
+				'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
+				'data' => 'Hello world!'
+			]
+		);
 	}
 }

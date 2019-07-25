@@ -14,6 +14,9 @@ import {
 	JETPACK_SITE_FEATURES_FETCH,
 	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
 	JETPACK_SITE_FEATURES_FETCH_FAIL,
+	JETPACK_SITE_BENEFITS_FETCH,
+	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
+	JETPACK_SITE_BENEFITS_FETCH_FAIL,
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
@@ -25,6 +28,8 @@ export const data = ( state = {}, action ) => {
 			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return merge( {}, state, { site: { features: action.siteFeatures } } );
+		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
+			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return merge( {}, state, { sitePlans: action.plans } );
 		default:
@@ -46,6 +51,10 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteFeatures: true,
 			} );
+		case JETPACK_SITE_BENEFITS_FETCH:
+			return assign( {}, state, {
+				isFetchingSiteBenefits: true,
+			} );
 		case JETPACK_SITE_PLANS_FETCH:
 			return assign( {}, state, {
 				isFetchingSitePlans: true,
@@ -59,6 +68,11 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSiteFeatures: false,
+			} );
+		case JETPACK_SITE_BENEFITS_FETCH_FAIL:
+		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingSiteBenefits: false,
 			} );
 		case JETPACK_SITE_PLANS_FETCH_FAIL:
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
@@ -91,6 +105,10 @@ export function isFetchingSiteData( state ) {
 	);
 }
 
+export function isFetchingSiteBenefits( state ) {
+	return !! state.jetpack.siteData.isFetchingSiteBenefits;
+}
+
 /**
  * Returns the plan of this site.
  * @param  {Object}  state Global state tree
@@ -116,6 +134,10 @@ export function getAvailableFeatures( state ) {
  */
 export function getActiveFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
+}
+
+export function getFeatureBenefits( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ], 'NOT FOUND' );
 }
 
 export function getAvailablePlans( state ) {
