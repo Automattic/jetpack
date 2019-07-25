@@ -86,11 +86,11 @@ export default class Mosaic extends Component {
 	render() {
 		const { align, columns, images, layoutStyle, renderedImages, columnWidths } = this.props;
 
+		const columnsToRender = 'stacked' === layoutStyle ? 1 : columns;
 		const ratios = imagesToRatios( images );
-		const rows =
-			'columns' === layoutStyle
-				? ratiosToColumns( ratios, columns )
-				: ratiosToMosaicRows( ratios, { isWide: [ 'full', 'wide' ].includes( align ) } );
+		const rows = [ 'columns', 'stacked' ].includes( layoutStyle )
+			? ratiosToColumns( ratios, columnsToRender )
+			: ratiosToMosaicRows( ratios, { isWide: [ 'full', 'wide' ].includes( align ) } );
 
 		let cursor = 0;
 		return (

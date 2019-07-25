@@ -29,7 +29,8 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	}
 
 	&.is-style-columns,
-	&.is-style-rectangular {
+	&.is-style-rectangular,
+	&.is-style-stacked {
 		.tiled-gallery__item {
 			display: flex;
 		}

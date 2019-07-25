@@ -16,6 +16,7 @@ import {
 	LAYOUT_COLUMN,
 	LAYOUT_DEFAULT,
 	LAYOUT_SQUARE,
+	LAYOUT_STACKED,
 	LAYOUT_STYLES,
 } from './constants';
 import { isSimpleSite } from '../../shared/site-type-utils';
@@ -48,6 +49,7 @@ const styleNames = {
 	[ LAYOUT_CIRCLE ]: _x( 'Circles', 'Tiled gallery layout', 'jetpack' ),
 	[ LAYOUT_COLUMN ]: _x( 'Tiled columns', 'Tiled gallery layout', 'jetpack' ),
 	[ LAYOUT_SQUARE ]: _x( 'Square tiles', 'Tiled gallery layout', 'jetpack' ),
+	[ LAYOUT_STACKED ]: _x( 'Stacked', 'Tiled gallery layout', 'jetpack' ),
 };
 const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {
 	...style,
