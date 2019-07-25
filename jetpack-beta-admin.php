@@ -328,8 +328,9 @@ class Jetpack_Beta_Admin {
 						<div class="dops-foldable-card__subheader">
 						<?php
 						sprintf(
-							__( 'Official tag <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%s" target="_blank">%s</a> downloaded from wp.org', 'jetpack-beta' ),
-							esc_attr( $tag ), esc_html( $tag )
+							__( 'Public release (%1$s) <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%2$s" target="_blank" rel="">available on WordPress.org</a>', 'jetpack-beta' ),
+							esc_html( $tag ),
+							esc_attr( $tag )
 						);
 						?>
 						</div>

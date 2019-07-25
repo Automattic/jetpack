@@ -518,7 +518,7 @@ class Jetpack_Beta {
 
 		if ( 'tags' === $section ) {
 			return sprintf(
-				'Official <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%s" target="_blank">tag</a> downloaded from wp.org svn',
+				__( 'Public release (<a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%1$s" target="_blank" rel="noopener noreferrer">available on WordPress.org</a>)', 'jetpack-beta' ),
 				esc_attr( $branch )
 			);
 		}
