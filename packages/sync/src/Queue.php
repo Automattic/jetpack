@@ -70,6 +70,15 @@ class Queue {
 		return array();
 	}
 
+	function peek_by_id( $item_ids ) {
+		$items = $this->fetch_items_by_id( $item_ids );
+		if ( $items ) {
+			return Utils::get_item_values( $items );
+		}
+
+		return array();
+	}
+
 	// lag is the difference in time between the age of the oldest item
 	// (aka first or frontmost item) and the current time
 	function lag( $now = null ) {
@@ -409,6 +418,29 @@ class Queue {
 		} else {
 			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jpsq_{$this->id}-%" );
 		}
+
+		$items = $wpdb->get_results( $query_sql, OBJECT );
+		foreach ( $items as $item ) {
+			$item->value = maybe_unserialize( $item->value );
+		}
+
+		return $items;
+	}
+
+	private function fetch_items_by_id( $items_ids ) {
+		global $wpdb;
+
+		$items_ids = implode(
+			', ',
+			array_map(
+				function ( $value ) {
+					return "'" . esc_sql( $value ) . "'";
+				},
+				$items_ids
+			)
+		);
+
+		$query_sql = "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name IN (" . $items_ids . ')';
 
 		$items = $wpdb->get_results( $query_sql, OBJECT );
 		foreach ( $items as $item ) {
