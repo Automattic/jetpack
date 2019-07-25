@@ -61,7 +61,7 @@ const JetpackDisconnectDialogFeatures = ( { /*siteBenefits,*/ children, siteName
 						}
 					) }
 				</p>
-				<div className="jetpack-disconnect-dialog__features-grid">
+				<div className="jetpack-disconnect-dialog__features-list">
 					{ featurePlaceholders.map( ( { title, description, amount, gridIcon } ) => (
 						<SingleFeature
 							title={ title }
