@@ -585,6 +585,9 @@ class Jetpack_Beta {
 		if ( 'stable' === $section ) {
 			$org_data = self::get_org_data();
 			return $org_data->download_link;
+		} else if ( 'tag' === $section ) {
+			$org_data = self::get_org_data();
+			return $org_data->versios->{$branch} ?: false;
 		}
 		$manifest = Jetpack_Beta::get_beta_manifest( true );
 
@@ -776,7 +779,7 @@ class Jetpack_Beta {
 	static function proceed_to_install_and_activate( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 		self::proceed_to_install( $url, $plugin_folder, $section );
 
-		if ( 'stable' === $section ) {
+		if ( 'stable' === $section || 'tag' === $section ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
 		} else {
 			self::replace_active_plugin( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE, true );
@@ -798,7 +801,7 @@ class Jetpack_Beta {
 		}
 
 		global $wp_filesystem;
-		if ( 'stable' === $section ) {
+		if ( 'stable' === $section || 'tag' === $section ) {
 			$plugin_path = WP_PLUGIN_DIR;
 		} else {
 			$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR  );

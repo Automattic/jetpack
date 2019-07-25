@@ -324,7 +324,7 @@ class Jetpack_Beta_Admin {
 		<div class="dops-foldable-card__header has-border" >
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
-						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
+						<div class="dops-foldable-card__header-text tag-card-header"><?php echo esc_html( $header ); ?></div>
 						<div class="dops-foldable-card__subheader">
 						<?php
 						echo $tag;
@@ -404,7 +404,7 @@ class Jetpack_Beta_Admin {
 		if ( empty( $manifest->versions ) ) {
 			return;
 		}
-		$tags = (array) $manifest->versions;
+		$tags = array_reverse( (array) $manifest->versions );
 		$count_all = count( $tags );
 
 		foreach ( $tags as $tag => $url ) {
@@ -447,9 +447,9 @@ class Jetpack_Beta_Admin {
 								</g>
 							</svg>
 						</div>
-						<input aria-hidden="false" class="dops-search__input" id="search-component"
+						<input aria-hidden="false" class="dops-search__input" id="search-component-prs"
 						       placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
-						<span aria-controls="search-component" id="search-component-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
+						<span aria-controls="search-component" id="search-component-prs-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
 						      tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 							     viewbox="0 0 24 24" width="24">
@@ -483,9 +483,9 @@ class Jetpack_Beta_Admin {
 								</g>
 							</svg>
 						</div>
-						<input aria-hidden="false" class="dops-search__input" id="search-component"
+						<input aria-hidden="false" class="dops-search__input" id="search-component-tags"
 						       placeholder="<?php esc_attr_e( 'Search for a Jetpack tag', 'jetpack-beta' ); ?>" role="search" type="search" value="">
-						<span aria-controls="search-component" id="search-component-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
+						<span aria-controls="search-component" id="search-component-tags-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
 						      tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 							     viewbox="0 0 24 24" width="24">

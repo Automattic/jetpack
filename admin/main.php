@@ -69,7 +69,7 @@
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
 		Jetpack_Beta_Admin::show_search_org_tags();
-		Jetpack_Beta_Admin::show_tags( 'org' );
+		Jetpack_Beta_Admin::show_tags( 'tags' );
 	?>
 	</div>
 
