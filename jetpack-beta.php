@@ -1176,8 +1176,14 @@ class Jetpack_Beta {
 			Jetpack::log( $errno, $error_string );
 		}
 
-		// If this error is not being reported in the current settings, stop reporting here by returning true.
+		/**
+		 * The error_reporting call returns current error reporting level as an integer. Bitwise
+		 * AND lets us determine whether the current error is included in the current error
+		 * reporting level
+		 */
 		if ( ! ( error_reporting() & $errno ) ) {
+
+			// If this error is not being reported in the current settings, stop reporting here by returning true.
 			return true;
 		}
 
