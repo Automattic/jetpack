@@ -1,5 +1,6 @@
 @import '../../scss/calypso-colors';
 @import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/variables/_colors.scss';
 
 .jetpack-disconnect-dialog {
 	.dops-card {
@@ -28,10 +29,10 @@
 }
 
 .jetpack-disconnect-dialog__feature {
-	background: #ffffff;
+	background: $white;
 	border: 1px solid rgba( 213, 213, 213, 0.5 );
 	box-sizing: border-box;
-	box-shadow: 0px 1px 2px #eeeeee;
+	box-shadow: 0px 1px 2px $gray-light;
 	width: calc( 100% - 1em );
 	margin: 0.5em;
 	@include breakpoint( '>660px' ) {
@@ -43,5 +44,9 @@
 	text-transform: uppercase;
 	font-size: 12px;
 	line-height: 12px;
-	background: #eeeeee;
+	background: $gray-light;
+
+	.gridicon {
+		color: $green-primary;
+	}
 }

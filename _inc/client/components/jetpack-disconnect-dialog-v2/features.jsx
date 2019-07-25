@@ -41,7 +41,7 @@ const JetpackDisconnectDialogFeatures = ( { /*siteBenefits,*/ children, siteName
 			title: 'Subscribers',
 			description: 'The number of people subscribed to your updates through Jetpack.',
 			amount: 4200,
-			gridIcon: 'multiple-users',
+			gridIcon: 'user',
 		},
 	];
 
