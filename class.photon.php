@@ -287,7 +287,6 @@ class Jetpack_Photon {
 			$content_width = Jetpack::get_content_width();
 
 			$image_sizes = self::image_sizes();
-			$upload_dir = wp_get_upload_dir();
 
 			foreach ( $images[0] as $index => $tag ) {
 				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
