@@ -12,8 +12,8 @@ const SingleFeature = ( { title, amount, description, gridIcon } ) => {
 				<Gridicon icon={ gridIcon } />
 			</div>
 			<div className="jetpack-disconnect-dialog__feature-body">
-				<h2>{ amount }</h2>
-				<p>{ description }</p>
+				<p className="jetpack-disconnect-dialog__feature-body-amount">{ amount }</p>
+				<p className="jetpack-disconnect-dialog__feature-body-description">{ description }</p>
 			</div>
 		</div>
 	);

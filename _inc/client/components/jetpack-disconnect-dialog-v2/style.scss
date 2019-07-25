@@ -50,9 +50,19 @@
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0 10px 0 10px;
+	padding: 0 13px 0 13px;
 
 	.gridicon {
 		color: $green-primary;
+	}
+}
+
+.jetpack-disconnect-dialog__feature-body {
+	padding: 0 13px 0 13px;
+
+	.jetpack-disconnect-dialog__feature-body-amount {
+		font-weight: bold;
+		font-size: 24px;
+		line-height: 26px;
 	}
 }
