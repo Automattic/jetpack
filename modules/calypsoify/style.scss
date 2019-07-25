@@ -48,6 +48,10 @@ body,
 #adminmenu {
 	margin-top: 71px;
 
+	.wp-submenu {
+		padding: 0;
+	}
+
 	.wp-has-current-submenu .wp-submenu,
 	.opensub .wp-submenu,
 	.opensub .wp-submenu:after,
@@ -58,9 +62,12 @@ body,
 	li.menu-top:hover,
 	li.opensub>a.menu-top,
 	li>a.menu-top:focus,
-	li.wp-menu-open,
+	li.wp-menu-open {
+		background: transparent;
+	}
+
 	a:hover {
-		background: $gray-light;
+		background-color: $muriel-gray-50 !important;
 	}
 
 	.wp-submenu-head,
@@ -69,16 +76,9 @@ body,
 	}
 
 	.wp-has-current-submenu ul>li>a {
-		padding: 11px 16px 11px 20px;
-		font-size: 14px;
-	}
-
-	.wp-submenu a:hover {
-		background-color: $muriel-gray-50;
-	}
-
-	> li.wp-first-item {
-		border-bottom: 1px solid $rgba-grey;
+		padding: 7px 12px 7px 46px;
+		font-size: 15px;
+		font-weight: 400 !important;
 	}
 
 	a.wp-has-current-submenu:after,
@@ -94,27 +94,42 @@ body,
 		font-size: 24px;
 	}
 
-	a,
-	div.wp-menu-image:before{
-		color: $gray-dark !important;
+	a {
+		color: $gray-text !important;
 	}
 
+	li.current > a {
+		background: $muriel-blue-50 !important;
+	}
 
-	li.current a.menu-top,
+	div.wp-menu-image:before {
+		color: $gray-darken-20 !important;
+	}
+
+	li a:hover div.wp-menu-image:before {
+		color: $gray-text !important;
+	}
+
+	li.current a div.wp-menu-image:before {
+		color: $color-primary !important;
+	}
+
 	li.wp-has-current-submenu a.wp-has-current-submenu {
-		background: $muriel-blue-50;
+		background: transparent;
 	}
 
 	div.wp-menu-image.svg {
+		filter: brightness(0.6);
+	}
+
+	li a:hover div.wp-menu-image.svg,
+	li.current div.wp-menu-image.svg {
 		filter: brightness(0.25);
 	}
 
-	li.wp-menu-open div.wp-menu-image.svg {
-		filter: brightness(100);
-	}
-
-	li.wp-menu-open div.wp-menu-image:before,
-	li.wp-menu-open div.wp-menu-name {
+	li.current div.wp-menu-image:before,
+	li.current a,
+	li.current .wp-menu-name {
 		color: $color-primary !important;
 	}
 
@@ -122,6 +137,7 @@ body,
 		color: $gray-text;
 		font-size: 15px;
 		padding: 9px 0 8px 41px;
+		font-weight: 600;
 	}
 
 	li.menu-top {
@@ -229,7 +245,7 @@ body,
 		.opensub .wp-submenu,
 		.opensub .wp-submenu:after,
 		a.wp-has-current-submenu:focus+.wp-submenu {
-			background: $gray-lighten-30 !important;
+			background: transparent !important;
 		}
 
 		li.menu-top .wp-submenu>li>a {
@@ -316,13 +332,6 @@ body,
 
 	.auto-fold #adminmenu {
 		top: -14px;
-	}
-
-	.auto-fold #adminmenu .selected,
-	#adminmenu li.opensub>a.menu-top,
-	#adminmenu li>a.menu-top:focus,
-	#adminmenu li.wp-menu-open {
-		background: $muriel-blue-50 !important;
 	}
 
 	#adminmenu .wp-submenu,
