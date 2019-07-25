@@ -16,29 +16,7 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-function getFeatureHighlightViewData( featureHighlightData ) {
-	switch ( featureHighlightData.name ) {
-		case 'akismet':
-			return {
-				title: 'Anti-spam',
-				iconPath: '',
-				iconAlt: '',
-				description: `${ featureHighlightData.props.number } spam comments blocked.`,
-			};
-		// TODO:
-		// 'vaultpress-backups'
-		// 'vaultpress-backup-archive'
-		// 'vaultpress-storage-space'
-		// 'vaultpress-automated-restores'
-		// 'simple-payments'
-		// 'support'
-		// 'wordads-jetpack'
-		default:
-			return null;
-	}
-}
-
-const JetpackDisconnectDialogFeatures = ( { featureHighlights, children } ) => {
+const JetpackDisconnectDialogFeatures = ( { siteBenefits, children } ) => {
 	return (
 		<Card>
 			<h2>{ __( 'Log Out of Jetpack (and deactivate)?' ) }</h2>
@@ -48,16 +26,14 @@ const JetpackDisconnectDialogFeatures = ( { featureHighlights, children } ) => {
 				) }
 			</p>
 			<div>
-				{ featureHighlights
-					.map( getFeatureHighlightViewData )
-					.map( ( { title, description, iconPath, iconAlt } ) => (
-						<SingleFeature
-							title={ title }
-							description={ description }
-							iconPath={ iconPath }
-							iconAlt={ iconAlt }
-						/>
-					) ) }
+				{ siteBenefits.map( ( { title, description, value } ) => (
+					<SingleFeature
+						title={ title }
+						description={ value + ': ' + description }
+						// iconPath={ iconPath }
+						// iconAlt={ iconAlt }
+					/>
+				) ) }
 			</div>
 			<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
 			{ children }
@@ -66,7 +42,7 @@ const JetpackDisconnectDialogFeatures = ( { featureHighlights, children } ) => {
 };
 
 JetpackDisconnectDialogFeatures.propTypes = {
-	featureHighlights: PropTypes.array,
+	siteBenefits: PropTypes.array,
 };
 
 export default JetpackDisconnectDialogFeatures;
