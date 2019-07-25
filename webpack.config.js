@@ -30,8 +30,7 @@ const sharedWebpackConfig = {
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
-// We export two configuration files: One for admin.js, and one for static.jsx.
-// The latter produces pre-rendered HTML.
+// We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
 module.exports = [
 	{
 		...sharedWebpackConfig,
@@ -46,9 +45,7 @@ module.exports = [
 		// Entry points point to the javascript module
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
-		entry: {
-			static: path.join( __dirname, './_inc/client/static.jsx' ),
-		},
+		entry: { static: path.join( __dirname, './_inc/client/static.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,
 			pathinfo: true,
