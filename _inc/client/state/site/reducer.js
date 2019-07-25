@@ -137,7 +137,7 @@ export function getActiveFeatures( state ) {
 }
 
 export function getFeatureBenefits( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ], 'NOT FOUND' );
+	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ], [] );
 }
 
 export function getAvailablePlans( state ) {

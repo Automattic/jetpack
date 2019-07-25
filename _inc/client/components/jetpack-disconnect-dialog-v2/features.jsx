@@ -17,28 +17,7 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-// function getFeatureHighlightViewData( featureHighlightData ) {
-// 	switch ( featureHighlightData.name ) {
-// 		case 'akismet':
-// 			return {
-// 				title: 'Anti-spam',
-// 				amount: featureHighlightData.props.number || 0,
-// 				description: 'Spam comments blocked.',
-// 			};
-// 		// TODO:
-// 		// 'vaultpress-backups'
-// 		// 'vaultpress-backup-archive'
-// 		// 'vaultpress-storage-space'
-// 		// 'vaultpress-automated-restores'
-// 		// 'simple-payments'
-// 		// 'support'
-// 		// 'wordads-jetpack'
-// 		default:
-// 			return null;
-// 	}
-// }
-
-const JetpackDisconnectDialogFeatures = ( { /*featureHighlights,*/ children, siteName } ) => {
+const JetpackDisconnectDialogFeatures = ( { /*siteBenefits,*/ children, siteName } ) => {
 	const featurePlaceholders = [
 		{
 			title: 'Brute Force Protection',
@@ -83,11 +62,6 @@ const JetpackDisconnectDialogFeatures = ( { /*featureHighlights,*/ children, sit
 					) }
 				</p>
 				<div className="jetpack-disconnect-dialog__features-grid">
-					{ /* { featureHighlights
-						.map( getFeatureHighlightViewData )
-						.map( ( { amount, title, description } ) => (
-							<SingleFeature title={ title } description={ description } amount={ amount } />
-						) ) } */ }
 					{ featurePlaceholders.map( ( { title, description, amount, gridIcon } ) => (
 						<SingleFeature
 							title={ title }
@@ -105,8 +79,8 @@ const JetpackDisconnectDialogFeatures = ( { /*featureHighlights,*/ children, sit
 };
 
 JetpackDisconnectDialogFeatures.propTypes = {
-	featureHighlights: PropTypes.array,
 	siteName: PropTypes.string,
+	siteBenefits: PropTypes.array,
 };
 
 export default JetpackDisconnectDialogFeatures;

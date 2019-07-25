@@ -63,11 +63,22 @@ class Jetpack_Core_API_Site_Endpoint {
 	}
 
 	public static function get_benefits() {
+		$benefits = [];
+
+		if ( Jetpack::is_module_active( 'protect' ) ) {
+			$benefits[] = [
+				'name' => 'protect',
+				'title' => 'Brute force protection',
+				'description' => 'The number of malicious login attempts blocked by Jetpack ',
+				'value' => get_site_option( 'jetpack_protect_blocked_attempts' )
+			];
+		}
+
 		return rest_ensure_response(
 			[
 				'code'    => 'success',
 				'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
-				'data' => 'Hello world!'
+				'data' => json_encode($benefits)
 			]
 		);
 	}
