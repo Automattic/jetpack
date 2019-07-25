@@ -86,6 +86,18 @@ class Replicastore implements Replicastore_Interface {
 	}
 
 	/**
+	 * Retrieve the number of term relationships.
+	 *
+	 * @access public
+	 *
+	 * @return int Number of rows in the term relationships table.
+	 */
+	public function term_relationship_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+	}
+
+	/**
 	 * Retrieve the number of posts with a particular post status within a certain range.
 	 *
 	 * @access public
@@ -1183,6 +1195,8 @@ class Replicastore implements Replicastore_Interface {
 				return Defaults::$default_term_checksum_columns;
 			case 'term_taxonomy':
 				return Defaults::$default_term_taxonomy_checksum_columns;
+			case 'term_relationships':
+				return Defaults::$default_term_relationships_checksum_columns;
 			default:
 				return false;
 		}
@@ -1248,6 +1262,12 @@ class Replicastore implements Replicastore_Interface {
 				$object_table = $wpdb->term_taxonomy;
 				$object_count = $this->term_taxonomy_count();
 				$id_field     = 'term_taxonomy_id';
+				$where_sql    = '1=1';
+				break;
+			case 'term_relationships':
+				$object_table = $wpdb->term_relationships;
+				$object_count = $this->term_relationship_count();
+				$id_field     = 'object_id';
 				$where_sql    = '1=1';
 				break;
 			default:
