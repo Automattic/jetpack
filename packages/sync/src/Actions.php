@@ -160,6 +160,10 @@ class Actions {
 			return true;
 		}
 
+		if ( Constants::get_constant( 'WP_CLI' ) ) {
+			return true;
+		}
+
 		return false;
 	}
 
