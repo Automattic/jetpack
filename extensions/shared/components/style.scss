@@ -15,7 +15,9 @@
 
 	.block-editor-warning__actions {
 		.components-button {
+			font-family: $default-font;
 			font-weight: inherit;
+			text-decoration: none;
 		}
 	}
 }

@@ -24,6 +24,14 @@ class Jetpack_Components {
 
 		foreach ( $props as $key => $value ) {
 			$markup = str_replace(
+				"#$key#",
+				$value,
+				$markup
+			);
+
+			// Workaround, required to replace strings in `sprintf`-expressions.
+			// See extensions/i18n-to-php.js for more information.
+			$markup = str_replace(
 				"%($key)s",
 				$value,
 				$markup
