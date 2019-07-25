@@ -305,7 +305,7 @@ class Jetpack_Beta_Admin {
 	static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
 		$is_compact = $is_last ? '' : 'is-compact';
 		if ( isset( $url ) ) {
-			$tag = sprintf( 'data-tag="%s"', esc_attr( $tag ) );
+			$data_tag = sprintf( 'data-tag="%s"', $tag );
 		}
 
 		$className = 'tag-card';
@@ -320,7 +320,7 @@ class Jetpack_Beta_Admin {
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
-		<div <?php echo $tag; ?> " class="dops-foldable-card <?php echo esc_attr( $className ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
+		<div <?php echo $data_tag; ?> " class="dops-foldable-card <?php echo esc_attr( $className ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
