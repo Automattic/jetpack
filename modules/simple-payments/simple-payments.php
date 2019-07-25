@@ -179,9 +179,12 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 
+		jetpack_require_lib( 'plans' );
+		$plan = Jetpack_Plans::get_plan( self::$required_plan );
+
 		jetpack_require_lib( 'components' );
 		return Jetpack_Components::render_component( 'upgrade-nudge', array(
-			'planName' => 'Jetpack Premium', // TODO: Get actual plan name
+			'planName' => $plan->product_name,
 			'upgradeUrl' => 'dummy'
 		) );
 	}
