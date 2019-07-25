@@ -69,7 +69,7 @@ class Jetpack_Components {
 
 
 		return self::render_component( 'upgrade-nudge', array(
-			'planName' => $post_type,
+			'planName' => $plan->product_name,
 			'upgradeUrl' => $upgrade_url
 		) );
 	}
