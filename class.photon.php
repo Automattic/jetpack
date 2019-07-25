@@ -1295,7 +1295,7 @@ class Jetpack_Photon {
 	}
 
 	/**
-	 * Checks if image is a locally upload file via it's URL
+	 * Checks if image is a locally uploaded file via its URL
 	 *
 	 * @param string $url
 	 *
