@@ -9,9 +9,9 @@
 }
 
 .jetpack-disconnect-dialog__header {
+	margin: 0;
 	font-size: 28px;
 	line-height: 24px;
-	margin: 0;
 }
 
 .jetpack-disconnect-dialog__info {
@@ -45,6 +45,12 @@
 	font-size: 12px;
 	line-height: 12px;
 	background: $gray-light;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 10px 0 10px;
 
 	.gridicon {
 		color: $green-primary;
