@@ -86,4 +86,90 @@
 			} );
 		}
 	} );
+
+	/**
+	 * Prepend icons to notices.
+	 */
+	$( document ).ready( function() {
+		if ( $( this ).children( '.wc-calypso-bridge-notice-content' ).length ) {
+			return;
+		}
+
+		$( 'div.notice, div.error, div.updated, div.warning' ).each( function() {
+			var icon = CalypsoifyOpts.icons.info;
+			if ( $( this ).hasClass( 'notice-success' ) ) {
+				icon = CalypsoifyOpts.icons.checkmark;
+			} else if ( $( this ).hasClass( 'error' ) || $( this ).hasClass( 'notice-warning' ) ) {
+				icon = CalypsoifyOpts.icons.notice;
+			}
+			$( this ).prepend(
+				'<span class="wc-calypso-bridge-notice-icon-wrapper">' + icon + '</span>'
+			);
+		} );
+	} );
+
+	/**
+	 * Replace dismissal buttons in notices.
+	 */
+	$( document ).ready( function() {
+		$( '.notice-dismiss' ).html( CalypsoifyOpts.icons.cross );
+	} );
+
+	/**
+	 * Place notice content inside it's own tag.
+	 *
+	 * Used to prevent side by side content in flexbox when multiple paragraphs exist.
+	 */
+	$( document ).ready( function() {
+		if ( $( this ).children( '.wc-calypso-bridge-notice-content' ).length ) {
+			return;
+		}
+
+		$( 'div.notice, div.error, div.updated, div.warning' ).each( function() {
+			var $noticeContent = $( '<div class="wc-calypso-bridge-notice-content"></div>' );
+			$( this )
+				.find( '.wc-calypso-bridge-notice-icon-wrapper' )
+				.after( $noticeContent );
+			$( this )
+				.find( 'p:not(.submit)' )
+				.appendTo( $noticeContent );
+		} );
+	} );
+
+	/**
+	 * Move notices on pages with sub navigation
+	 *
+	 * WP Core moves notices with jQuery so this is needed to move them again since
+	 * we can't control their position.
+	 */
+	$( document ).ready( function() {
+		var $subNavigation = $( '.wrap .subsubsub' );
+		if ( $subNavigation.length ) {
+			$( 'div.notice, div.error, div.updated, div.warning' ).insertAfter( $subNavigation.first() );
+			$( '.jetpack-jitm-message, .jitm-card' ).insertAfter( $subNavigation.first() );
+		}
+	} );
+
+	/**
+	 * Append notice.
+	 */
+	function appendNotice( content, type ) {
+		var html = '';
+		var icon = CalypsoifyOpts.icons.info;
+		var classes = [ 'notice' ];
+		if ( 'success' === type ) {
+			icon = CalypsoifyOpts.icons.checkmark;
+			classes.push( 'notice-success' );
+		} else if ( 'error' === type ) {
+			icon = CalypsoifyOpts.icons.notice;
+			classes.push( 'error' );
+		}
+		html += '<div class="' + classes.join( ' ' ) + '">';
+		html += '<span class="wc-calypso-bridge-notice-icon-wrapper">';
+		html += icon;
+		html += '</span>';
+		html += '<div class="wc-calypso-bridge-notice-content"><p>' + content + '</p></div>';
+		html += '</div>';
+		$( html ).insertAfter( 'h1.wp-heading-inline:first' );
+	}
 } )( jQuery );

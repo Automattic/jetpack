@@ -253,14 +253,23 @@ class Jetpack_Calypsoify {
 	public function enqueue() {
 		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style.min.css', false, JETPACK__VERSION );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
+		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
+		$icons = array(
+			'checkmark'   => get_gridicon( 'gridicons-checkmark' ),
+			'chevronDown' => get_gridicon( 'gridicons-chevron-down' ),
+			'cross'       => get_gridicon( 'gridicons-cross' ),
+			'info'        => get_gridicon( 'gridicons-info' ),
+			'notice'      => get_gridicon( 'gridicons-notice' ),
+			'search'      => get_gridicon( 'gridicons-search' ),
+		);
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
 		wp_localize_script( 'calypsoify_wpadminmods_js', 'CalypsoifyOpts', array(
 			'nonces' => array(
-				'autoupdate_plugins' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins' ),
+				'autoupdate_plugins'              => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins' ),
 				'autoupdate_plugins_translations' => wp_create_nonce( 'jetpack_toggle_autoupdate-plugins_translations' ),
-			)
+			),
+			'icons' => $icons,
 		) );
 	}
 
