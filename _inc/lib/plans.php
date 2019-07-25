@@ -45,7 +45,12 @@ class Jetpack_Plans {
 	 * @return object The plan object
 	 */
 	public static function get_plan( $plan_slug ) {
-		foreach( self::get_plans() as $plan ) {
+		$plans = self::get_plans();
+		if ( ! is_array( $plans ) ) {
+			return;
+		}
+
+		foreach( $plans as $plan ) {
 			if ( $plan_slug === $plan->product_slug ) {
 				return $plan;
 			}

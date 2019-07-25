@@ -53,6 +53,13 @@ class Jetpack_Components {
 		jetpack_require_lib( 'plans' );
 		$plan = Jetpack_Plans::get_plan( $plan_slug );
 
+		if ( ! $plan ) {
+			return self::render_component( 'upgrade-nudge', array(
+				'planName' => __( 'a paid plan', 'jetpack' ),
+				'upgradeUrl' => ''
+			) );
+		}
+
 		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
 		// For Jetpack, we thus use the plan slug with the 'jetpack_' prefix removed.
 		$plan_path_slug = wp_startswith( $plan_slug, 'jetpack_' )
