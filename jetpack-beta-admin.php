@@ -305,14 +305,14 @@ class Jetpack_Beta_Admin {
 	static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
 		$is_compact = $is_last ? '' : 'is-compact';
 		if ( isset( $url ) ) {
-			$pr = sprintf( 'data-tag="%s"', esc_attr( $tag ) );
+			$tag = sprintf( 'data-tag="%s"', esc_attr( $tag ) );
 		}
 
-		$branch_class = 'tag-card';
+		$className = 'tag-card';
 		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
 		if ( $current_branch === $tag && $current_section === $section ) {
-			$action       = __( 'Active', 'jetpack-beta' );
-			$branch_class = 'tag-card-active';
+			$action    = __( 'Active', 'jetpack-beta' );
+			$className = 'tag-card-active';
 		} else {
 			$action = self::activate_button( $tag, $section );
 		}
@@ -320,27 +320,27 @@ class Jetpack_Beta_Admin {
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
-		<div <?php echo $pr; ?> " class="dops-foldable-card <?php echo esc_attr( $branch_class ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
-		<div class="dops-foldable-card__header has-border" >
+		<div <?php echo $tag; ?> " class="dops-foldable-card <?php echo esc_attr( $className ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
+			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
 						<div class="dops-foldable-card__header-text tag-card-header">Jetpack <?php echo esc_html( $header ); ?></div>
 						<div class="dops-foldable-card__subheader">
 						<?php
-						printf(
-							'Official tag <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%s" target="_blank">%s</a> downloaded from wp.org',
+						sprintf(
+							__( 'Official tag <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%s" target="_blank">%s</a> downloaded from wp.org', 'jetpack-beta' ),
 							esc_attr( $tag ), esc_html( $tag )
 						);
 						?>
 						</div>
 					</div>
 				</span>
-			<span class="dops-foldable-card__secondary">
+				<span class="dops-foldable-card__secondary">
 					<span class="dops-foldable-card__summary">
 						<?php echo $action; ?>
 					</span>
 				</span>
-		</div>
+			</div>
 		</div>
 		<?php
 	}
