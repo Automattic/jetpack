@@ -29,7 +29,7 @@ class Class_Moved extends PersistentListItem implements Invocation_Warner {
 	}
 
 	public function find_invocation_warnings( $invocation, $warnings ) {
-		if ( $invocation->depends_on( $this->declaration ) ) {
+		if ( $invocation->depends_on( $this->old_declaration ) ) {
 			$warnings->add(
 				new Warning( $this->type(), $invocation->path, $invocation->line, 'Class ' . $this->old_declaration->display_name() . ' was moved from ' . $this->old_declaration->path . ' to ' . $this->new_declaration->path, $this->old_declaration )
 			);
