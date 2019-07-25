@@ -102,10 +102,6 @@ function wp_super_cache_init_action() {
 	load_plugin_textdomain( 'wp-super-cache', false, basename( dirname( __FILE__ ) ) . '/languages' );
 
 	wpsc_register_post_hooks();
-
-	if ( is_admin() ) {
-		wpsc_fix_164();
-	}
 }
 add_action( 'init', 'wp_super_cache_init_action' );
 
@@ -4289,25 +4285,21 @@ function wpsc_get_extra_cookies() {
 	}
 }
 
-/*
- * 1.6.4 created an empty file called wp-admin/.php that must be cleaned up.
- */
-function wpsc_fix_164() {
-	global $wpsc_fix_164;
+function wpsc_update_check() {
+	global $wpsc_version;
 
 	if (
-		isset( $wpsc_fix_164 ) &&
-		$wpsc_fix_164
+		! isset( $wpsc_version ) ||
+		$wpsc_version != 169
 	) {
-		return false;
+		wp_cache_setting( 'wpsc_version', 169 );
+		global $wp_cache_debug_log, $cache_path;
+		$log_file = $cache_path . str_replace('/', '', str_replace('..', '', $wp_cache_debug_log));
+		if ( ! file_exists( $log_file ) ) {
+			return false;
+		}
+		@unlink( $log_file );
+		wp_cache_debug( 'wpsc_update_check: Deleted old log file on plugin update.' );
 	}
-
-	if (
-		file_exists( ABSPATH . '/wp-admin/.php' ) &&
-		0 == filesize( ABSPATH . '/wp-admin/.php' )
-	) {
-		@unlink( ABSPATH . '/wp-admin/.php' );
-	}
-
-	wp_cache_setting( 'wpsc_fix_164', 1 );
 }
+add_action( 'admin_init', 'wpsc_update_check' );
