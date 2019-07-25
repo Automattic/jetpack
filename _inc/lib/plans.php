@@ -24,9 +24,9 @@ class Jetpack_Plans {
 				'headers' => array(
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
-            ),
-            null,
-            'rest'
+			),
+			null,
+			'rest'
 		);
 
 		$body = wp_remote_retrieve_body( $request );
