@@ -25,21 +25,17 @@
             element: element
         }
     });
-    // eslint-disable-next-line
-    console.log( section_index);
 
-    each.call(tag_sections, function (element, index) {
+    each.call( tag_sections, function( element, index ) {
         hide( element );
-        element.querySelector('.activate-branch').setAttribute('data-index', index);
+        element.querySelector( '.activate-branch' ).setAttribute('data-index', index );
         tag_index[index] = {
-            header: element.querySelector('.tag-card-header').textContent,
-            tag: element.getAttribute('data-tag'),
+            header: element.querySelector( '.tag-card-header' ).textContent,
+            tag: element.getAttribute( 'data-tag' ),
             element: element
-        }
-    });
+        };
+    } );
 
-    // eslint-disable-next-line
-    console.log( section_index);
     // Search input
     search_input.addEventListener("keyup", function (event) {
         var search_for = pr_to_header(search_input.value);
