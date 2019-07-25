@@ -23,6 +23,8 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 	 * Only support a limited subset of Themes
 	 */
 	$enabled_themes = [
+		'brompton',
+		'brompton-wpcom',
 		'business',
 		'business-wpcom',
 		'calm-business',
@@ -31,10 +33,14 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 		'elegant-business-wpcom',
 		'friendly-business',
 		'friendly-business-wpcom',
+		'leven',
+		'leven-wpcom',
 		'modern-business',
 		'modern-business-wpcom',
 		'professional-business',
 		'professional-business-wpcom',
+		'redhill',
+		'redhill-wpcom',
 		'sophisticated-business',
 		'sophisticated-business-wpcom',
 	];
