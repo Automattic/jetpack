@@ -8,8 +8,25 @@
 
 .jetpack-disconnect-dialog__header {
 	font-size: 28px;
-	font-weight: normal;
-	font-style: normal;
 	line-height: 24px;
 	margin: 0;
+}
+
+.jetpack-disconnect-dialog__info {
+	font-size: 16px;
+	line-height: 24px;
+}
+
+.jetpack-disconnect-dialog__feature {
+	background: #ffffff;
+	border: 1px solid rgba( 213, 213, 213, 0.5 );
+	box-sizing: border-box;
+	box-shadow: 0px 1px 2px #eeeeee;
+}
+
+.jetpack-disconnect-dialog__feature-header {
+	text-transform: uppercase;
+	font-size: 12px;
+	line-height: 12px;
+	background: #eeeeee;
 }

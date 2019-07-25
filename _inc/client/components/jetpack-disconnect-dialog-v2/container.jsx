@@ -15,7 +15,7 @@ import QuerySiteBenefits from 'components/data/query-site-benefits';
 import JetpackDisconnectFeatures from 'components/jetpack-disconnect-dialog-v2/features';
 import restApi from 'rest-api';
 import { getAkismetData } from 'state/at-a-glance';
-import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
+import { setInitialState, getApiNonce, getApiRootUrl, getSiteRawUrl } from 'state/initial-state';
 import { getActiveFeatures } from 'state/site';
 
 // Procedure for adding a new feature:
@@ -46,8 +46,10 @@ class JetpackDisconnectDialogContainer extends React.Component {
 	}
 
 	render() {
-		const featureBenefitData = getFeatureBenefitData( this.props.featureBenefitData );
-		const featureHighlights = this.props.activeFeatures
+		const { activeFeatures, featureBenefitData: rawFeatureBenefitData, siteName } = this.props;
+
+		const featureBenefitData = getFeatureBenefitData( rawFeatureBenefitData );
+		const featureHighlights = activeFeatures
 			.filter( feature => featureWhitelist.includes( feature ) )
 			.map( feature =>
 				feature in featureBenefitData
@@ -60,7 +62,7 @@ class JetpackDisconnectDialogContainer extends React.Component {
 				<QuerySite />
 				<QueryAkismetData />
 				<QuerySiteBenefits />
-				<JetpackDisconnectFeatures featureHighlights={ featureHighlights }>
+				<JetpackDisconnectFeatures featureHighlights={ featureHighlights } siteName={ siteName }>
 					{ this.props.children }
 				</JetpackDisconnectFeatures>
 			</>
@@ -76,6 +78,7 @@ export default connect(
 		featureBenefitData: {
 			spam_blocked: get( getAkismetData( state ), 'all.spam' ),
 		},
+		siteName: getSiteRawUrl( state ).replace( /:: /g, '/' ),
 	} ),
 	dispatch => ( {
 		setInitialState: () => {
