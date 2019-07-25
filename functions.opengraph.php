@@ -295,7 +295,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	}
 	$image = array();
 
-	if ( is_singular() && ! is_home() ) {
+	if ( ( is_singular() || is_archive() ) && ! is_home() ) {
 		// Grab obvious image if post is an attachment page for an image.
 		if ( is_attachment( get_the_ID() ) && 'image' === substr( get_post_mime_type(), 0, 5 ) ) {
 			$image['src'] = wp_get_attachment_url( get_the_ID() );
