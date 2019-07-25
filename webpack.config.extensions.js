@@ -124,7 +124,7 @@ module.exports = [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(
 				/^@wordpress\/i18n$/,
-				path.join( __dirname, './_inc/client/i18n-to-php' )
+				path.join( __dirname, './extensions/shared/i18n-to-php' )
 			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
