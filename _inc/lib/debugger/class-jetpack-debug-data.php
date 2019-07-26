@@ -94,6 +94,10 @@ class Jetpack_Debug_Data {
 	 * @return array $args Debug information in the same format as the initial argument.
 	 */
 	public static function core_debug_data( $debug ) {
+		$support_url = Jetpack::is_development_version()
+			? 'https://jetpack.com/contact-support/beta-group/'
+			: 'https://jetpack.com/contact-support/';
+
 		$jetpack = array(
 			'jetpack' => array(
 				'label'       => __( 'Jetpack', 'jetpack' ),
@@ -103,7 +107,7 @@ class Jetpack_Debug_Data {
 						'Diagnostic information helpful to <a href="%1$s" target="_blank" rel="noopener noreferrer">your Jetpack Happiness team<span class="screen-reader-text">%2$s</span></a>',
 						'jetpack'
 					),
-					esc_html( 'https://jetpack.com/contact-support/' ),
+					esc_url( $support_url ),
 					__( '(opens in a new tab)', 'jetpack' )
 				),
 				'fields'      => self::debug_data(),

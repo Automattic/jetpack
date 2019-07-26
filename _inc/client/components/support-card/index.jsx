@@ -14,11 +14,11 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { PLAN_JETPACK_PERSONAL } from 'lib/plans/constants';
-import { isAtomicSite, getUpgradeUrl } from 'state/initial-state';
+import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getSiteConnectionStatus } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
+import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 
 class SupportCard extends React.Component {
 	static displayName = 'SupportCard';
@@ -69,6 +69,10 @@ class SupportCard extends React.Component {
 				'undefined' === typeof this.props.sitePlan.product_slug ||
 				'jetpack_free' === this.props.sitePlan.product_slug;
 
+		const jetpackSupportURl = this.props.isDevVersion
+			? JETPACK_CONTACT_BETA_SUPPORT
+			: JETPACK_CONTACT_SUPPORT;
+
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
@@ -85,7 +89,7 @@ class SupportCard extends React.Component {
 								href={
 									this.props.isAtomicSite
 										? 'https://wordpress.com/help/contact/'
-										: JETPACK_CONTACT_SUPPORT
+										: jetpackSupportURl
 								}
 							>
 								{ __( 'Ask a question' ) }
@@ -128,6 +132,7 @@ export default connect( state => {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isFetchingSiteData: isFetchingSiteData( state ),
 		isAtomicSite: isAtomicSite( state ),
+		isDevVersion: _isDevVersion( state ),
 		supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
 	};
 } )( SupportCard );
