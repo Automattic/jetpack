@@ -419,34 +419,34 @@ class Queue {
 			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jpsq_{$this->id}-%" );
 		}
 
-		$items = $wpdb->get_results( $query_sql, OBJECT );
-		foreach ( $items as $item ) {
-			$item->value = maybe_unserialize( $item->value );
-		}
-
-		return $items;
+		return $this->query_for_items( $query_sql );
 	}
 
 	private function fetch_items_by_id( $items_ids ) {
 		global $wpdb;
+		$ids_placeholders = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
 
-		$items_ids = implode(
-			', ',
-			array_map(
-				function ( $value ) {
-					return "'" . esc_sql( $value ) . "'";
-				},
-				$items_ids
-			)
+		$query_sql = $wpdb->prepare(
+			"
+			SELECT option_name AS id, option_value AS value
+			FROM $wpdb->options
+			WHERE option_name IN ( $ids_placeholders )",
+			$items_ids
 		);
 
-		$query_sql = "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name IN (" . $items_ids . ')';
+		return $this->query_for_items( $query_sql );
+	}
+
+	private function query_for_items( $query_sql ) {
+		global $wpdb;
 
 		$items = $wpdb->get_results( $query_sql, OBJECT );
-		foreach ( $items as $item ) {
-			$item->value = maybe_unserialize( $item->value );
-		}
-
+		array_walk(
+			$items,
+			function( $item ) {
+				$item->value = maybe_unserialize( $item->value );
+			}
+		);
 		return $items;
 	}
 
