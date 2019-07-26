@@ -13,6 +13,7 @@ import { every } from 'lodash';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
+import deprecatedV1 from './deprecated/v1';
 
 const addVideoPressSupport = ( settings, name ) => {
 	if ( 'core/video' !== name ) {
@@ -50,6 +51,9 @@ const addVideoPressSupport = ( settings, name ) => {
 					type: 'boolean',
 				},
 				muted: {
+					type: 'boolean',
+				},
+				playsInline: {
 					type: 'boolean',
 				},
 				poster: {
@@ -109,7 +113,7 @@ const addVideoPressSupport = ( settings, name ) => {
 					save: settings.save,
 					isEligible: attrs => ! attrs.guid,
 				},
-				...( Array.isArray( settings.deprecated ) ? settings.deprecated : [] ),
+				deprecatedV1,
 			],
 		};
 	}

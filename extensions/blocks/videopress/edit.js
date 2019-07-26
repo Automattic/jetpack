@@ -3,11 +3,27 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
-import { __ } from '@wordpress/i18n';
-import { BlockControls, RichText } from '@wordpress/editor';
+import { __, sprintf } from '@wordpress/i18n';
+import {
+	BlockControls,
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	RichText,
+} from '@wordpress/editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { compose, createHigherOrderComponent } from '@wordpress/compose';
-import { Disabled, IconButton, SandBox, Toolbar } from '@wordpress/components';
+import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
+import {
+	BaseControl,
+	Button,
+	Disabled,
+	IconButton,
+	PanelBody,
+	SandBox,
+	SelectControl,
+	ToggleControl,
+	Toolbar,
+} from '@wordpress/components';
 import { get } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { withSelect } from '@wordpress/data';
@@ -16,6 +32,9 @@ import { withSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import Loading from './loading';
+import { getVideoPressUrl } from './url';
+
+const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 const VideoPressEdit = CoreVideoEdit =>
 	class extends Component {
@@ -90,17 +109,36 @@ const VideoPressEdit = CoreVideoEdit =>
 			} );
 		};
 
+		onSelectPoster = image => {
+			const { setAttributes } = this.props;
+			setAttributes( { poster: image.url } );
+		};
+
 		onRemovePoster = () => {
-			this.props.setAttributes( { poster: '' } );
+			const { setAttributes } = this.props;
+			setAttributes( { poster: '' } );
 
 			// Move focus back to the Media Upload button.
 			this.posterImageButton.current.focus();
+		};
+
+		toggleAttribute = attribute => {
+			return newValue => {
+				this.props.setAttributes( { [ attribute ]: newValue } );
+			};
+		};
+
+		getAutoplayHelp = checked => {
+			return checked
+				? __( 'Note: Autoplaying videos may cause usability issues for some visitors.', 'jetpack' )
+				: null;
 		};
 
 		render() {
 			const {
 				attributes,
 				className,
+				instanceId,
 				isFetchingPreview,
 				isSelected,
 				isUploading,
@@ -108,23 +146,11 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia } = this.state;
+			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
 
-			if ( isUploading ) {
-				return <Loading text={ __( 'Uploading…', 'jetpack' ) } />;
-			}
+			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
-			if ( isFetchingMedia || isFetchingPreview ) {
-				return <Loading text={ __( 'Embedding…', 'jetpack' ) } />;
-			}
-
-			if ( fallback || ! preview ) {
-				return <CoreVideoEdit { ...this.props } />;
-			}
-
-			const { html, scripts } = preview;
-			const { caption } = attributes;
-
-			return (
+			const blockSettings = (
 				<Fragment>
 					<BlockControls>
 						<Toolbar>
@@ -136,6 +162,105 @@ const VideoPressEdit = CoreVideoEdit =>
 							/>
 						</Toolbar>
 					</BlockControls>
+					<InspectorControls>
+						<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
+							<ToggleControl
+								label={ __( 'Autoplay', 'jetpack' ) }
+								onChange={ this.toggleAttribute( 'autoplay' ) }
+								checked={ autoplay }
+								help={ this.getAutoplayHelp }
+							/>
+							<ToggleControl
+								label={ __( 'Loop', 'jetpack' ) }
+								onChange={ this.toggleAttribute( 'loop' ) }
+								checked={ loop }
+							/>
+							<ToggleControl
+								label={ __( 'Muted', 'jetpack' ) }
+								onChange={ this.toggleAttribute( 'muted' ) }
+								checked={ muted }
+							/>
+							<ToggleControl
+								label={ __( 'Playback Controls', 'jetpack' ) }
+								onChange={ this.toggleAttribute( 'controls' ) }
+								checked={ controls }
+							/>
+							<SelectControl
+								label={ __( 'Preload', 'jetpack' ) }
+								value={ preload }
+								onChange={ value => setAttributes( { preload: value } ) }
+								options={ [
+									{ value: 'auto', label: __( 'Auto', 'jetpack' ) },
+									{ value: 'metadata', label: __( 'Metadata', 'jetpack' ) },
+									{ value: 'none', label: __( 'None', 'jetpack' ) },
+								] }
+							/>
+							<MediaUploadCheck>
+								<BaseControl
+									className="editor-video-poster-control"
+									label={ __( 'Poster Image', 'jetpack' ) }
+								>
+									<MediaUpload
+										title={ __( 'Select Poster Image', 'jetpack' ) }
+										onSelect={ this.onSelectPoster }
+										allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+										render={ ( { open } ) => (
+											<Button
+												isDefault
+												onClick={ open }
+												ref={ this.posterImageButton }
+												aria-describedby={ videoPosterDescription }
+											>
+												{ ! poster
+													? __( 'Select Poster Image', 'jetpack' )
+													: __( 'Replace image', 'jetpack' ) }
+											</Button>
+										) }
+									/>
+									<p id={ videoPosterDescription } hidden>
+										{ poster
+											? sprintf( __( 'The current poster image url is %s', 'jetpack' ), poster )
+											: __( 'There is no poster image currently selected', 'jetpack' ) }
+									</p>
+									{ !! poster && (
+										<Button onClick={ this.onRemovePoster } isLink isDestructive>
+											{ __( 'Remove Poster Image' ) }
+										</Button>
+									) }
+								</BaseControl>
+							</MediaUploadCheck>
+						</PanelBody>
+					</InspectorControls>
+				</Fragment>
+			);
+
+			if ( isUploading ) {
+				return (
+					<Fragment>
+						{ blockSettings }
+						<Loading text={ __( 'Uploading…', 'jetpack' ) } />
+					</Fragment>
+				);
+			}
+
+			if ( isFetchingMedia || isFetchingPreview ) {
+				return (
+					<Fragment>
+						{ blockSettings }
+						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
+					</Fragment>
+				);
+			}
+
+			if ( fallback || ! preview ) {
+				return <CoreVideoEdit { ...this.props } />;
+			}
+
+			const { html, scripts } = preview;
+
+			return (
+				<Fragment>
+					{ blockSettings }
 					<figure className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }>
 						{ /*
 							Disable the video player so the user clicking on it won't play the
@@ -164,10 +289,17 @@ const VideoPressEdit = CoreVideoEdit =>
 export default createHigherOrderComponent(
 	compose( [
 		withSelect( ( select, ownProps ) => {
-			const { guid, src } = ownProps.attributes;
+			const { autoplay, controls, guid, loop, muted, poster, preload, src } = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
-			const url = !! guid && `https://videopress.com/v/${ guid }`;
+			const url = getVideoPressUrl( guid, {
+				autoplay,
+				controls,
+				loop,
+				muted,
+				poster,
+				preload,
+			} );
 			const preview = !! url && getEmbedPreview( url );
 
 			const isFetchingEmbedPreview = !! url && isRequestingEmbedPreview( url );
@@ -179,6 +311,7 @@ export default createHigherOrderComponent(
 				preview,
 			};
 		} ),
+		withInstanceId,
 		VideoPressEdit,
 	] ),
 	'withVideoPressEdit'
