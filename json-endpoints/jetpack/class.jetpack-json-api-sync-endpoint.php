@@ -288,7 +288,8 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		}
 
 		return array(
-			'success' => Actions::get_sync_status(),
+			'success' => $response,
+			'status' => Actions::get_sync_status(),
 		);
 	}
 
