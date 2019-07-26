@@ -62,6 +62,16 @@ class Terms extends Module {
 			$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $id ) );
 		}
 
+		if ( 'term_relationships' === $object_type ) {
+			$columns = implode( ', ', Defaults::$default_term_relationships_checksum_columns );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_relationships WHERE object_id = %d", $id ) );
+			$object  = (object) array(
+				'object_id'     => $id,
+				'relationships' => array_map( array( $this, 'add_term_to_relationship' ), $objects ),
+			);
+		}
+
 		return $object ? $object : false;
 	}
 
@@ -273,6 +283,24 @@ class Terms extends Module {
 				)
 			),
 			'previous_end' => $previous_end,
+		);
+	}
+
+	/**
+	 * Appends a term object to a row object from the term_relationships table.
+	 * This aids WordPress.com in re-syncing term_relationship tables that are out of sync.
+	 *
+	 * @access public
+	 *
+	 * @param object $relationship A row object from the term_relationships table.
+	 * @return object A row object from the term_relationships table with corresponding term object appended.
+	 */
+	public function add_term_to_relationship( $relationship ) {
+		return (object) array(
+			'object_id'        => $relationship->object_id,
+			'term_taxonomy_id' => $relationship->term_taxonomy_id,
+			'term_order'       => $relationship->term_order,
+			'term'             => get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id ),
 		);
 	}
 }
