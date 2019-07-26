@@ -94,6 +94,24 @@ function jetpack_og_tags() {
 			$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
 			$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
 		}
+	} elseif ( is_archive() ) {
+		$tags['og:type'] 		= 'website';
+		$tags['og:title']		= wp_get_document_title();
+		$tags['og:site_name']	= get_bloginfo( 'name' );
+
+		$archive = get_queried_object();
+		if ( ! empty( $archive ) ) {
+			if ( is_category() || is_tag() || is_tax() ) {
+				$tags['og:url'] 		= get_term_link( $archive->term_id, $archive->$taxonomy );
+				$tags['og:description']	= $archive->description;
+			} elseif ( is_post_type_archive() ) {
+				$tags['og:url'] 		= get_post_type_archive_link( $archive->name );
+				$tags['og:description']	= $archive->description;
+			} else {
+				$tags['og:url'] 		= home_url( '/' );
+				$tags['og:description']	= get_bloginfo( 'description' );
+			}
+		}
 	} elseif ( is_singular() ) {
 		global $post;
 		$data = $post; // so that we don't accidentally explode the global.
