@@ -288,7 +288,7 @@ class Terms extends Module {
 
 	/**
 	 * Appends a term object to a row object from the term_relationships table.
-	 * This aids WordPress.com in re-syncing term_relationship tables that are out of sync.
+	 * This aids WordPress.com in re-syncing term_relationships tables that are out of sync.
 	 *
 	 * @access public
 	 *
