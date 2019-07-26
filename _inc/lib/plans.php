@@ -5,8 +5,6 @@
  * Fetch plans data from WordPress.com
  */
 
-use Automattic\Jetpack\Connection\Client;
-
 class Jetpack_Plans {
 	/**
 	 * Get a list of all available plans from WordPress.com
@@ -24,7 +22,8 @@ class Jetpack_Plans {
 			return Store_Product_List::get_active_plans_v1_5();
 		}
 
-		$request = Client::wpcom_json_api_request_as_user(
+		// We're on Jetpack, so it's safe to use this namespace
+		$request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			'/plans?_locale=' . get_user_locale(),
 			'1.5',
 			array(
