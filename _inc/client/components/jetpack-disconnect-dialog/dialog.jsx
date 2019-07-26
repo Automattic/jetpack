@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 /**
@@ -18,13 +19,16 @@ const JETPACK_DISCONNECT_INITIAL_STEP = 'jetpack_disconnect_initial_step';
 const JETPACK_DISCONNECT_SURVEY_STEP = 'jetpack_disconnect_survey_step';
 
 class JetpackDisconnectDialog extends Component {
+	static propTypes = {
+		closeDialog: PropTypes.func.isRequired,
+		disconnectJetpack: PropTypes.func.isRequired,
+	};
+
 	constructor( props ) {
 		super( props );
 
 		this.state = { step: JETPACK_DISCONNECT_INITIAL_STEP };
-		this.handleCloseButtonClick = this.handleCloseButtonClick.bind( this );
 		this.handleFeaturesContinueClick = this.handleFeaturesContinueClick.bind( this );
-		this.handleSurveyDisableClick = this.handleSurveyDisableClick.bind( this );
 		this.handleSurveyAnswerChange = this.handleSurveyAnswerChange.bind( this );
 	}
 
@@ -34,18 +38,6 @@ class JetpackDisconnectDialog extends Component {
 			surveyAnswerId: null,
 			surveyAnswerText: '',
 		} );
-	}
-
-	handleSurveyDisableClick() {
-		if ( parent.deactivateJetpack ) {
-			parent.deactivateJetpack();
-		}
-	}
-
-	handleCloseButtonClick() {
-		if ( parent.tb_remove ) {
-			parent.tb_remove();
-		}
 	}
 
 	handleSurveyAnswerChange( surveyAnswerId, surveyAnswerText ) {
@@ -59,7 +51,7 @@ class JetpackDisconnectDialog extends Component {
 		return (
 			<FeaturesContainer
 				onContinueButtonClick={ this.handleFeaturesContinueClick }
-				onCloseButtonClick={ this.handleCloseButtonClick }
+				onCloseButtonClick={ this.props.closeDialog }
 			/>
 		);
 	}
@@ -69,7 +61,7 @@ class JetpackDisconnectDialog extends Component {
 
 		return (
 			<Survey
-				onDisconnectButtonClick={ this.handleSurveyDisableClick }
+				onDisconnectButtonClick={ this.props.disconnectJetpack }
 				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
 				surveyAnswerId={ surveyAnswerId }
 				surveyAnswerText={ surveyAnswerText }

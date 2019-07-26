@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import QueryAkismetData from 'components/data/query-akismet-data';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
-import JetpackDisconnectFeatures from 'components/jetpack-disconnect-dialog-v2/features';
+import JetpackDisconnectFeatures from 'components/jetpack-disconnect-dialog/features';
 import restApi from 'rest-api';
 import { setInitialState, getApiNonce, getApiRootUrl, getSiteRawUrl } from 'state/initial-state';
 import { getFeatureBenefits } from 'state/site';
