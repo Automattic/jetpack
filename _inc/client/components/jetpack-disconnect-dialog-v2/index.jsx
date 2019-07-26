@@ -25,11 +25,14 @@ class JetpackDisconnectDialog extends Component {
 		this.handleCloseButtonClick = this.handleCloseButtonClick.bind( this );
 		this.handleFeaturesContinueClick = this.handleFeaturesContinueClick.bind( this );
 		this.handleSurveyDisableClick = this.handleSurveyDisableClick.bind( this );
+		this.handleSurveyAnswerChange = this.handleSurveyAnswerChange.bind( this );
 	}
 
 	handleFeaturesContinueClick() {
 		this.setState( {
 			step: JETPACK_DISCONNECT_SURVEY_STEP,
+			surveyAnswerId: null,
+			surveyAnswerText: '',
 		} );
 	}
 
@@ -45,6 +48,13 @@ class JetpackDisconnectDialog extends Component {
 		}
 	}
 
+	handleSurveyAnswerChange( surveyAnswerId, surveyAnswerText ) {
+		this.setState( {
+			surveyAnswerId,
+			surveyAnswerText,
+		} );
+	}
+
 	renderInitialStep() {
 		return (
 			<FeaturesContainer
@@ -55,7 +65,16 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	renderSurveyStep() {
-		return <Survey onDisconnectButtonClick={ this.handleSurveyDisableClick } />;
+		const { surveyAnswerId, surveyAnswerText } = this.state;
+
+		return (
+			<Survey
+				onDisconnectButtonClick={ this.handleSurveyDisableClick }
+				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
+				surveyAnswerId={ surveyAnswerId }
+				surveyAnswerText={ surveyAnswerText }
+			/>
+		);
 	}
 
 	render() {
