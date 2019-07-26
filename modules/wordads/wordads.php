@@ -132,7 +132,7 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'init' ) );
 	}
 
 	/**
