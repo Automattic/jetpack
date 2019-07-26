@@ -249,7 +249,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				<?php
 				if ( ! is_customize_preview() && true === $instance['goodmap'] ) {
 					echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				} elseif ( true !== $instance['goodmap'] ) {
+				} elseif ( true !== $instance['goodmap'] && ! empty( $instance['goodmap'] ) ) {
 					printf(
 						'<span class="notice notice-warning" style="display: block;">%s</span>',
 						esc_html( $instance['goodmap'] )
