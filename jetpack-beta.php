@@ -1173,7 +1173,11 @@ class Jetpack_Beta {
 
 		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'log' ) ) {
 			$error_string = sprintf( "%s, %s:%d", $errstr, $errfile, $errline );
-			Jetpack::log( $errno, $error_string );
+
+			// Only adding to log if the message is related to Jetpack.
+			if ( false !== stripos( $error_string, 'jetpack' ) ) {
+				Jetpack::log( $errno, $error_string );
+			}
 		}
 
 		/**
