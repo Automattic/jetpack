@@ -72,7 +72,11 @@ class Jetpack_Components {
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		$post_type_editor_route_prefix = in_array( $post_type, array( 'page', 'post' ) ) ? '' : 'edit';
 
-		$site_slug = Jetpack::build_raw_urls( get_home_url() );
+		if ( method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+			$site_slug = Jetpack::build_raw_urls( home_url() );
+		} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+			$site_slug = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+		}
 
 		$upgrade_url =
 			$plan_path_slug

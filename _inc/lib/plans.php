@@ -16,6 +16,14 @@ class Jetpack_Plans {
 	 * @return array The plans list
 	 */
 	public static function get_plans() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'Store_Product_List' ) ) {
+				require( WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php' );
+			}
+
+			return Store_Product_List::get_active_plans_v1_5();
+		}
+
 		$request = Client::wpcom_json_api_request_as_user(
 			'/plans?_locale=' . get_user_locale(),
 			'1.5',
