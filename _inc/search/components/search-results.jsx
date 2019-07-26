@@ -15,8 +15,8 @@ class SearchResults extends Component {
 	render() {
 		const { results = [], query } = this.props;
 		return (
-			<div>
-				<p>{ sprintf( __( 'You are searching for "%s"' ), query ) }.</p>
+			<div className="jetpack-instant-search__search-results">
+				<p>{ sprintf( __( 'You are searching for: "%s"' ), query ) }</p>
 				{ results.map( result => (
 					<SearchResult result={ result } />
 				) ) }
