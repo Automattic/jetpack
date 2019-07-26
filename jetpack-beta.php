@@ -64,8 +64,10 @@ class Jetpack_Beta {
 
 	protected static $_instance = null;
 
-	static $option = 'jetpack_beta_active';
+	static $option               = 'jetpack_beta_active';
 	static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
+	static $option_autoupdate    = 'jp_beta_autoupdate';
+	static $option_email_notif   = 'jp_beta_email_notifications';
 
 	static $auto_update_cron_hook = 'jetpack_beta_autoupdate_hourly_cron';
 
@@ -103,6 +105,8 @@ class Jetpack_Beta {
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
 		add_action( 'jetpack_beta_autoupdate_hourly_cron', array( 'Jetpack_Beta', 'run_autoupdate' ) );
+
+		add_filter( 'jetpack_options_whitelist', array( $this, 'add_to_options_whitelist' ) );
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
@@ -1138,6 +1142,19 @@ class Jetpack_Beta {
 		}
 
 		return $source;
+	}
+
+	/**
+	 * Callback function to include Jetpack beta options into Jetpack sync whitelist
+	 * 
+	 * @param Array $whitelist List of whitelisted options to sync
+	 */
+	public function add_to_options_whitelist( $whitelist ) {
+		$whitelist[] = self::$option;
+		$whitelist[] = self::$option_dev_installed;
+		$whitelist[] = self::$option_autoupdate;
+		$whitelist[] = self::$option_email_notif;
+		return $whitelist;
 	}
 }
 
