@@ -4,16 +4,39 @@
  * Jurassic Ninja site creator.
  */
 class Jetpack_Beta_JN_Creator {
-	private static $create_url = 'https://jurassic.ninja/wp-json/jurassic.ninja/create';
+	private static $create_url          = 'https://jurassic.ninja/wp-json/jurassic.ninja/create';
+	private static $transient_status    = 'jn-creator-status';
+	private static $transient_site_info = 'jn-creator-site-info';
 
 	public static function do_stuff() {
 		$jn_creator = new self();
+		$jn_creator->update_process_status( 'in-process' );
 		$site_url = $jn_creator->request_site();
 		$jn_creator->extract_site_credentials( $site_url );
+		$jn_creator->persist_site_info();
+		$jn_creator->update_process_status( 'done' );
 		error_log( 'DONE' );
 		error_log( $jn_creator->jurassic_password );
 		return $jn_creator->jurassic_password;
 	}
+
+	/**
+	 * Returns site creation status. it might be one of the following:
+	 *  - false - if process not started OR expired
+	 *  - in-process - once process was started
+	 *  - done - when process is done, and site info persisted
+	 */
+	public static function get_process_status() {
+		return get_transient( self::$transient_status );
+	}
+
+	/**
+	 * Returns site info as an associated array. Returns false if site info is not available
+	 */
+	public static function get_site_info() {
+		return get_transient( self::$transient_site_info );
+	}
+
 	/**
 	 * Sends API request to create new JN site.
 	 */
@@ -52,5 +75,18 @@ class Jetpack_Beta_JN_Creator {
 		$this->jurassic_username = $doc->getElementById( 'jurassic_username' )->childNodes[0]->data;
 
 		return $this->jurassic_password;
+	}
+
+	private function persist_site_info() {
+		$site_info = [
+			'jurassic_url'      => $this->jurassic_url,
+			'jurassic_password' => $this->jurassic_password,
+			'jurassic_username' => $this->jurassic_username,
+		];
+		set_transient( self::$transient_site_info, $site_info, 60 * 60 * 24 * 7 ); // 7 Days expiration time
+	}
+
+	private function update_process_status( $status ) {
+		set_transient( self::$transient_status, $status, 10 * 60 ); // 10 Minute expiration time
 	}
 }
