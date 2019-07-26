@@ -48,7 +48,12 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 * Enqueue scripts and styles.
 		 */
 		public function enqueue_scripts() {
-			wp_enqueue_style( 'contact-info-map-css', plugins_url( 'contact-info/contact-info-map.css', __FILE__ ), null, 20160623 );
+			wp_enqueue_style(
+				'contact-info-map-css',
+				plugins_url( 'contact-info/contact-info-map.css', __FILE__ ),
+				array(),
+				JETPACK__VERSION
+			);
 		}
 
 
