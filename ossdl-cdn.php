@@ -202,6 +202,8 @@ function scossdl_off_filter( $content ) {
 		$ossdl_arr_of_cnames = array_merge( array( $ossdl_off_cdn_url ), (array) $ossdl_arr_of_cnames );
 	}
 
+	$ossdl_arr_of_cnames = apply_filters( 'wpsc_cdn_urls', $ossdl_arr_of_cnames );
+
 	$dirs  = scossdl_off_additional_directories();
 	$regex = '`(?<=[(\"\'])' . preg_quote( $ossdl_off_blog_url, '`' ) . '/(?:((?:' . $dirs . ')[^\"\')]+)|([^/\"\']+\.[^/\"\')]+))(?=[\"\')])`';
 	return preg_replace_callback( $regex, 'scossdl_off_rewriter', $content );
