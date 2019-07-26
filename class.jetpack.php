@@ -621,10 +621,10 @@ class Jetpack {
 					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
 				}
 			} else {
-				new XMLRPC_Connector( $this->connection_manager );
-
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+
+				new XMLRPC_Connector( $this->connection_manager );
 
 				if ( $this->verify_xml_rpc_signature() ) {
 					// the jetpack Provision method is available for blog-token-signed requests
