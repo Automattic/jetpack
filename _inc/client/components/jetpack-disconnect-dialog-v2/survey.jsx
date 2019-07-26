@@ -12,15 +12,18 @@ import { translate as __ } from 'i18n-calypso';
 import MultiChoiceQuestion from 'components/multiple-choice-question';
 
 const answers = [
-	{ id: 'too-confusing', answerText: __( 'It was too hard to configure Jetpack.' ) },
-	{ id: 'missing-feature', answerText: __( 'A feature I needed was missing.' ) },
-	{ id: 'too-expensive', answerText: __( 'This plan is too expensive.' ) },
+	{ id: 'cannot-work', answerText: __( "I can't get it to work." ) },
+	{ id: 'slow', answerText: __( 'It slowed down my site.' ) },
+	{ id: 'buggy', answerText: __( "It's buggy." ) },
+	{ id: 'no-clarity', answerText: __( "I don't know what it does." ) },
+	{ id: 'delete', answerText: __( "I'm deleting/migrating my site." ) },
 	{ id: 'troubleshooting', answerText: __( "Troubleshooting - I'll be reconnecting afterwards." ) },
 	{
-		id: 'another-reason',
-		answerText: 'Another reason:',
+		id: 'other',
+		answerText: 'Other:',
 		textInput: true,
 		textInputPrompt: 'share your experience',
+		doNotShuffle: true,
 	},
 ];
 
