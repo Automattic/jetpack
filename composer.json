@@ -9,6 +9,7 @@
 	},
 	"require": {
 		"ext-openssl": "*",
+		"automattic/gridicons": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-logo": "@dev",
@@ -37,6 +38,18 @@
 		{
 			"type": "path",
 			"url": "./packages/*"
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "automattic/gridicons",
+				"version": "3.1.1",
+				"source": {
+					"url": "https://github.com/Automattic/gridicons",
+					"type": "git",
+					"reference": "master"
+				}
+			}
 		}
 	],
 	"autoload": {

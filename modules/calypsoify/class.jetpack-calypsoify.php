@@ -255,6 +255,10 @@ class Jetpack_Calypsoify {
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
 		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
+		if ( ! function_exists( 'get_gridicon' ) ) {
+			require_once( JETPACK__PLUGIN_DIR . 'vendor/automattic/gridicons/php/gridicons.php' );
+		}
+
 		$icons = array(
 			'checkmark'   => get_gridicon( 'gridicons-checkmark' ),
 			'chevronDown' => get_gridicon( 'gridicons-chevron-down' ),
