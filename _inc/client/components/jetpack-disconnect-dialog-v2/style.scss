@@ -66,3 +66,13 @@
 		line-height: 26px;
 	}
 }
+
+.jetpack-disconnect-dialog__button-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+
+	.dops-button {
+		margin-left: 18px;
+	}
+}

@@ -18,6 +18,8 @@ import { getFeatureBenefits } from 'state/site';
 
 class JetpackDisconnectDialogContainer extends React.Component {
 	static propTypes = {
+		onCloseButtonClick: PropTypes.func,
+		onContinueButtonClick: PropTypes.func,
 		siteBenefits: PropTypes.object,
 	};
 
@@ -35,6 +37,8 @@ class JetpackDisconnectDialogContainer extends React.Component {
 				<QueryAkismetData />
 				<QuerySiteBenefits />
 				<JetpackDisconnectFeatures
+					onCloseButtonClick={ this.props.onCloseButtonClick }
+					onContinueButtonClick={ this.props.onContinueButtonClick }
 					siteBenefits={ this.props.siteBenefits }
 					siteName={ this.props.siteName }
 				>

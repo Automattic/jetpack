@@ -49,18 +49,10 @@ class JetpackDisconnectDialog extends Component {
 
 	renderInitialStep() {
 		return (
-			<FeaturesContainer>
-				<Button
-					class="jetpack-disconnect-dialog-close-button"
-					compact
-					onClick={ this.handleCloseButtonClick }
-				>
-					{ __( 'Close' ) }
-				</Button>
-				<Button compact scary onClick={ this.handleFeaturesContinueClick }>
-					{ __( 'Continue Disabling Jetpack' ) }
-				</Button>
-			</FeaturesContainer>
+			<FeaturesContainer
+				onContinueButtonClick={ this.handleFeaturesContinueClick }
+				onCloseButtonClick={ this.handleCloseButtonClick }
+			/>
 		);
 	}
 

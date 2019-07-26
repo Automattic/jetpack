@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import Button from 'components/button';
 import Card from 'components/card';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -17,7 +18,11 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-const JetpackDisconnectDialogFeatures = ( { /*siteBenefits,*/ children, siteName } ) => {
+const JetpackDisconnectDialogFeatures = ( {
+	/*siteBenefits,*/ onCloseButtonClick,
+	onContinueButtonClick,
+	siteName,
+} ) => {
 	const featurePlaceholders = [
 		{
 			title: 'Brute Force Protection',
@@ -72,7 +77,12 @@ const JetpackDisconnectDialogFeatures = ( { /*siteBenefits,*/ children, siteName
 					) ) }
 				</div>
 				<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
-				{ children }
+				<div className="jetpack-disconnect-dialog__button-row">
+					<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
+					<Button primary onClick={ onContinueButtonClick }>
+						{ __( 'Continue' ) }
+					</Button>
+				</div>
 			</Card>
 		</div>
 	);
