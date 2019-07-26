@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-import Button from 'components/button';
 import React, { Component } from 'react';
-import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -57,20 +55,7 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	renderSurveyStep() {
-		return (
-			<Survey>
-				<Button
-					class="jetpack-disconnect-dialog-close-button"
-					compact
-					onClick={ this.handleCloseButtonClick }
-				>
-					{ __( 'Close' ) }
-				</Button>
-				<Button compact primary onClick={ this.handleSurveyDisableClick }>
-					{ __( 'Disable Jetpack' ) }
-				</Button>
-			</Survey>
-		);
+		return <Survey onDisconnectButtonClick={ this.handleSurveyDisableClick } />;
 	}
 
 	render() {
