@@ -107,10 +107,10 @@ function jetpack_og_tags() {
 			} elseif ( is_post_type_archive() ) {
 				$tags['og:url'] 		= get_post_type_archive_link( $archive->name );
 				$tags['og:description']	= $archive->description;
-			} else {
-				$tags['og:url'] 		= home_url( '/' );
-				$tags['og:description']	= get_bloginfo( 'description' );
 			}
+		} else { // for date archives and future-proofing
+			$tags['og:url'] 		= home_url( '/' );
+			$tags['og:description']	= get_bloginfo( 'description' );
 		}
 	} elseif ( is_singular() ) {
 		global $post;
