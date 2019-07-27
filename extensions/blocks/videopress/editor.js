@@ -16,9 +16,12 @@ import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-
 import deprecatedV1 from './deprecated/v1';
 
 const addVideoPressSupport = ( settings, name ) => {
-	if ( 'core/video' !== name ) {
+	// Bail if this is not the video block or if the hook has been triggered by a deprecation.
+	if ( 'core/video' !== name || settings.isDeprecation ) {
 		return settings;
 	}
+
+	const { attributes, deprecated, edit, save, supports, transforms } = settings;
 
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
@@ -69,7 +72,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 
 			transforms: {
-				...settings.transforms,
+				...transforms,
 				from: [
 					{
 						type: 'files',
@@ -99,19 +102,22 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 
 			supports: {
-				...settings.supports,
+				...supports,
 				reusable: false,
 			},
 
-			edit: withVideoPressEdit( settings.edit ),
+			edit: withVideoPressEdit( edit ),
 
-			save: withVideoPressSave( settings.save ),
+			save: withVideoPressSave( save ),
 
 			deprecated: [
+				...( deprecated || [] ),
 				{
-					attributes: settings.attributes,
-					save: settings.save,
+					attributes,
 					isEligible: attrs => ! attrs.guid,
+					save,
+					supports,
+					isDeprecation: true,
 				},
 				deprecatedV1,
 			],

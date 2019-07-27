@@ -44,4 +44,5 @@ export default {
 		reusable: false,
 	},
 	save,
+	isDeprecation: true,
 };
