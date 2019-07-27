@@ -589,51 +589,10 @@ class Jetpack {
 		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
 
-		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms
-		if ( isset( $_GET['jetpack'] ) && 'comms' == $_GET['jetpack'] && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
-			if ( ! defined( 'XMLRPC_REQUEST' ) ) {
-				define( 'XMLRPC_REQUEST', true );
-			}
+		$is_jetpack_xmlrpc_request = $this->setup_xmlrpc_handlers( $_GET, Jetpack::is_active(), $this->verify_xml_rpc_signature() );
 
-			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
-
-			add_filter( 'xmlrpc_methods', array( $this, 'remove_non_jetpack_xmlrpc_methods' ), 1000 );
-		}
-
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
-			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
-
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
-			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
-
-			$this->require_jetpack_authentication();
-
-			if ( Jetpack::is_active() ) {
-				// Hack to preserve $HTTP_RAW_POST_DATA
-				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
-
-				if ( $this->verify_xml_rpc_signature() ) {
-					// The actual API methods.
-					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
-				} else {
-					// The jetpack.authorize method should be available for unauthenticated users on a site with an
-					// active Jetpack connection, so that additional users can link their account.
-					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
-				}
-			} else {
-				// The bootstrap API methods.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
-
-				new XMLRPC_Connector( $this->connection_manager );
-
-				if ( $this->verify_xml_rpc_signature() ) {
-					// the jetpack Provision method is available for blog-token-signed requests
-					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
-				}
-			}
-
-			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
-			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
+		if ( $is_jetpack_xmlrpc_request ) {
+			// pass
 		} elseif (
 			is_admin() &&
 			isset( $_POST['action'] ) && (
@@ -757,7 +716,68 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+	}
 
+	function setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, Jetpack_XMLRPC_Server $xmlrpc_server = null ) {
+		if ( ! isset( $request_params['for'] ) || 'jetpack' != $request_params['for'] ) {
+			return false;
+		}
+
+		// Alternate XML-RPC, via ?for=jetpack&jetpack=comms
+		if ( isset( $request_params['jetpack'] ) && 'comms' == $request_params['jetpack'] ) {
+			if ( ! Constants::is_defined( 'XMLRPC_REQUEST' ) ) {
+				// Use the real constant here for WordPress' sake.
+				define( 'XMLRPC_REQUEST', true );
+			}
+
+			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
+
+			add_filter( 'xmlrpc_methods', array( $this, 'remove_non_jetpack_xmlrpc_methods' ), 1000 );
+		}
+
+		if ( ! Constants::get_constant( 'XMLRPC_REQUEST' ) ) {
+			return false;
+		}
+
+		@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
+
+		if ( $xmlrpc_server ) {
+			$this->xmlrpc_server = $xmlrpc_server;
+		} else {
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
+			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
+		}
+
+		$this->require_jetpack_authentication();
+
+		if ( $is_active ) {
+			// Hack to preserve $HTTP_RAW_POST_DATA
+			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+
+			if ( $is_signed ) {
+				// The actual API methods.
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+			} else {
+				// The jetpack.authorize method should be available for unauthenticated users on a site with an
+				// active Jetpack connection, so that additional users can link their account.
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
+			}
+		} else {
+			// The bootstrap API methods.
+			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+
+			new XMLRPC_Connector( $this->connection_manager );
+
+			if ( $is_signed ) {
+				// the jetpack Provision method is available for blog-token-signed requests
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
+			}
+		}
+
+		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
+		add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
+
+		return true;
 	}
 
 	function initialize_rest_api_registration_connector() {

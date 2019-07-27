@@ -1,18 +1,39 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
 	public function __construct() {
+		$this->connection_manager = new Connection_Manager();
+	}
+}
+
+class MockJetpack_XMLRPC_Server extends Jetpack_XMLRPC_Server {
+	private $mockLoginUser = false;
+
+	public function __construct( $user ) {
+		$this->mockLoginUser = $user;
+	}
+
+	public function login() {
+		return $this->mockLoginUser;
 	}
 }
 
 class WP_Test_Jetpack extends WP_UnitTestCase {
+	static $admin_id = 0;
 
 	static $activated_modules = array();
 	static $deactivated_modules = array();
+
+	public static function wpSetupBeforeClass() {
+		self::$admin_id = self::factory()->user->create( array(
+			'role' => 'administrator',
+		) );
+	}
 
 	public function tearDown() {
 		parent::tearDown();
@@ -951,4 +972,155 @@ EXPECTED;
 	static function track_deactivated_modules( $module ) {
 		self::$deactivated_modules[] = $module;
 	}
+
+	private function mocked_setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $user = false ) {
+		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
+
+		Constants::set_constant( 'XMLRPC_REQUEST', true );
+
+		$jetpack = new MockJetpack;
+		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
+		return $jetpack->setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $xmlrpc_server );
+	}
+
+	private function assertSetsMatch( $array_1, $array_2 ) {
+		sort( $array_1 );
+		sort( $array_2 );
+		$this->assertArraySubset( $array_1, $array_2 );
+		$this->assertArraySubset( $array_2, $array_1 );
+	}
+
+	/**
+	 * @group xmlrpc
+	 */
+	public function test_classic_xmlrpc_when_active_and_signed_with_no_user() {
+		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, true );
+
+		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+
+		$expected = [
+			'jetpack.jsonAPI',
+			'jetpack.verifyAction',
+			'jetpack.getUser',
+			'jetpack.remoteRegister',
+			'jetpack.remoteProvision',
+		];
+
+		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+	}
+
+	/**
+	 * @group xmlrpc
+	 */
+	public function test_classic_xmlrpc_when_active_and_signed_with_user() {
+		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, true, get_user_by( 'ID', self::$admin_id ) );
+
+		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+
+		$expected = [
+			'jetpack.jsonAPI',
+			'jetpack.verifyAction',
+			'jetpack.getUser',
+			'jetpack.remoteRegister',
+			'jetpack.remoteProvision',
+
+			'jetpack.testConnection',
+			'jetpack.testAPIUserCode',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
+			'jetpack.disconnectBlog',
+			'jetpack.unlinkUser',
+			'jetpack.syncObject',
+			'jetpack.idcUrlValidation',
+		];
+
+		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+	}
+
+	/**
+	 * @group xmlrpc
+	 */
+	public function test_classic_xmlrpc_when_active_and_signed_with_user_with_edit() {
+		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, true, get_user_by( 'ID', self::$admin_id ) );
+
+		$methods = apply_filters( 'xmlrpc_methods', [
+			'test.test'                 => '__return_true',
+			'metaWeblog.editPost'       => '__return_true',
+			'metaWeblog.newMediaObject' => '__return_true',
+		] );
+
+		$expected = [
+			'jetpack.jsonAPI',
+			'jetpack.verifyAction',
+			'jetpack.getUser',
+			'jetpack.remoteRegister',
+			'jetpack.remoteProvision',
+
+			'jetpack.testConnection',
+			'jetpack.testAPIUserCode',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
+			'jetpack.disconnectBlog',
+			'jetpack.unlinkUser',
+			'jetpack.syncObject',
+			'jetpack.idcUrlValidation',
+
+			'metaWeblog.newMediaObject',
+			'jetpack.updateAttachmentParent',
+		];
+
+		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+	}
+
+	/**
+	 * @group xmlrpc
+	 */
+	public function test_classic_xmlrpc_when_active_and_not_signed() {
+		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], true, false );
+
+		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+
+		$expected = [
+			'jetpack.remoteAuthorize',
+		];
+
+		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+	}
+
+	/**
+	 * @group xmlrpc
+	 */
+	public function test_classic_xmlrpc_when_not_active_and_not_signed() {
+		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], false, false );
+
+		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+
+		$expected = [
+			'jetpack.remoteAuthorize',
+			'jetpack.remoteRegister',
+
+			'jetpack.verifyRegistration',
+		];
+
+		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+	}
+
+	/**
+	 * @group xmlrpc
+	 */
+	public function test_classic_xmlrpc_when_not_active_and_signed() {
+		$this->mocked_setup_xmlrpc_handlers( [ 'for' => 'jetpack' ], false, true );
+
+		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
+
+		$expected = [
+			'jetpack.remoteRegister',
+			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
+			'jetpack.getUser',
+		];
+
+		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+	}
+
 } // end class
