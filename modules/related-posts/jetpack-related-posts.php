@@ -1659,7 +1659,7 @@ EOT;
 	 */
 	protected function _action_frontend_init_page() {
 
-		$enqueue_script = ! ( class_exists( 'Jetpack_AMP_Support' ) || Jetpack_AMP_Support::is_amp_request() );
+		$enqueue_script = ! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 		$this->_enqueue_assets( $enqueue_script, true );
 		$this->_setup_shortcode();
 
