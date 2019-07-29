@@ -62,6 +62,16 @@ class Terms extends Module {
 			$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $id ) );
 		}
 
+		if ( 'term_relationships' === $object_type ) {
+			$columns = implode( ', ', Defaults::$default_term_relationships_checksum_columns );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_relationships WHERE object_id = %d", $id ) );
+			$object  = (object) array(
+				'object_id'     => $id,
+				'relationships' => array_map( array( $this, 'expand_terms_for_relationship' ), $objects ),
+			);
+		}
+
 		return $object ? $object : false;
 	}
 
@@ -274,5 +284,17 @@ class Terms extends Module {
 			),
 			'previous_end' => $previous_end,
 		);
+	}
+
+	/**
+	 * Gets a term object based on a given row from the term_relationships database table.
+	 *
+	 * @access public
+	 *
+	 * @param object $relationship A row object from the term_relationships table.
+	 * @return object|bool A term object, or false if term taxonomy doesn't exist.
+	 */
+	public function expand_terms_for_relationship( $relationship ) {
+		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
 }

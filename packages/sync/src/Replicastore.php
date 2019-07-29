@@ -1288,10 +1288,15 @@ class Replicastore implements Replicastore_Interface {
 			$where .= " AND $id_field <= " . intval( $end_id );
 		}
 
+		$distinct = '';
+		if ( 'term_relationships' === $object_type ) {
+			$distinct = 'DISTINCT';
+		}
+
 		do {
 			list( $first_id, $last_id ) = $wpdb->get_row(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $distinct $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
 				ARRAY_N
 			);
 
