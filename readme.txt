@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix a typo in the Magic Links modal.
 * Custom CSS: fix Media Width label layout issue in Firefox.
 * Sync: fix home and Site URL synchronization issues on sites with custom Cron implementations.
+* WordPress.com Activity Log: add Action Scheduler to the list of blacklisted post types
 
 --------
 
