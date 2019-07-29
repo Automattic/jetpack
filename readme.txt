@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: hide edit post link on your site when viewing it via the WordPress mobile app.
 * oEmbeds: add support for Song.link service.
 * Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
+* Support links: use the Beta support form when on a development version.
 * Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
 * Sync: improve reliability of the synchronization of taxonomies.
 * Videos: ensure any deprecations added in the core video block are not overwritten.
