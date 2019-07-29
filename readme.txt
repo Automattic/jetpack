@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* AMP: ensure CSS compatibility with the Sharing buttons.
 * Contact Form: ensure the Date picker field does not cause any AMP validation errors.
 
 **Bug fixes**
