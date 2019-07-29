@@ -199,7 +199,6 @@
 		"sinon": "7.3.2",
 		"sinon-chai": "3.3.0",
 		"style-loader": "0.23.1",
-		"traverse": "0.6.6",
 		"url-loader": "1.1.2"
 	},
 	"resolutions": {
