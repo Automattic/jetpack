@@ -60,6 +60,8 @@ require_once 'autoupdate-self.php';
 require_once 'class-jetpackbetaclicommand.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 
+set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) );
+
 class Jetpack_Beta {
 
 	protected static $_instance = null;
@@ -1146,7 +1148,7 @@ class Jetpack_Beta {
 
 	/**
 	 * Callback function to include Jetpack beta options into Jetpack sync whitelist
-	 * 
+	 *
 	 * @param Array $whitelist List of whitelisted options to sync
 	 */
 	public function add_to_options_whitelist( $whitelist ) {
@@ -1155,6 +1157,42 @@ class Jetpack_Beta {
 		$whitelist[] = self::$option_autoupdate;
 		$whitelist[] = self::$option_email_notif;
 		return $whitelist;
+	}
+
+	/**
+	 * Custom error handler to intercept errors and log them using Jetpack's own logger.
+	 *
+	 * @param int $errno error code.
+	 * @param string $errstr error message.
+	 * @param string $errfile file name where the error happened.
+	 * @param int $errline line in the code.
+	 *
+	 * @return bool whether to make the default handler handle the error as well.
+	 */
+	public static function custom_error_handler( $errno, $errstr, $errfile, $errline ) {
+
+		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'log' ) ) {
+			$error_string = sprintf( "%s, %s:%d", $errstr, $errfile, $errline );
+
+			// Only adding to log if the message is related to Jetpack.
+			if ( false !== stripos( $error_string, 'jetpack' ) ) {
+				Jetpack::log( $errno, $error_string );
+			}
+		}
+
+		/**
+		 * The error_reporting call returns current error reporting level as an integer. Bitwise
+		 * AND lets us determine whether the current error is included in the current error
+		 * reporting level
+		 */
+		if ( ! ( error_reporting() & $errno ) ) {
+
+			// If this error is not being reported in the current settings, stop reporting here by returning true.
+			return true;
+		}
+
+		// Returning false makes the error go through the standard error handler as well.
+		return false;
 	}
 }
 
