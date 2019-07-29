@@ -3,9 +3,8 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider, connect } from 'react-redux';
 import { assign, get } from 'lodash';
-import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -31,8 +30,6 @@ import {
 import { getSiteConnectionStatus } from 'state/connection';
 
 // TODO figure out what's actually necessary here. Most of this boilerplate was copied from admin.js
-
-console.warn( 'rendering connect button' );
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
@@ -92,6 +89,10 @@ class Main extends React.Component {
 	}
 
 	render() {
+		if ( this.props.siteConnectionStatus ) {
+			return <h3>Redirecting...</h3>;
+		}
+
 		return <ConnectButton from={ 'full-screen-prompt' } />;
 	}
 }

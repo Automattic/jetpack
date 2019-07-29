@@ -148,10 +148,11 @@ export class ConnectButton extends React.Component {
 
 	handleConnectButtonClick = event => {
 		event.stopPropagation();
-		console.log( 'clicked connect' );
 		if ( ! this.props.isRegistered ) {
+			// registers the site
 			this.props.registerSite();
 		} else {
+			// fetches the authorize URL which is used for the authorize iframe
 			this.props.fetchAuthorizeUrl();
 		}
 	};
@@ -161,6 +162,7 @@ export class ConnectButton extends React.Component {
 			return this.renderUserButton();
 		}
 
+		// TODO - figure out what to do with this
 		if ( this.props.isSiteConnected ) {
 			return (
 				<a
@@ -175,20 +177,16 @@ export class ConnectButton extends React.Component {
 			);
 		}
 
-		// TODO fix later
-
-		// if ( this.props.from ) {
-		// 	connectUrl += `&from=${ this.props.from }`;
-		// }
-
 		let label = __( 'Set up Jetpack' );
-		if ( ! this.props.isRegistered ) {
-			label = __( '(TEST) Register' );
-		} else if ( this.props.isRegistering ) {
-			label = __( '(TEST) Registering' );
-		} else if ( this.props.fetchingAuthorizeUrl ) {
-			label = __( '(TEST) Fetching authorise URL' );
-		}
+
+		const buttonProps = {
+			className: 'jp-jetpack-connect__button',
+			onClick: this.handleConnectButtonClick,
+			disabled:
+				this.props.fetchingConnectionStatus ||
+				this.props.isRegistering ||
+				this.props.fetchingAuthorizeUrl,
+		};
 
 		// render authorize iframe if site is registered but not authorized
 		if ( this.props.isRegistered && ! this.props.isSiteConnected && this.props.authorizeUrl ) {
@@ -201,27 +199,18 @@ export class ConnectButton extends React.Component {
 					/>
 				</React.Fragment>
 			);
+		} else {
+			return (
+				<React.Fragment>
+					<QueryConnectionStatus />
+					{ this.props.asLink ? (
+						<a { ...buttonProps }>{ label }</a>
+					) : (
+						<Button { ...buttonProps }>{ label }</Button>
+					) }
+				</React.Fragment>
+			);
 		}
-
-		const buttonProps = {
-			className: 'jp-jetpack-connect__button',
-			onClick: this.handleConnectButtonClick,
-			disabled:
-				this.props.fetchingConnectionStatus ||
-				this.props.isRegistering ||
-				this.props.fetchingAuthorizeUrl,
-		};
-
-		return (
-			<React.Fragment>
-				<QueryConnectionStatus />
-				{ this.props.asLink ? (
-					<a { ...buttonProps }>{ label }</a>
-				) : (
-					<Button { ...buttonProps }>{ label }</Button>
-				) }
-			</React.Fragment>
-		);
 	};
 
 	render() {
