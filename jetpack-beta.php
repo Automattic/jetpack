@@ -1063,64 +1063,86 @@ class Jetpack_Beta {
 		}
 
 		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) && self::is_set_to_email_notifications() ) {
-			$admin_email = get_site_option( 'admin_email' );
-
-			if ( empty( $admin_email ) ) {
-				return;
-			}
-			// Calling empty() on a function return value crashes in PHP < 5.5.
-			// Thus we assign the return value explicitly and then check with empty().
-			$bloginfo_name = get_bloginfo( 'name' );
-			$site_title = ! empty( $bloginfo_name ) ? get_bloginfo( 'name' ) : get_site_url();
-			$what_updated = 'Jetpack Beta Tester Plugin';
-			$subject = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
-			if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins ) ) {
-				$subject = sprintf(  __( '[%s] Autoupdated Jetpack %s ', 'jetpack-beta' ),
-					$site_title,
-					Jetpack_Beta::get_jetpack_plugin_pretty_version()
-				);
-
-				$what_updated = sprintf( __( 'Jetpack %s (%s)', 'jetpack-beta' ),
-					Jetpack_Beta::get_jetpack_plugin_pretty_version(),
-					Jetpack_Beta::get_jetpack_plugin_version()
-				);
-
-				if ( count( $plugins ) > 1 ) {
-					$subject = sprintf( __( '[%s] Autoupdated Jetpack %s and the Jetpack Beta Tester', 'jetpack-beta' ),
-						$site_title,
-						Jetpack_Beta::get_jetpack_plugin_pretty_version()
-					);
-
-					$what_updated = sprintf( __(  'Jetpack %s (%s) and the Jetpack Beta Tester', 'jetpack-beta' ),
-						Jetpack_Beta::get_jetpack_plugin_pretty_version(),
-						Jetpack_Beta::get_jetpack_plugin_version()
-					);
-				}
-			}
-
-			$message  = sprintf(
-				__( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ),
-				home_url(),
-				$what_updated
-			);
-			$message .= "\n\n";
-
-			if ( $what_changed = Jetpack_Beta::what_changed() ) {
-				$message .= __( 'What changed?', 'jetpack-beta' );
-				$message .= strip_tags( $what_changed );
-			}
-
-			$message  .= __( 'During the autoupdate the following happened:', 'jetpack-beta' );
-			$message .= "\n\n";
-			// Can only reference the About screen if their update was successful.
-			$log = array_map( 'html_entity_decode', $log );
-			$message .= ' - ' . implode( "\n - ", $log );
-
-			$message .= "\n\n";
-
-			wp_mail( $admin_email, $subject, $message );
-
+			self::send_autoupdate_email( $plugins, $log );
 		}
+	}
+
+	/**
+	 * Builds and sends an email about succesfull plugin autoupdate
+	 *
+	 * @param Array  $plugins List of plugins that were updated.
+	 * @param String $log upgrade message from core's plugin upgrader.
+	 */
+	private static function send_autoupdate_email( $plugins, $log ) {
+		$admin_email = get_site_option( 'admin_email' );
+
+		if ( empty( $admin_email ) ) {
+			return;
+		}
+
+		// In case the code is called in a scope different from wp-admin.
+		require_once JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
+
+		// Calling empty() on a function return value crashes in PHP < 5.5.
+		// Thus we assign the return value explicitly and then check with empty().
+		$bloginfo_name = get_bloginfo( 'name' );
+		$site_title    = ! empty( $bloginfo_name ) ? get_bloginfo( 'name' ) : get_site_url();
+		$what_updated  = 'Jetpack Beta Tester Plugin';
+		$subject       = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
+
+		if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins, true ) ) {
+			$subject = sprintf(
+				__( '[%s] Autoupdated Jetpack %s ', 'jetpack-beta' ),
+				$site_title,
+				self::get_jetpack_plugin_pretty_version()
+			);
+
+			$what_updated = sprintf(
+				__( 'Jetpack %s (%s)', 'jetpack-beta' ),
+				self::get_jetpack_plugin_pretty_version(),
+				self::get_jetpack_plugin_version()
+			);
+
+			if ( count( $plugins ) > 1 ) {
+				$subject = sprintf(
+					__( '[%s] Autoupdated Jetpack %s and the Jetpack Beta Tester', 'jetpack-beta' ),
+					$site_title,
+					self::get_jetpack_plugin_pretty_version()
+				);
+
+				$what_updated = sprintf(
+					__( 'Jetpack %s (%s) and the Jetpack Beta Tester', 'jetpack-beta' ),
+					self::get_jetpack_plugin_pretty_version(),
+					self::get_jetpack_plugin_version()
+				);
+			}
+		}
+
+		$message  = sprintf(
+			__( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ),
+			home_url(),
+			$what_updated
+		);
+		$message .= "\n\n";
+
+		$what_changed = self::what_changed();
+		if ( $what_changed ) {
+			$message .= __( 'What changed?', 'jetpack-beta' );
+			$message .= wp_strip_all_tags( $what_changed );
+		}
+
+		$message .= __( 'During the autoupdate the following happened:', 'jetpack-beta' );
+		$message .= "\n\n";
+		// Can only reference the About screen if their update was successful.
+		$log      = array_map( 'html_entity_decode', $log );
+		$message .= ' - ' . implode( "\n - ", $log );
+		$message .= "\n\n";
+
+		// Adds To test section. for PR's it's a PR description, for master/RC - it's a to_test.md file contents.
+		$message .= Jetpack_Beta_Admin::to_test_content();
+		$message .= "\n\n";
+
+		wp_mail( $admin_email, $subject, $message );
 	}
 
 	/**
