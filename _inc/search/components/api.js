@@ -13,9 +13,11 @@ function stringifyArray( fieldName, array ) {
 
 class JetpackSearchAPI {
 	getAPIUrl( siteId, query ) {
-		return `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?q=${ encodeURIComponent(
+		return `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?query=${ encodeURIComponent(
 			query
-		) }&${ stringifyArray( 'fields', FIELDS ) }`;
+		) }&${ stringifyArray( 'fields', FIELDS ) }&${ stringifyArray( 'highlight_fields', [
+			'title',
+		] ) }`;
 	}
 
 	fetch( query ) {
