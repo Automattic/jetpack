@@ -24,6 +24,7 @@ class Jetpack_AMP_Support {
 
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
+		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
 
 		// enforce freedom mode for videopress.
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -350,9 +351,22 @@ class Jetpack_AMP_Support {
 
 		return $markup;
 	}
+
+	/**
+	 * Tells Jetpack not to enqueue CSS for share buttons.
+	 *
+	 * @param  bool $enqueue Whether or not to enqueue.
+	 * @return bool          Whether or not to enqueue.
+	 */
+	public static function amp_disable_sharedaddy_css( $enqueue ) {
+		if ( self::is_amp_request() ) {
+			$enqueue = false;
+		}
+
+		return $enqueue;
+	}
 }
 
 add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
 
 add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
-
