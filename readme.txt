@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * oEmbeds: add support for Song.link service.
 * Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
 * Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
+* Sync: improve reliability of the synchronization of taxonomies.
 * Videos: ensure any deprecations added in the core video block are not overwritten.
 * WordPress.com Activity Log: avoid display issues with WooCommerce Product Reviews.
 
