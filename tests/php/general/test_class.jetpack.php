@@ -1032,6 +1032,8 @@ EXPECTED;
 			'jetpack.unlinkUser',
 			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+			'jetpack.subscriptions.subscribe',
+			'jetpack.updatePublicizeConnections',
 		];
 
 		$this->assertSetsMatch( $expected, array_keys( $methods ) );
@@ -1064,6 +1066,8 @@ EXPECTED;
 			'jetpack.unlinkUser',
 			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+			'jetpack.subscriptions.subscribe',
+			'jetpack.updatePublicizeConnections',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
