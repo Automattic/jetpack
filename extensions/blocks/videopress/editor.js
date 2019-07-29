@@ -109,6 +109,7 @@ const addVideoPressSupport = ( settings, name ) => {
 					save: settings.save,
 					isEligible: attrs => ! attrs.guid,
 				},
+				...( Array.isArray( settings.deprecated ) ? settings.deprecated : [] ),
 			],
 		};
 	}
