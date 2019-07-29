@@ -9,7 +9,7 @@
 	border-color: $green-secondary;
 	color: $white;
 
-	&:hover, &:focus {
+	&:hover:not([disabled]), &:focus:not([disabled]) {
 		background: $green-secondary;
 		border-color: $green-dark;
 		color: $white;
