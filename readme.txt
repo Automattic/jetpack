@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
 * Sync: improve reliability of the synchronization of taxonomies.
 * Videos: ensure any deprecations added in the core video block are not overwritten.
+* Widgets: allow the customization of avatar image options in the Top Posts Widget, via a filter.
 * WordPress.com Activity Log: avoid display issues with WooCommerce Product Reviews.
 
 **Improved compatibility**
