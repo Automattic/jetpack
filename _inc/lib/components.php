@@ -19,7 +19,8 @@ class Jetpack_Components {
 		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
 		ob_start();
-		require JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
+		// `include` fails gracefully and throws a warning, but doesn't halt execution.
+		include JETPACK__PLUGIN_DIR . "_inc/blocks/$name.html";
 		$markup = ob_get_clean();
 
 		foreach ( $props as $key => $value ) {
