@@ -193,7 +193,6 @@
 		"node-wp-i18n": "1.2.3",
 		"prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.17.0/wp-prettier-1.17.0.tgz",
 		"puppeteer": "1.18.1",
-		"react-autosize-textarea": "7.0.0",
 		"react-test-renderer": "16.8.6",
 		"sass-loader": "7.1.0",
 		"sinon": "7.3.2",

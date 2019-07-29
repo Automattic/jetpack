@@ -2560,7 +2560,7 @@ autoprefixer@^9.5.1:
     postcss "^7.0.17"
     postcss-value-parser "^4.0.0"
 
-autosize@^4.0.0, autosize@^4.0.2:
+autosize@^4.0.0:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/autosize/-/autosize-4.0.2.tgz#073cfd07c8bf45da4b9fd153437f5bafbba1e4c9"
   integrity sha512-jnSyH2d+qdfPGpWlcuhGiHmqBJ6g3X+8T+iRwFrHPLVcdoGJE/x6Qicm6aDHfTsbgZKxyV8UU/YB2p4cjKDRRA==
@@ -10152,15 +10152,6 @@ react-addons-shallow-compare@^15.6.2:
   dependencies:
     fbjs "^0.8.4"
     object-assign "^4.1.0"
-
-react-autosize-textarea@7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/react-autosize-textarea/-/react-autosize-textarea-7.0.0.tgz#4f633e4238de7ba73c1da8fdc307353c50f1c5ab"
-  integrity sha512-rGQLpGUaELvzy3NKzp0kkcppaUtZTptsyR0PGuLotaJDjwRbT0DpD000yCzETpXseJQ/eMsyVGDDHXjXP93u8w==
-  dependencies:
-    autosize "^4.0.2"
-    line-height "^0.3.1"
-    prop-types "^15.5.6"
 
 react-autosize-textarea@^3.0.2:
   version "3.0.3"
