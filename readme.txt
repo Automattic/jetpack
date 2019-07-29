@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Backups: add ability to send SSH credentials.
 * Blocks: allow the insertion and preview of any Jetpack block in the editor, even when the block is only available via a Paid plan.
 * Carousel: use a pointer cursor when hovering over galleries that utilise the Carousel feature.
+* Dashboard: improve the display of the feature cards in the main Jetpack dashboard.
 * General: hide edit post link on your site when viewing it via the WordPress mobile app.
 * oEmbeds: add support for Song.link service.
 * Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
