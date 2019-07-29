@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Carousel: use a pointer cursor when hovering over galleries that utilise the Carousel feature.
 * General: hide edit post link on your site when viewing it via the WordPress mobile app.
 * oEmbeds: add support for Song.link service.
+* Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
 * Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
 * Videos: ensure any deprecations added in the core video block are not overwritten.
 * WordPress.com Activity Log: avoid display issues with WooCommerce Product Reviews.
