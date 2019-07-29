@@ -390,7 +390,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		if ( $user_id ) {
 			wp_set_current_user( $user_id );
 		}
-		$auth = $server->check_authentication();
+		$auth = $server->check_authentication( null );
 		if ( true === $auth ) {
 			return $result;
 		}
