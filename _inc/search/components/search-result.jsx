@@ -4,20 +4,32 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
+import strip from 'strip';
 
 class SearchResult extends Component {
+	getTitle() {
+		return (
+			this.props.result.fields.title || (
+				<span
+					// eslint-disable-next-line react/no-danger
+					dangerouslySetInnerHTML={ {
+						__html: strip( this.props.result.highlight.title[ 0 ] ),
+					} }
+				/>
+			) ||
+			'Unknown Title'
+		);
+	}
+
 	render() {
-		const {
-			result: { fields },
-		} = this.props;
 		return (
 			<div className="jetpack-instant-search__search-result">
 				<a
-					href={ `//${ fields[ 'permalink.url.raw' ] }` }
+					href={ `//${ this.props.result.fields[ 'permalink.url.raw' ] }` }
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					{ fields.title || 'Unknown Title' } by { fields.author }
+					{ this.getTitle() } by { this.props.result.fields.author }
 				</a>
 			</div>
 		);
