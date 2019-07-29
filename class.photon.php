@@ -1124,6 +1124,11 @@ class Jetpack_Photon {
 					'height' => intval( get_option( 'medium_size_h' ) ),
 					'crop'   => false
 				),
+				'medium_large' => array(
+					'width'  => intval( get_option( 'medium_large_size_w' ) ),
+					'height' => intval( get_option( 'medium_large_size_h' ) ),
+					'crop'   => false
+				),
 				'large'  => array(
 					'width'  => intval( get_option( 'large_size_w' ) ),
 					'height' => intval( get_option( 'large_size_h' ) ),
