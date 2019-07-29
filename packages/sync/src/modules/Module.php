@@ -236,13 +236,13 @@ abstract class Module {
 	/**
 	 * Retrieve chunk IDs with previous interval end.
 	 *
-	 * @access private
+	 * @access protected
 	 *
 	 * @param array $chunks                All remaining items.
 	 * @param int   $previous_interval_end The last item from the previous interval.
 	 * @return array Chunk IDs with the previous interval end.
 	 */
-	private function get_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
+	protected function get_chunks_with_preceding_end( $chunks, $previous_interval_end ) {
 		$chunks_with_ends = array();
 		foreach ( $chunks as $chunk ) {
 			$chunks_with_ends[] = array(

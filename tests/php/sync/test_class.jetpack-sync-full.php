@@ -280,6 +280,96 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
+	function test_full_sync_sends_all_term_relationships() {
+		$post_id = $this->factory->post->create();
+		$NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE = 11;
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+		for ( $i = 0; $i < $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE; $i += 1 ) {
+			$cat = wp_insert_term( 'cat ' . $i, 'category' );
+			$tag = wp_insert_term( 'tag ' . $i, 'post_tag' );
+			wp_set_object_terms( $post_id, array( $cat['term_id'] ), 'category', true );
+			wp_set_object_terms( $post_id, array( $tag['term_id'] ), 'post_tag', true );
+		}
+
+		// simulate emptying the server storage
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$term_relationships = $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' );
+		$this->assertEquals( $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE, count( $term_relationships ) );
+
+		$term_relationships = $this->server_replica_storage->get_the_terms( $post_id, 'category' );
+		$this->assertEquals( $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE + 1, count( $term_relationships ) ); // 11 + 1 (for uncategorized term)
+	}
+
+	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
+		$post_id = $this->factory->post->create();
+
+		$terms = array();
+		for ( $i = 0; $i < 25; $i += 1 ) {
+			$terms[] = wp_insert_term( 'term ' . $i, 'category' );
+		}
+
+		// Sync the posts and terms first.
+		$this->full_sync->start( array( 'posts' => true, 'terms' => true ) );
+		$this->sender->do_full_sync();
+
+		// Simulate emptying the server storage.
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
+
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+
+		foreach ( $terms as $term ) {
+			wp_set_object_terms( $post_id, array( $term['term_id'] ), 'category', true );
+		}
+
+		// The first event is for full sync start.
+		$this->full_sync->start( array( 'term_relationships' => 1 ) );
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
+		$term_relationships = $event->args['term_relationships'];
+		$previous_interval_end = $event->args['previous_end'];
+		// The first batch has the previous_end not set.
+		// We use ~0 to denote that the previous_end is unknown.
+		$this->assertEquals( $previous_interval_end, array(
+			'object_id'        => '~0',
+			'term_taxonomy_id' => '~0',
+		) );
+
+		// Since term relationships are ordered by post IDs and term IDs and the IDs are in descending order
+		// the very last relationship should have the smallest post ID and term ID. (previous_interval_end)
+		$last_term = end( $term_relationships );
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
+		$second_batch_terms = $event->args['term_relationships'];
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end['object_id'] ), $last_term['object_id'] );
+		$this->assertEquals( intval( $previous_interval_end['term_taxonomy_id'] ), $last_term['term_taxonomy_id'] );
+
+		$last_term = end( $second_batch_terms );
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_term_relationships' );
+		$previous_interval_end = $event->args['previous_end'];
+		$this->assertEquals( intval( $previous_interval_end['object_id'] ), $last_term['object_id'] );
+		$this->assertEquals( intval( $previous_interval_end['term_taxonomy_id'] ), $last_term['term_taxonomy_id'] );
+
+		$this->full_sync->reset_data();
+	}
+
 	function test_full_sync_sends_all_users() {
 		$first_user_id = $this->factory->user->create();
 		for ( $i = 0; $i < 9; $i += 1 ) {
@@ -834,6 +924,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			'functions' => true,
 			'options' => true,
 			'terms' => true,
+			'term_relationships' => true,
 			'themes' => true,
 			'users' => true,
 			'updates' => true,
@@ -948,15 +1039,16 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$should_be_status = array(
 			'queue' => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1,
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			),
 			'config' => null
 		);
@@ -984,37 +1076,40 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$should_be_status = array(
 			'sent'  => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			),
 			'sent_total'  => array(
-				'constants' => -1,
-				'functions' => -1,
-				'options'   => -1,
-				'themes'    => -1,
-				'updates'   => -1,
-				'posts'     => $this->test_posts_count,
-				'comments'  => $this->test_comments_count,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => -1,
+				'functions'          => -1,
+				'options'            => -1,
+				'themes'             => -1,
+				'updates'            => -1,
+				'posts'              => $this->test_posts_count,
+				'comments'           => $this->test_comments_count,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => $this->test_posts_count, // Intentional; each post is in minimum one category by default.
 			),
 			'queue' => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			)
 		);
 		if ( is_multisite() ) {
@@ -1219,7 +1314,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
-		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
+		$this->sender->set_dequeue_max_bytes( 1250 ); // process 0.00125MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
 
@@ -1241,37 +1336,40 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$should_be_status = array(
 			'sent'  => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			),
 			'queue' => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			),
 			'total' => array(
-				'constants' => 1,
-				'functions' => 1,
-				'options'   => 1,
-				'posts'     => 2,
-				'comments'  => 2,
-				'themes'    => 1,
-				'updates'   => 1,
-				'users'     => 1,
-				'terms'     => 1
+				'constants'          => 1,
+				'functions'          => 1,
+				'options'            => 1,
+				'posts'              => 2,
+				'comments'           => 2,
+				'themes'             => 1,
+				'updates'            => 1,
+				'users'              => 1,
+				'terms'              => 1,
+				'term_relationships' => 2,
 			)
 		);
 		if ( is_multisite() ) {
