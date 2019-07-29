@@ -144,6 +144,7 @@
 		"refx": "3.1.1",
 		"resize-observer-polyfill": "1.5.1",
 		"static-site-generator-webpack-plugin": "3.4.2",
+		"strip": "3.0.0",
 		"swiper": "4.5.0",
 		"uglify-save-license": "0.4.1",
 		"unfetch": "4.1.0",
