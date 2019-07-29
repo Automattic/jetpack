@@ -68,7 +68,7 @@ class Terms extends Module {
 			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_relationships WHERE object_id = %d", $id ) );
 			$object  = (object) array(
 				'object_id'     => $id,
-				'relationships' => array_map( array( $this, 'add_term_to_relationship' ), $objects ),
+				'relationships' => array_map( array( $this, 'expand_terms_for_relationship' ), $objects ),
 			);
 		}
 
@@ -287,20 +287,14 @@ class Terms extends Module {
 	}
 
 	/**
-	 * Appends a term object to a row object from the term_relationships table.
-	 * This aids WordPress.com in re-syncing term_relationships tables that are out of sync.
+	 * Gets a term object based on a given row from the term_relationships database table.
 	 *
 	 * @access public
 	 *
 	 * @param object $relationship A row object from the term_relationships table.
-	 * @return object A row object from the term_relationships table with corresponding term object appended.
+	 * @return object|bool A term object, or false if term taxonomy doesn't exist.
 	 */
-	public function add_term_to_relationship( $relationship ) {
-		return (object) array(
-			'object_id'        => $relationship->object_id,
-			'term_taxonomy_id' => $relationship->term_taxonomy_id,
-			'term_order'       => $relationship->term_order,
-			'term'             => get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id ),
-		);
+	public function expand_terms_for_relationship( $relationship ) {
+		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
 }
