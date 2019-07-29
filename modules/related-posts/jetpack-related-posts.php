@@ -166,7 +166,9 @@ class Jetpack_RelatedPosts {
 	 * Will skip adding the target if the post content contains a Related Posts block.
 	 *
 	 * @filter the_content
-	 * @param string $content
+	 *
+	 * @param string $content Post content.
+	 *
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
@@ -190,17 +192,19 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @return string Rendered related posts HTML.
 	 */
-	function get_server_rendered_html() {
-		$rp_settings = Jetpack_Options::get_option( 'relatedposts', array() );
+	public function get_server_rendered_html() {
+		$rp_settings       = Jetpack_Options::get_option( 'relatedposts', array() );
 		$block_rp_settings = array(
 			'displayThumbnails' => $rp_settings['show_thumbnails'],
-			'showHeadline' => $rp_settings['show_headline'],
-			'displayDate' => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
-			'displayContext' => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
-			'postLayout' => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
-			'postsToShow' => isset( $rp_settings['size'] ) ? $rp_settings['size'] : 3,
-			'headline' => apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() )
+			'showHeadline'      => $rp_settings['show_headline'],
+			'displayDate'       => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
+			'displayContext'    => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
+			'postLayout'        => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
+			'postsToShow'       => isset( $rp_settings['size'] ) ? $rp_settings['size'] : 3,
+			/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
+			'headline'          => apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() ),
 		);
+
 		return $this->render_block( $block_rp_settings );
 	}
 
