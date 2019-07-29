@@ -209,7 +209,7 @@ gulp.task( 'languages:extract', function( done ) {
 		} );
 } );
 
-gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
+gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old', 'sass:packages:rtl' ) );
 
 // Default task
 gulp.task(
