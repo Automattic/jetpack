@@ -1987,6 +1987,20 @@
     lodash "^4.17.11"
     rememo "^3.0.0"
 
+"@wordpress/server-side-render@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/server-side-render/-/server-side-render-1.0.0.tgz#bfaf1e4cf76522595dbc8d66b752724383dc6080"
+  integrity sha512-78n2gU3FMFHCvt3Gvhl56RYSAmXIJYXmfp2XfzRLS4fkzfSr2Uo3fUID1vN9OauMTAElfjx3TAFuP5T4bsc8Mg==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+    "@wordpress/api-fetch" "^3.3.0"
+    "@wordpress/components" "^8.0.0"
+    "@wordpress/data" "^4.6.0"
+    "@wordpress/element" "^2.5.0"
+    "@wordpress/i18n" "^3.5.0"
+    "@wordpress/url" "^2.6.0"
+    lodash "^4.17.11"
+
 "@wordpress/shortcode@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@wordpress/shortcode/-/shortcode-2.3.0.tgz#45cfd6b3536ed13e23e61fc4767c732c071d3cb8"

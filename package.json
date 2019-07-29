@@ -162,6 +162,7 @@
 		"@wordpress/editor": "9.4.0",
 		"@wordpress/eslint-plugin": "2.3.0",
 		"@wordpress/jest-preset-default": "4.2.0",
+		"@wordpress/server-side-render": "1.0.0",
 		"babel-eslint": "10.0.2",
 		"chai": "4.2.0",
 		"commander": "2.20.0",
