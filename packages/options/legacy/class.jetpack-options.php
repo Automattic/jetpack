@@ -49,7 +49,6 @@ class Jetpack_Options {
 					'site_icon_url',               // (string) url to the full site icon
 					'site_icon_id',                // (int)    Attachment id of the site icon file
 					'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
-					'restapi_stats_cache',         // (array) Stats Cache data.
 					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 					'protect_whitelist',           // (array) IP Address for the Protect module to ignore
 					'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error

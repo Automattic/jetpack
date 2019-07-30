@@ -463,6 +463,9 @@ class Jetpack {
 			do_action( 'jetpack_sitemaps_purge_data' );
 		}
 
+		// Delete old stats cache
+		delete_option( 'jetpack_restapi_stats_cache' );
+
 		delete_transient( self::$plugin_upgrade_lock_key );
 	}
 
