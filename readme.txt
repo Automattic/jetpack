@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: improve reliability of the synchronization of taxonomies.
 * Videos: ensure any deprecations added in the core video block are not overwritten.
 * Widgets: allow the customization of avatar image options in the Top Posts Widget, via a filter.
+* Widgets: add option to open Flickr gallery images in a new tab.
 * WordPress.com Activity Log: avoid display issues with WooCommerce Product Reviews.
 
 **Improved compatibility**
