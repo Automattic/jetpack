@@ -9,14 +9,8 @@ import strip from 'strip';
 class SearchResult extends Component {
 	getTitle() {
 		return (
-			this.props.result.fields.title || (
-				<span
-					// eslint-disable-next-line react/no-danger
-					dangerouslySetInnerHTML={ {
-						__html: strip( this.props.result.highlight.title[ 0 ] ),
-					} }
-				/>
-			) ||
+			this.props.result.fields.title ||
+			strip( this.props.result.highlight.title[ 0 ] ) ||
 			'Unknown Title'
 		);
 	}
