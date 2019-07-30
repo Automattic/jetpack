@@ -1,5 +1,4 @@
 /* global WPCOM_sharing_counts, grecaptcha */
-/* jshint unused:false */
 var sharing_js_options;
 if ( sharing_js_options && sharing_js_options.counts ) {
 	var WPCOMSharing = {

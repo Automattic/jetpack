@@ -1,8 +1,4 @@
-/* jshint onevar: false, smarttabs: true */
-/* global isRtl */
-/* global widget_conditions_parent_pages */
-/* global widget_conditions_data */
-/* global jQuery */
+/* global isRtl, widget_conditions_parent_pages, widget_conditions_data, jQuery */
 
 jQuery( function( $ ) {
 	var widgets_shell = $( 'div#widgets-right' );
