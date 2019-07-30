@@ -13,6 +13,7 @@
  *    - When connected to WordPress.com.
  */
 $tools = array(
+	'autosave-revisions.php',
 	// Always loaded, but only registered if theme supports it.
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
