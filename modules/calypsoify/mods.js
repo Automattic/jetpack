@@ -91,11 +91,11 @@
 	 * Prepend icons to notices.
 	 */
 	$( document ).ready( function() {
-		if ( $( this ).children( '.wc-calypso-bridge-notice-content' ).length ) {
-			return;
-		}
-
 		$( 'div.notice, div.error, div.updated, div.warning' ).each( function() {
+			if ( $( this ).children( '.wc-calypso-bridge-notice-content' ).length ) {
+				return;
+			}
+
 			var icon = CalypsoifyOpts.icons.info;
 			if ( $( this ).hasClass( 'notice-success' ) ) {
 				icon = CalypsoifyOpts.icons.checkmark;
@@ -121,11 +121,11 @@
 	 * Used to prevent side by side content in flexbox when multiple paragraphs exist.
 	 */
 	$( document ).ready( function() {
-		if ( $( this ).children( '.wc-calypso-bridge-notice-content' ).length ) {
-			return;
-		}
-
 		$( 'div.notice, div.error, div.updated, div.warning' ).each( function() {
+			if ( $( this ).children( '.wc-calypso-bridge-notice-content' ).length ) {
+				return;
+			}
+
 			var $noticeContent = $( '<div class="wc-calypso-bridge-notice-content"></div>' );
 			$( this )
 				.find( '.wc-calypso-bridge-notice-icon-wrapper' )
