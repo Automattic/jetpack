@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-/* jshint ignore:start */
 /* eslint-disable no-console, no-process-exit */
 
 const execSync = require( 'child_process' ).execSync;
