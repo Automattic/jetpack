@@ -14,6 +14,13 @@ Then, in your AMP settings, you can switch between different AMP modes. For each
 - Related Posts should appear at the bottom of your posts, whether you are looking at your site via an AMP view or not. It's worth noting that in some AMP modes, you will not see any styles for the Related Posts just yet.
 - When using the sharing buttons and looking at your site in an AMP view, you should see that some of the buttons will be displayed in a style developed by the AMP plugin (with square buttons), while other buttons will not be displayed at all because they are not supported by AMP.
 
+### Sync
+
+We've also made some changes and fixed some issues with the synchronization of your site's activity, posts, and taxonomies back to WordPress.com. To test this, we would encourage you to use many of the features that rely on sync, such as:
+
+- Publicize & Subscriptions: try publishing or scheduling a new post and make sure it is sent to your followers. You will also want to make sure the information that is sent to your followers is incorrect; the categories listed at the bottom of the subscription emails should be correct for example.
+- The WordPress.com Dashboad interface: try editing categories and other categories via the WordPress.com interface; you will want to make sure that what's displayed there is up to date and can be updated.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
