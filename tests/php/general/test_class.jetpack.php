@@ -983,11 +983,17 @@ EXPECTED;
 		return $jetpack->setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $xmlrpc_server );
 	}
 
-	private function assertSetsMatch( $array_1, $array_2 ) {
-		sort( $array_1 );
-		sort( $array_2 );
-		$this->assertArraySubset( $array_1, $array_2 );
-		$this->assertArraySubset( $array_2, $array_1 );
+	/**
+	 * @param string[] $required List of XML-RPC methods that must be contained in $actual.
+	 * @param string[] $allowed  Additional list of XML-RPC methods that may be contained in $actual.
+	 *                           Useful for listing methods that are added by modules that may or may
+	 *                           not be active during the test run.
+	 * @param string[] $actual   The list of XML-RPC methods.
+	 */
+	private function assertXMLRPCMethodsComply( $required, $allowed, $actual ) {
+		$this->assertArraySubset( $required, $actual );
+
+		$this->assertEquals( [], array_diff( $actual, $required, $allowed ) );
 	}
 
 	/**
@@ -998,7 +1004,7 @@ EXPECTED;
 
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
-		$expected = [
+		$required = [
 			'jetpack.jsonAPI',
 			'jetpack.verifyAction',
 			'jetpack.getUser',
@@ -1006,7 +1012,10 @@ EXPECTED;
 			'jetpack.remoteProvision',
 		];
 
-		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+		// Nothing else is allowed.
+		$allowed = [];
+
+		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
@@ -1017,7 +1026,7 @@ EXPECTED;
 
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
-		$expected = [
+		$required = [
 			'jetpack.jsonAPI',
 			'jetpack.verifyAction',
 			'jetpack.getUser',
@@ -1032,11 +1041,16 @@ EXPECTED;
 			'jetpack.unlinkUser',
 			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+		];
+
+		// It's OK if these module-added methods are present. (Module active in tests.)
+		// It's OK if they are not. (Module inactive in tests.)
+		$allowed = [
 			'jetpack.subscriptions.subscribe',
 			'jetpack.updatePublicizeConnections',
 		];
 
-		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
@@ -1051,7 +1065,7 @@ EXPECTED;
 			'metaWeblog.newMediaObject' => '__return_true',
 		] );
 
-		$expected = [
+		$required = [
 			'jetpack.jsonAPI',
 			'jetpack.verifyAction',
 			'jetpack.getUser',
@@ -1066,14 +1080,19 @@ EXPECTED;
 			'jetpack.unlinkUser',
 			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
-			'jetpack.subscriptions.subscribe',
-			'jetpack.updatePublicizeConnections',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
 		];
 
-		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+		// It's OK if these module-added methods are present. (Module active in tests.)
+		// It's OK if they are not. (Module inactive in tests.)
+		$allowed = [
+			'jetpack.subscriptions.subscribe',
+			'jetpack.updatePublicizeConnections',
+		];
+
+		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
@@ -1084,11 +1103,14 @@ EXPECTED;
 
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
-		$expected = [
+		$required = [
 			'jetpack.remoteAuthorize',
 		];
 
-		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+		// Nothing else is allowed.
+		$allowed = [];
+
+		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
@@ -1099,14 +1121,17 @@ EXPECTED;
 
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
-		$expected = [
+		$required = [
 			'jetpack.remoteAuthorize',
 			'jetpack.remoteRegister',
 
 			'jetpack.verifyRegistration',
 		];
 
-		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+		// Nothing else is allowed.
+		$allowed = [];
+
+		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 	/**
@@ -1117,14 +1142,17 @@ EXPECTED;
 
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
-		$expected = [
+		$required = [
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.remoteConnect',
 			'jetpack.getUser',
 		];
 
-		$this->assertSetsMatch( $expected, array_keys( $methods ) );
+		// Nothing else is allowed.
+		$allowed = [];
+
+		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
 } // end class
