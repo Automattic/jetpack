@@ -43,7 +43,6 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	handleJetpackDisconnect() {
-		this.submitSurvey();
 		this.props.disconnectJetpack();
 		this.props.closeDialog();
 	}
