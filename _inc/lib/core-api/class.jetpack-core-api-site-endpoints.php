@@ -106,15 +106,13 @@ class Jetpack_Core_API_Site_Endpoint {
 		$vaultpress = new VaultPress();
 		if ( $vaultpress->is_registered() ) {
 			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-			if ( $data->backups->stats->revisions > 0 ) {
-				if ( $data->features->backups ) {
-					$benefits[] = [
-						'name'        => 'jetpack-backup',
-						'title'       => 'Jetpack Backup',
-						'description' => 'The number of times Jetpack has backed up your site and kept it safe',
-						'value'       => $data->backups->stats->revisions,
-					];
-				}
+			if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
+				$benefits[] = [
+					'name'        => 'jetpack-backup',
+					'title'       => 'Jetpack Backup',
+					'description' => 'The number of times Jetpack has backed up your site and kept it safe',
+					'value'       => $data->backups->stats->revisions,
+				];
 			}
 		}
 
