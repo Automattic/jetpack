@@ -12,6 +12,7 @@ module.exports = [
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
 	'load-jetpack.php',
+	'modules/autosave-revisions.php',
 	'modules/masterbar/',
 	'modules/memberships/',
 	'modules/module-extras.php',
