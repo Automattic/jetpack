@@ -32,6 +32,9 @@ class Jetpack_IXR_Client extends IXR_Client {
 	function query() {
 		$args = func_get_args();
 		$method = array_shift( $args );
+		if ( 'jetpack.deregister' === $method ) {
+			$args['requesting_user_id'] = get_current_user_id();
+		}
 		$request = new IXR_Request( $method, $args );
 		$xml = trim( $request->getXml() );
 
