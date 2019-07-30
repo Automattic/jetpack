@@ -1,3 +1,15 @@
+## 7.7
+
+### Autosave Revisions
+
+This feature introduces more reliable autosaves that save a permanent revision whenever a large (measured by post content length) change is autosave that would overwrite the previous autosave.
+
+**Testing instructions:**
+1. edit a draft or published post in various editors (Classic or Block)
+2. add one character and wait for autosave. Check that permanent revision was not created. (best done with revisions page opened in a second browser tab) You see a revision for the post content before you started editing, and an autosave revision with the one new char.
+3. add 250+ characters and wait for autosave. Check that permanent revision was created from the previous autosave (+1 char edit).
+4. start editing again from a fully saved state. Add 250+ characters and wait for autosave. Check that permanent revision was not created: the content before the autosave already has a revision and the one created during autosave would be an identical one.
+
 ## 7.5
 
 ### Dashboard
