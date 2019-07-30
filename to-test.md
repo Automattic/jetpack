@@ -1,55 +1,25 @@
-## 7.5
+## 7.6
 
-### Dashboard
+### AMP
 
-This release introduces many small changes in the Jetpack dashboard. We've updating the wording that describes several features, we've removed a feature that would offer you to activate a list of recommended features upon connecting your site to WordPress.com, we've removed some of the buttons offering you to upgrade to a Paid plan on the "At a Glance" view, we've tried to describe each plan a little better, and more.
+We've made multiple changes to Jetpack to improve compatiblity with the AMP plugin. We'd recommend installing both plugins on your site and run some tests. You'll want to enable the following Jetpack features:
 
-Do not hesitate to browse through all main Dashboard Pages ("At a Glance", "My Plan", "Plans", "Settings"). Check the phrases describing each feature, and let us know if you spot any typo or anything odd.
+- Sharing
+- Image CDN
+- Related Posts
 
-### Magic Links
+Then, in your AMP settings, you can switch between different AMP modes. For each mode, the Jetpack features above should keep working well and appear on your site. 
 
-This feature introduces a new option in the Jetpack dashboard. If you use one of the mobile apps, you'll now be able to send an email to yourself, from the Jetpack dashboard, with a magic link that will allow you to log in to the mobile app in one click. We would invite you to test two scenarios:
+- When using the Image CDN feature and looking at your site in an AMP view, you should see `amp-img` and `amp-anim` tags instead of the usual `img` tags, all relying on images hosted with our CDN.
+- Related Posts should appear at the bottom of your posts, whether you are looking at your site via an AMP view or not. It's worth noting that in some AMP modes, you will not see any styles for the Related Posts just yet.
+- When using the sharing buttons and looking at your site in an AMP view, you should see that some of the buttons will be displayed in a style developed by the AMP plugin (with square buttons), while other buttons will not be displayed at all because they are not supported by AMP.
 
-**Testing the error case:**
+### Sync
 
-1. Ensure that Jetpack site is connected to a test account that **is** an Automattician account
-2. Go to Jetpack > Dashboard
-3. Click Connect to mobile WordPress app link. That link appears in the Connection area.
-4. Ensure modal pops up
-5. Click Send Link button
-6. Ensure that an error message occurs (this is due to you being connected to an Automattician account)
-7. Disconnect site
+We've also made some changes and fixed some issues with the synchronization of your site's activity, posts, and taxonomies back to WordPress.com. To test this, we would encourage you to use many of the features that rely on sync, such as:
 
-**Testing the success case:**
-
-1. Reconnect site to a WordPress.com test user that **is not** an Automattician account
-2. Click Connect to mobile WordPress app link
-3. Ensure modal pops up
-4. Click Send Link button
-5. Ensure that you receive email with magic link
-
-### VideoPress
-
-We've made some changes to how video thumbnails were saved after uploading a video using Jetpack Videos, aka VideoPress. To test this, try the following:
-
-1. Start with a site including a plan that supports Jetpack Videos
-2. Go to Jetpack > Settings and enable the Video toggle.
-3. Go to this page and select your site: https://wordpress.com/media/
-4. Upload a video. After uploading, you may have to wait a few minutes for the video to be processed.
-5. Refresh the page, and you should see a video thumbnail appear below the video icon for that video.
-6. Try setting a different Video thumbnail there.
-7. Go back to your site and enable the Image CDN option under Jetpack > Settings > Performance.
-8. Add the following code snippet (here is how you can do it](https://jetpack.com/support/adding-code-snippets/)):
-```php
-add_filter('jetpack_photon_pre_args', 'jetpackme_custom_photon_compression' );
-function jetpackme_custom_photon_compression( $args ) {
-	$args['quality'] = 80;
-	$args['strip'] = 'all';
-	return $args;
-}
-```
-9. Repeat steps 3 to 5, make sure video thumbnails appear nicely for existing and new videos.
-
+- Publicize & Subscriptions: try publishing or scheduling a new post and make sure it is sent to your followers. You will also want to make sure the information that is sent to your followers is incorrect; the categories listed at the bottom of the subscription emails should be correct for example.
+- The WordPress.com Dashboad interface: try editing categories and other categories via the WordPress.com interface; you will want to make sure that what's displayed there is up to date and can be updated.
 
 ### Others
 
