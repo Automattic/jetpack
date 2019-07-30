@@ -1,5 +1,19 @@
 ## 7.6
 
+### AMP
+
+We've made multiple changes to Jetpack to improve compatiblity with the AMP plugin. We'd recommend installing both plugins on your site and run some tests. You'll want to enable the following Jetpack features:
+
+- Sharing
+- Image CDN
+- Related Posts
+
+Then, in your AMP settings, you can switch between different AMP modes. For each mode, the Jetpack features above should keep working well and appear on your site. 
+
+- When using the Image CDN feature and looking at your site in an AMP view, you should see `amp-img` and `amp-anim` tags instead of the usual `img` tags, all relying on images hosted with our CDN.
+- Related Posts should appear at the bottom of your posts, whether you are looking at your site via an AMP view or not. It's worth noting that in some AMP modes, you will not see any styles for the Related Posts just yet.
+- When using the sharing buttons and looking at your site in an AMP view, you should see that some of the buttons will be displayed in a style developed by the AMP plugin (with square buttons), while other buttons will not be displayed at all because they are not supported by AMP.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!

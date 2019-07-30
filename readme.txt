@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * AMP: ensure CSS compatibility with the Sharing buttons.
+* AMP: ensure full compatibility with Jetpack's Image CDN.
 * Dashboard: fix layout issues when viewing the dashboard on WordPress.com Business sites.
 * Compatibility suite for shared libraries: fix PHP notice when running suite.
 * Contact Form: ensure the Date picker field does not cause any AMP validation errors.
