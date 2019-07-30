@@ -18,7 +18,7 @@ Then, in your AMP settings, you can switch between different AMP modes. For each
 
 We've also made some changes and fixed some issues with the synchronization of your site's activity, posts, and taxonomies back to WordPress.com. To test this, we would encourage you to use many of the features that rely on sync, such as:
 
-- Publicize & Subscriptions: try publishing or scheduling a new post and make sure it is sent to your followers. You will also want to make sure the information that is sent to your followers is incorrect; the categories listed at the bottom of the subscription emails should be correct for example.
+- Publicize & Subscriptions: try publishing or scheduling a new post and make sure it is sent to your followers. You will also want to make sure the information that is sent to your followers is correct; the categories listed at the bottom of the subscription emails should be correct for example.
 - The WordPress.com Dashboad interface: try editing categories and other categories via the WordPress.com interface; you will want to make sure that what's displayed there is up to date and can be updated.
 
 ### Others
