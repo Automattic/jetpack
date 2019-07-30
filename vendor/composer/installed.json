@@ -1,0 +1,401 @@
+[
+    {
+        "name": "automattic/jetpack-assets",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/assets",
+            "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
+        },
+        "require": {
+            "automattic/jetpack-constants": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Asset management utilities for Jetpack ecosystem packages"
+    },
+    {
+        "name": "automattic/jetpack-autoloader",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/autoloader",
+            "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
+        },
+        "require": {
+            "composer-plugin-api": "^1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "composer-plugin",
+        "extra": {
+            "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\Autoloader\\": "src"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Creates a custom autoloader for a plugin or theme."
+    },
+    {
+        "name": "automattic/jetpack-compat",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/compat",
+            "reference": "cd47566548267b29b0df1574a7c6be67de9c5cc9"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "functions.php"
+            ],
+            "classmap": [
+                "legacy"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Compatibility layer with previous versions of Jetpack"
+    },
+    {
+        "name": "automattic/jetpack-connection",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/connection",
+            "reference": "0a0e293d73c17d59376590d56e5667b169d26877"
+        },
+        "require": {
+            "automattic/jetpack-constants": "@dev",
+            "automattic/jetpack-options": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\Connection\\": "src"
+            },
+            "classmap": [
+                "legacy"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Everything needed to connect to the Jetpack infrastructure"
+    },
+    {
+        "name": "automattic/jetpack-constants",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/constants",
+            "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A wrapper for defining constants in a more testable way."
+    },
+    {
+        "name": "automattic/jetpack-jitm",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/jitm",
+            "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
+        },
+        "require": {
+            "automattic/jetpack-assets": "@dev",
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-constants": "@dev",
+            "automattic/jetpack-logo": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-tracking": "@dev"
+        },
+        "require-dev": {
+            "mockery/mockery": "^1.2",
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Just in time messages for Jetpack"
+    },
+    {
+        "name": "automattic/jetpack-logo",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/logo",
+            "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\Assets\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A logo for Jetpack"
+    },
+    {
+        "name": "automattic/jetpack-options",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/options",
+            "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
+        },
+        "require": {
+            "automattic/jetpack-constants": "@dev"
+        },
+        "require-dev": {
+            "10up/wp_mock": "0.4.2",
+            "phpunit/phpunit": "7.*.*"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "legacy"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "A wrapper for wp-options to manage specific Jetpack options."
+    },
+    {
+        "name": "automattic/jetpack-roles",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/roles",
+            "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Utilities, related with user roles and capabilities."
+    },
+    {
+        "name": "automattic/jetpack-status",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/status",
+            "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+    },
+    {
+        "name": "automattic/jetpack-sync",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/sync",
+            "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
+        },
+        "require": {
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-constants": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-roles": "@dev",
+            "automattic/jetpack-status": "@dev"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\Sync\\": "src/",
+                "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
+            }
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Everything needed to allow syncing to the WP.com infrastructure."
+    },
+    {
+        "name": "automattic/jetpack-tracking",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/tracking",
+            "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
+        },
+        "require": {
+            "automattic/jetpack-options": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            },
+            "classmap": [
+                "legacy"
+            ]
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Tracking for Jetpack"
+    }
+]
