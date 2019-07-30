@@ -11,7 +11,7 @@
 define( 'WPCOMSH_VERSION', '2.4.35' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
-add_filter( 'jetpack_fonts_enable_typekit', '__ret  urn_true' );
+add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 require_once( 'constants.php' );
 require_once( 'functions.php' );
