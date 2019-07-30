@@ -420,12 +420,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case 'lang_id':
-					if ( defined( 'WPLANG' ) ) {
-						// We can't affect this setting, so warn the client
-						$response[ $setting ] = 'error_const';
-						break;
-					}
-
 					if ( ! current_user_can( 'install_languages' ) ) {
 						// The user doesn't have caps to install language packs, so warn the client
 						$response[ $setting ] = 'error_cap';
@@ -645,7 +639,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 			switch ( $option ) {
 				case 'lang_id':
-					if ( defined( 'WPLANG' ) || ! current_user_can( 'install_languages' ) ) {
+					if ( ! current_user_can( 'install_languages' ) ) {
 						// We can't affect this setting
 						$updated = false;
 						break;
