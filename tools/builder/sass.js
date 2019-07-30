@@ -149,14 +149,78 @@ gulp.task(
 	} )
 );
 
+gulp.task( 'sass:packages', function() {
+	return (
+		gulp
+			.src( 'packages/**/assets/*.scss', { base: '.' } )
+			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+			.pipe(
+				prepend.prependText(
+					'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
+				)
+			)
+			.pipe( autoprefixer() )
+			// Build *.css
+			.pipe( sourcemaps.init() )
+			.pipe( sourcemaps.write() )
+			.pipe( gulp.dest( '.' ) )
+			// Build *.min.css
+			.pipe( cleanCSS() )
+			.pipe( rename( { suffix: '.min' } ) )
+			.pipe( gulp.dest( '.' ) )
+			// Finished
+			.on( 'end', function() {
+				log( 'Packages SCSS now compiled' );
+			} )
+	);
+} );
+
+gulp.task(
+	'sass:packages:rtl',
+	gulp.series( 'sass:packages', function() {
+		return (
+			gulp
+				.src(
+					[
+						'packages/**/assets/*.css',
+						'!packages/**/assets/*min.css',
+						'!packages/**/assets/*rtl.css',
+					],
+					{ base: '.' }
+				)
+				.pipe(
+					prepend.prependText(
+						'/*!\n' +
+							'* Do not modify this file directly.  It is automatically generated.\n' +
+							'*/\n'
+					)
+				)
+				.pipe( autoprefixer() )
+				// Build *-rtl.css
+				.pipe( rtlcss() )
+				.pipe( rename( { suffix: '-rtl' } ) )
+				.pipe( gulp.dest( '.' ) )
+				// Build *-rtl.min.css
+				.pipe( cleanCSS() )
+				.pipe( rename( { suffix: '.min' } ) )
+				.pipe( gulp.dest( '.' ) )
+				// Finished
+				.on( 'end', function() {
+					log( 'Packages CSS are now available in RTL.' );
+				} )
+		);
+	} )
+);
+
 export const build = gulp.parallel(
 	gulp.series( 'sass:dashboard', 'sass:calypsoify' ),
-	'sass:old'
+	'sass:old',
+	'sass:packages:rtl'
 );
 
 export const watch = function() {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:old' )
+		gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:old', 'sass:packages:rtl' )
 	);
 };

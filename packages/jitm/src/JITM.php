@@ -181,7 +181,7 @@ class JITM {
 	 * Function to enqueue jitm css and js
 	 */
 	function jitm_enqueue_files() {
-		$min = ''; // ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
 			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
