@@ -1644,48 +1644,40 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	$args        = wp_parse_args( $args, array() );
 	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, serialize( $args ) ) ) );
 
-	// Get cache.
-	$stats_cache = Jetpack_Options::get_option( 'restapi_stats_cache', array() );
-	if ( ! is_array( $stats_cache ) ) {
-		$stats_cache = array();
-	}
+	$transient_name = "jetpack_restapi_stats_cache_{$cache_key}";
+
+	$stats_cache = get_transient( $transient_name );
 
 	// Return or expire this key.
-	if ( isset( $stats_cache[ $cache_key ] ) ) {
-		$time = key( $stats_cache[ $cache_key ] );
-		if ( time() - $time < ( 5 * MINUTE_IN_SECONDS ) ) {
-			$cached_stats = $stats_cache[ $cache_key ][ $time ];
-			if ( is_wp_error( $cached_stats ) ) {
-				return $cached_stats;
-			}
-			$cached_stats = (object) array_merge( array( 'cached_at' => $time ), (array) $cached_stats );
-			return $cached_stats;
+	if ( $stats_cache ) {
+		$time = key( $stats_cache );
+		$data = $stats_cache[ $time ]; // WP_Error or string (JSON encoded object)
+
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
-		unset( $stats_cache[ $cache_key ] );
+
+		return (object) array_merge( array( 'cached_at' => $time ), (array) json_decode( $data ) );
 	}
 
 	// Do the dirty work.
 	$response = Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// WP_Error
 		$data = is_wp_error( $response ) ? $response : new WP_Error( 'stats_error' );
+		// WP_Error
+		$return = $data;
 	} else {
-		$data = json_decode( wp_remote_retrieve_body( $response ) );
+		// string (JSON encoded object)
+		$data = wp_remote_retrieve_body( $response );
+		// object (rare: null on JSON failure)
+		$return = json_decode( $data );
 	}
 
-	// Expire old keys.
-	foreach ( $stats_cache as $k => $cache ) {
-		if ( ! is_array( $cache ) || ( 5 * MINUTE_IN_SECONDS ) < time() - key( $cache ) ) {
-			unset( $stats_cache[ $k ] );
-		}
-	}
+	// To reduce size in storage: store with time as key, store JSON encoded data (unless error).
+	set_transient( $transient_name, array( time() => $data ), 5 * MINUTE_IN_SECONDS );
 
-	// Set cache.
-	$stats_cache[ $cache_key ] = array(
-		time() => $data,
-	);
-	Jetpack_Options::update_option( 'restapi_stats_cache', $stats_cache, false );
-
-	return $data;
+	return $return;
 }
 
 /**
