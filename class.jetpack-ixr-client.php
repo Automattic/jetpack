@@ -16,11 +16,6 @@ require_once( ABSPATH . WPINC . '/class-IXR.php' );
 class Jetpack_IXR_Client extends IXR_Client {
 	public $jetpack_args = null;
 
-	/**
-	 * @var array Array of additional parameters
-	 */
-	protected $additional_parameters;
-
 	function __construct( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
 		$defaults = array(
 			'url' => Jetpack::xmlrpc_api_url(),
@@ -37,10 +32,6 @@ class Jetpack_IXR_Client extends IXR_Client {
 	function query() {
 		$args = func_get_args();
 		$method = array_shift( $args );
-		if ( is_array( $this->additional_parameters ) ) {
-			$args = array_merge( $args, $this->additional_parameters );
-		}
-
 		$request = new IXR_Request( $method, $args );
 		$xml = trim( $request->getXml() );
 
@@ -48,7 +39,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 
 		if ( is_wp_error( $response ) ) {
 			$this->error = new IXR_Error( -10520, sprintf( 'Jetpack: [%s] %s', $response->get_error_code(), $response->get_error_message() ) );
-					return false;
+			return false;
 		}
 
 		if ( !$response ) {
@@ -98,10 +89,6 @@ class Jetpack_IXR_Client extends IXR_Client {
 		}
 
 		return new Jetpack_Error( "IXR_{$fault_code}", $fault_string );
-	}
-
-	function add_additional_parameters( $additional_parameters ) {
-		$this->additional_parameters = $additional_parameters;
 	}
 }
 
