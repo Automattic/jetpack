@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
-
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -45,23 +44,25 @@ function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-const gitFiles = parseGitDiffToPathArray(
-	'git diff --cached --name-only --diff-filter=ACM'
-).filter( Boolean );
-const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
-	Boolean
-);
-const jsFiles = gitFiles.filter( filterJsFiles );
-const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
-const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
+// Logging function that is used when check is failed
+function checkFailed() {
+	console.log(
+		chalk.red( 'COMMIT ABORTED:' ),
+		'The linter reported some problems. ' +
+			'If you are aware of them and it is OK, ' +
+			'repeat the commit command with --no-verify to avoid this check.'
+	);
+	exitCode = 1;
+}
 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
  * @param {String} file File name to check against the dirty list.
+ * @param {Array} dirtyFiles Dirty files list.
  * @return {boolean}    If the file should be checked.
  */
-function checkFileAgainstDirtyList( file ) {
+function checkFileAgainstDirtyList( file, dirtyFiles ) {
 	return -1 === dirtyFiles.indexOf( file );
 }
 
@@ -74,13 +75,23 @@ function capturePreCommitDate() {
 	}
 }
 
+const gitFiles = parseGitDiffToPathArray(
+	'git diff --cached --name-only --diff-filter=ACM'
+).filter( Boolean );
+const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
+	Boolean
+);
+const jsFiles = gitFiles.filter( filterJsFiles );
+const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
+const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
+
 dirtyFiles.forEach( file =>
 	console.log(
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
 	)
 );
 
-const toPrettify = jsFiles.filter( checkFileAgainstDirtyList );
+const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
@@ -98,13 +109,7 @@ if ( toLint.length ) {
 		stdio: 'inherit',
 	} );
 	if ( lintResult.status ) {
-		console.log(
-			chalk.red( 'COMMIT ABORTED:' ),
-			'The linter reported some problems. ' +
-				'If you are aware of them and it is OK, ' +
-				'repeat the commit command with --no-verify to avoid this check.'
-		);
-		exitCode = 1;
+		checkFailed();
 	}
 }
 
@@ -117,17 +122,11 @@ if ( phpFiles.length > 0 ) {
 }
 
 if ( phpLintResult && phpLintResult.status ) {
-	console.log(
-		chalk.red( 'COMMIT ABORTED:' ),
-		'The linter reported some problems. ' +
-			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.'
-	);
-	exitCode = 1;
+	checkFailed();
 }
 
 let phpcbfResult, phpcsResult;
-const toPhpcbf = phpcsFiles.filter( checkFileAgainstDirtyList );
+const toPhpcbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 if ( phpcsFiles.length > 0 ) {
 	if ( toPhpcbf.length > 0 ) {
 		phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpcbf ], {
