@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Replicastore;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions.
@@ -42,6 +43,17 @@ abstract class Module {
 	 */
 	public function id_field() {
 		return 'ID';
+	}
+
+	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table_name() {
+		return false;
 	}
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -390,21 +402,45 @@ abstract class Module {
 	 *
 	 * @access public
 	 *
-	 * @param int $batch_size The batch size for objects.
+	 * @param int         $batch_size The batch size for objects.
+	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
+	 * @param bool        $distinct   True if we should only look at distinct object ids.
 	 *
-	 * @return array An array of min and max ids for each batch.
+	 * @return array|bool An array of min and max ids for each batch.
 	 */
-	public function get_min_max_object_ids_for_batches( $batch_size ) {
+	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false, $distinct = false ) {
 		global $wpdb;
-		$results     = array();
-		$table       = $wpdb->{$this->name()};
-		$current_max = 0;
-		$current_min = 1;
-		$id_field    = $this->id_field();
-		$total       = $this->get_min_max_object_id( false, $id_field, $table, false );
+
+		if ( ! $this->table_name() ) {
+			return false;
+		}
+
+		$results      = array();
+		$table        = $wpdb->{$this->table_name()};
+		$current_max  = 0;
+		$current_min  = 1;
+		$id_field     = $this->id_field();
+		$replicastore = new Replicastore();
+
+		$total = $replicastore->get_min_max_object_id(
+			$id_field,
+			false,
+			$table,
+			$where_sql,
+			false
+		);
+
 		while ( $total->max > $current_max ) {
-			$where  = "WHERE $id_field > $current_max";
-			$result = $this->get_min_max_object_id( $batch_size, $id_field, $table, $where );
+			$where  = $where_sql ?
+				$where_sql . "AND $id_field > $current_max" :
+				"$id_field > $current_max";
+			$result = $replicastore->get_min_max_object_id(
+				$id_field,
+				$distinct,
+				$table,
+				$where,
+				$batch_size
+			);
 			if ( empty( $result->min ) && empty( $result->max ) ) {
 				$current_max = (int) $total->max;
 				$result      = (object) array(
@@ -419,32 +455,5 @@ abstract class Module {
 		}
 
 		return $results;
-	}
-
-	/**
-	 * Gets a minimum and maximum object id for the given database table.
-	 *
-	 * @access public
-	 *
-	 * @param int    $limit      The maximum amount of objects to query.
-	 * @param string $id_field   The name of the ID field in the database.
-	 * @param int    $table_name The name of table in the database.
-	 * @param string $where_sql  The WHERE clause for the sql statement.
-	 *
-	 * @return object
-	 */
-	public function get_min_max_object_id( $limit, $id_field, $table_name, $where_sql ) {
-		global $wpdb;
-
-		if ( $limit ) {
-			$from = "(SELECT $id_field FROM $table_name $where_sql ORDER BY $id_field ASC LIMIT $limit) as ids";
-		} else {
-			$from = "$table_name ORDER BY $id_field ASC";
-		}
-
-		return $wpdb->get_row(
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			"SELECT MIN($id_field) AS min, MAX($id_field) as max FROM $from"
-		);
 	}
 }

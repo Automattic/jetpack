@@ -18,11 +18,11 @@ class WPCOM_REST_API_V2_Endpoint_Object_Id_Range {
 						'type'    => 'string',
 						'default' => 'posts',
 						'enum'    => array(
-							'posts',
 							'comments',
-							'users',
+							'posts',
 							'terms',
 							'term_relationships',
+							'users',
 						)
 					),
 					'batch_size'  => array(

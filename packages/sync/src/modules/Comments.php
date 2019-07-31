@@ -36,6 +36,17 @@ class Comments extends Module {
 	}
 
 	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table_name() {
+		return 'comments';
+	}
+
+	/**
 	 * Retrieve a comment by its ID.
 	 *
 	 * @access public

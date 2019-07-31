@@ -1203,6 +1203,38 @@ class Replicastore implements Replicastore_Interface {
 	}
 
 	/**
+	 * Grabs the minimum and maximum object ids for the given parameters.
+	 *
+	 * @access public
+	 *
+	 * @param int    $id_field     The id column in the table to query.
+	 * @param bool   $distinct     If true, will query for a distinct object id.
+	 * @param string $object_table The table to query.
+	 * @param string $where        A sql where clause without 'WHERE'.
+	 * @param int    $bucket_size  The maximum amount of objects to include in the query.
+	 *
+	 * @return object An object with min_id and max_id properties.
+	 */
+	public function get_min_max_object_id( $id_field, $distinct, $object_table, $where, $bucket_size ) {
+		global $wpdb;
+
+		$distinct_sql = $distinct ? 'DISTINCT' : '';
+		$where_sql    = $where ? "WHERE $where" : '';
+
+		// Since MIN() and MAX() do not work with LIMIT, we'll need to adjust the dataset we query if a limit is present.
+		// With a limit present, we'll look at a dataset consisting of object_ids that meet the constructs of the $where clause.
+		// Without a limit, we can use the actual table as a dataset.
+		$from = ( $bucket_size ) ?
+			"( SELECT $distinct_sql $id_field FROM $object_table $where_sql ORDER BY $id_field ASC LIMIT $bucket_size ) as ids" :
+			"$object_table $where_sql ORDER BY $id_field ASC";
+
+		return $wpdb->get_row(
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			"SELECT MIN($id_field) as min, MAX($id_field) as max FROM $from"
+		);
+	}
+
+	/**
 	 * Retrieve the checksum histogram for a specific object type.
 	 *
 	 * @access public
@@ -1278,7 +1310,8 @@ class Replicastore implements Replicastore_Interface {
 		$previous_max_id = 0;
 		$histogram       = array();
 
-		$where = '1=1';
+		// This is used for the min / max query, while $where_sql is used for the checksum query.
+		$where = $where_sql;
 
 		if ( $start_id ) {
 			$where .= " AND $id_field >= " . intval( $start_id );
@@ -1288,39 +1321,41 @@ class Replicastore implements Replicastore_Interface {
 			$where .= " AND $id_field <= " . intval( $end_id );
 		}
 
-		$distinct = '';
+		$distinct = false;
 		if ( 'term_relationships' === $object_type ) {
-			$distinct = 'DISTINCT';
+			$distinct = true;
 		}
 
 		do {
-			list( $first_id, $last_id ) = $wpdb->get_row(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $distinct $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
-				ARRAY_N
+			$result = $this->get_min_max_object_id(
+				$id_field,
+				$distinct,
+				$object_table,
+				$where . " AND $id_field > $previous_max_id",
+				$bucket_size
 			);
 
-			if ( null === $first_id || null === $last_id ) {
+			if ( null === $result->min || null === $result->max ) {
 				// Nothing to checksum here...
 				break;
 			}
 
 			// Get the checksum value.
-			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii, $salt );
+			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $result->min, $result->max, $strip_non_ascii, $salt );
 
 			if ( is_wp_error( $value ) ) {
 				return $value;
 			}
 
-			if ( null === $first_id || null === $last_id ) {
+			if ( null === $result->min || null === $result->max ) {
 				break;
-			} elseif ( $first_id === $last_id ) {
-				$histogram[ $first_id ] = $value;
+			} elseif ( $result->min === $result->max ) {
+				$histogram[ $result->min ] = $value;
 			} else {
-				$histogram[ "{$first_id}-{$last_id}" ] = $value;
+				$histogram[ "{$result->min}-{$result->max}" ] = $value;
 			}
 
-			$previous_max_id = $last_id;
+			$previous_max_id = $result->max;
 		} while ( true );
 
 		return $histogram;

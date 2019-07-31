@@ -46,6 +46,17 @@ class Terms extends Module {
 	}
 
 	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table_name() {
+		return 'terms';
+	}
+
+	/**
 	 * Allows WordPress.com servers to retrieve term-related objects via the sync API.
 	 *
 	 * @param string $object_type The type of object.

@@ -42,6 +42,17 @@ class Users extends Module {
 	}
 
 	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table_name() {
+		return 'users';
+	}
+
+	/**
 	 * Retrieve a user by its ID.
 	 * This is here to support the backfill API.
 	 *
