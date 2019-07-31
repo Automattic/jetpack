@@ -11,18 +11,14 @@ function stringifyArray( fieldName, array ) {
 	return array.map( ( element, index ) => `${ fieldName }[${ index }]=${ element }` ).join( '&' );
 }
 
-class JetpackSearchAPI {
-	getAPIUrl( siteId, query ) {
-		return `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?query=${ encodeURIComponent(
-			query
-		) }&${ stringifyArray( 'fields', FIELDS ) }&${ stringifyArray( 'highlight_fields', [
-			'title',
-		] ) }`;
-	}
-
-	fetch( query ) {
-		return fetch( this.getAPIUrl( SITE_ID, query ) );
-	}
+function getAPIUrl( siteId, query ) {
+	return `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?query=${ encodeURIComponent(
+		query
+	) }&${ stringifyArray( 'fields', FIELDS ) }&${ stringifyArray( 'highlight_fields', [
+		'title',
+	] ) }`;
 }
 
-export default JetpackSearchAPI;
+export function search( query ) {
+	return fetch( getAPIUrl( SITE_ID, query ) );
+}
