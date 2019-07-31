@@ -44,6 +44,18 @@ function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
+// Filter callback for ES5 files as defined in lint-es6 script: inc/*.js modules
+function filterES5jsFile( file ) {
+	const regEx = /^_inc\/([a-zA-Z-]+\.)/g; // _inc/*.js
+	return file.startsWith( 'modules' ) || file.match( regEx );
+}
+
+// Filter callback for ES6 files as defined in lint-es6 script: ./*.js, _inc/client, extensions
+function filterES6jsFile( file ) {
+	const regEx = /^([a-zA-Z-]+\.)/g; // *.js
+	return file.startsWith( '_inc/client' ) || file.startsWith( 'extensions' ) || file.match( regEx );
+}
+
 // Logging function that is used when check is failed
 function checkFailed() {
 	console.log(
@@ -55,15 +67,25 @@ function checkFailed() {
 	exitCode = 1;
 }
 
+const gitFiles = parseGitDiffToPathArray(
+	'git diff --cached --name-only --diff-filter=ACM'
+).filter( Boolean );
+const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
+	Boolean
+);
+const jsFiles = gitFiles.filter( filterJsFiles );
+const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
+const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
+
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
  * @param {String} file File name to check against the dirty list.
- * @param {Array} dirtyFiles Dirty files list.
+ * @param {Array} filesList Dirty files list.
  * @return {boolean}    If the file should be checked.
  */
-function checkFileAgainstDirtyList( file, dirtyFiles ) {
-	return -1 === dirtyFiles.indexOf( file );
+function checkFileAgainstDirtyList( file, filesList ) {
+	return -1 === filesList.indexOf( file );
 }
 
 /**
@@ -74,16 +96,6 @@ function capturePreCommitDate() {
 		fs.writeFileSync( '.git/last-commit-date', Date.now() );
 	}
 }
-
-const gitFiles = parseGitDiffToPathArray(
-	'git diff --cached --name-only --diff-filter=ACM'
-).filter( Boolean );
-const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
-	Boolean
-);
-const jsFiles = gitFiles.filter( filterJsFiles );
-const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
-const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 
 dirtyFiles.forEach( file =>
 	console.log(
@@ -103,12 +115,34 @@ if ( toPrettify.length ) {
 
 // linting should happen after formatting
 const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
-if ( toLint.length ) {
-	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
-	if ( lintResult.status ) {
+// Lint ES6 files
+const toLintES6Files = toLint.filter( filterES6jsFile );
+if ( toLintES6Files.length ) {
+	const ES6LintResult = spawnSync(
+		'./node_modules/.bin/eslint',
+		[ '--quiet', '-c .eslintrc.js', ...toLint ],
+		{
+			shell: true,
+			stdio: 'inherit',
+		}
+	);
+	if ( ES6LintResult.status ) {
+		checkFailed();
+	}
+}
+
+// Lint ES5 files
+const toLintES5Files = toLint.filter( filterES5jsFile );
+if ( toLintES5Files.length ) {
+	const ES5LintResult = spawnSync(
+		'./node_modules/.bin/eslint',
+		[ '--quiet', '-c modules/.eslintrc.js', ...toLint ],
+		{
+			shell: true,
+			stdio: 'inherit',
+		}
+	);
+	if ( ES5LintResult.status ) {
 		checkFailed();
 	}
 }
