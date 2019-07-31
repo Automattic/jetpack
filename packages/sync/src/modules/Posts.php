@@ -217,12 +217,12 @@ class Posts extends Module {
 	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
-	 * @access private
+	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
-	private function get_where_sql( $config ) {
+	public function get_where_sql( $config ) {
 		$where_sql = Settings::get_blacklisted_post_types_sql();
 
 		// Config is a list of post IDs to sync.
@@ -641,5 +641,40 @@ class Posts extends Module {
 			$this->get_term_relationships( $post_ids ),
 			$previous_interval_end,
 		);
+	}
+
+	/**
+	 * Gets a list of minimum and maximum object ids for each batch based on the given batch size.
+	 *
+	 * @param int $batch_size The batch size for objects.
+	 *
+	 * @return array An array of min and max ids for each batch.
+	 */
+	public function get_min_max_object_ids_for_batches( $batch_size ) {
+		global $wpdb;
+		$results     = array();
+		$table       = $wpdb->{$this->name()};
+		$current_max = 0;
+		$current_min = 1;
+		$id_field    = $this->id_field();
+		$where_sql   = 'WHERE ' . $this->get_where_sql( null );
+		$total       = $this->get_min_max_object_id( false, $id_field, $table, $where_sql );
+
+		while ( $total->max > $current_max ) {
+			$where_sql .= " AND $id_field > $current_max";
+			$result     = $this->get_min_max_object_id( $batch_size, $id_field, $table, $where_sql );
+			if ( empty( $result->min ) && empty( $result->max ) ) {
+				$current_max = (int) $total->max;
+				$result      = (object) array(
+					'min' => $current_min,
+					'max' => $current_max,
+				);
+			} else {
+				$current_min = (int) $result->min;
+				$current_max = (int) $result->max;
+			}
+			$results[] = $result;
+		}
+		return $results;
 	}
 }

@@ -35,6 +35,17 @@ class Terms extends Module {
 	}
 
 	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'term_id';
+	}
+
+	/**
 	 * Allows WordPress.com servers to retrieve term-related objects via the sync API.
 	 *
 	 * @param string $object_type The type of object.
@@ -133,12 +144,12 @@ class Terms extends Module {
 	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
-	 * @access private
+	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
-	private function get_where_sql( $config ) {
+	public function get_where_sql( $config ) {
 		$where_sql = Settings::get_blacklisted_taxonomies_sql();
 
 		if ( is_array( $config ) ) {
