@@ -1,28 +1,29 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Plans Library
  *
  * Fetch plans data from WordPress.com
+ *
+ * @package Jetpack
  */
-
 class Jetpack_Plans {
 	/**
 	 * Get a list of all available plans from WordPress.com
 	 *
-	 * @since 7.6.0
+	 * @since 7.7.0
 	 *
 	 * @return array The plans list
 	 */
 	public static function get_plans() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'Store_Product_List' ) ) {
-				require( WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php' );
+				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 			}
 
 			return Store_Product_List::get_active_plans_v1_5();
 		}
 
-		// We're on Jetpack, so it's safe to use this namespace
+		// We're on Jetpack, so it's safe to use this namespace.
 		$request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			'/plans?_locale=' . get_user_locale(),
 			'1.5',
@@ -47,7 +48,9 @@ class Jetpack_Plans {
 	/**
 	 * Get plan information for a plan given its slug
 	 *
-	 * @since 7.6.0
+	 * @since 7.7.0
+	 *
+	 * @param string $plan_slug Plan slug.
 	 *
 	 * @return object The plan object
 	 */
@@ -57,7 +60,7 @@ class Jetpack_Plans {
 			return;
 		}
 
-		foreach( $plans as $plan ) {
+		foreach ( $plans as $plan ) {
 			if ( $plan_slug === $plan->product_slug ) {
 				return $plan;
 			}

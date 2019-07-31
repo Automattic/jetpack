@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Components Library
  *
@@ -8,7 +8,10 @@ class Jetpack_Components {
 	/**
 	 * Load and display a pre-rendered component
 	 *
-	 * @since 7.6.0
+	 * @since 7.7.0
+	 *
+	 * @param string $name  Component name.
+	 * @param array  $props Component properties.
 	 *
 	 * @return string The component markup
 	 */
@@ -45,7 +48,9 @@ class Jetpack_Components {
 	/**
 	 * Load and display a pre-rendered component
 	 *
-	 * @since 7.6.0
+	 * @since 7.7.0
+	 *
+	 * @param array $props Component properties.
 	 *
 	 * @return string The component markup
 	 */
@@ -55,10 +60,13 @@ class Jetpack_Components {
 		$plan = Jetpack_Plans::get_plan( $plan_slug );
 
 		if ( ! $plan ) {
-			return self::render_component( 'upgrade-nudge', array(
-				'planName' => __( 'a paid plan', 'jetpack' ),
-				'upgradeUrl' => ''
-			) );
+			return self::render_component(
+				'upgrade-nudge',
+				array(
+					'planName'   => __( 'a paid plan', 'jetpack' ),
+					'upgradeUrl' => '',
+				)
+			);
 		}
 
 		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
@@ -67,11 +75,11 @@ class Jetpack_Components {
 			? substr( $plan_slug, strlen( 'jetpack_' ) )
 			: $plan->path_slug;
 
-		$post_id = get_the_ID();
+		$post_id   = get_the_ID();
 		$post_type = get_post_type();
 
-		// The editor for CPTs has an `edit/` route fragment prefixed
-		$post_type_editor_route_prefix = in_array( $post_type, array( 'page', 'post' ) ) ? '' : 'edit';
+		// The editor for CPTs has an `edit/` route fragment prefixed.
+		$post_type_editor_route_prefix = in_array( $post_type, array( 'page', 'post' ), true ) ? '' : 'edit';
 
 		if ( method_exists( 'Jetpack', 'build_raw_urls' ) ) {
 			$site_slug = Jetpack::build_raw_urls( home_url() );
@@ -87,10 +95,12 @@ class Jetpack_Components {
 				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
 			) : '';
 
-
-		return self::render_component( 'upgrade-nudge', array(
-			'planName' => $plan->product_name,
-			'upgradeUrl' => $upgrade_url
-		) );
+		return self::render_component(
+			'upgrade-nudge',
+			array(
+				'planName'   => $plan->product_name,
+				'upgradeUrl' => $upgrade_url,
+			)
+		);
 	}
 }
