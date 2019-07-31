@@ -1,5 +1,3 @@
-/* jshint onevar: false, smarttabs: true */
-
 ( function( $ ) {
 	var Jetpack_CSS = {
 		modes: {

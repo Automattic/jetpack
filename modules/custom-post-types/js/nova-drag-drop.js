@@ -1,4 +1,3 @@
-/* jshint onevar: false, smarttabs: true */
 /* global _novaDragDrop */
 
 ( function( $ ) {

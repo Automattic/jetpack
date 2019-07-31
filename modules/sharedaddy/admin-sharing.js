@@ -1,4 +1,3 @@
-/* jshint onevar: false, smarttabs: true */
 /* global sharing_loading_icon */
 
 ( function( $ ) {

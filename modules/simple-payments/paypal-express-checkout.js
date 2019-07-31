@@ -4,10 +4,8 @@
  * of simple-payments module.
  */
 
-/* global paypal */
-/* global jQuery */
+/* global paypal, jQuery */
 /* exported PaypalExpressCheckout */
-/* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
 	primaryCssClassName: 'jetpack-simple-payments',
 	messageCssClassName: 'jetpack-simple-payments-purchase-message',
