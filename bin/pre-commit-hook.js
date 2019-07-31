@@ -97,6 +97,32 @@ function capturePreCommitDate() {
 	}
 }
 
+/**
+ * Spawns a eslint process against list of files using ES6/ES5 config file
+ * @param {Array} toLintFiles List of files to lint
+ * @param {String} type linter type to use. could be es6 or es5
+ *
+ * @returns {Int} shell return code
+ */
+function runJSLinter( toLintFiles, type = 'es6' ) {
+	if ( ! toLintFiles.length ) {
+		return false;
+	}
+
+	const configOption = type === 'es6' ? '-c .eslintrc.js' : '-c modules/.eslintrc.js';
+
+	const lintResult = spawnSync(
+		'./node_modules/.bin/eslint',
+		[ '--quiet', configOption, ...toLintFiles ],
+		{
+			shell: true,
+			stdio: 'inherit',
+		}
+	);
+
+	return lintResult.status;
+}
+
 dirtyFiles.forEach( file =>
 	console.log(
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
@@ -117,34 +143,14 @@ if ( toPrettify.length ) {
 const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
 // Lint ES6 files
 const toLintES6Files = toLint.filter( filterES6jsFile );
-if ( toLintES6Files.length ) {
-	const ES6LintResult = spawnSync(
-		'./node_modules/.bin/eslint',
-		[ '--quiet', '-c .eslintrc.js', ...toLint ],
-		{
-			shell: true,
-			stdio: 'inherit',
-		}
-	);
-	if ( ES6LintResult.status ) {
-		checkFailed();
-	}
-}
+const ES6LintResult = runJSLinter( toLintES6Files, 'es6' );
 
 // Lint ES5 files
 const toLintES5Files = toLint.filter( filterES5jsFile );
-if ( toLintES5Files.length ) {
-	const ES5LintResult = spawnSync(
-		'./node_modules/.bin/eslint',
-		[ '--quiet', '-c modules/.eslintrc.js', ...toLint ],
-		{
-			shell: true,
-			stdio: 'inherit',
-		}
-	);
-	if ( ES5LintResult.status ) {
-		checkFailed();
-	}
+const ES5LintResult = runJSLinter( toLintES5Files, 'es5' );
+
+if ( ES6LintResult || ES5LintResult ) {
+	checkFailed();
 }
 
 let phpLintResult;
