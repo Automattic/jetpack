@@ -13,9 +13,7 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import SearchResults from './search-results';
-import JetpackSearchAPI from '../components/api';
-
-const api = new JetpackSearchAPI();
+import { search } from '../components/api';
 
 class SearchWidget extends Component {
 	constructor() {
@@ -25,8 +23,7 @@ class SearchWidget extends Component {
 			query: this.props.initialValue,
 			results: [],
 		};
-		this.onChangeQuery = this.onChangeQuery.bind( this );
-		this.getResults = debounce( this.getResults.bind( this ), 500 );
+		this.getResults = debounce( this.getResults, 500 );
 		this.getResults( this.props.initialValue );
 	}
 	componentDidMount() {
@@ -42,26 +39,22 @@ class SearchWidget extends Component {
 		this.getResults( query );
 	};
 
-	getResults( query ) {
+	getResults = query => {
 		if ( query ) {
-			if ( api ) {
-				this.requestId++;
-				const requestId = this.requestId;
-				api
-					.fetch( query )
-					.then( response => {
-						return response.json();
-					} )
-					.then( json => {
-						if ( this.requestId === requestId ) {
-							this.setState( { results: json } );
-						}
-					} );
-			}
+			this.requestId++;
+			const requestId = this.requestId;
+
+			search( query )
+				.then( response => response.json() )
+				.then( json => {
+					if ( this.requestId === requestId ) {
+						this.setState( { results: json } );
+					}
+				} );
 		} else {
 			this.setState( { results: [] } );
 		}
-	}
+	};
 
 	render() {
 		const { query, results } = this.state;
