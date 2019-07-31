@@ -29,18 +29,17 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		// This is taken from WooCommerce's bootstrap.php file
 
-		// factories
-		require_once( $woo_tests_dir . '/framework/factories/class-wc-unit-test-factory-for-webhook.php' );
-		require_once( $woo_tests_dir . '/framework/factories/class-wc-unit-test-factory-for-webhook-delivery.php' );
-
 		// framework
 		require_once( $woo_tests_dir . '/framework/class-wc-unit-test-factory.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-mock-session-handler.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-mock-wc-data.php' );
+		require_once( $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php' );
+		require_once( $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-payment-token-stub.php' );
 		// require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
 
 		// test cases
+		require_once( $woo_tests_dir . '/includes/wp-http-testcase.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-unit-test-case.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-api-unit-test-case.php' );
 		require_once( $woo_tests_dir . '/framework/class-wc-rest-unit-test-case.php' );
@@ -171,6 +170,80 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$deleted_order_item_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_order_item_meta' );
 		$this->assertTrue( !! $deleted_order_item_meta_event );
+	}
+
+	public function test_approving_a_review_is_synced() {
+		$post_id = $this->factory->post->create();
+		$review_ids = $this->factory->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review', 'comment_approved' => 0 ) );
+		$review = get_comment( $review_ids[0] );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+		$review->comment_approved = 1;
+		wp_update_comment( (array) $review );
+
+		$this->sender->do_sync();
+
+		//Test both sync actions we're expecting
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
+		$remote_comment = $this->server_replica_storage->get_comment( $review->comment_ID );
+		$this->assertEquals( 1, $remote_comment->comment_approved );
+		$comment_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_review' );
+		$this->assertTrue( (bool) $comment_approved_event );
+
+		$comment_unapproved_to_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_to_approved' );
+		$this->assertTrue( (bool) $comment_unapproved_to_approved_event );
+
+		//Test both sync actions again, this time without causing a change in state (comment_unapproved_review remains true despite no state change, while comment_approved_to_unapproved does not)
+
+		$this->server_event_storage->reset();
+
+		wp_update_comment( (array) $review );
+		$this->sender->do_sync();
+
+		$comment_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_review' );
+		$this->assertTrue( (bool) $comment_approved_event );
+
+		$comment_unapproved_to_approved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_to_approved' );
+		$this->assertFalse( (bool) $comment_unapproved_to_approved_event );
+	}
+
+	public function test_unapproving_a_review_is_synced() {
+		$post_id = $this->factory->post->create();
+		$review_ids = $this->factory->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review' ) );
+		$review = get_comment( $review_ids[0] );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
+		$review->comment_approved = 0;
+		wp_update_comment( (array) $review );
+
+		$this->sender->do_sync();
+
+		//Test both sync actions we're expecting
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+		$remote_comment = $this->server_replica_storage->get_comment( $review->comment_ID );
+		$this->assertEquals( 0, $remote_comment->comment_approved );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_review' );
+		$this->assertTrue( (bool) $comment_unapproved_event );
+
+		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
+		$this->assertTrue( (bool) $comment_approved_to_unapproved_event );
+
+		//Test both sync actions again, this time without causing a change in state (comment_unapproved_review remains true despite no state change, while comment_approved_to_unapproved does not)
+
+		$this->server_event_storage->reset();
+
+		wp_update_comment( (array) $review );
+		$this->sender->do_sync();
+
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_review' );
+		$this->assertTrue( (bool) $comment_unapproved_event );
+
+		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
+		$this->assertFalse( (bool) $comment_approved_to_unapproved_event );
 	}
 
 	// Full Sync

@@ -4,12 +4,12 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
-import banner from 'gulp-banner';
 import cleanCSS from 'gulp-clean-css';
 import gulp from 'gulp';
+import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
-import util from 'gulp-util';
+import log from 'fancy-log';
 
 const admincss = [
 	// Non-concatenated, non-admin styles to be processed
@@ -44,13 +44,13 @@ gulp.task( 'admincss', function() {
 		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe(
-			banner(
+			prepend.prependText(
 				'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
 			)
 		)
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
-			util.log( 'Admin modules CSS finished.' );
+			log( 'Admin modules CSS finished.' );
 		} );
 } );
 
@@ -62,7 +62,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe(
-			banner(
+			prepend.prependText(
 				'/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n'
 			)
 		)
@@ -71,7 +71,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( '.' ) )
 		.on( 'end', function() {
-			util.log( 'Admin modules RTL CSS finished.' );
+			log( 'Admin modules RTL CSS finished.' );
 		} );
 } );
 

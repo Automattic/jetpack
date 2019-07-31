@@ -68,6 +68,8 @@ class Jetpack_Calypsoify {
 		add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
 		add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
 
+		add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
+
 		if ( 'plugins.php' === basename( $_SERVER['PHP_SELF'] ) ) {
 			add_action( 'admin_notices', array( $this, 'plugins_admin_notices' ) );
 		}
@@ -478,6 +480,27 @@ class Jetpack_Calypsoify {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Attach a WP_List_Table views filter to all screens.
+	 */
+	public function attach_views_filter( $current_screen ) {
+		add_filter( "views_{$current_screen->id}", array( $this, 'filter_views' ) );
+	}
+
+	/**
+	 * Remove the parentheses from list table view counts when Calypsofied.
+	 * 
+	 * @param array $views Array of views. See: WP_List_Table::get_views().
+	 * @return array Filtered views.
+	 */
+	public function filter_views( $views ) {
+		foreach ( $views as $id => $view ) {
+			$views[ $id ] = preg_replace( '/<span class="count">\((\d+)\)<\/span>/', '<span class="count">$1</span>', $view );
+		}
+
+		return $views;
 	}
 }
 

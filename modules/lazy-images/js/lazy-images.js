@@ -139,7 +139,6 @@ var jetpackLazyImagesModule = function( $ ) {
  * https://github.com/w3c/IntersectionObserver/tree/master/polyfill
  */
 
-/* jshint ignore:start */
 /**
  * Copyright 2016 Google Inc. All Rights Reserved.
  *
@@ -864,7 +863,6 @@ var jetpackLazyImagesModule = function( $ ) {
 	window.IntersectionObserverEntry = IntersectionObserverEntry;
 
 	}(window, document));
-/* jshint ignore:end */
 
 // Let's kick things off now
 jetpackLazyImagesModule( jQuery );

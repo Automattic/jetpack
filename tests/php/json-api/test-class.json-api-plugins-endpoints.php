@@ -18,12 +18,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 
 		parent::setUp();
 
-		if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
-			// Loading the API breaks in 5.2.x due to `const` declarations, and
-			// this will still happen even though all tests are skipped (why?)
-			return;
-		}
-
 		$this->set_globals();
 
 		// Force direct method. Running the upgrade via PHPUnit can't detect the correct filesystem method.
@@ -34,7 +28,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 * @author lezama
 	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 * @group external-http
-	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
 		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
@@ -103,7 +96,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	 * @author tonykova
 	 * @covers Jetpack_API_Plugins_Install_Endpoint
 	 * @group external-http
-	 * @requires PHP 5.3.2
 	 */
 	public function test_Jetpack_API_Plugins_Install_Endpoint() {
 		if ( is_multisite() ) {

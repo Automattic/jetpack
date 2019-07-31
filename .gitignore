@@ -47,6 +47,7 @@ phpcs.xml
 ## Things we will need in release branches
 /_inc/blocks
 /_inc/build
+/_inc/search/dist/
 /modules/**/*.min.css
 /modules/**/*-rtl.css
 /css

@@ -1,17 +1,88 @@
 <?php
+/**
+ * Terms sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * Class to handle sync for terms.
+ */
 class Terms extends Module {
+	/**
+	 * Whitelist for taxonomies we want to sync.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
 	private $taxonomy_whitelist;
 
-	function name() {
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function name() {
 		return 'terms';
 	}
 
-	function init_listeners( $callable ) {
+	/**
+	 * Allows WordPress.com servers to retrieve term-related objects via the sync API.
+	 *
+	 * @param string $object_type The type of object.
+	 * @param int    $id          The id of the object.
+	 *
+	 * @return bool|object A WP_Term object, or a row from term_taxonomy table depending on object type.
+	 */
+	public function get_object_by_id( $object_type, $id ) {
+		global $wpdb;
+		$object = false;
+		if ( 'term' === $object_type ) {
+			$object = get_term( intval( $id ) );
+
+			if ( is_wp_error( $object ) && $object->get_error_code() === 'invalid_taxonomy' ) {
+				// Fetch raw term.
+				$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_checksum_columns, array( 'term_group' ) ) ) );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->terms WHERE term_id = %d", $id ) );
+			}
+		}
+
+		if ( 'term_taxonomy' === $object_type ) {
+			$columns = implode( ', ', array_unique( array_merge( Defaults::$default_term_taxonomy_checksum_columns, array( 'description' ) ) ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$object = $wpdb->get_row( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d", $id ) );
+		}
+
+		if ( 'term_relationships' === $object_type ) {
+			$columns = implode( ', ', Defaults::$default_term_relationships_checksum_columns );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT $columns FROM $wpdb->term_relationships WHERE object_id = %d", $id ) );
+			$object  = (object) array(
+				'object_id'     => $id,
+				'relationships' => array_map( array( $this, 'expand_terms_for_relationship' ), $objects ),
+			);
+		}
+
+		return $object ? $object : false;
+	}
+
+	/**
+	 * Initialize terms action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
+	public function init_listeners( $callable ) {
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetpack_sync_save_term', $callable );
@@ -19,49 +90,109 @@ class Terms extends Module {
 		add_action( 'delete_term', $callable, 10, 4 );
 		add_action( 'set_object_terms', $callable, 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_term', array( $this, 'filter_blacklisted_taxonomies' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_term', array( $this, 'filter_blacklisted_taxonomies' ) );
 	}
 
+	/**
+	 * Initialize terms action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_terms', $callable, 10, 2 );
 	}
 
-	function init_before_send() {
-		// full sync
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
+	public function init_before_send() {
+		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_taxonomy_id' ) );
 	}
 
+	/**
+	 * Enqueue the terms actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_terms', $wpdb->term_taxonomy, 'term_taxonomy_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
+	/**
+	 * Retrieve the WHERE SQL clause based on the module config.
+	 *
+	 * @access private
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 */
 	private function get_where_sql( $config ) {
+		$where_sql = Settings::get_blacklisted_taxonomies_sql();
+
 		if ( is_array( $config ) ) {
-			return 'term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+			$where_sql .= ' AND term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
-		return '';
+		return $where_sql;
 	}
 
+	/**
+	 * Retrieve an estimated number of actions that will be enqueued.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return int Number of items yet to be enqueued.
+	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->term_taxonomy";
 
-		if ( $where_sql = $this->get_where_sql( $config ) ) {
+		$where_sql = $this->get_where_sql( $config );
+		if ( $where_sql ) {
 			$query .= ' WHERE ' . $where_sql;
 		}
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
 		$count = $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
-	function get_full_sync_actions() {
+	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
+	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_terms' );
 	}
 
-	function save_term_handler( $term_id, $tt_id, $taxonomy ) {
+	/**
+	 * Handler for creating and updating terms.
+	 *
+	 * @access public
+	 *
+	 * @param int    $term_id  Term ID.
+	 * @param int    $tt_id    Term taxonomy ID.
+	 * @param string $taxonomy Taxonomy slug.
+	 */
+	public function save_term_handler( $term_id, $tt_id, $taxonomy ) {
 		if ( class_exists( '\\WP_Term' ) ) {
 			$term_object = \WP_Term::get_instance( $term_id, $taxonomy );
 		} else {
@@ -92,14 +223,53 @@ class Terms extends Module {
 		do_action( 'jetpack_sync_save_term', $term_object );
 	}
 
-	function set_taxonomy_whitelist( $taxonomies ) {
+	/**
+	 * Filter blacklisted taxonomies.
+	 *
+	 * @access public
+	 *
+	 * @param array $args Hook args.
+	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
+	 */
+	public function filter_blacklisted_taxonomies( $args ) {
+		$term = $args[0];
+
+		if ( in_array( $term->taxonomy, Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
+			return false;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Set the taxonomy whitelist.
+	 *
+	 * @access public
+	 *
+	 * @param array $taxonomies The new taxonomyy whitelist.
+	 */
+	public function set_taxonomy_whitelist( $taxonomies ) {
 		$this->taxonomy_whitelist = $taxonomies;
 	}
 
-	function set_defaults() {
+	/**
+	 * Set module defaults.
+	 * Define the taxonomy whitelist to be the default one.
+	 *
+	 * @access public
+	 */
+	public function set_defaults() {
 		$this->taxonomy_whitelist = Defaults::$default_taxonomy_whitelist;
 	}
 
+	/**
+	 * Expand the term taxonomy IDs to terms within a hook before they are serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array $args The expanded hook parameters.
+	 */
 	public function expand_term_taxonomy_id( $args ) {
 		list( $term_taxonomy_ids,  $previous_end ) = $args;
 
@@ -114,5 +284,17 @@ class Terms extends Module {
 			),
 			'previous_end' => $previous_end,
 		);
+	}
+
+	/**
+	 * Gets a term object based on a given row from the term_relationships database table.
+	 *
+	 * @access public
+	 *
+	 * @param object $relationship A row object from the term_relationships table.
+	 * @return object|bool A term object, or false if term taxonomy doesn't exist.
+	 */
+	public function expand_terms_for_relationship( $relationship ) {
+		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
 }

@@ -24,6 +24,7 @@ class Jetpack_AMP_Support {
 
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
+		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
 
 		// enforce freedom mode for videopress.
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -36,6 +37,9 @@ class Jetpack_AMP_Support {
 
 		// Add post template metadata for legacy AMP.
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
+
+		// Filter photon image args for AMP Stories.
+		add_filter( 'jetpack_photon_post_image_args', array( 'Jetpack_AMP_Support', 'filter_photon_post_image_args_for_stories' ), 10, 2 );
 	}
 
 	/**
@@ -350,9 +354,90 @@ class Jetpack_AMP_Support {
 
 		return $markup;
 	}
+
+	/**
+	 * Tells Jetpack not to enqueue CSS for share buttons.
+	 *
+	 * @param  bool $enqueue Whether or not to enqueue.
+	 * @return bool          Whether or not to enqueue.
+	 */
+	public static function amp_disable_sharedaddy_css( $enqueue ) {
+		if ( self::is_amp_request() ) {
+			$enqueue = false;
+		}
+
+		return $enqueue;
+	}
+
+	/**
+	 * Ensure proper Photon image dimensions for AMP Stories.
+	 *
+	 * @param array $args Array of Photon Arguments.
+	 * @param array $details {
+	 *     Array of image details.
+	 *
+	 *     @type string    $tag            Image tag (Image HTML output).
+	 *     @type string    $src            Image URL.
+	 *     @type string    $src_orig       Original Image URL.
+	 *     @type int|false $width          Image width.
+	 *     @type int|false $height         Image height.
+	 *     @type int|false $width_orig     Original image width before constrained by content_width.
+	 *     @type int|false $height_orig    Original Image height before constrained by content_width.
+	 *     @type string    $transform_orig Original transform before constrained by content_width.
+	 * }
+	 * @return array Args.
+	 */
+	public static function filter_photon_post_image_args_for_stories( $args, $details ) {
+		if ( ! is_singular( 'amp_story' ) ) {
+			return $args;
+		}
+
+		// Percentage-based dimensions are not allowed in AMP, so this shouldn't happen, but short-circuit just in case.
+		if ( false !== strpos( $details['width_orig'], '%' ) || false !== strpos( $details['height_orig'], '%' ) ) {
+			return $args;
+		}
+
+		$max_height = 1440; // See image size with the slug \AMP_Story_Post_Type::MAX_IMAGE_SIZE_SLUG.
+		$transform  = $details['transform_orig'];
+		$width      = $details['width_orig'];
+		$height     = $details['height_orig'];
+
+		// If height is available, constrain to $max_height.
+		if ( false !== $height ) {
+			if ( $height > $max_height && false !== $height ) {
+				$width  = ( $max_height * $width ) / $height;
+				$height = $max_height;
+			} elseif ( $height > $max_height ) {
+				$height = $max_height;
+			}
+		}
+
+		/*
+		 * Set a height if none is found.
+		 * If height is set in this manner and height is available, use `fit` instead of `resize` to prevent skewing.
+		 */
+		if ( false === $height ) {
+			$height = $max_height;
+			if ( false !== $width ) {
+				$transform = 'fit';
+			}
+		}
+
+		// Build array of Photon args and expose to filter before passing to Photon URL function.
+		$args = array();
+
+		if ( false !== $width && false !== $height ) {
+			$args[ $transform ] = $width . ',' . $height;
+		} elseif ( false !== $width ) {
+			$args['w'] = $width;
+		} elseif ( false !== $height ) {
+			$args['h'] = $height;
+		}
+
+		return $args;
+	}
 }
 
 add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
 
 add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
-

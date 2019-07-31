@@ -239,7 +239,7 @@ class Jetpack_Photon {
 	public static function parse_images_from_html( $content ) {
 		$images = array();
 
-		if ( preg_match_all( '#(?:<a[^>]+?href=["|\'](?P<link_url>[^\s]+?)["|\'][^>]*?>\s*)?(?P<img_tag><img[^>]*?\s+?src=["|\'](?P<img_url>[^\s]+?)["|\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
+		if ( preg_match_all( '#(?:<a[^>]+?href=["|\'](?P<link_url>[^\s]+?)["|\'][^>]*?>\s*)?(?P<img_tag><(?:img|amp-img|amp-anim)[^>]*?\s+?src=["|\'](?P<img_url>[^\s]+?)["|\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
 			foreach ( $images as $key => $unused ) {
 				// Simplify the output as much as possible, mostly for confirming test results.
 				if ( is_numeric( $key ) && $key > 0 )
@@ -419,6 +419,10 @@ class Jetpack_Photon {
 						list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $src );
 					}
 
+					$width_orig     = $width;
+					$height_orig    = $height;
+					$transform_orig = $transform;
+
 					// If width is available, constrain to $content_width
 					if ( false !== $width && false === strpos( $width, '%' ) && is_numeric( $content_width ) ) {
 						if ( $width > $content_width && false !== $height && false === strpos( $height, '%' ) ) {
@@ -467,17 +471,21 @@ class Jetpack_Photon {
 					 * @since 2.0.0
 					 *
 					 * @param array $args Array of Photon Arguments.
-					 * @param array $args {
-					 * 	 Array of image details.
+					 * @param array $details {
+					 *     Array of image details.
 					 *
-					 * 	 @type $tag Image tag (Image HTML output).
-					 * 	 @type $src Image URL.
-					 * 	 @type $src_orig Original Image URL.
-					 * 	 @type $width Image width.
-					 * 	 @type $height Image height.
+					 *     @type string    $tag            Image tag (Image HTML output).
+					 *     @type string    $src            Image URL.
+					 *     @type string    $src_orig       Original Image URL.
+					 *     @type int|false $width          Image width.
+					 *     @type int|false $height         Image height.
+					 *     @type int|false $width_orig     Original image width before constrained by content_width.
+					 *     @type int|false $height_orig    Original Image height before constrained by content_width.
+					 *     @type string    $transform      Transform.
+					 *     @type string    $transform_orig Original transform before constrained by content_width.
 					 * }
 					 */
-					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
+					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform', 'transform_orig' ) );
 
 					$photon_url = jetpack_photon_url( $src, $args );
 
@@ -536,7 +544,9 @@ class Jetpack_Photon {
 						}
 
 						// Tag an image for dimension checking
-						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						if ( ! self::is_amp_endpoint() ) {
+							$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						}
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
@@ -1181,7 +1191,7 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	public function action_wp_enqueue_scripts() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( self::is_amp_endpoint() ) {
 			return;
 		}
 		wp_enqueue_script(
@@ -1263,5 +1273,17 @@ class Jetpack_Photon {
 	 */
 	public function _override_image_downsize_in_rest_edit_context() {
 		return true;
+	}
+
+	/**
+	 * Return whether the current page is AMP.
+	 *
+	 * This is only present for the sake of WordPress.com where the Jetpack_AMP_Support
+	 * class does not yet exist. This mehod may only be called at the wp action or later.
+	 *
+	 * @return bool Whether AMP page.
+	 */
+	private static function is_amp_endpoint() {
+		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 	}
 }

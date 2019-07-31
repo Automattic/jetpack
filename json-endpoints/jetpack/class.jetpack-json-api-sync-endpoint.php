@@ -271,9 +271,16 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		$request_body ['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
 		$request_body['item_ids'] = array_filter( array_map( array( 'Jetpack_JSON_API_Sync_Close_Endpoint', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
-		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$queue = new Queue( $queue_name );
 
+		$items = $queue->peek_by_id( $request_body['item_ids'] );
+
+		/** This action is documented in packages/sync/src/modules/Full_Sync.php */
+		$full_sync_module = Modules::get_module( 'full-sync' );
+
+		$full_sync_module->update_sent_progress_action( $items );
+
+		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
 		if ( is_wp_error( $response ) ) {
@@ -281,7 +288,8 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		}
 
 		return array(
-			'success' => $response
+			'success' => $response,
+			'status' => Actions::get_sync_status(),
 		);
 	}
 

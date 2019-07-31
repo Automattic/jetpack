@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.4.1
+Stable tag: 7.5.3
 Requires at least: 5.1
-Requires PHP: 5.3
+Requires PHP: 5.6
 Tested up to: 5.2
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
@@ -96,38 +96,46 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.5 =
+= 7.6 =
 
-* Release date: July 2, 2019
-* Release post: https://wp.me/p1moTy-k9A
+* Release date: August 6, 2019
+* Release post: https://wp.me/p1moTy-ljs
 
 **Enhancements**
 
-* Admin Page: add an option to send a magic link that will help you log in to the mobile apps in one click.
-* Admin Page: improve style and wording of many different sections of the dashboard to clarify the role of each feature.
-* Admin Page: remove feature that would offer you to activate a list of recommended features upon connecting your site to WordPress.com.
-* Backups: include updates to term relationships when backing up Post object changes.
-* Backups: synchronize ABSPATH value to help setting up SSH credentials when using Jetpack Backups.
-* Faceboook Embeds: support new video URL format.
-* Lazy Load: allow adding event handlers to images.
-* Recurring Payments Block: improve the display of the block in the editor.
-* WordAds: update link to daily earnings stats on WordPress.com.
-* WordAds: provide additional details for custom ads.txt entries in the Jetpack dashboard.
-* WordPress.com Toolbar: add colors to Recovery Mode button.
+* Backups: add ability to send SSH credentials.
+* Blocks: allow the insertion and preview of any Jetpack block in the editor, even when the block is only available via a Paid plan.
+* Carousel: use a pointer cursor when hovering over galleries that utilise the Carousel feature.
+* Dashboard: improve the display of the feature cards in the main Jetpack dashboard.
+* General: hide edit post link on your site when viewing it via the WordPress mobile app.
+* oEmbeds: add support for Song.link service.
+* Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
+* Stats: improve Cache performance by switching from the WordPress Options API to the WordPress Transient API.
+* Support links: use the Beta support form when on a development version.
+* Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
+* Sync: improve reliability of the synchronization of taxonomies.
+* Videos: ensure any deprecations added in the core video block are not overwritten.
+* Widgets: allow the customization of avatar image options in the Top Posts Widget, via a filter.
+* Widgets: add option to open Flickr gallery images in a new tab.
+* WordPress.com Activity Log: avoid display issues with WooCommerce Product Reviews.
 
 **Improved compatibility**
 
-* Admin Page: improve display of the Jetpack Dashboard in IE11.
-* Sharing: avoid displaying extra list items below the sharing buttons when using the AMP plugin.
-* Staging enviroments: add staging enviroment detection for DreamPress sites.
+* AMP: ensure CSS compatibility with the Sharing buttons.
+* AMP: ensure full compatibility with Jetpack's Image CDN.
+* Dashboard: fix layout issues when viewing the dashboard on WordPress.com Business sites.
+* Compatibility suite for shared libraries: fix PHP notice when running suite.
+* Contact Form: ensure the Date picker field does not cause any AMP validation errors.
 
 **Bug fixes**
 
-* Admin Page: fix display of backup details in the Jetpack dashboard.
-* Admin Page: do not disable Widget Visibility and Widgets toggles in Development mode.
-* Sitemaps: ensure links to sitemaps appear in robots.txt
-* Slideshow Block: fix CSS class name.
-* Videos: ensure that Video Poster images are always displayed properly.
+* Admin Page: fix the behaviour of the Jetpack Videos button in the "My Plan" tab.
+* Admin Page: fix a typo in the Magic Links modal.
+* Connection process: bring back the ability to connect to WordPress.com via XML-RPC or REST API.
+* Custom CSS: fix Media Width label layout issue in Firefox.
+* Dashboard Notices: fix layout issues on sites using an RTL language.
+* Sync: fix home and Site URL synchronization issues on sites with custom Cron implementations.
+* WordPress.com Activity Log: add Action Scheduler to the list of blacklisted post types
 
 --------
 

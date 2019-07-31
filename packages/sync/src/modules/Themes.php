@@ -1,14 +1,36 @@
 <?php
+/**
+ * Themes sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
 
+/**
+ * Class to handle sync for themes.
+ */
 class Themes extends Module {
-	function name() {
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function name() {
 		return 'themes';
 	}
 
+	/**
+	 * Initialize themes action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ), 10, 3 );
 		add_action( 'jetpack_sync_current_theme_support', $callable, 10, 2 );
@@ -36,12 +58,26 @@ class Themes extends Module {
 		add_action( 'jetpack_widget_edited', $callable );
 	}
 
+	/**
+	 * Sync handler for a widget edit.
+	 *
+	 * @access public
+	 *
+	 * @todo Implement nonce verification
+	 *
+	 * @param array      $instance      The current widget instance's settings.
+	 * @param array      $new_instance  Array of new widget settings.
+	 * @param array      $old_instance  Array of old widget settings.
+	 * @param \WP_Widget $widget_object The current widget instance.
+	 * @return array The current widget instance's settings.
+	 */
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
 		if ( empty( $old_instance ) ) {
 			return $instance;
 		}
 
-		// Don't trigger sync action if this is an ajax request, because Customizer makes them during preview before saving changes
+		// Don't trigger sync action if this is an ajax request, because Customizer makes them during preview before saving changes.
+		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['customized'] ) ) {
 			return $instance;
 		}
@@ -52,7 +88,7 @@ class Themes extends Module {
 			'title' => isset( $new_instance['title'] ) ? $new_instance['title'] : '',
 		);
 		/**
-		 * Trigger action to alert $callable sync listener that a widget was edited
+		 * Trigger action to alert $callable sync listener that a widget was edited.
 		 *
 		 * @since 5.0.0
 		 *
@@ -63,12 +99,22 @@ class Themes extends Module {
 		return $instance;
 	}
 
+	/**
+	 * Sync handler for network allowed themes change.
+	 *
+	 * @access public
+	 *
+	 * @param string $option     Name of the network option.
+	 * @param mixed  $value      Current value of the network option.
+	 * @param mixed  $old_value  Old value of the network option.
+	 * @param int    $network_id ID of the network.
+	 */
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
 		$all_enabled_theme_slugs = array_keys( $value );
 
 		if ( count( $old_value ) > count( $value ) ) {
 
-			// Suppress jetpack_network_disabled_themes sync action when theme is deleted
+			// Suppress jetpack_network_disabled_themes sync action when theme is deleted.
 			$delete_theme_call = $this->get_delete_theme_call();
 			if ( ! empty( $delete_theme_call ) ) {
 				return;
@@ -77,7 +123,7 @@ class Themes extends Module {
 			$newly_disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$newly_disabled_themes      = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
 			/**
-			 * Trigger action to alert $callable sync listener that network themes were disabled
+			 * Trigger action to alert $callable sync listener that network themes were disabled.
 			 *
 			 * @since 5.0.0
 			 *
@@ -101,6 +147,14 @@ class Themes extends Module {
 		do_action( 'jetpack_network_enabled_themes', $newly_enabled_themes, $all_enabled_theme_slugs );
 	}
 
+	/**
+	 * Retrieve details for one or more themes by their slugs.
+	 *
+	 * @access private
+	 *
+	 * @param array $theme_slugs Theme slugs.
+	 * @return array Details for the themes.
+	 */
 	private function get_theme_details_for_slugs( $theme_slugs ) {
 		$theme_data = array();
 		foreach ( $theme_slugs as $slug ) {
@@ -115,6 +169,14 @@ class Themes extends Module {
 		return $theme_data;
 	}
 
+	/**
+	 * Detect a theme edit during a redirect.
+	 *
+	 * @access public
+	 *
+	 * @param string $redirect_url Redirect URL.
+	 * @return string Redirect URL.
+	 */
 	public function detect_theme_edit( $redirect_url ) {
 		$url              = wp_parse_url( admin_url( $redirect_url ) );
 		$theme_editor_url = wp_parse_url( admin_url( 'theme-editor.php' ) );
@@ -141,7 +203,7 @@ class Themes extends Module {
 		);
 
 		/**
-		 * Trigger action to alert $callable sync listener that a theme was edited
+		 * Trigger action to alert $callable sync listener that a theme was edited.
 		 *
 		 * @since 5.0.0
 		 *
@@ -153,6 +215,11 @@ class Themes extends Module {
 		return $redirect_url;
 	}
 
+	/**
+	 * Handler for AJAX theme editing.
+	 *
+	 * @todo Refactor to use WP_Filesystem instead of fopen()/fclose().
+	 */
 	public function theme_edit_ajax() {
 		$args = wp_unslash( $_POST );
 
@@ -240,10 +307,12 @@ class Themes extends Module {
 			return;
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
 		$file_pointer = fopen( $real_file, 'w+' );
 		if ( false === $file_pointer ) {
 			return;
 		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 		fclose( $file_pointer );
 
 		$theme_data = array(
@@ -253,12 +322,16 @@ class Themes extends Module {
 		);
 
 		/**
-		 * This action is documented already in this file
+		 * This action is documented already in this file.
 		 */
 		do_action( 'jetpack_edited_theme', $stylesheet, $theme_data );
-
 	}
 
+	/**
+	 * Detect a theme deletion.
+	 *
+	 * @access public
+	 */
 	public function detect_theme_deletion() {
 		$delete_theme_call = $this->get_delete_theme_call();
 		if ( empty( $delete_theme_call ) ) {
@@ -286,11 +359,19 @@ class Themes extends Module {
 		do_action( 'jetpack_deleted_theme', $slug, $theme_data );
 	}
 
+	/**
+	 * Handle an upgrader completion action.
+	 *
+	 * @access public
+	 *
+	 * @param \WP_Upgrader $upgrader The upgrader instance.
+	 * @param array        $details  Array of bulk item update data.
+	 */
 	public function check_upgrader( $upgrader, $details ) {
 		if ( ! isset( $details['type'] ) ||
-			 'theme' !== $details['type'] ||
-			 is_wp_error( $upgrader->skin->result ) ||
-			 ! method_exists( $upgrader, 'theme_info' )
+			'theme' !== $details['type'] ||
+			is_wp_error( $upgrader->skin->result ) ||
+			! method_exists( $upgrader, 'theme_info' )
 		) {
 			return;
 		}
@@ -354,13 +435,28 @@ class Themes extends Module {
 			 */
 			do_action( 'jetpack_updated_themes', $themes );
 		}
-
 	}
 
+	/**
+	 * Initialize themes action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_theme_data', $callable );
 	}
 
+	/**
+	 * Handle a theme switch.
+	 *
+	 * @access public
+	 *
+	 * @param string    $new_name  Name of the new theme.
+	 * @param \WP_Theme $new_theme The new theme.
+	 * @param \WP_Theme $old_theme The previous theme.
+	 */
 	public function sync_theme_support( $new_name, $new_theme = null, $old_theme = null ) {
 		$previous_theme = $this->get_theme_support_info( $old_theme );
 
@@ -376,7 +472,17 @@ class Themes extends Module {
 		do_action( 'jetpack_sync_current_theme_support', $this->get_theme_support_info(), $previous_theme );
 	}
 
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	/**
+	 * Enqueue the themes actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array  Number of actions enqueued, and next module state.
+	 */
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		/**
 		 * Tells the client to sync all theme data to the server
 		 *
@@ -386,37 +492,92 @@ class Themes extends Module {
 		 */
 		do_action( 'jetpack_full_sync_theme_data', true );
 
-		// The number of actions enqueued, and next module state (true == done)
+		// The number of actions enqueued, and next module state (true == done).
 		return array( 1, true );
 	}
 
-	public function estimate_full_sync_actions( $config ) {
+	/**
+	 * Retrieve an estimated number of actions that will be enqueued.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return array Number of items yet to be enqueued.
+	 */
+	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
 	}
 
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_theme_data', array( $this, 'expand_theme_data' ) );
 	}
 
-	function get_full_sync_actions() {
+	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
+	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_theme_data' );
 	}
 
-	function expand_theme_data() {
+	/**
+	 * Expand the theme within a hook before it is serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @return array Theme data.
+	 */
+	public function expand_theme_data() {
 		return array( $this->get_theme_support_info() );
 	}
 
-	function get_widget_name( $widget_id ) {
+	/**
+	 * Retrieve the name of the widget by the widget ID.
+	 *
+	 * @access public
+	 * @global $wp_registered_widgets
+	 *
+	 * @param string $widget_id Widget ID.
+	 * @return string Name of the widget, or null if not found.
+	 */
+	public function get_widget_name( $widget_id ) {
 		global $wp_registered_widgets;
 		return ( isset( $wp_registered_widgets[ $widget_id ] ) ? $wp_registered_widgets[ $widget_id ]['name'] : null );
 	}
 
-	function get_sidebar_name( $sidebar_id ) {
+	/**
+	 * Retrieve the name of the sidebar by the sidebar ID.
+	 *
+	 * @access public
+	 * @global $wp_registered_sidebars
+	 *
+	 * @param string $sidebar_id Sidebar ID.
+	 * @return string Name of the sidebar, or null if not found.
+	 */
+	public function get_sidebar_name( $sidebar_id ) {
 		global $wp_registered_sidebars;
 		return ( isset( $wp_registered_sidebars[ $sidebar_id ] ) ? $wp_registered_sidebars[ $sidebar_id ]['name'] : null );
 	}
 
-	function sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar ) {
+	/**
+	 * Sync addition of widgets to a sidebar.
+	 *
+	 * @access public
+	 *
+	 * @param array  $new_widgets New widgets.
+	 * @param array  $old_widgets Old widgets.
+	 * @param string $sidebar     Sidebar ID.
+	 * @return array All widgets that have been moved to the sidebar.
+	 */
+	public function sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar ) {
 		$added_widgets = array_diff( $new_widgets, $old_widgets );
 		if ( empty( $added_widgets ) ) {
 			return array();
@@ -424,7 +585,7 @@ class Themes extends Module {
 		$moved_to_sidebar = array();
 		$sidebar_name     = $this->get_sidebar_name( $sidebar );
 
-		// Don't sync jetpack_widget_added if theme was switched
+		// Don't sync jetpack_widget_added if theme was switched.
 		if ( $this->is_theme_switch() ) {
 			return array();
 		}
@@ -447,7 +608,18 @@ class Themes extends Module {
 		return $moved_to_sidebar;
 	}
 
-	function sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $inactive_widgets ) {
+	/**
+	 * Sync removal of widgets from a sidebar.
+	 *
+	 * @access public
+	 *
+	 * @param array  $new_widgets      New widgets.
+	 * @param array  $old_widgets      Old widgets.
+	 * @param string $sidebar          Sidebar ID.
+	 * @param array  $inactive_widgets Current inactive widgets.
+	 * @return array All widgets that have been moved to inactive.
+	 */
+	public function sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $inactive_widgets ) {
 		$removed_widgets = array_diff( $old_widgets, $new_widgets );
 
 		if ( empty( $removed_widgets ) ) {
@@ -458,8 +630,8 @@ class Themes extends Module {
 		$sidebar_name      = $this->get_sidebar_name( $sidebar );
 
 		foreach ( $removed_widgets as $removed_widget ) {
-			// Lets check if we didn't move the widget to in_active_widgets
-			if ( isset( $inactive_widgets ) && ! in_array( $removed_widget, $inactive_widgets ) ) {
+			// Lets check if we didn't move the widget to in_active_widgets.
+			if ( isset( $inactive_widgets ) && ! in_array( $removed_widget, $inactive_widgets, true ) ) {
 				$removed_widget_name = $this->get_widget_name( $removed_widget );
 				/**
 				 * Helps Sync log that a widgte got removed
@@ -480,7 +652,18 @@ class Themes extends Module {
 
 	}
 
-	function sync_widgets_reordered( $new_widgets, $old_widgets, $sidebar ) {
+	/**
+	 * Sync a reorder of widgets within a sidebar.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor serialize() to a json_encode().
+	 *
+	 * @param array  $new_widgets New widgets.
+	 * @param array  $old_widgets Old widgets.
+	 * @param string $sidebar     Sidebar ID.
+	 */
+	public function sync_widgets_reordered( $new_widgets, $old_widgets, $sidebar ) {
 		$added_widgets = array_diff( $new_widgets, $old_widgets );
 		if ( ! empty( $added_widgets ) ) {
 			return;
@@ -490,6 +673,7 @@ class Themes extends Module {
 			return;
 		}
 
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		if ( serialize( $old_widgets ) !== serialize( $new_widgets ) ) {
 			$sidebar_name = $this->get_sidebar_name( $sidebar );
 			/**
@@ -505,11 +689,19 @@ class Themes extends Module {
 
 	}
 
-	function sync_sidebar_widgets_actions( $old_value, $new_value ) {
+	/**
+	 * Handle the update of the sidebars and widgets mapping option.
+	 *
+	 * @access public
+	 *
+	 * @param mixed $old_value The old option value.
+	 * @param mixed $new_value The new option value.
+	 */
+	public function sync_sidebar_widgets_actions( $old_value, $new_value ) {
 		// Don't really know how to deal with different array_values yet.
 		if (
-			( isset( $old_value['array_version'] ) && $old_value['array_version'] !== 3 ) ||
-			( isset( $new_value['array_version'] ) && $new_value['array_version'] !== 3 )
+			( isset( $old_value['array_version'] ) && 3 !== $old_value['array_version'] ) ||
+			( isset( $new_value['array_version'] ) && 3 !== $new_value['array_version'] )
 		) {
 			return;
 		}
@@ -518,7 +710,7 @@ class Themes extends Module {
 		$moved_to_sidebar      = array();
 
 		foreach ( $new_value as $sidebar => $new_widgets ) {
-			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ) ) ) {
+			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ), true ) ) {
 				continue;
 			}
 			$old_widgets = isset( $old_value[ $sidebar ] )
@@ -539,12 +731,12 @@ class Themes extends Module {
 
 		}
 
-		// Don't sync either jetpack_widget_moved_to_inactive or jetpack_cleared_inactive_widgets if theme was switched
+		// Don't sync either jetpack_widget_moved_to_inactive or jetpack_cleared_inactive_widgets if theme was switched.
 		if ( $this->is_theme_switch() ) {
 			return;
 		}
 
-		// Treat inactive sidebar a bit differently
+		// Treat inactive sidebar a bit differently.
 		if ( ! empty( $moved_to_inactive_ids ) ) {
 			$moved_to_inactive_name = array_map( array( $this, 'get_widget_name' ), $moved_to_inactive_ids );
 			/**
@@ -556,9 +748,7 @@ class Themes extends Module {
 			 * @param array $moved_to_inactive_names, Array of widgets names that moved to inactive id got changed Since 5.0.0
 			 */
 			do_action( 'jetpack_widget_moved_to_inactive', $moved_to_inactive_ids, $moved_to_inactive_name );
-		} elseif ( empty( $moved_to_sidebar ) &&
-				   empty( $new_value['wp_inactive_widgets'] ) &&
-				   ! empty( $old_value['wp_inactive_widgets'] ) ) {
+		} elseif ( empty( $moved_to_sidebar ) && empty( $new_value['wp_inactive_widgets'] ) && ! empty( $old_value['wp_inactive_widgets'] ) ) {
 			/**
 			 * Helps Sync log that a got cleared from inactive.
 			 *
@@ -569,9 +759,12 @@ class Themes extends Module {
 	}
 
 	/**
-	 * @param null $theme or the theme object
+	 * Retrieve the theme data for the current or a specific theme.
 	 *
-	 * @return array
+	 * @access private
+	 *
+	 * @param \WP_Theme $theme Theme object. Optional, will default to the current theme.
+	 * @return array Theme data.
 	 */
 	private function get_theme_support_info( $theme = null ) {
 		global $_wp_theme_features;
@@ -579,7 +772,7 @@ class Themes extends Module {
 		$theme_support = array();
 
 		// We are trying to get the current theme info.
-		if ( $theme === null ) {
+		if ( null === $theme ) {
 			$theme = wp_get_theme();
 
 			foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
@@ -598,7 +791,16 @@ class Themes extends Module {
 		return $theme_support;
 	}
 
+	/**
+	 * Whether we've deleted a theme in the current request.
+	 *
+	 * @access private
+	 *
+	 * @return boolean True if this is a theme deletion request, false otherwise.
+	 */
 	private function get_delete_theme_call() {
+		// Intentional usage of `debug_backtrace()` for production needs.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		$backtrace         = debug_backtrace();
 		$delete_theme_call = null;
 		foreach ( $backtrace as $call ) {
@@ -610,6 +812,13 @@ class Themes extends Module {
 		return $delete_theme_call;
 	}
 
+	/**
+	 * Whether we've switched to another theme in the current request.
+	 *
+	 * @access private
+	 *
+	 * @return boolean True if this is a theme switch request, false otherwise.
+	 */
 	private function is_theme_switch() {
 		return did_action( 'after_switch_theme' );
 	}

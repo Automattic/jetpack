@@ -58,6 +58,8 @@ export default class Page {
 	 * @param {string} domain Cookie domain
 	 */
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
+		console.log( `Setting up the cookie for ${ this.name } page on ${ this.page.url() }` );
+
 		await this.page.setCookie( {
 			name: 'store_sandbox',
 			value: sandboxCookieValue,

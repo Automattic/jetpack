@@ -265,7 +265,19 @@ class Jetpack_WPCOM_Block_Editor {
 		wp_enqueue_script(
 			'wpcom-block-editor-common',
 			$src_common,
-			array( 'lodash', 'wp-compose', 'wp-data', 'wp-editor', 'wp-rich-text' ),
+			array(
+				'jquery',
+				'lodash',
+				'wp-blocks',
+				'wp-compose',
+				'wp-data',
+				'wp-dom-ready',
+				'wp-editor',
+				'wp-nux',
+				'wp-plugins',
+				'wp-polyfill',
+				'wp-rich-text',
+			),
 			$version,
 			true
 		);
@@ -303,7 +315,18 @@ class Jetpack_WPCOM_Block_Editor {
 			wp_enqueue_script(
 				'wpcom-block-editor-calypso-iframe-bridge',
 				$src_calypso_iframe_bridge,
-				array( 'calypsoify_wpadminmods_js', 'jquery', 'lodash', 'react', 'wp-blocks', 'wp-data', 'wp-hooks', 'wp-tinymce', 'wp-url' ),
+				array(
+					'calypsoify_wpadminmods_js',
+					'jquery',
+					'lodash',
+					'react',
+					'wp-blocks',
+					'wp-data',
+					'wp-hooks',
+					'wp-polyfill',
+					'wp-tinymce',
+					'wp-url',
+				),
 				$version,
 				true
 			);

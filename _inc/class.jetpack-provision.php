@@ -1,6 +1,7 @@
 <?php //phpcs:ignore
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
 
 class Jetpack_Provision { //phpcs:ignore
@@ -103,7 +104,8 @@ class Jetpack_Provision { //phpcs:ignore
 			$user = wp_get_current_user();
 
 			// Role.
-			$role        = Jetpack::translate_current_user_to_role();
+			$roles       = new Roles();
+			$role        = $roles->translate_current_user_to_role();
 			$signed_role = Jetpack::sign_role( $role );
 
 			$secrets = Jetpack::init()->generate_secrets( 'authorize' );

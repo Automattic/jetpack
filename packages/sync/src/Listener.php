@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Roles;
+
 /**
  * This class monitors actions and logs them to the queue to be sent
  */
@@ -267,7 +269,8 @@ class Listener {
 			$user = wp_get_current_user();
 		}
 
-		$translated_role = \Jetpack::translate_user_to_role( $user );
+		$roles           = new Roles();
+		$translated_role = $roles->translate_user_to_role( $user );
 
 		$actor = array(
 			'wpcom_user_id'    => null,

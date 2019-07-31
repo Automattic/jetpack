@@ -1,0 +1,49 @@
+// Some styling here could inherit from Warning component, but is needed to
+// override some overzealous theme editor styling.
+
+.jetpack-upgrade-nudge {
+	// Necessary extra specificity
+	&.editor-warning {
+		margin-bottom: 0;
+	}
+
+	.editor-warning__message {
+		margin: 13px 0;
+	}
+
+	.editor-warning__actions {
+		line-height: 1;
+	}
+
+	.jetpack-upgrade-nudge__info {
+		font-size: 13px;
+		display: flex;
+		flex-direction: row;
+		line-height: 1.4;
+	}
+
+	.jetpack-upgrade-nudge__icon {
+		align-self: center;
+		background: var( --color-plan-premium );
+		border-radius: 50%;
+		box-sizing: content-box;
+		color: var( --color-white );
+		fill: var( --color-white );
+		flex-shrink: 0;
+		margin-right: 16px;
+		padding: 6px;
+	}
+
+	.jetpack-upgrade-nudge__text-container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jetpack-upgrade-nudge__title {
+		font-size: 14px;
+	}
+
+	.jetpack-upgrade-nudge__message {
+		color: var( --color-text-subtle );
+	}
+}

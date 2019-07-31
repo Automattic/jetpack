@@ -76,7 +76,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 	}
 
 	checkAndVerifySite( keyringId ) {
-		this.props.createNotice( 'is-info', __( 'Verifying...' ), { id: 'verifying-site-google' } );
+		this.props.createNotice( 'is-info', __( 'Verifying…' ), { id: 'verifying-site-google' } );
 		this.props
 			.checkVerifyStatusGoogle( keyringId )
 			.then( response => {

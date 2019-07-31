@@ -1,4 +1,3 @@
-/* jshint onevar:false, loopfunc:true */
 /* global jetpackSlideshowSettings, escape */
 
 function JetpackSlideshow( element, transition, autostart ) {

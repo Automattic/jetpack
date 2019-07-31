@@ -1,4 +1,9 @@
 <?php
+/**
+ * Sync replicastore.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
@@ -7,14 +12,18 @@ namespace Automattic\Jetpack\Sync;
  * This is useful to compare values in the local WP DB to values in the synced replica store
  */
 class Replicastore implements Replicastore_Interface {
-	
+	/**
+	 * Empty and reset the replicastore.
+	 *
+	 * @access public
+	 */
 	public function reset() {
 		global $wpdb;
 
 		$wpdb->query( "DELETE FROM $wpdb->posts" );
 		$wpdb->query( "DELETE FROM $wpdb->comments" );
 
-		// also need to delete terms from cache
+		// Also need to delete terms from cache.
 		$term_ids = $wpdb->get_col( "SELECT term_id FROM $wpdb->terms" );
 		foreach ( $term_ids as $term_id ) {
 			wp_cache_delete( $term_id, 'terms' );
@@ -25,19 +34,81 @@ class Replicastore implements Replicastore_Interface {
 		$wpdb->query( "DELETE FROM $wpdb->term_taxonomy" );
 		$wpdb->query( "DELETE FROM $wpdb->term_relationships" );
 
-		// callables and constants
+		// Callables and constants.
 		$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name LIKE 'jetpack_%'" );
 		$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key NOT LIKE '\_%'" );
 	}
 
-	function full_sync_start( $config ) {
+	/**
+	 * Ran when full sync has just started.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 */
+	public function full_sync_start( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->reset();
 	}
 
-	function full_sync_end( $checksum ) {
-		// noop right now
+	/**
+	 * Ran when full sync has just finished.
+	 *
+	 * @access public
+	 *
+	 * @param string $checksum Deprecated since 7.3.0.
+	 */
+	public function full_sync_end( $checksum ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Noop right now.
 	}
 
+	/**
+	 * Retrieve the number of terms.
+	 *
+	 * @access public
+	 *
+	 * @return int Number of terms.
+	 */
+	public function term_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->terms" );
+	}
+
+	/**
+	 * Retrieve the number of rows in the `term_taxonomy` table.
+	 *
+	 * @access public
+	 *
+	 * @return int Number of terms.
+	 */
+	public function term_taxonomy_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy" );
+	}
+
+	/**
+	 * Retrieve the number of term relationships.
+	 *
+	 * @access public
+	 *
+	 * @return int Number of rows in the term relationships table.
+	 */
+	public function term_relationship_count() {
+		global $wpdb;
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+	}
+
+	/**
+	 * Retrieve the number of posts with a particular post status within a certain range.
+	 *
+	 * @access public
+	 *
+	 * @todo Prepare the SQL query before executing it.
+	 *
+	 * @param string $status Post status.
+	 * @param int    $min_id Minimum post ID.
+	 * @param int    $max_id Maximum post ID.
+	 * @return int Number of posts.
+	 */
 	public function post_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
@@ -49,18 +120,30 @@ class Replicastore implements Replicastore_Interface {
 			$where = '1=1';
 		}
 
-		if ( null != $min_id ) {
+		if ( null !== $min_id ) {
 			$where .= ' AND ID >= ' . intval( $min_id );
 		}
 
-		if ( null != $max_id ) {
+		if ( null !== $max_id ) {
 			$where .= ' AND ID <= ' . intval( $max_id );
 		}
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE $where" );
 	}
 
-	// TODO: actually use max_id/min_id
+	/**
+	 * Retrieve the posts with a particular post status.
+	 *
+	 * @access public
+	 *
+	 * @todo Implement range and actually use max_id/min_id arguments.
+	 *
+	 * @param string $status Post status.
+	 * @param int    $min_id Minimum post ID.
+	 * @param int    $max_id Maximum post ID.
+	 * @return array Array of posts.
+	 */
 	public function get_posts( $status = null, $min_id = null, $max_id = null ) {
 		$args = array(
 			'orderby'        => 'ID',
@@ -76,21 +159,37 @@ class Replicastore implements Replicastore_Interface {
 		return get_posts( $args );
 	}
 
+	/**
+	 * Retrieve a post object by the post ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $id Post ID.
+	 * @return \WP_Post Post object.
+	 */
 	public function get_post( $id ) {
 		return get_post( $id );
 	}
 
+	/**
+	 * Update or insert a post.
+	 *
+	 * @access public
+	 *
+	 * @param \WP_Post $post   Post object.
+	 * @param bool     $silent Whether to perform a silent action. Not used in this implementation.
+	 */
 	public function upsert_post( $post, $silent = false ) {
 		global $wpdb;
 
-		// reject the post if it's not a WP_Post
+		// Reject the post if it's not a \WP_Post.
 		if ( ! $post instanceof \WP_Post ) {
 			return;
 		}
 
 		$post = $post->to_array();
 
-		// reject posts without an ID
+		// Reject posts without an ID.
 		if ( ! isset( $post['ID'] ) ) {
 			return;
 		}
@@ -140,42 +239,88 @@ class Replicastore implements Replicastore_Interface {
 		clean_post_cache( $post['ID'] );
 	}
 
+	/**
+	 * Delete a post by the post ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $post_id Post ID.
+	 */
 	public function delete_post( $post_id ) {
 		wp_delete_post( $post_id, true );
 	}
 
+	/**
+	 * Retrieve the checksum for posts within a range.
+	 *
+	 * @access public
+	 *
+	 * @param int $min_id Minimum post ID.
+	 * @param int $max_id Maximum post ID.
+	 * @return int The checksum.
+	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
 	}
 
+	/**
+	 * Retrieve the checksum for post meta within a range.
+	 *
+	 * @access public
+	 *
+	 * @param int $min_id Minimum post meta ID.
+	 * @param int $max_id Maximum post meta ID.
+	 * @return int The checksum.
+	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
 	}
 
+	/**
+	 * Retrieve the number of comments with a particular comment status within a certain range.
+	 *
+	 * @access public
+	 *
+	 * @todo Prepare the SQL query before executing it.
+	 *
+	 * @param string $status Comment status.
+	 * @param int    $min_id Minimum comment ID.
+	 * @param int    $max_id Maximum comment ID.
+	 * @return int Number of comments.
+	 */
 	public function comment_count( $status = null, $min_id = null, $max_id = null ) {
 		global $wpdb;
 
 		$comment_approved = $this->comment_status_to_approval_value( $status );
 
-		if ( $comment_approved !== false ) {
+		if ( false !== $comment_approved ) {
 			$where = "comment_approved = '" . esc_sql( $comment_approved ) . "'";
 		} else {
 			$where = '1=1';
 		}
 
-		if ( $min_id != null ) {
+		if ( null !== $min_id ) {
 			$where .= ' AND comment_ID >= ' . intval( $min_id );
 		}
 
-		if ( $max_id != null ) {
+		if ( null !== $max_id ) {
 			$where .= ' AND comment_ID <= ' . intval( $max_id );
 		}
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->comments WHERE $where" );
 	}
 
+	/**
+	 * Translate a comment status to a value of the comment_approved field.
+	 *
+	 * @access private
+	 *
+	 * @param string $status Comment status.
+	 * @return string|bool New comment_approved value, false if the status doesn't affect it.
+	 */
 	private function comment_status_to_approval_value( $status ) {
 		switch ( $status ) {
 			case 'approve':
@@ -195,7 +340,18 @@ class Replicastore implements Replicastore_Interface {
 		}
 	}
 
-	// TODO: actually use max_id/min_id
+	/**
+	 * Retrieve the comments with a particular comment status.
+	 *
+	 * @access public
+	 *
+	 * @todo Implement range and actually use max_id/min_id arguments.
+	 *
+	 * @param string $status Comment status.
+	 * @param int    $min_id Minimum comment ID.
+	 * @param int    $max_id Maximum comment ID.
+	 * @return array Array of comments.
+	 */
 	public function get_comments( $status = null, $min_id = null, $max_id = null ) {
 		$args = array(
 			'orderby' => 'ID',
@@ -209,16 +365,31 @@ class Replicastore implements Replicastore_Interface {
 		return get_comments( $args );
 	}
 
+	/**
+	 * Retrieve a comment object by the comment ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $id Comment ID.
+	 * @return \WP_Comment Comment object.
+	 */
 	public function get_comment( $id ) {
 		return \WP_Comment::get_instance( $id );
 	}
 
+	/**
+	 * Update or insert a comment.
+	 *
+	 * @access public
+	 *
+	 * @param \WP_Comment $comment Comment object.
+	 */
 	public function upsert_comment( $comment ) {
 		global $wpdb;
 
 		$comment = $comment->to_array();
 
-		// filter by fields on comment table
+		// Filter by fields on comment table.
 		$comment_fields_whitelist = array(
 			'comment_ID',
 			'comment_post_ID',
@@ -238,7 +409,7 @@ class Replicastore implements Replicastore_Interface {
 		);
 
 		foreach ( $comment as $key => $value ) {
-			if ( ! in_array( $key, $comment_fields_whitelist ) ) {
+			if ( ! in_array( $key, $comment_fields_whitelist, true ) ) {
 				unset( $comment[ $key ] );
 			}
 		}
@@ -259,36 +430,97 @@ class Replicastore implements Replicastore_Interface {
 		wp_update_comment_count( $comment['comment_post_ID'] );
 	}
 
+	/**
+	 * Trash a comment by the comment ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $comment_id Comment ID.
+	 */
 	public function trash_comment( $comment_id ) {
 		wp_delete_comment( $comment_id );
 	}
 
+	/**
+	 * Delete a comment by the comment ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $comment_id Comment ID.
+	 */
 	public function delete_comment( $comment_id ) {
 		wp_delete_comment( $comment_id, true );
 	}
 
+	/**
+	 * Mark a comment by the comment ID as spam.
+	 *
+	 * @access public
+	 *
+	 * @param int $comment_id Comment ID.
+	 */
 	public function spam_comment( $comment_id ) {
 		wp_spam_comment( $comment_id );
 	}
 
-	public function trashed_post_comments( $post_id, $statuses ) {
+	/**
+	 * Trash the comments of a post.
+	 *
+	 * @access public
+	 *
+	 * @param int   $post_id  Post ID.
+	 * @param array $statuses Post statuses. Not used in this implementation.
+	 */
+	public function trashed_post_comments( $post_id, $statuses ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		wp_trash_post_comments( $post_id );
 	}
 
+	/**
+	 * Untrash the comments of a post.
+	 *
+	 * @access public
+	 *
+	 * @param int $post_id Post ID.
+	 */
 	public function untrashed_post_comments( $post_id ) {
 		wp_untrash_post_comments( $post_id );
 	}
 
+	/**
+	 * Retrieve the checksum for comments within a range.
+	 *
+	 * @access public
+	 *
+	 * @param int $min_id Minimum comment ID.
+	 * @param int $max_id Maximum comment ID.
+	 * @return int The checksum.
+	 */
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 		return $this->table_checksum( $wpdb->comments, Defaults::$default_comment_checksum_columns, 'comment_ID', Settings::get_comments_filter_sql(), $min_id, $max_id );
 	}
 
+	/**
+	 * Retrieve the checksum for comment meta within a range.
+	 *
+	 * @access public
+	 *
+	 * @param int $min_id Minimum comment meta ID.
+	 * @param int $max_id Maximum comment meta ID.
+	 * @return int The checksum.
+	 */
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
 		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
 	}
 
+	/**
+	 * Retrieve the checksum for all options.
+	 *
+	 * @access public
+	 *
+	 * @return int The checksum.
+	 */
 	public function options_checksum() {
 		global $wpdb;
 		$options_whitelist = "'" . implode( "', '", Defaults::$default_options_whitelist ) . "'";
@@ -297,45 +529,99 @@ class Replicastore implements Replicastore_Interface {
 		return $this->table_checksum( $wpdb->options, Defaults::$default_option_checksum_columns, null, $where_sql, null, null );
 	}
 
-
+	/**
+	 * Update the value of an option.
+	 *
+	 * @access public
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Option value.
+	 * @return bool False if value was not updated and true if value was updated.
+	 */
 	public function update_option( $option, $value ) {
 		return update_option( $option, $value );
 	}
 
+	/**
+	 * Retrieve an option value based on an option name.
+	 *
+	 * @access public
+	 *
+	 * @param string $option  Name of option to retrieve.
+	 * @param mixed  $default Optional. Default value to return if the option does not exist.
+	 * @return mixed Value set for the option.
+	 */
 	public function get_option( $option, $default = false ) {
 		return get_option( $option, $default );
 	}
 
+	/**
+	 * Remove an option by name.
+	 *
+	 * @access public
+	 *
+	 * @param string $option Name of option to remove.
+	 * @return bool True, if option is successfully deleted. False on failure.
+	 */
 	public function delete_option( $option ) {
 		return delete_option( $option );
 	}
 
-	public function set_theme_support( $theme_support ) {
-		// noop
+	/**
+	 * Change the features that the current theme supports.
+	 * Intentionally not implemented in this replicastore.
+	 *
+	 * @access public
+	 *
+	 * @param array $theme_support Features that the theme supports.
+	 */
+	public function set_theme_support( $theme_support ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Noop.
 	}
 
+	/**
+	 * Whether the current theme supports a certain feature.
+	 *
+	 * @access public
+	 *
+	 * @param string $feature Name of the feature.
+	 */
 	public function current_theme_supports( $feature ) {
 		return current_theme_supports( $feature );
 	}
 
+	/**
+	 * Retrieve metadata for the specified object.
+	 *
+	 * @access public
+	 *
+	 * @param string $type       Meta type.
+	 * @param int    $object_id  ID of the object.
+	 * @param string $meta_key   Meta key.
+	 * @param bool   $single     If true, return only the first value of the specified meta_key.
+	 *
+	 * @return mixed Single metadata value, or array of values.
+	 */
 	public function get_metadata( $type, $object_id, $meta_key = '', $single = false ) {
 		return get_metadata( $type, $object_id, $meta_key, $single );
 	}
 
 	/**
+	 * Stores remote meta key/values alongside an ID mapping key.
 	 *
-	 * Stores remote meta key/values alongside an ID mapping key
+	 * @access public
 	 *
-	 * @param $type
-	 * @param $object_id
-	 * @param $meta_key
-	 * @param $meta_value
-	 * @param $meta_id
+	 * @todo Refactor to not use interpolated values when preparing the SQL query.
 	 *
-	 * @return bool
+	 * @param string $type       Meta type.
+	 * @param int    $object_id  ID of the object.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 * @param int    $meta_id    ID of the meta.
+	 *
+	 * @return bool False if meta table does not exist, true otherwise.
 	 */
 	public function upsert_metadata( $type, $object_id, $meta_key, $meta_value, $meta_id ) {
-
 		$table = _get_meta_table( $type );
 		if ( ! $table ) {
 			return false;
@@ -345,6 +631,7 @@ class Replicastore implements Replicastore_Interface {
 
 		$exists = $wpdb->get_var(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT EXISTS( SELECT 1 FROM $table WHERE meta_id = %d )",
 				$meta_id
 			)
@@ -377,6 +664,17 @@ class Replicastore implements Replicastore_Interface {
 		return true;
 	}
 
+	/**
+	 * Delete metadata for the specified object.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor to not use interpolated values when preparing the SQL query.
+	 *
+	 * @param string $type      Meta type.
+	 * @param int    $object_id ID of the object.
+	 * @param array  $meta_ids  IDs of the meta objects to delete.
+	 */
 	public function delete_metadata( $type, $object_id, $meta_ids ) {
 		global $wpdb;
 
@@ -386,16 +684,28 @@ class Replicastore implements Replicastore_Interface {
 		}
 
 		foreach ( $meta_ids as $meta_id ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE meta_id = %d", $meta_id ) );
 		}
 
-		// if we don't have an object ID what do we do - invalidate ALL meta?
+		// If we don't have an object ID what do we do - invalidate ALL meta?
 		if ( $object_id ) {
 			wp_cache_delete( $object_id, $type . '_meta' );
 		}
 	}
 
-	// todo: test this out to make sure it works as expected.
+	/**
+	 * Delete metadata with a certain key for the specified objects.
+	 *
+	 * @access public
+	 *
+	 * @todo Test this out to make sure it works as expected.
+	 * @todo Refactor to not use interpolated values when preparing the SQL query.
+	 *
+	 * @param string $type       Meta type.
+	 * @param array  $object_ids IDs of the objects.
+	 * @param string $meta_key   Meta key.
+	 */
 	public function delete_batch_metadata( $type, $object_ids, $meta_key ) {
 		global $wpdb;
 
@@ -404,15 +714,23 @@ class Replicastore implements Replicastore_Interface {
 			return false;
 		}
 		$column = sanitize_key( $type . '_id' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE $column IN (%s) && meta_key = %s", implode( ',', $object_ids ), $meta_key ) );
 
-		// if we don't have an object ID what do we do - invalidate ALL meta?
+		// If we don't have an object ID what do we do - invalidate ALL meta?
 		foreach ( $object_ids as $object_id ) {
 			wp_cache_delete( $object_id, $type . '_meta' );
 		}
 	}
 
-	// constants
+	/**
+	 * Retrieve value of a constant based on the constant name.
+	 *
+	 * @access public
+	 *
+	 * @param string $constant Name of constant to retrieve.
+	 * @return mixed Value set for the constant.
+	 */
 	public function get_constant( $constant ) {
 		$value = get_option( 'jetpack_constant_' . $constant );
 
@@ -423,10 +741,27 @@ class Replicastore implements Replicastore_Interface {
 		return null;
 	}
 
+	/**
+	 * Set the value of a constant.
+	 *
+	 * @access public
+	 *
+	 * @param string $constant Name of constant to retrieve.
+	 * @param mixed  $value    Value set for the constant.
+	 */
 	public function set_constant( $constant, $value ) {
 		update_option( 'jetpack_constant_' . $constant, $value );
 	}
 
+	/**
+	 * Retrieve the number of the available updates of a certain type.
+	 * Type is one of: `plugins`, `themes`, `wordpress`, `translations`, `total`, `wp_update_version`.
+	 *
+	 * @access public
+	 *
+	 * @param string $type Type of updates to retrieve.
+	 * @return int|null Number of updates available, `null` if type is invalid or missing.
+	 */
 	public function get_updates( $type ) {
 		$all_updates = get_option( 'jetpack_updates', array() );
 
@@ -437,13 +772,29 @@ class Replicastore implements Replicastore_Interface {
 		}
 	}
 
+	/**
+	 * Set the available updates of a certain type.
+	 * Type is one of: `plugins`, `themes`, `wordpress`, `translations`, `total`, `wp_update_version`.
+	 *
+	 * @access public
+	 *
+	 * @param string $type    Type of updates to set.
+	 * @param int    $updates Total number of updates.
+	 */
 	public function set_updates( $type, $updates ) {
 		$all_updates          = get_option( 'jetpack_updates', array() );
 		$all_updates[ $type ] = $updates;
 		update_option( 'jetpack_updates', $all_updates );
 	}
 
-	// functions
+	/**
+	 * Retrieve a callable value based on its name.
+	 *
+	 * @access public
+	 *
+	 * @param string $name Name of the callable to retrieve.
+	 * @return mixed Value of the callable.
+	 */
 	public function get_callable( $name ) {
 		$value = get_option( 'jetpack_' . $name );
 
@@ -454,29 +805,77 @@ class Replicastore implements Replicastore_Interface {
 		return null;
 	}
 
+	/**
+	 * Update the value of a callable.
+	 *
+	 * @access public
+	 *
+	 * @param string $name  Callable name.
+	 * @param mixed  $value Callable value.
+	 */
 	public function set_callable( $name, $value ) {
 		update_option( 'jetpack_' . $name, $value );
 	}
 
-	// network options
+	/**
+	 * Retrieve a network option value based on a network option name.
+	 *
+	 * @access public
+	 *
+	 * @param string $option Name of network option to retrieve.
+	 * @return mixed Value set for the network option.
+	 */
 	public function get_site_option( $option ) {
 		return get_option( 'jetpack_network_' . $option );
 	}
 
+	/**
+	 * Update the value of a network option.
+	 *
+	 * @access public
+	 *
+	 * @param string $option Network option name.
+	 * @param mixed  $value  Network option value.
+	 * @return bool False if value was not updated and true if value was updated.
+	 */
 	public function update_site_option( $option, $value ) {
 		return update_option( 'jetpack_network_' . $option, $value );
 	}
 
+	/**
+	 * Remove a network option by name.
+	 *
+	 * @access public
+	 *
+	 * @param string $option Name of option to remove.
+	 * @return bool True, if option is successfully deleted. False on failure.
+	 */
 	public function delete_site_option( $option ) {
 		return delete_option( 'jetpack_network_' . $option );
 	}
 
-	// terms
-	// terms
+	/**
+	 * Retrieve the terms from a particular taxonomy.
+	 *
+	 * @access public
+	 *
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return array Array of terms.
+	 */
 	public function get_terms( $taxonomy ) {
 		return get_terms( $taxonomy );
 	}
 
+	/**
+	 * Retrieve a particular term.
+	 *
+	 * @access public
+	 *
+	 * @param string $taxonomy   Taxonomy slug.
+	 * @param int    $term_id    ID of the term.
+	 * @param bool   $is_term_id Whether this is a `term_id` or a `term_taxonomy_id`.
+	 * @return \WP_Term|\WP_Error Term object on success, \WP_Error object on failure.
+	 */
 	public function get_term( $taxonomy, $term_id, $is_term_id = true ) {
 		$t = $this->ensure_taxonomy( $taxonomy );
 		if ( ! $t || is_wp_error( $t ) ) {
@@ -486,12 +885,20 @@ class Replicastore implements Replicastore_Interface {
 		return get_term( $term_id, $taxonomy );
 	}
 
+	/**
+	 * Verify a taxonomy is legitimate and register it if necessary.
+	 *
+	 * @access private
+	 *
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return bool|void|\WP_Error True if already exists; void if it was registered; \WP_Error on error.
+	 */
 	private function ensure_taxonomy( $taxonomy ) {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
-			// try re-registering synced taxonomies
+			// Try re-registering synced taxonomies.
 			$taxonomies = $this->get_callable( 'taxonomies' );
 			if ( ! isset( $taxonomies[ $taxonomy ] ) ) {
-				// doesn't exist, or somehow hasn't been synced
+				// Doesn't exist, or somehow hasn't been synced.
 				return new \WP_Error( 'invalid_taxonomy', "The taxonomy '$taxonomy' doesn't exist" );
 			}
 			$t = $taxonomies[ $taxonomy ];
@@ -506,10 +913,27 @@ class Replicastore implements Replicastore_Interface {
 		return true;
 	}
 
+	/**
+	 * Retrieve all terms from a taxonomy that are related to an object with a particular ID.
+	 *
+	 * @access public
+	 *
+	 * @param int    $object_id Object ID.
+	 * @param string $taxonomy  Taxonomy slug.
+	 * @return array|bool|\WP_Error Array of terms on success, `false` if no terms or post doesn't exist, \WP_Error on failure.
+	 */
 	public function get_the_terms( $object_id, $taxonomy ) {
 		return get_the_terms( $object_id, $taxonomy );
 	}
 
+	/**
+	 * Insert or update a term.
+	 *
+	 * @access public
+	 *
+	 * @param \WP_Term $term_object Term object.
+	 * @return array|bool|\WP_Error Array of term_id and term_taxonomy_id if updated, true if inserted, \WP_Error on failure.
+	 */
 	public function update_term( $term_object ) {
 		$taxonomy = $term_object->taxonomy;
 		global $wpdb;
@@ -544,19 +968,49 @@ class Replicastore implements Replicastore_Interface {
 		return wp_update_term( $term_object->term_id, $taxonomy, (array) $term_object );
 	}
 
+	/**
+	 * Delete a term by the term ID and its corresponding taxonomy.
+	 *
+	 * @access public
+	 *
+	 * @param int    $term_id  Term ID.
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return bool|int|\WP_Error True on success, false if term doesn't exist. Zero if trying with default category. \WP_Error on invalid taxonomy.
+	 */
 	public function delete_term( $term_id, $taxonomy ) {
 		return wp_delete_term( $term_id, $taxonomy );
 	}
 
+	/**
+	 * Add/update terms of a particular taxonomy of an object with the specified ID.
+	 *
+	 * @access public
+	 *
+	 * @param int              $object_id The object to relate to.
+	 * @param string           $taxonomy  The context in which to relate the term to the object.
+	 * @param string|int|array $terms     A single term slug, single term id, or array of either term slugs or ids.
+	 * @param bool             $append    Optional. If false will delete difference of terms. Default false.
+	 */
 	public function update_object_terms( $object_id, $taxonomy, $terms, $append ) {
 		wp_set_object_terms( $object_id, $terms, $taxonomy, $append );
 	}
 
+	/**
+	 * Remove certain term relationships from the specified object.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor to not use interpolated values when preparing the SQL query.
+	 *
+	 * @param int   $object_id ID of the object.
+	 * @param array $tt_ids    Term taxonomy IDs.
+	 * @return bool True on success, false on failure.
+	 */
 	public function delete_object_terms( $object_id, $tt_ids ) {
 		global $wpdb;
 
 		if ( is_array( $tt_ids ) && ! empty( $tt_ids ) ) {
-			// escape
+			// Escape.
 			$tt_ids_sanitized = array_map( 'intval', $tt_ids );
 
 			$taxonomies = array();
@@ -571,10 +1025,11 @@ class Replicastore implements Replicastore_Interface {
 			 *
 			 * @since 2.9.0
 			 *
-			 * @param int $object_id Object ID.
-			 * @param array $tt_ids An array of term taxonomy IDs.
+			 * @param int   $object_id Object ID.
+			 * @param array $tt_ids    An array of term taxonomy IDs.
 			 */
 			do_action( 'delete_term_relationships', $object_id, $tt_ids_sanitized );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->term_relationships WHERE object_id = %d AND term_taxonomy_id IN ($in_tt_ids)", $object_id ) );
 			foreach ( $taxonomies as $taxonomy => $taxonomy_tt_ids ) {
 				$this->ensure_taxonomy( $taxonomy );
@@ -584,8 +1039,8 @@ class Replicastore implements Replicastore_Interface {
 				 *
 				 * @since 2.9.0
 				 *
-				 * @param int $object_id Object ID.
-				 * @param array $tt_ids An array of term taxonomy IDs.
+				 * @param int   $object_id Object ID.
+				 * @param array $tt_ids    An array of term taxonomy IDs.
 				 */
 				do_action( 'deleted_term_relationships', $object_id, $taxonomy_tt_ids );
 				wp_update_term_count( $taxonomy_tt_ids, $taxonomy );
@@ -597,39 +1052,113 @@ class Replicastore implements Replicastore_Interface {
 		return false;
 	}
 
-	// users
+	/**
+	 * Retrieve the number of users.
+	 * Not supported in this replicastore.
+	 *
+	 * @access public
+	 */
 	public function user_count() {
-
+		// Noop.
 	}
 
+	/**
+	 * Retrieve a user object by the user ID.
+	 *
+	 * @access public
+	 *
+	 * @param int $user_id User ID.
+	 * @return \WP_User User object.
+	 */
 	public function get_user( $user_id ) {
 		return \WP_User::get_instance( $user_id );
 	}
 
-	public function upsert_user( $user ) {
+	/**
+	 * Insert or update a user.
+	 * Not supported in this replicastore.
+	 *
+	 * @access public
+	 * @throws \Exception If this method is invoked.
+	 *
+	 * @param \WP_User $user User object.
+	 */
+	public function upsert_user( $user ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->invalid_call();
 	}
 
-	public function delete_user( $user_id ) {
+	/**
+	 * Delete a user.
+	 * Not supported in this replicastore.
+	 *
+	 * @access public
+	 * @throws \Exception If this method is invoked.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function delete_user( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->invalid_call();
 	}
 
-	public function upsert_user_locale( $user_id, $local ) {
+	/**
+	 * Update/insert user locale.
+	 * Not supported in this replicastore.
+	 *
+	 * @access public
+	 * @throws \Exception If this method is invoked.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $local   The user locale.
+	 */
+	public function upsert_user_locale( $user_id, $local ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->invalid_call();
 	}
 
-	public function delete_user_locale( $user_id ) {
+	/**
+	 * Delete user locale.
+	 * Not supported in this replicastore.
+	 *
+	 * @access public
+	 * @throws \Exception If this method is invoked.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function delete_user_locale( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->invalid_call();
 	}
 
+	/**
+	 * Retrieve the user locale.
+	 *
+	 * @access public
+	 *
+	 * @param int $user_id User ID.
+	 * @return string The user locale.
+	 */
 	public function get_user_locale( $user_id ) {
 		return get_user_locale( $user_id );
 	}
 
-	public function get_allowed_mime_types( $user_id ) {
-
+	/**
+	 * Retrieve the allowed mime types for the user.
+	 * Not supported in this replicastore.
+	 *
+	 * @access public
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public function get_allowed_mime_types( $user_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Noop.
 	}
 
+	/**
+	 * Retrieve all the checksums we are interested in.
+	 * Currently that is posts, comments, post meta and comment meta.
+	 *
+	 * @access public
+	 *
+	 * @return array Checksums.
+	 */
 	public function checksum_all() {
 		$post_meta_checksum    = $this->checksum_histogram( 'post_meta', 1 );
 		$comment_meta_checksum = $this->checksum_histogram( 'comment_meta', 1 );
@@ -642,10 +1171,61 @@ class Replicastore implements Replicastore_Interface {
 		);
 	}
 
-	function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
+	/**
+	 * Retrieve the columns that are needed to calculate a checksum for an object type.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor to not use interpolated values and prepare the SQL query.
+	 *
+	 * @param string $object_type Object type.
+	 * @return array|bool Columns, or false if invalid object type is specified.
+	 */
+	public function get_checksum_columns_for_object_type( $object_type ) {
+		switch ( $object_type ) {
+			case 'posts':
+				return Defaults::$default_post_checksum_columns;
+			case 'post_meta':
+				return Defaults::$default_post_meta_checksum_columns;
+			case 'comments':
+				return Defaults::$default_comment_checksum_columns;
+			case 'comment_meta':
+				return Defaults::$default_post_meta_checksum_columns;
+			case 'terms':
+				return Defaults::$default_term_checksum_columns;
+			case 'term_taxonomy':
+				return Defaults::$default_term_taxonomy_checksum_columns;
+			case 'term_relationships':
+				return Defaults::$default_term_relationships_checksum_columns;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Retrieve the checksum histogram for a specific object type.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor to not use interpolated values and properly prepare the SQL query.
+	 *
+	 * @param string $object_type     Object type.
+	 * @param int    $buckets         Number of buckets to split the objects to.
+	 * @param int    $start_id        Minimum object ID.
+	 * @param int    $end_id          Maximum object ID.
+	 * @param array  $columns         Table columns to calculate the checksum from.
+	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
+	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
+	 * @return array The checksum histogram.
+	 */
+	public function checksum_histogram( $object_type, $buckets, $start_id = null, $end_id = null, $columns = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
 		$wpdb->queries = array();
+
+		if ( empty( $columns ) ) {
+			$columns = $this->get_checksum_columns_for_object_type( $object_type );
+		}
 
 		switch ( $object_type ) {
 			case 'posts':
@@ -653,37 +1233,42 @@ class Replicastore implements Replicastore_Interface {
 				$object_table = $wpdb->posts;
 				$id_field     = 'ID';
 				$where_sql    = Settings::get_blacklisted_post_types_sql();
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_post_checksum_columns;
-				}
 				break;
 			case 'post_meta':
 				$object_table = $wpdb->postmeta;
 				$where_sql    = Settings::get_whitelisted_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
-
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_post_meta_checksum_columns;
-				}
 				break;
 			case 'comments':
 				$object_count = $this->comment_count( null, $start_id, $end_id );
 				$object_table = $wpdb->comments;
 				$id_field     = 'comment_ID';
 				$where_sql    = Settings::get_comments_filter_sql();
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_comment_checksum_columns;
-				}
 				break;
 			case 'comment_meta':
 				$object_table = $wpdb->commentmeta;
 				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
-				if ( empty( $columns ) ) {
-					$columns = Defaults::$default_post_meta_checksum_columns;
-				}
+				break;
+			case 'terms':
+				$object_table = $wpdb->terms;
+				$object_count = $this->term_count();
+				$id_field     = 'term_id';
+				$where_sql    = '1=1';
+				break;
+			case 'term_taxonomy':
+				$object_table = $wpdb->term_taxonomy;
+				$object_count = $this->term_taxonomy_count();
+				$id_field     = 'term_taxonomy_id';
+				$where_sql    = '1=1';
+				break;
+			case 'term_relationships':
+				$object_table = $wpdb->term_relationships;
+				$object_count = $this->term_relationship_count();
+				$id_field     = 'object_id';
+				$where_sql    = '1=1';
 				break;
 			default:
 				return false;
@@ -703,9 +1288,15 @@ class Replicastore implements Replicastore_Interface {
 			$where .= " AND $id_field <= " . intval( $end_id );
 		}
 
+		$distinct = '';
+		if ( 'term_relationships' === $object_type ) {
+			$distinct = 'DISTINCT';
+		}
+
 		do {
 			list( $first_id, $last_id ) = $wpdb->get_row(
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $distinct $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
 				ARRAY_N
 			);
 
@@ -714,7 +1305,7 @@ class Replicastore implements Replicastore_Interface {
 				break;
 			}
 
-			// get the checksum value
+			// Get the checksum value.
 			$value = $this->table_checksum( $object_table, $columns, $id_field, $where_sql, $first_id, $last_id, $strip_non_ascii, $salt );
 
 			if ( is_wp_error( $value ) ) {
@@ -735,10 +1326,27 @@ class Replicastore implements Replicastore_Interface {
 		return $histogram;
 	}
 
+	/**
+	 * Retrieve the checksum for a specific database table.
+	 *
+	 * @access private
+	 *
+	 * @todo Refactor to properly prepare the SQL query.
+	 *
+	 * @param string $table           Table name.
+	 * @param array  $columns         Table columns to calculate the checksum from.
+	 * @param int    $id_column       Name of the unique ID column.
+	 * @param string $where_sql       Additional WHERE clause SQL.
+	 * @param int    $min_id          Minimum object ID.
+	 * @param int    $max_id          Maximum object ID.
+	 * @param bool   $strip_non_ascii Whether to strip non-ASCII characters.
+	 * @param string $salt            Salt, used for $wpdb->prepare()'s args.
+	 * @return int|\WP_Error The table histogram, or \WP_Error on failure.
+	 */
 	private function table_checksum( $table, $columns, $id_column, $where_sql = '1=1', $min_id = null, $max_id = null, $strip_non_ascii = true, $salt = '' ) {
 		global $wpdb;
 
-		// sanitize to just valid MySQL column names
+		// Sanitize to just valid MySQL column names.
 		$sanitized_columns = preg_grep( '/^[0-9,a-z,A-Z$_]+$/i', $columns );
 
 		if ( $strip_non_ascii ) {
@@ -769,11 +1377,12 @@ class Replicastore implements Replicastore_Interface {
 			}
 		}
 
-		$query  = <<<ENDSQL
+		$query = <<<ENDSQL
 			SELECT CAST( SUM( CRC32( CONCAT_WS( '#', '%s', {$columns_sql} ) ) ) AS UNSIGNED INT )
 			FROM $table
 			WHERE $where_sql;
 ENDSQL;
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$result = $wpdb->get_var( $wpdb->prepare( $query, $salt ) );
 		if ( $wpdb->last_error ) {
 			return new \WP_Error( 'database_error', $wpdb->last_error );
@@ -782,34 +1391,65 @@ ENDSQL;
 		return $result;
 	}
 
+	/**
+	 * Retrieve the type of the checksum.
+	 *
+	 * @access public
+	 *
+	 * @return string Type of the checksum.
+	 */
 	public function get_checksum_type() {
 		return 'sum';
 	}
 
+	/**
+	 * Count the meta values in a table, within a specified range.
+	 *
+	 * @access private
+	 *
+	 * @todo Refactor to not use interpolated values when preparing the SQL query.
+	 *
+	 * @param string $table     Table name.
+	 * @param string $where_sql Additional WHERE SQL.
+	 * @param int    $min_id    Minimum meta ID.
+	 * @param int    $max_id    Maximum meta ID.
+	 * @return int Number of meta values.
+	 */
 	private function meta_count( $table, $where_sql, $min_id, $max_id ) {
 		global $wpdb;
 
-		if ( $min_id != null ) {
+		if ( null !== $min_id ) {
 			$where_sql .= ' AND meta_id >= ' . intval( $min_id );
 		}
 
-		if ( $max_id != null ) {
+		if ( null !== $max_id ) {
 			$where_sql .= ' AND meta_id <= ' . intval( $max_id );
 		}
 
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where_sql" );
 	}
 
 	/**
 	 * Wraps a column name in SQL which strips non-ASCII chars.
 	 * This helps normalize data to avoid checksum differences caused by
-	 * badly encoded data in the DB
+	 * badly encoded data in the DB.
+	 *
+	 * @param string $column_name Name of the column.
+	 * @return string Column name, without the non-ASCII chars.
 	 */
-	function strip_non_ascii_sql( $column_name ) {
+	public function strip_non_ascii_sql( $column_name ) {
 		return "REPLACE( CONVERT( $column_name USING ascii ), '?', '' )";
 	}
 
+	/**
+	 * Used in methods that are not implemented and shouldn't be invoked.
+	 *
+	 * @access private
+	 * @throws \Exception If this method is invoked.
+	 */
 	private function invalid_call() {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		$backtrace = debug_backtrace();
 		$caller    = $backtrace[1]['function'];
 		throw new \Exception( "This function $caller is not supported on the WP Replicastore" );

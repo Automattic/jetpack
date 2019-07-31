@@ -1,3 +1,4 @@
+/* globals infiniteScroll, _wpmejsSettings, ga, _gaq, WPCOM_sharing_counts */
 ( function( $ ) {
 	// Open closure
 	// Local vars
@@ -7,7 +8,7 @@
 	var isIE = -1 != navigator.userAgent.search( 'MSIE' );
 	if ( isIE ) {
 		var IEVersion = navigator.userAgent.match( /MSIE\s?(\d+)\.?\d*;/ );
-		var IEVersion = parseInt( IEVersion[ 1 ] );
+		IEVersion = parseInt( IEVersion[ 1 ] );
 	}
 
 	// HTTP ajaxurl when site is HTTPS causes Access-Control-Allow-Origin failure in Desktop and iOS Safari
@@ -176,12 +177,17 @@
 			width = $( 'body #' + this.footer.wrap ).outerWidth( false );
 
 			// Make the footer match the width of the page
-			if ( width > 479 ) this.footer.find( '.container' ).css( 'width', width );
+			if ( width > 479 ) {
+				this.footer.find( '.container' ).css( 'width', width );
+			}
 		}
 
 		// Reveal footer
-		if ( this.window.scrollTop() >= 350 ) self.footer.animate( { bottom: 0 }, 'fast' );
-		else if ( this.window.scrollTop() < 350 ) self.footer.animate( { bottom: '-50px' }, 'fast' );
+		if ( this.window.scrollTop() >= 350 ) {
+			self.footer.animate( { bottom: 0 }, 'fast' );
+		} else if ( this.window.scrollTop() < 350 ) {
+			self.footer.animate( { bottom: '-50px' }, 'fast' );
+		}
 	};
 
 	/**
@@ -197,7 +203,9 @@
 			customized;
 
 		// If we're disabled, ready, or don't pass the check, bail.
-		if ( this.disabled || ! this.ready || ! this.check() ) return;
+		if ( this.disabled || ! this.ready || ! this.check() ) {
+			return;
+		}
 
 		// Let's get going -- set ready to false to prevent
 		// multiple refreshes from occurring at once.
@@ -323,11 +331,14 @@
 						if (
 							this.conditional &&
 							( ! isIE || ! eval( this.conditional.replace( /%ver/g, IEVersion ) ) )
-						)
-							var style = false;
+						) {
+							style = false;
+						}
 
 						// Append link tag if necessary
-						if ( style ) document.getElementsByTagName( 'head' )[ 0 ].appendChild( style );
+						if ( style ) {
+							document.getElementsByTagName( 'head' )[ 0 ].appendChild( style );
+						}
 					} );
 				}
 
@@ -338,17 +349,19 @@
 				self.page++;
 
 				// Record pageview in WP Stats, if available.
-				if ( stats )
+				if ( stats ) {
 					new Image().src =
 						document.location.protocol +
 						'//pixel.wp.com/g.gif?' +
 						stats +
 						'&post=0&baba=' +
 						Math.random();
+				}
 
 				// Add new posts to the postflair object
-				if ( 'object' == typeof response.postflair && 'object' == typeof WPCOM_sharing_counts )
-					WPCOM_sharing_counts = $.extend( WPCOM_sharing_counts, response.postflair );
+				if ( 'object' === typeof response.postflair && 'object' === typeof WPCOM_sharing_counts ) {
+					WPCOM_sharing_counts = $.extend( WPCOM_sharing_counts, response.postflair ); // eslint-disable-line no-global-assign
+				}
 
 				// Render the results
 				self.render.apply( self, arguments );
@@ -493,8 +506,11 @@
 			wrapperQty++;
 		} );
 
-		if ( wrapperQty > 0 ) aveSetHeight = aveSetHeight / wrapperQty;
-		else aveSetHeight = 0;
+		if ( wrapperQty > 0 ) {
+			aveSetHeight = aveSetHeight / wrapperQty;
+		} else {
+			aveSetHeight = 0;
+		}
 
 		// Load more posts if space permits, otherwise stop checking for a full viewport
 		if ( postsHeight < windowHeight && postsHeight + aveSetHeight < windowHeight ) {
@@ -615,8 +631,11 @@
 			var setData = setsInView.pop();
 
 			// If the first set of IS posts is in the same view as the posts loaded in the template by WordPress, determine how much of the view is comprised of IS-loaded posts
-			if ( ( windowBottom - setData.top ) / windowSize < 0.5 ) pageNum = -1;
-			else pageNum = setData.pageNum;
+			if ( ( windowBottom - setData.top ) / windowSize < 0.5 ) {
+				pageNum = -1;
+			} else {
+				pageNum = setData.pageNum;
+			}
 		} else {
 			var majorityPercentageInView = 0;
 
@@ -627,15 +646,20 @@
 					percentOfView = 0;
 
 				// Figure percentage of view the current set represents
-				if ( setData.top > windowTop && setData.top < windowBottom )
+				if ( setData.top > windowTop && setData.top < windowBottom ) {
 					topInView = ( windowBottom - setData.top ) / windowSize;
+				}
 
-				if ( setData.bottom > windowTop && setData.bottom < windowBottom )
+				if ( setData.bottom > windowTop && setData.bottom < windowBottom ) {
 					bottomInView = ( setData.bottom - windowTop ) / windowSize;
+				}
 
 				// Figure out largest percentage of view for current set
-				if ( topInView >= bottomInView ) percentOfView = topInView;
-				else if ( bottomInView >= topInView ) percentOfView = bottomInView;
+				if ( topInView >= bottomInView ) {
+					percentOfView = topInView;
+				} else if ( bottomInView >= topInView ) {
+					percentOfView = bottomInView;
+				}
 
 				// Does current set's percentage of view supplant the largest previously-found set?
 				if ( percentOfView > majorityPercentageInView ) {
@@ -647,7 +671,7 @@
 
 		// If a page number could be determined, update the URL
 		// -1 indicates that the original requested URL should be used.
-		if ( 'number' == typeof pageNum ) {
+		if ( 'number' === typeof pageNum ) {
 			self.updateURL( pageNum );
 		}
 	};
@@ -662,14 +686,16 @@
 			return;
 		}
 		var self = this,
+			pageSlug = self.origURL;
+
+		if ( -1 !== page ) {
 			pageSlug =
-				-1 == page
-					? self.origURL
-					: window.location.protocol +
-					  '//' +
-					  self.history.host +
-					  self.history.path.replace( /%d/, page ) +
-					  self.history.parameters;
+				window.location.protocol +
+				'//' +
+				self.history.host +
+				self.history.path.replace( /%d/, page ) +
+				self.history.parameters;
+		}
 
 		if ( window.location.href != pageSlug ) {
 			history.pushState( null, null, pageSlug );
@@ -695,7 +721,9 @@
 	 */
 	$( document ).ready( function() {
 		// Check for our variables
-		if ( 'object' != typeof infiniteScroll ) return;
+		if ( 'object' !== typeof infiniteScroll ) {
+			return;
+		}
 
 		$( document.body ).addClass( infiniteScroll.settings.body_class );
 

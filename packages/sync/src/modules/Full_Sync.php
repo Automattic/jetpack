@@ -1,4 +1,9 @@
 <?php
+/**
+ * Full sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
@@ -6,6 +11,7 @@ use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
+
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -17,31 +23,70 @@ use Automattic\Jetpack\Sync\Settings;
  * - we load the full objects for those IDs in chunks of Jetpack_Sync_Module::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
  * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
-
 class Full_Sync extends Module {
+	/**
+	 * Prefix of the full sync status option name.
+	 *
+	 * @var string
+	 */
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
-	const FULL_SYNC_TIMEOUT    = 3600;
 
+	/**
+	 * Timeout between the previous and the next allowed full sync.
+	 *
+	 * @todo Remove this as it's no longer used since https://github.com/Automattic/jetpack/pull/4561
+	 *
+	 * @var int
+	 */
+	const FULL_SYNC_TIMEOUT = 3600;
+
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'full-sync';
 	}
 
-	function init_full_sync_listeners( $callable ) {
-		// synthetic actions for full sync
+	/**
+	 * Initialize action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
+	public function init_full_sync_listeners( $callable ) {
+		// Synthetic actions for full sync.
 		add_action( 'jetpack_full_sync_start', $callable, 10, 3 );
 		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
-	function init_before_send() {
-		// this is triggered after actions have been processed on the server
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
+	public function init_before_send() {
+		// This is triggered after actions have been processed on the server.
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'update_sent_progress_action' ) );
 	}
 
-	function start( $module_configs = null ) {
+	/**
+	 * Start a full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $module_configs Full sync configuration for all sync modules.
+	 * @return bool Always returns true at success.
+	 */
+	public function start( $module_configs = null ) {
 		$was_already_running = $this->is_started() && ! $this->is_finished();
 
-		// remove all evidence of previous full sync items and status
+		// Remove all evidence of previous full sync items and status.
 		$this->reset_data();
 
 		if ( $was_already_running ) {
@@ -60,7 +105,8 @@ class Full_Sync extends Module {
 		$full_sync_config = array();
 		$include_empty    = false;
 		$empty            = array();
-		// default value is full sync
+
+		// Default value is full sync.
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
 			$include_empty  = true;
@@ -69,7 +115,7 @@ class Full_Sync extends Module {
 			}
 		}
 
-		// set default configuration, calculate totals, and save configuration if totals > 0
+		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		foreach ( Modules::get_modules() as $module ) {
 			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
@@ -86,15 +132,15 @@ class Full_Sync extends Module {
 
 			$total_items = $module->estimate_full_sync_actions( $module_config );
 
-			// if there's information to process, configure this module
+			// If there's information to process, configure this module.
 			if ( ! is_null( $total_items ) && $total_items > 0 ) {
 				$full_sync_config[ $module_name ] = $module_config;
 				$enqueue_status[ $module_name ]   = array(
-					$total_items,   // total
-					0,              // queued
-					false,          // current state
+					$total_items,   // Total.
+					0,              // Queued.
+					false,          // Current state.
 				);
-			} elseif ( $include_empty && $total_items === 0 ) {
+			} elseif ( $include_empty && 0 === $total_items ) {
 				$empty[ $module_name ] = true;
 			}
 		}
@@ -122,12 +168,20 @@ class Full_Sync extends Module {
 		return true;
 	}
 
-	function continue_enqueuing( $configs = null, $enqueue_status = null ) {
+	/**
+	 * Enqueue the next items to sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $configs Full sync configuration for all sync modules.
+	 * @param array $enqueue_status Current status of the queue, indexed by sync modules.
+	 */
+	public function continue_enqueuing( $configs = null, $enqueue_status = null ) {
 		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
 
-		// if full sync queue is full, don't enqueue more items
+		// If full sync queue is full, don't enqueue more items.
 		$max_queue_size_full_sync = Settings::get_setting( 'max_queue_size_full_sync' );
 		$full_sync_queue          = new Queue( 'full_sync' );
 
@@ -150,13 +204,13 @@ class Full_Sync extends Module {
 		foreach ( Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 
-			// skip module if not configured for this sync or module is done
+			// Skip module if not configured for this sync or module is done.
 			if ( ! isset( $configs[ $module_name ] )
-				|| // no module config
+				|| // No module config.
 					! $configs[ $module_name ]
-				|| // no enqueue status
+				|| // No enqueue status.
 					! $enqueue_status[ $module_name ]
-				|| // finished enqueuing this module
+				|| // Finished enqueuing this module.
 					true === $enqueue_status[ $module_name ][2] ) {
 				continue;
 			}
@@ -165,13 +219,13 @@ class Full_Sync extends Module {
 
 			$enqueue_status[ $module_name ][2] = $next_enqueue_state;
 
-			// if items were processed, subtract them from the limit
+			// If items were processed, subtract them from the limit.
 			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
 				$enqueue_status[ $module_name ][1] += $items_enqueued;
 				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
-			// stop processing if we've reached our limit of items to enqueue
+			// Stop processing if we've reached our limit of items to enqueue.
 			if ( 0 >= $remaining_items_to_enqueue ) {
 				$this->set_enqueue_status( $enqueue_status );
 				return;
@@ -180,7 +234,7 @@ class Full_Sync extends Module {
 
 		$this->set_enqueue_status( $enqueue_status );
 
-		// setting autoload to true means that it's faster to check whether we should continue enqueuing
+		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
 		$this->update_status_option( 'queue_finished', time(), true );
 
 		$range = $this->get_content_range( $configs );
@@ -198,9 +252,17 @@ class Full_Sync extends Module {
 		do_action( 'jetpack_full_sync_end', '', $range );
 	}
 
-	function get_range( $type ) {
+	/**
+	 * Get the range (min ID, max ID and total items) of items to sync.
+	 *
+	 * @access public
+	 *
+	 * @param string $type Type of sync item to get the range for.
+	 * @return array Array of min ID, max ID and total items in the range.
+	 */
+	public function get_range( $type ) {
 		global $wpdb;
-		if ( ! in_array( $type, array( 'comments', 'posts' ) ) ) {
+		if ( ! in_array( $type, array( 'comments', 'posts' ), true ) ) {
 			return array();
 		}
 
@@ -217,6 +279,9 @@ class Full_Sync extends Module {
 				$where_sql = Settings::get_comments_filter_sql();
 				break;
 		}
+
+		// TODO: Call $wpdb->prepare on the following query.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$results = $wpdb->get_results( "SELECT MAX({$id}) as max, MIN({$id}) as min, COUNT({$id}) as count FROM {$table} WHERE {$where_sql}" );
 		if ( isset( $results[0] ) ) {
 			return $results[0];
@@ -225,21 +290,36 @@ class Full_Sync extends Module {
 		return array();
 	}
 
+	/**
+	 * Get the range for content (posts and comments) to sync.
+	 *
+	 * @access private
+	 *
+	 * @param array $config Full sync configuration for this all sync modules.
+	 * @return array Array of range (min ID, max ID, total items) for all content types.
+	 */
 	private function get_content_range( $config ) {
 		$range = array();
-		// Only when we are sending the whole range do we want to send also the range
-		if ( isset( $config['posts'] ) && $config['posts'] === true ) {
+		// Only when we are sending the whole range do we want to send also the range.
+		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
 			$range['posts'] = $this->get_range( 'posts' );
 		}
 
-		if ( isset( $config['comments'] ) && $config['comments'] === true ) {
+		if ( true === isset( $config['comments'] ) && $config['comments'] ) {
 			$range['comments'] = $this->get_range( 'comments' );
 		}
 		return $range;
 	}
 
-	function update_sent_progress_action( $actions ) {
-		// quick way to map to first items with an array of arrays
+	/**
+	 * Update the progress after sync modules actions have been processed on the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $actions Actions that have been processed on the server.
+	 */
+	public function update_sent_progress_action( $actions ) {
+		// Quick way to map to first items with an array of arrays.
 		$actions_with_counts = array_count_values( array_filter( array_map( array( $this, 'get_action_name' ), $actions ) ) );
 
 		// Total item counts for each action.
@@ -284,6 +364,14 @@ class Full_Sync extends Module {
 		}
 	}
 
+	/**
+	 * Get the name of the action for an item in the sync queue.
+	 *
+	 * @access public
+	 *
+	 * @param array $queue_item Item of the sync queue.
+	 * @return string|boolean Name of the action, false if queue item is invalid.
+	 */
 	public function get_action_name( $queue_item ) {
 		if ( is_array( $queue_item ) && isset( $queue_item[0] ) ) {
 			return $queue_item[0];
@@ -295,6 +383,8 @@ class Full_Sync extends Module {
 	 * Retrieve the total number of items we're syncing in a particular queue item (action).
 	 * `$queue_item[1]` is expected to contain chunks of items, and `$queue_item[1][0]`
 	 * represents the first (and only) chunk of items to sync in that action.
+	 *
+	 * @access public
 	 *
 	 * @param array $queue_item Item of the sync queue that corresponds to a particular action.
 	 * @return int Total number of items in the action.
@@ -314,6 +404,8 @@ class Full_Sync extends Module {
 	/**
 	 * Retrieve the total number of items for a set of actions, grouped by action name.
 	 *
+	 * @access public
+	 *
 	 * @param array $actions An array of actions.
 	 * @return array An array, representing the total number of items, grouped per action.
 	 */
@@ -332,14 +424,35 @@ class Full_Sync extends Module {
 		return $totals;
 	}
 
+	/**
+	 * Whether full sync has started.
+	 *
+	 * @access public
+	 *
+	 * @return boolean
+	 */
 	public function is_started() {
 		return ! ! $this->get_status_option( 'started' );
 	}
 
+	/**
+	 * Whether full sync has finished.
+	 *
+	 * @access public
+	 *
+	 * @return boolean
+	 */
 	public function is_finished() {
 		return ! ! $this->get_status_option( 'finished' );
 	}
 
+	/**
+	 * Retrieve the status of the current full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync status.
+	 */
 	public function get_status() {
 		$status = array(
 			'started'        => $this->get_status_option( 'started' ),
@@ -362,7 +475,7 @@ class Full_Sync extends Module {
 				continue;
 			}
 
-			list( $total, $queued, $state ) = $enqueue_status[ $name ];
+			list( $total, $queued ) = $enqueue_status[ $name ];
 
 			if ( $total ) {
 				$status['total'][ $name ] = $total;
@@ -372,7 +485,8 @@ class Full_Sync extends Module {
 				$status['queue'][ $name ] = $queued;
 			}
 
-			if ( $sent = $this->get_status_option( "{$name}_sent" ) ) {
+			$sent = $this->get_status_option( "{$name}_sent" );
+			if ( $sent ) {
 				$status['sent'][ $name ] = $sent;
 			}
 
@@ -385,6 +499,11 @@ class Full_Sync extends Module {
 		return $status;
 	}
 
+	/**
+	 * Clear all the full sync status options.
+	 *
+	 * @access public
+	 */
 	public function clear_status() {
 		$prefix = self::STATUS_OPTION_PREFIX;
 		\Jetpack_Options::delete_raw_option( "{$prefix}_started" );
@@ -401,6 +520,11 @@ class Full_Sync extends Module {
 		}
 	}
 
+	/**
+	 * Clear all the full sync data.
+	 *
+	 * @access public
+	 */
 	public function reset_data() {
 		$this->clear_status();
 		$this->delete_config();
@@ -409,47 +533,119 @@ class Full_Sync extends Module {
 		$listener->get_full_sync_queue()->reset();
 	}
 
+	/**
+	 * Get the value of a full sync status option.
+	 *
+	 * @access private
+	 *
+	 * @param string $name    Name of the option.
+	 * @param mixed  $default Default value of the option.
+	 * @return mixed Option value.
+	 */
 	private function get_status_option( $name, $default = null ) {
 		$value = \Jetpack_Options::get_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
 
 		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
+	/**
+	 * Update the value of a full sync status option.
+	 *
+	 * @access private
+	 *
+	 * @param string  $name     Name of the option.
+	 * @param mixed   $value    Value of the option.
+	 * @param boolean $autoload Whether the option should be autoloaded at the beginning of the request.
+	 */
 	private function update_status_option( $name, $value, $autoload = false ) {
 		\Jetpack_Options::update_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
 	}
 
+	/**
+	 * Set the full sync enqueue status.
+	 *
+	 * @access private
+	 *
+	 * @param array $new_status The new full sync enqueue status.
+	 */
 	private function set_enqueue_status( $new_status ) {
 		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_enqueue_status', $new_status );
 	}
 
+	/**
+	 * Delete full sync enqueue status.
+	 *
+	 * @access private
+	 *
+	 * @return boolean Whether the status was deleted.
+	 */
 	private function delete_enqueue_status() {
 		return \Jetpack_Options::delete_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
+	/**
+	 * Retrieve the current full sync enqueue status.
+	 *
+	 * @access private
+	 *
+	 * @return array Full sync enqueue status.
+	 */
 	private function get_enqueue_status() {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
+	/**
+	 * Set the full sync enqueue configuration.
+	 *
+	 * @access private
+	 *
+	 * @param array $config The new full sync enqueue configuration.
+	 */
 	private function set_config( $config ) {
 		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_config', $config );
 	}
 
+	/**
+	 * Delete full sync configuration.
+	 *
+	 * @access private
+	 *
+	 * @return boolean Whether the configuration was deleted.
+	 */
 	private function delete_config() {
 		return \Jetpack_Options::delete_raw_option( 'jetpack_sync_full_config' );
 	}
 
+	/**
+	 * Retrieve the current full sync enqueue config.
+	 *
+	 * @access private
+	 *
+	 * @return array Full sync enqueue config.
+	 */
 	private function get_config() {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_config' );
 	}
 
+	/**
+	 * Update an option manually to bypass filters and caching.
+	 *
+	 * @access private
+	 *
+	 * @param string $name  Option name.
+	 * @param mixed  $value Option value.
+	 * @return int The number of updated rows in the database.
+	 */
 	private function write_option( $name, $value ) {
-		// we write our own option updating code to bypass filters/caching/etc on set_option/get_option
+		// We write our own option updating code to bypass filters/caching/etc on set_option/get_option.
 		global $wpdb;
 		$serialized_value = maybe_serialize( $value );
-		// try updating, if no update then insert
-		// TODO: try to deal with the fact that unchanged values can return updated_num = 0
-		// below we used "insert ignore" to at least suppress the resulting error
+
+		/**
+		 * Try updating, if no update then insert
+		 * TODO: try to deal with the fact that unchanged values can return updated_num = 0
+		 * below we used "insert ignore" to at least suppress the resulting error.
+		 */
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
@@ -470,6 +666,15 @@ class Full_Sync extends Module {
 		return $updated_num;
 	}
 
+	/**
+	 * Update an option manually to bypass filters and caching.
+	 *
+	 * @access private
+	 *
+	 * @param string $name    Option name.
+	 * @param mixed  $default Default option value.
+	 * @return mixed Option value.
+	 */
 	private function read_option( $name, $default = null ) {
 		global $wpdb;
 		$value = $wpdb->get_var(
@@ -480,7 +685,7 @@ class Full_Sync extends Module {
 		);
 		$value = maybe_unserialize( $value );
 
-		if ( $value === null && $default !== null ) {
+		if ( null === $value && null !== $default ) {
 			return $default;
 		}
 

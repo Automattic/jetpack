@@ -1,16 +1,30 @@
 <?php
+/**
+ * WooCommerce sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+/**
+ * Class to handle sync for WooCommerce.
+ */
 class WooCommerce extends Module {
-
+	/**
+	 * Whitelist for order item meta we are interested to sync.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
 	private $order_item_meta_whitelist = array(
-		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20
+		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20 .
 		'_product_id',
 		'_variation_id',
 		'_qty',
 		// Tax ones also included in below class
-		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-fee-data-store.php#L20
+		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-fee-data-store.php#L20 .
 		'_tax_class',
 		'_tax_status',
 		'_line_subtotal',
@@ -18,29 +32,43 @@ class WooCommerce extends Module {
 		'_line_total',
 		'_line_tax',
 		'_line_tax_data',
-		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-shipping-data-store.php#L20
+		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-shipping-data-store.php#L20 .
 		'method_id',
 		'cost',
 		'total_tax',
 		'taxes',
-		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-tax-data-store.php#L20
+		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-tax-data-store.php#L20 .
 		'rate_id',
 		'label',
 		'compound',
 		'tax_amount',
 		'shipping_tax_amount',
-		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-coupon-data-store.php
+		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-coupon-data-store.php .
 		'discount_amount',
 		'discount_amount_tax',
 	);
 
+	/**
+	 * Name of the order item database table.
+	 *
+	 * @access private
+	 *
+	 * @var string
+	 */
 	private $order_item_table_name;
 
+	/**
+	 * Constructor.
+	 *
+	 * @global $wpdb
+	 *
+	 * @todo Should we refactor this to use $this->set_defaults() instead?
+	 */
 	public function __construct() {
 		global $wpdb;
 		$this->order_item_table_name = $wpdb->prefix . 'woocommerce_order_items';
 
-		// options, constants and post meta whitelists
+		// Options, constants and post meta whitelists.
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
@@ -48,69 +76,121 @@ class WooCommerce extends Module {
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 	}
 
-	function name() {
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function name() {
 		return 'woocommerce';
 	}
 
+	/**
+	 * Initialize WooCommerce action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
-		// attributes
+		// Attributes.
 		add_action( 'woocommerce_attribute_added', $callable, 10, 2 );
 		add_action( 'woocommerce_attribute_updated', $callable, 10, 3 );
 		add_action( 'woocommerce_attribute_deleted', $callable, 10, 3 );
 
-		// orders
+		// Orders.
 		add_action( 'woocommerce_new_order', $callable, 10, 1 );
 		add_action( 'woocommerce_order_status_changed', $callable, 10, 3 );
 		add_action( 'woocommerce_payment_complete', $callable, 10, 1 );
 
-		// order items
+		// Order items.
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
 
-		// payment tokens
+		// Payment tokens.
 		add_action( 'woocommerce_new_payment_token', $callable, 10, 1 );
 		add_action( 'woocommerce_payment_token_deleted', $callable, 10, 2 );
 		add_action( 'woocommerce_payment_token_updated', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'payment_token', $callable );
 
-		// product downloads
+		// Product downloads.
 		add_action( 'woocommerce_downloadable_product_download_log_insert', $callable, 10, 1 );
 		add_action( 'woocommerce_grant_product_download_access', $callable, 10, 1 );
 
-		// tax rates
+		// Tax rates.
 		add_action( 'woocommerce_tax_rate_added', $callable, 10, 2 );
 		add_action( 'woocommerce_tax_rate_updated', $callable, 10, 2 );
 		add_action( 'woocommerce_tax_rate_deleted', $callable, 10, 1 );
 
-		// webhooks
+		// Webhooks.
 		add_action( 'woocommerce_new_webhook', $callable, 10, 1 );
 		add_action( 'woocommerce_webhook_deleted', $callable, 10, 2 );
 		add_action( 'woocommerce_webhook_updated', $callable, 10, 1 );
 	}
 
+	/**
+	 * Initialize WooCommerce action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_full_sync_listeners( $callable ) {
-		add_action( 'jetpack_full_sync_woocommerce_order_items', $callable ); // also sends post meta
+		add_action( 'jetpack_full_sync_woocommerce_order_items', $callable ); // Also sends post meta.
 	}
 
+	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
 	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_woocommerce_order_items' );
 	}
 
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
 	public function init_before_send() {
-		// full sync
+		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'expand_order_item_ids' ) );
 	}
 
+	/**
+	 * Expand the order items properly.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook arguments.
+	 * @return array $args The hook arguments.
+	 */
 	public function filter_order_item( $args ) {
-		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details
+		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
 	}
 
+	/**
+	 * Expand order item IDs to order items and their meta.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor table name to use a $wpdb->prepare placeholder.
+	 *
+	 * @param array $args The hook arguments.
+	 * @return array $args Expanded order items with meta.
+	 */
 	public function expand_order_item_ids( $args ) {
 		$order_item_ids = $args[0];
 
@@ -119,6 +199,7 @@ class WooCommerce extends Module {
 		$order_item_ids_sql = implode( ', ', array_map( 'intval', $order_item_ids ) );
 
 		$order_items = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			"SELECT * FROM $this->order_item_table_name WHERE order_item_id IN ( $order_item_ids_sql )"
 		);
 
@@ -128,46 +209,131 @@ class WooCommerce extends Module {
 		);
 	}
 
+	/**
+	 * Extract the full order item from the database by its ID.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor table name to use a $wpdb->prepare placeholder.
+	 *
+	 * @param int $order_item_id Order item ID.
+	 * @return object Order item.
+	 */
 	public function build_order_item( $order_item_id ) {
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );
 	}
 
+	/**
+	 * Enqueue the WooCommerce actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		global $wpdb;
-
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_woocommerce_order_items', $this->order_item_table_name, 'order_item_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
+	/**
+	 * Retrieve an estimated number of actions that will be enqueued.
+	 *
+	 * @access public
+	 *
+	 * @todo Refactor the SQL query to use $wpdb->prepare().
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return array Number of items yet to be enqueued.
+	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $this->order_item_table_name WHERE " . $this->get_where_sql( $config );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$count = $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
-	private function get_where_sql( $config ) {
+	/**
+	 * Retrieve the WHERE SQL clause based on the module config.
+	 *
+	 * @access private
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause.
+	 */
+	private function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
 	}
 
+	/**
+	 * Add WooCommerce options to the options whitelist.
+	 *
+	 * @param array $list Existing options whitelist.
+	 * @return array Updated options whitelist.
+	 */
 	public function add_woocommerce_options_whitelist( $list ) {
 		return array_merge( $list, self::$wc_options_whitelist );
 	}
 
+	/**
+	 * Add WooCommerce constants to the constants whitelist.
+	 *
+	 * @param array $list Existing constants whitelist.
+	 * @return array Updated constants whitelist.
+	 */
 	public function add_woocommerce_constants_whitelist( $list ) {
 		return array_merge( $list, self::$wc_constants_whitelist );
 	}
 
+	/**
+	 * Add WooCommerce post meta to the post meta whitelist.
+	 *
+	 * @param array $list Existing post meta whitelist.
+	 * @return array Updated post meta whitelist.
+	 */
 	public function add_woocommerce_post_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_post_meta_whitelist );
 	}
 
+	/**
+	 * Add WooCommerce comment meta to the comment meta whitelist.
+	 *
+	 * @param array $list Existing comment meta whitelist.
+	 * @return array Updated comment meta whitelist.
+	 */
 	public function add_woocommerce_comment_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_comment_meta_whitelist );
 	}
 
+	/**
+	 * Adds 'revew' to the list of comment types so Sync will listen for status changes on 'reviews'.
+	 *
+	 * @access public
+	 *
+	 * @param array $comment_types The list of comment types prior to this filter.
+	 * return array                The list of comment types with 'review' added.
+	 */
+	public function add_review_comment_types( $comment_types ) {
+		if ( is_array( $comment_types ) ) {
+			$comment_types[] = 'review';
+		}
+		return $comment_types;
+	}
+
+	/**
+	 * Whitelist for options we are interested to sync.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
 	private static $wc_options_whitelist = array(
 		'woocommerce_currency',
 		'woocommerce_db_version',
@@ -205,8 +371,16 @@ class WooCommerce extends Module {
 		'woocommerce_allow_tracking',
 	);
 
+	/**
+	 * Whitelist for constants we are interested to sync.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
 	private static $wc_constants_whitelist = array(
-		// woocommerce options
+		// WooCommerce constants.
 		'WC_PLUGIN_FILE',
 		'WC_ABSPATH',
 		'WC_PLUGIN_BASENAME',
@@ -221,9 +395,17 @@ class WooCommerce extends Module {
 		'WC_TEMPLATE_DEBUG_MODE',
 	);
 
+	/**
+	 * Whitelist for post meta we are interested to sync.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
 	private static $wc_post_meta_whitelist = array(
-		// woocommerce products
-		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-product-data-store-cpt.php#L21
+		// WooCommerce products.
+		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-product-data-store-cpt.php#L21 .
 		'_visibility',
 		'_sku',
 		'_price',
@@ -262,8 +444,8 @@ class WooCommerce extends Module {
 		'_product_version',
 		'_wp_old_slug',
 
-		// woocommerce orders
-		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L27
+		// Woocommerce orders.
+		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L27 .
 		'_order_key',
 		'_order_currency',
 		// '_billing_first_name', do not sync these as they contain personal data
@@ -275,7 +457,7 @@ class WooCommerce extends Module {
 		'_billing_state',
 		'_billing_postcode',
 		'_billing_country',
-		// '_billing_email', do not sync these as they contain personal data
+		// '_billing_email', do not sync these as they contain personal data.
 		// '_billing_phone',
 		// '_shipping_first_name',
 		// '_shipping_last_name',
@@ -296,7 +478,7 @@ class WooCommerce extends Module {
 		'_order_total',
 		'_payment_method',
 		'_payment_method_title',
-		// '_transaction_id', do not sync these as they contain personal data
+		// '_transaction_id', do not sync these as they contain personal data.
 		// '_customer_ip_address',
 		// '_customer_user_agent',
 		'_created_via',
@@ -309,13 +491,13 @@ class WooCommerce extends Module {
 		'_shipping_address_index',
 		'_recorded_sales',
 		'_recorded_coupon_usage_counts',
-		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L539
+		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L539 .
 		'_download_permissions_granted',
-		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L594
+		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L594 .
 		'_order_stock_reduced',
 
-		// woocommerce order refunds
-		// https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20
+		// Woocommerce order refunds.
+		// See https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20 .
 		'_order_currency',
 		'_refund_amount',
 		'_refunded_by',
@@ -329,6 +511,14 @@ class WooCommerce extends Module {
 		'_payment_tokens',
 	);
 
+	/**
+	 * Whitelist for comment meta we are interested to sync.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
 	private static $wc_comment_meta_whitelist = array(
 		'rating',
 	);

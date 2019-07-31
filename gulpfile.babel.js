@@ -1,13 +1,11 @@
-/* jshint ignore:start */
 /**
  * External dependencies
  */
 import del from 'del';
-import deleteLines from 'gulp-delete-lines';
+import deleteLines from 'gulp-rm-lines';
 import fs from 'fs';
 import gulp from 'gulp';
 import i18n_calypso from 'i18n-calypso/cli';
-import jshint from 'gulp-jshint';
 import json_transform from 'gulp-json-transform';
 import log from 'fancy-log';
 import po2json from 'gulp-po2json';
@@ -27,25 +25,6 @@ import { watch as sass_watch, build as sass_build } from './tools/builder/sass';
 
 gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
-} );
-
-/*
-	JS Hint
- */
-gulp.task( 'js:hint', function() {
-	return gulp
-		.src( [
-			'_inc/*.js',
-			'modules/*.js',
-			'modules/**/*.js',
-			'!_inc/*.min.js',
-			'!modules/*.min.',
-			'!modules/**/*.min.js',
-			'!**/*/*block.js',
-		] )
-		.pipe( jshint( '.jshintrc' ) )
-		.pipe( jshint.reporter( 'jshint-stylish' ) )
-		.pipe( jshint.reporter( 'fail' ) );
 } );
 
 /*
@@ -230,16 +209,12 @@ gulp.task( 'languages:extract', function( done ) {
 		} );
 } );
 
-gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old' ) );
-gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
+gulp.task( 'old-styles', gulp.parallel( frontendcss, admincss, 'sass:old', 'sass:packages:rtl' ) );
 
 // Default task
 gulp.task(
 	'default',
-	gulp.series(
-		gulp.parallel( react_build, 'old-styles', 'js:hint', 'php:module-headings' ),
-		sass_build
-	)
+	gulp.series( gulp.parallel( react_build, 'old-styles', 'php:module-headings' ), sass_build )
 );
 gulp.task( 'watch', gulp.parallel( react_watch, sass_watch, 'old-styles:watch' ) );
 

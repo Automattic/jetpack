@@ -167,7 +167,9 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Help your content get found and shared with SEO tools.' ) }
+						title={ __(
+							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium or Professional.'
+						) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -244,13 +246,6 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
-					return false;
-				}
-
-				break;
-
-			case FEATURE_SEO_TOOLS_JETPACK:
 				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
 					return false;
 				}

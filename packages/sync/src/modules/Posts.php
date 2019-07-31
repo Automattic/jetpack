@@ -1,31 +1,106 @@
 <?php
+/**
+ * Posts sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * Class to handle sync for posts.
+ */
 class Posts extends Module {
+	/**
+	 * The post IDs of posts that were just published but not synced yet.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $just_published = array();
 
-	private $just_published  = array();
+	/**
+	 * The previous status of posts that we use for calculating post status transitions.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
 	private $previous_status = array();
+
+	/**
+	 * Action handler callable.
+	 *
+	 * @access private
+	 *
+	 * @var callable
+	 */
 	private $action_handler;
+
+	/**
+	 * Import end.
+	 *
+	 * @access private
+	 *
+	 * @todo This appears to be unused - let's remove it.
+	 *
+	 * @var boolean
+	 */
 	private $import_end = false;
 
+	/**
+	 * Default previous post state.
+	 * Used for default previous post status.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
 	const DEFAULT_PREVIOUS_STATE = 'new';
 
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'posts';
 	}
 
+	/**
+	 * Retrieve a post by its ID.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Type of the sync object.
+	 * @param int    $id          ID of the sync object.
+	 * @return \WP_Post|bool Filtered \WP_Post object, or false if the object is not a post.
+	 */
 	public function get_object_by_id( $object_type, $id ) {
-		if ( $object_type === 'post' && $post = get_post( intval( $id ) ) ) {
-			return $this->filter_post_content_and_add_links( $post );
+		if ( 'post' === $object_type ) {
+			$post = get_post( intval( $id ) );
+			if ( $post ) {
+				return $this->filter_post_content_and_add_links( $post );
+			}
 		}
 
 		return false;
 	}
 
+	/**
+	 * Initialize posts action listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
@@ -38,16 +113,22 @@ class Posts extends Module {
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
-		// listen for meta changes
+		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
-
 	}
 
+	/**
+	 * Before Akismet's daily cleanup of spam detection metadata.
+	 *
+	 * @access public
+	 *
+	 * @param array $feedback_ids IDs of feedback posts.
+	 */
 	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
 		remove_action( 'deleted_post_meta', $this->action_handler );
 		/**
@@ -63,40 +144,88 @@ class Posts extends Module {
 		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values' );
 	}
 
-	public function daily_akismet_meta_cleanup_after( $feedback_ids ) {
+	/**
+	 * After Akismet's daily cleanup of spam detection metadata.
+	 *
+	 * @access public
+	 *
+	 * @param array $feedback_ids IDs of feedback posts.
+	 */
+	public function daily_akismet_meta_cleanup_after( $feedback_ids ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		add_action( 'deleted_post_meta', $this->action_handler );
 	}
 
+	/**
+	 * Initialize posts action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_full_sync_listeners( $callable ) {
-		add_action( 'jetpack_full_sync_posts', $callable ); // also sends post meta
+		add_action( 'jetpack_full_sync_posts', $callable ); // Also sends post meta.
 	}
 
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
 
-		// full sync
+		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
 
+	/**
+	 * Enqueue the posts actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
+	/**
+	 * Retrieve an estimated number of actions that will be enqueued.
+	 *
+	 * @access public
+	 *
+	 * @todo Use $wpdb->prepare for the SQL query.
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return array Number of items yet to be enqueued.
+	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->posts WHERE " . $this->get_where_sql( $config );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$count = $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
+	/**
+	 * Retrieve the WHERE SQL clause based on the module config.
+	 *
+	 * @access private
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 */
 	private function get_where_sql( $config ) {
 		$where_sql = Settings::get_blacklisted_post_types_sql();
 
-		// config is a list of post IDs to sync
+		// Config is a list of post IDs to sync.
 		if ( is_array( $config ) ) {
 			$where_sql .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
@@ -104,34 +233,52 @@ class Posts extends Module {
 		return $where_sql;
 	}
 
-	function get_full_sync_actions() {
+	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
+	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_posts' );
 	}
 
 	/**
-	 * Process content before send
+	 * Process content before send.
 	 *
-	 * @param array $args wp_insert_post arguments
+	 * @param array $args Arguments of the `wp_insert_post` hook.
 	 *
 	 * @return array
 	 */
-	function expand_jetpack_sync_save_post( $args ) {
+	public function expand_jetpack_sync_save_post( $args ) {
 		list( $post_id, $post, $update, $previous_state ) = $args;
 		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
-	function filter_blacklisted_post_types( $args ) {
+	/**
+	 * Filter all blacklisted post types.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 */
+	public function filter_blacklisted_post_types( $args ) {
 		$post = $args[1];
 
-		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ) ) ) {
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
 		}
 
 		return $args;
 	}
 
-	// Meta
-	function filter_meta( $args ) {
+	/**
+	 * Filter all meta that is not blacklisted, or is stored for a disallowed post type.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Hook arguments, or false if meta was filtered.
+	 */
+	public function filter_meta( $args ) {
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return $args;
 		}
@@ -139,43 +286,71 @@ class Posts extends Module {
 		return false;
 	}
 
-	function is_whitelisted_post_meta( $meta_key ) {
-		// _wpas_skip_ is used by publicize
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ) ) || wp_startswith( $meta_key, '_wpas_skip_' );
+	/**
+	 * Whether a post meta key is whitelisted.
+	 *
+	 * @param string $meta_key Meta key.
+	 * @return boolean Whether the post meta key is whitelisted.
+	 */
+	public function is_whitelisted_post_meta( $meta_key ) {
+		// The _wpas_skip_ meta key is used by Publicize.
+		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || wp_startswith( $meta_key, '_wpas_skip_' );
 	}
 
-	function is_post_type_allowed( $post_id ) {
+	/**
+	 * Whether a post type is allowed.
+	 * A post type will be disallowed if it's present in the post type blacklist.
+	 *
+	 * @param int $post_id ID of the post.
+	 * @return boolean Whether the post type is allowed.
+	 */
+	public function is_post_type_allowed( $post_id ) {
 		$post = get_post( intval( $post_id ) );
 		if ( $post->post_type ) {
-			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ) );
+			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true );
 		}
 		return false;
 	}
 
-	function remove_embed() {
+	/**
+	 * Remove the embed shortcode.
+	 *
+	 * @global $wp_embed
+	 */
+	public function remove_embed() {
 		global $wp_embed;
 		remove_filter( 'the_content', array( $wp_embed, 'run_shortcode' ), 8 );
 		// remove the embed shortcode since we would do the part later.
 		remove_shortcode( 'embed' );
-		// Attempts to embed all URLs in a post
+		// Attempts to embed all URLs in a post.
 		remove_filter( 'the_content', array( $wp_embed, 'autoembed' ), 8 );
 	}
 
-	function add_embed() {
+	/**
+	 * Add the embed shortcode.
+	 *
+	 * @global $wp_embed
+	 */
+	public function add_embed() {
 		global $wp_embed;
 		add_filter( 'the_content', array( $wp_embed, 'run_shortcode' ), 8 );
-		// Shortcode placeholder for strip_shortcodes()
+		// Shortcode placeholder for strip_shortcodes().
 		add_shortcode( 'embed', '__return_false' );
-		// Attempts to embed all URLs in a post
+		// Attempts to embed all URLs in a post.
 		add_filter( 'the_content', array( $wp_embed, 'autoembed' ), 8 );
 	}
 
-	// Expands wp_insert_post to include filtered content
-	function filter_post_content_and_add_links( $post_object ) {
+	/**
+	 * Expands wp_insert_post to include filtered content
+	 *
+	 * @param \WP_Post $post_object Post object.
+	 */
+	public function filter_post_content_and_add_links( $post_object ) {
 		global $post;
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$post = $post_object;
 
-		// return non existant post
+		// Return non existant post.
 		$post_type = get_post_type_object( $post->post_type );
 		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
 			$non_existant_post                    = new \stdClass();
@@ -199,7 +374,7 @@ class Posts extends Module {
 		 * @since 4.2.0
 		 *
 		 * @param boolean false prevent post data from being synced to WordPress.com
-		 * @param mixed $post WP_POST object
+		 * @param mixed $post \WP_Post object
 		 */
 		if ( apply_filters( 'jetpack_sync_prevent_sending_post_data', false, $post ) ) {
 			// We only send the bare necessary object to be able to create a checksum.
@@ -276,6 +451,13 @@ class Posts extends Module {
 		return $post;
 	}
 
+	/**
+	 * Handle transition from another post status to a published one.
+	 *
+	 * @param string   $new_status New post status.
+	 * @param string   $old_status Old post status.
+	 * @param \WP_Post $post       Post object.
+	 */
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[ $post->ID ] = true;
@@ -284,29 +466,43 @@ class Posts extends Module {
 		$this->previous_status[ $post->ID ] = $old_status;
 	}
 
-	/*
+	/**
 	 * When publishing or updating a post, the Gutenberg editor sends two requests:
 	 * 1. sent to WP REST API endpoint `wp-json/wp/v2/posts/$id`
 	 * 2. sent to wp-admin/post.php `?post=$id&action=edit&classic-editor=1&meta_box=1`
 	 *
 	 * The 2nd request is to update post meta, which is not supported on WP REST API.
 	 * When syncing post data, we will include if this was a meta box update.
+	 *
+	 * @todo Implement nonce verification.
+	 *
+	 * @return boolean Whether this is a Gutenberg meta box update.
 	 */
 	public function is_gutenberg_meta_box_update() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 		return (
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&
 			'1' === $_GET['classic-editor'] &&
 			'1' === $_GET['meta_box']
+			// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 		);
 	}
 
+	/**
+	 * Handler for the wp_insert_post hook.
+	 * Called upon creation of a new post.
+	 *
+	 * @param int      $post_ID Post ID.
+	 * @param \WP_Post $post    Post object.
+	 * @param boolean  $update  Whether this is an existing post being updated or not.
+	 */
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
 			return;
 		}
 
-		// workaround for https://github.com/woocommerce/woocommerce/issues/18007
+		// Workaround for https://github.com/woocommerce/woocommerce/issues/18007.
 		if ( $post && 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
@@ -331,7 +527,7 @@ class Posts extends Module {
 		 * @since 5.8.0
 		 *
 		 * @param int $post_ID the post ID
-		 * @param mixed $post WP_POST object
+		 * @param mixed $post \WP_Post object
 		 * @param bool  $update Whether this is an existing post being updated or not.
 		 * @param mixed $state state
 		 *
@@ -342,12 +538,18 @@ class Posts extends Module {
 		$this->send_published( $post_ID, $post );
 	}
 
+	/**
+	 * Send a published post for sync.
+	 *
+	 * @param int      $post_ID Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
 	public function send_published( $post_ID, $post ) {
 		if ( ! isset( $this->just_published[ $post_ID ] ) ) {
 			return;
 		}
 
-		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced.
 		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
 			return;
 		}
@@ -358,12 +560,14 @@ class Posts extends Module {
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
 		if ( $author_user_object ) {
+			$roles = new Roles();
+
 			$post_flags['author'] = array(
 				'id'              => $post->post_author,
 				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
 				'display_name'    => $author_user_object->display_name,
 				'email'           => $author_user_object->user_email,
-				'translated_role' => \Jetpack::translate_user_to_role( $author_user_object ),
+				'translated_role' => $roles->translate_user_to_role( $author_user_object ),
 			);
 		}
 
@@ -373,7 +577,7 @@ class Posts extends Module {
 		 * @since 4.4.0
 		 *
 		 * @param mixed array post flags that are added to the post
-		 * @param mixed $post WP_POST object
+		 * @param mixed $post \WP_Post object
 		 */
 		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
 
@@ -391,14 +595,14 @@ class Posts extends Module {
 		/**
 		 * Send additional sync action for Activity Log when post is a Customizer publish
 		 */
-		if ( 'customize_changeset' == $post->post_type ) {
+		if ( 'customize_changeset' === $post->post_type ) {
 			$post_content = json_decode( $post->post_content, true );
 			foreach ( $post_content as $key => $value ) {
-				// Skip if it isn't a widget
-				if ( 'widget_' != substr( $key, 0, strlen( 'widget_' ) ) ) {
+				// Skip if it isn't a widget.
+				if ( 'widget_' !== substr( $key, 0, strlen( 'widget_' ) ) ) {
 					continue;
 				}
-				// Change key from "widget_archives[2]" to "archives-2"
+				// Change key from "widget_archives[2]" to "archives-2".
 				$key = str_replace( 'widget_', '', $key );
 				$key = str_replace( '[', '-', $key );
 				$key = str_replace( ']', '', $key );
@@ -416,12 +620,20 @@ class Posts extends Module {
 		}
 	}
 
+	/**
+	 * Expand post IDs to post objects within a hook before they are serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array $args The expanded hook parameters.
+	 */
 	public function expand_post_ids( $args ) {
 		list( $post_ids, $previous_interval_end) = $args;
 
 		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
-		$posts = array_values( $posts ); // reindex in case posts were deleted
+		$posts = array_values( $posts ); // Reindex in case posts were deleted.
 
 		return array(
 			$posts,

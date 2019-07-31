@@ -1,11 +1,34 @@
 <?php
+/**
+ * Sync settings.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
+/**
+ * Class to manage the sync settings.
+ */
 class Settings {
+	/**
+	 * Prefix, used for the sync settings option names.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
-	static $valid_settings = array(
+	/**
+	 * A whitelist of valid settings.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var array
+	 */
+	public static $valid_settings = array(
 		'dequeue_max_bytes'        => true,
 		'upload_max_bytes'         => true,
 		'upload_max_rows'          => true,
@@ -16,6 +39,7 @@ class Settings {
 		'max_queue_lag'            => true,
 		'queue_max_writes_sec'     => true,
 		'post_types_blacklist'     => true,
+		'taxonomies_blacklist'     => true,
 		'disable'                  => true,
 		'network_disable'          => true,
 		'render_filtered_content'  => true,
@@ -28,14 +52,65 @@ class Settings {
 		'known_importers'          => true,
 	);
 
-	static $is_importing;
-	static $is_doing_cron;
-	static $is_syncing;
-	static $is_sending;
+	/**
+	 * Whether WordPress is currently running an import.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var null|boolean
+	 */
+	public static $is_importing;
 
-	static $settings_cache = array(); // some settings can be expensive to compute - let's cache them
+	/**
+	 * Whether WordPress is currently running a WP cron request.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var null|boolean
+	 */
+	public static $is_doing_cron;
 
-	static function get_settings() {
+	/**
+	 * Whether we're currently syncing.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var null|boolean
+	 */
+	public static $is_syncing;
+
+	/**
+	 * Whether we're currently sending sync items.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var null|boolean
+	 */
+	public static $is_sending;
+
+	/**
+	 * Some settings can be expensive to compute - let's cache them.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @var array
+	 */
+	public static $settings_cache = array();
+
+	/**
+	 * Retrieve all settings with their current values.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array All current settings.
+	 */
+	public static function get_settings() {
 		$settings = array();
 		foreach ( array_keys( self::$valid_settings ) as $setting ) {
 			$settings[ $setting ] = self::get_setting( $setting );
@@ -44,9 +119,17 @@ class Settings {
 		return $settings;
 	}
 
-	// Fetches the setting. It saves it if the setting doesn't exist, so that it gets
-	// autoloaded on page load rather than re-queried every time.
-	static function get_setting( $setting ) {
+	/**
+	 * Fetches the setting. It saves it if the setting doesn't exist, so that it gets
+	 * autoloaded on page load rather than re-queried every time.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $setting The setting name.
+	 * @return mixed The setting value.
+	 */
+	public static function get_setting( $setting ) {
 		if ( ! isset( self::$valid_settings[ $setting ] ) ) {
 			return false;
 		}
@@ -59,7 +142,7 @@ class Settings {
 			if ( is_multisite() ) {
 				$value = get_site_option( self::SETTINGS_OPTION_PREFIX . $setting );
 			} else {
-				// On single sites just return the default setting
+				// On single sites just return the default setting.
 				$value                            = Defaults::get_default_setting( $setting );
 				self::$settings_cache[ $setting ] = $value;
 				return $value;
@@ -68,12 +151,12 @@ class Settings {
 			$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
 		}
 
-		if ( false === $value ) { // no default value is set.
+		if ( false === $value ) { // No default value is set.
 			$value = Defaults::get_default_setting( $setting );
 			if ( self::is_network_setting( $setting ) ) {
 				update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 			} else {
-				// We set one so that it gets autoloaded
+				// We set one so that it gets autoloaded.
 				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
 		}
@@ -85,6 +168,9 @@ class Settings {
 		switch ( $setting ) {
 			case 'post_types_blacklist':
 				$default_array_value = Defaults::$blacklisted_post_types;
+				break;
+			case 'taxonomies_blacklist':
+				$default_array_value = Defaults::$blacklisted_taxonomies;
 				break;
 			case 'post_meta_whitelist':
 				$default_array_value = Defaults::get_post_meta_whitelist();
@@ -110,7 +196,15 @@ class Settings {
 		return $value;
 	}
 
-	static function update_settings( $new_settings ) {
+	/**
+	 * Change multiple settings in the same time.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $new_settings The new settings.
+	 */
+	public static function update_settings( $new_settings ) {
 		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
 		foreach ( $validated_settings as $setting => $value ) {
 
@@ -124,7 +218,7 @@ class Settings {
 
 			unset( self::$settings_cache[ $setting ] );
 
-			// if we set the disabled option to true, clear the queues
+			// If we set the disabled option to true, clear the queues.
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
@@ -133,28 +227,91 @@ class Settings {
 		}
 	}
 
-	static function is_network_setting( $setting ) {
+	/**
+	 * Whether the specified setting is a network setting.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $setting Setting name.
+	 * @return boolean Whether the setting is a network setting.
+	 */
+	public static function is_network_setting( $setting ) {
 		return strpos( $setting, 'network_' ) === 0;
 	}
 
-	// returns escapted SQL that can be injected into a WHERE clause
-	static function get_blacklisted_post_types_sql() {
+	/**
+	 * Returns escaped SQL for blacklisted post types.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_blacklisted_post_types_sql() {
 		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
-	static function get_whitelisted_post_meta_sql() {
+	/**
+	 * Returns escaped SQL for blacklisted taxonomies.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_blacklisted_taxonomies_sql() {
+		return 'taxonomy NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . '\')';
+	}
+
+	/**
+	 * Returns escaped SQL for blacklisted post meta.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_whitelisted_post_meta_sql() {
 		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
 	}
 
-	static function get_whitelisted_comment_meta_sql() {
+	/**
+	 * Returns escaped SQL for blacklisted comment meta.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_whitelisted_comment_meta_sql() {
 		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
 	}
 
-	static function get_comments_filter_sql() {
+	/**
+	 * Returns escaped SQL for comments, excluding any spam comments.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_comments_filter_sql() {
 		return "comment_approved <> 'spam'";
 	}
 
-	static function reset_data() {
+	/**
+	 * Delete any settings options and clean up the current settings state.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function reset_data() {
 		$valid_settings       = self::$valid_settings;
 		self::$settings_cache = array();
 		foreach ( $valid_settings as $option => $value ) {
@@ -166,12 +323,28 @@ class Settings {
 		self::set_is_sending( null );
 	}
 
-	static function set_importing( $is_importing ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behavior
+	/**
+	 * Set the importing state.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param boolean $is_importing Whether WordPress is currently importing.
+	 */
+	public static function set_importing( $is_importing ) {
+		// Set to NULL to revert to WP_IMPORTING, the standard behavior.
 		self::$is_importing = $is_importing;
 	}
 
-	static function is_importing() {
+	/**
+	 * Whether WordPress is currently importing.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether WordPress is currently importing.
+	 */
+	public static function is_importing() {
 		if ( ! is_null( self::$is_importing ) ) {
 			return self::$is_importing;
 		}
@@ -179,16 +352,40 @@ class Settings {
 		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
 	}
 
-	static function is_sync_enabled() {
+	/**
+	 * Whether sync is enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether sync is enabled.
+	 */
+	public static function is_sync_enabled() {
 		return ! ( self::get_setting( 'disable' ) || self::get_setting( 'network_disable' ) );
 	}
 
-	static function set_doing_cron( $is_doing_cron ) {
-		// set to NULL to revert to WP_IMPORTING, the standard behavior
+	/**
+	 * Set the WP cron state.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param boolean $is_doing_cron Whether WordPress is currently doing WP cron.
+	 */
+	public static function set_doing_cron( $is_doing_cron ) {
+		// Set to NULL to revert to WP_IMPORTING, the standard behavior.
 		self::$is_doing_cron = $is_doing_cron;
 	}
 
-	static function is_doing_cron() {
+	/**
+	 * Whether WordPress is currently doing WP cron.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether WordPress is currently doing WP cron.
+	 */
+	public static function is_doing_cron() {
 		if ( ! is_null( self::$is_doing_cron ) ) {
 			return self::$is_doing_cron;
 		}
@@ -196,19 +393,51 @@ class Settings {
 		return defined( 'DOING_CRON' ) && DOING_CRON;
 	}
 
-	static function is_syncing() {
+	/**
+	 * Whether we are currently syncing.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether we are currently syncing.
+	 */
+	public static function is_syncing() {
 		return (bool) self::$is_syncing || ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST );
 	}
 
-	static function set_is_syncing( $is_syncing ) {
+	/**
+	 * Set the syncing state.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param boolean $is_syncing Whether we are currently syncing.
+	 */
+	public static function set_is_syncing( $is_syncing ) {
 		self::$is_syncing = $is_syncing;
 	}
 
-	static function is_sending() {
+	/**
+	 * Whether we are currently sending sync items.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether we are currently sending sync items.
+	 */
+	public static function is_sending() {
 		return (bool) self::$is_sending;
 	}
 
-	static function set_is_sending( $is_sending ) {
+	/**
+	 * Set the sending state.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param boolean $is_sending Whether we are currently sending sync items.
+	 */
+	public static function set_is_sending( $is_sending ) {
 		self::$is_sending = $is_sending;
 	}
 }

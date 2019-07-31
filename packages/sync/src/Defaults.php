@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Sync;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -224,7 +225,7 @@ class Defaults {
 
 	static $default_callable_whitelist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
-		'is_main_network'                  => array( 'Jetpack', 'is_multi_network' ),
+		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
 		'main_network_site'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_url' ),
 		'site_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_url' ),
@@ -313,23 +314,185 @@ class Defaults {
 		'http',
 		'idx_page',
 		'jetpack_migration',
+		'jp_img_sitemap',
+		'jp_img_sitemap_index',
+		'jp_sitemap',
+		'jp_sitemap_index',
+		'jp_sitemap_master',
+		'jp_vid_sitemap',
+		'jp_vid_sitemap_index',
 		'postman_sent_mail',
 		'rssap-feed',
 		'rssmi_feed_item',
+		'scheduled-action', // Action Scheduler - Job Queue for WordPress https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler .
 		'secupress_log_action',
 		'sg_optimizer_jobs',
 		'snitch',
+		'vip-legacy-redirect',
+		'wp_automatic',
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
-		'wp_automatic',
-		'jp_sitemap_master',
-		'jp_sitemap',
-		'jp_sitemap_index',
-		'jp_img_sitemap',
-		'jp_img_sitemap_index',
-		'jp_vid_sitemap',
-		'jp_vid_sitemap_index',
-		'vip-legacy-redirect',
+	);
+
+	/**
+	 * Taxonomies that we're not syncing by default.
+	 *
+	 * The list is compiled by auditing the dynamic filters and actions that contain taxonomy slugs
+	 * and could conflict with other existing filters/actions in WP core, Jetpack and WooCommerce.
+	 *
+	 * @var array
+	 */
+	public static $blacklisted_taxonomies = array(
+		'ancestors',
+		'archives_link',
+		'attached_file',
+		'attached_media',
+		'attached_media_args',
+		'attachment',
+		'available_languages',
+		'avatar',
+		'avatar_comment_types',
+		'avatar_data',
+		'avatar_url',
+		'bloginfo_rss',
+		'blogs_of_user',
+		'bookmark_link',
+		'bookmarks',
+		'calendar',
+		'canonical_url',
+		'categories_per_page',
+		'categories_taxonomy',
+		'category_form',
+		'category_form_fields',
+		'category_form_pre',
+		'comment',
+		'comment_author',
+		'comment_author_email',
+		'comment_author_IP',
+		'comment_author_link',
+		'comment_author_url',
+		'comment_author_url_link',
+		'comment_date',
+		'comment_excerpt',
+		'comment_ID',
+		'comment_link',
+		'comment_misc_actions',
+		'comment_text',
+		'comment_time',
+		'comment_type',
+		'comments_link',
+		'comments_number',
+		'comments_pagenum_link',
+		'custom_logo',
+		'date_sql',
+		'default_comment_status',
+		'delete_post_link',
+		'edit_bookmark_link',
+		'edit_comment_link',
+		'edit_post_link',
+		'edit_tag_link',
+		'edit_term_link',
+		'edit_user_link',
+		'enclosed',
+		'feed_build_date',
+		'form_advanced',
+		'form_after_editor',
+		'form_after_title',
+		'form_before_permalink',
+		'form_top',
+		'handle_product_cat',
+		'header_image_tag',
+		'header_video_url',
+		'image_tag',
+		'image_tag_class',
+		'lastpostdate',
+		'lastpostmodified',
+		'link',
+		'link_category_form',
+		'link_category_form_fields',
+		'link_category_form_pre',
+		'main_network_id',
+		'media',
+		'media_item_args',
+		'ms_user',
+		'network',
+		'object_terms',
+		'option',
+		'page',
+		'page_form',
+		'page_of_comment',
+		'page_uri',
+		'pagenum_link',
+		'pages',
+		'plugin',
+		'post',
+		'post_galleries',
+		'post_gallery',
+		'post_link',
+		'post_modified_time',
+		'post_status',
+		'post_time',
+		'postmeta',
+		'posts_per_page',
+		'product_cat',
+		'product_search_form',
+		'profile_url',
+		'pung',
+		'role_list',
+		'sample_permalink',
+		'sample_permalink_html',
+		'schedule',
+		'search_form',
+		'search_query',
+		'shortlink',
+		'site',
+		'site_email_content',
+		'site_icon_url',
+		'site_option',
+		'space_allowed',
+		'tag',
+		'tag_form',
+		'tag_form_fields',
+		'tag_form_pre',
+		'tag_link',
+		'tags',
+		'tags_per_page',
+		'term',
+		'term_link',
+		'term_relationships',
+		'term_taxonomies',
+		'term_taxonomy',
+		'terms',
+		'terms_args',
+		'terms_defaults',
+		'terms_fields',
+		'terms_orderby',
+		'the_archive_description',
+		'the_archive_title',
+		'the_categories',
+		'the_date',
+		'the_excerpt',
+		'the_guid',
+		'the_modified_date',
+		'the_modified_time',
+		'the_post_type_description',
+		'the_tags',
+		'the_terms',
+		'the_time',
+		'theme_starter_content',
+		'to_ping',
+		'user',
+		'user_created_user',
+		'user_form',
+		'user_profile',
+		'user_profile_update',
+		'usermeta',
+		'usernumposts',
+		'users_drafts',
+		'webhook',
+		'widget',
+		'woocommerce_archive',
+		'wp_title_rss',
 	);
 
 	static $default_post_checksum_columns = array(
@@ -355,6 +518,26 @@ class Defaults {
 	static $default_option_checksum_columns = array(
 		'option_name',
 		'option_value',
+	);
+
+	static $default_term_checksum_columns = array(
+		'term_id',
+		'name',
+		'slug',
+	);
+
+	static $default_term_taxonomy_checksum_columns = array(
+		'term_taxonomy_id',
+		'term_id',
+		'taxonomy',
+		'parent',
+		'count',
+	);
+
+	static $default_term_relationships_checksum_columns = array(
+		'object_id',
+		'term_taxonomy_id',
+		'term_order',
 	);
 
 	static $default_multisite_callable_whitelist = array(
@@ -617,6 +800,21 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_known_importers', self::$default_known_importers );
 	}
 
+	/**
+	 * Whether this is a system with a multiple networks.
+	 * We currently need this static wrapper because we statically define our default list of callables.
+	 *
+	 * @since 7.6.0
+	 *
+	 * @uses Automattic\Jetpack\Status::is_multi_network
+	 *
+	 * @return boolean
+	 */
+	public static function is_multi_network() {
+		$status = new Status();
+		return $status->is_multi_network();
+	}
+
 	static $default_taxonomy_whitelist       = array();
 	static $default_dequeue_max_bytes        = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes         = 600000; // a little bigger than the upload limit to account for serialization
@@ -628,6 +826,7 @@ class Defaults {
 	static $default_max_queue_lag            = 900; // 15 minutes
 	static $default_queue_max_writes_sec     = 100; // 100 rows a second
 	static $default_post_types_blacklist     = array();
+	static $default_taxonomies_blacklist     = array();
 	static $default_post_meta_whitelist      = array();
 	static $default_comment_meta_whitelist   = array();
 	static $default_disable                  = 0; // completely disable sending data to wpcom

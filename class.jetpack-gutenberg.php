@@ -185,9 +185,13 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $slug Slug of the extension.
 	 * @param string $reason A string representation of why the extension is unavailable.
+	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
-	public static function set_extension_unavailable( $slug, $reason ) {
-		self::$availability[ self::remove_extension_prefix( $slug ) ] = $reason;
+	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
+		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
+			'reason'  => $reason,
+			'details' => $details,
+		);
 	}
 
 	/**
@@ -371,8 +375,10 @@ class Jetpack_Gutenberg {
 			);
 
 			if ( ! $is_available ) {
-				$reason = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ] : 'missing_module';
+				$reason  = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['reason'] : 'missing_module';
+				$details = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['details'] : array();
 				$available_extensions[ $extension ]['unavailable_reason'] = $reason;
+				$available_extensions[ $extension ]['details']            = $details;
 			}
 		}
 
@@ -549,6 +555,11 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
+		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		}
+
 		$rtl        = is_rtl() ? '.rtl' : '';
 		$beta       = Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
 		$blocks_dir = self::get_blocks_directory();
@@ -589,6 +600,18 @@ class Jetpack_Gutenberg {
 			plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE )
 		);
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$user      = wp_get_current_user();
+			$user_data = array(
+				'userid'   => $user->ID,
+				'username' => $user->user_login,
+			);
+			$blog_id   = get_current_blog_id();
+		} else {
+			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+			$blog_id   = Jetpack_Options::get_option( 'id', 0 );
+		}
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
@@ -596,6 +619,8 @@ class Jetpack_Gutenberg {
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
 				'siteFragment'     => $site_fragment,
+				'tracksUserData'   => $user_data,
+				'wpcomBlogId'      => $blog_id,
 			)
 		);
 

@@ -311,7 +311,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				<p class="jetpack-widget-social-icons-url">
 					<?php
 						printf(
-							'<input class="widefat id="%1$s" name="%2$s[]" type="text" placeholder="%3$s" value="%4$s"/>',
+							'<input class="widefat" id="%1$s" name="%2$s[]" type="text" placeholder="%3$s" value="%4$s"/>',
 							esc_attr( $args['url-icon-id'] ),
 							esc_attr( $args['url-icon-name'] ),
 							esc_attr__( 'Account URL', 'jetpack' ),

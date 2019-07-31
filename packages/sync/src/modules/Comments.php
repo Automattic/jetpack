@@ -1,24 +1,58 @@
 <?php
+/**
+ * Comments sync module.
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * Class to handle sync for comments.
+ */
 class Comments extends Module {
-
+	/**
+	 * Sync module name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
 	public function name() {
 		return 'comments';
 	}
 
+	/**
+	 * Retrieve a comment by its ID.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Type of the sync object.
+	 * @param int    $id          ID of the sync object.
+	 * @return \WP_Comment|bool Filtered \WP_Comment object, or false if the object is not a comment.
+	 */
 	public function get_object_by_id( $object_type, $id ) {
 		$comment_id = intval( $id );
-		if ( $object_type === 'comment' && $comment = get_comment( $comment_id ) ) {
-			return $this->filter_comment( $comment );
+		if ( 'comment' === $object_type ) {
+			$comment = get_comment( $comment_id );
+			if ( $comment ) {
+				return $this->filter_comment( $comment );
+			}
 		}
 
 		return false;
 	}
 
+	/**
+	 * Initialize comments action listeners.
+	 * Also responsible for initializing comment meta listeners.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_comment', $callable, 10, 2 );
 		add_action( 'deleted_comment', $callable );
@@ -33,31 +67,43 @@ class Comments extends Module {
 		add_action( 'unspammed_comment', $callable, 10, 2 );
 		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
-		// even though it's messy, we implement these hooks because
-		// the edit_comment hook doesn't include the data
-		// so this saves us a DB read for every comment event
-		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
+		/**
+		 * Even though it's messy, we implement these hooks because
+		 * the edit_comment hook doesn't include the data
+		 * so this saves us a DB read for every comment event.
+		 */
+		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
 			}
 		}
 
-		// listen for meta changes
+		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'comment', $callable );
 		$this->init_meta_whitelist_handler( 'comment', array( $this, 'filter_meta' ) );
 	}
 
+	/**
+	 * Handler for any comment content updates.
+	 *
+	 * @access public
+	 *
+	 * @param array $new_comment              The new, processed comment data.
+	 * @param array $old_comment              The old, unslashed comment data.
+	 * @param array $new_comment_with_slashes The new, raw comment data.
+	 * @return array The new, processed comment data.
+	 */
 	public function handle_comment_contents_modification( $new_comment, $old_comment, $new_comment_with_slashes ) {
+		$changes        = array();
 		$content_fields = array(
 			'comment_author',
 			'comment_author_email',
 			'comment_author_url',
 			'comment_content',
 		);
-		$changes        = array();
 		foreach ( $content_fields as $field ) {
-			if ( $new_comment_with_slashes[ $field ] != $old_comment[ $field ] ) {
+			if ( $new_comment_with_slashes[ $field ] !== $old_comment[ $field ] ) {
 				$changes[ $field ] = array( $new_comment[ $field ], $old_comment[ $field ] );
 			}
 		}
@@ -77,14 +123,47 @@ class Comments extends Module {
 		return $new_comment;
 	}
 
+	/**
+	 * Initialize comments action listeners for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
+	 */
 	public function init_full_sync_listeners( $callable ) {
-		add_action( 'jetpack_full_sync_comments', $callable ); // also send comments meta
+		add_action( 'jetpack_full_sync_comments', $callable ); // Also send comments meta.
 	}
 
+	/**
+	 * Gets a filtered list of comment types that sync can hook into.
+	 *
+	 * @access public
+	 *
+	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
+	 */
+	public function get_whitelisted_comment_types() {
+		/**
+		 * Comment types present in this list will sync their status changes to WordPress.com.
+		 *
+		 * @since 7.6.0
+		 *
+		 * @param array A list of comment types.
+		 */
+		return apply_filters(
+			'jetpack_sync_whitelisted_comment_types',
+			array( '', 'trackback', 'pingback' )
+		);
+	}
+
+	/**
+	 * Initialize the module in the sender.
+	 *
+	 * @access public
+	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
 
-		foreach ( array( '', 'trackback', 'pingback' ) as $comment_type ) {
+		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_filter(
@@ -97,29 +176,58 @@ class Comments extends Module {
 			}
 		}
 
-		// full sync
+		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
 	}
 
+	/**
+	 * Enqueue the comments actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
+	/**
+	 * Retrieve an estimated number of actions that will be enqueued.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return int Number of items yet to be enqueued.
+	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->comments";
 
-		if ( $where_sql = $this->get_where_sql( $config ) ) {
+		$where_sql = $this->get_where_sql( $config );
+		if ( $where_sql ) {
 			$query .= ' WHERE ' . $where_sql;
 		}
 
+		// TODO: Call $wpdb->prepare on the following query.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$count = $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
+	/**
+	 * Retrieve the WHERE SQL clause based on the module config.
+	 *
+	 * @access private
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 */
 	private function get_where_sql( $config ) {
 		if ( is_array( $config ) ) {
 			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
@@ -128,23 +236,63 @@ class Comments extends Module {
 		return null;
 	}
 
+	/**
+	 * Retrieve the actions that will be sent for this module during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return array Full sync actions of this module.
+	 */
 	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_comments' );
 	}
 
+	/**
+	 * Count all the actions that are going to be sent.
+	 *
+	 * @access public
+	 *
+	 * @param array $action_names Names of all the actions that will be sent.
+	 * @return int Number of actions.
+	 */
 	public function count_full_sync_actions( $action_names ) {
 		return $this->count_actions( $action_names, array( 'jetpack_full_sync_comments' ) );
 	}
 
-	function expand_wp_comment_status_change( $args ) {
+	/**
+	 * Expand the comment status change before the data is serialized and sent to the server.
+	 *
+	 * @access public
+	 * @todo This is not used currently - let's implement it.
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array The expanded hook parameters.
+	 */
+	public function expand_wp_comment_status_change( $args ) {
 		return array( $args[0], $this->filter_comment( $args[1] ) );
 	}
 
-	function expand_wp_insert_comment( $args ) {
+	/**
+	 * Expand the comment creation before the data is serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array The expanded hook parameters.
+	 */
+	public function expand_wp_insert_comment( $args ) {
 		return array( $args[0], $this->filter_comment( $args[1] ) );
 	}
 
-	function filter_comment( $comment ) {
+	/**
+	 * Filter a comment object to the fields we need.
+	 *
+	 * @access public
+	 *
+	 * @param \WP_Comment $comment The unfiltered comment object.
+	 * @return \WP_Comment Filtered comment object.
+	 */
+	public function filter_comment( $comment ) {
 		/**
 		 * Filters whether to prevent sending comment data to .com
 		 *
@@ -171,15 +319,38 @@ class Comments extends Module {
 		return $comment;
 	}
 
-	// Comment Meta
-	function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, Settings::get_setting( 'comment_meta_whitelist' ) );
+	/**
+	 * Whether a certain comment meta key is whitelisted for sync.
+	 *
+	 * @access public
+	 *
+	 * @param string $meta_key Comment meta key.
+	 * @return boolean Whether the meta key is whitelisted.
+	 */
+	public function is_whitelisted_comment_meta( $meta_key ) {
+		return in_array( $meta_key, Settings::get_setting( 'comment_meta_whitelist' ), true );
 	}
 
-	function filter_meta( $args ) {
+	/**
+	 * Handler for filtering out non-whitelisted comment meta.
+	 *
+	 * @access public
+	 *
+	 * @param array $args Hook args.
+	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
+	 */
+	public function filter_meta( $args ) {
 		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
 	}
 
+	/**
+	 * Expand the comment IDs to comment objects and meta before being serialized and sent to the server.
+	 *
+	 * @access public
+	 *
+	 * @param array $args The hook parameters.
+	 * @return array The expanded hook parameters.
+	 */
 	public function expand_comment_ids( $args ) {
 		list( $comment_ids, $previous_interval_end ) = $args;
 		$comments                                    = get_comments(

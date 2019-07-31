@@ -1,4 +1,3 @@
-/* jshint onevar: false, devel: true, smarttabs: true */
 /* global GrunionFB_i18n: true, FB, ajax_nonce_shortcode, ajax_nonce_json, ajaxurl, postId */
 
 if ( ! window.FB ) {

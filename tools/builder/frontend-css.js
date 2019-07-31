@@ -2,15 +2,15 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
-import banner from 'gulp-banner';
 import cleanCSS from 'gulp-clean-css';
 import concat from 'gulp-concat';
 import gulp from 'gulp';
-import modify from 'gulp-modify';
+import modifyCssUrls from 'gulp-modify-css-urls';
 import path from 'path';
+import prepend from 'gulp-append-prepend';
 import rename from 'gulp-rename';
 import rtlcss from 'gulp-rtlcss';
-import util from 'gulp-util';
+import log from 'fancy-log';
 
 /**
  * Internal dependencies
@@ -66,24 +66,23 @@ const separate_list = [
 	'modules/theme-tools/compat/twentynineteen.css',
 ];
 
-const pathModifier = function( file, contents ) {
-	const regex = /url\((.*)\)/g,
-		f = file.path.replace( file.cwd + '/', '' );
-	return contents.replace( regex, function( match, group ) {
-		return "url('" + transformRelativePath( group, f ) + "')";
-	} );
+const cwd = process.cwd() + '/';
+
+const pathModifier = function( url, filePath ) {
+	const f = filePath.replace( cwd, '' );
+	return transformRelativePath( url, f );
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
 gulp.task( 'frontendcss', function() {
 	return gulp
 		.src( concat_list )
-		.pipe( modify( { fileModifier: pathModifier } ) )
+		.pipe( modifyCssUrls( { modify: pathModifier } ) )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( concat( 'jetpack.css' ) )
 		.pipe(
-			banner(
+			prepend.prependText(
 				'/*!\n' +
 					'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
 					'*/\n'
@@ -94,14 +93,14 @@ gulp.task( 'frontendcss', function() {
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css/' ) )
 		.on( 'end', function() {
-			util.log( 'Front end modules CSS finished.' );
+			log( 'Front end modules CSS finished.' );
 		} );
 } );
 
 gulp.task( 'frontendcss:separate', function() {
 	return gulp
 		.src( separate_list )
-		.pipe( modify( { fileModifier: pathModifier } ) )
+		.pipe( modifyCssUrls( { modify: pathModifier } ) )
 		.pipe( autoprefixer() )
 		.pipe( cleanCSS() )
 		.pipe( rtlcss() )

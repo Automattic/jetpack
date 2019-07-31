@@ -23,9 +23,10 @@ export default function getJetpackExtensionAvailability( name ) {
 		[ 'available_blocks', name, 'unavailable_reason' ],
 		'unknown'
 	);
+	const details = get( data, [ 'available_blocks', name, 'details' ], [] );
 
 	return {
 		available,
-		...( ! available && { unavailableReason } ),
+		...( ! available && { details, unavailableReason } ),
 	};
 }

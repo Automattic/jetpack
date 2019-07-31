@@ -1,4 +1,3 @@
-// jshint ignore: start
 /*
  * printThis v1.9.0
  * @desc Printing plug-in for jQuery
@@ -36,7 +35,6 @@
  * Notes:
  *  - the loadCSS will load additional css (with or without @media print) into the iframe, adjusting layout
  *
- * jshint onevar: false, smarttabs: true, devel: true
  */
 ( function( $ ) {
 	var opt;

@@ -2,8 +2,6 @@
 
 /*
  * Tests all known implementations of the codec
- *
- * @requires PHP 5.3
  */
 
 class WP_Test_Jetpack_Sync_Codec_Interface extends PHPUnit_Framework_TestCase {
@@ -12,7 +10,6 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider codec_provider
-	 * @requires PHP 5.3
 	 */
 	public function test_sync_codec_encodes_objects( $codec ) {
 		$object = (object) array(
@@ -27,7 +24,6 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider codec_provider
-	 * @requires PHP 5.3
 	 */
 	public function test_sync_codec_does_not_explode_on_circular_reference( $codec ) {
 		$object_a = new stdClass();
@@ -42,7 +38,6 @@ class WP_Test_Jetpack_Sync_Codec_Interface extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @dataProvider codec_provider
-	 * @requires PHP 5.3
 	 */
 	public function test_codec_does_not_modify_original_object( $codec ) {
 

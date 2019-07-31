@@ -33,6 +33,13 @@ export async function connectThroughWPAdminIfNeeded( {
 	plan = 'pro',
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
+
+	// Logs in to WPCOM
+	const login = await LoginPage.visit( page );
+	if ( ! ( await login.isLoggedIn() ) ) {
+		await login.login( wpcomUser );
+	}
+
 	await ( await WPLoginPage.visit( page ) ).login();
 	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 	await ( await Sidebar.init( page ) ).selectJetpack();
@@ -48,9 +55,6 @@ export async function connectThroughWPAdminIfNeeded( {
 	}
 
 	await jetpackPage.connect();
-
-	// Logs in to WPCOM
-	await ( await LoginPage.init( page ) ).login( wpcomUser );
 
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();

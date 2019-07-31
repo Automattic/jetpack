@@ -7,12 +7,14 @@ import {
 	getAccountCredentials,
 	waitAndClick,
 	waitAndType,
+	isEventuallyVisible,
 } from '../../page-helper';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
-		super( page, { expectedSelector } );
+		const url = 'https://wordpress.com/log-in';
+		super( page, { expectedSelector, url } );
 		this.explicitWaitMS = 45000;
 	}
 
@@ -27,10 +29,19 @@ export default class LoginPage extends Page {
 		await waitAndType( this.page, usernameSelector, username );
 		await waitAndClick( this.page, continueButtonSelector );
 
+		// sometimes it failing to type the whole password correctly. Trying to wait for the transition to happen
+		this.page.waitFor( 1000 );
+		await waitAndType( this.page, passwordSelector, password );
+
 		await waitAndType( this.page, passwordSelector, password );
 		await waitAndClick( this.page, submitButtonSelector );
 
 		await waitForSelector( this.page, passwordSelector, { hidden: true, timeout: 60000 } );
 		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
+	}
+
+	async isLoggedIn() {
+		const publishSelector = '#header .masterbar__publish';
+		return isEventuallyVisible( this.page, publishSelector, 4000 );
 	}
 }

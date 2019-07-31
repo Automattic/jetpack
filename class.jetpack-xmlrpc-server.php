@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
-
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -334,7 +334,8 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		// Generate secrets.
-		$role    = Jetpack::translate_user_to_role( $user );
+		$roles   = new Roles();
+		$role    = $roles->translate_user_to_role( $user );
 		$secrets = Jetpack::init()->generate_secrets( 'authorize', $user->ID );
 
 		$response = array(

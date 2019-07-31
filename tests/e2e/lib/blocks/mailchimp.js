@@ -33,6 +33,7 @@ export default class MailchimpBlock {
 			setupFormSelector
 		) ).getProperty( 'href' ) ).jsonValue();
 		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
+		global.page = loginTab;
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
@@ -50,8 +51,11 @@ export default class MailchimpBlock {
 				await ConnectionsPage.init( loginTab );
 				loaded = true;
 			} catch ( e ) {
-				console.log( 'ConnectionsPage is not available yet. Attempt: ' + count );
-				await loginTab.goto( connectionsUrl, { waitUntil: 'networkidle2' } );
+				console.log(
+					'ConnectionsPage is not available yet. Attempt: ' + count,
+					' URL: ' + connectionsUrl
+				);
+				await loginTab.goto( connectionsUrl, { timeout: 120000 } );
 				if ( count > 9 ) {
 					throw new Error( 'ConnectionsPage is not available is not available after 10th attempt' );
 				}
@@ -60,6 +64,7 @@ export default class MailchimpBlock {
 
 		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 
+		global.page = this.page;
 		const reCheckSelector = this.getSelector( 'button.is-link' );
 		await waitAndClick( this.page, reCheckSelector );
 	}

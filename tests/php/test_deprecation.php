@@ -70,6 +70,7 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 			array( 'Jetpack_Options', 'update_option' ),
 			array( 'Jetpack_Sync_Actions', 'initialize_listener' ),
 			array( 'Jetpack_Sync_Actions', 'initialize_sender' ),
+			array( 'Jetpack_Sync_Actions', 'sync_via_cron_allowed' ),
 			array( 'Jetpack_Sync_Modules', 'get_module' ),
 			array( 'Jetpack_Sync_Settings', 'is_syncing' ),
 			array( 'Jetpack_Sync_Settings', 'reset_data' ),
@@ -84,6 +85,39 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	 */
 	function test_deprecated_defined_functions( $function ) {
 		$this->assertTrue( function_exists( $function ) );
+	}
+
+	/**
+	 * @dataProvider provider_deprecated_method_stubs
+	 */
+	function test_deprecated_method_smoke_test( $class, $method ) {
+		$class = new ReflectionClass( $class );
+		$method = $class->getMethod( $method );
+		$parameters = $method->getParameters();
+
+		$arguments = array();
+
+		// Generating enough parameters for the method call to successfully complete.
+		foreach ( $parameters as $parameter ) {
+			if( $parameter->isDefaultValueAvailable() ) {
+
+				// No more parameters needed to successfully call the method.
+				break;
+			}
+
+			$arguments[] = 'Bogus argument';
+		}
+
+		try {
+			$method->invokeArgs( null, $arguments );
+		} catch ( Error $e ) {
+			$this->fail( $class->getName() . '::' . $method->getName() . ' is throwing fatal errors.' );
+			return;
+		}
+
+		// Marking as skipped instead of artificially passing to account for any warnings or notices
+		// the methods might throw when called with bogus arguments.
+		$this->markTestSkipped();
 	}
 
 	function provider_deprecated_defined_functions() {
