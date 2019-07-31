@@ -427,6 +427,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					$value = get_option( 'WPLANG' );
+					if ( empty( $value ) && defined( 'WPLANG' ) ) {
+						$value = WPLANG;
+					}
 					$response[ $setting ] = empty( $value ) ? 'en_US' : $value;
 					break;
 
