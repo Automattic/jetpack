@@ -50,7 +50,7 @@ class Terms extends Module {
 	 *
 	 * @access public
 	 *
-	 * @return string|bool
+	 * @return string
 	 */
 	public function table_name() {
 		return 'terms';

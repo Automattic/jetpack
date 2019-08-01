@@ -42,7 +42,7 @@ class Term_Relationships extends Module {
 	 *
 	 * @access public
 	 *
-	 * @return string|bool
+	 * @return string
 	 */
 	public function table_name() {
 		return 'term_relationships';

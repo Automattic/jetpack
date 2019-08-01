@@ -439,6 +439,8 @@ abstract class Module {
 				$batch_size
 			);
 			if ( empty( $result->min ) && empty( $result->max ) ) {
+				// Our query produced no min and max. We can assume the min from the previous query,
+				// and the total max we found in the initial query.
 				$current_max = (int) $total->max;
 				$result      = (object) array(
 					'min' => $current_min,
