@@ -81,13 +81,17 @@ export default compose( [
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
+		// Post-checkout: redirect back here
+		const redirect_to =
+			'/' +
+			compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' );
+
 		const upgradeUrl =
 			planPathSlug &&
 			addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
-				redirect_to:
-					'/' +
-					compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' ),
+				redirect_to,
 			} );
+
 		return {
 			planName: get( plan, [ 'product_name' ] ),
 			upgradeUrl,
