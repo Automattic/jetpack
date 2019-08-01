@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Private Site
+ * Functionality to make sites private and only accessible to members with appropriate capabilities
+ */
+
 namespace Private_Site;
 
 function init() {
