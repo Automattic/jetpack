@@ -81,7 +81,7 @@ export default compose( [
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-		const isWpcom = true; // TODO
+		const isWpcom = get( window, [ '_currentSiteType' ] ) === 'simple';
 
 		// Post-checkout: redirect back here
 		const redirect_to = isWpcom
