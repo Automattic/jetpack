@@ -44,7 +44,7 @@ class SearchWidget extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( query )
+			search( this.props.siteId, query )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {

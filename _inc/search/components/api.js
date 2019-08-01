@@ -3,8 +3,6 @@
  */
 import fetch from 'unfetch';
 
-// TODO: Get actual site ID for the site
-const SITE_ID = 20115252;
 const FIELDS = [ 'title.html', 'author', 'permalink.url.raw' ];
 
 function stringifyArray( fieldName, array ) {
@@ -19,6 +17,6 @@ function getAPIUrl( siteId, query ) {
 	] ) }`;
 }
 
-export function search( query ) {
-	return fetch( getAPIUrl( SITE_ID, query ) );
+export function search( siteId, query ) {
+	return fetch( getAPIUrl( siteId, query ) );
 }
