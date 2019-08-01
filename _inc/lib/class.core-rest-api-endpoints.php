@@ -21,6 +21,11 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
+add_action( 'rest_pre_serve_request', array( 'Jetpack_Core_Json_Api_Endpoints', 'pre_serve_request' ), 99, 4 );
+// XXX HACK FOR BASIC AUTH FOR TESTING
+add_filter( 'determine_current_user', array( 'Jetpack_Core_Json_Api_Endpoints', 'basic_auth_handler' ), 20 );
+add_filter( 'rest_authentication_errors', array( 'Jetpack_Core_Json_Api_Endpoints', 'basic_auth_error' ) );
 // Load API endpoints that are synced with WP.com
 // Each of these is a class that will register its own routes on 'rest_api_init'.
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
@@ -41,6 +46,79 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @var array Roles that can access Stats once they're granted access.
 	 */
 	public static $stats_roles;
+
+	// we cannot invoke APIs from a blob execution context in a remote webworker unless
+	// access-control-allow-origin is set to * (or maybe some other custom origin?)
+	public static function set_allowed_origins() {
+		remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
+		add_filter( 'rest_pre_serve_request', function( $value ) {
+
+			$origin = get_http_origin();
+			if ( $origin && in_array( $origin, array(
+					'http://192.168.86.21:8080'
+				) ) ) {
+				header( 'Access-Control-Allow-Origin: *' ); // . esc_url_raw( $origin )
+				header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
+				header( 'Access-Control-Allow-Credentials: true' );
+				header( 'Access-Control-Allow-Headers: Authorization, Content-Type, Accept' );
+				header( 'Access-Control-Expose-Headers: X-WP-Total, X-WP-TotalPages' );
+				header( 'X-Content-Type-Options: sniff' );
+				header( 'Content-Type: text/plain' );
+				// etc
+			}
+
+			return $value;
+
+		});
+	}
+
+	// inspired by https://github.com/WP-API/Basic-Auth/blob/master/basic-auth.php :)
+	public static function basic_auth_handler( $user ) {
+		global $wp_json_basic_auth_error;
+		$wp_json_basic_auth_error = null;
+		// Don't authenticate twice
+		if ( ! empty( $user ) ) {
+			return $user;
+		}
+		// Check that we're trying to authenticate
+		if ( !isset( $_SERVER['PHP_AUTH_USER'] ) ) {
+			return $user;
+		}
+		$username = $_SERVER['PHP_AUTH_USER'];
+		$password = $_SERVER['PHP_AUTH_PW'];
+		/**
+		 * In multi-site, wp_authenticate_spam_check filter is run on authentication. This filter calls
+		 * get_currentuserinfo which in turn calls the determine_current_user filter. This leads to infinite
+		 * recursion and a stack overflow unless the current function is removed from the determine_current_user
+		 * filter during authentication.
+		 */
+		remove_filter( 'determine_current_user', 'json_basic_auth_handler', 20 );
+		$user = wp_authenticate( $username, $password );
+		add_filter( 'determine_current_user', 'json_basic_auth_handler', 20 );
+		if ( is_wp_error( $user ) ) {
+			$wp_json_basic_auth_error = $user;
+			return null;
+		}
+		$wp_json_basic_auth_error = true;
+		return $user->ID;
+	}
+
+	public static function basic_auth_error( $error ) {
+		// Passthrough other errors
+		if ( ! empty( $error ) ) {
+			return $error;
+		}
+		global $wp_json_basic_auth_error;
+		return $wp_json_basic_auth_error;
+	}
+
+	public static function pre_serve_request( $served, $result, $request, $server ) {
+		if ( ! $served && preg_match( '|/jetpack/v4/universal-clients/.*|', $request->get_route() ) ) {
+			echo $result->get_data()."\n";
+			return true;
+		}
+		return $served;
+	}
 
 	/**
 	 * Declare the Jetpack REST API endpoints.
@@ -452,12 +530,42 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_universal_clients'
 		) );
+
+		register_rest_route( 'jetpack/v4', '/universal-clients/(?P<client_slug>[a-z\-_.]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_universal_client'
+		) );
 	}
 
 	public static function get_universal_clients( $request ) {
 		// get plugins path for all our clients
+		if ( ! headers_sent() ) {
+			header('Access-Control-Allow-Origin: *'); // TODO: limit this somehow?
+		}
 		return array(
-			'photon' => plugins_url( '_inc/build/client/universal/photon.js', JETPACK__PLUGIN_FILE )
+			// 'photon' => plugins_url( '_inc/build/client/universal/photon.js', JETPACK__PLUGIN_FILE )
+			'performance' => get_rest_url( get_current_blog_id(), '/universal-clients/performance', 'jetpack/v4' )
+		);
+	}
+
+	public static function get_universal_client( $request ) {
+		// returns JS code for a particular client - allows foo or foo.js
+		$client_slug = $request['client_slug'];
+		$client_slug = preg_replace( '/.js$/', '', $client_slug );
+
+		// header( 'Access-Control-Allow-Origin: *' );
+		// header( 'Content-Type: application/javascript' );
+
+		// echo file_get_contents( plugin_dir_path( JETPACK__PLUGIN_FILE ) . '_inc/build/universal/' . $client_slug . '.js' );
+		// return;
+
+		return new WP_REST_Response(
+			file_get_contents( plugin_dir_path( JETPACK__PLUGIN_FILE ) . '_inc/build/universal/' . $client_slug . '.js' ),
+			200,
+			array(
+				'Access-Control-Allow-Origin' => '*',
+				'Content-Type' => 'application/javascript'
+			)
 		);
 	}
 
