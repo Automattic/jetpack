@@ -405,7 +405,7 @@ abstract class Module {
 	 * @param int         $batch_size The batch size for objects.
 	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
 	 *
-	 * @return array|bool An array of min and max ids for each batch.
+	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
 		global $wpdb;
