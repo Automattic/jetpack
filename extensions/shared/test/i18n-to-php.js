@@ -12,10 +12,10 @@ describe( 'i18n-to-php', () => {
 	test( 'renders __() to its PHP counterpart as expected', () => {
 		expect(
 			renderToStaticMarkup(
-				__( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
+				__( 'Upgrade to a paid plan to use this block on your site.', 'text-domain' )
 			)
 		).toBe(
-			"<span><?php esc_html_e( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' ) ?></span>"
+			"<span><?php esc_html_e( 'Upgrade to a paid plan to use this block on your site.', 'text-domain' ) ?></span>"
 		);
 	} );
 } );
