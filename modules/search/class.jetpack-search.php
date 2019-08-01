@@ -199,7 +199,7 @@ class Jetpack_Search {
 	 */
 	public function load_assets() {
 		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
-			$script_relative_path = '_inc/search/dist/jp-search.bundle.js';
+			$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );

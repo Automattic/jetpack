@@ -79,7 +79,7 @@ module.exports = [
 		entry: { search: path.join( __dirname, './_inc/search/src/index.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,
-			path: path.resolve( __dirname, '_inc/search/dist' ),
+			path: path.join( __dirname, '_inc/build/instant-search' ),
 			filename: 'jp-search.bundle.js',
 		},
 		performance: isDevelopment
