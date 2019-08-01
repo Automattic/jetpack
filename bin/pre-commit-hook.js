@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
-
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
@@ -45,6 +44,29 @@ function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
+// Filter callback for ES5 files as defined in lint-es6 script: inc/*.js modules
+function filterES5jsFile( file ) {
+	const regEx = /^_inc\/([a-zA-Z-]+\.)/g; // _inc/*.js
+	return file.startsWith( 'modules' ) || file.match( regEx );
+}
+
+// Filter callback for ES6 files as defined in lint-es6 script: ./*.js, _inc/client, extensions
+function filterES6jsFile( file ) {
+	const regEx = /^([a-zA-Z-]+\.)/g; // *.js
+	return file.startsWith( '_inc/client' ) || file.startsWith( 'extensions' ) || file.match( regEx );
+}
+
+// Logging function that is used when check is failed
+function checkFailed() {
+	console.log(
+		chalk.red( 'COMMIT ABORTED:' ),
+		'The linter reported some problems. ' +
+			'If you are aware of them and it is OK, ' +
+			'repeat the commit command with --no-verify to avoid this check.'
+	);
+	exitCode = 1;
+}
+
 const gitFiles = parseGitDiffToPathArray(
 	'git diff --cached --name-only --diff-filter=ACM'
 ).filter( Boolean );
@@ -59,10 +81,11 @@ const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
  * @param {String} file File name to check against the dirty list.
+ * @param {Array} filesList Dirty files list.
  * @return {boolean}    If the file should be checked.
  */
-function checkFileAgainstDirtyList( file ) {
-	return -1 === dirtyFiles.indexOf( file );
+function checkFileAgainstDirtyList( file, filesList ) {
+	return -1 === filesList.indexOf( file );
 }
 
 /**
@@ -74,13 +97,39 @@ function capturePreCommitDate() {
 	}
 }
 
+/**
+ * Spawns a eslint process against list of files using ES6/ES5 config file
+ * @param {Array} toLintFiles List of files to lint
+ * @param {String} type linter type to use. could be es6 or es5
+ *
+ * @returns {Int} shell return code
+ */
+function runJSLinter( toLintFiles, type = 'es6' ) {
+	if ( ! toLintFiles.length ) {
+		return false;
+	}
+
+	const configOption = type === 'es6' ? '-c .eslintrc.js' : '-c modules/.eslintrc.js';
+
+	const lintResult = spawnSync(
+		'./node_modules/.bin/eslint',
+		[ '--quiet', configOption, ...toLintFiles ],
+		{
+			shell: true,
+			stdio: 'inherit',
+		}
+	);
+
+	return lintResult.status;
+}
+
 dirtyFiles.forEach( file =>
 	console.log(
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
 	)
 );
 
-const toPrettify = jsFiles.filter( checkFileAgainstDirtyList );
+const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
@@ -92,20 +141,16 @@ if ( toPrettify.length ) {
 
 // linting should happen after formatting
 const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
-if ( toLint.length ) {
-	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLint ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
-	if ( lintResult.status ) {
-		console.log(
-			chalk.red( 'COMMIT ABORTED:' ),
-			'The linter reported some problems. ' +
-				'If you are aware of them and it is OK, ' +
-				'repeat the commit command with --no-verify to avoid this check.'
-		);
-		exitCode = 1;
-	}
+// Lint ES6 files
+const toLintES6Files = toLint.filter( filterES6jsFile );
+const ES6LintResult = runJSLinter( toLintES6Files, 'es6' );
+
+// Lint ES5 files
+const toLintES5Files = toLint.filter( filterES5jsFile );
+const ES5LintResult = runJSLinter( toLintES5Files, 'es5' );
+
+if ( ES6LintResult || ES5LintResult ) {
+	checkFailed();
 }
 
 let phpLintResult;
@@ -117,17 +162,11 @@ if ( phpFiles.length > 0 ) {
 }
 
 if ( phpLintResult && phpLintResult.status ) {
-	console.log(
-		chalk.red( 'COMMIT ABORTED:' ),
-		'The linter reported some problems. ' +
-			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.'
-	);
-	exitCode = 1;
+	checkFailed();
 }
 
 let phpcbfResult, phpcsResult;
-const toPhpcbf = phpcsFiles.filter( checkFileAgainstDirtyList );
+const toPhpcbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 if ( phpcsFiles.length > 0 ) {
 	if ( toPhpcbf.length > 0 ) {
 		phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpcbf ], {
