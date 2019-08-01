@@ -203,8 +203,8 @@ class Jetpack_Search {
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_script( 'jetpack-search', $script_path, array(), $script_version, false );
-				wp_add_inline_script( 'jetpack-search', 'window.JetpackInstantSearchOptions = { siteId: ' . Jetpack::get_option( 'id' ) .'}' );
+				wp_enqueue_script( 'jetpack-search', $script_path, array(), $script_version, true );
+				wp_add_inline_script( 'jetpack-search', 'window.JetpackInstantSearchOptions = { siteId: ' . Jetpack::get_option( 'id' ) .'}', 'before' );
 			}
 		}
 	}
