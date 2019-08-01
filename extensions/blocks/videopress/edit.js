@@ -2,17 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import classnames from 'classnames';
-import { __, sprintf } from '@wordpress/i18n';
-import {
-	BlockControls,
-	InspectorControls,
-	MediaUpload,
-	MediaUploadCheck,
-	RichText,
-} from '@wordpress/editor';
-import { Component, createRef, Fragment } from '@wordpress/element';
-import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
+import { isBlobURL } from '@wordpress/blob';
 import {
 	BaseControl,
 	Button,
@@ -24,9 +14,19 @@ import {
 	ToggleControl,
 	Toolbar,
 } from '@wordpress/components';
-import { get } from 'lodash';
-import { isBlobURL } from '@wordpress/blob';
+import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
+import {
+	BlockControls,
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	RichText,
+} from '@wordpress/editor';
+import { Component, createRef, Fragment } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -190,9 +190,12 @@ const VideoPressEdit = CoreVideoEdit =>
 								value={ preload }
 								onChange={ value => setAttributes( { preload: value } ) }
 								options={ [
-									{ value: 'auto', label: __( 'Auto', 'jetpack' ) },
-									{ value: 'metadata', label: __( 'Metadata', 'jetpack' ) },
-									{ value: 'none', label: __( 'None', 'jetpack' ) },
+									{ value: 'auto', label: _x( 'Auto', 'VideoPress preload setting', 'jetpack' ) },
+									{
+										value: 'metadata',
+										label: _x( 'Metadata', 'VideoPress preload setting', 'jetpack' ),
+									},
+									{ value: 'none', label: _x( 'None', 'VideoPress preload setting', 'jetpack' ) },
 								] }
 							/>
 							<MediaUploadCheck>
