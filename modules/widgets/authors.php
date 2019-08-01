@@ -90,13 +90,26 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		 */
 		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', $default_excluded_authors );
 
-		$authors = get_users(
+		/**
+		 * Filter the parameters of `get_users` call in the Widget Authors widget.
+		 *
+		 * See the following for `get_users` default arguments:
+		 * https://codex.wordpress.org/Function_Reference/get_users
+		 *
+		 * @module widgets
+		 *
+		 * @since 7.6.0
+		 *
+		 * @param array Array of params used in `get_user`
+		 */
+		$get_author_params = apply_filters( 'jetpack_widget_authors_params',
 			array(
-				'fields'  => 'all',
 				'who'     => 'authors',
 				'exclude' => (array) $excluded_authors,
 			)
 		);
+
+		$authors = get_users( $get_author_params );
 
 		echo $args['before_widget'];
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
