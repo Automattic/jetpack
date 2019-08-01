@@ -24,4 +24,22 @@ describe( 'i18n-to-php', () => {
 			"<span><?php echo esc_html( _n( '%d person', '%d people', 3, 'text-domain' ) ) ?></span>"
 		);
 	} );
+
+	test( 'renders _x() to its PHP counterpart as expected', () => {
+		expect(
+			renderToStaticMarkup( _x( 'Read', 'past participle: books I have read', 'text-domain' ) )
+		).toBe(
+			"<span><?php echo esc_html( _x( 'Read', 'past participle: books I have read', 'text-domain' ) ) ?></span>"
+		);
+	} );
+
+	test( 'renders _nx() to its PHP counterpart as expected', () => {
+		expect(
+			renderToStaticMarkup(
+				_nx( '%d group', '%d groups', 2 + 3, 'group of people', 'text-domain' )
+			)
+		).toBe(
+			"<span><?php echo esc_html( _nx( '%d group', '%d groups', 5, 'group of people', 'text-domain' ) ) ?></span>"
+		);
+	} );
 } );
