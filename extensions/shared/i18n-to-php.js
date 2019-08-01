@@ -21,16 +21,41 @@ import React from 'react';
 // `dangerouslySetInnerHTML` to bypass the escaping. This also requires to be attached as a prop
 // to a DOM element. I've chosen `<span />` since this likely has the smallest footprint for
 // rendering strings (e.g. shouldn't normally get in the way of styling).
-const translate = ( ...args ) => (
+export const __ = ( text, domain ) => (
 	<span
 		// eslint-disable-next-line react/no-danger
 		dangerouslySetInnerHTML={ {
-			__html: `<?php esc_html_e( ${ args.map( arg => `'${ arg }'` ).join( ', ' ) } ) ?>`,
+			__html: `<?php esc_html_e( '${ text }', '${ domain }' ) ?>`,
 		} }
 	/>
 );
 
-export { translate as __, translate as _x, translate as _n, translate as _nx };
+export const _n = ( single, plural, number, domain ) => (
+	<span
+		// eslint-disable-next-line react/no-danger
+		dangerouslySetInnerHTML={ {
+			__html: `<?php echo esc_html( _n( '${ single }', '${ plural }', ${ number }, '${ domain }' ) ) ?>`,
+		} }
+	/>
+);
+
+export const _x = ( text, context, domain ) => (
+	<span
+		// eslint-disable-next-line react/no-danger
+		dangerouslySetInnerHTML={ {
+			__html: `<?php echo esc_html( _x( '${ text }', '${ context }', '${ domain }' ) ) ?>`,
+		} }
+	/>
+);
+
+export const _nx = ( single, plural, number, context, domain ) => (
+	<span
+		// eslint-disable-next-line react/no-danger
+		dangerouslySetInnerHTML={ {
+			__html: `<?php echo esc_html( _nx( '${ single }', '${ plural }', ${ number }, '${ context }', '${ domain }' ) ) ?>`,
+		} }
+	/>
+);
 
 // We have to stub `sprintf` with the identity function here, since the original
 // `sprintf from '@wordpress/i18n'` only accepts strings as its first argument -- but
