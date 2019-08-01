@@ -1207,7 +1207,7 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param int    $id_field     The id column in the table to query.
+	 * @param string $id_field     The id column in the table to query.
 	 * @param string $object_table The table to query.
 	 * @param string $where        A sql where clause without 'WHERE'.
 	 * @param int    $bucket_size  The maximum amount of objects to include in the query.
