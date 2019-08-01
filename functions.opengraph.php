@@ -108,9 +108,6 @@ function jetpack_og_tags() {
 				$tags['og:url']         = get_post_type_archive_link( $archive->name );
 				$tags['og:description'] = $archive->description;
 			}
-		} else { // for date archives and future-proofing
-			$tags['og:url']         = '';
-			$tags['og:description'] = get_bloginfo( 'description' );
 		}
 	} elseif ( is_singular() ) {
 		global $post;
