@@ -104,33 +104,33 @@ class DashAkismet extends Component {
 			);
 		}
 
-		if ( 'not_active' === akismetData ) {
-			return (
-				<DashItem
-					label={ labelName }
-					module="akismet"
-					support={ support }
-					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
-					className="jp-dash-item__is-inactive"
-					pro={ true }
-				>
-					<p className="jp-dash-item__description">
-						{ __( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
-							components: {
-								a: (
-									<a
-										href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
-										onClick={ this.trackActivateClick }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
-						} ) }
-					</p>
-				</DashItem>
-			);
-		}
+		// if ( 'not_active' === akismetData ) {
+		// 	return (
+		// 		<DashItem
+		// 			label={ labelName }
+		// 			module="akismet"
+		// 			support={ support }
+		// 			status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
+		// 			className="jp-dash-item__is-inactive"
+		// 			pro={ true }
+		// 		>
+		// 			<p className="jp-dash-item__description">
+		// 				{ __( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
+		// 					components: {
+		// 						a: (
+		// 							<a
+		// 								href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl }
+		// 								onClick={ this.trackActivateClick }
+		// 								target="_blank"
+		// 								rel="noopener noreferrer"
+		// 							/>
+		// 						),
+		// 					},
+		// 				} ) }
+		// 			</p>
+		// 		</DashItem>
+		// 	);
+		// }
 
 		if ( 'invalid_key' === akismetData ) {
 			return (
