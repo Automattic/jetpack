@@ -78,17 +78,18 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		// We need to query at least one post to determine whether an author has written any posts or not
 		$query_number = max( $instance['number'], 1 );
 
-		$default_excluded_authors = array();
 		/**
 		 * Filter authors from the Widget Authors widget.
 		 *
 		 * @module widgets
 		 *
+		 * @deprecated 7.7.0 Use jetpack_widget_authors_params instead.
+		 *
 		 * @since 4.5.0
 		 *
 		 * @param array $default_excluded_authors Array of user ID's that will be excluded
 		 */
-		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', $default_excluded_authors );
+		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', array() );
 
 		/**
 		 * Filter the parameters of `get_users` call in the Widget Authors widget.
@@ -98,11 +99,12 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 7.6.0
+		 * @since 7.7.0
 		 *
-		 * @param array Array of params used in `get_user`
+		 * @param array $get_author_params Array of params used in `get_user`
 		 */
-		$get_author_params = apply_filters( 'jetpack_widget_authors_params',
+		$get_author_params = apply_filters(
+			'jetpack_widget_authors_params',
 			array(
 				'who'     => 'authors',
 				'exclude' => (array) $excluded_authors,
