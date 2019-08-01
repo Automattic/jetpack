@@ -9,7 +9,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { __, _n, _x, _nx } from '../i18n-to-php';
 
 describe( 'i18n-to-php', () => {
-	test( 'renders __ as to its PHP counterpart as expected', () => {
+	test( 'renders __() to its PHP counterpart as expected', () => {
 		expect(
 			renderToStaticMarkup(
 				__( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
