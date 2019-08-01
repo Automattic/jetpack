@@ -25,7 +25,7 @@ const translate = ( ...args ) => (
 	<span
 		// eslint-disable-next-line react/no-danger
 		dangerouslySetInnerHTML={ {
-			__html: `<?php echo esc_html__( ${ args.map( arg => `'${ arg }'` ).join( ', ' ) } ) ?>`,
+			__html: `<?php esc_html_e( ${ args.map( arg => `'${ arg }'` ).join( ', ' ) } ) ?>`,
 		} }
 	/>
 );
