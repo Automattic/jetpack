@@ -2,7 +2,10 @@
 /**
  * Plans Library
  *
- * Fetch plans data from WordPress.com
+ * Fetch plans data from WordPress.com.
+ *
+ * Not to be confused with the `Jetpack_Plan` (singular)
+ * class, which stores and syncs data about the site's _current_ plan.
  *
  * @package Jetpack
  */
