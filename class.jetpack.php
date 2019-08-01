@@ -3285,7 +3285,7 @@ p {
 			$tracking->record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
-			$xml->query( 'jetpack.deregister' );
+			$xml->query( 'jetpack.deregister', get_current_user_id() );
 		}
 
 		Jetpack_Options::delete_option(
