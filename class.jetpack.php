@@ -702,6 +702,28 @@ class Jetpack {
 	}
 
 	/**
+	 * Sets up the XMLRPC request handlers.
+	 *
+	 * @param Array                 $request_params incoming request parameters.
+	 * @param Boolean               $is_active whether the connection is currently active.
+	 * @param Boolean               $is_signed whether the signature check has been successful.
+	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
+	 */
+	public function setup_xmlrpc_handlers(
+		$request_params,
+		$is_active,
+		$is_signed,
+		Jetpack_XMLRPC_Server $xmlrpc_server = null
+	) {
+		return $this->connection_manager->setup_xmlrpc_handlers(
+			$request_params,
+			$is_active,
+			$is_signed,
+			$xmlrpc_server
+		);
+	}
+
+	/**
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
 	 *
 	 * @param $domains

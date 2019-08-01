@@ -74,7 +74,7 @@ class Manager implements Manager_Interface {
 			$this->require_jetpack_authentication();
 			$this->add_remote_request_handlers();
 		} else {
-			if ( Jetpack::is_active() ) {
+			if ( $this->is_active() ) {
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 			} else {
@@ -86,16 +86,16 @@ class Manager implements Manager_Interface {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
-	 * @param Array                 $request_params incoming request parameters.
-	 * @param Boolean               $is_active whether the connection is currently active.
-	 * @param Boolean               $is_signed whether the signature check has been successful.
-	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
+	 * @param Array                  $request_params incoming request parameters.
+	 * @param Boolean                $is_active whether the connection is currently active.
+	 * @param Boolean                $is_signed whether the signature check has been successful.
+	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
 		$is_active,
 		$is_signed,
-		Jetpack_XMLRPC_Server $xmlrpc_server = null
+		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		if (
 			! isset( $request_params['for'] )
@@ -150,11 +150,11 @@ class Manager implements Manager_Interface {
 			// The bootstrap API methods.
 			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
 
-			new XMLRPC_Connector( $this->connection_manager );
-
 			if ( $is_signed ) {
 				// The jetpack Provision method is available for blog-token-signed requests.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
+			} else {
+				new XMLRPC_Connector( $this );
 			}
 		}
 
@@ -1528,6 +1528,9 @@ class Manager implements Manager_Interface {
 		return $methods;
 	}
 
+	/**
+	 * Resets the raw post data parameter for testing purposes.
+	 */
 	public function reset_raw_post_data() {
 		$this->raw_post_data = null;
 	}
