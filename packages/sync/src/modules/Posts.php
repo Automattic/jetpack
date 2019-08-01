@@ -661,11 +661,10 @@ class Posts extends Module {
 	 *
 	 * @param int         $batch_size The batch size for objects.
 	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
-	 * @param bool        $distinct   True if we should only look at distinct object ids.
 	 *
 	 * @return array|bool An array of min and max ids for each batch.
 	 */
-	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false, $distinct = false ) {
+	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
 		return parent::get_min_max_object_ids_for_batches( $batch_size, $this->get_where_sql( false ) );
 	}
 }

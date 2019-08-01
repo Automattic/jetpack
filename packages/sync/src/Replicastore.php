@@ -1208,17 +1208,20 @@ class Replicastore implements Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param int    $id_field     The id column in the table to query.
-	 * @param bool   $distinct     If true, will query for a distinct object id.
 	 * @param string $object_table The table to query.
 	 * @param string $where        A sql where clause without 'WHERE'.
 	 * @param int    $bucket_size  The maximum amount of objects to include in the query.
+	 *                             For `term_relationships` table, the bucket size will refer to the amount
+	 *                             of distinct object ids. This will likely include more database rows than
+	 *                             the bucket size implies.
 	 *
 	 * @return object An object with min_id and max_id properties.
 	 */
-	public function get_min_max_object_id( $id_field, $distinct, $object_table, $where, $bucket_size ) {
+	public function get_min_max_object_id( $id_field, $object_table, $where, $bucket_size ) {
 		global $wpdb;
 
-		$distinct_sql = $distinct ? 'DISTINCT' : '';
+		// The term relationship table's unique key is a combination of 2 columns. `DISTINCT` helps us get a more acurate query.
+		$distinct_sql = ( $wpdb->term_relationships === $object_table ) ? 'DISTINCT' : '';
 		$where_sql    = $where ? "WHERE $where" : '';
 
 		// Since MIN() and MAX() do not work with LIMIT, we'll need to adjust the dataset we query if a limit is present.
@@ -1321,15 +1324,9 @@ class Replicastore implements Replicastore_Interface {
 			$where .= " AND $id_field <= " . intval( $end_id );
 		}
 
-		$distinct = false;
-		if ( 'term_relationships' === $object_type ) {
-			$distinct = true;
-		}
-
 		do {
 			$result = $this->get_min_max_object_id(
 				$id_field,
-				$distinct,
 				$object_table,
 				$where . " AND $id_field > $previous_max_id",
 				$bucket_size

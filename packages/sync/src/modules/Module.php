@@ -404,11 +404,10 @@ abstract class Module {
 	 *
 	 * @param int         $batch_size The batch size for objects.
 	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
-	 * @param bool        $distinct   True if we should only look at distinct object ids.
 	 *
 	 * @return array|bool An array of min and max ids for each batch.
 	 */
-	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false, $distinct = false ) {
+	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
 		global $wpdb;
 
 		if ( ! $this->table_name() ) {
@@ -424,7 +423,6 @@ abstract class Module {
 
 		$total = $replicastore->get_min_max_object_id(
 			$id_field,
-			false,
 			$table,
 			$where_sql,
 			false
@@ -436,7 +434,6 @@ abstract class Module {
 				"$id_field > $current_max";
 			$result = $replicastore->get_min_max_object_id(
 				$id_field,
-				$distinct,
 				$table,
 				$where,
 				$batch_size

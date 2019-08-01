@@ -168,19 +168,4 @@ class Term_Relationships extends Module {
 			'previous_end'       => $previous_end,
 		);
 	}
-
-	/**
-	 * Gets a list of minimum and maximum object ids for each batch based on the given batch size.
-	 *
-	 * @access public
-	 *
-	 * @param int         $batch_size The batch size for objects.
-	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
-	 * @param bool        $distinct   True if we should only look at distinct object ids.
-	 *
-	 * @return array|bool An array of min and max ids for each batch.
-	 */
-	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false, $distinct = false ) {
-		return parent::get_min_max_object_ids_for_batches( $batch_size, false, true );
-	}
 }
