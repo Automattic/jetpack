@@ -213,7 +213,7 @@ function disable_rest_api() {
 	}
 
 	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-		return new WP_Error( 'private_site', __( 'This site is private.' ), array( 'status' => 403 ) );
+		return new \WP_Error( 'private_site', __( 'This site is private.' ), array( 'status' => 403 ) );
 	}
 }
 
