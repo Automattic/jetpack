@@ -7,6 +7,10 @@
 
 namespace Private_Site;
 
+const JETPACK_AJAX_ACTIONS = [
+	'jetpack_upload_file',
+];
+
 function init() {
 	add_action( 'parse_request', '\Private_Site\privatize_blog', 100 );
 	add_action( 'login_init', '\Private_Site\privatize_blog_maybe_mask_blog_name' );
@@ -14,8 +18,8 @@ function init() {
 	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
 	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
-	add_action( 'admin_init', '\Private_Site\private_blog_prevent_requests', 9 );
-	add_action( 'check_ajax_referer', '\Private_Site\private_blog_ajax_nonce_check', 9, 2 );
+	add_action( 'admin_init', '\Private_Site\prevent_ajax_and_admin_auth_requests', 9 );
+	add_action( 'check_ajax_referer', '\Private_Site\ajax_nonce_check', 9, 2 );
 	add_action( 'rest_pre_dispatch', '\Private_Site\disable_rest_api' );
 	add_action( 'opml_head', '\Private_Site\hide_opml' );
 
@@ -51,7 +55,7 @@ function privatize_blog( $wp ) {
 		return;
 	}
 
-	if ( is_user_logged_in() && is_private_blog_user( get_current_blog_id() ) ) {
+	if ( is_user_logged_in() && is_private_blog_user() ) {
 		return;
 	}
 
@@ -64,25 +68,18 @@ function privatize_blog( $wp ) {
  * Does not check whether the blog is private. Accepts blog and user in various types.
  * Returns true for super admins.
  *
- * @param int $blog Current WordPress blod id..
+ * @param int $blog_id 0 means "current"
+ * @param int $user_id 0 means "current"
+ *
+ * @return bool
  */
-function is_private_blog_user( $blog ) {
-	if ( is_numeric( $blog ) ) {
-		$blog_id = intval( $blog );
-	} elseif ( is_object( $blog ) ) {
-		$blog_id = $blog->blog_id;
-	} elseif ( is_string( $blog ) ) {
-		$fields  = array(
-			'domain' => $blog,
-			'path'   => '/',
-		);
-		$blog    = get_blog_details( $fields );
-		$blog_id = $blog->blog_id;
-	} else {
-		$blog_id = get_current_blog_id();
-	}
+function is_private_blog_user( int $blog_id = 0, int $user_id = 0 ) {
+	$user = $user_id ? \get_user_by( 'id', $user_id ) : \wp_get_current_user();
 
-	return current_user_can_for_blog( $blog_id, 'read' );
+	// check if the user has read permissions
+	$the_user = \wp_clone( $user );
+	$the_user->for_site( $blog_id );
+	return $the_user->has_cap( 'read'  );
 }
 
 /**
@@ -160,7 +157,7 @@ function private_no_pinning() {
 /**
  * Prevents ajax and post requests on private blogs for users who don't have permissions
  */
-function private_blog_prevent_requests() {
+function prevent_ajax_and_admin_auth_requests() {
 	global $pagenow;
 
 	$is_ajax_request       = defined( 'DOING_AJAX' ) && DOING_AJAX;
@@ -171,7 +168,14 @@ function private_blog_prevent_requests() {
 		return;
 	}
 
-	if ( ! is_private_blog_user( get_current_blog_id() ) ) {
+	$user = wp_get_current_user();
+
+	if ( ! $user->ID && class_exists( '\Jetpack' ) && in_array( $_POST['action'], JETPACK_AJAX_ACTIONS ) ) {
+		$jp = \Jetpack::init();
+		$user = $jp->authenticate_jetpack( null, null, null );
+	}
+
+	if ( ! is_private_blog_user( 0, (int) $user->ID ) ) {
 		wp_die( esc_html__( 'This site is private.' ), 403 );
 	}
 }
@@ -182,7 +186,7 @@ function private_blog_prevent_requests() {
  * @param string    $action The Ajax nonce action.
  * @param false|int $result The result of the nonce check.
  */
-function private_blog_ajax_nonce_check( $action, $result ) {
+function ajax_nonce_check( $action, $result ) {
 	if ( 1 !== $result && 2 !== $result ) {
 		return;
 	}
@@ -199,7 +203,7 @@ function private_blog_ajax_nonce_check( $action, $result ) {
 		return;
 	}
 
-	if ( ! is_private_blog_user( get_current_blog_id() ) ) {
+	if ( ! is_private_blog_user() ) {
 		wp_die( esc_html__( 'This site is private.' ), 403 );
 	}
 }
@@ -208,7 +212,7 @@ function private_blog_ajax_nonce_check( $action, $result ) {
  * Disables WordPress Rest API for external requests
  */
 function disable_rest_api() {
-	if ( is_user_logged_in() && is_private_blog_user( get_current_blog_id() ) ) {
+	if ( is_private_blog_user() ) {
 		return;
 	}
 
@@ -221,7 +225,7 @@ function disable_rest_api() {
  * Returns the private page template for OPML.
  */
 function hide_opml() {
-	if ( is_user_logged_in() && is_private_blog_user( get_current_blog_id() ) ) {
+	if ( is_user_logged_in() && is_private_blog_user() ) {
 		return;
 	}
 
