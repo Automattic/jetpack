@@ -81,10 +81,16 @@ export default compose( [
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
+		const isWpcom = true; // TODO
+
 		// Post-checkout: redirect back here
-		const redirect_to =
-			'/' +
-			compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' );
+		const redirect_to = isWpcom
+			? '/' +
+			  compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' )
+			: addQueryArgs( `//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`, {
+					action: 'edit',
+					post: postId,
+			  } );
 
 		const upgradeUrl =
 			planPathSlug &&
