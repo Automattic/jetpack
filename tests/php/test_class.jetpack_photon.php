@@ -325,6 +325,26 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * @author emilyatmobtown
+	 * @covers Jetpack_Photon::filter_image_downsize
+	 */
+	public function test_photon_return_medium_large_size_dimensions() {
+		global $content_width;
+		$content_width = 0;
+
+		$test_image = $this->_get_image();
+
+		// Using the default "Large" size with a soft crop.
+		$this->assertEquals(
+			'fit=768%2C576',
+			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'medium_large' ) )
+		);
+
+		wp_delete_attachment( $test_image );
+		$this->_remove_image_sizes();
+	}
+
+	/**
 	 * @author kraftbj
 	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
@@ -804,7 +824,6 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$this->assertArrayNotHasKey( 'width', $attributes );
 		$this->assertArrayNotHasKey( 'height', $attributes );
-		$this->assertContains( 'data-recalc-dims', $filtered_content );
 	}
 
 	/**
@@ -816,9 +835,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function test_photon_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
 		list( $sample_html ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
 
-		add_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
+		add_filter( 'jetpack_photon_post_image_args', array( $this, $filter_callback ) );
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
-		remove_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
+		remove_filter( 'jetpack_photon_post_image_args', array( $this, $filter_callback ) );
 
 		$first_line = strtok( $filtered_content, "\n" ); // Should contain an image tag on the first line
 		$attributes = wp_kses_hair( $first_line, wp_allowed_protocols() );
@@ -837,62 +856,27 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	public function photon_attributes_when_filtered_data_provider() {
-		$that = $this; // For sake of PHP 5.3.
-
-		$assert_details = function ( $details ) use ( $that ) {
-			$that->assertInternalType( 'array', $details );
-			$that->assertArrayHasKey( 'tag', $details );
-			$that->assertArrayHasKey( 'src', $details );
-			$that->assertArrayHasKey( 'src_orig', $details );
-			$that->assertArrayHasKey( 'width', $details );
-			$that->assertArrayHasKey( 'width_orig', $details );
-			$that->assertArrayHasKey( 'height', $details );
-			$that->assertArrayHasKey( 'height_orig', $details );
-			$that->assertArrayHasKey( 'transform', $details );
-			$that->assertArrayHasKey( 'transform_orig', $details );
-		};
-
 		return array(
 			'photon_post_image_args_force_resize' => array(
-				function( $args, $details ) use ( $assert_details ) {
-					$assert_details( $details );
-					return array(
-						'resize' => '300,250'
-					);
-				},
+				'photon_post_image_args_force_resize',
 				true,
 				300,
 				250
 			),
 			'photon_post_image_args_force_fit' => array(
-				function ( $args, $details ) use ( $assert_details ) {
-					$assert_details( $details );
-					return array(
-						'fit' => '600,600'
-					);
-				},
+				'photon_post_image_args_force_fit',
 				true,
 				600,
 				600
 			),
 			'photon_post_image_args_force_lb' => array(
-				function ( $args, $details ) use ( $assert_details ) {
-					$assert_details( $details );
-					return array(
-						'lb' => '800,100,000000'
-					);
-				},
+				'photon_post_image_args_force_lb',
 				true,
 				800,
 				100
 			),
 			'photon_post_image_args_force_width_only' => array(
-				function ( $args, $details ) use ( $assert_details ) {
-					$assert_details( $details );
-					return array(
-						'w' => '104'
-					);
-				},
+				'photon_post_image_args_force_width_only',
 				false,
 				false,
 				false
@@ -900,75 +884,28 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		);
 	}
 
-	/**
-	 * @author westonruter
-	 * @covers Jetpack_Photon::filter_the_content
-	 * @dataProvider photon_attributes_when_amp_response
-	 * @since 7.6.0
-	 *
-	 * @param string $sample_html Sample HTML.
-	 * @param string $photon_src  Photon URL suffix (after the subdomain).
-	 */
-	public function test_photon_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
-		$attributes = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
-		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
-		$this->assertArrayHasKey( 'width', $attributes );
-		$this->assertArrayHasKey( 'height', $attributes );
-		$this->assertNotContains( 'data-recalc-dims', $filtered_content );
-	}
-
-	/**
-	 * Data provider for testing AMP responses.
-	 *
-	 * @return array
-	 */
-	public function photon_attributes_when_amp_response() {
+	public function photon_post_image_args_force_resize() {
 		return array(
-			'amp-img' => array(
-				'<amp-img class="aligncenter wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="102" height="61"></amp-img>',
-				'.wp.com/www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg?resize=102%2C61',
-			),
-			'amp-anim' => array(
-				'<amp-anim alt="LOL" src="https://example.com/lol.gif" width="32" height="32"></amp-anim>',
-				'.wp.com/example.com/lol.gif?resize=32%2C32&ssl=1',
-			),
+			'resize' => '300,250'
 		);
 	}
 
-	/**
-	 * @author westonruter
-	 * @covers Jetpack_Photon::filter_the_content
-	 * @covers Jetpack_AMP_Support::filter_photon_post_image_args_for_stories
-	 * @since 7.6.0
-	 */
-	public function test_photon_filter_the_content_for_amp_story() {
-		$post_type = 'amp_story';
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		register_post_type( $post_type, array( 'public' => true ) );
-		Jetpack_AMP_Support::init();
-		$post = $this->factory()->post->create_and_get( compact( 'post_type' ) );
-		$this->go_to( get_permalink( $post ) );
-		$this->assertTrue( is_singular( $post_type ) );
-
-		$content = implode(
-			"\n",
-			array(
-				'<!-- wp:amp/amp-story-page {"mediaId":2414,"mediaType":"image","focalPoint":{"x":0.4900990099009901,"y":0.5131578947368421}} -->',
-				'<amp-story-page style="background-color:#ffffff" id="a6c81a13-14a0-464b-88fa-9612e86bacf7" class="wp-block-amp-amp-story-page"><amp-story-grid-layer template="fill"><amp-img layout="fill" src="https://example.com/wp-content/uploads/2019/06/huge.jpg" style="object-position:49.00990099009901% 51.31578947368421%"></amp-img></amp-story-grid-layer><amp-story-grid-layer template="fill"></amp-story-grid-layer></amp-story-page>',
-				'<!-- /wp:amp/amp-story-page -->',
-			)
+	public function photon_post_image_args_force_fit() {
+		return array(
+			'fit' => '600,600'
 		);
+	}
 
-		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
-
-		$this->assertContains(
-			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1440&#038;ssl=1',
-			$filtered_content
+	public function photon_post_image_args_force_lb() {
+		return array(
+			'lb' => '800,100,000000'
 		);
+	}
 
-		unregister_post_type( $post_type );
+	public function photon_post_image_args_force_width_only() {
+		return array(
+			'w' => '104'
+		);
 	}
 
 	/**
@@ -985,9 +922,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
 	/**
@@ -1007,9 +947,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
 		$this->assertNotContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertNotContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 
 
 		// Subsequent ?context=view requests should still be Photonized
@@ -1021,8 +964,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 }
