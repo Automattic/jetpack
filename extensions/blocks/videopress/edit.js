@@ -15,7 +15,7 @@ import {
 	Toolbar,
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 import {
 	BlockControls,
 	InspectorControls,
@@ -56,10 +56,18 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		componentDidUpdate( prevProps ) {
-			const { attributes } = this.props;
+			const { attributes, invalidateCachedEmbedPreview, url } = this.props;
 
 			if ( attributes.id !== prevProps.attributes.id ) {
 				this.setGuid();
+			}
+
+			if ( url && url !== prevProps.url ) {
+				// Due to a current bug in Gutenberg (https://github.com/WordPress/gutenberg/issues/16831), the
+				// `SandBox` component is not rendered again when the injected `html` prop changes. To work around that,
+				// we invalidate the cached preview of the embed VideoPress player in order to force the rendering of a
+				// new instance of the `SandBox` component that ensures the injected `html` will be rendered.
+				invalidateCachedEmbedPreview( url );
 			}
 		}
 
@@ -312,6 +320,15 @@ export default createHigherOrderComponent(
 				isFetchingPreview: isFetchingEmbedPreview,
 				isUploading,
 				preview,
+				url,
+			};
+		} ),
+		withDispatch( dispatch => {
+			const invalidateCachedEmbedPreview = url => {
+				dispatch( 'core/data' ).invalidateResolution( 'core', 'getEmbedPreview', [ url ] );
+			};
+			return {
+				invalidateCachedEmbedPreview,
 			};
 		} ),
 		withInstanceId,
