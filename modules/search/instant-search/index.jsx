@@ -8,7 +8,7 @@ import { h, render } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchWidget from '../components/search-widget';
+import SearchWidget from './components/search-widget';
 
 function removeChildren( htmlElement ) {
 	while ( htmlElement.lastChild ) {
