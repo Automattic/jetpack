@@ -29,6 +29,9 @@ class Jetpack_Plans {
 		// We're on Jetpack, so it's safe to use this namespace.
 		$request = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			'/plans?_locale=' . get_user_locale(),
+			// We're using version 1.5 of the endpoint rather than the default version 2
+			// since the latter only returns Jetpack Plans, but we're also interested in
+			// WordPress.com plans, for consumers of this method that run on WP.com.
 			'1.5',
 			array(
 				'method'  => 'GET',
