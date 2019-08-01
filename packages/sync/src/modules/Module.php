@@ -430,7 +430,7 @@ abstract class Module {
 
 		while ( $total->max > $current_max ) {
 			$where  = $where_sql ?
-				$where_sql . "AND $id_field > $current_max" :
+				$where_sql . " AND $id_field > $current_max" :
 				"$id_field > $current_max";
 			$result = $replicastore->get_min_max_object_id(
 				$id_field,
