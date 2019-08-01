@@ -22,6 +22,7 @@ require_once( 'footer-credit/footer-credit.php' );
 require_once( 'storefront/storefront.php' );
 require_once( 'custom-colors/colors.php' );
 require_once( 'privacy/participating-plugins.php' );
+require_once 'private-site/private-site.php';
 require_once( 'class.wpcomsh-log.php' );
 require_once( 'safeguard/plugins.php' );
 require_once( 'logo-tool/logo-tool.php' );
