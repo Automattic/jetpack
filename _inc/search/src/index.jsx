@@ -24,11 +24,22 @@ const hideSearchHeader = () => {
 };
 
 const injectSearchWidget = ( initialValue, target, grabFocus ) => {
-	render( <SearchWidget initialValue={ initialValue } grabFocus={ grabFocus } />, target );
+	render(
+		<SearchWidget
+			initialValue={ initialValue }
+			grabFocus={ grabFocus }
+			siteId={ window.JetpackInstantSearchOptions.siteId }
+		/>,
+		target
+	);
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	if ( document.body && document.body.classList.contains( 'search' ) ) {
+	if (
+		'siteId' in window.JetpackInstantSearchOptions &&
+		document.body &&
+		document.body.classList.contains( 'search' )
+	) {
 		const element = document.getElementsByTagName( 'main' ).namedItem( 'main' );
 		if ( !! element ) {
 			let initialValue = '';
