@@ -8,11 +8,7 @@ import strip from 'strip';
 
 class SearchResult extends Component {
 	getTitle() {
-		return (
-			this.props.result.fields.title ||
-			strip( this.props.result.highlight.title[ 0 ] ) ||
-			'Unknown Title'
-		);
+		return strip( this.props.result.fields.title_html ) || 'Unknown Title';
 	}
 
 	render() {
