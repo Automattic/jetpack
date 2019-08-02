@@ -13,15 +13,16 @@ const JETPACK_AJAX_ACTIONS = [
 
 function init() {
 	add_action( 'parse_request', '\Private_Site\privatize_blog', 100 );
-	add_action( 'login_init', '\Private_Site\privatize_blog_maybe_mask_blog_name' );
-	add_filter( 'preprocess_comment', '\Private_Site\privatize_blog_comments', 0 );
 	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
-	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
 	add_action( 'admin_init', '\Private_Site\prevent_ajax_and_admin_auth_requests', 9 );
 	add_action( 'check_ajax_referer', '\Private_Site\ajax_nonce_check', 9, 2 );
 	add_action( 'rest_pre_dispatch', '\Private_Site\disable_rest_api' );
 	add_action( 'opml_head', '\Private_Site\hide_opml' );
+
+	add_filter( 'bloginfo', '\Private_Site\privatize_blog_mask_blog_name', 3, 2 );
+	add_filter( 'preprocess_comment', '\Private_Site\privatize_blog_comments', 0 );
+	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 
 	// Jetpack-specific hooks
 	add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules', 0 );
@@ -83,16 +84,9 @@ function is_private_blog_user( int $blog_id = 0, int $user_id = 0 ) {
 }
 
 /**
- * Hides the blog's name on the login form for private blogs.
- */
-function privatize_blog_maybe_mask_blog_name() {
-	add_filter( 'bloginfo', '\Private_Site\privatize_blog_mask_blog_name', 3, 2 );
-}
-
-/**
  * Replaces the the blog's "name" value with "Private Site"
+ * Added to the `bloginfo` filter in our `init` function
  *
- * @see privatize_blog_maybe_mask_blog_name()
  * @param mixed $value The requested non-URL site information.
  * @param mixed $what  Type of information requested.
  * @return string The potentially modified bloginfo value
