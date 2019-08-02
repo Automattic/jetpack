@@ -327,7 +327,7 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 
 class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		$args = $this->input();
+		$args = $this->query_args();
 
 		$module_name = $args[ 'sync_module' ];
 		$batch_size  = $args[ 'batch_size' ];
