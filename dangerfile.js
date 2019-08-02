@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { danger, warn, markdown, results, schedule } from 'danger';
+import { danger, warn, markdown, results, schedule, fail } from 'danger';
 const moment = require( 'moment' );
 const phpWhitelist = require( './bin/phpcs-whitelist' );
 
@@ -44,7 +44,7 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 
 // Check if newly added .php files were added to phpcs linter whitelist
 if ( newFiles.length > 0 ) {
-	const newPHPFiles = danger.git.created_files.filter(
+	const newPHPFiles = newFiles.filter(
 		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
 	);
 
@@ -59,8 +59,8 @@ if ( newFiles.length > 0 ) {
 
 	if ( notWhitelistedFiles.length > 0 ) {
 		const stringifiedFilesList = '\n' + notWhitelistedFiles.join( '\n' );
-		warn(
-			'Consider adding new PHP files to PHPCS whitelist for automatic linting:' +
+		fail(
+			'Please add these new PHP files to PHPCS whitelist for automatic linting:' +
 				stringifiedFilesList
 		);
 	}
