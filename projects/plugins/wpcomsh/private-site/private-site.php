@@ -223,7 +223,13 @@ function hide_opml() {
 		return;
 	}
 
-	wp_die( esc_html__( 'This site is private.' ), 403 );
+	@http_response_code( 403 );
+?>
+		<error><?php esc_html_e( 'This site is private.' ) ?></error>
+	</head>
+</opml>
+<?php
+	exit;
 }
 
 /**
