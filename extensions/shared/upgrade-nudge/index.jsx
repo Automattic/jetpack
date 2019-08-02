@@ -19,14 +19,19 @@ import './store';
 
 import './style.scss';
 
-const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName, upgradeUrl } ) => (
+export const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName, upgradeUrl } ) => (
 	<Warning
 		actions={
 			// Use upgradeUrl to determine whether or not to display the Upgrade button.
 			// We tried setting autosaveAndRedirectToUpgrade to falsey in `withDispatch`,
 			// but it doesn't seem to be reliably updated after a `withSelect` update.
 			upgradeUrl && [
-				<Button onClick={ autosaveAndRedirectToUpgrade } target="_top" isDefault>
+				<Button
+					href={ upgradeUrl } // Only for server-side rendering, since onClick doesn't work there.
+					onClick={ autosaveAndRedirectToUpgrade }
+					target="_top"
+					isDefault
+				>
 					{ __( 'Upgrade', 'jetpack' ) }
 				</Button>,
 			]
@@ -89,7 +94,8 @@ export default compose( [
 		};
 	} ),
 	withDispatch( ( dispatch, { blockName, plan, upgradeUrl } ) => ( {
-		autosaveAndRedirectToUpgrade: async () => {
+		autosaveAndRedirectToUpgrade: async event => {
+			event.preventDefault(); // Don't follow the href before autosaving
 			analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 				plan,
 				block: blockName,

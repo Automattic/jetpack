@@ -156,9 +156,13 @@
 	},
 	"devDependencies": {
 		"@slack/web-api": "5.0.1",
+		"@wordpress/components": "8.0.0",
+		"@wordpress/core-data": "2.4.0",
 		"@wordpress/e2e-test-utils": "2.1.0",
+		"@wordpress/editor": "9.4.0",
 		"@wordpress/eslint-plugin": "2.3.0",
 		"@wordpress/jest-preset-default": "4.2.0",
+		"@wordpress/server-side-render": "1.0.0",
 		"babel-eslint": "10.0.2",
 		"chai": "4.2.0",
 		"commander": "2.20.0",

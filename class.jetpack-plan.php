@@ -2,6 +2,9 @@
 /**
  * Handles fetching of the site's plan from WordPress.com and caching the value locally.
  *
+ * Not to be confused with the `Jetpack_Plans` class (in `_inc/lib/plans.php`), which
+ * fetches general information about all available plans from WordPress.com, side-effect free.
+ *
  * @package Jetpack
  */
 

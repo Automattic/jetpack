@@ -13,6 +13,8 @@ class Jetpack_Simple_Payments {
 
 	static $css_classname_prefix = 'jetpack-simple-payments';
 
+	static $required_plan;
+
 	// Increase this number each time there's a change in CSS or JS to bust cache.
 	static $version = '0.25';
 
@@ -23,6 +25,7 @@ class Jetpack_Simple_Payments {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 		}
 		return self::$instance;
 	}
@@ -64,13 +67,12 @@ class Jetpack_Simple_Payments {
 		if ( $this->is_enabled_jetpack_simple_payments() ) {
 			jetpack_register_block( 'jetpack/simple-payments' );
 		} else {
-			$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 			Jetpack_Gutenberg::set_extension_unavailable(
 				'jetpack/simple-payments',
 				'missing_plan',
 				array(
 					'required_feature' => 'simple-payments',
-					'required_plan' => ( defined( 'JETPACK_SHOW_BLOCK_UPGRADE_NUDGE' ) && JETPACK_SHOW_BLOCK_UPGRADE_NUDGE ) ? $required_plan : false
+					'required_plan' => ( defined( 'JETPACK_SHOW_BLOCK_UPGRADE_NUDGE' ) && JETPACK_SHOW_BLOCK_UPGRADE_NUDGE ) ? self::$required_plan : false
 				)
 			);
 		}
@@ -176,38 +178,11 @@ class Jetpack_Simple_Payments {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$css_prefix = self::$css_classname_prefix;
 
-		$support_url = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			? 'https://support.wordpress.com/simple-payments/'
-			: 'https://jetpack.com/support/simple-payment-button/';
-
-		return sprintf( '
-<div class="%1$s">
-	<div class="%2$s">
-		<div class="%3$s">
-			<div class="%4$s" id="%5$s">
-				<p>%6$s</p>
-				<p>%7$s</p>
-			</div>
-		</div>
-	</div>
-</div>
-',
-			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
-			esc_attr( "${css_prefix}-product" ),
-			esc_attr( "${css_prefix}-details" ),
-			esc_attr( "${css_prefix}-purchase-message show error" ),
-			esc_attr( "{$data['dom_id']}-message-container" ),
-			sprintf(
-				wp_kses(
-					__( 'Your plan doesn\'t include Simple Payments. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more and upgrade</a>.', 'jetpack' ),
-					array( 'a' => array( 'href' => array(), 'rel' => array(), 'target' => array() ) )
-				),
-				esc_url( $support_url )
-			),
-			esc_html__( '(Only administrators will see this message.)', 'jetpack' )
-		);
+		jetpack_require_lib( 'components' );
+		return Jetpack_Components::render_upgrade_nudge( array(
+			'plan' => self::$required_plan
+		) );
 	}
 
 	function output_shortcode( $data ) {
