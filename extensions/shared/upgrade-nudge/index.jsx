@@ -87,10 +87,16 @@ export default compose( [
 		const redirect_to = isWpcom
 			? '/' +
 			  compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' )
-			: addQueryArgs( `//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`, {
-					action: 'edit',
-					post: postId,
-			  } );
+			: addQueryArgs(
+					`${ window.location.protocol }//${ getSiteFragment().replace(
+						'::',
+						'/'
+					) }/wp-admin/post.php`,
+					{
+						action: 'edit',
+						post: postId,
+					}
+			  );
 
 		const upgradeUrl =
 			planPathSlug &&
