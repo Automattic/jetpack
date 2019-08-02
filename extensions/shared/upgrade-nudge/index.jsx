@@ -88,10 +88,8 @@ export default compose( [
 			? '/' +
 			  compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' )
 			: addQueryArgs(
-					`${ window.location.protocol }//${ getSiteFragment().replace(
-						'::',
-						'/'
-					) }/wp-admin/post.php`,
+					window.location.protocol +
+						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
 					{
 						action: 'edit',
 						post: postId,
