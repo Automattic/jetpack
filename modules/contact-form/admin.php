@@ -257,8 +257,7 @@ function grunion_message_bulk_spam() {
 		echo __( 'Feedback(s) marked as Needs Response.', 'jetpack' );
 	}
 
-
-	 echo '</p></div>';
+	echo '</p></div>';
 }
 
 // remove admin UI parts that we don't support in feedback management
