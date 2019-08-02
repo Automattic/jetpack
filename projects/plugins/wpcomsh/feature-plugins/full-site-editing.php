@@ -20,32 +20,11 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 	}
 
 	/**
-	 * Only support a limited subset of Themes
+	 * Only support a limited subset of Themes.
+	 *
+	 * Disabled for sites with themes that have page templates.
 	 */
-	$enabled_themes = [
-		'brompton',
-		'brompton-wpcom',
-		'business',
-		'business-wpcom',
-		'calm-business',
-		'calm-business-wpcom',
-		'elegant-business',
-		'elegant-business-wpcom',
-		'friendly-business',
-		'friendly-business-wpcom',
-		'leven',
-		'leven-wpcom',
-		'modern-business',
-		'modern-business-wpcom',
-		'professional-business',
-		'professional-business-wpcom',
-		'redhill',
-		'redhill-wpcom',
-		'sophisticated-business',
-		'sophisticated-business-wpcom',
-	];
-
-	if ( ! in_array( get_stylesheet(), $enabled_themes, true ) ) {
+	if ( ! empty( wp_get_theme()->get_page_templates() ) ) {
 		return true;
 	}
 
