@@ -111,7 +111,6 @@ function grunion_add_bulk_edit_option() {
 		$option_val      = 'delete';
 		$option_txt      = __( 'Delete Permanently', 'jetpack' );
 		$pseudo_selector = 'last-child';
-
 	} else {
 		// Create Mark Spam bulk item
 		$option_val      = 'spam';
@@ -123,6 +122,9 @@ function grunion_add_bulk_edit_option() {
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
 				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
+				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(2)').after('<option value="responded"><?php echo esc_attr( __( 'Mark as Responded', 'jetpack' ) ); ?></option>' );
+				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(3)').after('<option value="inprogress"><?php echo esc_attr( __( 'Mark as In Progress', 'jetpack' ) ); ?></option>' );
+				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(4)').after('<option value="needsreponse"><?php echo esc_attr( __( 'Mark as Needs Response', 'jetpack' ) ); ?></option>' );
 			})
 		</script>
 	<?php
@@ -179,7 +181,14 @@ function grunion_handle_bulk_spam() {
 		add_action( 'admin_notices', 'grunion_message_bulk_spam' );
 	}
 
-	if ( ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' != $_REQUEST['action2'] ) ) {
+	$action_types = array( 'spam', 'responded', 'inprogress', 'needsresponse' );
+
+	// Check that one of the $_REQUEST params is set and is an expected action
+	if ( ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], $action_types ) ) {
+		$requested_action = $_REQUEST['action'];
+	} elseif ( ! empty( $_REQUEST['action2'] ) && in_array( $_REQUEST['action2'], $action_types ) ) {
+		$requested_action = $_REQUEST['action2'];
+	} else {
 		return;
 	}
 
@@ -199,9 +208,19 @@ function grunion_handle_bulk_spam() {
 
 		$post           = array(
 			'ID'          => $post_id,
-			'post_status' => 'spam',
 		);
-		$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
+
+		if ( 'spam' == $requested_action ) {
+			$post['post_status'] = 'spam';
+			$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
+		} elseif ( 'responded' == $requested_action ) {
+			$post['post_status'] = 'responded';
+		} elseif ( 'inprogress' == $requested_action ) {
+			$post['post_status'] = 'inprogress';
+		} elseif ( 'needsresponse' == $requested_action ) {
+			$post['post_status'] = 'needsresponse';
+		}
+
 		wp_update_post( $post );
 
 		/**
@@ -386,24 +405,95 @@ $('#feedback-restore-<?php echo $post_id; ?>').click(function(e) {
 </script>
 
 <?php
-			} elseif ( $post->post_status == 'publish' ) {
+			} elseif ( 'publish' == $post->post_status || 'responded' == $post->post_status || 'inprogres' == $post->post_status || 'needsresponse' == $post->post_status ) {
+				echo '<span id="feedback-responded-' . $post_id;
+				echo '"><a title="';
+				echo __( 'Mark that this message has a response', 'jetpack' );
+				echo '" href="' . wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=responded' ), 'responded-feedback_' . $post_id );
+				echo '">Responded</a></span>';
+				echo ' | ';
+
+				echo '<span id="feedback-inprogress-' . $post_id;
+				echo '"><a title="';
+				echo __( 'Mark that a response to this message is in progress', 'jetpack' );
+				echo '" href="' . wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=inprogress' ), 'inprogress-feedback_' . $post_id );
+				echo '">In Progress</a></span>';
+				echo ' | ';
+
+				echo '<span id="feedback-noresponse-' . $post_id;
+				echo '"><a title="';
+				echo __( 'Mark that this message has no response', 'jetpack' );
+				echo '" href="' . wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=noresponse' ), 'noresponse-feedback_' . $post_id );
+				echo '">Needs A Response</a></span>';
+				echo ' | ';
+
 				echo '<span class="spam" id="feedback-spam-' . $post_id;
 				echo '"><a title="';
 				echo __( 'Mark this message as spam', 'jetpack' );
 				echo '" href="' . wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . $post_id . '&amp;action=spam' ), 'spam-feedback_' . $post_id );
 				echo '">Spam</a></span>';
-				echo ' | ';
-
-				echo '<span class="delete" id="feedback-trash-' . $post_id;
-				echo '">';
-				echo '<a class="submitdelete" title="' . esc_attr__( 'Trash', 'jetpack' );
-				echo '" href="' . get_delete_post_link( $post_id );
-				echo '">' . __( 'Trash', 'jetpack' ) . '</a></span>';
-
 ?>
 
 <script>
 jQuery(document).ready( function($) {
+	$('#feedback-responded-<?php echo $post_id; ?>').click( function(e) {
+		e.preventDefault();
+		$.post( ajaxurl, {
+				action: 'grunion_ajax_spam',
+				post_id: '<?php echo $post_id; ?>',
+				make_it: 'responded',
+				sub_menu: jQuery('.subsubsub .current').attr('href'),
+				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+			},
+			function( r ) {
+				$('#post-<?php echo $post_id; ?>')
+					.css( {backgroundColor:'#FF7979'} )
+					.fadeOut(350, function() {
+						$(this).remove();
+						$('.subsubsub').html(r);
+				});
+		});
+	});
+
+
+	$('#feedback-inprogress-<?php echo $post_id; ?>').click( function(e) {
+		e.preventDefault();
+		$.post( ajaxurl, {
+				action: 'grunion_ajax_spam',
+				post_id: '<?php echo $post_id; ?>',
+				make_it: 'inprogress',
+				sub_menu: jQuery('.subsubsub .current').attr('href'),
+				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+			},
+			function( r ) {
+				$('#post-<?php echo $post_id; ?>')
+					.css( {backgroundColor:'#FF7979'} )
+					.fadeOut(350, function() {
+						$(this).remove();
+						$('.subsubsub').html(r);
+				});
+		});
+	});
+
+	$('#feedback-noresponse-<?php echo $post_id; ?>').click( function(e) {
+		e.preventDefault();
+		$.post( ajaxurl, {
+				action: 'grunion_ajax_spam',
+				post_id: '<?php echo $post_id; ?>',
+				make_it: 'noresponse',
+				sub_menu: jQuery('.subsubsub .current').attr('href'),
+				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
+			},
+			function( r ) {
+				$('#post-<?php echo $post_id; ?>')
+					.css( {backgroundColor:'#FF7979'} )
+					.fadeOut(350, function() {
+						$(this).remove();
+						$('.subsubsub').html(r);
+				});
+		});
+	});
+
 	$('#feedback-spam-<?php echo $post_id; ?>').click( function(e) {
 		e.preventDefault();
 		$.post( ajaxurl, {
@@ -421,26 +511,6 @@ jQuery(document).ready( function($) {
 						$('.subsubsub').html(r);
 				});
 		});
-	});
-
-	$('#feedback-trash-<?php echo $post_id; ?>').click(function(e) {
-		e.preventDefault();
-		$.post(ajaxurl, {
-				action: 'grunion_ajax_spam',
-				post_id: '<?php echo $post_id; ?>',
-				make_it: 'trash',
-				sub_menu: jQuery('.subsubsub .current').attr('href'),
-				_ajax_nonce: '<?php echo wp_create_nonce( 'grunion-post-status-' . $post_id ); ?>'
-			},
-			function(r) {
-				$('#post-<?php echo $post_id; ?>')
-					.css({backgroundColor: '#FF7979'})
-					.fadeOut(350, function() {
-						$(this).remove();
-						$('.subsubsub').html(r);
-					});
-			}
-		);
 	});
 });
 </script>
@@ -639,6 +709,12 @@ function grunion_ajax_spam() {
 			$current_menu = 'spam';
 		} elseif ( preg_match( '|post_status=trash|', $_POST['sub_menu'] ) ) {
 			$current_menu = 'trash';
+		} elseif ( preg_match( '|post_status=responded|', $_POST['sub_menu'] ) ) {
+			$current_menu = 'responded';
+		} elseif ( preg_match( '|post_status=inprogress|', $_POST['sub_menu'] ) ) {
+			$current_menu = 'inprogress';
+		} elseif ( preg_match( '|post_status=needsresponse|', $_POST['sub_menu'] ) ) {
+			$current_menu = 'needsresponse';
 		} else {
 			$current_menu = 'messages';
 		}
@@ -722,6 +798,18 @@ function grunion_ajax_spam() {
 		if ( ! wp_untrash_post( $post_id ) ) {
 			wp_die( __( 'Error in restoring from Trash.', 'jetpack' ) );
 		}
+	} elseif ( $_POST['make_it'] == 'responded') {
+		$post->post_status = 'responded';
+		$status            = wp_insert_post( $post );
+		wp_transition_post_status( 'responded', 'publish', $post );
+	} elseif ( $_POST['make_it'] == 'inprogress') {
+		$post->post_status = 'inprogress';
+		$status            = wp_insert_post( $post );
+		wp_transition_post_status( 'inprogress', 'publish', $post );
+	} elseif ( $_POST['make_it'] == 'needsresponse') {
+		$post->post_status = 'needsresponse';
+		$status            = wp_insert_post( $post );
+		wp_transition_post_status( 'needsresponse', 'publish', $post );
 	} elseif ( $_POST['make_it'] == 'trash' ) {
 		if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
 			wp_die( __( 'You are not allowed to move this item to the Trash.', 'jetpack' ) );
@@ -781,6 +869,39 @@ function grunion_ajax_spam() {
 
 		$status_html .= '>' . __( 'Spam', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['spam'] ) . ')';
+		$status_html .= '</span></a></li>';
+	}
+
+	if ( isset( $status['responded'] ) ) {
+		$status_html .= '<li><a href="edit.php?post_status=responded&amp;post_type=feedback"';
+		if ( $current_menu == 'responded' ) {
+			$status_html .= ' class="current"';
+		}
+
+		$status_html .= '>' . __( 'Responded', 'jetpack' ) . ' <span class="count">';
+		$status_html .= '(' . number_format( $status['responded'] ) . ')';
+		$status_html .= '</span></a></li>';
+	}
+
+	if ( isset( $status['inprogress'] ) ) {
+		$status_html .= '<li><a href="edit.php?post_status=inprogress&amp;post_type=feedback"';
+		if ( $current_menu == 'inprogress' ) {
+			$status_html .= ' class="current"';
+		}
+
+		$status_html .= '>' . __( 'In Progress', 'jetpack' ) . ' <span class="count">';
+		$status_html .= '(' . number_format( $status['inprogress'] ) . ')';
+		$status_html .= '</span></a></li>';
+	}
+
+	if ( isset( $status['needsresponse'] ) ) {
+		$status_html .= '<li><a href="edit.php?post_status=needsresponse&amp;post_type=feedback"';
+		if ( $current_menu == 'needsresponse' ) {
+			$status_html .= ' class="current"';
+		}
+
+		$status_html .= '>' . __( 'Needs A Response', 'jetpack' ) . ' <span class="needsresponse">';
+		$status_html .= '(' . number_format( $status['needsresponse'] ) . ')';
 		$status_html .= '</span></a></li>';
 	}
 

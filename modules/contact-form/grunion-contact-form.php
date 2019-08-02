@@ -221,6 +221,43 @@ class Grunion_Contact_Form_Plugin {
 			)
 		);
 
+		// Add post statuses for responsded, inprogress, and needsresponse
+		register_post_status(
+			'responded', array(
+				'label'                  => 'Responded',
+				'public'                 => false,
+				'exclude_from_search'    => true,
+				'show_in_admin_all_list' => false,
+				'label_count'            => _n_noop( 'Responded <span class="count">(%s)</span>', 'Responded <span class="count">(%s)</span>', 'jetpack' ),
+				'protected'              => true,
+				'_builtin'               => false,
+			)
+		);
+
+		register_post_status(
+			'inprogress', array(
+				'label'                  => 'Response In Progress',
+				'public'                 => false,
+				'exclude_from_search'    => true,
+				'show_in_admin_all_list' => false,
+				'label_count'            => _n_noop( 'Response In Progress <span class="count">(%s)</span>', 'Response In Progress <span class="count">(%s)</span>', 'jetpack' ),
+				'protected'              => true,
+				'_builtin'               => false,
+			)
+		);
+
+		register_post_status(
+			'needsresponse', array(
+				'label'                  => 'Needs A Response',
+				'public'                 => false,
+				'exclude_from_search'    => true,
+				'show_in_admin_all_list' => false,
+				'label_count'            => _n_noop( 'Needs A Response <span class="count">(%s)</span>', 'Needs A Response <span class="count">(%s)</span>', 'jetpack' ),
+				'protected'              => true,
+				'_builtin'               => false,
+			)
+		);
+
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] )
