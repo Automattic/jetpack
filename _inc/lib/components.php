@@ -86,6 +86,7 @@ class Jetpack_Components {
 			$site_slug = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 		}
 
+		// Post-checkout: redirect back to the editor.
 		$redirect_to = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 			? '/' . implode( '/', array_filter( array( $post_type_editor_route_prefix, $post_type, $site_slug, $post_id ) ) )
 			: add_query_arg(
