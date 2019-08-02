@@ -14,6 +14,7 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import { search } from '../components/api';
+import { setSearchQuery } from '../lib/query-string';
 
 class SearchWidget extends Component {
 	constructor() {
@@ -36,6 +37,7 @@ class SearchWidget extends Component {
 	onChangeQuery = event => {
 		const query = event.target.value;
 		this.setState( { query } );
+		setSearchQuery( query );
 		this.getResults( query );
 	};
 

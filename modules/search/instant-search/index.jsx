@@ -9,6 +9,7 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import SearchWidget from './components/search-widget';
+import { getSearchQuery } from './lib/query-string';
 
 function removeChildren( htmlElement ) {
 	while ( htmlElement.lastChild ) {
@@ -42,17 +43,9 @@ document.addEventListener( 'DOMContentLoaded', function() {
 	) {
 		const element = document.getElementsByTagName( 'main' ).namedItem( 'main' );
 		if ( !! element ) {
-			let initialValue = '';
-			const existingSearch = document.getElementsByClassName( 'widget_search' );
-			if ( existingSearch.length > 0 ) {
-				const inputs = existingSearch[ 0 ].getElementsByTagName( 'input' );
-				if ( inputs.length > 0 ) {
-					initialValue = inputs[ 0 ].value;
-				}
-			}
 			removeChildren( element );
 			hideSearchHeader();
-			injectSearchWidget( initialValue, element );
+			injectSearchWidget( getSearchQuery(), element );
 		}
 	}
 } );
