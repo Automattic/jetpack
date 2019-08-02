@@ -1227,7 +1227,7 @@ class Replicastore implements Replicastore_Interface {
 		// Since MIN() and MAX() do not work with LIMIT, we'll need to adjust the dataset we query if a limit is present.
 		// With a limit present, we'll look at a dataset consisting of object_ids that meet the constructs of the $where clause.
 		// Without a limit, we can use the actual table as a dataset.
-		$from = ( $bucket_size ) ?
+		$from = $bucket_size ?
 			"( SELECT $distinct_sql $id_field FROM $object_table $where_sql ORDER BY $id_field ASC LIMIT $bucket_size ) as ids" :
 			"$object_table $where_sql ORDER BY $id_field ASC";
 
