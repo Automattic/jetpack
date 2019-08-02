@@ -175,7 +175,7 @@ abstract class SAL_Site {
 
 		switch ( $context ) {
 		case 'edit' :
-			if ( ! current_user_can( 'edit_post', $post ) ) {
+			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
 			break;
