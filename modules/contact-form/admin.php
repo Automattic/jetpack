@@ -124,7 +124,7 @@ function grunion_add_bulk_edit_option() {
 				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
 				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(2)').after('<option value="responded"><?php echo esc_attr( __( 'Mark as Responded', 'jetpack' ) ); ?></option>' );
 				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(3)').after('<option value="inprogress"><?php echo esc_attr( __( 'Mark as In Progress', 'jetpack' ) ); ?></option>' );
-				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(4)').after('<option value="needsreponse"><?php echo esc_attr( __( 'Mark as Needs Response', 'jetpack' ) ); ?></option>' );
+				$('#posts-filter .actions select').filter('[name=action], [name=action2]').find('option:nth-child(4)').after('<option value="needsresponse"><?php echo esc_attr( __( 'Mark as Needs Response', 'jetpack' ) ); ?></option>' );
 			})
 		</script>
 	<?php
@@ -177,7 +177,8 @@ function grunion_handle_bulk_spam() {
 	}
 
 	// Slip in a success message
-	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' == $_REQUEST['message'] ) {
+	$possible_messages = array( 'spam', 'responded', 'inprogress', 'needsresponse' );
+	if ( ! empty( $_REQUEST['message'] ) && in_array( $_REQUEST['message'], $possible_messages ) ) {
 		add_action( 'admin_notices', 'grunion_message_bulk_spam' );
 	}
 
@@ -212,7 +213,6 @@ function grunion_handle_bulk_spam() {
 
 		if ( 'spam' == $requested_action ) {
 			$post['post_status'] = 'spam';
-			$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		} elseif ( 'responded' == $requested_action ) {
 			$post['post_status'] = 'responded';
 		} elseif ( 'inprogress' == $requested_action ) {
@@ -221,6 +221,7 @@ function grunion_handle_bulk_spam() {
 			$post['post_status'] = 'needsresponse';
 		}
 
+		$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		wp_update_post( $post );
 
 		/**
@@ -238,13 +239,26 @@ function grunion_handle_bulk_spam() {
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	}
 
-	$redirect_url = add_query_arg( 'message', 'marked-spam', wp_get_referer() );
+	$redirect_url = add_query_arg( 'message', $requested_action, wp_get_referer() );
 	wp_safe_redirect( $redirect_url );
 	exit;
 }
 
 function grunion_message_bulk_spam() {
-	echo '<div class="updated"><p>' . __( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
+	echo '<div class="updated"><p>';
+
+	if ( 'spam' == $_REQUEST['message'] ) {
+		echo __( 'Feedback(s) marked as spam.', 'jetpack' );
+	} elseif ( 'responded' == $_REQUEST['message'] ) {
+		echo __( 'Feedback(s) marked as Responded.', 'jetpack' );
+	} elseif ( 'inprogress' == $_REQUEST['message'] ) {
+		echo __( 'Feedback(s) marked as In Progress.', 'jetpack' );
+	} elseif ( 'needsresponse' == $_REQUEST['message'] ) {
+		echo __( 'Feedback(s) marked as Needs Response.', 'jetpack' );
+	}
+
+
+	 echo '</p></div>';
 }
 
 // remove admin UI parts that we don't support in feedback management
