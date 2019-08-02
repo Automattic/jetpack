@@ -59,6 +59,7 @@ require_once( 'v1-migration-manager.php' );
 // Load feature plugin overrides
 require_once( 'feature-plugins/full-site-editing.php' );
 require_once( 'feature-plugins/gutenberg-mods.php' );
+require_once( 'feature-plugins/autosave-revision.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
