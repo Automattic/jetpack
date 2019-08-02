@@ -86,11 +86,13 @@ class Jetpack_Components {
 			$site_slug = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
 		}
 
+		$redirect_to = '/' . implode( '/', array_filter( array( $post_type_editor_route_prefix, $post_type, $site_slug, $post_id ) ) );
+
 		$upgrade_url =
 			$plan_path_slug
 			? add_query_arg(
 				'redirect_to',
-				'/' . implode( '/', array_filter( array( $post_type_editor_route_prefix, $post_type, $site_slug, $post_id ) ) ),
+				$redirect_to,
 				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
 			) : '';
 
