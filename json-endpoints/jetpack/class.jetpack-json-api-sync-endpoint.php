@@ -352,7 +352,8 @@ class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoi
 				'terms',
 				'term_relationships',
 				'users',
-			)
+			),
+			true
 		);
 	}
 }
