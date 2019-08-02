@@ -1,5 +1,13 @@
 ## 7.6
 
+### Contact Form
+
+We've updated the Contact Form module to include more status options. To test this, you may need to deactivate and reactivate the Contact Form module, as there are some new post statuses registered.
+
+Once you've done that, go to your Feedback menu. There are new options in the Bulk Actions dropdown and on the hover row actions.
+
+Test by moving feedback items, in groups or individually, between "Responded", "In Progress", and "Needs Response".
+
 ### AMP
 
 We've made multiple changes to Jetpack to improve compatiblity with the AMP plugin. We'd recommend installing both plugins on your site and run some tests. You'll want to enable the following Jetpack features:
