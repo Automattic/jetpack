@@ -97,7 +97,6 @@ function jetpack_og_tags() {
 	} elseif ( is_archive() ) {
 		$tags['og:type']      = 'website';
 		$tags['og:title']     = wp_get_document_title();
-		$tags['og:site_name'] = get_bloginfo( 'name' );
 
 		$archive = get_queried_object();
 		if ( ! empty( $archive ) ) {
