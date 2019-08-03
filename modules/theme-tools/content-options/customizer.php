@@ -404,6 +404,27 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 				)
 			);
 		}
+		
+		// Featured Images: All other custom post types
+		$wp_customize->add_setting(
+			'jetpack_content_featured_images_custom',
+			array(
+				'default'           => '',
+				'type'              => 'option',
+				'sanitize_callback' => 'wp_filter_nohtml_kses',
+			)
+		);
+
+		$wp_customize->add_control(
+			'jetpack_content_featured_images_custom',
+			array(
+				'section'         => 'jetpack_content_options',
+				'label'           => esc_html__( 'Hide on these custom post types', 'jetpack' ),
+				'description'	  => esc_html__( 'Enter comma separated list of custom post type slugs, where you want to hide featured images. Will display on all others by default', 'jetpack' ),
+				'type'            => 'text',
+				'active_callback' => 'jetpack_post_thumbnail_supports',
+			)
+		);
 	}
 }
 add_action( 'customize_register', 'jetpack_content_options_customize_register' );

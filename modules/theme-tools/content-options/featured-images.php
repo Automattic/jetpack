@@ -10,6 +10,28 @@ function jetpack_featured_images_remove_post_thumbnail( $metadata, $object_id, $
 		return $metadata;
 	}
 
+	// Check if it's custom post type other than post,page & portfolio)
+	if( $opts['custom-option'] != ''
+		&& is_singular()
+		&& !is_singular('post')
+		&& !is_page()
+		&& ! jetpack_is_product()
+		&& ( isset( $meta_key )
+		&& '_thumbnail_id' === $meta_key )
+		&& in_the_loop()
+	) {	
+		$custom_posts = array_map( 'trim', explode( ',', $opts['custom-option']) ) ;
+		$current_post_type= get_post_type();
+		
+		// Check if current post type is in the given list of custom types where featured image to be hidden.
+		if( in_array( $current_post_type, $custom_posts ) ) {
+			return false;
+		}
+		else {
+			return $metadata;
+		}
+	}
+	
 	// Return false if the archive option or singular option is unticked.
 	if (
 		( true === $opts['archive']

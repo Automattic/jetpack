@@ -98,10 +98,15 @@ function twentynineteen_override_post_thumbnail( $width ) {
 	$settings = array_merge( $settings, array(
 		'post-option'  => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
 		'page-option'  => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
+		'custom-option'  => get_option( 'jetpack_content_featured_images_custom', '' ),
 	) );
 
-	if ( ( ! $settings['post-option'] && is_single() )
-	|| ( ! $settings['page-option'] && is_singular() && is_page() ) ) {
+	$custom_posts = array_map('trim', explode( ',', $settings['custom-option']) ) ;
+	$current_post_type= get_post_type();
+
+	if ( ( ! $settings['post-option'] && is_singular('post') )
+	|| ( ! $settings['page-option'] && is_singular('page') )
+	|| in_array( $current_post_type, $custom_posts ) ) {
 		return false;
 	} else {
 		return ! post_password_required() && ! is_attachment() && has_post_thumbnail();

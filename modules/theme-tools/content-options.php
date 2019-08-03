@@ -95,6 +95,7 @@ function jetpack_featured_images_get_settings() {
 			'page-option'      => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
 			'portfolio-option' => get_option( 'jetpack_content_featured_images_portfolio', $settings['portfolio-default'] ),
 			'fallback-option'  => get_option( 'jetpack_content_featured_images_fallback', $settings['fallback-default'] ),
+			'custom-option'	   => get_option( 'jetpack_content_featured_images_custom', '' ),
 		)
 	);
 
