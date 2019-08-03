@@ -211,7 +211,7 @@ function disable_rest_api() {
 	}
 
 	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-		return new \WP_Error( 'private_site', __( 'This site is private.' ), array( 'status' => 403 ) );
+		return new \WP_Error( 'private_site', __( 'This site is private.' ), [ 'status' => 403 ] );
 	}
 }
 
@@ -240,7 +240,7 @@ function hide_opml() {
  * @return array Array of modules after filtering.
  */
 function filter_jetpack_active_modules( $modules ) {
-	$disabled_modules = array(
+	$disabled_modules = [
 		'publicize',
 		'sharedaddy',
 		'subscriptions',
@@ -251,7 +251,7 @@ function filter_jetpack_active_modules( $modules ) {
 		'sitemaps',
 		'verification-tools',
 		'wordads',
-	);
+	];
 	foreach ( $disabled_modules as $module_slug ) {
 		$found = array_search( $module_slug, $modules, true );
 		if ( false !== $found ) {
