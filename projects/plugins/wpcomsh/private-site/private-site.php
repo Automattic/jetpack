@@ -7,75 +7,142 @@
 
 namespace Private_Site;
 
-const JETPACK_AJAX_ACTIONS = [
-	'jetpack_upload_file',
-];
+function admin_init() {
+	// Add the radio option to the wp-admin Site Privacy selector
+	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
+}
+add_action( 'admin_init', '\Private_Site\admin_init' );
 
 function init() {
-	add_action( 'parse_request', '\Private_Site\privatize_blog', 100 );
-	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
+	if ( ! site_is_private() ) {
+		return;
+	}
+
+	// Scrutinize most requests
+	add_action( 'parse_request', '\Private_Site\parse_request', 100 );
+
+	// Scrutinize REST API requests
+	add_action( 'rest_api_init', '\Private_Site\rest_api_init' );
+
+	// Prevent Pinterest pinning
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
-	add_action( 'admin_init', '\Private_Site\prevent_ajax_and_admin_auth_requests', 9 );
-	add_action( 'check_ajax_referer', '\Private_Site\ajax_nonce_check', 9, 2 );
-	add_action( 'rest_pre_dispatch', '\Private_Site\disable_rest_api' );
+
+	// Prevent leaking site information via OPML
 	add_action( 'opml_head', '\Private_Site\hide_opml' );
 
-	add_filter( 'bloginfo', '\Private_Site\privatize_blog_mask_blog_name', 3, 2 );
-	add_filter( 'preprocess_comment', '\Private_Site\privatize_blog_comments', 0 );
+	// Mask the blog name on the login screen etc.
+	add_filter( 'bloginfo', '\Private_Site\mask_site_name', 3, 2 );
+
+	// Block incoming comments for non-users
+	add_filter( 'preprocess_comment', '\Private_Site\preprocess_comment', 0 );
+
+	// Robots requests are allowed via `should_prevent_site_access`
 	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 
-	// Jetpack-specific hooks
+	// @TODO pre_trackback_post maybe..?
+
+	// @TODO add "lock" toolbar item when private
+
+	/** Jetpack-specific hooks **/
+
+	// Prevent Jetpack certain modules from running while the site is private
 	add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules', 0 );
-	add_action( 'jetpack_sync_before_send_queue_full_sync', '\Private_Site\remove_privatize_blog_mask_blog_name_filter' );
-	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_privatize_blog_mask_blog_name_filter' );
+
+	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
+	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_jetpack' );
+
+	// Lift the blog name mask prior to Jetpack sync activity
+	add_action( 'jetpack_sync_before_send_queue_full_sync', '\Private_Site\remove_mask_site_name_filter' );
+	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_mask_site_name_filter' );
 }
 add_action( 'init', '\Private_Site\init' );
 
-/**
- * Returns the private site template for private blogs
- *
- * @param object $wp Current WordPress environment instance (passed by reference).
- */
-function privatize_blog( $wp ) {
-	global $pagenow;
+function site_is_private() {
+	return '-1' == get_option( 'blog_public' );
+}
 
-	if ( '-1' != get_option( 'blog_public' ) ) {
-		return;
+/**
+ * Determine if site access should be blocked for various types of requests.
+ * This function is cached for subsequent calls so we can use it gratuitously.
+ *
+ * @return bool
+ */
+function should_prevent_site_access() {
+	global $pagenow, $wp;
+
+	static $cached;
+
+	if ( isset( $cached ) ) {
+		return $cached;
+	}
+
+	if ( ! site_is_private() ) {
+		return $cached = false;
 	}
 
 	if ( 'wp-login.php' === $pagenow ) {
-		return;
+		return $cached = false;
 	}
 
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		return;
+		return $cached = false;
 	}
 
 	// Serve robots.txt for private blogs.
 	if ( is_object( $wp ) && ! empty( $wp->query_vars['robots'] ) ) {
+		return $cached = false;
+	}
+
+	return $cached = ! is_private_blog_user();
+}
+
+function parse_request() {
+	global $wp;
+
+	if ( ! should_prevent_site_access() ) {
 		return;
 	}
 
-	if ( is_user_logged_in() && is_private_blog_user() ) {
-		return;
+	status_header( 403 );
+
+	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
+		 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' )
+	) {
+		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.' ) ] );
 	}
 
 	require __DIR__ . '/private-site-template.php';
-
 	exit;
 }
 
+function rest_api_init() {
+	if ( should_prevent_site_access() ) {
+		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.' ) ] );
+	}
+}
+
+function xmlrpc_methods_limit_to_jetpack( $methods ) {
+	if ( should_prevent_site_access() ) {
+		return array_filter( $methods, function ( $key ) {
+			return preg_match( '/^jetpack\..+/', $key );
+		}, ARRAY_FILTER_USE_KEY );
+	}
+	return $methods;
+}
+
 /**
- * Does not check whether the blog is private. Accepts blog and user in various types.
+ * Does not check whether the blog is private. Works on current blog & user.
  * Returns true for super admins.
- *
- * @param int $blog_id 0 means "current"
- * @param int $user_id 0 means "current"
  *
  * @return bool
  */
-function is_private_blog_user( int $blog_id = 0, int $user_id = 0 ) {
-	$user = $user_id ? \get_user_by( 'id', $user_id ) : \wp_get_current_user();
+function is_private_blog_user() {
+	$user = \wp_get_current_user();
+	if ( ! $user->ID ) {
+		return false;
+	}
+
+	$blog_id = \get_current_blog_id();
 
 	// check if the user has read permissions
 	$the_user = \wp_clone( $user );
@@ -84,26 +151,26 @@ function is_private_blog_user( int $blog_id = 0, int $user_id = 0 ) {
 }
 
 /**
- * Replaces the the blog's "name" value with "Private Site"
+ * Replaces the the site's "name" & "title" values with "Private Site"
  * Added to the `bloginfo` filter in our `init` function
  *
  * @param mixed $value The requested non-URL site information.
  * @param mixed $what  Type of information requested.
  * @return string The potentially modified bloginfo value
  */
-function privatize_blog_mask_blog_name( $value, $what ) {
-	if ( in_array( $what, array( 'name', 'title' ), true ) ) {
-		$value = __( 'Private Site' );
+function mask_site_name( $value, $what ) {
+	if ( should_prevent_site_access() && in_array( $what, [ 'name', 'title' ], true ) ) {
+		return __( 'Private Site' );
 	}
 
 	return $value;
 }
 
 /**
- * Remove the privatize_blog_mask_blog_name filter
+ * Remove the mask_site_name filter
  */
-function remove_privatize_blog_mask_blog_name_filter() {
-	remove_filter( 'bloginfo', '\Private_Site\privatize_blog_mask_blog_name' );
+function remove_mask_site_name_filter() {
+	remove_filter( 'bloginfo', '\Private_Site\mask_site_name' );
 }
 
 /**
@@ -111,8 +178,11 @@ function remove_privatize_blog_mask_blog_name_filter() {
  *
  * @param array $comment Documented in wp-includes/comment.php.
  */
-function privatize_blog_comments( $comment ) {
-	privatize_blog( null );
+function preprocess_comment( $comment ) {
+	if ( should_prevent_site_access() ) {
+		require __DIR__ . '/private-site-template.php';
+		exit;
+	}
 	return $comment;
 }
 
@@ -121,21 +191,24 @@ function privatize_blog_comments( $comment ) {
  **/
 function privatize_blog_priv_selector() {
 	?>
-	<br/><input id="blog-private" type="radio" name="blog_public"
-				value="-1" <?php checked( '-1', get_option( 'blog_public' ) ); ?> />
-	<label for="blog-private"><?php _e( 'I would like my site to be private, visible only to myself and users I choose' ) ?></label>
+<br/><input id="blog-private" type="radio" name="blog_public"
+			value="-1" <?php checked( '-1', get_option( 'blog_public' ) ); ?> />
+<label for="blog-private"><?php _e( 'I would like my site to be private, visible only to myself and users I choose' ) ?></label>
 	<?php
 }
 
 /**
- * Don't let search engines index private sites
- * or sites not deemed publicly available, like deleted, archived, spam.
+ * Don't let search engines index private sites.
+ * If the site is not private, do nothing.
  *
  * @param string $output Robots.txt output.
+ * @return string the Robots.txt information
  */
 function private_robots_txt( $output ) {
-	$output  = "User-agent: *\n"; // Purposefully overriding current output; we only want these rules.
-	$output .= "Disallow: /\n";
+	if ( site_is_private() ) {
+		// Purposefully overriding current output; we only want these rules.
+		return "User-agent: *\nDisallow: /\n";
+	}
 	return $output;
 }
 
@@ -149,87 +222,18 @@ function private_no_pinning() {
 }
 
 /**
- * Prevents ajax and post requests on private blogs for users who don't have permissions
- */
-function prevent_ajax_and_admin_auth_requests() {
-	global $pagenow;
-
-	$is_ajax_request       = defined( 'DOING_AJAX' ) && DOING_AJAX;
-	$is_admin_post_request = ( 'admin-post.php' === $pagenow );
-
-	// Make sure we are in the right code path, if not bail now.
-	if ( ! is_admin() || ( ! $is_ajax_request && ! $is_admin_post_request ) ) {
-		return;
-	}
-
-	$user = wp_get_current_user();
-
-	if ( ! $user->ID && class_exists( '\Jetpack' ) && in_array( $_POST['action'], JETPACK_AJAX_ACTIONS ) ) {
-		$jp = \Jetpack::init();
-		$user = $jp->authenticate_jetpack( null, null, null );
-	}
-
-	if ( ! is_private_blog_user( 0, (int) $user->ID ) ) {
-		wp_die( esc_html__( 'This site is private.' ), 403 );
-	}
-}
-
-/**
- * Prevents ajax requests on private blogs for users who don't have permissions
- *
- * @param string    $action The Ajax nonce action.
- * @param false|int $result The result of the nonce check.
- */
-function ajax_nonce_check( $action, $result ) {
-	if ( 1 !== $result && 2 !== $result ) {
-		return;
-	}
-
-	// These two ajax actions relate to wp_ajax_wp_link_ajax() and wp_ajax_find_posts()
-	// They are needed for users with admin capabilities in wp-admin.
-	// Read more at p3btAN-o8-p2.
-	if ( 'find-posts' !== $action && 'internal-linking' !== $action ) {
-		return;
-	}
-
-	// Make sure we are in the right code path, if not bail now.
-	if ( ! is_admin() || ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
-		return;
-	}
-
-	if ( ! is_private_blog_user() ) {
-		wp_die( esc_html__( 'This site is private.' ), 403 );
-	}
-}
-
-/**
- * Disables WordPress Rest API for external requests
- */
-function disable_rest_api() {
-	if ( is_private_blog_user() ) {
-		return;
-	}
-
-	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-		return new \WP_Error( 'private_site', __( 'This site is private.' ), [ 'status' => 403 ] );
-	}
-}
-
-/**
  * Returns the private page template for OPML.
  */
 function hide_opml() {
-	if ( is_user_logged_in() && is_private_blog_user() ) {
-		return;
-	}
-
-	@http_response_code( 403 );
+	if ( should_prevent_site_access() ) {
+		status_header( 403 );
 ?>
 		<error><?php esc_html_e( 'This site is private.' ) ?></error>
 	</head>
 </opml>
 <?php
-	exit;
+		exit;
+	}
 }
 
 /**
