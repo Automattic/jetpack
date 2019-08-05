@@ -8,7 +8,7 @@ import { h, render } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchWidget from './components/search-widget';
+import SearchApp from './components/search-app';
 import { getSearchQuery } from './lib/query-string';
 
 function removeChildren( htmlElement ) {
@@ -24,9 +24,9 @@ const hideSearchHeader = () => {
 	}
 };
 
-const injectSearchWidget = ( initialValue, target, grabFocus ) => {
+const injectSearchApp = ( initialValue, target, grabFocus ) => {
 	render(
-		<SearchWidget
+		<SearchApp
 			initialValue={ initialValue }
 			grabFocus={ grabFocus }
 			siteId={ window.JetpackInstantSearchOptions.siteId }
@@ -45,7 +45,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		if ( !! element ) {
 			removeChildren( element );
 			hideSearchHeader();
-			injectSearchWidget( getSearchQuery(), element );
+			injectSearchApp( getSearchQuery(), element );
 		}
 	}
 } );

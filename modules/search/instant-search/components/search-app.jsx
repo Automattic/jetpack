@@ -13,10 +13,10 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import SearchResults from './search-results';
-import { search } from '../components/api';
+import { search } from './api';
 import { setSearchQuery } from '../lib/query-string';
 
-class SearchWidget extends Component {
+class SearchApp extends Component {
 	constructor() {
 		super( ...arguments );
 		this.requestId = 0;
@@ -76,4 +76,4 @@ class SearchWidget extends Component {
 	}
 }
 
-export default SearchWidget;
+export default SearchApp;
