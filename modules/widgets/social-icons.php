@@ -508,17 +508,22 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Facebook',
 			),
 			array(
-				'url'   => '/feed/',
+				'url'   => '/feed/', // WordPress default feed url
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/feeds/',
+				'url'   => '/feeds/', // Blogspot, and others
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => 'format=RSS',
+				'url'   => '/blog/feed', // No trailing space WordPress feed, could use /feed but may match unexpectedly
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'format=RSS', // Squarespace feed url, and others
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
@@ -527,13 +532,13 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
-            array(
+			array(
 				'url'   => '/.rss', // Yep, Reddit uses this
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/rss.xml',
+				'url'   => '/rss.xml', // Moveable Type, Typepad
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
@@ -558,57 +563,57 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '?feed=rss', // Catches feed=rss / feed=rss2
+				'url'   => '?feed=rss', // WordPress non-permalink - Catches feed=rss / feed=rss2
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '?feed=rdf',
+				'url'   => '?feed=rdf', // WordPress non-permalink
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '?feed=atom',
+				'url'   => '?feed=atom', // WordPress non-permalink
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => 'http://feeds',
+				'url'   => 'http://feeds', // FeedBurner 
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => 'https://feeds',
+				'url'   => 'https://feeds', // FeedBurner 
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/feed.xml',
+				'url'   => '/feed.xml', // Alias used with Feedburner, and others
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/index.xml',
+				'url'   => '/index.xml', // Moveable Type, and others
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/blog/feed',
+				'url'   => '/atom.xml', // Typepad
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/atom.xml',
+				'url'   => '.atom', // Shopify blogs
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '.atom',
+				'url'   => '/atom', // Some non-WordPress feeds
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => '/atom',
+				'url'   => 'index.rdf', // Typepad
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
