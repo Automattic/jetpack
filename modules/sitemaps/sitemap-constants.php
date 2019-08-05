@@ -12,7 +12,7 @@
  * In production, sitemaps are cached for 12 hours.
  * In development, sitemaps are cache for 1 minute.
  *
- * @since 5.x.x
+ * @since 7.7.0
  */
 if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 	if ( ! defined( 'JP_SITEMAP_INTERVAL') ) {
