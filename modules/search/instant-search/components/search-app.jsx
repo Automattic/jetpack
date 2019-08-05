@@ -4,6 +4,7 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
+import Portal from 'preact-portal';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -70,7 +71,9 @@ class SearchApp extends Component {
 						value={ query }
 					/>
 				</p>
-				<SearchResults query={ query } { ...results } />
+				<Portal into="main">
+					<SearchResults query={ query } { ...results } />
+				</Portal>
 			</div>
 		);
 	}

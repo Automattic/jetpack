@@ -41,11 +41,12 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		document.body &&
 		document.body.classList.contains( 'search' )
 	) {
-		const element = document.getElementsByTagName( 'main' ).namedItem( 'main' );
-		if ( !! element ) {
-			removeChildren( element );
+		const widget = document.querySelector( '.widget_search' );
+		if ( !! widget ) {
+			removeChildren( widget );
+			removeChildren( document.querySelector( 'main' ) );
 			hideSearchHeader();
-			injectSearchApp( getSearchQuery(), element );
+			injectSearchApp( getSearchQuery(), widget );
 		}
 	}
 } );
