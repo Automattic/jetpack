@@ -513,6 +513,106 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
+				'url'   => '/feeds/',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'format=RSS',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/rss', // Used by Tumblr
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+            array(
+				'url'   => '/.rss', // Yep, Reddit uses this
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/rss.xml',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'http://rss',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'https://rss',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'rss=1',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/feed=rss', // Catches feed=rss / feed=rss2
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '?feed=rss', // Catches feed=rss / feed=rss2
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '?feed=rdf',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '?feed=atom',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'http://feeds',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => 'https://feeds',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/feed.xml',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/index.xml',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/blog/feed',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/atom.xml',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '.atom',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
+				'url'   => '/atom',
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
+			),
+			array(
 				'url'   => 'flickr.com',
 				'icon'  => 'flickr',
 				'label' => 'Flickr',
