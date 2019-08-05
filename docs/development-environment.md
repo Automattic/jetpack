@@ -257,6 +257,10 @@ You can read the details in [docker/README.md](../docker/README.md)
 
 You should do all Jetpack development with `define( 'WP_DEBUG', true );` in your `wp-config.php`, making sure that you’re not generating any Notices or other PHP issues in your error_log.
 
+### SCRIPT_DEBUG
+
+By default, WordPress loads minified versions of its module's JS files. If you want to work with the JS files in the modules, add `define( 'SCRIPT_DEBUG', true );` in your `wp-config.php`. This tells WordPress to load the non-minified JS version, allowing you to see your changes on page refresh.
+
 ### WP-CLI
 
 Jetpack CLI is a command line interface for Jetpack, extending off of wp-cli for WordPress. You can easily modify your installation of Jetpack with a just a few simple commands. All you need is SSH access and a basic understanding of command line tools.
