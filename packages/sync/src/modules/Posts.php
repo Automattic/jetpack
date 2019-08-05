@@ -75,6 +75,17 @@ class Posts extends Module {
 	}
 
 	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function table_name() {
+		return 'posts';
+	}
+
+	/**
 	 * Retrieve a post by its ID.
 	 *
 	 * @access public
@@ -217,12 +228,12 @@ class Posts extends Module {
 	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
-	 * @access private
+	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
-	private function get_where_sql( $config ) {
+	public function get_where_sql( $config ) {
 		$where_sql = Settings::get_blacklisted_post_types_sql();
 
 		// Config is a list of post IDs to sync.
@@ -641,5 +652,19 @@ class Posts extends Module {
 			$this->get_term_relationships( $post_ids ),
 			$previous_interval_end,
 		);
+	}
+
+	/**
+	 * Gets a list of minimum and maximum object ids for each batch based on the given batch size.
+	 *
+	 * @access public
+	 *
+	 * @param int         $batch_size The batch size for objects.
+	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
+	 *
+	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
+	 */
+	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
+		return parent::get_min_max_object_ids_for_batches( $batch_size, $this->get_where_sql( false ) );
 	}
 }
