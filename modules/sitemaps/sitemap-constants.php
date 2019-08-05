@@ -10,7 +10,7 @@
 /**
  * Number of seconds between sitemap and news updates in development code.
  *
- * @since 5.x.x
+ * @since 7.7.0
  */
 if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 	define( 'JP_SITEMAP_INTERVAL', 60 );
