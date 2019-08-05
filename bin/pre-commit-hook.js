@@ -44,16 +44,18 @@ function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-// Filter callback for ES5 files as defined in lint-es6 script: inc/*.js modules
-function filterES5jsFile( file ) {
-	const regEx = /^_inc\/([a-zA-Z-]+\.)/g; // _inc/*.js
-	return file.startsWith( 'modules' ) || file.match( regEx );
-}
-
-// Filter callback for ES6 files as defined in lint-es6 script: ./*.js, _inc/client, extensions
-function filterES6jsFile( file ) {
-	const regEx = /^([a-zA-Z-]+\.)/g; // *.js
-	return file.startsWith( '_inc/client' ) || file.startsWith( 'extensions' ) || file.match( regEx );
+// Filter callback for JS files
+function filterEslintFiles( file ) {
+	const rootJsMatch = /^([a-zA-Z-]+\.)/g; // *.js
+	const _incMatch = /^_inc\/([a-zA-Z-]+\.)/g; // _inc/*.js
+	const folderMatches =
+		file.startsWith( 'modules' ) ||
+		file.startsWith( '_inc/client' ) ||
+		file.startsWith( 'extensions' );
+	return (
+		! file.endsWith( '.json' ) &&
+		( folderMatches || file.match( rootJsMatch ) || file.match( _incMatch ) )
+	);
 }
 
 // Logging function that is used when check is failed
@@ -98,27 +100,20 @@ function capturePreCommitDate() {
 }
 
 /**
- * Spawns a eslint process against list of files using ES6/ES5 config file
+ * Spawns a eslint process against list of files
  * @param {Array} toLintFiles List of files to lint
- * @param {String} type linter type to use. could be es6 or es5
  *
  * @returns {Int} shell return code
  */
-function runJSLinter( toLintFiles, type = 'es6' ) {
+function runJSLinter( toLintFiles ) {
 	if ( ! toLintFiles.length ) {
 		return false;
 	}
 
-	const configOption = type === 'es6' ? '-c .eslintrc.js' : '-c modules/.eslintrc.js';
-
-	const lintResult = spawnSync(
-		'./node_modules/.bin/eslint',
-		[ '--quiet', configOption, ...toLintFiles ],
-		{
-			shell: true,
-			stdio: 'inherit',
-		}
-	);
+	const lintResult = spawnSync( './node_modules/.bin/eslint', [ '--quiet', ...toLintFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
 
 	return lintResult.status;
 }
@@ -140,16 +135,10 @@ if ( toPrettify.length ) {
 }
 
 // linting should happen after formatting
-const toLint = jsFiles.filter( file => ! file.endsWith( '.json' ) );
-// Lint ES6 files
-const toLintES6Files = toLint.filter( filterES6jsFile );
-const ES6LintResult = runJSLinter( toLintES6Files, 'es6' );
+const filesToLint = jsFiles.filter( filterEslintFiles );
+const lintResult = runJSLinter( filesToLint, 'es6' );
 
-// Lint ES5 files
-const toLintES5Files = toLint.filter( filterES5jsFile );
-const ES5LintResult = runJSLinter( toLintES5Files, 'es5' );
-
-if ( ES6LintResult || ES5LintResult ) {
+if ( lintResult ) {
 	checkFailed();
 }
 
