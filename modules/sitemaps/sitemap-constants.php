@@ -8,13 +8,19 @@
  */
 
 /**
- * Number of seconds between sitemap and news updates in development code.
+ * Number of seconds between sitemap and news sitemap updates in development code.
+ * In production, sitemaps are cached for 12 hours.
+ * In development, sitemaps are cache for 1 minute.
  *
  * @since 5.x.x
  */
 if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
-	define( 'JP_SITEMAP_INTERVAL', 60 );
-	define( 'JP_NEWS_SITEMAP_INTERVAL', 60 );
+	if ( ! defined( 'JP_SITEMAP_INTERVAL') ) {
+		define( 'JP_SITEMAP_INTERVAL', 60 );
+	}
+	if ( ! defined( 'JP_NEWS_SITEMAP_INTERVAL') ) {
+		define( 'JP_NEWS_SITEMAP_INTERVAL', 60 );
+	}
 }
 
 /**
