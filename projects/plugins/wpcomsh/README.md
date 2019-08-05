@@ -170,3 +170,6 @@ To write a new WP CLI command, define a public method on the `WPCOMSH_CLI_Comman
 
 wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin to support Store on WordPress.com
 
+### Private Site support
+
+Enables setting a site to "private." Doing so prevents viewing or interacting with site content to unauthenticated clients (and anyone without `read` capabilities).
