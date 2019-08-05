@@ -231,12 +231,13 @@ function stats_build_view_data() {
  * @return void
  */
 function stats_footer() {
-    $data = stats_build_view_data();
-    if ( Jetpack_AMP_Support::is_amp_request() ) {
-        stats_render_amp_footer( $data );
-    } else {
-        stats_render_footer( $data );
-    }
+	$data = stats_build_view_data();
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		stats_render_amp_footer( $data );
+	} else {
+		stats_render_footer( $data );
+	}
+	
 }
 
 function stats_render_footer( $data ) {
