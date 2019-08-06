@@ -30,6 +30,7 @@ const injectSearchWidget = ( initialValue, target, grabFocus ) => {
 			initialValue={ initialValue }
 			grabFocus={ grabFocus }
 			siteId={ window.JetpackInstantSearchOptions.siteId }
+			filterConfig={ jetpack_instant_search_filters }
 		/>,
 		target
 	);

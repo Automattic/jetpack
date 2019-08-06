@@ -194,25 +194,55 @@ class Jetpack_Search {
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
 
+	public function is_instant_search() {
+		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
-	 * Loads assets for Jetpack Search Prototype featuring Search As You Type experience.
+	 * Loads assets for Jetpack Instant Search Prototype.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+		if ( $this->is_instant_search() ) {
 			$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_script( 'jetpack-search', $script_path, array(), $script_version, true );
-				wp_add_inline_script( 'jetpack-search', 'window.JetpackInstantSearchOptions = { siteId: ' . Jetpack::get_option( 'id' ) .'}', 'before' );
+				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+
+				//override wp.com blog_id for testing
+				if ( defined( 'JETPACK_INSTANT_SEARCH_BLOG_ID' ) ) {
+					$id = JETPACK_INSTANT_SEARCH_BLOG_ID;
+				} else {
+					$id = Jetpack::get_option( 'id' );
+				}
+				//wp_add_inline_script( 'jetpack-search', 'window.JetpackInstantSearchOptions = { siteId: ' . $id . '}', 'before' );
+				wp_add_inline_script( 'jetpack-instant-search', 'window.JetpackInstantSearchOptions = { siteId: ' . Jetpack::get_option( 'id' ) .'}', 'before' );
+
 			}
 
 			$style_relative_path = '_inc/build/instant-search/instant-search.min.css';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$style_version = self::get_asset_version( $style_relative_path );
 				$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_style( 'jetpack-search', $style_path, array(), $style_version );
+				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
+
+			//filters configuration
+			$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
+			$widgets = array();
+			foreach( $filters as $filt => $data ) {
+				$widgets[$data['widget_id']] = $data['widget_id'];
+			}
+			wp_localize_script(
+				'jetpack-instant-search', 'jetpack_instant_search_filters', array(
+					'widgets' => array_keys( $widgets ),
+					'filters' => $filters,
+				)
+			);
+
 		}
 	}
 
