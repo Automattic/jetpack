@@ -1,7 +1,7 @@
 /* global jpTracksAJAX, jQuery */
 ( function( $, jpTracksAJAX ) {
 	window.jpTracksAJAX = window.jpTracksAJAX || {};
-	const debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
+	var debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
 	window.jpTracksAJAX.record_ajax_event = function( eventName, eventType, eventProp ) {
 		var data = {
