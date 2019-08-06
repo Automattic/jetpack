@@ -46,16 +46,10 @@ function filterJsFiles( file ) {
 
 // Filter callback for JS files
 function filterEslintFiles( file ) {
-	const rootJsMatch = /^([a-zA-Z-]+\.)/g; // *.js
-	const _incMatch = /^_inc\/([a-zA-Z-]+\.)/g; // _inc/*.js
+	const rootMatch = /^([a-zA-Z-]+\.)/g; // *.js(x)
 	const folderMatches =
-		file.startsWith( 'modules' ) ||
-		file.startsWith( '_inc/client' ) ||
-		file.startsWith( 'extensions' );
-	return (
-		! file.endsWith( '.json' ) &&
-		( folderMatches || file.match( rootJsMatch ) || file.match( _incMatch ) )
-	);
+		file.startsWith( '_inc' ) || file.startsWith( 'extensions' ) || file.startsWith( 'modules' );
+	return ! file.endsWith( '.json' ) && ( folderMatches || file.match( rootMatch ) );
 }
 
 // Logging function that is used when check is failed
@@ -136,7 +130,7 @@ if ( toPrettify.length ) {
 
 // linting should happen after formatting
 const filesToLint = jsFiles.filter( filterEslintFiles );
-const lintResult = runJSLinter( filesToLint, 'es6' );
+const lintResult = runJSLinter( filesToLint );
 
 if ( lintResult ) {
 	checkFailed();
