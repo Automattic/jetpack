@@ -134,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection process: bring back the ability to connect to WordPress.com via XML-RPC or REST API.
 * Custom CSS: fix Media Width label layout issue in Firefox.
 * Dashboard Notices: fix layout issues on sites using an RTL language.
+* Simple Payments: fix security vulnerability in the Simple Payments description output.
 * Sync: fix home and Site URL synchronization issues on sites with custom Cron implementations.
 * WordPress.com Activity Log: add Action Scheduler to the list of blacklisted post types
 

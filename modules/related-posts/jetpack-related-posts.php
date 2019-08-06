@@ -1703,7 +1703,12 @@ EOT;
 		if ( $style ){
 			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
 			wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
+			add_action( 'amp_post_template_css', array( $this, 'render_amp_reader_mode_css' ) );
 		}
+	}
+
+	public function render_amp_reader_mode_css() {
+		echo file_get_contents( plugin_dir_path( __FILE__ ) . 'related-posts.css' );
 	}
 
 	/**
