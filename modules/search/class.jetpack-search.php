@@ -224,7 +224,7 @@ class Jetpack_Search {
 	 */
 	public static function get_asset_version( $file ) {
 		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
-			? filemtime( $file )
+			? filemtime( JETPACK__PLUGIN_DIR . $file )
 			: JETPACK__VERSION;
 	}
 
