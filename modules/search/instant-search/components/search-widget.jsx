@@ -14,7 +14,7 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import SearchFilter from './search-filter';
-import { search } from '../components/api';
+import { search, buildAggs } from '../components/api';
 import { setSearchQuery } from '../lib/query-string';
 
 class SearchWidget extends Component {
@@ -24,7 +24,7 @@ class SearchWidget extends Component {
 		this.state = {
 			query: this.props.initialValue,
 			results: [],
-			aggs: this.buildAggs(),
+			aggs: buildAggs( this.props.filterConfig ),
 		};
 		this.injectFilters();
 		this.getResults = debounce( this.getResults, 500 );
@@ -65,63 +65,23 @@ class SearchWidget extends Component {
 		if ( this.props.filterConfig ) {
 			let widgets = this.props.filterConfig.widgets;
 			let filters = this.props.filterConfig.filters;
+			let self = this;
 			Object.keys( widgets ).forEach( function( index ) {
 				document.getElementById( widgets[ index ] + '-wrapper' ).innerHTML = '';
 			} );
 			Object.keys( filters ).forEach( function( filterName ) {
 				var filter = filters[ filterName ];
-				var filterDOM = render( <SearchFilter filterName={ filterName } title={ filter.name } /> );
+				var filterDOM = render(
+					<SearchFilter
+						filterName={ filterName }
+						title={ filter.name }
+						type={ filter.type }
+						results={ self.state.results }
+					/>
+				);
 				document.getElementById( filter.widget_id + '-wrapper' ).appendChild( filterDOM );
 			} );
 		}
-	};
-
-	buildAggs = () => {
-		var aggs = {};
-		if ( this.props.filterConfig ) {
-			let filters = this.props.filterConfig.filters;
-			Object.keys( filters ).forEach( function( filterName ) {
-				var filter = filters[ filterName ];
-				switch ( filter.type ) {
-					case 'date_histogram':
-						var field = filter.field == 'post_date_gmt' ? 'date_gmt' : 'date';
-						aggs[ filterName ] = {
-							date_histogram: {
-								field: field,
-								interval: filter.interval,
-							},
-						};
-						break;
-					case 'taxonomy':
-						var field = 'taxonomy.' + filter.taxonomy;
-						switch ( filter.taxonomy ) {
-							case 'post_tag':
-								field = 'tag';
-								break;
-							case 'category':
-								field = 'category';
-								break;
-						}
-						field = field + '.slug';
-						aggs[ filterName ] = {
-							terms: {
-								field: field,
-								size: filter.count,
-							},
-						};
-						break;
-					case 'post_type':
-						aggs[ filterName ] = {
-							terms: {
-								field: 'post_type',
-								size: filter.count,
-							},
-						};
-						break;
-				}
-			} );
-		}
-		return aggs;
 	};
 
 	render() {
