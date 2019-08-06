@@ -137,11 +137,27 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 									$found_icon = false;
 
 								foreach ( $social_icons as $social_icon ) {
-									if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
-										echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
-										echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
-										$found_icon = true;
-										break;
+									
+									// Check if the $social_icon['url'] is an array ('Feed' url is provided as an array of url components)
+									if ( is_array( $social_icon['url'] ) ) {
+										// If array then we loop over the array to do the stripos match using each array item
+										foreach ( $social_icon['url'] as $url_fragment ) {
+											if ( false !== stripos( $icon['url'], $url_fragment ) ) {
+												echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
+												echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
+												$found_icon = true;
+												break;
+											}
+										}
+										
+									} else {
+										// If not array then we can do a regular stripos match using $social_icon['url']
+										if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
+											echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
+											echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
+											$found_icon = true;
+											break;
+										}
 									}
 								}
 
@@ -508,116 +524,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Facebook',
 			),
 			array(
-				'url'   => '/feed/', // WordPress default feed url
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/feeds/', // Blogspot, and others
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/blog/feed', // No trailing space WordPress feed, could use /feed but may match unexpectedly
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'format=RSS', // Squarespace feed url, and others
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/rss', // Used by Tumblr
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/.rss', // Yep, Reddit uses this
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/rss.xml', // Moveable Type, Typepad
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'http://rss',
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'https://rss',
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'rss=1',
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/feed=rss', // Catches feed=rss / feed=rss2
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '?feed=rss', // WordPress non-permalink - Catches feed=rss / feed=rss2
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '?feed=rdf', // WordPress non-permalink
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '?feed=atom', // WordPress non-permalink
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'http://feeds', // FeedBurner 
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'https://feeds', // FeedBurner 
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/feed.xml', // Alias used with Feedburner, and others
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/index.xml', // Moveable Type, and others
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/atom.xml', // Typepad
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '.atom', // Shopify blogs
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => '/atom', // Some non-WordPress feeds
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
-				'url'   => 'index.rdf', // Typepad
-				'icon'  => 'feed',
-				'label' => __( 'RSS Feed', 'jetpack' ),
-			),
-			array(
 				'url'   => 'flickr.com',
 				'icon'  => 'flickr',
 				'label' => 'Flickr',
@@ -768,6 +674,43 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'YouTube',
 			),
 		);
+		
+		/*
+		 * There are many possible RSS Feed url formats
+		 * 
+		 * This array of common feed url parameters is used to try and match a variety of feed urls in order to correctly display them as Feeds
+		 */
+		$feed_url_formats = array(
+			'url'   => array(
+				'/feed/', // WordPress default feed url
+				'/feeds/', // Blogspot, and others
+				'/blog/feed', // No trailing space WordPress feed, could use /feed but may match unexpectedly
+				'format=RSS', // Squarespace feed url, and others
+				'/rss', // Used by Tumblr
+				'/.rss', // Yep, Reddit uses this
+				'/rss.xml', // Moveable Type, Typepad
+				'http://rss',
+				'https://rss',
+				'rss=1',
+				'/feed=rss', // Catches feed=rss / feed=rss2
+				'?feed=rss', // WordPress non-permalink - Catches feed=rss / feed=rss2
+				'?feed=rdf', // WordPress non-permalink
+				'?feed=atom', // WordPress non-permalink
+				'http://feeds', // FeedBurner 
+				'https://feeds', // FeedBurner 
+				'/feed.xml', // Alias used with Feedburner, and others
+				'/index.xml', // Moveable Type, and others
+				'/atom.xml', // Typepad, Squarespace
+				'.atom', // Shopify blog
+				'/atom', // Some non-WordPress feeds
+				'index.rdf', // Typepad
+			),
+			'icon'  => 'feed',
+			'label' => __( 'RSS Feed', 'jetpack' ),
+		);
+		
+		// Push the $feed_url_formats onto the main $social_links_icons array
+		array_push( $social_links_icons, $feed_url_formats );
 
 		return $social_links_icons;
 	}
