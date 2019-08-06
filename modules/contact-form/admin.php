@@ -833,6 +833,10 @@ function grunion_ajax_spam() {
 		}
 	}
 
+	if ( defined( 'DOING_JETPACK_UNIT_TEST' ) && DOING_JETPACK_UNIT_TEST ) {
+		return;
+	}
+
 	$sql          = "
 		SELECT post_status,
 			COUNT( * ) AS post_count
