@@ -41,6 +41,7 @@ export function getSearchTerm( state ) {
  * @return {Boolean}       Whether the module should be in the search results
  */
 export function isModuleFound( state, module ) {
+	console.warn( 'looking for module', module, state );
 	const result = find( get( state.jetpack, [ 'modules', 'items' ], {} ), [ 'module', module ] );
 
 	if ( 'undefined' === typeof result ) {

@@ -109,6 +109,6 @@ let webpackConfig = [
 	},
 ];
 
-console.log( webpackConfig );
+// console.log( webpackConfig );
 
 module.exports = webpackConfig;

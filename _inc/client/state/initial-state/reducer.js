@@ -8,7 +8,7 @@ import { assign, get, merge } from 'lodash';
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 
-export const initialState = ( state = window.Initial_State, action ) => {
+export const initialState = ( state = getInitialState(), action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
 			return assign( {}, state, action.initialState );
@@ -20,6 +20,13 @@ export const initialState = ( state = window.Initial_State, action ) => {
 			return state;
 	}
 };
+
+export function getInitialState() {
+	if ( window && window.Initial_State ) {
+		return window.Initial_State;
+	}
+	return globalThis.Initial_State;
+}
 
 /**
  * Returns bool if current version is Dev version

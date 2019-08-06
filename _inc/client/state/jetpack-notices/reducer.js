@@ -13,6 +13,7 @@ import {
 	DISCONNECT_SITE_SUCCESS,
 	RESET_OPTIONS_SUCCESS,
 } from 'state/action-types';
+import { getInitialState } from 'state/initial-state';
 
 const notice = ( state = false, action ) => {
 	switch ( action.type ) {
@@ -24,7 +25,7 @@ const notice = ( state = false, action ) => {
 	}
 };
 
-const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
+const dismissed = ( state = getInitialState().dismissedNotices, action ) => {
 	switch ( action.type ) {
 		case JETPACK_ACTION_NOTICES_DISMISS:
 			return assign( {}, state, { [ action.notice ]: true } );

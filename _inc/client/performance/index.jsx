@@ -34,10 +34,12 @@ class Performance extends Component {
 		);
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
+			console.warn( 'not active', this.props );
 			return null;
 		}
 
 		if ( ! found ) {
+			console.warn( 'not found', this.props );
 			return null;
 		}
 

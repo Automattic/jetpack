@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import { assign, get, includes, merge } from 'lodash';
+import { getInitialState } from 'state/initial-state';
 
 /**
  * Internal dependencies
@@ -26,10 +27,7 @@ import {
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
-export const status = (
-	state = { siteConnected: window.Initial_State.connectionStatus },
-	action
-) => {
+export const status = ( state = { siteConnected: getInitialState().connectionStatus }, action ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
@@ -52,7 +50,7 @@ export const connectUrl = ( state = '', action ) => {
 	}
 };
 
-export const user = ( state = window.Initial_State.userData, action ) => {
+export const user = ( state = getInitialState().userData, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.userConnectionData );

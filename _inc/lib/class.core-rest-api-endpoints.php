@@ -21,7 +21,7 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
-add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
+// add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
 add_action( 'rest_pre_serve_request', array( 'Jetpack_Core_Json_Api_Endpoints', 'pre_serve_request' ), 99, 4 );
 // XXX HACK FOR BASIC AUTH FOR TESTING
 add_filter( 'determine_current_user', array( 'Jetpack_Core_Json_Api_Endpoints', 'basic_auth_handler' ), 20 );
@@ -55,15 +55,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			$origin = get_http_origin();
 			if ( $origin && in_array( $origin, array(
-					'http://192.168.86.21:8080'
+					'http://192.168.86.21:8080',
+					'http://192.168.50.1:8080'
 				) ) ) {
 				header( 'Access-Control-Allow-Origin: *' ); // . esc_url_raw( $origin )
 				header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
 				header( 'Access-Control-Allow-Credentials: true' );
 				header( 'Access-Control-Allow-Headers: Authorization, Content-Type, Accept' );
 				header( 'Access-Control-Expose-Headers: X-WP-Total, X-WP-TotalPages' );
-				header( 'X-Content-Type-Options: sniff' );
-				header( 'Content-Type: text/plain' );
+				// header( 'X-Content-Type-Options: sniff' );
+				// header( 'Content-Type: text/plain' );
 				// etc
 			}
 
@@ -113,7 +114,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function pre_serve_request( $served, $result, $request, $server ) {
-		if ( ! $served && preg_match( '|/jetpack/v4/universal-clients/.*|', $request->get_route() ) ) {
+		if ( ! $served && preg_match( '|/jetpack/v4/universal-client/.*|', $request->get_route() ) ) {
 			echo $result->get_data()."\n";
 			return true;
 		}
@@ -531,10 +532,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_universal_clients'
 		) );
 
-		register_rest_route( 'jetpack/v4', '/universal-clients/(?P<client_slug>[a-z\-_.]+)', array(
+		// this is a hack
+		register_rest_route( 'jetpack/v4', '/universal-clients/initial-state', array(
+			'methods' => WP_REST_Server::READABLE,
+			array(
+				'callback' => __CLASS__ . '::get_universal_client_initial_state',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		) );
+
+		register_rest_route( 'jetpack/v4', '/universal-client/(?P<client_slug>[a-z\-_.]+)', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_universal_client'
 		) );
+
+
 	}
 
 	public static function get_universal_clients( $request ) {
@@ -567,6 +579,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'Content-Type' => 'application/javascript'
 			)
 		);
+	}
+
+	public static function get_universal_client_initial_state( $request ) {
+		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
+		require_once( ABSPATH . 'wp-admin/includes/theme.php' ); // for get_theme_update_available()
+		$jetpack_react_page = new Jetpack_React_Page();
+		return $jetpack_react_page->get_initial_state();
 	}
 
 	public static function get_plans( $request ) {
