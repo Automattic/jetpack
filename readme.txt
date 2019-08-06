@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.5.3
+Stable tag: 7.6
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.2
@@ -96,47 +96,22 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.6 =
+= 7.7 =
 
-* Release date: August 6, 2019
-* Release post: https://wp.me/p1moTy-ljs
+* Release date: September 3, 2019
+* Release post: https://wp.me/p1moTy-log
 
 **Enhancements**
 
-* Backups: add ability to send SSH credentials.
-* Blocks: allow the insertion and preview of any Jetpack block in the editor, even when the block is only available via a Paid plan.
-* Carousel: use a pointer cursor when hovering over galleries that utilise the Carousel feature.
-* Dashboard: improve the display of the feature cards in the main Jetpack dashboard.
-* General: hide edit post link on your site when viewing it via the WordPress mobile app.
-* oEmbeds: add support for Song.link service.
-* Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
-* Stats: improve Cache performance by switching from the WordPress Options API to the WordPress Transient API.
-* Support links: use the Beta support form when on a development version.
-* Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
-* Sync: improve reliability of the synchronization of taxonomies.
-* Videos: ensure any deprecations added in the core video block are not overwritten.
-* Widgets: allow the customization of avatar image options in the Top Posts Widget, via a filter.
-* Widgets: add option to open Flickr gallery images in a new tab.
-* WordPress.com Activity Log: avoid display issues with WooCommerce Product Reviews.
+*
 
 **Improved compatibility**
 
-* AMP: ensure CSS compatibility with the Sharing buttons.
-* AMP: ensure full compatibility with Jetpack's Image CDN.
-* Dashboard: fix layout issues when viewing the dashboard on WordPress.com Business sites.
-* Compatibility suite for shared libraries: fix PHP notice when running suite.
-* Contact Form: ensure the Date picker field does not cause any AMP validation errors.
+*
 
 **Bug fixes**
 
-* Admin Page: fix the behaviour of the Jetpack Videos button in the "My Plan" tab.
-* Admin Page: fix a typo in the Magic Links modal.
-* Connection process: bring back the ability to connect to WordPress.com via XML-RPC or REST API.
-* Custom CSS: fix Media Width label layout issue in Firefox.
-* Dashboard Notices: fix layout issues on sites using an RTL language.
-* Simple Payments: fix security vulnerability in the Simple Payments description output.
-* Sync: fix home and Site URL synchronization issues on sites with custom Cron implementations.
-* WordPress.com Activity Log: add Action Scheduler to the list of blacklisted post types
+*
 
 --------
 
