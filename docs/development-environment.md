@@ -259,7 +259,7 @@ You should do all Jetpack development with `define( 'WP_DEBUG', true );` in your
 
 ### SCRIPT_DEBUG
 
-By default, WordPress loads minified versions of its module's JS files. If you want to work with the JS files in the modules, add `define( 'SCRIPT_DEBUG', true );` in your `wp-config.php`. This tells WordPress to load the non-minified JS version, allowing you to see your changes on page refresh.
+By default, WordPress loads minified versions of Jetpack's JS files. If you want to work with them, add `define( 'SCRIPT_DEBUG', true );` in your `wp-config.php`. This tells WordPress to load the non-minified JS version, allowing you to see your changes on page refresh.
 
 ### WP-CLI
 
