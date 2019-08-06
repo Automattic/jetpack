@@ -402,52 +402,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => '500px',
 			),
 			array(
-				'url'   => array( 'amazon.cn' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.in' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.fr' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.de' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.it' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.nl' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.es' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.co' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.ca' ),
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => array( 'amazon.com' ),
+				'url'   => array( 'amazon.cn', 'amazon.in', 'amazon.fr', 'amazon.de', 'amazon.it', 'amazon.nl', 'amazon.es', 'amazon.co', 'amazon.ca', 'amazon.com' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
@@ -487,12 +442,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Digg',
 			),
 			array(
-				'url'   => array( 'discord.gg' ),
-				'icon'  => 'discord',
-				'label' => 'Discord',
-			),
-			array(
-				'url'   => array( 'discordapp.com' ),
+				'url'   => array( 'discord.gg', 'discordapp.com' ),
 				'icon'  => 'discord',
 				'label' => 'Discord',
 			),
@@ -532,7 +482,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Goodreads',
 			),
 			array(
-				'url'   => array( 'google.com' ),
+				'url'   => array( 'google.com', 'google.co.uk', 'google.ca', 'google.cn', 'google.it' ),
 				'icon'  => 'google',
 				'label' => 'Google',
 			),
@@ -647,12 +597,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'VK',
 			),
 			array(
-				'url'   => array( 'wordpress.com' ),
-				'icon'  => 'wordpress',
-				'label' => 'WordPress.com',
-			),
-			array(
-				'url'   => array( 'wordpress.org' ),
+				'url'   => array( 'wordpress.com', 'wordpress.org' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
 			),
