@@ -138,7 +138,8 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 								foreach ( $social_icons as $social_icon ) {
 									
-									// Check if the $social_icon['url'] is an array ('Feed' url is provided as an array of url components)
+									// All $social_icon['url'] elements are now provided as an array even if there is only one item,
+									// but we'll check if the $social_icon['url'] is an array anyway
 									if ( is_array( $social_icon['url'] ) ) {
 										// If array then we loop over the array to do the stripos match using each array item
 										foreach ( $social_icon['url'] as $url_fragment ) {
@@ -150,14 +151,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 											}
 										}
 										
-									} else {
-										// If not array then we can do a regular stripos match using $social_icon['url']
-										if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
-											echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
-											echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
-											$found_icon = true;
-											break;
-										}
 									}
 								}
 
@@ -404,272 +397,272 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	public function get_supported_icons() {
 		$social_links_icons = array(
 			array(
-				'url'   => '500px.com',
+				'url'   => array( '500px.com' ),
 				'icon'  => '500px',
 				'label' => '500px',
 			),
 			array(
-				'url'   => 'amazon.cn',
+				'url'   => array( 'amazon.cn' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.in',
+				'url'   => array( 'amazon.in' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.fr',
+				'url'   => array( 'amazon.fr' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.de',
+				'url'   => array( 'amazon.de' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.it',
+				'url'   => array( 'amazon.it' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.nl',
+				'url'   => array( 'amazon.nl' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.es',
+				'url'   => array( 'amazon.es' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.co',
+				'url'   => array( 'amazon.co' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.ca',
+				'url'   => array( 'amazon.ca' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.com',
+				'url'   => array( 'amazon.com' ),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'apple.com',
+				'url'   => array( 'apple.com' ),
 				'icon'  => 'apple',
 				'label' => 'Apple',
 			),
 			array(
-				'url'   => 'itunes.com',
+				'url'   => array( 'itunes.com' ),
 				'icon'  => 'apple',
 				'label' => 'iTunes',
 			),
 			array(
-				'url'   => 'bandcamp.com',
+				'url'   => array( 'bandcamp.com' ),
 				'icon'  => 'bandcamp',
 				'label' => 'Bandcamp',
 			),
 			array(
-				'url'   => 'behance.net',
+				'url'   => array( 'behance.net' ),
 				'icon'  => 'behance',
 				'label' => 'Behance',
 			),
 			array(
-				'url'   => 'codepen.io',
+				'url'   => array( 'codepen.io' ),
 				'icon'  => 'codepen',
 				'label' => 'CodePen',
 			),
 			array(
-				'url'   => 'deviantart.com',
+				'url'   => array( 'deviantart.com' ),
 				'icon'  => 'deviantart',
 				'label' => 'DeviantArt',
 			),
 			array(
-				'url'   => 'digg.com',
+				'url'   => array( 'digg.com' ),
 				'icon'  => 'digg',
 				'label' => 'Digg',
 			),
 			array(
-				'url'   => 'discord.gg',
+				'url'   => array( 'discord.gg' ),
 				'icon'  => 'discord',
 				'label' => 'Discord',
 			),
 			array(
-				'url'   => 'discordapp.com',
+				'url'   => array( 'discordapp.com' ),
 				'icon'  => 'discord',
 				'label' => 'Discord',
 			),
 			array(
-				'url'   => 'dribbble.com',
+				'url'   => array( 'dribbble.com' ),
 				'icon'  => 'dribbble',
 				'label' => 'Dribbble',
 			),
 			array(
-				'url'   => 'dropbox.com',
+				'url'   => array( 'dropbox.com' ),
 				'icon'  => 'dropbox',
 				'label' => 'Dropbox',
 			),
 			array(
-				'url'   => 'etsy.com',
+				'url'   => array( 'etsy.com' ),
 				'icon'  => 'etsy',
 				'label' => 'Etsy',
 			),
 			array(
-				'url'   => 'facebook.com',
+				'url'   => array( 'facebook.com' ),
 				'icon'  => 'facebook',
 				'label' => 'Facebook',
 			),
 			array(
-				'url'   => 'flickr.com',
+				'url'   => array( 'flickr.com' ),
 				'icon'  => 'flickr',
 				'label' => 'Flickr',
 			),
 			array(
-				'url'   => 'foursquare.com',
+				'url'   => array( 'foursquare.com' ),
 				'icon'  => 'foursquare',
 				'label' => 'Foursquare',
 			),
 			array(
-				'url'   => 'goodreads.com',
+				'url'   => array( 'goodreads.com' ),
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
 			),
 			array(
-				'url'   => 'google.com',
+				'url'   => array( 'google.com' ),
 				'icon'  => 'google',
 				'label' => 'Google',
 			),
 			array(
-				'url'   => 'github.com',
+				'url'   => array( 'github.com' ),
 				'icon'  => 'github',
 				'label' => 'GitHub',
 			),
 			array(
-				'url'   => 'instagram.com',
+				'url'   => array( 'instagram.com' ),
 				'icon'  => 'instagram',
 				'label' => 'Instagram',
 			),
 			array(
-				'url'   => 'linkedin.com',
+				'url'   => array( 'linkedin.com' ),
 				'icon'  => 'linkedin',
 				'label' => 'LinkedIn',
 			),
 			array(
-				'url'   => 'mailto:',
+				'url'   => array( 'mailto:' ),
 				'icon'  => 'mail',
 				'label' => __( 'Email', 'jetpack' ),
 			),
 			array(
-				'url'   => 'meetup.com',
+				'url'   => array( 'meetup.com' ),
 				'icon'  => 'meetup',
 				'label' => 'Meetup',
 			),
 			array(
-				'url'   => 'medium.com',
+				'url'   => array( 'medium.com' ),
 				'icon'  => 'medium',
 				'label' => 'Medium',
 			),
 			array(
-				'url'   => 'pinterest.',
+				'url'   => array( 'pinterest.' ),
 				'icon'  => 'pinterest',
 				'label' => 'Pinterest',
 			),
 			array(
-				'url'   => 'getpocket.com',
+				'url'   => array( 'getpocket.com' ),
 				'icon'  => 'pocket',
 				'label' => 'Pocket',
 			),
 			array(
-				'url'   => 'reddit.com',
+				'url'   => array( 'reddit.com' ),
 				'icon'  => 'reddit',
 				'label' => 'Reddit',
 			),
 			array(
-				'url'   => 'skype.com',
+				'url'   => array( 'skype.com' ),
 				'icon'  => 'skype',
 				'label' => 'Skype',
 			),
 			array(
-				'url'   => 'skype:',
+				'url'   => array( 'skype:' ),
 				'icon'  => 'skype',
 				'label' => 'Skype',
 			),
 			array(
-				'url'   => 'slideshare.net',
+				'url'   => array( 'slideshare.net' ),
 				'icon'  => 'slideshare',
 				'label' => 'SlideShare',
 			),
 			array(
-				'url'   => 'snapchat.com',
+				'url'   => array( 'snapchat.com' ),
 				'icon'  => 'snapchat',
 				'label' => 'Snapchat',
 			),
 			array(
-				'url'   => 'soundcloud.com',
+				'url'   => array( 'soundcloud.com' ),
 				'icon'  => 'soundcloud',
 				'label' => 'SoundCloud',
 			),
 			array(
-				'url'   => 'spotify.com',
+				'url'   => array( 'spotify.com' ),
 				'icon'  => 'spotify',
 				'label' => 'Spotify',
 			),
 			array(
-				'url'   => 'stackoverflow.com',
+				'url'   => array( 'stackoverflow.com' ),
 				'icon'  => 'stackoverflow',
 				'label' => 'Stack Overflow',
 			),
 			array(
-				'url'   => 'stumbleupon.com',
+				'url'   => array( 'stumbleupon.com' ),
 				'icon'  => 'stumbleupon',
 				'label' => 'StumbleUpon',
 			),
 			array(
-				'url'   => 'tumblr.com',
+				'url'   => array( 'tumblr.com' ),
 				'icon'  => 'tumblr',
 				'label' => 'Tumblr',
 			),
 			array(
-				'url'   => 'twitch.tv',
+				'url'   => array( 'twitch.tv' ),
 				'icon'  => 'twitch',
 				'label' => 'Twitch',
 			),
 			array(
-				'url'   => 'twitter.com',
+				'url'   => array( 'twitter.com' ),
 				'icon'  => 'twitter',
 				'label' => 'Twitter',
 			),
 			array(
-				'url'   => 'vimeo.com',
+				'url'   => array( 'vimeo.com' ),
 				'icon'  => 'vimeo',
 				'label' => 'Vimeo',
 			),
 			array(
-				'url'   => 'vk.com',
+				'url'   => array( 'vk.com' ),
 				'icon'  => 'vk',
 				'label' => 'VK',
 			),
 			array(
-				'url'   => 'wordpress.com',
+				'url'   => array( 'wordpress.com' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress.com',
 			),
 			array(
-				'url'   => 'wordpress.org',
+				'url'   => array( 'wordpress.org' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
 			),
 			array(
-				'url'   => 'yelp.com',
+				'url'   => array( 'yelp.com' ),
 				'icon'  => 'yelp',
 				'label' => 'Yelp',
 			),
 			array(
-				'url'   => 'youtube.com',
+				'url'   => array( 'youtube.com' ),
 				'icon'  => 'youtube',
 				'label' => 'YouTube',
 			),
