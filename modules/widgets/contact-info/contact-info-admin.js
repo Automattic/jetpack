@@ -1,4 +1,4 @@
-/* global ajaxurl */
+/* global ajaxurl, contact_info_api_key_ajax_obj */
 
 ( function( $ ) {
 	$( document ).on( 'change', '.jp-contact-info-showmap', function() {
@@ -27,6 +27,7 @@
 		$.post(
 			ajaxurl,
 			{
+				_ajax_nonce: contact_info_api_key_ajax_obj.nonce,
 				action: 'customize-contact-info-api-key',
 				apikey: $apikey_input.val(),
 			},

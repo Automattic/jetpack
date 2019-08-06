@@ -222,6 +222,15 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				20160727
 			);
 
+			if ( is_customize_preview() ) {
+				$customize_contact_info_api_key_nonce = wp_create_nonce( 'customize_contact_info_api_key' );
+				wp_localize_script(
+					'contact-info-admin',
+					'contact_info_api_key_ajax_obj',
+					array( 'nonce' => $customize_contact_info_api_key_nonce )
+				);
+			}
+
 			?>
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
@@ -421,10 +430,12 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function ajax_check_api_key() {
 			if ( isset( $_POST['apikey'] ) ) {
-				$apikey = wp_kses( $_POST['apikey'], array() );
-				$default_instance = $this->defaults();
-				$default_instance['apikey'] = $apikey;
-				wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );
+				if ( check_ajax_referer( 'customize_contact_info_api_key' ) && current_user_can( 'customize' ) ) {
+					$apikey = wp_kses( $_POST['apikey'], array() );
+					$default_instance = $this->defaults();
+					$default_instance['apikey'] = $apikey;
+					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );
+				}
 			} else {
 				wp_die();
 			}
