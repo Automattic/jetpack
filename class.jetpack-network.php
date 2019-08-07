@@ -31,7 +31,7 @@ class Jetpack_Network {
 	/**
 	 * An instance of the connection manager object.
 	 *
-	 * @since 7.6
+	 * @since 7.7
 	 * @var Automattic\Jetpack\Connection\Manager
 	 */
 	private $connection;

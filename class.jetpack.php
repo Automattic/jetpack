@@ -4622,11 +4622,11 @@ p {
 	/**
 	 * Returns the requested Jetpack API URL
 	 *
-	 * @deprecated since 7.6
+	 * @deprecated since 7.7
 	 * @return string
 	 */
 	public static function api_url( $relative_url ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.6', '\\Automattic\\Jetpack\\Connection\\Manager::api_url' );
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::api_url' );
 		$connection = self::connection();
 		return $connection->api_url( $relative_url );
 	}

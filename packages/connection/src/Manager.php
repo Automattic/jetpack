@@ -483,7 +483,7 @@ class Manager implements Manager_Interface {
 		/**
 		 * Action for additional token checking.
 		 *
-		 * @since 7.5.0
+		 * @since 7.7.0
 		 *
 		 * @param Array $post_data request data.
 		 * @param Array $token_data token data.
@@ -656,7 +656,7 @@ class Manager implements Manager_Interface {
 		/**
 		 * Filters the request body for additional property addition.
 		 *
-		 * @since 7.6.0
+		 * @since 7.7.0
 		 *
 		 * @param Array $post_data request data.
 		 * @param Array $token_data token data.
