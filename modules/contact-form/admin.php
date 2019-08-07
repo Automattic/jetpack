@@ -833,10 +833,6 @@ function grunion_ajax_spam() {
 		}
 	}
 
-	if ( defined( 'DOING_JETPACK_UNIT_TEST' ) && DOING_JETPACK_UNIT_TEST ) {
-		return;
-	}
-
 	$sql          = "
 		SELECT post_status,
 			COUNT( * ) AS post_count
@@ -920,6 +916,11 @@ function grunion_ajax_spam() {
 		$status_html .= '>' . __( 'Needs A Response', 'jetpack' ) . ' <span class="needsresponse">';
 		$status_html .= '(' . number_format( $status['needsresponse'] ) . ')';
 		$status_html .= '</span></a></li>';
+	}
+
+	// If unit tests are running, the output needs to be returned and not echoed.
+	if ( defined( 'DOING_JETPACK_UNIT_TEST' ) && DOING_JETPACK_UNIT_TEST ) {
+		return $status_html;
 	}
 
 	echo $status_html;

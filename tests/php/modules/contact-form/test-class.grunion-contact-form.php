@@ -1,11 +1,13 @@
 <?php
 require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_jetpack_file( 'modules/contact-form/admin.php' );
 
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
-		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission
+		define( 'DOING_AJAX',              true ); // Defined so that 'exit' is not called in process_submission
+		define( 'DOING_JETPACK_UNIT_TEST', true ); // Defined so that grunion_ajax_spam doesn't output HTML
 
 		// Remove any relevant filters that might exist before running the tests
 		remove_all_filters( 'grunion_still_email_spam' );
@@ -64,6 +66,290 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		foreach( $values as $key => $val ) {
 			$_POST['g' . $this->post->ID . '-' . $key] = $val;
 		}
+	}
+
+	/**
+	 * @author tmoorewp
+	 *
+	 * Tests that the custom post statuses registered by Grunion are actually available
+	 */
+	public function test_feedback_post_statuses_are_available() {
+		$registered_statuses = get_available_post_statuses( 'feedback' );
+
+		$this->assertTrue(
+			   in_array( 'spam', $registered_statuses )
+			&& in_array( 'responded', $registered_statuses )
+			&& in_array( 'inprogress', $registered_statuses )
+			&& in_array( 'needsresponse', $registered_statuses )
+		);
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=inprogress
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_inprogress() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// The status we expect to change to and the status HTML we should see
+		$status           = 'inprogress';
+		$expected_message = '<li><a href="edit.php?post_status=inprogress&amp;post_type=feedback">In Progress <span class="count">(1)</span></a></li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = $status;
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( $status, get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=needsresponse
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_needsresponse() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// The status we expect to change to and the status HTML we should see
+		$status           = 'needsresponse';
+		$expected_message = '<li><a href="edit.php?post_status=needsresponse&amp;post_type=feedback">Needs A Response <span class="needsresponse">(1)</span></a></li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = $status;
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( $status, get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=responded
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_responded() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// The status we expect to change to and the status HTML we should see
+		$status           = 'responded';
+		$expected_message = '<li><a href="edit.php?post_status=responded&amp;post_type=feedback">Responded <span class="count">(1)</span></a></li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = $status;
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( $status, get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=spam
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_spam() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'publish',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// The status we expect to change to
+		$status           = 'spam';
+		$expected_message = '<li><a href="edit.php?post_status=spam&amp;post_type=feedback">Spam <span class="count">(1)</span></a></li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = $status;
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( $status, get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=ham
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_ham() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// The status we expect to change to
+		$status           = 'ham';
+		$expected_message = '<li><a href="edit.php?post_type=feedback">Messages <span class="count">(1)</span></a> |</li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = 'ham'; // for this test, we send a different action than we expect to get back
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( 'publish', get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=publish
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_publish() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		/**
+		 * Set up a default post. This test is to restore a post from trash,
+		 * so set post_status of test post to trash
+		 */
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'trash',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		/**
+		 * For this test, we also have to set a previous status meta
+		 * Assert that this has been successfully set
+		 */
+		$this->assertNotFalse( update_post_meta( $post_id, '_wp_trash_meta_status', 'publish' ) );
+
+		// The status we expect to change to and the status HTML we should see
+		$status           = 'publish';
+		$expected_message = '<li><a href="edit.php?post_type=feedback">Messages <span class="count">(1)</span></a> |</li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = $status;
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( $status, get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that a feedback can be transitioned to post_status=trash
+	 */
+	public function test_feedback_grunion_ajax_spam_transitions_to_trash() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// The status we expect to change to and the status HTML we should see
+		$status           = 'trash';
+		$expected_message = '<li><a href="edit.php?post_status=trash&amp;post_type=feedback">Trash <span class="count">(1)</span></a></li>';
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = $status;
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// Process the status change
+		$status_message = grunion_ajax_spam();
+
+		// Check that the process changed the status as expected
+		$this->assertEquals( $status, get_post_status( $post_id ) );
+
+		// Check that the returned HTML is expected
+		$this->assertEquals( $expected_message, $status_message );
 	}
 
 	/**
@@ -1463,5 +1749,4 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
 		$this->assertSame( 0, count( $posts ), 'posts count matches after deleting the other feedback responder' );
 	}
-
 } // end class
