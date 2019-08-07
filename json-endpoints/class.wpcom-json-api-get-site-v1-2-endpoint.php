@@ -48,6 +48,7 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'meta'              => '(object) Meta data',
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
 		'launch_status'     => '(string) A string describing the launch status of a site',
+		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
 	);
 
 
