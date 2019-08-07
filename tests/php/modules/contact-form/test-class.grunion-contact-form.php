@@ -7,7 +7,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 		define( 'DOING_AJAX',         true ); // Defined so that 'exit' is not called in process_submission
-		define( 'TESTING_IN_JETPACK', true ); // Defined so that grunion_ajax_spam doesn't output HTML
 
 		// Remove any relevant filters that might exist before running the tests
 		remove_all_filters( 'grunion_still_email_spam' );
