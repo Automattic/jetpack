@@ -326,9 +326,9 @@ class Jetpack_Network {
 
 					// If !$_GET['site_id'] stop registration and error.
 					if ( ! isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
-						// Log error to state cookie for display later.
-
-						/*
+						/**
+						 * Log error to state cookie for display later.
+						 *
 						 * @todo Make state messages show on Jetpack NA pages
 						 */
 						Jetpack::state( 'missing_site_id', esc_html__( 'Site ID must be provided to register a sub-site.', 'jetpack' ) );
