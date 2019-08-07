@@ -4679,15 +4679,15 @@ p {
 					$_GET['rest_route']
 				)
 			) {
-				$jpUser = get_user_by( 'email', $jpo_user );
-				if ( is_a( $jpUser, 'WP_User' ) ) {
-					wp_set_current_user( $jpUser->ID );
+				$jp_user = get_user_by( 'email', $jpo_user );
+				if ( is_a( $jp_user, 'WP_User' ) ) {
+					wp_set_current_user( $jp_user->ID );
 					$user_can = is_multisite()
 						? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
 						: current_user_can( 'manage_options' );
 					if ( $user_can ) {
 						$token_type = 'user';
-						$token->external_user_id = $jpUser->ID;
+						$token->external_user_id = $jp_user->ID;
 					}
 				}
 			}
