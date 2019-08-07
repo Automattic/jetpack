@@ -77,9 +77,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$registered_statuses = get_available_post_statuses( 'feedback' );
 
 		$this->assertTrue(
-			   in_array( 'spam', $registered_statuses )
-			&& in_array( 'responded', $registered_statuses )
-			&& in_array( 'inprogress', $registered_statuses )
+			   in_array( 'spam',          $registered_statuses )
+			&& in_array( 'responded',     $registered_statuses )
+			&& in_array( 'inprogress',    $registered_statuses )
 			&& in_array( 'needsresponse', $registered_statuses )
 		);
 	}
