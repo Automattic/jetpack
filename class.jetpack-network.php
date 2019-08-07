@@ -5,8 +5,8 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
 
 /**
