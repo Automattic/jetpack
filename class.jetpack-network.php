@@ -553,7 +553,7 @@ class Jetpack_Network {
 		require_once 'class.jetpack-network-sites-list-table.php';
 
 		$network_sites_table = new Jetpack_Network_Sites_List_Table();
-		echo '<div class="wrap"><h2>' . esc_html( __( 'Sites', 'jetpack' ) ) . '</h2>';
+		echo '<div class="wrap"><h2>' . esc_html__( 'Sites', 'jetpack' ) . '</h2>';
 		echo '<form method="post">';
 		$network_sites_table->prepare_items();
 		$network_sites_table->display();
