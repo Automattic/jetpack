@@ -97,12 +97,26 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
  * @uses register_rest_field, wpme_rest_get_shortlink
  */
 function wpme_rest_register_shortlinks() {
+	
+	/**
+	 * Filter the post type list for which shortlinks are allowed.
+	 *
+	 * @module shortlinks
+	 *
+	 * @since 7.7.0
+	 *
+	 * @param array Array of post types.
+	 */	
+	$allowed_post_types = apply_filters( 'jetpack_shortlink_allowed_post_types',
+			array(
+				'attachment',
+				'page',
+				'post',
+			)
+		);
+		
 	register_rest_field(
-		array(
-			'attachment',
-			'page',
-			'post',
-		),
+		$allowed_post_types,
 		'jetpack_shortlink',
 		array(
 			'get_callback'    => 'wpme_rest_get_shortlink',
