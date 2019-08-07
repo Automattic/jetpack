@@ -120,11 +120,11 @@ class Replicastore implements Replicastore_Interface {
 			$where = '1=1';
 		}
 
-		if ( null !== $min_id ) {
+		if ( ! empty( $min_id ) ) {
 			$where .= ' AND ID >= ' . intval( $min_id );
 		}
 
-		if ( null !== $max_id ) {
+		if ( ! empty( $max_id ) ) {
 			$where .= ' AND ID <= ' . intval( $max_id );
 		}
 
@@ -301,11 +301,11 @@ class Replicastore implements Replicastore_Interface {
 			$where = '1=1';
 		}
 
-		if ( null !== $min_id ) {
+		if ( ! empty( $min_id ) ) {
 			$where .= ' AND comment_ID >= ' . intval( $min_id );
 		}
 
-		if ( null !== $max_id ) {
+		if ( ! empty( $max_id ) ) {
 			$where .= ' AND comment_ID <= ' . intval( $max_id );
 		}
 
@@ -1450,11 +1450,11 @@ ENDSQL;
 	private function meta_count( $table, $where_sql, $min_id, $max_id ) {
 		global $wpdb;
 
-		if ( null !== $min_id ) {
+		if ( ! empty( $min_id ) ) {
 			$where_sql .= ' AND meta_id >= ' . intval( $min_id );
 		}
 
-		if ( null !== $max_id ) {
+		if ( ! empty( $max_id ) ) {
 			$where_sql .= ' AND meta_id <= ' . intval( $max_id );
 		}
 
