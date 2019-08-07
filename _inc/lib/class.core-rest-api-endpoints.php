@@ -21,7 +21,7 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
-// add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
+add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
 add_action( 'rest_pre_serve_request', array( 'Jetpack_Core_Json_Api_Endpoints', 'pre_serve_request' ), 99, 4 );
 // XXX HACK FOR BASIC AUTH FOR TESTING
 add_filter( 'determine_current_user', array( 'Jetpack_Core_Json_Api_Endpoints', 'basic_auth_handler' ), 20 );
@@ -61,7 +61,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				header( 'Access-Control-Allow-Origin: *' ); // . esc_url_raw( $origin )
 				header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
 				header( 'Access-Control-Allow-Credentials: true' );
-				header( 'Access-Control-Allow-Headers: Authorization, Content-Type, Accept' );
+				header( 'Access-Control-Allow-Headers: Authorization, Content-Type, Accept, X-WP-Nonce' );
 				header( 'Access-Control-Expose-Headers: X-WP-Total, X-WP-TotalPages' );
 				// header( 'X-Content-Type-Options: sniff' );
 				// header( 'Content-Type: text/plain' );

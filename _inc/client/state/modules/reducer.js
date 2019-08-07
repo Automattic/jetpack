@@ -27,7 +27,6 @@ import { isPluginActive } from 'state/site/plugins';
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			console.warn( 'got initial state action' );
 			return assign( {}, action.initialState.getModules );
 		case JETPACK_MODULES_LIST_RECEIVE:
 			return assign( {}, state, action.modules );

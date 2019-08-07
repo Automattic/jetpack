@@ -26,40 +26,42 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
-		headers = {
-			'X-WP-Nonce': nonce,
-		},
-		getParams = {
-			credentials: 'same-origin',
-			headers: headers,
-		},
-		postParams = {
-			method: 'post',
-			credentials: 'same-origin',
-			headers: assign( {}, headers, {
-				'Content-type': 'application/json',
-			} ),
-		};
+		headers = {},
+		getParams = { headers },
+		postParams = { method: 'post' };
 
 	const methods = {
 		setApiRoot( newRoot ) {
 			apiRoot = newRoot;
 		},
 		setApiNonce( newNonce ) {
-			headers = {
-				'X-WP-Nonce': newNonce,
-			};
-			getParams = {
+			this.setApiHeader( 'X-WP-Nonce', newNonce );
+			this.setApiGetParams( {
 				credentials: 'same-origin',
-				headers: headers,
-			};
-			postParams = {
-				method: 'post',
+			} );
+			this.setApiPostParams( {
 				credentials: 'same-origin',
-				headers: assign( {}, headers, {
-					'Content-type': 'application/json',
-				} ),
-			};
+			} );
+		},
+
+		setApiHeader( headerName, headerValue ) {
+			headers[ headerName ] = headerValue;
+		},
+
+		setApiGetParams( params ) {
+			assign( getParams, params );
+		},
+
+		setApiPostParams( params ) {
+			assign( postParams, params );
+		},
+
+		getApiGetParams() {
+			return getParams;
+		},
+
+		getApiPostParams() {
+			return { ...postParams, headers: { ...headers, 'Content-Type': 'application/json' } };
 		},
 
 		fetchSiteConnectionStatus: () =>
@@ -79,14 +81,14 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		updateUserTrackingSettings: newSettings =>
-			postRequest( `${ apiRoot }jetpack/v4/tracking/settings`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/tracking/settings`, this.getApiPostParams(), {
 				body: JSON.stringify( newSettings ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
 		disconnectSite: () =>
-			postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/connection`, this.getApiPostParams(), {
 				body: JSON.stringify( { isActive: false } ),
 			} )
 				.then( checkStatus )
@@ -98,7 +100,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		unlinkUser: () =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/connection/user`, this.getApiPostParams(), {
 				body: JSON.stringify( { linked: false } ),
 			} )
 				.then( checkStatus )
@@ -115,26 +117,26 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		activateModule: slug =>
-			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, this.getApiPostParams(), {
 				body: JSON.stringify( { active: true } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
 		deactivateModule: slug =>
-			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, this.getApiPostParams(), {
 				body: JSON.stringify( { active: false } ),
 			} ),
 
 		updateModuleOptions: ( slug, newOptionValues ) =>
-			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, this.getApiPostParams(), {
 				body: JSON.stringify( newOptionValues ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
 		updateSettings: newOptionValues =>
-			postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/settings`, this.getApiPostParams(), {
 				body: JSON.stringify( newOptionValues ),
 			} )
 				.then( checkStatus )
@@ -146,7 +148,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		resetOptions: options =>
-			postRequest( `${ apiRoot }jetpack/v4/options/${ options }`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/options/${ options }`, this.getApiPostParams(), {
 				body: JSON.stringify( { reset: true } ),
 			} )
 				.then( checkStatus )
@@ -168,7 +170,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		checkAkismetKeyTyped: apiKey =>
-			postRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, this.getApiPostParams(), {
 				body: JSON.stringify( { api_key: apiKey } ),
 			} )
 				.then( checkStatus )
@@ -196,7 +198,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse ),
 
 		updateSetting: updatedSetting =>
-			postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/settings`, this.getApiPostParams(), {
 				body: JSON.stringify( updatedSetting ),
 			} )
 				.then( checkStatus )
@@ -221,7 +223,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( body => JSON.parse( body.data ) ),
 
 		dismissJetpackNotice: notice =>
-			postRequest( `${ apiRoot }jetpack/v4/notice/${ notice }`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/notice/${ notice }`, this.getApiPostParams(), {
 				body: JSON.stringify( { dismissed: true } ),
 			} )
 				.then( checkStatus )
@@ -242,14 +244,14 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 
 		verifySiteGoogle: keyringId =>
-			postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, this.getApiPostParams(), {
 				body: JSON.stringify( { keyring_id: keyringId } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
 		sendMobileLoginEmail: () =>
-			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
+			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, this.getApiPostParams() )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};
@@ -265,10 +267,12 @@ function JetpackRestApiClient( root, nonce ) {
 	}
 
 	function getRequest( route, params ) {
+		console.warn( 'get', route, params );
 		return fetch( addCacheBuster( route ), params );
 	}
 
 	function postRequest( route, params, body ) {
+		console.warn( 'post', route, params );
 		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 

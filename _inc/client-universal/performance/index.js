@@ -11,6 +11,7 @@ import { Provider, connect } from 'react-redux';
  * Internal Dependencies
  */
 // import store from ;
+import restApi from 'rest-api';
 
 // fake initial state
 // window.Initial_State = {
@@ -47,6 +48,7 @@ function loadApp() {
 	const Performance = require( 'performance' ).default;
 	const store = require( 'state/redux-store' ).default;
 	const setInitialState = require( 'state/initial-state' ).setInitialState;
+	const { getApiNonce, getApiRootUrl } = require( 'state/initial-state' );
 
 	// import WPAPI from 'wpapi';
 	// import request from 'request';
@@ -63,6 +65,15 @@ function loadApp() {
 	class App extends React.Component {
 		UNSAFE_componentWillMount() {
 			this.props.setInitialState();
+			restApi.setApiRoot( this.props.apiRoot );
+			// restApi.setApiNonce( this.props.apiNonce );
+			restApi.setApiHeader( 'Authorization', authType + ' ' + authCreds );
+			restApi.setApiHeader( 'Accept', 'application/json' );
+			restApi.setApiHeader( 'Content-Type', 'application/json' );
+			restApi.setApiGetParams( { mode: 'cors' } );
+			restApi.setApiPostParams( { mode: 'cors' } );
+			// : 'application/json', // required to circumvent CORB
+			// 'Content-Type': 'application/json', // required to circumvent CORB
 		}
 		render() {
 			return (
@@ -77,7 +88,24 @@ function loadApp() {
 	}
 
 	const ConnectedApp = connect(
-		state => ( {} ),
+		state => {
+			return {
+				// siteConnectionStatus: getSiteConnectionStatus( state ),
+				// isLinked: isCurrentUserLinked( state ),
+				// siteRawUrl: getSiteRawUrl( state ),
+				// siteAdminUrl: getSiteAdminUrl( state ),
+				// searchTerm: getSearchTerm( state ),
+				apiRoot: getApiRootUrl( state ),
+				apiNonce: getApiNonce( state ),
+				// tracksUserData: getTracksUserData( state ),
+				// areThereUnsavedSettings: areThereUnsavedSettings( state ),
+				// userCanManageModules: userCanManageModules( state ),
+				// userCanConnectSite: userCanConnectSite( state ),
+				// isSiteConnected: isSiteConnected( state ),
+				// rewindStatus: getRewindStatus( state ),
+				// currentVersion: getCurrentVersion( state ),
+			};
+		},
 		dispatch => ( {
 			setInitialState: () => {
 				return dispatch( setInitialState() );
