@@ -137,20 +137,21 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 									$found_icon = false;
 
 								foreach ( $social_icons as $social_icon ) {
-									
-									// All $social_icon['url'] elements are now provided as an array even if there is only one item,
-									// but we'll check if the $social_icon['url'] is an array anyway
-									if ( is_array( $social_icon['url'] ) ) {
-										// If array then we loop over the array to do the stripos match using each array item
-										foreach ( $social_icon['url'] as $url_fragment ) {
-											if ( false !== stripos( $icon['url'], $url_fragment ) ) {
-												echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
-												echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
-												$found_icon = true;
-												break;
-											}
+									foreach ( $social_icon['url'] as $url_fragment ) {
+										if ( false !== stripos( $icon['url'], $url_fragment ) ) {
+											printf(
+												'<span class="screen-reader-text">%1$s</span>%2$s',
+												esc_attr( $social_icon['label'] ),
+												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+												$this->get_svg_icon(
+													array(
+														'icon' => esc_attr( $social_icon['icon'] ),
+													)
+												)
+											);
+											$found_icon = true;
+											break;
 										}
-										
 									}
 								}
 
