@@ -402,7 +402,18 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => '500px',
 			),
 			array(
-				'url'   => array( 'amazon.cn', 'amazon.in', 'amazon.fr', 'amazon.de', 'amazon.it', 'amazon.nl', 'amazon.es', 'amazon.co', 'amazon.ca', 'amazon.com' ),
+				'url'   => array(
+					'amazon.cn',
+					'amazon.in',
+					'amazon.fr',
+					'amazon.de',
+					'amazon.it',
+					'amazon.nl',
+					'amazon.es',
+					'amazon.co',
+					'amazon.ca',
+					'amazon.com',
+				),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
@@ -465,6 +476,34 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'facebook.com' ),
 				'icon'  => 'facebook',
 				'label' => 'Facebook',
+			),
+			array(
+				'url'   => array(
+					'/feed/',        // WordPress default feed url.
+					'/feeds/',       // Blogspot and others.
+					'/blog/feed',    // No trailing space WordPress feed, could use /feed but may match unexpectedly.
+					'format=RSS',    // Squarespace and others.
+					'/rss',          // Tumblr.
+					'/.rss',         // Reddit.
+					'/rss.xml',      // Moveable Type, Typepad.
+					'http://rss',
+					'https://rss',
+					'rss=1',
+					'/feed=rss',     // Catches feed=rss / feed=rss2.
+					'?feed=rss',     // WordPress non-permalink - Catches feed=rss / feed=rss2.
+					'?feed=rdf',     // WordPress non-permalink.
+					'?feed=atom',    // WordPress non-permalink.
+					'http://feeds',  // FeedBurner.
+					'https://feeds', // FeedBurner.
+					'/feed.xml',     // Feedburner Alias, and others.
+					'/index.xml',    // Moveable Type, and others.
+					'/atom.xml',     // Typepad, Squarespace.
+					'.atom',         // Shopify blog.
+					'/atom',         // Some non-WordPress feeds.
+					'index.rdf',     // Typepad.
+				),
+				'icon'  => 'feed',
+				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
 				'url'   => array( 'flickr.com' ),
@@ -612,43 +651,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'YouTube',
 			),
 		);
-		
-		/*
-		 * There are many possible RSS Feed url formats
-		 * 
-		 * This array of common feed url parameters is used to try and match a variety of feed urls in order to correctly display them as Feeds
-		 */
-		$feed_url_formats = array(
-			'url'   => array(
-				'/feed/', // WordPress default feed url
-				'/feeds/', // Blogspot, and others
-				'/blog/feed', // No trailing space WordPress feed, could use /feed but may match unexpectedly
-				'format=RSS', // Squarespace feed url, and others
-				'/rss', // Used by Tumblr
-				'/.rss', // Yep, Reddit uses this
-				'/rss.xml', // Moveable Type, Typepad
-				'http://rss',
-				'https://rss',
-				'rss=1',
-				'/feed=rss', // Catches feed=rss / feed=rss2
-				'?feed=rss', // WordPress non-permalink - Catches feed=rss / feed=rss2
-				'?feed=rdf', // WordPress non-permalink
-				'?feed=atom', // WordPress non-permalink
-				'http://feeds', // FeedBurner 
-				'https://feeds', // FeedBurner 
-				'/feed.xml', // Alias used with Feedburner, and others
-				'/index.xml', // Moveable Type, and others
-				'/atom.xml', // Typepad, Squarespace
-				'.atom', // Shopify blog
-				'/atom', // Some non-WordPress feeds
-				'index.rdf', // Typepad
-			),
-			'icon'  => 'feed',
-			'label' => __( 'RSS Feed', 'jetpack' ),
-		);
-		
-		// Push the $feed_url_formats onto the main $social_links_icons array
-		array_push( $social_links_icons, $feed_url_formats );
 
 		return $social_links_icons;
 	}
