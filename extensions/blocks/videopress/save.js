@@ -4,8 +4,15 @@
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { RichText } from '@wordpress/editor';
 
+/**
+ * Internal dependencies
+ */
+import { getVideoPressUrl } from './url';
+
 const VideoPressSave = CoreVideoSave => props => {
-	const { attributes: { caption, guid } = {} } = props;
+	const {
+		attributes: { autoplay, caption, controls, guid, loop, muted, poster, preload } = {},
+	} = props;
 
 	if ( ! guid ) {
 		/**
@@ -20,7 +27,14 @@ const VideoPressSave = CoreVideoSave => props => {
 		return CoreVideoSave( props );
 	}
 
-	const url = `https://videopress.com/v/${ guid }`;
+	const url = getVideoPressUrl( guid, {
+		autoplay,
+		controls,
+		loop,
+		muted,
+		poster,
+		preload,
+	} );
 
 	return (
 		<figure className="wp-block-embed is-type-video is-provider-videopress">
