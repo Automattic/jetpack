@@ -704,6 +704,8 @@ class Jetpack {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
+	 * @todo Deprecate this method in favor of Automattic\\Jetpack\\Connection\\Manager::setup_xmlrpc_handlers().
+	 *
 	 * @param Array                 $request_params incoming request parameters.
 	 * @param Boolean               $is_active whether the connection is currently active.
 	 * @param Boolean               $is_signed whether the signature check has been successful.
