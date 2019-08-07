@@ -919,7 +919,7 @@ function grunion_ajax_spam() {
 	}
 
 	// If unit tests are running, the output needs to be returned and not echoed.
-	if ( defined( 'DOING_JETPACK_UNIT_TEST' ) && DOING_JETPACK_UNIT_TEST ) {
+	if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 		return $status_html;
 	}
 
