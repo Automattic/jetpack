@@ -407,7 +407,7 @@ class Jetpack_XMLRPC_Server {
 	 * an access token for the given user.
 	 *
 	 * @param array      $request An array containing local_user and nonce keys at minimum.
-	 * @param IXR_Client $ixr_client the client object, optional.
+	 * @param \IXR_Client $ixr_client the client object, optional.
 	 * @return mixed
 	 */
 	public function remote_connect( $request, $ixr_client = false ) {
