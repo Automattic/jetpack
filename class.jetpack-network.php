@@ -432,7 +432,7 @@ class Jetpack_Network {
 		switch_to_blog( $site_id );
 
 		add_filter( 'jetpack_register_request_body', array( $this, 'filter_register_request_body' ) );
-		add_filter( 'jetpack_site_registered_user_token', array( $this, 'filter_register_user_token' ) );
+		add_action( 'jetpack_site_registered_user_token', array( $this, 'filter_register_user_token' ) );
 
 		// Save the secrets in the subsite so when the wpcom server does a pingback it
 		// will be able to validate the connection.
@@ -454,7 +454,6 @@ class Jetpack_Network {
 	 * @param Object $token the received token.
 	 */
 	public function filter_register_user_token( $token ) {
-
 		$is_master_user = ! Jetpack::is_active();
 		Jetpack::update_user_token(
 			get_current_user_id(),
