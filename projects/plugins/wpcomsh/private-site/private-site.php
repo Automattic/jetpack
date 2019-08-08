@@ -65,35 +65,57 @@ function site_is_private() {
  * Determine if site access should be blocked for various types of requests.
  * This function is cached for subsequent calls so we can use it gratuitously.
  *
+ * @param array $args
+ *
  * @return bool
  */
 function should_prevent_site_access() {
 	global $pagenow, $wp;
 
+	$doing_bloginfo_filter = doing_filter( 'bloginfo' );
+
+	$use_cache = ! $doing_bloginfo_filter;
+
 	static $cached;
 
-	if ( isset( $cached ) ) {
+	if ( $use_cache && isset( $cached ) ) {
 		return $cached;
 	}
 
 	if ( ! site_is_private() ) {
-		return $cached = false;
+		if ( $use_cache ) {
+			$cached = false;
+		}
+		return false;
 	}
 
-	if ( 'wp-login.php' === $pagenow ) {
-		return $cached = false;
+	if ( 'wp-login.php' === $pagenow && ! $doing_bloginfo_filter ) {
+		if ( $use_cache ) {
+			$cached = false;
+		}
+		return false;
 	}
 
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		return $cached = false;
+		if ( $use_cache ) {
+			$cached = false;
+		}
+		return false;
 	}
 
 	// Serve robots.txt for private blogs.
 	if ( is_object( $wp ) && ! empty( $wp->query_vars['robots'] ) ) {
-		return $cached = false;
+		if ( $use_cache ) {
+			$cached = false;
+		}
+		return false;
 	}
 
-	return $cached = ! is_private_blog_user();
+	$to_return = ! is_private_blog_user();
+	if ( $use_cache ) {
+		$cached = $to_return;
+	}
+	return $to_return;
 }
 
 function parse_request() {
