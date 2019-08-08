@@ -239,6 +239,11 @@ function grunion_handle_bulk_spam() {
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	}
 
+	// If unit tests are running, return a success
+	if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+		return true;
+	}
+
 	$redirect_url = add_query_arg( 'message', $requested_action, wp_get_referer() );
 	wp_safe_redirect( $redirect_url );
 	exit;

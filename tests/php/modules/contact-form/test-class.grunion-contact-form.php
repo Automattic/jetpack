@@ -352,6 +352,423 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author tmoorewp
+	 * @covers grunion_handle_bulk_spam
+	 *
+	 * Tests that grunion_handle_bulk_spam fails correctly
+	 */
+	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_pagenow() {
+		global $pagenow;
+
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// force $pagenow to be something wrong
+		$pagenow = '';
+
+		$bulk_spam_return = grunion_handle_bulk_spam();
+
+		$this->assertEmpty( $bulk_spam_return );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_handle_bulk_spam
+	 *
+	 * Tests that grunion_handle_bulk_spam fails correctly
+	 */
+	public function test_feedback_grunion_handle_bulk_spam_fails_with_empty_request() {
+		global $pagenow;
+
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up the data for a grunion_handle_bulk_spam
+		$pagenow               = 'edit.php';
+		$_REQUEST['post_type'] = '';
+
+		$this->assertEmpty( grunion_handle_bulk_spam() );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_handle_bulk_spam
+	 *
+	 * Tests that grunion_handle_bulk_spam fails correctly
+	 */
+	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_post_type() {
+		global $pagenow;
+
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up the data for a grunion_handle_bulk_spam
+		$pagenow               = 'edit.php';
+		$_REQUEST['post_type'] = 'loremipsum';
+
+		$this->assertEmpty( grunion_handle_bulk_spam() );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_handle_bulk_spam
+	 *
+	 * Tests that grunion_handle_bulk_spam fails correctly
+	 */
+	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_action() {
+		global $pagenow;
+
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up the data for a grunion_handle_bulk_spam
+		$pagenow               = 'edit.php';
+		$_REQUEST['post_type'] = 'feedback';
+		$_REQUEST['action']    = 'loremipsum';
+		$_REQUEST['action2']   = '';
+
+		$this->assertEmpty( grunion_handle_bulk_spam() );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_handle_bulk_spam
+	 *
+	 * Tests that grunion_handle_bulk_spam fails correctly
+	 */
+	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_action2() {
+		global $pagenow;
+
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up the data for a grunion_handle_bulk_spam
+		$pagenow               = 'edit.php';
+		$_REQUEST['post_type'] = 'feedback';
+		$_REQUEST['action']    = '';
+		$_REQUEST['action2']   = 'loremipsum';
+
+		$this->assertEmpty( grunion_handle_bulk_spam() );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_handle_bulk_spam
+	 *
+	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
+	 */
+	 public function test_feedback_grunion_handle_bulk_spam_set_spam_action() {
+		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+		// Set up default posts.
+		$post_ids = $this->factory->post->create_many( 5, array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'publish',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+ 		// Create and set an administrative user
+ 		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+ 		wp_set_current_user( $admin_id );
+
+		$expected_status = 'spam';
+
+ 		// Set up the data for a grunion_handle_bulk_spam
+ 		$pagenow               = 'edit.php';
+ 		$_REQUEST['post_type'] = 'feedback';
+ 		$_REQUEST['action']    = $expected_status;
+ 		$_REQUEST['action2']   = '';
+		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+		$_REQUEST['post']      = $post_ids;
+		
+		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+ 		$this->assertTrue( grunion_handle_bulk_spam() );
+
+		// Check each post_id in the array we created to make sure its status was properly changed
+		foreach ( $post_ids as $post_id ) {
+			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+		}
+	 }
+
+	 /**
+ 	 * @author tmoorewp
+ 	 * @covers grunion_handle_bulk_spam
+ 	 *
+ 	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
+ 	 */
+ 	 public function test_feedback_grunion_handle_bulk_spam_set_responded_action() {
+ 		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+ 		// Set up default posts.
+ 		$post_ids = $this->factory->post->create_many( 5, array(
+ 			'post_type'     => 'feedback',
+ 			'post_status'   => 'publish',
+ 			'post_date_gmt' => '1987-01-01 12:00:00'
+ 		) );
+
+  		// Create and set an administrative user
+  		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+  		wp_set_current_user( $admin_id );
+
+ 		$expected_status = 'responded';
+
+  		// Set up the data for a grunion_handle_bulk_spam
+  		$pagenow               = 'edit.php';
+  		$_REQUEST['post_type'] = 'feedback';
+  		$_REQUEST['action']    = $expected_status;
+  		$_REQUEST['action2']   = '';
+ 		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+ 		$_REQUEST['post']      = $post_ids;
+
+ 		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+  		$this->assertTrue( grunion_handle_bulk_spam() );
+
+ 		// Check each post_id in the array we created to make sure its status was properly changed
+ 		foreach ( $post_ids as $post_id ) {
+ 			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+ 		}
+ 	 }
+
+	 /**
+ 	 * @author tmoorewp
+ 	 * @covers grunion_handle_bulk_spam
+ 	 *
+ 	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
+ 	 */
+ 	 public function test_feedback_grunion_handle_bulk_spam_set_inprogress_action() {
+ 		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+ 		// Set up default posts.
+ 		$post_ids = $this->factory->post->create_many( 5, array(
+ 			'post_type'     => 'feedback',
+ 			'post_status'   => 'publish',
+ 			'post_date_gmt' => '1987-01-01 12:00:00'
+ 		) );
+
+  		// Create and set an administrative user
+  		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+  		wp_set_current_user( $admin_id );
+
+ 		$expected_status = 'inprogress';
+
+  		// Set up the data for a grunion_handle_bulk_spam
+  		$pagenow               = 'edit.php';
+  		$_REQUEST['post_type'] = 'feedback';
+  		$_REQUEST['action']    = $expected_status;
+  		$_REQUEST['action2']   = '';
+ 		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+ 		$_REQUEST['post']      = $post_ids;
+
+ 		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+  		$this->assertTrue( grunion_handle_bulk_spam() );
+
+ 		// Check each post_id in the array we created to make sure its status was properly changed
+ 		foreach ( $post_ids as $post_id ) {
+ 			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+ 		}
+ 	 }
+
+	 /**
+ 	 * @author tmoorewp
+ 	 * @covers grunion_handle_bulk_spam
+ 	 *
+ 	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
+ 	 */
+ 	 public function test_feedback_grunion_handle_bulk_spam_set_needsresponse_action() {
+ 		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+ 		// Set up default posts.
+ 		$post_ids = $this->factory->post->create_many( 5, array(
+ 			'post_type'     => 'feedback',
+ 			'post_status'   => 'publish',
+ 			'post_date_gmt' => '1987-01-01 12:00:00'
+ 		) );
+
+  		// Create and set an administrative user
+  		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+  		wp_set_current_user( $admin_id );
+
+ 		$expected_status = 'needsresponse';
+
+  		// Set up the data for a grunion_handle_bulk_spam
+  		$pagenow               = 'edit.php';
+  		$_REQUEST['post_type'] = 'feedback';
+  		$_REQUEST['action']    = $expected_status;
+  		$_REQUEST['action2']   = '';
+ 		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+ 		$_REQUEST['post']      = $post_ids;
+
+ 		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+  		$this->assertTrue( grunion_handle_bulk_spam() );
+
+ 		// Check each post_id in the array we created to make sure its status was properly changed
+ 		foreach ( $post_ids as $post_id ) {
+ 			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+ 		}
+ 	 }
+
+	 /**
+ 	 * @author tmoorewp
+ 	 * @covers grunion_handle_bulk_spam
+ 	 *
+ 	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
+ 	 */
+ 	 public function test_feedback_grunion_handle_bulk_spam_set_spam_action2() {
+ 		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+ 		// Set up default posts.
+ 		$post_ids = $this->factory->post->create_many( 5, array(
+ 			'post_type'     => 'feedback',
+ 			'post_status'   => 'publish',
+ 			'post_date_gmt' => '1987-01-01 12:00:00'
+ 		) );
+
+  		// Create and set an administrative user
+  		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+  		wp_set_current_user( $admin_id );
+
+ 		$expected_status = 'spam';
+
+  		// Set up the data for a grunion_handle_bulk_spam
+  		$pagenow               = 'edit.php';
+  		$_REQUEST['post_type'] = 'feedback';
+  		$_REQUEST['action2']    = $expected_status;
+  		$_REQUEST['action']   = '';
+ 		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+ 		$_REQUEST['post']      = $post_ids;
+
+ 		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+  		$this->assertTrue( grunion_handle_bulk_spam() );
+
+ 		// Check each post_id in the array we created to make sure its status was properly changed
+ 		foreach ( $post_ids as $post_id ) {
+ 			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+ 		}
+ 	 }
+
+ 	 /**
+  	 * @author tmoorewp
+  	 * @covers grunion_handle_bulk_spam
+  	 *
+  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
+  	 */
+  	 public function test_feedback_grunion_handle_bulk_spam_set_responded_action2() {
+  		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+  		// Set up default posts.
+  		$post_ids = $this->factory->post->create_many( 5, array(
+  			'post_type'     => 'feedback',
+  			'post_status'   => 'publish',
+  			'post_date_gmt' => '1987-01-01 12:00:00'
+  		) );
+
+   		// Create and set an administrative user
+   		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+   		wp_set_current_user( $admin_id );
+
+  		$expected_status = 'responded';
+
+   		// Set up the data for a grunion_handle_bulk_spam
+   		$pagenow               = 'edit.php';
+   		$_REQUEST['post_type'] = 'feedback';
+   		$_REQUEST['action2']    = $expected_status;
+   		$_REQUEST['action']   = '';
+  		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+  		$_REQUEST['post']      = $post_ids;
+
+  		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+   		$this->assertTrue( grunion_handle_bulk_spam() );
+
+  		// Check each post_id in the array we created to make sure its status was properly changed
+  		foreach ( $post_ids as $post_id ) {
+  			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+  		}
+  	 }
+
+ 	 /**
+  	 * @author tmoorewp
+  	 * @covers grunion_handle_bulk_spam
+  	 *
+  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
+  	 */
+  	 public function test_feedback_grunion_handle_bulk_spam_set_inprogress_action2() {
+  		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+  		// Set up default posts.
+  		$post_ids = $this->factory->post->create_many( 5, array(
+  			'post_type'     => 'feedback',
+  			'post_status'   => 'publish',
+  			'post_date_gmt' => '1987-01-01 12:00:00'
+  		) );
+
+   		// Create and set an administrative user
+   		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+   		wp_set_current_user( $admin_id );
+
+  		$expected_status = 'inprogress';
+
+   		// Set up the data for a grunion_handle_bulk_spam
+   		$pagenow               = 'edit.php';
+   		$_REQUEST['post_type'] = 'feedback';
+   		$_REQUEST['action2']    = $expected_status;
+   		$_REQUEST['action']   = '';
+  		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+  		$_REQUEST['post']      = $post_ids;
+
+  		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+   		$this->assertTrue( grunion_handle_bulk_spam() );
+
+  		// Check each post_id in the array we created to make sure its status was properly changed
+  		foreach ( $post_ids as $post_id ) {
+  			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+  		}
+  	 }
+
+ 	 /**
+  	 * @author tmoorewp
+  	 * @covers grunion_handle_bulk_spam
+  	 *
+  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
+  	 */
+  	 public function test_feedback_grunion_handle_bulk_spam_set_needsresponse_action2() {
+  		 global $pagenow; // we need to make sure this is properly set to edit.php
+
+  		// Set up default posts.
+  		$post_ids = $this->factory->post->create_many( 5, array(
+  			'post_type'     => 'feedback',
+  			'post_status'   => 'publish',
+  			'post_date_gmt' => '1987-01-01 12:00:00'
+  		) );
+
+   		// Create and set an administrative user
+   		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+   		wp_set_current_user( $admin_id );
+
+  		$expected_status = 'needsresponse';
+
+   		// Set up the data for a grunion_handle_bulk_spam
+   		$pagenow               = 'edit.php';
+   		$_REQUEST['post_type'] = 'feedback';
+   		$_REQUEST['action2']    = $expected_status;
+   		$_REQUEST['action']   = '';
+  		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
+  		$_REQUEST['post']      = $post_ids;
+
+  		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
+   		$this->assertTrue( grunion_handle_bulk_spam() );
+
+  		// Check each post_id in the array we created to make sure its status was properly changed
+  		foreach ( $post_ids as $post_id ) {
+  			$this->assertEquals( $expected_status, get_post_status( $post_id ) );
+  		}
+  	 }
+
+	/**
 	 * @author tonykova
 	 * @covers Grunion_Contact_Form::process_submission
 	 *
