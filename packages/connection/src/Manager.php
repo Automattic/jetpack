@@ -697,7 +697,7 @@ class Manager implements Manager_Interface {
 		} elseif ( ! $registration_details ) {
 			return new \WP_Error(
 				'unknown_error',
-				'',
+				'Unknown error registering your Jetpack site.',
 				wp_remote_retrieve_response_code( $response )
 			);
 		}
@@ -705,7 +705,7 @@ class Manager implements Manager_Interface {
 		if ( empty( $registration_details->jetpack_secret ) || ! is_string( $registration_details->jetpack_secret ) ) {
 			return new \WP_Error(
 				'jetpack_secret',
-				'',
+				'Unable to validate registration of your Jetpack site.',
 				wp_remote_retrieve_response_code( $response )
 			);
 		}
