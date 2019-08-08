@@ -195,6 +195,8 @@ class Manager implements Manager_Interface {
 	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
 	 * which is accessible via a different URI. Most of the below is copied directly
 	 * from /xmlrpc.php so that we're replicating it as closely as possible.
+	 *
+	 * @todo Tighten $wp_xmlrpc_server_class a bit to make sure it doesn't do bad things.
 	 */
 	public function alternate_xmlrpc() {
 		// phpcs:disable PHPCompatibility.Variables.RemovedPredefinedGlobalVariables.http_raw_post_dataDeprecatedRemoved
