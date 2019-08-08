@@ -899,10 +899,10 @@ class Manager implements Manager_Interface {
 
 		$sql .= ' ORDER BY `option_id` LIMIT 100';
 
-		$sql = $wpdb->prepare( $sql, $sql_args ); // phpcs:ignore
+		$sql = $wpdb->prepare( $sql, $sql_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		for ( $i = 0; $i < 1000; $i++ ) {
-			if ( ! $wpdb->query( $sql ) ) { // phpcs:ignore
+			if ( ! $wpdb->query( $sql ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				break;
 			}
 		}
