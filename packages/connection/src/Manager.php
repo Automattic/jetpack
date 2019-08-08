@@ -1607,7 +1607,7 @@ class Manager implements Manager_Interface {
 		$options['jetpack_version'] = array(
 			'desc'     => __( 'Jetpack Plugin Version' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
 			'readonly' => true,
-			'value'    => JETPACK__VERSION,
+			'value'    => Constants::get_constant( 'JETPACK__VERSION' ),
 		);
 
 		$options['jetpack_client_id'] = array(
