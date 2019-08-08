@@ -5101,7 +5101,7 @@ p {
 	 */
 	public function verify_xml_rpc_signature() {
 		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::verify_xml_rpc_signature' );
-		return $this->connection_manager->verify_xml_rpc_signature();
+		return self::connection()->verify_xml_rpc_signature();
 	}
 
 	/**
