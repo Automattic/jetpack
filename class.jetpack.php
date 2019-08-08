@@ -726,6 +726,17 @@ class Jetpack {
 	}
 
 	/**
+	 * Initialize REST API registration connector.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::initialize_rest_api_registration_connector()
+	 */
+	public function initialize_rest_api_registration_connector() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::initialize_rest_api_registration_connector' );
+		$this->connection_manager->initialize_rest_api_registration_connector();
+	}
+
+	/**
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
 	 *
 	 * @param $domains
@@ -819,6 +830,37 @@ class Jetpack {
 		}
 
 		wp_die();
+	}
+
+	/**
+	 * Removes all XML-RPC methods that are not `jetpack.*`.
+	 * Only used in our alternate XML-RPC endpoint, where we want to
+	 * ensure that Core and other plugins' methods are not exposed.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::remove_non_jetpack_xmlrpc_methods()
+	 *
+	 * @param array $methods A list of registered WordPress XMLRPC methods.
+	 * @return array Filtered $methods
+	 */
+	public function remove_non_jetpack_xmlrpc_methods( $methods ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::remove_non_jetpack_xmlrpc_methods' );
+		return $this->connection_manager->remove_non_jetpack_xmlrpc_methods( $methods );
+	}
+
+	/**
+	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
+	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
+	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
+	 * which is accessible via a different URI. Most of the below is copied directly
+	 * from /xmlrpc.php so that we're replicating it as closely as possible.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::alternate_xmlrpc()
+	 */
+	public function alternate_xmlrpc() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::alternate_xmlrpc' );
+		$this->connection_manager->alternate_xmlrpc();
 	}
 
 	/**
@@ -962,6 +1004,17 @@ class Jetpack {
 				break;
 		}
 		return $caps;
+	}
+
+	/**
+	 * Require a Jetpack authentication.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::require_jetpack_authentication()
+	 */
+	public function require_jetpack_authentication() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::require_jetpack_authentication' );
+		$this->connection_manager->require_jetpack_authentication();
 	}
 
 	/**
@@ -4949,6 +5002,18 @@ p {
 	}
 
 	/**
+	 * Takes the response from the Jetpack register new site endpoint and
+	 * verifies it worked properly.
+	 *
+	 * @since 2.6
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::validate_remote_register_response()
+	 **/
+	public function validate_remote_register_response() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::validate_remote_register_response' );
+	}
+
+	/**
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
@@ -5024,6 +5089,49 @@ p {
 	public function reset_saved_auth_state() {
 		$this->rest_authentication_status = null;
 		$this->connection_manager->reset_saved_auth_state();
+	}
+
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::verify_xml_rpc_signature()
+	 *
+	 * @return false|array
+	 */
+	public function verify_xml_rpc_signature() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::verify_xml_rpc_signature' );
+		return $this->connection_manager->verify_xml_rpc_signature();
+	}
+
+	/**
+	 * Verifies the signature of the current request.
+	 *
+	 * This function has side effects and should not be used. Instead,
+	 * use the memoized version `->verify_xml_rpc_signature()`.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::internal_verify_xml_rpc_signature()
+	 * @internal
+	 */
+	private function internal_verify_xml_rpc_signature() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::internal_verify_xml_rpc_signature' );
+	}
+
+	/**
+	 * Authenticates XML-RPC and other requests from the Jetpack Server.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::authenticate_jetpack()
+	 *
+	 * @param \WP_User|mixed $user     User object if authenticated.
+	 * @param string         $username Username.
+	 * @param string         $password Password string.
+	 * @return \WP_User|mixed Authenticated user or error.
+	 */
+	public function authenticate_jetpack( $user, $username, $password ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::authenticate_jetpack' );
+		return $this->connection_manager->authenticate_jetpack( $user, $username, $password );
 	}
 
 	// Authenticates requests from Jetpack server to WP REST API endpoints.
@@ -5110,6 +5218,90 @@ p {
 			return $value;
 		}
 		return $this->rest_authentication_status;
+	}
+
+	/**
+	 * Add our nonce to this request.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::add_nonce()
+	 *
+	 * @param int    $timestamp Timestamp of the request.
+	 * @param string $nonce     Nonce string.
+	 */
+	public function add_nonce( $timestamp, $nonce ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::add_nonce' );
+		return $this->connection_manager->add_nonce( $timestamp, $nonce );
+	}
+
+	/**
+	 * In some setups, $HTTP_RAW_POST_DATA can be emptied during some IXR_Server paths since it is passed by reference to various methods.
+	 * Capture it here so we can verify the signature later.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::xmlrpc_methods()
+	 *
+	 * @param array $methods XMLRPC methods.
+	 * @return array XMLRPC methods, with the $HTTP_RAW_POST_DATA one.
+	 */
+	public function xmlrpc_methods( $methods ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_methods' );
+		return $this->connection_manager->xmlrpc_methods( $methods );
+	}
+
+	/**
+	 * Register additional public XMLRPC methods.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::public_xmlrpc_methods()
+	 *
+	 * @param array $methods Public XMLRPC methods.
+	 * @return array Public XMLRPC methods, with the getOptions one.
+	 */
+	public function public_xmlrpc_methods( $methods ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::public_xmlrpc_methods' );
+		return $this->connection_manager->public_xmlrpc_methods( $methods );
+	}
+
+	/**
+	 * Handles a getOptions XMLRPC method call.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::jetpack_getOptions()
+	 *
+	 * @param array $args method call arguments.
+	 * @return array an amended XMLRPC server options array.
+	 */
+	public function jetpack_getOptions( $args ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::jetpack_getOptions' );
+		return $this->connection_manager->jetpack_getOptions( $args );
+	}
+
+	/**
+	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::xmlrpc_options()
+	 *
+	 * @param array $options Standard Core options.
+	 * @return array Amended options.
+	 */
+	public function xmlrpc_options( $options ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_options' );
+		return $this->connection_manager->xmlrpc_options( $options );
+	}
+
+	/**
+	 * Cleans nonces that were saved when calling ::add_nonce.
+	 *
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::clean_nonces()
+	 *
+	 * @param bool $all whether to clean even non-expired nonces.
+	 */
+	public static function clean_nonces( $all = false ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::clean_nonces' );
+		return self::connection()->clean_nonces( $all );
 	}
 
 	/**
