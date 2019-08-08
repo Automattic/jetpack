@@ -620,7 +620,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	 public static function remote_authorize( $request ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result = $xmlrpc_server->remote_authorize( $request );
 
