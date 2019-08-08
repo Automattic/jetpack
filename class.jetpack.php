@@ -6852,11 +6852,4 @@ p {
 		}
 		return true;
 	}
-
-	/**
-	 * @deprecated use Automattic\Jetpack\Connection\Manager::verify_xml_rpc_signature
-	 */
-	public static function verify_xml_rpc_signature() {
-		return self::connection()->verify_xml_rpc_signature();
-	}
 }
