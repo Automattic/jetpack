@@ -44,12 +44,6 @@ class Manager implements Manager_Interface {
 	private $xmlrpc_verification = null;
 
 	/**
-	 * Creates an instance of the connection manager.
-	 */
-	public function __construct() {
-	}
-
-	/**
 	 * Initializes required listeners. This is done separately from the constructors
 	 * because some objects sometimes need to instantiate separate objects of this class.
 	 */
