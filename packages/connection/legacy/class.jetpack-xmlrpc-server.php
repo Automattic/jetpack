@@ -1,4 +1,9 @@
-<?php // phpcs:ignore
+<?php
+/**
+ * Jetpack XMLRPC Server.
+ *
+ * @package automattic/jetpack-connection
+ */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -406,7 +411,7 @@ class Jetpack_XMLRPC_Server {
 	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
 	 * an access token for the given user.
 	 *
-	 * @param array      $request An array containing local_user and nonce keys at minimum.
+	 * @param array       $request An array containing local_user and nonce keys at minimum.
 	 * @param \IXR_Client $ixr_client the client object, optional.
 	 * @return mixed
 	 */
