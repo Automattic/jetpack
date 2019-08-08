@@ -46,6 +46,8 @@ class Manager implements Manager_Interface {
 	/**
 	 * Initializes required listeners. This is done separately from the constructors
 	 * because some objects sometimes need to instantiate separate objects of this class.
+	 *
+	 * @todo Implement a proper nonce verification.
 	 */
 	public function init() {
 
@@ -885,6 +887,8 @@ class Manager implements Manager_Interface {
 	/**
 	 * Cleans nonces that were saved when calling ::add_nonce.
 	 *
+	 * @todo Properly prepare the query before executing it.
+	 *
 	 * @param bool $all whether to clean even non-expired nonces.
 	 */
 	public function clean_nonces( $all = false ) {
@@ -1545,6 +1549,8 @@ class Manager implements Manager_Interface {
 	/**
 	 * Handles a getOptions XMLRPC method call.
 	 *
+	 * @todo Audit whether we really need to use strings without textdomains.
+	 *
 	 * @param Array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
@@ -1592,6 +1598,8 @@ class Manager implements Manager_Interface {
 
 	/**
 	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
+	 *
+	 * @todo Audit whether we really need to use strings without textdomains.
 	 *
 	 * @param Array $options standard Core options.
 	 * @return Array amended options.
