@@ -125,7 +125,7 @@ class Manager implements Manager_Interface {
 		if ( $xmlrpc_server ) {
 			$this->xmlrpc_server = $xmlrpc_server;
 		} else {
-			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
+			$this->xmlrpc_server = new \Jetpack_XMLRPC_Server();
 		}
 
 		$this->require_jetpack_authentication();
