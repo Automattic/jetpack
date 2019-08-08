@@ -716,7 +716,12 @@ function grunion_ajax_spam() {
 	$post_id = (int) $_POST['post_id'];
 	check_ajax_referer( 'grunion-post-status-' . $post_id );
 	if ( ! current_user_can( 'edit_page', $post_id ) ) {
-		wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+		// If unit tests are running, a return is needed rather than a wp_die
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return false;
+		} else {
+			wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+		}
 	}
 
 	require_once dirname( __FILE__ ) . '/grunion-contact-form.php';

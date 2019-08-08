@@ -87,6 +87,46 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tmoorewp
 	 * @covers grunion_ajax_spam
 	 *
+	 * Tests that an empty $_POST['make_it'] action fails correctly
+	 */
+	public function test_feedback_grunion_ajax_spam_fails_with_no_makeit_action() {
+		$_POST['make_it'] = '';
+
+		// grunion_ajax_spam should return nothing if $_POST['make_it'] is empty
+		$this->assertEmpty( grunion_ajax_spam() );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
+	 * Tests that an incorrectly privileged user can't access the function
+	 */
+	public function test_feedback_grunion_ajax_spam_fails_with_unprivileged_user() {
+		// Create and set an administrative user
+		$admin_id = $this->factory->user->create( array( 'role' => 'author' ) );
+		wp_set_current_user( $admin_id );
+
+		// Set up a default post. It should matter the current post_status, since we're changing it
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		// Set up the $_POST and $_REQUEST data for grunion_ajax_spam
+		$_POST['post_id'] = $post_id;
+		$_POST['make_it'] = 'publish';
+		$_REQUEST['_ajax_nonce'] = wp_create_nonce( 'grunion-post-status-' . $post_id );
+
+		// grunion_ajax_spam should return nothing if $_POST['make_it'] is empty
+		$this->assertFalse( grunion_ajax_spam() );
+	}
+
+	/**
+	 * @author tmoorewp
+	 * @covers grunion_ajax_spam
+	 *
 	 * Tests that a feedback can be transitioned to post_status=inprogress
 	 */
 	public function test_feedback_grunion_ajax_spam_transitions_to_inprogress() {
@@ -485,7 +525,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  		$_REQUEST['action2']   = '';
 		$_REQUEST['_wpnonce']  = wp_create_nonce( 'bulk-posts' );
 		$_REQUEST['post']      = $post_ids;
-		
+
 		// If grunion_handle_bulk_spam ran successfully, it should return true in testing
  		$this->assertTrue( grunion_handle_bulk_spam() );
 
