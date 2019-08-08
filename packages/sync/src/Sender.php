@@ -198,7 +198,6 @@ class Sender {
 	 * @access public
 	 */
 	public function maybe_set_user_from_token() {
-		\Jetpack::init();
 		$verified_user = \Jetpack::connection()->verify_xml_rpc_signature();
 		if ( Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
