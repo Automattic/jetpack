@@ -190,7 +190,7 @@ class Grunion_Contact_Form_Plugin {
 				'show_in_rest'          => true,
 				'rest_controller_class' => 'Grunion_Contact_Form_Endpoint',
 				'capabilities'          => array(
-					'create_posts'        => false,
+					'create_posts'        => 'do_not_allow',
 					'publish_posts'       => 'publish_pages',
 					'edit_posts'          => 'edit_pages',
 					'edit_others_posts'   => 'edit_others_pages',
