@@ -46,7 +46,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_jetpack_updates() {
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_callable( 'updates' );
-		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
+		$this->assertEqualsObject( Jetpack::get_updates(), $updates, 'The updates object should match' );
 	}
 
 
@@ -982,9 +982,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// call one of the authenticated endpoints
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 		$jetpack = Jetpack::init();
-		$jetpack->xmlrpc_methods( array() );
-		$jetpack->require_jetpack_authentication();
-		$jetpack->verify_xml_rpc_signature();
+		$connection = Jetpack::connection();
+		$connection->xmlrpc_methods( array() );
+		$connection->require_jetpack_authentication();
+		$connection->verify_xml_rpc_signature();
 	}
 
 	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
@@ -1001,6 +1002,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$jetpack = Jetpack::init();
 		$jetpack->reset_saved_auth_state();
+		Jetpack::connection()->reset_raw_post_data();
 		wp_set_current_user( $user_id );
 		self::$admin_id = null;
 	}
