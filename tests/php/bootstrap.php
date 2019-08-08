@@ -118,7 +118,7 @@ function in_running_uninstall_group() {
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
 
-require dirname( __FILE__ ) . '/../../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
