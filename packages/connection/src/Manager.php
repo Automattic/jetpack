@@ -619,7 +619,7 @@ class Manager implements Manager_Interface {
 	 * @return Integer zero on success, or a bitmask on failure.
 	 */
 	public function register( $api_endpoint = 'register' ) {
-		add_action( 'pre_update_jetpack_option_register', array( '\Jetpack_Options', 'delete_option' ) );
+		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
 
 		if (
