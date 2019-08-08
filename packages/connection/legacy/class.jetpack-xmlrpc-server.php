@@ -943,8 +943,8 @@ class Jetpack_XMLRPC_Server {
 		if ( $user_id ) {
 			$token_key = false;
 		} else {
-			$jetpack   = Jetpack::init();
-			$verified  = $jetpack->verify_xml_rpc_signature();
+			Jetpack::init();
+			$verified  = Jetpack::connection()->verify_xml_rpc_signature();
 			$token_key = $verified['token_key'];
 		}
 
