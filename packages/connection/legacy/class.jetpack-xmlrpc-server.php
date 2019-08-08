@@ -98,9 +98,9 @@ class Jetpack_XMLRPC_Server {
 			 *
 			 * @since 1.1.0
 			 *
-			 * @param array   $jetpack_methods XML-RPC methods available to the Jetpack Server.
-			 * @param array   $core_methods    Available core XML-RPC methods.
-			 * @param WP_User $user            Information about a given WordPress user.
+			 * @param array    $jetpack_methods XML-RPC methods available to the Jetpack Server.
+			 * @param array    $core_methods    Available core XML-RPC methods.
+			 * @param \WP_User $user            Information about a given WordPress user.
 			 */
 			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $this->user );
 		}
@@ -155,13 +155,13 @@ class Jetpack_XMLRPC_Server {
 	 *                         array      A request array containing:
 	 *                                    0: int|string The local User's ID, username, or email address.
 	 *
-	 * @return array|IXR_Error Information about the user, or error if no such user found:
-	 *                         roles:     string[] The user's rols.
-	 *                         login:     string   The user's username.
-	 *                         email_hash string[] The MD5 hash of the user's normalized email address.
-	 *                         caps       string[] The user's capabilities.
-	 *                         allcaps    string[] The user's granular capabilities, merged from role capabilities.
-	 *                         token_key  string   The Token Key of the user's Jetpack token. Empty string if none.
+	 * @return array|\IXR_Error Information about the user, or error if no such user found:
+	 *                          roles:     string[] The user's rols.
+	 *                          login:     string   The user's username.
+	 *                          email_hash string[] The MD5 hash of the user's normalized email address.
+	 *                          caps       string[] The user's capabilities.
+	 *                          allcaps    string[] The user's granular capabilities, merged from role capabilities.
+	 *                          token_key  string   The Token Key of the user's Jetpack token. Empty string if none.
 	 */
 	public function get_user( $request ) {
 		$user_id = is_array( $request ) ? $request[0] : $request;
@@ -264,7 +264,7 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * @param array $request An array containing at minimum nonce and local_user keys.
 	 *
-	 * @return WP_Error|array
+	 * @return \WP_Error|array
 	 */
 	public function remote_register( $request ) {
 		$this->tracking->record_user_event( 'jpc_remote_register_begin', array() );
@@ -349,7 +349,7 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * @param array $request An array containing at minimum a nonce key and a local_username key.
 	 *
-	 * @return WP_Error|array
+	 * @return \WP_Error|array
 	 */
 	public function remote_provision( $request ) {
 		$user = $this->fetch_and_verify_local_user( $request );
@@ -528,9 +528,9 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Track an error.
 	 *
-	 * @param string             $name  Event name.
-	 * @param WP_Error|IXR_Error $error The error object.
-	 * @param WP_User            $user  The user object.
+	 * @param string               $name  Event name.
+	 * @param \WP_Error|\IXR_Error $error The error object.
+	 * @param \WP_User             $user  The user object.
 	 */
 	private function tracks_record_error( $name, $error, $user = null ) {
 		if ( is_wp_error( $error ) ) {
@@ -542,7 +542,7 @@ class Jetpack_XMLRPC_Server {
 				),
 				$user
 			);
-		} elseif ( is_a( $error, 'IXR_Error' ) ) {
+		} elseif ( is_a( $error, '\\IXR_Error' ) ) {
 			$this->tracking->record_user_event(
 				$name,
 				array(
@@ -578,7 +578,7 @@ class Jetpack_XMLRPC_Server {
 	 * invalid_state: supplied state does not match the stored state
 	 *
 	 * @param array $params action parameters.
-	 * @return WP_Error|string secret_2 on success, WP_Error( error_code => error_code, error_message => error description, error_data => status code ) on failure
+	 * @return \WP_Error|string secret_2 on success, WP_Error( error_code => error_code, error_message => error description, error_data => status code ) on failure
 	 */
 	public function verify_action( $params ) {
 		$action                    = $params[0];
@@ -651,7 +651,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Wrapper for wp_authenticate( $username, $password );
 	 *
-	 * @return WP_User|bool
+	 * @return \WP_User|bool
 	 */
 	public function login() {
 		Jetpack::connection()->require_jetpack_authentication();
@@ -672,12 +672,12 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	/**
-	 * Returns the current error as an IXR_Error
+	 * Returns the current error as an \IXR_Error
 	 *
-	 * @param WP_Error|IXR_Error $error             The error object, optional.
-	 * @param string             $tracks_event_name The event name.
-	 * @param WP_User            $user              The user object.
-	 * @return bool|IXR_Error
+	 * @param \WP_Error|\IXR_Error $error             The error object, optional.
+	 * @param string               $tracks_event_name The event name.
+	 * @param \WP_User             $user              The user object.
+	 * @return bool|\IXR_Error
 	 */
 	public function error( $error = null, $tracks_event_name = null, $user = null ) {
 		// Record using Tracks.
@@ -695,7 +695,7 @@ class Jetpack_XMLRPC_Server {
 				$code = -10520;
 			}
 			$message = sprintf( 'Jetpack: [%s] %s', $this->error->get_error_code(), $this->error->get_error_message() );
-			return new IXR_Error( $code, $message );
+			return new \IXR_Error( $code, $message );
 		} elseif ( is_a( $this->error, 'IXR_Error' ) ) {
 			return $this->error;
 		}
