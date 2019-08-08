@@ -98,9 +98,9 @@ class Jetpack_XMLRPC_Server {
 			 *
 			 * @since 1.1.0
 			 *
-			 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
-			 * @param array $core_methods Available core XML-RPC methods.
-			 * @param WP_User $user Information about a given WordPress user.
+			 * @param array   $jetpack_methods XML-RPC methods available to the Jetpack Server.
+			 * @param array   $core_methods    Available core XML-RPC methods.
+			 * @param WP_User $user            Information about a given WordPress user.
 			 */
 			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $this->user );
 		}
@@ -111,7 +111,7 @@ class Jetpack_XMLRPC_Server {
 		 * @since 3.0.0
 		 *
 		 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
-		 * @param array $core_methods Available core XML-RPC methods.
+		 * @param array $core_methods    Available core XML-RPC methods.
 		 */
 		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods );
 	}
@@ -411,8 +411,8 @@ class Jetpack_XMLRPC_Server {
 	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
 	 * an access token for the given user.
 	 *
-	 * @param array       $request An array containing local_user and nonce keys at minimum.
-	 * @param \IXR_Client $ixr_client the client object, optional.
+	 * @param array       $request    An array containing local_user and nonce keys at minimum.
+	 * @param \IXR_Client $ixr_client The client object, optional.
 	 * @return mixed
 	 */
 	public function remote_connect( $request, $ixr_client = false ) {
@@ -528,9 +528,9 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Track an error.
 	 *
-	 * @param string             $name event name.
-	 * @param WP_Error|IXR_Error $error the error object.
-	 * @param WP_User            $user the user object.
+	 * @param string             $name  Event name.
+	 * @param WP_Error|IXR_Error $error The error object.
+	 * @param WP_User            $user  The user object.
 	 */
 	private function tracks_record_error( $name, $error, $user = null ) {
 		if ( is_wp_error( $error ) ) {
@@ -657,7 +657,7 @@ class Jetpack_XMLRPC_Server {
 		Jetpack::connection()->require_jetpack_authentication();
 		$user = wp_authenticate( 'username', 'password' );
 		if ( is_wp_error( $user ) ) {
-			if ( 'authentication_failed' == $user->get_error_code() ) { // Generic error could mean most anything.
+			if ( 'authentication_failed' === $user->get_error_code() ) { // Generic error could mean most anything.
 				$this->error = new Jetpack_Error( 'invalid_request', 'Invalid Request', 403 );
 			} else {
 				$this->error = $user;
@@ -674,9 +674,9 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns the current error as an IXR_Error
 	 *
-	 * @param WP_Error|IXR_Error $error the error object, optional.
-	 * @param string             $tracks_event_name the event name.
-	 * @param WP_User            $user the user object.
+	 * @param WP_Error|IXR_Error $error             The error object, optional.
+	 * @param string             $tracks_event_name The event name.
+	 * @param WP_User            $user              The user object.
 	 * @return bool|IXR_Error
 	 */
 	public function error( $error = null, $tracks_event_name = null, $user = null ) {
@@ -751,7 +751,7 @@ class Jetpack_XMLRPC_Server {
 
 		$hmac = hash_hmac(
 			'md5',
-			json_encode(
+			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 				(object) array(
 					'client_id' => (int) $client_id,
 					'user_id'   => (int) $user_id,
