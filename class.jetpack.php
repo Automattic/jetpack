@@ -83,6 +83,15 @@ class Jetpack {
 	);
 
 	/**
+	 * The handles of scripts that can be loaded asynchronously.
+	 *
+	 * @var array
+	 */
+	public $async_script_handles = array(
+		'woocommerce-analytics',
+	);
+
+	/**
 	 * Contains all assets that have had their URL rewritten to minified versions.
 	 *
 	 * @var array
@@ -719,6 +728,11 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
+
+		/*
+		 * Load some scripts asynchronously.
+		 */
+		add_action( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 3 );
 	}
 
 	function setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, Jetpack_XMLRPC_Server $xmlrpc_server = null ) {
@@ -6690,6 +6704,24 @@ p {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				$tag = "<!-- `" . esc_html( $handle ) . "` is included in the concatenated jetpack.css -->\r\n";
 			}
+		}
+
+		return $tag;
+	}
+
+	/**
+	 * Add an async attribute to scripts that can be loaded asynchronously.
+	 * https://www.w3schools.com/tags/att_script_async.asp
+	 *
+	 * @since 7.7.0
+	 *
+	 * @param string $tag    The <script> tag for the enqueued script.
+	 * @param string $handle The script's registered handle.
+	 * @param string $src    The script's source URL.
+	 */
+	public function script_add_async( $tag, $handle, $src ) {
+		if ( in_array( $handle, $this->async_script_handles, true ) ) {
+			return preg_replace( '/^<script /i', '<script async ', $tag );
 		}
 
 		return $tag;
