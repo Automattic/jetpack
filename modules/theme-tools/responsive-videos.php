@@ -42,6 +42,11 @@ function jetpack_responsive_videos_embed_html( $html ) {
 		return $html;
 	}
 
+	// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return $html;
+	}
+
 	// The customizer video widget wraps videos with a class of wp-video
 	// mejs as of 4.9 apparently resizes videos too which causes issues
 	// skip the video if it is wrapped in wp-video.
@@ -76,6 +81,11 @@ function jetpack_responsive_videos_embed_html( $html ) {
  */
 function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
 	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
+		return $html;
+	}
+
+	// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		return $html;
 	}
 
