@@ -21,7 +21,7 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
-add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
+// add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'set_allowed_origins' ) );
 add_action( 'rest_pre_serve_request', array( 'Jetpack_Core_Json_Api_Endpoints', 'pre_serve_request' ), 99, 4 );
 // XXX HACK FOR BASIC AUTH FOR TESTING
 add_filter( 'determine_current_user', array( 'Jetpack_Core_Json_Api_Endpoints', 'basic_auth_handler' ), 20 );
@@ -49,6 +49,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	// we cannot invoke APIs from a blob execution context in a remote webworker unless
 	// access-control-allow-origin is set to * (or maybe some other custom origin?)
+	// we also need to make sure rest_send_cors_headers is unhooked or things break
 	public static function set_allowed_origins() {
 		remove_filter( 'rest_pre_serve_request', 'rest_send_cors_headers' );
 		add_filter( 'rest_pre_serve_request', function( $value ) {
@@ -543,8 +544,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_universal_client'
 		) );
-
-
 	}
 
 	public static function get_universal_clients( $request ) {

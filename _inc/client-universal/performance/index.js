@@ -30,8 +30,8 @@ if ( ! document.querySelector( 'meta[name=authorization-credentials]' ) ) {
 	process.exit();
 }
 
-if ( ! document.querySelector( 'meta[name=api_url]' ) ) {
-	showError( 'meta[name="api_url"] is required' );
+if ( ! document.querySelector( 'meta[name=wp-api-url]' ) ) {
+	showError( 'meta[name="wp-api-url"] is required' );
 	process.exit();
 }
 
@@ -39,7 +39,7 @@ var authType = document.querySelector( 'meta[name=authorization-type]' ).getAttr
 var authCreds = document
 	.querySelector( 'meta[name=authorization-credentials]' )
 	.getAttribute( 'content' );
-var apiUrl = document.querySelector( 'meta[name=api_url]' ).getAttribute( 'content' );
+var apiUrl = document.querySelector( 'meta[name=wp-api-url]' ).getAttribute( 'content' );
 
 fetchInitialState()
 	.then( initialState => {
@@ -111,7 +111,7 @@ function fetchMe() {
 function fetchApi( path ) {
 	return fetch( apiUrl + path, {
 		mode: 'cors',
-		credentials: 'same-origin', //include, same-origin - required to circumvent CORB
+		// credentials: 'same-origin', //include, same-origin - required to circumvent CORB
 		headers: {
 			Authorization: authType + ' ' + authCreds,
 			Accept: 'application/json', // required to circumvent CORB
