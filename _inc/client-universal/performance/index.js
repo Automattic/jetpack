@@ -10,16 +10,30 @@ import { Provider, connect } from 'react-redux';
 /**
  * Internal Dependencies
  */
-// import store from ;
 import restApi from 'rest-api';
 
-// fake initial state
-// window.Initial_State = {
-// 	connectionStatus: false,
-// 	userData: {}
-// };
+// render an error to the console and the DOM
+function showError( message ) {
+	console.error( message );
+	const div = document.createElement( 'div' );
+	document.body.appendChild( div );
+	render( <p style={ { color: 'red' } }>Error: { message }</p>, div );
+}
 
-console.log( 'before load configuration' );
+if ( ! document.querySelector( 'meta[name=authorization-type]' ) ) {
+	showError( 'meta[name="authorization-type"] is required' );
+	process.exit();
+}
+
+if ( ! document.querySelector( 'meta[name=authorization-credentials]' ) ) {
+	showError( 'meta[name="authorization-credentials"] is required' );
+	process.exit();
+}
+
+if ( ! document.querySelector( 'meta[name=api_url]' ) ) {
+	showError( 'meta[name="api_url"] is required' );
+	process.exit();
+}
 
 var authType = document.querySelector( 'meta[name=authorization-type]' ).getAttribute( 'content' );
 var authCreds = document
@@ -27,16 +41,9 @@ var authCreds = document
 	.getAttribute( 'content' );
 var apiUrl = document.querySelector( 'meta[name=api_url]' ).getAttribute( 'content' );
 
-// use this information to fetch window.Initial_State
-
 fetchInitialState()
 	.then( initialState => {
-		// do something
-		console.warn( 'got initial state', initialState );
-		// if ( typeof( globalThis.window ) === 'undefined' ) {
-		// 	globalThis.window = {};
-		// };
-		globalThis.Initial_State = initialState; // TODO find IE hacks for this
+		globalThis.Initial_State = initialState; // TODO find IE hacks for this - not supported in IE<Edge
 		loadApp();
 	} )
 	.catch( error => {
@@ -50,38 +57,18 @@ function loadApp() {
 	const setInitialState = require( 'state/initial-state' ).setInitialState;
 	const { getApiNonce, getApiRootUrl } = require( 'state/initial-state' );
 
-	// import WPAPI from 'wpapi';
-	// import request from 'request';
-
-	console.log( 'loading' );
-	// TODO - import domain? how to access?
-
-	// var wp = new WPAPI( { endpoint: url } ).setHeaders( 'Authorization', authType + ' ' + authCreds );
-
-	// wp.users().me().then( ( results ) => {
-	// 	console.warn( "user", results );
-	// });
-
 	class App extends React.Component {
 		UNSAFE_componentWillMount() {
 			this.props.setInitialState();
 			restApi.setApiRoot( this.props.apiRoot );
-			// restApi.setApiNonce( this.props.apiNonce );
 			restApi.setApiHeader( 'Authorization', authType + ' ' + authCreds );
-			restApi.setApiHeader( 'Accept', 'application/json' );
-			restApi.setApiHeader( 'Content-Type', 'application/json' );
 			restApi.setApiGetParams( { mode: 'cors' } );
 			restApi.setApiPostParams( { mode: 'cors' } );
-			// : 'application/json', // required to circumvent CORB
-			// 'Content-Type': 'application/json', // required to circumvent CORB
 		}
 		render() {
 			return (
 				<React.Fragment>
-					<h1>Page header</h1>
-					<p>V 1</p>
 					<Performance active={ true } />
-					<h1>Page footer</h1>
 				</React.Fragment>
 			);
 		}
@@ -90,20 +77,7 @@ function loadApp() {
 	const ConnectedApp = connect(
 		state => {
 			return {
-				// siteConnectionStatus: getSiteConnectionStatus( state ),
-				// isLinked: isCurrentUserLinked( state ),
-				// siteRawUrl: getSiteRawUrl( state ),
-				// siteAdminUrl: getSiteAdminUrl( state ),
-				// searchTerm: getSearchTerm( state ),
 				apiRoot: getApiRootUrl( state ),
-				apiNonce: getApiNonce( state ),
-				// tracksUserData: getTracksUserData( state ),
-				// areThereUnsavedSettings: areThereUnsavedSettings( state ),
-				// userCanManageModules: userCanManageModules( state ),
-				// userCanConnectSite: userCanConnectSite( state ),
-				// isSiteConnected: isSiteConnected( state ),
-				// rewindStatus: getRewindStatus( state ),
-				// currentVersion: getCurrentVersion( state ),
 			};
 		},
 		dispatch => ( {
@@ -115,7 +89,6 @@ function loadApp() {
 
 	const div = document.createElement( 'div' );
 	document.body.appendChild( div );
-	// render(<Performance/>, div);
 	render(
 		<Provider store={ store }>
 			<ConnectedApp />

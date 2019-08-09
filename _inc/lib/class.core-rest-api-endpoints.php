@@ -56,16 +56,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$origin = get_http_origin();
 			if ( $origin && in_array( $origin, array(
 					'http://192.168.86.21:8080',
-					'http://192.168.50.1:8080'
+					'http://192.168.50.1:8080',
+					'http://calypso.localhost:3000'
 				) ) ) {
 				header( 'Access-Control-Allow-Origin: *' ); // . esc_url_raw( $origin )
 				header( 'Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE' );
 				header( 'Access-Control-Allow-Credentials: true' );
 				header( 'Access-Control-Allow-Headers: Authorization, Content-Type, Accept, X-WP-Nonce' );
 				header( 'Access-Control-Expose-Headers: X-WP-Total, X-WP-TotalPages' );
-				// header( 'X-Content-Type-Options: sniff' );
-				// header( 'Content-Type: text/plain' );
-				// etc
 			}
 
 			return $value;

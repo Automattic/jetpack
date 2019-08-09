@@ -267,12 +267,10 @@ function JetpackRestApiClient( root, nonce ) {
 	}
 
 	function getRequest( route, params ) {
-		console.warn( 'get', route, params );
 		return fetch( addCacheBuster( route ), params );
 	}
 
 	function postRequest( route, params, body ) {
-		console.warn( 'post', route, params );
 		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
