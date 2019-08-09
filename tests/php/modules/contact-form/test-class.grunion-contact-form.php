@@ -6,7 +6,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
-		define( 'DOING_AJAX',         true ); // Defined so that 'exit' is not called in process_submission
+		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission
 
 		// Remove any relevant filters that might exist before running the tests
 		remove_all_filters( 'grunion_still_email_spam' );
@@ -27,6 +27,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->set_globals();
+
+		// switch from index.php to edit.php so that grunion_handle_bulk_spam tests run
+		global $pagenow;
+		$pagenow = 'edit.php';
 
 		$author_id = $this->factory->user->create( array(
 			'user_email' => 'john@example.com'
@@ -54,6 +58,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	public function tearDown() {
 		parent::tearDown();
+
+		// reset $pagenow to index.php
+		global $pagenow;
+		$pagenow = 'index.php';
 
 		// Remove filters after running tests
 		remove_all_filters( 'wp_mail' );
@@ -397,36 +405,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 *
 	 * Tests that grunion_handle_bulk_spam fails correctly
 	 */
-	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_pagenow() {
-		global $pagenow;
-
-		// Create and set an administrative user
-		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $admin_id );
-
-		// force $pagenow to be something wrong
-		$pagenow = '';
-
-		$bulk_spam_return = grunion_handle_bulk_spam();
-
-		$this->assertEmpty( $bulk_spam_return );
-	}
-
-	/**
-	 * @author tmoorewp
-	 * @covers grunion_handle_bulk_spam
-	 *
-	 * Tests that grunion_handle_bulk_spam fails correctly
-	 */
 	public function test_feedback_grunion_handle_bulk_spam_fails_with_empty_request() {
-		global $pagenow;
-
 		// Create and set an administrative user
 		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
 		// Set up the data for a grunion_handle_bulk_spam
-		$pagenow               = 'edit.php';
 		$_REQUEST['post_type'] = '';
 
 		$this->assertEmpty( grunion_handle_bulk_spam() );
@@ -439,14 +423,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that grunion_handle_bulk_spam fails correctly
 	 */
 	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_post_type() {
-		global $pagenow;
-
 		// Create and set an administrative user
 		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
 		// Set up the data for a grunion_handle_bulk_spam
-		$pagenow               = 'edit.php';
 		$_REQUEST['post_type'] = 'loremipsum';
 
 		$this->assertEmpty( grunion_handle_bulk_spam() );
@@ -459,14 +440,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that grunion_handle_bulk_spam fails correctly
 	 */
 	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_action() {
-		global $pagenow;
-
 		// Create and set an administrative user
 		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
 		// Set up the data for a grunion_handle_bulk_spam
-		$pagenow               = 'edit.php';
 		$_REQUEST['post_type'] = 'feedback';
 		$_REQUEST['action']    = 'loremipsum';
 		$_REQUEST['action2']   = '';
@@ -481,14 +459,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that grunion_handle_bulk_spam fails correctly
 	 */
 	public function test_feedback_grunion_handle_bulk_spam_fails_with_wrong_action2() {
-		global $pagenow;
-
 		// Create and set an administrative user
 		$admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
 		// Set up the data for a grunion_handle_bulk_spam
-		$pagenow               = 'edit.php';
 		$_REQUEST['post_type'] = 'feedback';
 		$_REQUEST['action']    = '';
 		$_REQUEST['action2']   = 'loremipsum';
@@ -503,8 +478,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
 	 */
 	 public function test_feedback_grunion_handle_bulk_spam_set_spam_action() {
-		 global $pagenow; // we need to make sure this is properly set to edit.php
-
 		// Set up default posts.
 		$post_ids = $this->factory->post->create_many( 5, array(
 			'post_type'     => 'feedback',
@@ -519,7 +492,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected_status = 'spam';
 
  		// Set up the data for a grunion_handle_bulk_spam
- 		$pagenow               = 'edit.php';
  		$_REQUEST['post_type'] = 'feedback';
  		$_REQUEST['action']    = $expected_status;
  		$_REQUEST['action2']   = '';
@@ -542,8 +514,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
  	 */
  	 public function test_feedback_grunion_handle_bulk_spam_set_responded_action() {
- 		 global $pagenow; // we need to make sure this is properly set to edit.php
-
  		// Set up default posts.
  		$post_ids = $this->factory->post->create_many( 5, array(
  			'post_type'     => 'feedback',
@@ -558,7 +528,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  		$expected_status = 'responded';
 
   		// Set up the data for a grunion_handle_bulk_spam
-  		$pagenow               = 'edit.php';
   		$_REQUEST['post_type'] = 'feedback';
   		$_REQUEST['action']    = $expected_status;
   		$_REQUEST['action2']   = '';
@@ -581,8 +550,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
  	 */
  	 public function test_feedback_grunion_handle_bulk_spam_set_inprogress_action() {
- 		 global $pagenow; // we need to make sure this is properly set to edit.php
-
  		// Set up default posts.
  		$post_ids = $this->factory->post->create_many( 5, array(
  			'post_type'     => 'feedback',
@@ -597,7 +564,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  		$expected_status = 'inprogress';
 
   		// Set up the data for a grunion_handle_bulk_spam
-  		$pagenow               = 'edit.php';
   		$_REQUEST['post_type'] = 'feedback';
   		$_REQUEST['action']    = $expected_status;
   		$_REQUEST['action2']   = '';
@@ -620,8 +586,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action'] set
  	 */
  	 public function test_feedback_grunion_handle_bulk_spam_set_needsresponse_action() {
- 		 global $pagenow; // we need to make sure this is properly set to edit.php
-
  		// Set up default posts.
  		$post_ids = $this->factory->post->create_many( 5, array(
  			'post_type'     => 'feedback',
@@ -636,7 +600,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  		$expected_status = 'needsresponse';
 
   		// Set up the data for a grunion_handle_bulk_spam
-  		$pagenow               = 'edit.php';
   		$_REQUEST['post_type'] = 'feedback';
   		$_REQUEST['action']    = $expected_status;
   		$_REQUEST['action2']   = '';
@@ -659,8 +622,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
  	 */
  	 public function test_feedback_grunion_handle_bulk_spam_set_spam_action2() {
- 		 global $pagenow; // we need to make sure this is properly set to edit.php
-
  		// Set up default posts.
  		$post_ids = $this->factory->post->create_many( 5, array(
  			'post_type'     => 'feedback',
@@ -675,7 +636,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
  		$expected_status = 'spam';
 
   		// Set up the data for a grunion_handle_bulk_spam
-  		$pagenow               = 'edit.php';
   		$_REQUEST['post_type'] = 'feedback';
   		$_REQUEST['action2']    = $expected_status;
   		$_REQUEST['action']   = '';
@@ -698,8 +658,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
   	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
   	 */
   	 public function test_feedback_grunion_handle_bulk_spam_set_responded_action2() {
-  		 global $pagenow; // we need to make sure this is properly set to edit.php
-
   		// Set up default posts.
   		$post_ids = $this->factory->post->create_many( 5, array(
   			'post_type'     => 'feedback',
@@ -714,7 +672,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
   		$expected_status = 'responded';
 
    		// Set up the data for a grunion_handle_bulk_spam
-   		$pagenow               = 'edit.php';
    		$_REQUEST['post_type'] = 'feedback';
    		$_REQUEST['action2']    = $expected_status;
    		$_REQUEST['action']   = '';
@@ -737,8 +694,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
   	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
   	 */
   	 public function test_feedback_grunion_handle_bulk_spam_set_inprogress_action2() {
-  		 global $pagenow; // we need to make sure this is properly set to edit.php
-
   		// Set up default posts.
   		$post_ids = $this->factory->post->create_many( 5, array(
   			'post_type'     => 'feedback',
@@ -753,7 +708,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
   		$expected_status = 'inprogress';
 
    		// Set up the data for a grunion_handle_bulk_spam
-   		$pagenow               = 'edit.php';
    		$_REQUEST['post_type'] = 'feedback';
    		$_REQUEST['action2']    = $expected_status;
    		$_REQUEST['action']   = '';
@@ -776,8 +730,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
   	 * Tests that grunion_handle_bulk_spam correctly sets post_status with $_REQUEST['action2'] set
   	 */
   	 public function test_feedback_grunion_handle_bulk_spam_set_needsresponse_action2() {
-  		 global $pagenow; // we need to make sure this is properly set to edit.php
-
   		// Set up default posts.
   		$post_ids = $this->factory->post->create_many( 5, array(
   			'post_type'     => 'feedback',
@@ -792,7 +744,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
   		$expected_status = 'needsresponse';
 
    		// Set up the data for a grunion_handle_bulk_spam
-   		$pagenow               = 'edit.php';
    		$_REQUEST['post_type'] = 'feedback';
    		$_REQUEST['action2']    = $expected_status;
    		$_REQUEST['action']   = '';
