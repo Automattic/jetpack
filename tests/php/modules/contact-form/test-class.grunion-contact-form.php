@@ -59,6 +59,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 
+		// Clean up any of the variables we set during testing
+		unset( $_REQUEST['post_type'] );
+		unset( $_REQUEST['action'] );
+		unset( $_REQUEST['action2'] );
+		unset( $_REQUEST['_wpnonce'] );
+		unset( $_REQUEST['_ajax_nonce'] );
+		unset( $_REQUEST['post'] );
+		unset( $_POST['make_it'] );
+		unset( $_POST['post_id'] );
+
 		// reset $pagenow to index.php
 		global $pagenow;
 		$pagenow = 'index.php';
