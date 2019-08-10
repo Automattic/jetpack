@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { dispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Shows a notification when a plan is marked as purchased
@@ -11,6 +12,6 @@ import { dispatch } from '@wordpress/data';
 if ( window.location.search && -1 !== window.location.search.indexOf( 'plan' ) ) {
 	dispatch( 'core/notices' ).createNotice(
 		'success',
-		'Plan upgraded. You may use premium blocks now.'
+		__( 'Plan upgraded. You may use premium blocks now.', 'jetpack' )
 	);
 }
