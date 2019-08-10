@@ -3,6 +3,7 @@
  */
 import './shared/public-path';
 import './shared/block-category';
+import './shared/notification-on-plan-upgrade';
 import analytics from '../_inc/client/lib/analytics';
 
 // @TODO Please make a shared analytics solution and remove this!
