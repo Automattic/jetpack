@@ -1168,7 +1168,7 @@ class Grunion_Contact_Form_Plugin {
 		$post_ids = get_posts(
 			array(
 				'post_type'        => 'feedback',
-				'post_status'      => 'publish',
+				'post_status'      => array( 'publish', 'responded', 'inprogress', 'needsresponse' ),
 				// This search parameter gets overwritten in ->personal_data_search_filter()
 				's'                => '..PDE..AUTHOR EMAIL:..PDE..',
 				'sentence'         => true,
@@ -1355,7 +1355,7 @@ class Grunion_Contact_Form_Plugin {
 		$args = array(
 			'posts_per_page'   => -1,
 			'post_type'        => 'feedback',
-			'post_status'      => 'publish',
+			'post_status'      => array( 'publish', 'responded', 'inprogress', 'needsresponse' ),
 			'order'            => 'ASC',
 			'fields'           => 'ids',
 			'suppress_filters' => false,
@@ -1473,7 +1473,7 @@ class Grunion_Contact_Form_Plugin {
 				'fields'           => 'id=>parent',
 				'posts_per_page'   => 100000,
 				'post_type'        => 'feedback',
-				'post_status'      => 'publish',
+				'post_status'      => array( 'publish', 'responded', 'inprogress', 'needsresponse' ),
 				'suppress_filters' => false,
 			)
 		);
