@@ -85,6 +85,12 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
+		if ( isset( $args['type'] ) &&
+			   ! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ) ) &&
+			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		if ( isset( $args['type'] ) && ! $site->is_post_type_allowed( $args['type'] ) ) {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
@@ -122,12 +128,6 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 			// clear it (AKA published only) because "any" includes protected
 			$status = array();
-		}
-
-		if ( isset( $args['type'] ) &&
-			   ! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ) ) &&
-			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->load_theme_functions();
 		}
 
 		// let's be explicit about defaulting to 'post'
