@@ -31,7 +31,7 @@ const sharedWebpackConfig = {
 };
 
 // We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
-let webpackConfig = [
+module.exports = [
 	{
 		...sharedWebpackConfig,
 		// Entry points point to the javascript module
@@ -108,7 +108,3 @@ let webpackConfig = [
 			  },
 	},
 ];
-
-// console.log( webpackConfig );
-
-module.exports = webpackConfig;
