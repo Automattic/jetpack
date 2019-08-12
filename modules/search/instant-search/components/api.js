@@ -66,46 +66,46 @@ export function search( siteId, query, aggs ) {
 export function buildAggs( filterConfig ) {
 	var aggs = {};
 	if ( filterConfig ) {
-		let filters = filterConfig.filters;
-		Object.keys( filters ).forEach( function( filterName ) {
-			var filter = filters[ filterName ];
-			switch ( filter.type ) {
-				case 'date_histogram':
-					var field = filter.field == 'post_date_gmt' ? 'date_gmt' : 'date';
-					aggs[ filterName ] = {
-						date_histogram: {
-							field: field,
-							interval: filter.interval,
-						},
-					};
-					break;
-				case 'taxonomy':
-					var field = 'taxonomy.' + filter.taxonomy;
-					switch ( filter.taxonomy ) {
-						case 'post_tag':
-							field = 'tag';
-							break;
-						case 'category':
-							field = 'category';
-							break;
-					}
-					field = field + '.slug';
-					aggs[ filterName ] = {
-						terms: {
-							field: field,
-							size: filter.count,
-						},
-					};
-					break;
-				case 'post_type':
-					aggs[ filterName ] = {
-						terms: {
-							field: 'post_type',
-							size: filter.count,
-						},
-					};
-					break;
-			}
+		filterConfig.widgets.forEach( function( widget ) {
+			widget.filters.forEach( function( filter ) {
+				switch ( filter.type ) {
+					case 'date_histogram':
+						var field = filter.field == 'post_date_gmt' ? 'date_gmt' : 'date';
+						aggs[ filter.filter_id ] = {
+							date_histogram: {
+								field: field,
+								interval: filter.interval,
+							},
+						};
+						break;
+					case 'taxonomy':
+						var field = 'taxonomy.' + filter.taxonomy;
+						switch ( filter.taxonomy ) {
+							case 'post_tag':
+								field = 'tag';
+								break;
+							case 'category':
+								field = 'category';
+								break;
+						}
+						field = field + '.slug';
+						aggs[ filter.filter_id ] = {
+							terms: {
+								field: field,
+								size: filter.count,
+							},
+						};
+						break;
+					case 'post_type':
+						aggs[ filter.filter_id ] = {
+							terms: {
+								field: 'post_type',
+								size: filter.count,
+							},
+						};
+						break;
+				}
+			} );
 		} );
 	}
 	return aggs;

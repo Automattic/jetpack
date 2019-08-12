@@ -13,7 +13,7 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import SearchResults from './search-results';
-import SearchFilter from './search-filter';
+import SearchFiltersWidget from './search-filters-widget';
 import { search, buildAggs } from '../components/api';
 import { setSearchQuery } from '../lib/query-string';
 
@@ -26,7 +26,7 @@ class SearchWidget extends Component {
 			results: [],
 			aggs: buildAggs( this.props.filterConfig ),
 		};
-		this.injectFilters();
+		this.initFilters();
 		this.getResults = debounce( this.getResults, 500 );
 		this.getResults( this.props.initialValue );
 	}
@@ -61,31 +61,29 @@ class SearchWidget extends Component {
 		}
 	};
 
-	injectFilters = () => {
+	initFilters = () => {
 		if ( this.props.filterConfig ) {
-			let widgets = this.props.filterConfig.widgets;
-			let filters = this.props.filterConfig.filters;
-			let self = this;
-			Object.keys( widgets ).forEach( function( index ) {
-				document.getElementById( widgets[ index ] + '-wrapper' ).innerHTML = '';
-			} );
-			Object.keys( filters ).forEach( function( filterName ) {
-				var filter = filters[ filterName ];
-				var filterDOM = render(
-					<SearchFilter
-						filterName={ filterName }
-						title={ filter.name }
-						type={ filter.type }
-						results={ self.state.results }
-					/>
-				);
-				document.getElementById( filter.widget_id + '-wrapper' ).appendChild( filterDOM );
+			this.props.filterConfig.widgets.forEach( function( widget ) {
+				document.getElementById( widget.widget_id ).innerHTML = '';
 			} );
 		}
 	};
 
 	render() {
 		const { query, results } = this.state;
+
+		if ( this.props.filterConfig ) {
+			let widgets = this.props.filterConfig.widgets;
+			let self = this;
+
+			widgets.forEach( function( widget ) {
+				render(
+					<SearchFiltersWidget widgetConfig={ widget } results={ self.state.results } />,
+					document.getElementById( widget.widget_id )
+				);
+			} );
+		}
+
 		return (
 			<div>
 				<p>

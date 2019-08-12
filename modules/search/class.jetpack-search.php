@@ -234,12 +234,17 @@ class Jetpack_Search {
 			$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 			$widgets = array();
 			foreach( $filters as $filt => $data ) {
-				$widgets[$data['widget_id']] = $data['widget_id'];
+				if ( ! isset( $widgets[$data['widget_id']] ) ) {
+					$widgets[$data['widget_id']]['filters'] = [];
+					$widgets[$data['widget_id']]['widget_id'] = $data['widget_id'];
+				}
+				$f = $data;
+				$f['filter_id'] = $filt;
+				$widgets[$data['widget_id']]['filters'][] = $f;
 			}
 			wp_localize_script(
 				'jetpack-instant-search', 'jetpack_instant_search_filters', array(
-					'widgets' => array_keys( $widgets ),
-					'filters' => $filters,
+					'widgets' => array_values( $widgets ),
 				)
 			);
 
