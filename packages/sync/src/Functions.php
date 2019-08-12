@@ -33,7 +33,7 @@ class Functions {
 
 	public static function get_shortcodes() {
 		global $shortcode_tags;
-		return array_keys( $shortcode_tags );
+		return array_keys( (array) $shortcode_tags );
 	}
 
 	/**
