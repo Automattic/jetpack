@@ -1715,9 +1715,16 @@ class Jetpack {
 		return '';
 	}
 
-	function current_user_is_connection_owner() {
-		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
-		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
+	/**
+	 * Whether the current user is the connection owner.
+	 *
+	 * @deprecated since 7.7
+	 *
+	 * @return bool Whether the current user is the connection owner.
+	 */
+	public function current_user_is_connection_owner() {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::is_connection_owner' );
+		return self::connection()->is_connection_owner();
 	}
 
 	/**
