@@ -41,6 +41,28 @@ var authCreds = document
 	.getAttribute( 'content' );
 var apiUrl = document.querySelector( 'meta[name=wp-api-url]' ).getAttribute( 'content' );
 
+// This polyfill shamelessly stoken from Paul Irish at https://gist.github.com/paulirish/1579671
+( function() {
+	var lastTime = 0;
+	if ( ! window.requestAnimationFrame ) {
+		window.requestAnimationFrame = function( callback, element ) {
+			var currTime = new Date().getTime();
+			var timeToCall = Math.max( 0, 16 - ( currTime - lastTime ) );
+			var id = setTimeout( function() {
+				callback( currTime + timeToCall );
+			}, timeToCall );
+			lastTime = currTime + timeToCall;
+			return id;
+		};
+	}
+
+	if ( ! window.cancelAnimationFrame ) {
+		window.cancelAnimationFrame = function( id ) {
+			clearTimeout( id );
+		};
+	}
+} )();
+
 fetchInitialState()
 	.then( initialState => {
 		globalThis.Initial_State = initialState; // TODO find IE hacks for this - not supported in IE<Edge
