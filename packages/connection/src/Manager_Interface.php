@@ -51,9 +51,13 @@ interface Manager_Interface {
 	public function is_connection_owner( $user_id );
 
 	/**
-	 * Unlinks the current user from the linked WordPress.com user
+	 * Unlinks the current user from the linked WordPress.com user.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @param Integer $user_id the user identifier.
+	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function disconnect_user( $user_id );
 
