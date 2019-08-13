@@ -73,7 +73,7 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( $this->is_active() ) {
-			add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
+			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
 			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 		} else {
 			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
@@ -1615,5 +1615,265 @@ class Manager implements Manager_Interface {
 	 */
 	public function reset_saved_auth_state() {
 		$this->xmlrpc_verification = null;
+	}
+
+	/**
+	 * Handles the login action for Authorizing the JSON API.
+	 */
+	public function login_form_json_api_authorization() {
+		$this->verify_json_api_authorization_request();
+
+		add_action( 'wp_login', array( $this, 'store_json_api_authorization_token' ), 10, 2 );
+
+		add_action( 'login_message', array( $this, 'login_message_json_api_authorization' ) );
+		add_action( 'login_form', array( $this, 'preserve_action_in_login_form_for_json_api_authorization' ) );
+		add_filter( 'site_url', array( $this, 'post_login_form_to_signed_url' ), 10, 3 );
+	}
+
+	/**
+	 * Make sure the login form is POSTed to the signed URL so we can reverify the request.
+	 *
+	 * @param string      $url     The complete site URL including scheme and path.
+	 * @param string      $path    Path relative to the site URL. Blank string if no path is specified.
+	 * @param string|null $scheme  Scheme to give the site URL context. Accepts 'http', 'https', 'login'.
+	 * @return string Signed login form action URL.
+	 */
+	public function post_login_form_to_signed_url( $url, $path, $scheme ) {
+		if ( 'wp-login.php' !== $path || ( 'login_post' !== $scheme && 'login' !== $scheme ) ) {
+			return $url;
+		}
+
+		$parsed_url = wp_parse_url( $url );
+		$url        = strtok( $url, '?' );
+		$url        = "$url?{$_SERVER['QUERY_STRING']}";
+		if ( ! empty( $parsed_url['query'] ) ) {
+			$url .= "&{$parsed_url['query']}";
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Make sure the POSTed request is handled by the same action.
+	 */
+	public function preserve_action_in_login_form_for_json_api_authorization() {
+		echo "<input type='hidden' name='action' value='jetpack_json_api_authorization' />\n";
+		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . esc_url( set_url_scheme( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) ) . "' />\n";
+	}
+
+	/**
+	 * If someone logs in to approve API access, store the Access Code in usermeta.
+	 *
+	 * @param string   $user_login Username.
+	 * @param \WP_User $user       \WP_User object of the logged-in user.
+	 */
+	public function store_json_api_authorization_token( $user_login, $user ) {
+		add_filter( 'login_redirect', array( $this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_public_api_domain' ) );
+		$token = wp_generate_password( 32, false );
+		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
+	}
+
+	/**
+	 * Add public-api.wordpress.com to the safe redirect whitelist - only added when someone allows API access.
+	 *
+	 * @param array $domains An array of allowed hosts.
+	 * @return array Array of allowed hosts, with the WP.com API domain included.
+	 */
+	public function allow_wpcom_public_api_domain( $domains ) {
+		$domains[] = 'public-api.wordpress.com';
+		return $domains;
+	}
+
+	/**
+	 * Whether the redirect URL is encoded.
+	 *
+	 * @param string $redirect_url Redirect URL.
+	 * @return bool True if the URL is encoded, false otherwise.
+	 */
+	public function is_redirect_encoded( $redirect_url ) {
+		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
+	}
+
+	/**
+	 * Add all wordpress.com environments to the safe redirect whitelist.
+	 *
+	 * @param array $domains An array of allowed hosts.
+	 * @return array Array of allowed hosts, with the WP.com API domain included.
+	 */
+	public function allow_wpcom_environments( $domains ) {
+		$domains[] = 'wordpress.com';
+		$domains[] = 'wpcalypso.wordpress.com';
+		$domains[] = 'horizon.wordpress.com';
+		$domains[] = 'calypso.localhost';
+		return $domains;
+	}
+
+	/**
+	 * Add the Access Code details to the public-api.wordpress.com redirect.
+	 *
+	 * @todo Refactor to check properly if $user is a \WP_Error.
+	 *
+	 * @param string             $redirect_to          The redirect destination URL.
+	 * @param string             $original_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @param \WP_User|\WP_Error $user                 \WP_User object if login was successful, \WP_Error object otherwise.
+	 * @return string Login redirect URL, with token parameters added to it.
+	 */
+	public function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
+		return add_query_arg(
+			urlencode_deep(
+				array(
+					'jetpack-code'    => get_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], true ),
+					'jetpack-user-id' => (int) $user->ID,
+					'jetpack-state'   => $this->json_api_authorization_request['state'],
+				)
+			),
+			$redirect_to
+		);
+	}
+
+
+	/**
+	 * Verifies the request by checking the signature.
+	 *
+	 * @todo Refactor to implement proper nonce verification.
+	 *
+	 * @since 4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
+	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
+	 * @since 7.7.0 This method has been moved from `\Jetpack` to the connection package.
+	 *
+	 * @param null|array $environment Authorization data.
+	 */
+	public function verify_json_api_authorization_request( $environment = null ) {
+		$environment = is_null( $environment )
+			? $_REQUEST // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			: $environment;
+
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		list( $env_token, $env_version, $env_user_id ) = explode( ':', $environment['token'] );
+		$token = $this->get_access_token( $env_user_id, $env_token );
+		if ( ! $token || empty( $token->secret ) ) {
+			wp_die( esc_html__( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
+		}
+
+		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
+
+		// Host has encoded the request URL, probably as a result of a bad http => https redirect.
+		if ( $this->is_redirect_encoded( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			/**
+			 * Jetpack authorization request Error.
+			 *
+			 * @since 7.5.0
+			 */
+			do_action( 'jetpack_verify_api_authorization_request_error_double_encode' );
+			$die_error = sprintf(
+				/* translators: %s is a URL */
+				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
+				'https://jetpack.com/support/double-encoding/'
+			);
+		}
+
+		$jetpack_signature = new \Jetpack_Signature( $token->secret, (int) \Jetpack_Options::get_option( 'time_diff' ) );
+
+		if ( isset( $environment['jetpack_json_api_original_query'] ) ) {
+			$signature = $jetpack_signature->sign_request(
+				$environment['token'],
+				$environment['timestamp'],
+				$environment['nonce'],
+				'',
+				'GET',
+				$environment['jetpack_json_api_original_query'],
+				null,
+				true
+			);
+		} else {
+			$signature = $jetpack_signature->sign_current_request(
+				array(
+					'body'   => null,
+					'method' => 'GET',
+				)
+			);
+		}
+
+		if ( ! $signature ) {
+			wp_die( esc_html( $die_error ) );
+		} elseif ( is_wp_error( $signature ) ) {
+			wp_die( esc_html( $die_error ) );
+		} elseif ( ! hash_equals( $signature, $environment['signature'] ) ) {
+			if ( is_ssl() ) {
+				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well.
+				$signature = $jetpack_signature->sign_current_request(
+					array(
+						'scheme' => 'http',
+						'body'   => null,
+						'method' => 'GET',
+					)
+				);
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
+					wp_die( esc_html( $die_error ) );
+				}
+			} else {
+				wp_die( esc_html( $die_error ) );
+			}
+		}
+
+		$timestamp = (int) $environment['timestamp'];
+		$nonce     = stripslashes( (string) $environment['nonce'] );
+
+		if ( ! $this->connection->add_nonce( $timestamp, $nonce ) ) {
+			// De-nonce the nonce, at least for 5 minutes.
+			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed).
+			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
+			if ( $old_nonce_time < time() - 300 ) {
+				wp_die( esc_html__( 'The authorization process expired.  Please go back and try again.', 'jetpack' ) );
+			}
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$data         = json_decode( base64_decode( stripslashes( $environment['data'] ) ) );
+		$data_filters = array(
+			'state'        => 'opaque',
+			'client_id'    => 'int',
+			'client_title' => 'string',
+			'client_image' => 'url',
+		);
+
+		foreach ( $data_filters as $key => $sanitation ) {
+			if ( ! isset( $data->$key ) ) {
+				wp_die( esc_html( $die_error ) );
+			}
+
+			switch ( $sanitation ) {
+				case 'int':
+					$this->json_api_authorization_request[ $key ] = (int) $data->$key;
+					break;
+				case 'opaque':
+					$this->json_api_authorization_request[ $key ] = (string) $data->$key;
+					break;
+				case 'string':
+					$this->json_api_authorization_request[ $key ] = wp_kses( (string) $data->$key, array() );
+					break;
+				case 'url':
+					$this->json_api_authorization_request[ $key ] = esc_url_raw( (string) $data->$key );
+					break;
+			}
+		}
+
+		if ( empty( $this->json_api_authorization_request['client_id'] ) ) {
+			wp_die( esc_html( $die_error ) );
+		}
+	}
+
+	/**
+	 * Retrieve an updated login message for JSON API authorization.
+	 *
+	 * @return string Updated Login message.
+	 */
+	public function login_message_json_api_authorization() {
+		return '<p class="message">' . sprintf(
+			/* translators: %s is the name of the client you wish to authorize */
+			esc_html__( '%s wants to access your site&#8217;s data.  Log in to authorize that access.', 'jetpack' ),
+			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
+		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
 	}
 }
