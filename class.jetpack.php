@@ -3256,38 +3256,17 @@ p {
 	}
 
 	/**
-	 * Unlinks the current user from the linked WordPress.com user
+	 * Unlinks the current user from the linked WordPress.com user.
+	 *
+	 * @deprecated since 7.7
+	 * @see Automattic\Jetpack\Connection\Manager::disconnect_user()
+	 *
+	 * @param Integer $user_id the user identifier.
+	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function unlink_user( $user_id = null ) {
-		if ( ! $tokens = Jetpack_Options::get_option( 'user_tokens' ) )
-			return false;
-
-		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
-
-		if ( Jetpack_Options::get_option( 'master_user' ) == $user_id )
-			return false;
-
-		if ( ! isset( $tokens[ $user_id ] ) )
-			return false;
-
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
-		$xml->query( 'jetpack.unlink_user', $user_id );
-
-		unset( $tokens[ $user_id ] );
-
-		Jetpack_Options::update_option( 'user_tokens', $tokens );
-
-		/**
-		 * Fires after the current user has been unlinked from WordPress.com.
-		 *
-		 * @since 4.1.0
-		 *
-		 * @param int $user_id The current user's ID.
-		 */
-		do_action( 'jetpack_unlinked_user', $user_id );
-
-		return true;
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::disconnect_user' );
+		return Connection_Manager::disconnect_user( $user_id );
 	}
 
 	/**
