@@ -1,3 +1,5 @@
+/* jshint onevar: false, smarttabs: true */
+
 var wpPostLikeCount = wpPostLikeCount || {};
 
 ( function( $ ) {

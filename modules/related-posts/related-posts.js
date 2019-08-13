@@ -1,3 +1,4 @@
+/* jshint onevar: false */
 /* globals related_posts_js_options */
 
 /**

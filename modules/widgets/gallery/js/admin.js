@@ -1,3 +1,4 @@
+/* jshint onevar: false, multistr: true */
 /* global _wpMediaViewsL10n, _wpGalleryWidgetAdminSettings */
 
 ( function( $ ) {

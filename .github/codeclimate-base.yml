@@ -54,6 +54,8 @@ exclude_paths:
   - "composer.lock"
   - ".phpcs.xml.dist"
   - "**.json"
+  - "**.jshintrc"
+  - "**.jshintignore"
   - "**.svnignore"
   - "**.travis.yml"
   - "**.gitignore"

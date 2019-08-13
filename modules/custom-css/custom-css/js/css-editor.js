@@ -1,3 +1,4 @@
+/* jshint onevar: false, smarttabs: true */
 /* global postboxes, addLoadEvent */
 
 ( function( $ ) {

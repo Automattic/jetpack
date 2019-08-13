@@ -1,3 +1,5 @@
+/* jshint onevar: false, smarttabs: true */
+
 ( function( $ ) {
 	var menuSelector, nonceInput, methods;
 

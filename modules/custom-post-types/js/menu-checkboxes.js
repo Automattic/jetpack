@@ -1,3 +1,5 @@
+/* jshint onevar: false, smarttabs: true, devel: true */
+
 ( function( $ ) {
 	var NovaCheckBoxes = {
 		inputs: null,

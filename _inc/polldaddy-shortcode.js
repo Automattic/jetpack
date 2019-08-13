@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 ( function( $ ) {
 	window.polldaddyshortcode = {
 		render: function() {
@@ -72,3 +73,4 @@
 	} );
 	$( 'body' ).trigger( 'pd-script-load' );
 } )( jQuery );
+/* jshint ignore:end */

@@ -1,3 +1,5 @@
+/* jshint onevar: false */
+
 ( function() {
 	function recalculate() {
 		if ( this.complete ) {

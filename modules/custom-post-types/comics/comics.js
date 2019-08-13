@@ -1,3 +1,4 @@
+/* jshint onevar: false, smarttabs: true, devel: true */
 /* global Jetpack_Comics_Options */
 
 jQuery( function( $ ) {

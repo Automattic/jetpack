@@ -1,3 +1,4 @@
+/* jshint ignore:start */
 ! ( function( d, s, id ) {
 	var js,
 		fjs = d.getElementsByTagName( s )[ 0 ],
@@ -9,3 +10,4 @@
 		fjs.parentNode.insertBefore( js, fjs );
 	}
 } )( document, 'script', 'twitter-wjs' );
+/* jshint ignore:end */
