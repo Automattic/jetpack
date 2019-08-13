@@ -799,8 +799,8 @@ class Jetpack_SSO {
 			) );
 
 			if ( $is_json_api_auth ) {
-				Jetpack::init()->verify_json_api_authorization_request( $json_api_auth_environment );
-				Jetpack::init()->store_json_api_authorization_token( $user->user_login, $user );
+				Jetpack::connection()->verify_json_api_authorization_request( $json_api_auth_environment );
+				Jetpack::connection()->store_json_api_authorization_token( $user->user_login, $user );
 
 			} else if ( ! $is_user_connected ) {
 				wp_safe_redirect(
