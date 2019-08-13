@@ -567,14 +567,14 @@ class Manager implements Manager_Interface {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function disconnect_user( $user_id = null ) {
-		$tokens = Jetpack_Options::get_option( 'user_tokens' );
+		$tokens = \Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! $tokens ) {
 			return false;
 		}
 
 		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
 
-		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id ) {
+		if ( \Jetpack_Options::get_option( 'master_user' ) === $user_id ) {
 			return false;
 		}
 
@@ -588,7 +588,7 @@ class Manager implements Manager_Interface {
 
 		unset( $tokens[ $user_id ] );
 
-		Jetpack_Options::update_option( 'user_tokens', $tokens );
+		\Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		/**
 		 * Fires after the current user has been unlinked from WordPress.com.
