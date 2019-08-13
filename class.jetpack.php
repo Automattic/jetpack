@@ -597,9 +597,9 @@ class Jetpack {
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
-		// Unlink user before deleting the user from .com
-		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
-		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
+		// Unlink user before deleting the user from WP.com.
+		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
+		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
@@ -4052,7 +4052,7 @@ p {
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 				check_admin_referer( 'jetpack-unlink' );
 				Jetpack::log( 'unlink' );
-				$this->unlink_user();
+				Connection_Manager::disconnect_user();
 				Jetpack::state( 'message', 'unlinked' );
 				if ( 'sub-unlink' == $redirect ) {
 					wp_safe_redirect( admin_url() );
