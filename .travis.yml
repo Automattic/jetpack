@@ -44,7 +44,7 @@ matrix:
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
     before_script:
-    - nvm install
+    - nvm install 12
     - yarn && yarn build
     - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
     - source ./env-file
