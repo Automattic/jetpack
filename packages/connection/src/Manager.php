@@ -505,6 +505,8 @@ class Manager implements Manager_Interface {
 	/**
 	 * Get the wpcom user data of the current|specified connected user.
 	 *
+	 * @todo Refactor to properly load the XMLRPC client independently.
+	 *
 	 * @param Integer $user_id the user identifier.
 	 * @return Object the user object.
 	 */
@@ -558,6 +560,8 @@ class Manager implements Manager_Interface {
 	 *
 	 * @access public
 	 * @static
+	 *
+	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
 	 * @param Integer $user_id the user identifier.
 	 * @return Boolean Whether the disconnection of the user was successful.
