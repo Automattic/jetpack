@@ -58,24 +58,6 @@ interface Manager_Interface {
 	public static function disconnect_user( $user_id );
 
 	/**
-	 * Initializes a transport server, whatever it may be, saves into the object property.
-	 * Should be changed to be protected.
-	 */
-	public function initialize_server();
-
-	/**
-	 * Checks if the current request is properly authenticated, bails if not.
-	 * Should be changed to be protected.
-	 */
-	public function require_authentication();
-
-	/**
-	 * Verifies the correctness of the request signature.
-	 * Should be changed to be protected.
-	 */
-	public function verify_signature();
-
-	/**
 	 * Attempts Jetpack registration which sets up the site for connection. Should
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
