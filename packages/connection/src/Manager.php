@@ -175,21 +175,6 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * Initializes all needed hooks and request handlers. Handles API calls, upload
-	 * requests, authentication requests. Also XMLRPC options requests.
-	 * Fallback XMLRPC is also a bridge, but probably can be a class that inherits
-	 * this one. Among other things it should strip existing methods.
-	 *
-	 * @param Array $methods an array of API method names for the Connection to accept and
-	 *                       pass on to existing callables. It's possible to specify whether
-	 *                       each method should be available for unauthenticated calls or not.
-	 * @see Jetpack::__construct
-	 */
-	public function initialize( $methods ) {
-		$methods;
-	}
-
-	/**
 	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
 	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
 	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
