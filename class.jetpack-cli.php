@@ -3,6 +3,7 @@
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Queue;
@@ -227,7 +228,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				) );
 				break;
 			case 'user':
-				if ( Jetpack::unlink_user( $user->ID ) ) {
+				if ( Connection_Manager::disconnect_user( $user->ID ) ) {
 					Jetpack::log( 'unlink', $user->ID );
 					WP_CLI::success( __( 'User has been successfully disconnected.', 'jetpack' ) );
 				} else {
