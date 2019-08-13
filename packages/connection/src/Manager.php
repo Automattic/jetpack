@@ -552,13 +552,20 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * Is the user the connection owner.
+	 * Returns true if the provided user is the Jetpack connection owner.
+	 * If user ID is not specified, the current user will be used.
 	 *
-	 * @param Integer $user_id the user identifier.
-	 * @return Boolean is the user the connection owner?
+	 * @param Integer|Boolean $user_id the user identifier. False for current user.
+	 * @return Boolean True the user the connection owner, false otherwise.
 	 */
-	public function is_connection_owner( $user_id ) {
-		return $user_id;
+	public function is_connection_owner( $user_id = false ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+
+		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
 	}
 
 	/**
