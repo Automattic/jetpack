@@ -44,7 +44,9 @@ matrix:
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
     before_script:
-    - nvm install 12
+    # Enable user namespace cloning
+    - "sysctl kernel.unprivileged_userns_clone=1"
+    - nvm install 10
     - yarn && yarn build
     - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
     - source ./env-file
@@ -54,6 +56,8 @@ matrix:
       apt:
         packages:
           - nginx
+          # This is required to run new chrome on old trusty
+          - libnss3
 
   allow_failures:
     - name: "E2E tests"
