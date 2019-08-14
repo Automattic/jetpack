@@ -199,9 +199,7 @@ class Jetpack_Gutenberg {
 		if ( 'missing_plan' === $reason && ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) ) {
 			// The block editor applies an upgrade nudge if `missing_plan` is the reason.
 			// Add a suffix to disable and provide informative reason.
-			if ( 'missing_plan' === $reason ) {
-				$reason .= '__upgrade_disabled';
-			}
+			$reason .= '__nudge_disabled';
 		}
 
 		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
