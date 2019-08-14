@@ -542,7 +542,7 @@ class WPCOM_JSON_API {
 	}
 
 	function json_encode( $data ) {
-		return json_encode( $data );
+		return wp_json_encode( $data );
 	}
 
 	function ends_with( $haystack, $needle ) {
