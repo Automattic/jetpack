@@ -6172,6 +6172,7 @@ p {
 			'atd_http_post_timeout'                                  => null,
 			'atd_http_post_error'                                    => null,
 			'atd_service_domain'                                     => null,
+			'jetpack_widget_authors_exclude'                         => 'jetpack_widget_authors_params',
 		);
 
 		// This is a silly loop depth. Better way?
