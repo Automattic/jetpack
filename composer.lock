@@ -4,11 +4,34 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56dc3d84ef0f2644bbee524c63ee1a4d",
+    "content-hash": "44ae72e6d5f99c2118b037d797886467",
     "packages": [
         {
+            "name": "automattic/jetpack-abtest",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/abtest",
+                "reference": "ab5b09dd20ff636b228785d56a04229e53dbe1af",
+                "shasum": null
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Provides an interface to the WP.com A/B tests."
+        },
+        {
             "name": "automattic/jetpack-assets",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -41,7 +64,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -76,7 +99,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -109,7 +132,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -146,7 +169,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -175,7 +198,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -214,7 +237,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -244,7 +267,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -271,7 +294,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -301,7 +324,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -331,7 +354,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -359,7 +382,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -766,6 +789,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-abtest": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
