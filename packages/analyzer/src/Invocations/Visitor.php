@@ -33,6 +33,8 @@ class Visitor extends NodeVisitorAbstract {
 			// TODO - args
 			if ( $node->name instanceof Node\Expr\Variable ) {
 				$function_name = '$' . Utils::maybe_stringify( $node->name->name );
+			} elseif ( $node->name instanceof Node\Expr\ArrayDimFetch ) {
+				$function_name = '$' . Utils::maybe_stringify( $node->name->var->name ) . '[' . Utils::maybe_stringify( $node->name->dim->name ) . ']';
 			} else {
 				$function_name = implode( '\\', $node->name->parts );
 			}
