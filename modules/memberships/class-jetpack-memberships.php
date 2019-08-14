@@ -341,14 +341,16 @@ class Jetpack_Memberships {
 	 * Register the Recurring Payments Gutenberg block
 	 */
 	public function register_gutenberg_block() {
-		if ( self::is_enabled_jetpack_recurring_payments() ) {
+		$is_enabled = self::is_enabled_jetpack_recurring_payments();
+
+		if ( true === $is_enabled ) {
 			jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
 					'render_callback' => array( $this, 'render_button' ),
 				)
 			);
-		} else {
+		} elseif ( false === $is_enabled ) {
 			Jetpack_Gutenberg::set_extension_unavailable(
 				'jetpack/recurring-payments',
 				'missing_plan',
@@ -356,6 +358,12 @@ class Jetpack_Memberships {
 					'required_feature' => 'memberships',
 					'required_plan'    => self::$required_plan,
 				)
+			);
+		} else { // $is_enabled is a WP_Error object.
+			Jetpack_Gutenberg::set_extension_unavailable(
+				'jetpack/recurring-payments',
+				'other_error',
+				$is_enabled
 			);
 		}
 	}
