@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection;
 use Automattic\Jetpack\JITM;
 
 /**
@@ -870,9 +871,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool True if site is connected
 	 */
 	public static function jetpack_connection_status() {
+		$connection = new Connection();
 		return rest_ensure_response( array(
 				'isActive'  => Jetpack::is_active(),
 				'isStaging' => Jetpack::is_staging_site(),
+				'isRegistered' => $connection->is_registered(),
 				'devMode'   => array(
 					'isActive' => Jetpack::is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,

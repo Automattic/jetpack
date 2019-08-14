@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Connection\Manager as Connection;
 
 class Jetpack_Provision { //phpcs:ignore
 
@@ -51,10 +52,9 @@ class Jetpack_Provision { //phpcs:ignore
 			);
 		}
 
-		$blog_id    = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Data::get_access_token();
+		$connection = new Connection();
 
-		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
+		if ( ! $connection->is_registered() || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
