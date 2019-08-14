@@ -9,6 +9,7 @@
 	},
 	"require": {
 		"ext-openssl": "*",
+		"automattic/jetpack-abtest": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-logo": "@dev",
