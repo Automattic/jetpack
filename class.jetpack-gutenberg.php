@@ -188,6 +188,22 @@ class Jetpack_Gutenberg {
 	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
 	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
+		/**
+		 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
+		 * to disable paid feature upgrade nudges in the block editor.
+		 *
+		 * @since 7.7.0
+		 *
+		 * @param boolean
+		 */
+		if ( 'missing_plan' === $reason && ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) ) {
+			// The block editor applies an upgrade nudge if `missing_plan` is the reason.
+			// Add a suffix to disable and provide informative reason.
+			if ( 'missing_plan' === $reason ) {
+				$reason .= '__upgrade_disabled';
+			}
+		}
+
 		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
 			'reason'  => $reason,
 			'details' => $details,
