@@ -327,30 +327,31 @@ class Jetpack_Memberships {
 	/**
 	 * Whether Memberships (aka Recurring Payments) are enabled.
 	 *
-	 * @return WP_Error|bool
+	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
-		$status = self::get_connection_status();
-		if ( is_wp_error( $status ) ) {
-			return $status;
+		// For WPCOM sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+			$site_id = get_current_blog_id();
+			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
-		return ! $status->should_upgrade_to_access_memberships;
+
+		// For all Jetpack sites.
+		return Jetpack::is_active() && Jetpack_Plan::supports( 'recurring-payments' );
 	}
 
 	/**
 	 * Register the Recurring Payments Gutenberg block
 	 */
 	public function register_gutenberg_block() {
-		$is_enabled = self::is_enabled_jetpack_recurring_payments();
-
-		if ( true === $is_enabled ) {
+		if ( self::is_enabled_jetpack_recurring_payments() ) {
 			jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
 					'render_callback' => array( $this, 'render_button' ),
 				)
 			);
-		} elseif ( false === $is_enabled ) {
+		} else {
 			Jetpack_Gutenberg::set_extension_unavailable(
 				'jetpack/recurring-payments',
 				'missing_plan',
@@ -358,12 +359,6 @@ class Jetpack_Memberships {
 					'required_feature' => 'memberships',
 					'required_plan'    => self::$required_plan,
 				)
-			);
-		} else { // $is_enabled is a WP_Error object.
-			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/recurring-payments',
-				'other_error',
-				$is_enabled
 			);
 		}
 	}
