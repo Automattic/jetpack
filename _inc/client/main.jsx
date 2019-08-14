@@ -51,7 +51,7 @@ class Main extends React.Component {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
-		this.initializeAnalyitics();
+		this.initializeAnalytics();
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		window.addEventListener( 'beforeunload', this.onBeforeUnload );
@@ -113,7 +113,7 @@ class Main extends React.Component {
 		}
 	};
 
-	initializeAnalyitics = () => {
+	initializeAnalytics = () => {
 		const tracksUser = this.props.tracksUserData;
 
 		if ( tracksUser ) {
