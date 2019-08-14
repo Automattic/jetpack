@@ -563,30 +563,6 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
-	 * Initializes a transport server, whatever it may be, saves into the object property.
-	 * Should be changed to be protected.
-	 */
-	public function initialize_server() {
-
-	}
-
-	/**
-	 * Checks if the current request is properly authenticated, bails if not.
-	 * Should be changed to be protected.
-	 */
-	public function require_authentication() {
-
-	}
-
-	/**
-	 * Verifies the correctness of the request signature.
-	 * Should be changed to be protected.
-	 */
-	public function verify_signature() {
-
-	}
-
-	/**
 	 * Returns the requested Jetpack API URL.
 	 *
 	 * @param String $relative_url the relative API path.
