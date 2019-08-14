@@ -153,7 +153,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			'post_status'    => $status,
 			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
-			's'              => isset( $args['search'] ) ? $args['search'] : null,
+			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
 			'fields'         => 'ids',
 		);
 
