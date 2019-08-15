@@ -6,8 +6,6 @@
  * @since      7.3.0
  */
 
-use Automattic\Jetpack\Connection\Client;
-
 /**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
@@ -288,40 +286,6 @@ class Jetpack_Memberships {
 	 */
 	public static function get_connected_account_id() {
 		return get_option( self::$connected_account_id_option_name );
-	}
-
-	/**
-	 * Get a status of connection for the site. If this is Jetpack, pass the request to wpcom.
-	 *
-	 * @param string $rest_base - The REST API route base for requesting connection status on wpcom.
-	 *
-	 * @return WP_Error|array ['products','connected_account_id','connect_url','should_upgrade_to_access_memberships','upgrade_url']
-	 */
-	public static function get_connection_status( $rest_base = 'memberships' ) {
-		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			require_lib( 'memberships' );
-			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id );
-		} else {
-			$blog_id  = Jetpack_Options::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
-				"/sites/$blog_id/{$rest_base}/status",
-				'v2',
-				array(),
-				null
-			);
-			if ( is_wp_error( $response ) ) {
-				if ( $response->get_error_code() === 'missing_token' ) {
-					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
-				}
-				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
-			}
-			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
-			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-				return new WP_Error( $data['code'], $data['message'], 401 );
-			}
-			return $data;
-		}
 	}
 
 	/**
