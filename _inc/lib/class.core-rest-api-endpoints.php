@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection;
 use Automattic\Jetpack\JITM;
 
 /**
