@@ -184,7 +184,7 @@
 		"husky": "2.3.0",
 		"jest": "24.7.1",
 		"jest-puppeteer": "4.3.0",
-		"lodash": "4.17.14",
+		"lodash": "4.17.15",
 		"mocha": "6.1.4",
 		"mockery": "2.1.0",
 		"nock": "10.0.6",
