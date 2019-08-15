@@ -874,7 +874,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response( array(
 				'isActive'  => Jetpack::is_active(),
 				'isStaging' => Jetpack::is_staging_site(),
-				'isRegistered' => $connection->is_registered(),
+				'isRegistered' => Jetpack::connection()->is_registered(),
 				'devMode'   => array(
 					'isActive' => Jetpack::is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
