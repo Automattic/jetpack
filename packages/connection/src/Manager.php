@@ -1166,11 +1166,27 @@ class Manager implements Manager_Interface {
 			);
 		}
 
-		if ( ! $stored_secrets ) {
+		if ( self::SECRETS_MISSING === $stored_secrets ) {
 			return $return_error(
 				new \WP_Error(
 					'verify_secrets_missing',
 					__( 'Verification secrets not found', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( self::SECRETS_EXPIRED === $stored_secrets ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_expired',
+					__( 'Verification took too long', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( ! $stored_secrets ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_empty',
+					__( 'Verification secrets are empty', 'jetpack' ),
 					400
 				)
 			);
