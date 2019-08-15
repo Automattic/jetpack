@@ -42,7 +42,6 @@ class MembershipsButtonEdit extends Component {
 			connected: API_STATE_LOADING,
 			connectURL: null,
 			addingMembershipAmount: PRODUCT_NOT_ADDING,
-			shouldUpgrade: false,
 			upgradeURL: '',
 			products: [],
 			siteSlug: '',
@@ -84,14 +83,13 @@ class MembershipsButtonEdit extends Component {
 				const {
 					connect_url: connectURL,
 					products,
-					should_upgrade_to_access_memberships: shouldUpgrade,
 					upgrade_url: upgradeURL,
 					site_slug: siteSlug,
 				} = result;
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL, products, shouldUpgrade, upgradeURL, siteSlug } );
+				this.setState( { connected, connectURL, products, upgradeURL, siteSlug } );
 			},
 			result => {
 				const connectURL = null;
@@ -362,36 +360,33 @@ class MembershipsButtonEdit extends Component {
 							<Spinner />
 						</Placeholder>
 					) }
-				{ ! this.state.shouldUpgrade &&
-					! this.props.attributes.planId &&
-					connected === API_STATE_NOTCONNECTED && (
-						<div className="wp-block-jetpack-recurring-payments">
-							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
-								notices={ notices }
-							>
-								<div className="components-placeholder__instructions">
-									<p>
-										{ __(
-											'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
-											'jetpack'
-										) }
-									</p>
-									<Button isDefault isLarge href={ connectURL } target="_blank">
-										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
-									</Button>
-									<br />
-									<Button isLink onClick={ this.apiCall }>
-										{ __( 'Re-check Connection', 'jetpack' ) }
-									</Button>
-									{ this.renderDisclaimer() }
-								</div>
-							</Placeholder>
-						</div>
-					) }
-				{ ! this.state.shouldUpgrade &&
-					! this.props.attributes.planId &&
+				{ ! this.props.attributes.planId && connected === API_STATE_NOTCONNECTED && (
+					<div className="wp-block-jetpack-recurring-payments">
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Recurring Payments', 'jetpack' ) }
+							notices={ notices }
+						>
+							<div className="components-placeholder__instructions">
+								<p>
+									{ __(
+										'In order to start selling Recurring Payments plans, you have to connect to Stripe:',
+										'jetpack'
+									) }
+								</p>
+								<Button isDefault isLarge href={ connectURL } target="_blank">
+									{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
+								</Button>
+								<br />
+								<Button isLink onClick={ this.apiCall }>
+									{ __( 'Re-check Connection', 'jetpack' ) }
+								</Button>
+								{ this.renderDisclaimer() }
+							</div>
+						</Placeholder>
+					</div>
+				) }
+				{ ! this.props.attributes.planId &&
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
@@ -408,8 +403,7 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ ! this.state.shouldUpgrade &&
-					! this.props.attributes.planId &&
+				{ ! this.props.attributes.planId &&
 					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
 					connected === API_STATE_CONNECTED &&
 					products.length > 0 && (
