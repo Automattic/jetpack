@@ -51,7 +51,6 @@ class Jetpack_Provision { //phpcs:ignore
 			);
 		}
 
-		$connection = new Connection();
 
 		if ( ! $connection->is_registered() || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
