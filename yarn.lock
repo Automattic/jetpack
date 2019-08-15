@@ -1235,25 +1235,24 @@
   dependencies:
     "@types/node" ">=8.9.0"
 
-"@slack/types@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@slack/types/-/types-1.0.0.tgz#1dc7a63b293c4911e474197585c3feda012df17a"
-  integrity sha512-IktC4uD/CHfLQcSitKSmjmRu4a6+Nf/KzfS6dTgUlDzENhh26l8aESKAuIpvYD5VOOE6NxDDIAdPJOXBvUGxlg==
+"@slack/types@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@slack/types/-/types-1.1.0.tgz#64465b6c7e2db66498f335934335da81c15812e7"
+  integrity sha512-uak4Jbi8nlX8xmElkPt1ixxVQXMKdBRbzBayn5bRzZ9Yx3bQGlyJdFs6GjEKI+fvFP0ZTiGWKOzlJTH3Tm/9fg==
 
-"@slack/web-api@5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@slack/web-api/-/web-api-5.0.1.tgz#f46ecd2dd8b8104144082c079a4f53ec7737f327"
-  integrity sha512-L2Nc8P+NjXH1yqnsNhqxsrbpW3Qv+//9X5PQqcM3bctDmvmwTuhuM1X208RVD2avhnC89aghY5PssyaayWj5sA==
+"@slack/web-api@5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@slack/web-api/-/web-api-5.1.0.tgz#ce04e0df08831d9ec5427df0abb3f461c3f8a2f5"
+  integrity sha512-bnzS1I8iOfNB4xSX0zQ/uRBnWTy7iPnAd0y+H/D8YRbEiXqAWaxlVQB8pio54hegSVcRRWRKFb2fyViSraMXqw==
   dependencies:
     "@slack/logger" "^1.0.0"
-    "@slack/types" "^1.0.0"
-    "@types/form-data" "^2.2.1"
+    "@slack/types" "^1.1.0"
     "@types/is-stream" "^1.1.0"
     "@types/node" ">=8.9.0"
     "@types/p-queue" "^2.3.2"
     axios "^0.18.0"
     eventemitter3 "^3.1.0"
-    form-data "^2.3.3"
+    form-data "^2.5.0"
     is-stream "^1.1.0"
     p-queue "^2.4.2"
     p-retry "^4.0.0"
@@ -1320,13 +1319,6 @@
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
-
-"@types/form-data@^2.2.1":
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/@types/form-data/-/form-data-2.5.0.tgz#5025f7433016f923348434c40006d9a797c1b0e8"
-  integrity sha512-23/wYiuckYYtFpL+4RPWiWmRQH2BjFuqCUi2+N3amB1a1Drv+i/byTrGvlLwRVLFNAZbwpbQ7JvTK+VCAPMbcg==
-  dependencies:
-    form-data "*"
 
 "@types/glob@^7.1.1":
   version "7.1.1"
@@ -5266,7 +5258,7 @@ fork-stream@^0.0.4:
   resolved "https://registry.yarnpkg.com/fork-stream/-/fork-stream-0.0.4.tgz#db849fce77f6708a5f8f386ae533a0907b54ae70"
   integrity sha1-24Sfznf2cIpfjzhq5TOgkHtUrnA=
 
-form-data@*, form-data@^2.3.3:
+form-data@^2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-2.5.0.tgz#094ec359dc4b55e7d62e0db4acd76e89fe874d37"
   integrity sha512-WXieX3G/8side6VIqx44ablyULoGruSde5PNTxoUyo5CeyAMX6nVWUd0rgist/EuX655cjhUhTo1Fo3tRYqbcA==
