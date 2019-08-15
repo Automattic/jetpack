@@ -13,8 +13,8 @@ import { Warning } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
-import analytics from '../../../_inc/client/lib/analytics';
-import getSiteFragment from '../get-site-fragment';
+import analytics from '../../../../_inc/client/lib/analytics';
+import getSiteFragment from '../../get-site-fragment';
 import './store';
 
 import './style.scss';

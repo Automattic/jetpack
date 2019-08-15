@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 /**
  * Internal dependencies
  */
-import { UpgradeNudge } from '../upgrade-nudge';
+import { UpgradeNudge } from './upgrade-nudge';
 
 import './style.scss';
 
