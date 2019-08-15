@@ -871,7 +871,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool True if site is connected
 	 */
 	public static function jetpack_connection_status() {
-		$connection = new Connection();
 		return rest_ensure_response( array(
 				'isActive'  => Jetpack::is_active(),
 				'isStaging' => Jetpack::is_staging_site(),
