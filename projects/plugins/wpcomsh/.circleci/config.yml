@@ -6,8 +6,30 @@ jobs:
     steps:
       - run: php -r 'echo "¡Hola mundo!" . PHP_EOL;'
 
+  public-access:
+    docker:
+      - image: docker:19.03.2
+    steps:
+      - setup_remote_docker
+      - run: apk update && apk add bash composer docker-compose git make openssh-client rsync zip
+      - add_ssh_keys
+      - checkout
+      - run: make test-public-access
+
+  private-access:
+    docker:
+      - image: docker:19.03.2
+    steps:
+      - setup_remote_docker
+      - run: apk update && apk add bash composer docker-compose git make openssh-client rsync zip
+      - add_ssh_keys
+      - checkout
+      - run: make test-private-access
+
 workflows:
   version: 2
   main:
     jobs:
       - test
+      - public-access
+      - private-access

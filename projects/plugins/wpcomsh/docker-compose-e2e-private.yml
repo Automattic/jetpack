@@ -1,0 +1,70 @@
+version: '3.7'
+
+services:
+  db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=jfdsaf9wjfaospfopdsafjsda
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wp
+      - MYSQL_PASSWORD=iojdgoisajsoife83489398f8ds9a
+    restart: always
+
+  wp:
+    image: wordpress:5.2-php7.3-fpm
+    depends_on:
+      - db
+    volumes:
+      - wpdata:/var/www/html
+      - ./build/wpcomsh/:/var/www/html/wp-content/plugins/wpcomsh/
+      - /dev/null:/var/www/html/wp-content/plugins/wpcomsh/wpcomsh-loader.php
+    environment:
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wp
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DB_PASSWORD=iojdgoisajsoife83489398f8ds9a
+      - WORDPRESS_TABLE_PREFIX=wp_
+      - WORDPRESS_DEBUG=1
+    restart: always
+
+  wpcli:
+    image: wordpress:cli-2.3-php7.3
+    depends_on:
+      - db
+      - wp
+    volumes:
+      - wpdata:/var/www/html
+      - ./build/wpcomsh/:/var/www/html/wp-content/plugins/wpcomsh/
+      - /dev/null:/var/www/html/wp-content/plugins/wpcomsh/wpcomsh-loader.php
+      - ./bin/wait-for:/usr/local/bin/wait-for
+      - ./bin/ci-init-cli.sh:/usr/local/bin/ci-init-cli.sh
+    command: /bin/sh /usr/local/bin/ci-init-cli.sh private || exit 1
+
+  nginx:
+    image: nginx:1.16.1
+    depends_on:
+      - wp
+      - wpcli
+    volumes:
+      - wpdata:/var/www/html
+      - ./tests/e2e/config/nginx.conf:/etc/nginx/conf.d/site.conf
+    restart: always
+    ports:
+      - 8989:8989
+
+  jest:
+    image: node:10.16.3-stretch-slim
+    depends_on:
+      - wpcli
+      - nginx
+    volumes:
+      - ./package.json:/e2e/package.json
+      - ./package-lock.json:/e2e/package-lock.json
+      - ./tests/e2e/jest.config.js:/e2e/jest.config.js
+      - ./tests/e2e/specs/private-site/:/e2e/specs/
+      - ./bin/wait-for:/usr/local/bin/wait-for
+      - ./bin/ci-init-e2e.sh:/usr/local/sbin/ci-init-e2e.sh
+    command: /bin/sh /usr/local/sbin/ci-init-e2e.sh || exit 1
+
+volumes:
+  wpdata:

@@ -4,3 +4,4 @@
 /private-constants.php
 build/
 vendor/
+node_modules

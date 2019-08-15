@@ -61,6 +61,7 @@ $(BUILD_DST)/$(BUILD_FILE): $(BUILD_DST)/$(NAME)
 	@ echo "creating zip file..."
 	@ cd $(BUILD_DST) && zip -q -r $(BUILD_FILE) $(NAME)/ -x "._*"
 
+	@ echo "rsync'ing to build dir..."
 	@ echo "DONE!"
 
 $(BUILD_DST)/$(NAME): $(BUILD_DST)
@@ -71,6 +72,23 @@ $(BUILD_DST):
 
 ## build
 build: check $(BUILD_DST)/$(BUILD_FILE)
+
+## CI & other testing
+runtest:
+	docker-compose -f docker-compose-phpunit.yml up --abort-on-container-exit --exit-code-from phpunit --build
+testclean:
+	docker-compose -f docker-compose-phpunit.yml down --rmi local -v
+
+test: build runtest
+test-rebuild: clean testclean test
+
+test-public-access: clean build
+	docker-compose -p public-access -f docker-compose-e2e-public.yml down --rmi local -v
+	docker-compose -p public-access -f docker-compose-e2e-public.yml up --abort-on-container-exit --exit-code-from jest --build
+
+test-private-access: clean build
+	docker-compose -p private-access -f docker-compose-e2e-private.yml down --rmi local -v
+	docker-compose -p private-access -f docker-compose-e2e-private.yml up --abort-on-container-exit --exit-code-from jest --build
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
