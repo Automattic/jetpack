@@ -1320,6 +1320,10 @@ class Jetpack_Sitemap_Builder {
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
 		
+		// Remove all HTML tags, keep only plain texts.
+		/** This filter is already documented in core/wp-includes/formatting.php */
+		$content = wp_strip_all_tags ( $content, true );
+
 		// Include thumbnails for VideoPress videos, use blank image for others
 		if ( 'complete' === get_post_meta( $post->ID, 'videopress_status', true ) && has_post_thumbnail( $post ) ) {
 			$video_thumbnail_url = get_the_post_thumbnail_url( $post );
