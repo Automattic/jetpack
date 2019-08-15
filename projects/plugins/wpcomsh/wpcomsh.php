@@ -191,6 +191,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'p3/p3.php' => '"p3" is not supported on WordPress.com.',
 		'yellow-pencil-visual-theme-customizer/yellow-pencil.php' => '"yellow-pencil-visual-theme-customizer" is not supported on WordPress.com.',
 		'yuzo-related-post/yuzo_related_post.php' => '"yuzo-related-post" is not supported on WordPress.com.',
+		'mapsvg/mapsvg.php' => '"mapsvg" is not supported on WordPress.com.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
