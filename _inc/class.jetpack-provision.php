@@ -3,7 +3,6 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
-use Automattic\Jetpack\Connection\Manager as Connection;
 
 class Jetpack_Provision { //phpcs:ignore
 
