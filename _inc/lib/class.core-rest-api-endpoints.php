@@ -193,7 +193,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/site/benefits', array(
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => array( $site_endpoint, 'get_benefits' ),
-			'permission_callback' => array( $site_endpoint, 'can_request' ), // TODO: make better permission_callback
+			'permission_callback' => array( $site_endpoint, 'can_request' ),
 		) );
 
 		// Get Activity Log data for this site.

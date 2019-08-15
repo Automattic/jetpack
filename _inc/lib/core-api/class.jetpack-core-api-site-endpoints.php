@@ -69,7 +69,6 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
 
-		// TODO: better threshold
 		if ( $stats->stats->visitors > 0 ) {
 			$benefits[] = [
 				'name'        => 'jetpack-stats',
@@ -91,9 +90,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
-		// TODO: are followers_blog and followers_comments unique?
-		$followers = $stats->stats->followers_blog; // + $stats->stats->followers_comments;
-		// TODO: better threshold
+		$followers = $stats->stats->followers_blog;
 		if ( $followers > 0 ) {
 			$benefits[] = [
 				'name'        => 'subscribers',
@@ -166,8 +163,6 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
-		// TODO: test this value
-		// TODO: better threshold
 		if ( $stats->stats->shares > 0 ) {
 			$benefits[] = [
 				'name'        => 'sharing',
@@ -177,53 +172,6 @@ class Jetpack_Core_API_Site_Endpoint {
 			];
 		}
 
-		// ***********************
-		// WPCOM data:
-		// ***********************
-		// $benefits[] = [
-		// 'name' => 'wordads',
-		// 'title' => 'WordAds',
-		// 'description' => 'The money you’ve earned by displaying Jetpack WordAds',
-		// 'value' => 'TODO: can be retrieved from wpcom endpoint /sites/%s/wordads/earnings'
-		// ];
-		// $benefits[] = [
-		// 'name' => 'likes',
-		// 'title' => 'Likes',
-		// 'description' => 'Jetpack-powered likes you’ve received on your posts',
-		// 'value' => 'TODO See wp-content/mu-plugins/likes/likes.php and public.api/rest/wpcom-json-endpoints/class.wpcom-json-api-list-post-likes-endpoint.php'
-		// ];
-		// ***********************
-		// Will require input from others
-		// ***********************
-		// $benefits[] = [
-		// 'name' => 'paypal-payments',
-		// 'title' => 'Paypal Payments',
-		// 'description' => 'The money you’ve earned from your Jetpack-powered PayPal button',
-		// 'value' => 'TODO'
-		// ];
-		// ***********************
-		// Difficult data:
-		// ***********************
-		// $benefits[] = [
-		// 'name' => 'contact-forms',
-		// 'title' => 'Contact Forms',
-		// 'description' => 'Live Jetpack forms on your site right now',
-		// 'value' => 'TODO'
-		// ];
-		// $benefits[] = [
-		// 'name' => 'galleries',
-		// 'title' => 'Galleries',
-		// 'description' => 'Beautiful image galleries powered by Jetpack',
-		// 'value' => 'TODO'
-		// ***********************
-		// Might not exist
-		// ***********************
-		// $benefits[] = [
-		// 'name'        => 'jetpack-scan',
-		// 'title'       => 'Jetpack Scan',
-		// 'description' => 'The number of times Jetpack has scanned your site for viruses and malicious files',
-		// 'value'       => 'TODO',
-		// ];
 		return rest_ensure_response(
 			[
 				'code'    => 'success',
@@ -233,25 +181,3 @@ class Jetpack_Core_API_Site_Endpoint {
 		);
 	}
 }
-
-// Example of calling a wpcom API:
-// $response = Client::wpcom_json_api_request_as_user(
-// 'jetpack-user-tracking',
-// '2',
-// array(
-// 'method'  => 'GET',
-// 'headers' => array(
-// 'X-Forwarded-For' => Jetpack::current_user_ip( true ),
-// ),
-// )
-// );
-//
-// if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-// return new WP_Error(
-// 'failed_to_fetch_data',
-// esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-// array( 'status' => 500 )
-// );
-// }
-//
-// $results = json_decode( $response['body'], true );
