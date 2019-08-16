@@ -107,6 +107,23 @@ class Publicize_UI {
  		add_thickbox();
 	}
 
+	public static function connected_notice( $service_name ) { ?>
+		<div class='updated'>
+			<p><?php
+ 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$platform =  'WordPress.com';
+			} else {
+				$platform = 'Jetpack';
+			}
+ 			printf(
+				/* translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Site type (WordPress.com or Jetpack) */
+				__( 'You have successfully connected your %1$s account with %2$s.', 'jetpack' ),
+				Publicize::get_service_label( $service_name ),
+				$platform
+			); ?></p>
+		</div><?php
+	}
+
 	/**
 	 * Lists the current user's publicized accounts for the blog
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
@@ -266,6 +283,38 @@ class Publicize_UI {
  			<?php wp_nonce_field( "wpas_posts_{$_blog_id}", "_wpas_posts_{$_blog_id}_nonce" ); ?>
 			<input type="hidden" id="wpas_ajax_blog_id" name="wpas_ajax_blog_id" value="<?php echo $_blog_id; ?>" />
 		</form><?php
+	}
+
+	public static function global_checkbox( $service_name, $id ) {
+		global $publicize;
+		if ( current_user_can( $publicize->GLOBAL_CAP ) ) : ?>
+			<p>
+				<input id="globalize_<?php echo $service_name; ?>" type="checkbox" name="global" value="<?php echo wp_create_nonce( 'publicize-globalize-' . $id ) ?>" />
+				<label for="globalize_<?php echo $service_name; ?>"><?php _e( 'Make this connection available to all users of this blog?', 'jetpack' ); ?></label>
+			</p>
+		<?php endif;
+	}
+
+	public static function options_page_other( $service_name ) {
+		// Nonce check
+		check_admin_referer( "options_page_{$service_name}_" . $_REQUEST['connection'] );
+		?>
+		<div id="thickbox-content">
+			<?php
+			ob_start();
+			Publicize_UI::connected_notice( $service_name );
+			$update_notice = ob_get_clean();
+			if ( ! empty( $update_notice ) )
+				echo $update_notice;
+			?>
+
+ 			<?php Publicize_UI::global_checkbox( $service_name, $_REQUEST['connection'] ); ?>
+
+ 			<p style="text-align: center;">
+				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack' ) ?>" class="button <?php echo $service_name; ?>-options save-options" name="save" data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>" rel="<?php echo wp_create_nonce( 'save_'.$service_name.'_token_' . $_REQUEST['connection'] ) ?>" />
+			</p> <br />
+		</div>
+		<?php
 	}
 
 	/**
