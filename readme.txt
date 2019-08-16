@@ -293,7 +293,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * Check advanced-cache.php was created by the plugin before modifying/deleting it. (#666)
 * When saving settings, save blank lines. Fixes problems with WP_CACHE and WPCACHEHOME in wp-config.php. Related to #652. (#667)
 * Update outdated code and use is_multisite() (#600)
-* Fix the delete cache button in the admin bar. (#603)
+* Fix the delete cache button in the Toolbar. (#603)
 * Code cleanup in #602
 * Use get_post_status instead of post_status (#623)
 * Fixes button - Update Direct Pages (#622)
@@ -316,7 +316,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * Fixes for WP-CLI (#587) (#592)
 * Bumped the minimum WordPress version to 3.1 to use functions introduced then. (#591)
 * Fixes to wpsc_post_transition to avoid a fatal error using get_sample_permalink. (#595)
-* Fixed the admin bar "Delete Cache" link. (#589)
+* Fixed the Toolbar "Delete Cache" link. (#589)
 * Fixed the headings used in the settings page. (#597)
 
 ### 1.6.3 ###
@@ -329,7 +329,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * Don't clean expired cache files after preload if garbage collection is disabled (#572)
 * On preload, if deleting a post don't delete the sub directories if it's the homepage. (#573)
 * Fix generation of semaphores when using WP CLI (#576)
-* Fix deleting from the admin bar (#578)
+* Fix deleting from the Toolbar (#578)
 * Avoid a strpos() warning. (#579)
 * Improve deleting of cache in edit/delete/publish actions (#577)
 * Fixes to headers code (#496)
@@ -403,7 +403,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * Minor changes to indentaion and spaces to tabs conversion (#371) (#395)
 * Don't set $wp_super_cache_comments here as it's not saved. (#379)
 * realpath() only works on directories. The cache_file wasn't set correctly. (#377)
-* Fix problem deleting cache from admin bar because of realpath() (#381)
+* Fix problem deleting cache from Toolbar because of realpath() (#381)
 * Use trigger_error() instead of echoing to the screen if a config file isn't writeable. (#394)
 * Added the "wpsc_enable_wp_config_edit" filter to disable editing the wp-config.php (#392)
 * Fix some PHP notices when comments are edited/published/maintained. (#386)
@@ -546,7 +546,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 ### 1.2 ###
 * Garbage collection of old cache files is significantly improved. I added a scheduled job that keeps an eye on things and restarts the job if necessary. Also, if you enable caching from the Easy page garbage collection will be enabled too.
-* Editors can delete single cached files from the admin bar now.
+* Editors can delete single cached files from the Toolbar now.
 * Fixed the cached page counter on the settings page.
 * Some sites that updated to 1.0 experienced too much garbage collection. There are still stragglers out there who haven't upgraded but that's fixed now!
 * Supercached mobile files are now used as there was a tiny little typo that needed fixing.
@@ -588,7 +588,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 * Removed AddDefaultCharset .htaccess rule
 * Fixed problem with blogs in a folder and don't have a trailing slash
 * New scheduling of garbage collection
-* Added a "Delete cache" link to admin bar to delete cache of current page.
+* Added a "Delete cache" link to Toolbar to delete cache of current page.
 * Updated documentation
 * Sorry Digg, Stephen Fry power now!
 * Updated translations

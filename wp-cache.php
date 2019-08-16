@@ -3822,7 +3822,7 @@ function supercache_admin_bar_render() {
 }
 
 /**
- * Adds "Delete Cache" button in WP Admin Bar.
+ * Adds "Delete Cache" button in WP Toolbar.
  */
 function wpsc_admin_bar_render( $wp_admin_bar ) {
 
