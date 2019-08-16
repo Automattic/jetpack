@@ -463,9 +463,9 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 
 You'll need:
 
-- PHP Debug plugin installed in VSCode
-- Xdebug Helper for Google Chrome 
-- The easiest Xdebug for Mozilla Firefox.
+- [PHP Debug](https://github.com/felixfbecker/vscode-php-debug) plugin installed in VSCode
+- Install "Xdebug Helper" extension for Google Chrome 
+- Install "The easiest Xdebug" extension for Mozilla Firefox.
 
 #### Set up the Debugging Task
 
@@ -504,7 +504,7 @@ You [will also have to configure the IDE key](https://github.com/mac-cain13/xdeb
 
     xdebug.idekey = VSCODE
 
-Now, in the XDebug Helper for Chrome, under IDE Key, select 'Other' and add 'VSCODE' as the key, and save.
+Now, in the Xdebug Helper for Chrome, under IDE Key, select 'Other' and add 'VSCODE' as the key, and save.
 
 Run the debugger
 
