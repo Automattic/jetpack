@@ -37,8 +37,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			);
 			$this->alt_option_name = 'widget_contact_info';
 
-			if ( is_customize_preview() || 'widgets.php' === $pagenow ) {
+			if ( is_customize_preview() ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+			} elseif ( 'widgets.php' === $pagenow ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 			}
 
 			add_action( 'wp_ajax_customize-contact-info-api-key', array( $this, 'ajax_check_api_key' ) );
