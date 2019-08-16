@@ -61,9 +61,6 @@ class Jetpack_Provision { //phpcs:ignore
 			} elseif ( ! $registered ) {
 				return new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) );
 			}
-
-			$blog_id    = Jetpack_Options::get_option( 'id' );
-			$blog_token = Jetpack_Data::get_access_token();
 		}
 
 		// If the user isn't specified, but we have a current master user, then set that to current user.
