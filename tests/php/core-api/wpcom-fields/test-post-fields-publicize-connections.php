@@ -212,6 +212,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
+
 		$schema   = $data['schema'];
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
