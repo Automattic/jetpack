@@ -180,6 +180,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$schema   = $data['schema'];
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
 	}
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
