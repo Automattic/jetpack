@@ -118,23 +118,47 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --group=rest-api
 		$this->publicize = publicize_init();
 		$this->publicize->register_post_meta();
+
+		// Flush the schema cache for those Posts Controllers that need it.
+		// https://core.trac.wordpress.org/changeset/45811/
+		$GLOBALS['wp_rest_server']->override_by_default = true;
+		foreach ( get_post_types() as $post_type ) {
+			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
+				continue;
+			}
+
+			$controller = new WP_REST_Posts_Controller( $post_type );
+			$controller->register_routes();
+		}
+		$GLOBALS['wp_rest_server']->override_by_default = false;
 	}
 
 	public function tearDown() {
-		$this->teardown_fields();
-
-		parent::tearDown();
-
-		wp_delete_post( $this->draft_id, true );
-
+		$publicizeable_post_types = [];
 		// Clean up custom meta from publicizeable post types
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->publicize->post_type_is_publicizeable( $post_type ) ) {
 				continue;
 			}
 
+			$publicizeable_post_types[] = $post_type;
 			unregister_meta_key( 'post', $this->publicize->POST_MESS, $post_type );
 		}
+
+		// Flush the schema cache for those Posts Controllers that need it.
+		// https://core.trac.wordpress.org/changeset/45811/
+		$GLOBALS['wp_rest_server']->override_by_default = true;
+		foreach ( $publicizeable_post_types as $post_type ) {
+			$controller = new WP_REST_Posts_Controller( $post_type );
+			$controller->register_routes();
+		}
+		$GLOBALS['wp_rest_server']->override_by_default = false;
+
+		$this->teardown_fields();
+
+		parent::tearDown();
+
+		wp_delete_post( $this->draft_id, true );
 	}
 
 	private function setup_fields() {
@@ -180,6 +204,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$schema   = $data['schema'];
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
+		$this->assertArrayHasKey( 'meta', $schema['properties'] );
+		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
 	}
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
