@@ -1215,6 +1215,14 @@ table.wpsc-settings-table {
 				</td>
 				</tr>
 			</table>
+			<p><?php _e( 'The following recommended settings will be enabled:', 'wp-super-cache' ); ?></p>
+			<ol>
+			<li><?php _e( 'Caching disabled for logged in visitors.', 'wp-super-cache' ); ?></li>
+			<li><?php _e( 'Simple caching.', 'wp-super-cache' ); ?></li>
+			<li><?php _e( 'Cache Rebuild.', 'wp-super-cache' ); ?></li>
+			<li><?php _e( 'Interval garbage collection every 10 minutes with a cache lifetime of 30 minutes (if not configured already).', 'wp-super-cache' ); ?></li>
+			</ol>
+			<p><?php _e( 'These settings can be modified on the Advanced Settings page.', 'wp-super-cache' ); ?></p>
 			<?php
 			if ( ! $is_nginx && $cache_enabled && ! $wp_cache_mod_rewrite ) {
 				$scrules = trim( implode( "\n", extract_from_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache' ) ) );
