@@ -759,6 +759,7 @@ function wpsc_delete_files( $dir, $delete = true ) {
 		wp_cache_debug( 'wpsc_delete_files: directory is blank' );
 		return false;
 	}
+	wp_cache_debug( 'wpsc_delete_files: deleting ' . $dir );
 
 	// only do this once, this function will be called many times
 	if ( $protected == '' ) {
@@ -778,24 +779,35 @@ function wpsc_delete_files( $dir, $delete = true ) {
 	$dir = trailingslashit( $dir );
 
 	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
+		wp_cache_debug( 'wpsc_delete_files: directory is not in cache directory: ' . $dir );
 		return false;
 	}
 
-	if ( in_array( $dir, $protected ) )
+	if ( in_array( $dir, $protected ) ) {
+		wp_cache_debug( 'wpsc_delete_files: directory is protected ' . $dir );
 		return false;
+	}
 
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
 		while ( ( $file = readdir( $dh ) ) !== false ) {
+			wp_cache_debug( 'wpsc_delete_files: reading files: ' . $file );
 			if ( $file != '.' && $file != '..' && $file != '.htaccess' && is_file( $dir . $file ) )
-				if ( $delete )
+				if ( $delete ) {
+					wp_cache_debug( 'wpsc_delete_files: deleting ' . $dir . $file );
 					@unlink( $dir . $file );
-				else
+				} else {
+					wp_cache_debug( 'wpsc_delete_files: rebuild or delete ' . $dir . $file );
 					@wp_cache_rebuild_or_delete( $dir . $file );
+				}
 		}
 		closedir( $dh );
 
-		if ( $delete )
+		if ( $delete ) {
+			wp_cache_debug( 'wpsc_delete_files: remove directory ' . $dir );
 			@rmdir( $dir );
+		}
+	} else {
+		wp_cache_debug( 'wpsc_delete_files: could not open directory ' . $dir );
 	}
 	return true;
 }
