@@ -871,7 +871,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function jetpack_connection_status() {
 		return rest_ensure_response( array(
-				'isActive'  => Jetpack::is_active(),
+				'isActive'     => Jetpack::is_active(),
 				'isStaging'    => Jetpack::is_staging_site(),
 				'isRegistered' => Jetpack::connection()->is_registered(),
 				'devMode'   => array(
