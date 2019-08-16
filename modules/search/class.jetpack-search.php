@@ -368,7 +368,7 @@ class Jetpack_Search {
 
 		$do_authenticated_request = false;
 
-		if ( class_exists( 'Client' ) &&
+		if ( class_exists( 'Automattic\Jetpack\Connection\Client' ) &&
 			isset( $es_args['authenticated_request'] ) &&
 			true === $es_args['authenticated_request'] ) {
 			$do_authenticated_request = true;
