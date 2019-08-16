@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 5.2.2
-* Stable tag: 1.6.9
+* Stable tag: 1.7.0
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -265,6 +265,14 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.0 ###
+* Added "wpsc_cdn_urls" filter to modify the URLs used to rewrite URLs. #697
+* Fixed CDN functionality for logged in users. #698
+* Disable settings that don't work in Expert mode. #699
+* Don't enable mobile support by default, but it can still be enabled manually. #700
+* Change "admin bar" to "Toolbar". Props @garrett-eclipse. #701
+* Show settings enabled by "easy" settings page. #703
 
 ### 1.6.9 ###
 * Improve the variables and messaging used by advanced-cache.php code. #687
@@ -736,4 +744,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Fix security issue with debug log.
+Bugfix release.
