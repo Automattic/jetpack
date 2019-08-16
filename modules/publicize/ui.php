@@ -61,7 +61,7 @@ class Publicize_UI {
 	}
 
 	function wrapper_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ), array( 'is-wide' => true ) );
 	}
 
 	/**
@@ -85,7 +85,26 @@ class Publicize_UI {
 	 * JS for the options and switching
 	 */
 	function load_assets() {
-		Jetpack_Admin_Page::load_wrapper_styles();
+		wp_enqueue_script(
+			'publicize',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/publicize/assets/publicize.min.js',
+				'modules/publicize/assets/publicize.js'
+			),
+			array( 'jquery', 'thickbox' ),
+			'20121019'
+		);
+		if ( is_rtl() ) {
+			wp_enqueue_style( 'publicize', plugins_url( 'assets/rtl/publicize-rtl.css', __FILE__ ), array(), '20180301' );
+		} else {
+			wp_enqueue_style( 'publicize', plugins_url( 'assets/publicize.css', __FILE__ ), array(), '20180301' );
+		}
+ 		Jetpack_Admin_Page::load_wrapper_styles();
+		wp_enqueue_style( 'social-logos' );
+ 		// for deprecation tooltip
+		wp_enqueue_style( 'wp-pointer' );
+		wp_enqueue_script( 'wp-pointer' );
+ 		add_thickbox();
 	}
 
 	/**
@@ -93,22 +112,160 @@ class Publicize_UI {
 	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
 	 */
 	function admin_page() {
+		$_blog_id = get_current_blog_id();
 		?>
-		<h2 id="publicize"><?php esc_html_e( 'Publicize', 'jetpack' ) ?></h2>
-		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack' ) ?></p>
-		<h4><?php
-			printf(
-				wp_kses(
-					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack' ),
-					array( 'a' => array( 'href' => array(), 'class' => array(), 'data-jptracks-name' => array() ) )
-				),
-				esc_url( publicize_calypso_url() )
-			);
-			?>
-		</h4>
 
-		<a href="<?php echo esc_url( publicize_calypso_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack' ); ?></a>
-		<?php
+ 		<form action="" id="publicize-form">
+			<h2 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h2>
+
+ 			<?php
+				if ( ! empty( $_GET['action'] ) && 'deny' == $_GET['action'] ) {
+					$this->denied_notice();
+				}
+			?>
+
+ 			<p>
+				<?php esc_html_e( 'Connect your blog to popular social networking sites and automatically share new posts with your friends.', 'jetpack' ) ?>
+				<?php esc_html_e( 'You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text.', 'jetpack' ); ?>
+			</p>
+
+ 			<?php
+			if ( $this->in_jetpack ) {
+				$doc_link = "http://jetpack.com/support/publicize/";
+			} else {
+				$doc_link = "http://en.support.wordpress.com/publicize/";
+			}
+			?>
+
+ 			<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
+
+ 			<div id="publicize-services-block">
+				<?php
+				$services = $this->publicize->get_services( 'all' );
+				$total_num_of_services = count ( $services );
+				$service_num = 0;?>
+
+ 				<div class='left'>
+
+ 				<?php
+				foreach ( $services as $service_name => $service ) :
+					// do not display any service that cannot be connected anymore (deprecated).
+					$connect_url = $this->publicize->can_connect_service( $service_name ) ?
+						$this->publicize->connect_url( $service_name ) :
+						null;
+ 					if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
+						echo "</div><div class='right'>";
+					$service_num++;
+					?>
+					<div class="publicize-service-entry" <?php if ( $service_num > 0 ): ?>class="connected"<?php endif; ?> >
+						<div id="<?php echo esc_attr( $service_name ); ?>" class="publicize-service-left">
+							<?php if ( $connect_url ): ?>
+								<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $service_name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $service_name ); ?></a>
+							<?php else: ?>
+								<span><?php echo $this->publicize->get_service_label( $service_name ); ?></span>
+							<?php endif; ?>
+						</div>
+
+
+ 						<div class="publicize-service-right">
+							<?php if ( $this->publicize->is_enabled( $service_name ) && $connections = $this->publicize->get_connections( $service_name ) ) : ?>
+								<ul>
+									<?php
+									foreach( $connections as $c ) :
+										$id = $this->publicize->get_connection_id( $c );
+										$disconnect_url = $this->publicize->disconnect_url( $service_name, $id );
+ 										$cmeta = $this->publicize->get_connection_meta( $c );
+										$profile_link = $this->publicize->get_profile_link( $service_name, $c );
+										$connection_display = $this->publicize->get_display_name( $service_name, $c );
+ 										$options_nonce = wp_create_nonce( 'options_page_' . $service_name . '_' . $id ); ?>
+
+ 										<?php if ( $this->publicize->show_options_popup( $service_name, $c ) ): ?>
+										<script type="text/javascript">
+										jQuery(document).ready( function($) {
+											showOptionsPage.call(
+											this,
+											'<?php echo esc_js( $service_name ); ?>',
+											'<?php echo esc_js( $options_nonce ); ?>',
+											'<?php echo esc_js( $id ); ?>'
+											);
+										} );
+										</script>
+										<?php endif; ?>
+
+ 										<li class="publicize-connection" data-connection-id="<?php echo esc_attr( $id ); ?>">
+											<?php esc_html_e( 'Connected as:', 'jetpack' ); ?>
+											<?php
+											if ( !empty( $profile_link ) ) : ?>
+												<a class="publicize-profile-link" href="<?php echo esc_url( $profile_link ); ?>" target="_top">
+													<?php echo esc_html( $connection_display ); ?>
+												</a><?php
+											else :
+												echo esc_html( $connection_display );
+											endif;
+											?>
+
+ 											<?php if ( 0 == $cmeta['connection_data']['user_id'] ) : ?>
+												<small>(<?php esc_html_e( 'Shared', 'jetpack' ); ?>)</small>
+
+ 												<?php if ( current_user_can( $this->publicize->GLOBAL_CAP ) ) : ?>
+													<a class="pub-disconnect-button" title="<?php esc_html_e( 'Disconnect', 'jetpack' ); ?>" href="<?php echo esc_url( $disconnect_url ); ?>" target="_top">×</a>
+												<?php endif; ?>
+
+ 											<?php else : ?>
+												<a class="pub-disconnect-button" title="<?php esc_html_e( 'Disconnect', 'jetpack' ); ?>" href="<?php echo esc_url( $disconnect_url ); ?>" target="_top">×</a>
+											<?php endif; ?>
+
+ 											<br/>
+											<div class="pub-connection-test test-in-progress" id="pub-connection-test-<?php echo esc_attr( $id ); ?>" >
+											</div>
+										</li>
+
+ 										<?php
+									endforeach;
+									?>
+								</ul>
+							<?php endif; ?>
+
+ 							<?php
+							if ( $connect_url ) {
+								$connections = $this->publicize->get_connections( $service_name );
+								if ( empty( $connections ) ) {
+									printf(
+										'<a id="%1$s" class="publicize-add-connection button" href="%2$s" target="_top">%3$s</a>',
+										esc_attr( $service_name ),
+										esc_url( $connect_url ),
+										esc_html__( 'Connect', 'jetpack' )
+									);
+								} else {
+									printf(
+										'<a id="%1$s" class="publicize-add-connection button add-new" href="%2$s" target="_top">%3$s</a>',
+										esc_attr( $service_name ),
+										esc_url( $connect_url ),
+										esc_html__( 'Add New', 'jetpack' )
+									);
+								}
+							}
+							?>
+						</div>
+					</div>
+				<?php endforeach; ?>
+				</div>
+				<script>
+				(function($){
+					$('.pub-disconnect-button').on('click', function(e){ if ( confirm( '<?php echo esc_js( __( 'Are you sure you want to stop Publicizing posts to this connection?', 'jetpack' ) ); ?>' ) ) {
+								return true;
+							} else {
+							e.preventDefault();
+							return false;
+						}
+					});
+				})(jQuery);
+				</script>
+			</div>
+
+ 			<?php wp_nonce_field( "wpas_posts_{$_blog_id}", "_wpas_posts_{$_blog_id}_nonce" ); ?>
+			<input type="hidden" id="wpas_ajax_blog_id" name="wpas_ajax_blog_id" value="<?php echo $_blog_id; ?>" />
+		</form><?php
 	}
 
 	/**
