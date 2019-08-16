@@ -203,9 +203,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
 
-		print_r( 'lezama ' );
-		print_r( $data );
-
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $schema['properties'] );
 		$this->assertArrayHasKey( 'meta', $schema['properties'] );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $schema['properties']['meta']['properties'] );
@@ -215,9 +212,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
-
-		print_r( 'lezama ' );
-		print_r( $data );
 
 		$schema   = $data['schema'];
 
