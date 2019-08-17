@@ -48,7 +48,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var Jetpack_Memberships
 	 */
-	protected static $required_plan;
+	private static $required_plan;
 
 	/**
 	 * Classic singleton pattern
