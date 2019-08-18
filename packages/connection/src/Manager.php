@@ -487,6 +487,19 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Returns true if the site has both a token and a blog id, which indicates a site has been registered.
+	 *
+	 * @access public
+	 *
+	 * @return bool
+	 */
+	public function is_registered() {
+		$blog_id   = \Jetpack_Options::get_option( 'id' );
+		$has_token = $this->is_active();
+		return $blog_id && $has_token;
+	}
+
+	/**
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
