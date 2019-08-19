@@ -610,6 +610,21 @@ class Jetpack {
 		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
+		// Initialize remote file upload request handlers.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$is_jetpack_xmlrpc_request = isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] && Constants::get_constant( 'XMLRPC_REQUEST' );
+		if (
+			! $is_jetpack_xmlrpc_request
+			&& is_admin()
+			&& isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification
+			&& (
+				'jetpack_upload_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
+				|| 'jetpack_update_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
+			)
+		) {
+			$this->add_remote_request_handlers();
+		}
+
 		if ( Jetpack::is_active() ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
 
