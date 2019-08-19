@@ -25,6 +25,10 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
+
+		if ( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
+		}
 	}
 
 	/**
@@ -69,6 +73,7 @@ class Jetpack_Connection_Banner {
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+
 		// Kill if banner has been dismissed
 		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
 			return;
@@ -122,6 +127,19 @@ class Jetpack_Connection_Banner {
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
 			)
+		);
+	}
+
+	public static function enqueue_connect_button_scripts() {
+		wp_enqueue_script(
+			'jetpack-connect-button',
+			Assets::get_file_url_for_environment(
+				'_inc/connect-button.js', // TODO - minify?
+				'_inc/connect-button.js'
+			),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
 		);
 	}
 
@@ -217,16 +235,11 @@ class Jetpack_Connection_Banner {
 
                             <div class="jp-banner__button-container">
                                 <span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
-								<?php if ( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) : ?>
-                                    <div class="jp-banner__button-container">
-                                    </div>
-								<?php else: ?>
-                                    <a
-                                            href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
-                                            class="dops-button is-primary">
-										<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-                                    </a>
-								<?php endif; ?>
+                                <a
+                                        href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
+                                        class="dops-button is-primary jp-connect-button">
+									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+                                </a>
                             </div>
 
 						</div>
@@ -308,26 +321,21 @@ class Jetpack_Connection_Banner {
 					<?php jetpack_render_tos_blurb(); ?>
                 </p>
 
-				<?php if ( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) : ?>
-					<div class="jp-connect-full__button-container">
-					</div>
-				<?php else: ?>
-					<p class="jp-connect-full__button-container">
-						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
-						   class="dops-button is-primary">
-							<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+                <p class="jp-connect-full__button-container">
+					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
+					   class="dops-button is-primary jp-connect-button">
+						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+					</a>
+				</p>
+
+				<?php if ( 'plugins' === $current_screen->base ) : ?>
+					<p class="jp-connect-full__dismiss-paragraph">
+						<a>
+							<?php echo esc_html_x(
+								'Not now, thank you.', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack'
+							); ?>
 						</a>
 					</p>
-
-					<?php if ( 'plugins' === $current_screen->base ) : ?>
-						<p class="jp-connect-full__dismiss-paragraph">
-							<a>
-								<?php echo esc_html_x(
-									'Not now, thank you.', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack'
-								); ?>
-							</a>
-						</p>
-					<?php endif; ?>
 				<?php endif; ?>
 			</div>
         </div>
