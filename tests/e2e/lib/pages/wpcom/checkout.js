@@ -25,9 +25,11 @@ export default class CheckoutPage extends Page {
 		cardPostCode,
 	} ) {
 		await waitAndType( this.page, '#name', cardHolder, { delay: 10 } );
-		await waitAndType( this.page, '#number', cardNumber, { delay: 10 } );
-		await waitAndType( this.page, '#expiration-date', cardExpiry, { delay: 10 } );
-		await waitAndType( this.page, '#cvv', cardCVV, { delay: 10 } );
+
+		await this.waitAndTypeInIframe( '.number', "input[name='cardnumber']", cardNumber );
+		await this.waitAndTypeInIframe( '.cvv', "input[name='cvc']", cardCVV );
+		await this.waitAndTypeInIframe( '.expiration-date', "input[name='exp-date']", cardExpiry );
+
 		await this.page.select( `div.country select`, cardCountryCode );
 		return await waitAndType( this.page, '#postal-code', cardPostCode, { delay: 10 } );
 	}
@@ -60,5 +62,14 @@ export default class CheckoutPage extends Page {
 			return await waitAndClick( this.page, storedCardSelector );
 		}
 		await this.enterTestCreditCardDetails( cardCredentials );
+	}
+
+	// Switches to credit-card specific iframe and type the value into relative input
+	async waitAndTypeInIframe( iframeSelector, what, value ) {
+		const fullSelector = `.credit-card-form-fields ${ iframeSelector } iframe`;
+		const iframeElement = await page.$( fullSelector );
+		const iframe = await iframeElement.contentFrame();
+
+		return await waitAndType( iframe, what, value, { delay: 10 } );
 	}
 }
