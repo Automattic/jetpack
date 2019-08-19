@@ -93,6 +93,7 @@ export default compose( [
 					{
 						action: 'edit',
 						post: postId,
+						plan_upgraded: 1,
 					}
 			  );
 
