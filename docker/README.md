@@ -463,7 +463,7 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 
 You'll need:
 
-- [PHP Debug](https://github.com/felixfbecker/vscode-php-debug) plugin installed in VSCode
+- [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) plugin installed in VSCode
 - Install "Xdebug Helper" extension for Google Chrome 
 - Install "The easiest Xdebug" extension for Mozilla Firefox.
 
