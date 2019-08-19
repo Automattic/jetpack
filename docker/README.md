@@ -467,7 +467,7 @@ You'll need:
 - Install "Xdebug Helper" extension for Google Chrome 
 - Install "The easiest Xdebug" extension for Mozilla Firefox.
 
-#### Set up the Debugging Task
+##### Set up the Debugging Task
 
 In the debug panel in VSCode, select Add Configuration. Since you have PHP Debug installed, you'll have the option to select "PHP" from the list. This will create a `.vscode` folder in the project root with a `launch.json` file in it.
 
@@ -498,7 +498,7 @@ You will need to supply a pathMappings value to the `launch.json` configuration.
 	}
 ```
 
-You'll need to set up the XDEBUG_CONFIG environment variable to enable remote debugging, and set the address and the port that the PHP Xdebug extension will use to connect to the debugger running in VSCode. Add the variable to your `.env` file.
+You'll need to set up the `XDEBUG_CONFIG` environment variable to enable remote debugging, and set the address and the port that the PHP Xdebug extension will use to connect to the debugger running in VSCode. Add the variable to your `.env` file.
 
 `XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1`
 
@@ -508,10 +508,9 @@ You [will also have to configure the IDE key](https://github.com/mac-cain13/xdeb
 
 Now, in the Xdebug Helper for Chrome, under IDE Key, select 'Other' and add 'VSCODE' as the key, and save.
 
-Run the debugger
+##### Run the debugger
 
-- Set a break point in a php file, for example in the init() function of class.jetpack.php.
-
+- Set a breakpoint in a php file, for example in the `init()` function of `class.jetpack.php`.
 - Select 'Debug' on the browser extension.
 - Click 'play' in VSCode's debug panel
 - Refresh the page at localhost
