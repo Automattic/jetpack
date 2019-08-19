@@ -4480,78 +4480,7 @@ p {
 				}
 			}
 
-			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
-				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
-			}
-
-			$roles       = new Roles();
-			$role        = $roles->translate_current_user_to_role();
-			$signed_role = self::sign_role( $role );
-
-			$user = wp_get_current_user();
-
-			$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
-			$redirect = $redirect
-				? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
-				: $jetpack_admin_page;
-
-			if( isset( $_REQUEST['is_multisite'] ) ) {
-				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
-			}
-
-			$secrets = Jetpack::generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
-
-			/**
-			 * Filter the type of authorization.
-			 * 'calypso' completes authorization on wordpress.com/jetpack/connect
-			 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
-			 *
-			 * @since 4.3.3
-			 *
-			 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
-			 */
-			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
-
-
-			$tracks = new Tracking();
-			$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
-
-			$args = urlencode_deep(
-				array(
-					'response_type' => 'code',
-					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => add_query_arg(
-						array(
-							'action'   => 'authorize',
-							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-							'redirect' => urlencode( $redirect ),
-						),
-						esc_url( admin_url( 'admin.php?page=jetpack' ) )
-					),
-					'state'         => $user->ID,
-					'scope'         => $signed_role,
-					'user_email'    => $user->user_email,
-					'user_login'    => $user->user_login,
-					'is_active'     => Jetpack::is_active(),
-					'jp_version'    => JETPACK__VERSION,
-					'auth_type'     => $auth_type,
-					'secret'        => $secrets['secret_1'],
-					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
-					'blogname'      => get_option( 'blogname' ),
-					'site_url'      => site_url(),
-					'home_url'      => home_url(),
-					'site_icon'     => get_site_icon_url(),
-					'site_lang'     => get_locale(),
-					'_ui'           => $tracks_identity['_ui'],
-					'_ut'           => $tracks_identity['_ut'],
-					'site_created'  => Jetpack::get_assumed_site_creation_date(),
-				)
-			);
-
-			self::apply_activation_source_to_args( $args );
-
-			$connection = self::connection();
-			$url = add_query_arg( $args, $connection->api_url( 'authorize' ) );
+			$url = $this->build_authorize_url( $redirect );
 		}
 
 		if ( $from ) {
@@ -4572,6 +4501,84 @@ p {
 		}
 
 		return $raw ? esc_url_raw( $url ) : esc_url( $url );
+	}
+
+	public static function build_authorize_url( $redirect = false, $iframe = false ) {
+		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
+			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+		}
+
+		$roles       = new Roles();
+		$role        = $roles->translate_current_user_to_role();
+		$signed_role = self::sign_role( $role );
+
+		$user = wp_get_current_user();
+
+		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
+		$redirect = $redirect
+			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
+			: $jetpack_admin_page;
+
+		if( isset( $_REQUEST['is_multisite'] ) ) {
+			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
+		}
+
+		$secrets = Jetpack::generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
+
+		/**
+		 * Filter the type of authorization.
+		 * 'calypso' completes authorization on wordpress.com/jetpack/connect
+		 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
+		 *
+		 * @since 4.3.3
+		 *
+		 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
+		 */
+		$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+
+
+		$tracks = new Tracking();
+		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
+
+		$args = urlencode_deep(
+			array(
+				'response_type' => 'code',
+				'client_id'     => Jetpack_Options::get_option( 'id' ),
+				'redirect_uri'  => add_query_arg(
+					array(
+						'action'   => 'authorize',
+						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+						'redirect' => urlencode( $redirect ),
+					),
+					esc_url( admin_url( 'admin.php?page=jetpack' ) )
+				),
+				'state'         => $user->ID,
+				'scope'         => $signed_role,
+				'user_email'    => $user->user_email,
+				'user_login'    => $user->user_login,
+				'is_active'     => Jetpack::is_active(),
+				'jp_version'    => JETPACK__VERSION,
+				'auth_type'     => $auth_type,
+				'secret'        => $secrets['secret_1'],
+				'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
+				'blogname'      => get_option( 'blogname' ),
+				'site_url'      => site_url(),
+				'home_url'      => home_url(),
+				'site_icon'     => get_site_icon_url(),
+				'site_lang'     => get_locale(),
+				'_ui'           => $tracks_identity['_ui'],
+				'_ut'           => $tracks_identity['_ut'],
+				'site_created'  => Jetpack::get_assumed_site_creation_date(),
+			)
+		);
+
+		self::apply_activation_source_to_args( $args );
+
+		$connection = self::connection();
+
+		$api_url = $iframe ? $connection->api_url( 'authorize_iframe' ) : $connection->api_url( 'authorize' );
+
+		return add_query_arg( $args, $api_url );
 	}
 
 	/**
