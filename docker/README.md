@@ -502,11 +502,15 @@ You'll need to set up the `XDEBUG_CONFIG` environment variable to enable remote 
 
 `XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1`
 
-You [will also have to configure the IDE key](https://github.com/mac-cain13/xdebug-helper-for-chrome/issues/89) for the Chrome/ Mozilla extension. In the `php.ini` file, add:
+You [will also have to configure the IDE key](https://github.com/mac-cain13/xdebug-helper-for-chrome/issues/89) for the Chrome/ Mozilla extension. In your `php.ini` file (you'll find that file at `docker/config/php.ini` in the Docker environment), add:
 
 `xdebug.idekey = VSCODE`
 
-Now, in the Xdebug Helper for Chrome, under IDE Key, select 'Other' and add 'VSCODE' as the key, and save.
+Now, in your browser's Xdebug Helper preferences, look for the IDE Key setting:
+
+1. Select 'Other'
+2. Add `VSCODE` as the key.
+3. Save.
 
 ##### Run the debugger
 
