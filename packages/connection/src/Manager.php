@@ -73,7 +73,6 @@ class Manager implements Manager_Interface {
 		}
 
 		if ( $this->is_active() ) {
-			add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 		} else {
 			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
