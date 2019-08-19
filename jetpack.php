@@ -20,6 +20,7 @@ define( 'JETPACK_MASTER_USER',           true );
 define( 'JETPACK__API_VERSION',          1 );
 define( 'JETPACK__PLUGIN_DIR',           plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE',          __FILE__ );
+define( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME', true );
 
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' )           || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );

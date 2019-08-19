@@ -215,14 +215,20 @@ class Jetpack_Connection_Banner {
 								?>
 							</p>
 
-							<div class="jp-banner__button-container">
-								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
-								<a
-									href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
-									class="dops-button is-primary">
-									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-								</a>
-							</div>
+                            <div class="jp-banner__button-container">
+                                <span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
+								<?php if ( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) : ?>
+                                    <div class="jp-banner__button-container">
+                                    </div>
+								<?php else: ?>
+                                    <a
+                                            href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
+                                            class="dops-button is-primary">
+										<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+                                    </a>
+								<?php endif; ?>
+                            </div>
+
 						</div>
 					</div> <!-- end slide 1 -->
 				</div>
@@ -298,24 +304,33 @@ class Jetpack_Connection_Banner {
 					</div>
 				</div>
 
-				<p class="jp-connect-full__tos-blurb">
+                <p class="jp-connect-full__tos-blurb">
 					<?php jetpack_render_tos_blurb(); ?>
-				</p>
-				<p class="jp-connect-full__button-container">
-					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>" class="dops-button is-primary">
-						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-					</a>
-				</p>
-				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<p class="jp-connect-full__dismiss-paragraph">
-						<a>
-							<?php echo esc_html_x(
-								'Not now, thank you.', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack'
-							); ?>
+                </p>
+
+				<?php if ( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) : ?>
+					<div class="jp-connect-full__button-container">
+					</div>
+				<?php else: ?>
+					<p class="jp-connect-full__button-container">
+						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
+						   class="dops-button is-primary">
+							<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 						</a>
 					</p>
+
+					<?php if ( 'plugins' === $current_screen->base ) : ?>
+						<p class="jp-connect-full__dismiss-paragraph">
+							<a>
+								<?php echo esc_html_x(
+									'Not now, thank you.', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack'
+								); ?>
+							</a>
+						</p>
+					<?php endif; ?>
 				<?php endif; ?>
-			</div></div>
+			</div>
+        </div>
 		<?php
 	}
 
