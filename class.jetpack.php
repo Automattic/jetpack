@@ -735,7 +735,8 @@ class Jetpack {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
-	 * @todo Deprecate this method in favor of Automattic\\Jetpack\\Connection\\Manager::setup_xmlrpc_handlers().
+	 * @deprecated since 7.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::setup_xmlrpc_handlers()
 	 *
 	 * @param Array                 $request_params Incoming request parameters.
 	 * @param Boolean               $is_active      Whether the connection is currently active.
@@ -748,6 +749,7 @@ class Jetpack {
 		$is_signed,
 		Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::setup_xmlrpc_handlers' );
 		return $this->connection_manager->setup_xmlrpc_handlers(
 			$request_params,
 			$is_active,
