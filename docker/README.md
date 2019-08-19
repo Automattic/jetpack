@@ -473,36 +473,38 @@ In the debug panel in VSCode, select Add Configuration. Since you have PHP Debug
 
 You will need to supply a pathMappings value to the `launch.json` configuration. This value connects the debugger to the volume in Docker with the Jetpack code. Your `launch.json` file should have this configuration when you're done.
 
-    {
-      "version": "0.2.0",
-      "configurations": [
-        {
-          "name": "Listen for XDebug",
-          "type": "php",
-          "request": "launch",
-          "port": 9000,
-          "pathMappings": {
-            "/var/www/html/wp-content/plugins/jetpack": "${workspaceRoot}"
-          }
-        },
-        {
-          "name": "Launch currently open script",
-          "type": "php",
-          "request": "launch",
-          "program": "${file}",
-          "cwd": "${fileDirname}",
-          "port": 9000
-        }
-      ]
-    }
+```json
+	{
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Listen for XDebug",
+				"type": "php",
+				"request": "launch",
+				"port": 9000,
+				"pathMappings": {
+					"/var/www/html/wp-content/plugins/jetpack": "${workspaceRoot}"
+				}
+			},
+			{
+				"name": "Launch currently open script",
+				"type": "php",
+				"request": "launch",
+				"program": "${file}",
+				"cwd": "${fileDirname}",
+				"port": 9000
+			}
+		]
+	}
+```
 
 You'll need to set up the XDEBUG_CONFIG environment variable to enable remote debugging, and set the address and the port that the PHP Xdebug extension will use to connect to the debugger running in VSCode. Add the variable to your `.env` file.
 
-    XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1
+`XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1`
 
 You [will also have to configure the IDE key](https://github.com/mac-cain13/xdebug-helper-for-chrome/issues/89) for the Chrome/ Mozilla extension. In the `php.ini` file, add:
 
-    xdebug.idekey = VSCODE
+`xdebug.idekey = VSCODE`
 
 Now, in the Xdebug Helper for Chrome, under IDE Key, select 'Other' and add 'VSCODE' as the key, and save.
 
