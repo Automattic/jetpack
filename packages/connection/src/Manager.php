@@ -1563,8 +1563,6 @@ class Manager implements Manager_Interface {
 	/**
 	 * Handles a getOptions XMLRPC method call.
 	 *
-	 * @todo Audit whether we really need to use strings without textdomains.
-	 *
 	 * @param Array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
@@ -1585,22 +1583,22 @@ class Manager implements Manager_Interface {
 		$user_data = $this->get_connected_user_data();
 		if ( is_array( $user_data ) ) {
 			$options['jetpack_user_id']         = array(
-				'desc'     => __( 'The WP.com user ID of the connected user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'desc'     => __( 'The WP.com user ID of the connected user', 'jetpack' ),
 				'readonly' => true,
 				'value'    => $user_data['ID'],
 			);
 			$options['jetpack_user_login']      = array(
-				'desc'     => __( 'The WP.com username of the connected user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'desc'     => __( 'The WP.com username of the connected user', 'jetpack' ),
 				'readonly' => true,
 				'value'    => $user_data['login'],
 			);
 			$options['jetpack_user_email']      = array(
-				'desc'     => __( 'The WP.com user email of the connected user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'desc'     => __( 'The WP.com user email of the connected user', 'jetpack' ),
 				'readonly' => true,
 				'value'    => $user_data['email'],
 			);
 			$options['jetpack_user_site_count'] = array(
-				'desc'     => __( 'The number of sites of the connected WP.com user' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+				'desc'     => __( 'The number of sites of the connected WP.com user', 'jetpack' ),
 				'readonly' => true,
 				'value'    => $user_data['site_count'],
 			);
@@ -1613,8 +1611,6 @@ class Manager implements Manager_Interface {
 	/**
 	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
 	 *
-	 * @todo Audit whether we really need to use strings without textdomains.
-	 *
 	 * @param Array $options standard Core options.
 	 * @return Array amended options.
 	 */
@@ -1624,13 +1620,13 @@ class Manager implements Manager_Interface {
 			$jetpack_client_id = \Jetpack_Options::get_option( 'id' );
 		}
 		$options['jetpack_version'] = array(
-			'desc'     => __( 'Jetpack Plugin Version' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+			'desc'     => __( 'Jetpack Plugin Version', 'jetpack' ),
 			'readonly' => true,
 			'value'    => Constants::get_constant( 'JETPACK__VERSION' ),
 		);
 
 		$options['jetpack_client_id'] = array(
-			'desc'     => __( 'The Client ID/WP.com Blog ID of this site' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
+			'desc'     => __( 'The Client ID/WP.com Blog ID of this site', 'jetpack' ),
 			'readonly' => true,
 			'value'    => $jetpack_client_id,
 		);
