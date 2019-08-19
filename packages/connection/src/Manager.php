@@ -68,7 +68,6 @@ class Manager implements Manager_Interface {
 			)
 		) {
 			$this->require_jetpack_authentication();
-			$this->add_remote_request_handlers();
 			return;
 		}
 
