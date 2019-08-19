@@ -547,7 +547,7 @@ $css
 						<xsl:value-of select='video:video/video:title'/>
 					</td>
 					<td>
-						<xsl:value-of select='video:video/video:description'/>
+						<xsl:value-of select='video:video/video:description' disable-output-escaping='yes'/>
 					</td>
 					<td>
 						<xsl:value-of select='sitemap:lastmod'/>
