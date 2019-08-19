@@ -3,7 +3,15 @@
  */
 import fetch from 'unfetch';
 
-const FIELDS = [ 'title_html', 'author', 'permalink.url.raw' ];
+const FIELDS = [
+	'author',
+	'comment_count',
+	'date',
+	'excerpt_html',
+	'gravatar_url',
+	'permalink.url.raw',
+	'title_html',
+];
 
 function stringifyArray( fieldName, array ) {
 	return array.map( ( element, index ) => `${ fieldName }[${ index }]=${ element }` ).join( '&' );
