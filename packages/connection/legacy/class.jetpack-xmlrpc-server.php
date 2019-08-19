@@ -794,7 +794,7 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function unlink_user() {
 		Jetpack::log( 'unlink' );
-		return Jetpack::unlink_user();
+		return Connection_Manager::disconnect_user();
 	}
 
 	/**

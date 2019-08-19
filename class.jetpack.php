@@ -606,9 +606,9 @@ class Jetpack {
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
-		// Unlink user before deleting the user from .com
-		add_action( 'deleted_user', array( $this, 'unlink_user' ), 10, 1 );
-		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
+		// Unlink user before deleting the user from WP.com.
+		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
+		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
 		if ( Jetpack::is_active() ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
@@ -3272,38 +3272,17 @@ p {
 	}
 
 	/**
-	 * Unlinks the current user from the linked WordPress.com user
+	 * Unlinks the current user from the linked WordPress.com user.
+	 *
+	 * @deprecated since 7.7
+	 * @see Automattic\Jetpack\Connection\Manager::disconnect_user()
+	 *
+	 * @param Integer $user_id the user identifier.
+	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function unlink_user( $user_id = null ) {
-		if ( ! $tokens = Jetpack_Options::get_option( 'user_tokens' ) )
-			return false;
-
-		$user_id = empty( $user_id ) ? get_current_user_id() : intval( $user_id );
-
-		if ( Jetpack_Options::get_option( 'master_user' ) == $user_id )
-			return false;
-
-		if ( ! isset( $tokens[ $user_id ] ) )
-			return false;
-
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
-		$xml->query( 'jetpack.unlink_user', $user_id );
-
-		unset( $tokens[ $user_id ] );
-
-		Jetpack_Options::update_option( 'user_tokens', $tokens );
-
-		/**
-		 * Fires after the current user has been unlinked from WordPress.com.
-		 *
-		 * @since 4.1.0
-		 *
-		 * @param int $user_id The current user's ID.
-		 */
-		do_action( 'jetpack_unlinked_user', $user_id );
-
-		return true;
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::disconnect_user' );
+		return Connection_Manager::disconnect_user( $user_id );
 	}
 
 	/**
@@ -4089,7 +4068,7 @@ p {
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 				check_admin_referer( 'jetpack-unlink' );
 				Jetpack::log( 'unlink' );
-				$this->unlink_user();
+				Connection_Manager::disconnect_user();
 				Jetpack::state( 'message', 'unlinked' );
 				if ( 'sub-unlink' == $redirect ) {
 					wp_safe_redirect( admin_url() );
