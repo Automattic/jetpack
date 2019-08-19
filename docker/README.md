@@ -458,3 +458,65 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 1. Back in the main configuration window, click 'Apply' then 'Ok'.
 
 1. You can now start a debug session by clicking 'Run -> Debug' in the main menu
+
+#### Remote Debugging with VSCode
+
+You'll need:
+
+- [PHP Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) plugin installed in VSCode
+- If you use Google Chrome, install the [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc?hl=en) extension.
+- If you use Firefox, install [Xdebug Helper](https://addons.mozilla.org/en-GB/firefox/addon/xdebug-helper-for-firefox/) add-on.
+
+##### Set up the Debugging Task
+
+In the debug panel in VSCode, select Add Configuration. Since you have PHP Debug installed, you'll have the option to select "PHP" from the list. This will create a `.vscode` folder in the project root with a `launch.json` file in it.
+
+You will need to supply a pathMappings value to the `launch.json` configuration. This value connects the debugger to the volume in Docker with the Jetpack code. Your `launch.json` file should have this configuration when you're done.
+
+```json
+	{
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Listen for XDebug",
+				"type": "php",
+				"request": "launch",
+				"port": 9000,
+				"pathMappings": {
+					"/var/www/html/wp-content/plugins/jetpack": "${workspaceRoot}"
+				}
+			},
+			{
+				"name": "Launch currently open script",
+				"type": "php",
+				"request": "launch",
+				"program": "${file}",
+				"cwd": "${fileDirname}",
+				"port": 9000
+			}
+		]
+	}
+```
+
+You'll need to set up the `XDEBUG_CONFIG` environment variable to enable remote debugging, and set the address and the port that the PHP Xdebug extension will use to connect to the debugger running in VSCode. Add the variable to your `.env` file.
+
+`XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1`
+
+You [will also have to configure the IDE key](https://github.com/mac-cain13/xdebug-helper-for-chrome/issues/89) for the Chrome/ Mozilla extension. In your `php.ini` file (you'll find that file at `docker/config/php.ini` in the Docker environment), add:
+
+`xdebug.idekey = VSCODE`
+
+Now, in your browser's Xdebug Helper preferences, look for the IDE Key setting:
+
+1. Select 'Other'
+2. Add `VSCODE` as the key.
+3. Save.
+
+##### Run the debugger
+
+- Set a breakpoint in a php file, for example in the `init()` function of `class.jetpack.php`.
+- Select 'Debug' on the browser extension.
+- Click 'play' in VSCode's debug panel
+- Refresh the page at localhost
+
+For more context on remote debugging PHP with VSCode, see [this article](https://medium.com/@jasonterando/debugging-with-visual-studio-code-xdebug-and-docker-on-windows-b63a10b0dec).
