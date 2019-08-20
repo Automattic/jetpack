@@ -6516,6 +6516,7 @@ p {
 				array( __CLASS__, 'dashboard_widget' )
 			);
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
 
 			// If we're inactive and not in development mode, sort our box to the top.
 			if ( ! self::is_active() && ! self::is_development_mode() ) {
