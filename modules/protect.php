@@ -224,7 +224,6 @@ class Jetpack_Protect_Module {
 		}
 
 		// Request the key
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array (
 			'user_id' => get_current_user_id()
 		) );

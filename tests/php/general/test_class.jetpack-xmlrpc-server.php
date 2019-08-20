@@ -364,7 +364,6 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	}
 
 	protected function get_mocked_ixr_client( $query_called = false, $response = '', $query_return = true, $error = null ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
 			->setMethods( array(
 				'query',

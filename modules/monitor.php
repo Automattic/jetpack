@@ -32,7 +32,6 @@ class Jetpack_Monitor {
 	}
 
 	public function is_active() {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );
@@ -44,7 +43,6 @@ class Jetpack_Monitor {
 	}
 
 	public function update_option_receive_jetpack_monitor_notification( $value ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );
@@ -71,7 +69,6 @@ class Jetpack_Monitor {
 	 * @return boolean|WP_Error
 	 */
 	static function user_receives_notifications( $die_on_error = true ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );
@@ -88,7 +85,6 @@ class Jetpack_Monitor {
 	}
 
 	public function activate_monitor() {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );
@@ -102,7 +98,6 @@ class Jetpack_Monitor {
 	}
 
 	public function deactivate_monitor() {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );
@@ -126,7 +121,6 @@ class Jetpack_Monitor {
 //			return $last_down;
 //		}
 
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()
 		) );

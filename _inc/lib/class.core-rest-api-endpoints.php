@@ -66,7 +66,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-		Jetpack::load_xml_rpc_client();
 		$ixr_client = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
 		$core_api_endpoint = new Jetpack_Core_API_Data( $ixr_client );
 		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
@@ -556,7 +555,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
 
-		Jetpack::load_xml_rpc_client();
  		$xml = new Jetpack_IXR_Client( array(
  			'user_id' => get_current_user_id(),
 		) );
@@ -582,7 +580,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 
 	public static function verify_site( $request ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
@@ -1176,7 +1173,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated = Jetpack_Options::update_option( 'master_user', $new_owner_id );
 
 		// Notify WPCOM about the master user change
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
@@ -3086,7 +3082,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function send_mobile_magic_link( $request ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client(
 			array(
 				'user_id' => get_current_user_id(),

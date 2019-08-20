@@ -452,7 +452,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		if ( ! $ixr_client ) {
-			Jetpack::load_xml_rpc_client();
 			$ixr_client = new Jetpack_IXR_Client();
 		}
 		$ixr_client->query(
