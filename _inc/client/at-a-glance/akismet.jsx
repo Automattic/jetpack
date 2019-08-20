@@ -13,11 +13,13 @@ import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
+import restApi from 'rest-api';
 import QueryAkismetData from 'components/data/query-akismet-data';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
+import { activateAkismet } from 'state/site/plugins';
 import JetpackBanner from 'components/jetpack-banner';
 
 class DashAkismet extends Component {
@@ -38,14 +40,6 @@ class DashAkismet extends Component {
 		isDevMode: '',
 	};
 
-	trackInstallClick() {
-		analytics.tracks.recordJetpackClick( {
-			type: 'install-link',
-			target: 'at-a-glance',
-			feature: 'anti-spam',
-		} );
-	}
-
 	trackActivateClick() {
 		analytics.tracks.recordJetpackClick( {
 			type: 'activate-link',
@@ -53,6 +47,16 @@ class DashAkismet extends Component {
 			feature: 'anti-spam',
 		} );
 	}
+
+	onActivateClick = () => {
+		this.trackActivateClick();
+
+		restApi.activateAkismet().then( () => {
+			window.location.href = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+		} );
+
+		return false;
+	};
 
 	getContent() {
 		const akismetData = this.props.akismetData;
@@ -66,20 +70,29 @@ class DashAkismet extends Component {
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
-		const akismetUpgradeBanner = (
-			<JetpackBanner
-				callToAction={ __( 'Upgrade' ) }
-				title={ __(
-					'Automatically clear spam from your comments and forms so you can get back to your business.'
-				) }
-				disableHref="false"
-				href={ this.props.upgradeUrl }
-				eventFeature="akismet"
-				path="dashboard"
-				plan={ PLAN_JETPACK_PREMIUM }
-				icon="flag"
-			/>
-		);
+		const getAkismetUpgradeBanner = () => {
+			const description = __( 'Already have a key? {{a}}Activate Akismet{{/a}}', {
+				components: {
+					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,
+				},
+			} );
+
+			return (
+				<JetpackBanner
+					callToAction={ __( 'Upgrade' ) }
+					title={ __(
+						'Automatically clear spam from your comments and forms so you can get back to your business.'
+					) }
+					description={ description }
+					disableHref="false"
+					href={ this.props.upgradeUrl }
+					eventFeature="akismet"
+					path="dashboard"
+					plan={ PLAN_JETPACK_PREMIUM }
+					icon="flag"
+				/>
+			);
+		};
 
 		if ( 'N/A' === akismetData ) {
 			return (
@@ -100,7 +113,7 @@ class DashAkismet extends Component {
 					className="jp-dash-item__is-inactive"
 					status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 					pro={ true }
-					overrideContent={ akismetUpgradeBanner }
+					overrideContent={ getAkismetUpgradeBanner() }
 				/>
 			);
 		}
@@ -114,7 +127,7 @@ class DashAkismet extends Component {
 					status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
-					overrideContent={ akismetUpgradeBanner }
+					overrideContent={ getAkismetUpgradeBanner() }
 				/>
 			);
 		}
@@ -127,7 +140,7 @@ class DashAkismet extends Component {
 					support={ support }
 					className="jp-dash-item__is-inactive"
 					pro={ true }
-					overrideContent={ akismetUpgradeBanner }
+					overrideContent={ getAkismetUpgradeBanner() }
 				/>
 			);
 		}
@@ -171,9 +184,15 @@ class DashAkismet extends Component {
 	}
 }
 
-export default connect( state => ( {
-	akismetData: getAkismetData( state ),
-	sitePlan: getSitePlan( state ),
-	isDevMode: isDevMode( state ),
-	upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
-} ) )( DashAkismet );
+export default connect(
+	state => ( {
+		akismetData: getAkismetData( state ),
+		sitePlan: getSitePlan( state ),
+		isDevMode: isDevMode( state ),
+		upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+		nonce: getApiNonce( state ),
+	} ),
+	{
+		activateAkismet,
+	}
+)( DashAkismet );

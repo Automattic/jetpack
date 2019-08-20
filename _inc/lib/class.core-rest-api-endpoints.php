@@ -367,6 +367,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
 
+		register_rest_route( 'jetpack/v4', '/plugins/akismet/activate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::activate_akismet',
+			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+		) );
+
 		// Plugins: check if the plugin is active.
 		register_rest_route( 'jetpack/v4', '/plugin/(?P<plugin>[a-z\/\.\-_]+)', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -3037,6 +3043,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'Unable to list plugins.', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Ensures that Akismet is installed and activated.
+	 *
+	 * @since 7.7
+	 *
+	 * @return WP_REST_Response A response indicating whether or not the installation was successful.
+	 */
+	public static function activate_akismet() {
+		jetpack_require_lib( 'plugins' );
+		$result = Jetpack_Plugins::install_and_activate_plugin('akismet');
+
+		if ( is_wp_error( $result ) ) {
+			return rest_ensure_response( [
+				'code'    => 'failure',
+				'message' => esc_html__( 'Unable to activate Akismet', 'jetpack' )
+			] );
+		} else {
+			return rest_ensure_response( [
+				'code'    => 'success',
+				'message' => esc_html__( 'Activated Akismet', 'jetpack' )
+			] );
+		}
 	}
 
 	/**
