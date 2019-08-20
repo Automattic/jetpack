@@ -18,7 +18,7 @@ class SearchFilterDates extends Component {
 	}
 
 	render() {
-		const { agg_result = null } = this.props;
+		const { title, agg_result = null } = this.props;
 
 		return (
 			<div>
