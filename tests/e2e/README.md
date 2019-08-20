@@ -51,8 +51,8 @@ By default, tests expect that your site is accessible on `localhost`, and its ad
 You can run tests locally inside disposable docker container. It will provide you a clean WP installation which is ready to run the tests. To launch the site:
 
 1. Make sure that docker and ngrok is installed locally
-1. run `bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''`
-1. get the ngrok URL: `export WP_BASE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)`
+1. run `./tests/e2e/bin/setup-travis-e2e-tests.sh` to start a Docker container
+1. export the ngrok URL: `export WP_BASE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)`
 1. run the tests: `WP_BASE_URL=$WP_BASE_URL yarn test-e2e`
 
 #### Environment variables
