@@ -201,7 +201,7 @@ class Jetpack_Gutenberg {
 			 */
 			&& ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
 		) {
-			// The block editor applies an upgrade nudge if `missing_plan` is the reason.
+			// The block editor may apply an upgrade nudge if `missing_plan` is the reason.
 			// Add a descriptive suffix to disable behavior but provide informative reason.
 			$reason .= '__nudge_disabled';
 		}
