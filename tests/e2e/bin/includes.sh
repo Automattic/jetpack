@@ -141,7 +141,8 @@ install_ngrok() {
 	fi
 
 	if [ -z "$CI" ]; then
-		echo "Please install ngrok on your machine. Instructions: https://ngrok.com/download"
+		echo -e $(error_message "Please install ngrok on your machine. Instructions: https://ngrok.com/download")
+		exit 1
 	fi
 
 	echo -e $(status_message "Installing ngrok in CI...")
@@ -153,6 +154,9 @@ install_ngrok() {
 start_ngrok() {
 	install_ngrok
 
+	echo -e $(status_message "Killing any rogue ngrok instances just in case...")
+	kill_ngrok
+
 	if [ ! -z "$NGROK_KEY" ]; then
 			$NGROK_CMD authtoken $NGROK_KEY
 	fi
@@ -162,11 +166,15 @@ start_ngrok() {
 	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
-		echo "WP_SITE_URL is not set after launching an ngrok"
+		echo -e $(error_message "WP_SITE_URL is not set after launching an ngrok")
 		exit 1
 	fi
 }
 
 get_ngrok_url() {
 	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+}
+
+kill_ngrok() {
+	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
