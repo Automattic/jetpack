@@ -610,7 +610,13 @@ class Jetpack {
 		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
-		// Initialize remote file upload request handlers.
+		/**
+		 * Initialize remote file upload request handlers.
+		 * Remote file uploads require Jetpack authentication.
+		 *
+		 * @see Automattic\Jetpack\Connection\Manager::init()
+		 * @see Automattic\Jetpack\Connection\Manager::require_jetpack_authentication()
+		 */
 		$this->add_remote_request_handlers();
 
 		if ( Jetpack::is_active() ) {

@@ -67,6 +67,11 @@ class Manager implements Manager_Interface {
 				|| 'jetpack_update_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
 			)
 		) {
+			/**
+			 * Remote file uploads require Jetpack authentication.
+			 *
+			 * @see \Jetpack::add_remote_request_handlers()
+			 */
 			$this->require_jetpack_authentication();
 			return;
 		}
