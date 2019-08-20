@@ -19,7 +19,6 @@ import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
-import { activateAkismet } from 'state/site/plugins';
 import JetpackBanner from 'components/jetpack-banner';
 
 class DashAkismet extends Component {
@@ -184,15 +183,10 @@ class DashAkismet extends Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		akismetData: getAkismetData( state ),
-		sitePlan: getSitePlan( state ),
-		isDevMode: isDevMode( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
-		nonce: getApiNonce( state ),
-	} ),
-	{
-		activateAkismet,
-	}
-)( DashAkismet );
+export default connect( state => ( {
+	akismetData: getAkismetData( state ),
+	sitePlan: getSitePlan( state ),
+	isDevMode: isDevMode( state ),
+	upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+	nonce: getApiNonce( state ),
+} ) )( DashAkismet );
