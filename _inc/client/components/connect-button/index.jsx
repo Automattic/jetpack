@@ -2,7 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
@@ -61,13 +61,13 @@ class AuthorizeIframe extends React.Component {
 
 	render() {
 		return (
-			<React.Fragment>
+			<Fragment>
 				<iframe
-					style={ { width: '300px', height: '120px' } }
+					className="jp-jetpack-connect__iframe"
 					src={ this.props.url }
 					ref={ el => ( this.iframe = el ) }
 				/>
-			</React.Fragment>
+			</Fragment>
 		);
 	}
 }
@@ -110,7 +110,7 @@ export class ConnectButton extends React.Component {
 		// Already linked
 		if ( this.props.isLinked ) {
 			return (
-				<div>
+				<Fragment>
 					<a
 						role="button"
 						tabIndex="0"
@@ -121,7 +121,7 @@ export class ConnectButton extends React.Component {
 					>
 						{ __( 'Unlink me from WordPress.com' ) }
 					</a>
-				</div>
+				</Fragment>
 			);
 		}
 
@@ -133,7 +133,7 @@ export class ConnectButton extends React.Component {
 		}
 
 		const buttonProps = {
-				className: 'is-primary jp-jetpack-connect__button',
+				className: 'is-primary',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectionStatus,
 			},
@@ -180,7 +180,7 @@ export class ConnectButton extends React.Component {
 		let label = __( 'Set up Jetpack' );
 
 		const buttonProps = {
-			className: 'jp-jetpack-connect__button',
+			className: 'is-primary',
 			onClick: this.handleConnectButtonClick,
 			disabled:
 				this.props.fetchingConnectionStatus ||
@@ -191,33 +191,33 @@ export class ConnectButton extends React.Component {
 		// render authorize iframe if site is registered but not authorized
 		if ( this.props.isRegistered && ! this.props.isSiteConnected && this.props.authorizeUrl ) {
 			return (
-				<React.Fragment>
+				<Fragment>
 					<QueryConnectionStatus />
 					<AuthorizeIframe
 						url={ this.props.authorizeUrl }
 						finishedRemoteAuthorize={ this.props.finishedRemoteAuthorize }
 					/>
-				</React.Fragment>
+				</Fragment>
 			);
 		} else {
 			return (
-				<React.Fragment>
+				<Fragment>
 					<QueryConnectionStatus />
 					{ this.props.asLink ? (
 						<a { ...buttonProps }>{ label }</a>
 					) : (
 						<Button { ...buttonProps }>{ label }</Button>
 					) }
-				</React.Fragment>
+				</Fragment>
 			);
 		}
 	};
 
 	render() {
 		return (
-			<div>
+			<Fragment>
 				{ ! this.props.isSiteConnected && (
-					<p className="jp-banner__tos-blurb">
+					<p className="jp-jetpack-connect__tos-blurb">
 						{ __(
 							'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
 							{
@@ -244,7 +244,7 @@ export class ConnectButton extends React.Component {
 					toggleModal={ this.toggleVisibility }
 					disconnectSite={ this.disconnectSite }
 				/>
-			</div>
+			</Fragment>
 		);
 	}
 }

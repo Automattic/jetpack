@@ -1,17 +1,28 @@
-@import "../../scss/variables/_colors";
-
 // ==========================================================================
-// Buttons
+// TOS Blurb
 // ==========================================================================
 
-.jp-jetpack-connect__button {
-	background: $green-primary;
-	border-color: $green-secondary;
-	color: $white;
+.jp-jetpack-connect__tos-blurb {
+	font-size: .75rem;
+	margin-bottom: 2em;
+	text-align: left;
 
-	&:hover:not([disabled]), &:focus:not([disabled]) {
-		background: $green-secondary;
-		border-color: $green-dark;
-		color: $white;
+	@media (min-width: 491px) {
+		text-align: center;
+	}
+}
+
+// ==========================================================================
+// iFrame
+// ==========================================================================
+
+.jp-jetpack-connect__iframe {
+	height: 240px;
+	width: 380px;
+	max-width: 100%;
+	margin: 1rem auto 0;
+
+	@media (min-width: 491px) {
+		height: 290px;
 	}
 }
