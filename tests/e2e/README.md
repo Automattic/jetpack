@@ -46,6 +46,15 @@ The tests require a WP installation with installed Jetpack, and which could be c
 
 By default, tests expect that your site is accessible on `localhost`, and its admin credentials are `wordpress` / `wordpress`. All these values could be overridden by environment variables that could be passed along with the test execution command. The default values are defined in default (non-encrypted) config file: [`./config/default.js`](./config/default.js)
 
+##### Disposable Docker WP installation
+
+You can run tests locally inside disposable docker container. It will provide you a clean WP installation which is ready to run the tests. To launch the site:
+
+1. Make sure that docker and ngrok is installed locally
+1. run `bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''`
+1. get the ngrok URL: `export WP_BASE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)`
+1. run the tests: `WP_BASE_URL=$WP_BASE_URL yarn test-e2e`
+
 #### Environment variables
 
 These environmental variables could be used to re-define default WP site related values:
