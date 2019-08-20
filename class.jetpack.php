@@ -5095,11 +5095,13 @@ p {
 /* Client Server API */
 
 	/**
-	 * Loads the Jetpack XML-RPC client
+	 * Loads the Jetpack XML-RPC client.
+	 * No longer necessary, as the XML-RPC client will be automagically loaded.
+	 *
+	 * @deprecated since 7.7.0
 	 */
 	public static function load_xml_rpc_client() {
-		require_once ABSPATH . WPINC . '/class-IXR.php';
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::verify_xml_rpc_signature' );
 	}
 
 	/**
