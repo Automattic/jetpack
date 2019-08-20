@@ -7,6 +7,7 @@ jQuery( document ).ready( function( $ ) {
 			jetpackConnectButton.handleClick();
 		}
 	} );
+	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
 
 	var jetpackConnectButton = {
 		isRegistering: false,
@@ -21,20 +22,22 @@ jQuery( document ).ready( function( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: function( error ) {
-					console.log( error );
+					console.warn( error );
 					jetpackConnectButton.isRegistering = false;
+					$( '.jp-connect-button' ).text( jpConnect.buttonTextDefault );
 				},
 				success: function( data ) {
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );
-					$( '.jp-connect-full__button-container' ).html(
-						'<iframe src="' + data.authorizeUrl + '" class="jp-jetpack-connect__iframe" />'
-					);
+					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
+					$( '.jp-connect-full__button-container' ).html( jetpackConnectIframe );
 				},
 			} );
 		},
 		receiveData: function( event ) {
-			if ( event.origin === 'https://jetpack.wordpress.com' ) {
-				// todo: && e.source === this.iframe.contentWindow
+			if (
+				event.origin === 'https://jetpack.wordpress.com' &&
+				event.source === jetpackConnectIframe.get( 0 ).contentWindow
+			) {
 				if ( event.data === 'close' ) {
 					window.removeEventListener( 'message', this.receiveData );
 					jetpackConnectButton.handleAuthorizationComplete();
