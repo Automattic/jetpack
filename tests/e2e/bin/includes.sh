@@ -149,6 +149,7 @@ install_ngrok() {
 start_ngrok() {
 	install_ngrok
 
+	$NGROK_CMD authtoken $NGROK_KEY
 	$NGROK_CMD http -log=stdout 8889 > /dev/null &
 	sleep 3
 	WP_SITE_URL=$(get_ngrok_url)
