@@ -21,7 +21,6 @@ jQuery( document ).ready( function( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: function( error ) {
-					console.log( 'request failed' );
 					console.log( error );
 					jetpackConnectButton.isRegistering = false;
 				},
