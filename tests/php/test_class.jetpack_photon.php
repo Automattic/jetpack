@@ -984,7 +984,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
 
 		$this->assertContains(
-			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1440&#038;ssl=1',
+			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1280&#038;ssl=1',
 			$filtered_content
 		);
 
