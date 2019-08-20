@@ -13,7 +13,6 @@ jQuery( document ).ready( function( $ ) {
 		handleClick: function() {
 			jetpackConnectButton.isRegistering = true;
 			$( '.jp-connect-button' ).text( jpConnect.buttonTextRegistering );
-			console.log( 'sending request to', jpConnect.apiBaseUrl + '/connection/register' );
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/connection/register',
 				type: 'POST',
