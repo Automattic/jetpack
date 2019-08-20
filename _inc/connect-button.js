@@ -25,7 +25,6 @@ jQuery( document ).ready( function( $ ) {
 					jetpackConnectButton.isRegistering = false;
 				},
 				success: function( data ) {
-					console.log( 'request success' );
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );
 					$( '.jp-connect-full__button-container' ).html(
 						'<iframe src="' + data.authorizeUrl + '" class="jp-jetpack-connect__iframe" />'
