@@ -134,12 +134,32 @@ class Jetpack_Connection_Banner {
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
-				'_inc/connect-button.js', // TODO - minify?
+				'_inc/connect-button.js',
 				'_inc/connect-button.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
+		);
+
+		wp_enqueue_style(
+			'jetpack-connect-button',
+			Assets::get_file_url_for_environment(
+				'css/jetpack-connect.min.css',
+				'css/jetpack-connect.css'
+			)
+		);
+
+		wp_localize_script(
+			'jetpack-connect-button',
+			'jpConnect',
+			array(
+				'apiBaseUrl' => site_url('/wp-json/jetpack/v4'),
+				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+                'apiNonce' => wp_create_nonce( 'wp_rest' ),
+                'buttonTextFinishing' => __( 'Finishing up and reloading page.', 'jetpack' ),
+                'buttonTextRegistering' => __( 'Loading', 'jetpack' ),
+			)
 		);
 	}
 

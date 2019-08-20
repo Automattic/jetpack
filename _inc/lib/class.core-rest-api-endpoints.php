@@ -138,6 +138,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Start the connection process by registering the site on WordPress.com servers.
+		register_rest_route( 'jetpack/v4', '/connection/register', array(
+			'methods'             => WP_REST_Server::EDITABLE,
+			'callback'            => __CLASS__ . '::register_site',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+			'args'                => array(
+				'registration_nonce' => array( 'type' => 'string' ),
+			),
+		) );
+
 		// Set the connection owner
 		register_rest_route( 'jetpack/v4', '/connection/owner', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -1087,6 +1097,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Registers the Jetpack site
+	 *
+	 * @uses Jetpack::try_registration();
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if Jetpack successfully registered
+	 */
+	public static function register_site( $request ) {
+		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
+			return new WP_Error( 'build_connect_url_failed', esc_html__( 'Unable to build the connect URL.  Please reload the page and try again.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		$response = Jetpack::try_registration();
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return rest_ensure_response(
+			array(
+				'authorizeUrl' => Jetpack::build_authorize_url( false, true )
+			) );
 	}
 
 	/**
