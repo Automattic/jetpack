@@ -151,14 +151,14 @@ start_ngrok() {
 
 	$NGROK_CMD http -log=stdout 8889 > /dev/null &
 	sleep 3
-	WP_SITE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
 		echo "WP_SITE_URL is not set after launching an ngrok"
 		exit 1
 	fi
-
-
 }
 
-
+get_ngrok_url() {
+	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+}

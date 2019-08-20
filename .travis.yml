@@ -6,6 +6,9 @@ dist: trusty
 # Tell Travis CI we're using PHP
 language: php
 
+services:
+  - docker
+
 # Run Matrix for these PHP versions
 php:
 - "5.6"
