@@ -147,7 +147,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "0a0e293d73c17d59376590d56e5667b169d26877",
+                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510",
                 "shasum": null
             },
             "require": {
@@ -163,6 +163,9 @@
                 "psr-4": {
                     "Automattic\\Jetpack\\Connection\\": "src"
                 },
+                "files": [
+                    "legacy/load-ixr.php"
+                ],
                 "classmap": [
                     "legacy"
                 ]
