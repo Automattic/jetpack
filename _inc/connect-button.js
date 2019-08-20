@@ -34,7 +34,6 @@ jQuery( document ).ready( function( $ ) {
 		},
 		receiveData: function( event ) {
 			if ( event.origin === 'https://jetpack.wordpress.com' ) {
-				console.log( 'got message', event );
 				// todo: && e.source === this.iframe.contentWindow
 				if ( event.data === 'close' ) {
 					window.removeEventListener( 'message', this.receiveData );
