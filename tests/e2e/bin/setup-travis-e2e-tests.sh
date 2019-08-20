@@ -23,11 +23,7 @@ echo -e $(status_message "Starting Docker containers...")
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS up -d --remove-orphans mysql wordpress_e2e_tests cli_e2e_tests >/dev/null
 
 # Set up WordPress Development site.
-. "$(dirname "$0")/install-wordpress.sh" --e2e_tests
-
-
-echo -e $(status_message "Activating Jetpack...")
-docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate jetpack
+. "$(dirname "$0")/install-wordpress.sh"
 
 echo
 status_message "Open ${WP_SITE_URL} to see your site!"

@@ -178,3 +178,9 @@ get_ngrok_url() {
 kill_ngrok() {
 	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
+
+reset_wordpress() {
+	. "$(dirname "$0")/install-wordpress.sh"
+	start_ngrok
+	get_ngrok_url
+}

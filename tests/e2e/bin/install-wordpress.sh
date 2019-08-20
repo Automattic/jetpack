@@ -26,12 +26,9 @@ until $(curl -L http://localhost:$HOST_PORT -so - 2>&1 | grep -q "WordPress"); d
 done
 echo ''
 
-# If this is the test site, we reset the database so no posts/comments/etc.
-# dirty up the tests.
-if [ "$1" == '--e2e_tests' ]; then
-	echo -e $(status_message "Resetting test database...")
-	docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI db reset --yes --quiet
-fi
+# Reset the database so no posts/comments/etc.
+echo -e $(status_message "Resetting test database...")
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI db reset --yes --quiet
 
 # Install WordPress.
 echo -e $(status_message "Installing WordPress...")
@@ -78,3 +75,6 @@ echo -e $(status_message "Setting up dynamic WP_HOME & SITE_URL...")
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set WP_SITEURL "'http://' . \$_SERVER['HTTP_HOST']" --raw --type=constant --quiet
 
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set WP_HOME "'http://' . \$_SERVER['HTTP_HOST']" --raw --type=constant --quiet
+
+echo -e $(status_message "Activating Jetpack...")
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate jetpack
