@@ -42,7 +42,6 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		handleAuthorizationComplete: function() {
-			console.log( 'finishing auth' );
 			jetpackConnectButton.isRegistering = false;
 			$( '.jp-connect-full__button-container' ).html(
 				'<p>' + jpConnect.buttonTextFinishing + '<p>'
