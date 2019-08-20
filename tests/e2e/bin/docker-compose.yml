@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: wordpress_test
 
   wordpress_e2e_tests:
-    image: wordpress
+    image: wordpress:php7.3-apache
     restart: always
     ports:
       - 8889:80

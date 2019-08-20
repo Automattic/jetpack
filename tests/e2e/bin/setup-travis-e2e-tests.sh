@@ -3,22 +3,12 @@
 # Exit if any command fails
 set -e
 
-# npm ci
-
-# Force reduced motion in e2e tests
-# FORCE_REDUCED_MOTION=true npm run build
-
-# echo "$(dirname "$0")/bootstrap-env.sh"
-# exit 0
-
 # Set up environment variables
 . "$(dirname "$0")/bootstrap-env.sh"
 
 # Include useful functions
 . "$(dirname "$0")/includes.sh"
 
-# Change to the expected directory
-# cd "$(dirname "$0")/.."
 
 echo -e $(status_message "Starting ngrok...")
 start_ngrok
@@ -38,9 +28,6 @@ docker-compose $DOCKER_COMPOSE_FILE_OPTIONS up -d --remove-orphans mysql wordpre
 
 echo -e $(status_message "Activating Jetpack...")
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate jetpack
-
-# echo -e $(status_message "Activating WordAds module...")
-# docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI wp jetpack module activate wordads
 
 echo
 status_message "Open ${WP_SITE_URL} to see your site!"
