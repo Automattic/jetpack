@@ -140,7 +140,11 @@ install_ngrok() {
 			return
 	fi
 
-	echo -e $(status_message "Installing ngrok...")
+	if [ -z "$CI" ]; then
+		echo "Please install ngrok on your machine. Instructions: https://ngrok.com/download"
+	fi
+
+	echo -e $(status_message "Installing ngrok in CI...")
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
 	unzip ngrok.zip
 	NGROK_CMD="./ngrok"
@@ -149,7 +153,10 @@ install_ngrok() {
 start_ngrok() {
 	install_ngrok
 
-	$NGROK_CMD authtoken $NGROK_KEY
+	if [ ! -z "$NGROK_KEY" ]; then
+			$NGROK_CMD authtoken $NGROK_KEY
+	fi
+
 	$NGROK_CMD http -log=stdout 8889 > /dev/null &
 	sleep 3
 	WP_SITE_URL=$(get_ngrok_url)
