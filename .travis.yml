@@ -40,9 +40,9 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
-  - php: "7.3"
-    name: "E2E tests"
+  - name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    php: "7.3"
     before_script:
     - nvm install
     - yarn && yarn build
