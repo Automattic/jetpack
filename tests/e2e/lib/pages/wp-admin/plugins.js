@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitForSelector, isEventuallyVisible } from '../../page-helper';
+import { waitAndClick, isEventuallyVisible } from '../../page-helper';
 
 export default class PluginsPage extends Page {
 	constructor( page ) {

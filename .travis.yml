@@ -51,8 +51,7 @@ matrix:
     - bash tests/e2e/bin/setup-e2e-travis.sh jetpack_test root ''
     - source ./env-file
     - yarn test-decrypt-config
-    - echo $( find -f $(pwd)/tests/e2e/specs/*.js )
-    script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e --runInBand --runTestsByPath $( find -f $(pwd)/tests/e2e/specs/*.js )
+    script: WP_BASE_URL=$WP_SITE_URL yarn test-e2e --runInBand --runTestsByPath $( find $(pwd)/tests/e2e/specs/*.js )
     addons:
       apt:
         packages:
