@@ -24,29 +24,24 @@ const hideSearchHeader = () => {
 	}
 };
 
-const injectSearchWidget = ( initialValue, target, grabFocus ) => {
+const injectSearchWidget = ( initialValue, target, siteId, grabFocus ) => {
 	render(
-		<SearchWidget
-			initialValue={ initialValue }
-			grabFocus={ grabFocus }
-			siteId={ window.JetpackInstantSearchOptions.siteId }
-		/>,
+		<SearchWidget initialValue={ initialValue } grabFocus={ grabFocus } siteId={ siteId } />,
 		target
 	);
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	if (
-		'siteId' in window.JetpackInstantSearchOptions &&
-		document.body &&
-		document.body.classList.contains( 'search' )
-	) {
+	//This var is provided by wp_localize_script() so we have limited control
+	const options = jetpack_instant_search_options; // eslint-disable-line no-undef
+
+	if ( 'siteId' in options && document.body && document.body.classList.contains( 'search' ) ) {
 		const widget = document.querySelector( '.widget_search' );
 		if ( !! widget ) {
 			removeChildren( widget );
 			removeChildren( document.querySelector( 'main' ) );
 			hideSearchHeader();
-			injectSearchWidget( getSearchQuery(), widget );
+			injectSearchWidget( getSearchQuery(), widget, options.siteId );
 		}
 	}
 } );

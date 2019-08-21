@@ -203,19 +203,26 @@ class Jetpack_Search {
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_script( 'jetpack-search', $script_path, array(), $script_version, true );
+				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 				$_blog_id = Jetpack::get_option( 'id' );
-				if ( $_GET['blog_id'] ) {
-					$_blog_id = (int) $_GET['blog_id'];
-				}
-				wp_add_inline_script( 'jetpack-search', 'window.JetpackInstantSearchOptions = { siteId: ' . $_blog_id .'}', 'before' );
+				//this is probably a temporary filter for testing the prototype
+				$options = [
+					'siteId' => $_blog_id,
+				];
+				$options = apply_filters( 'jetpack_instant_search_options', $options );
+
+				wp_localize_script(
+					'jetpack-instant-search',
+					'jetpack_instant_search_options',
+					$options
+				);
 			}
 
 			$style_relative_path = '_inc/build/instant-search/instant-search.min.css';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$style_version = self::get_asset_version( $style_relative_path );
 				$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_style( 'jetpack-search', $style_path, array(), $style_version );
+				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
 		}
 	}
