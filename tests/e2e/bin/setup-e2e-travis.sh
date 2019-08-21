@@ -167,7 +167,6 @@ start_ngrok
 
 setup_nginx
 
-prepare_wp
 install_wp
 
 prepare_jetpack
