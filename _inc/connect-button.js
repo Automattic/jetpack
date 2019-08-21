@@ -41,12 +41,11 @@ jQuery( document ).ready( function( $ ) {
 		receiveData: function( event ) {
 			if (
 				event.origin === 'https://jetpack.wordpress.com' &&
-				event.source === jetpackConnectIframe.get( 0 ).contentWindow
+				event.source === jetpackConnectIframe.get( 0 ).contentWindow &&
+				event.data === 'close'
 			) {
-				if ( event.data === 'close' ) {
-					window.removeEventListener( 'message', this.receiveData );
-					jetpackConnectButton.handleAuthorizationComplete();
-				}
+				window.removeEventListener( 'message', this.receiveData );
+				jetpackConnectButton.handleAuthorizationComplete();
 			}
 		},
 		handleAuthorizationComplete: function() {
