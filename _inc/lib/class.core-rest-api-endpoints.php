@@ -562,8 +562,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
+		 $xml = new Jetpack_IXR_Client( array(
+		 	'user_id' => get_current_user_id(),
 		) );
 
 		$args = array(
@@ -625,7 +625,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return array|wp-error
 	 */
-	public static function remote_authorize( $request ) {
+	 public static function remote_authorize( $request ) {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result = $xmlrpc_server->remote_authorize( $request );
@@ -635,7 +635,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $result;
-	}
+	 }
 
 	/**
 	 * Handles dismissing of Jetpack Notices
@@ -2292,7 +2292,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$enum = ( count( array_filter( array_keys( $args['enum'] ), 'is_string' ) ) > 0 ) ? array_keys( $args['enum'] ) : $args['enum'];
 			if ( ! in_array( $value, $enum ) ) {
 				return new WP_Error( 'invalid_param_value', sprintf(
-				/* Translators: first variable is the parameter passed to endpoint that holds the list item, the second is a list of admitted values. */
+					/* Translators: first variable is the parameter passed to endpoint that holds the list item, the second is a list of admitted values. */
 					esc_html__( '%1$s must be one of %2$s', 'jetpack' ), $param, implode( ', ', $enum )
 				) );
 			}
@@ -2375,7 +2375,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_stats_roles( $value, $request, $param ) {
 		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf(
-			/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
+				/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 				esc_html__( '%1$s must be %2$s.', 'jetpack' ), $param, join( ', ', self::$stats_roles )
 			) );
 		}
@@ -2400,7 +2400,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 		if ( ! array_intersect( $views, $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf(
-			/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
+				/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
 				esc_html__( '%1$s must be %2$s.', 'jetpack' ), $param, join( ', ', $views )
 			) );
 		}
@@ -2478,8 +2478,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		if ( ( ! empty( $value['sharing_name'] ) && ! is_string( $value['sharing_name'] ) )
-		     || ( ! empty( $value['sharing_url'] ) && ! is_string( $value['sharing_url'] ) )
-		     || ( ! empty( $value['sharing_icon'] ) && ! is_string( $value['sharing_icon'] ) ) ) {
+		|| ( ! empty( $value['sharing_url'] ) && ! is_string( $value['sharing_url'] ) )
+		|| ( ! empty( $value['sharing_icon'] ) && ! is_string( $value['sharing_icon'] ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s needs sharing name, url and icon.', 'jetpack' ), $param ) );
 		}
 		return true;
@@ -2683,7 +2683,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$wga = get_option( 'jetpack_wga' );
 				$code = '';
 				if ( is_array( $wga ) && array_key_exists( 'code', $wga ) ) {
-					$code = $wga[ 'code' ];
+					 $code = $wga[ 'code' ];
 				}
 				$options[ 'google_analytics_tracking_id' ][ 'current_value' ] = $code;
 				break;
