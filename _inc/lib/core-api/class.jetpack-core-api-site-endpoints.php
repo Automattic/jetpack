@@ -134,7 +134,12 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		if ( Jetpack::is_module_active( 'photon' ) ) {
-			$photon_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_mime_type IN ('image/jpeg', 'image/png', 'image/gif')" );
+			$photon_count = array_reduce(
+				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif' ) ) ),
+				function( $i, $j ) {
+					return $i + $j;
+				}
+			);
 			if ( $photon_count > 0 ) {
 				$benefits[] = array(
 					'name'        => 'image-hosting',
