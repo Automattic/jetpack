@@ -161,7 +161,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-		if ( Jetpack::is_module_active( 'publicize' ) ) {
+		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
 			$publicize = new Publicize();
 
 			$connections           = $publicize->get_all_connections();
