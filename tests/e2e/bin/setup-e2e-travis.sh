@@ -21,7 +21,7 @@ if [ "$TRAVIS_PULL_REQUEST_BRANCH" != "" ]; then
 fi
 
 install_ngrok() {
-	if $(command_exists "ngrok"); then
+	if $(type -t "ngrok" >/dev/null 2>&1); then
 			NGROK_CMD="ngrok"
 			return
 	fi
