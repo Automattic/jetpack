@@ -85,8 +85,15 @@ export default compose( [
 
 		// Post-checkout: redirect back here
 		const redirect_to = isWpcom
-			? '/' +
-			  compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join( '/' )
+			? addQueryArgs(
+					'/' +
+						compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
+							'/'
+						),
+					{
+						plan_upgraded: 1,
+					}
+			  )
 			: addQueryArgs(
 					window.location.protocol +
 						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/post.php`,
