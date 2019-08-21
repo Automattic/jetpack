@@ -73,58 +73,58 @@ class Jetpack_Core_API_Site_Endpoint {
 	public static function get_benefits() {
 		global $wpdb;
 
-		$benefits = [];
+		$benefits = array();
 
 		$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
 
 		if ( $stats->stats->visitors > 0 ) {
-			$benefits[] = [
+			$benefits[] = array(
 				'name'        => 'jetpack-stats',
 				'title'       => 'Jetpack Stats',
 				'description' => 'Visitors tracked by Jetpack this year',
 				'value'       => $stats->stats->visitors,
-			];
+			);
 		}
 
 		if ( Jetpack::is_module_active( 'protect' ) ) {
 			$protect = get_site_option( 'jetpack_protect_blocked_attempts' );
 			if ( $protect > 0 ) {
-				$benefits[] = [
+				$benefits[] = array(
 					'name'        => 'protect',
 					'title'       => 'Brute force protection',
 					'description' => 'The number of malicious login attempts blocked by Jetpack',
 					'value'       => $protect,
-				];
+				);
 			}
 		}
 
 		$followers = $stats->stats->followers_blog;
 		if ( $followers > 0 ) {
-			$benefits[] = [
+			$benefits[] = array(
 				'name'        => 'subscribers',
 				'title'       => 'Subscribers',
 				'description' => 'People subscribed to your updates through Jetpack',
 				'value'       => $followers,
-			];
+			);
 		}
 
 		$vaultpress = new VaultPress();
 		if ( $vaultpress->is_registered() ) {
 			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
 			if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
-				$benefits[] = [
+				$benefits[] = array(
 					'name'        => 'jetpack-backup',
 					'title'       => 'Jetpack Backup',
 					'description' => 'The number of times Jetpack has backed up your site and kept it safe',
 					'value'       => $data->backups->stats->revisions,
-				];
+				);
 			}
 		}
 
 		if ( Jetpack::is_module_active( 'contact-form' ) ) {
 			$contact_form_count = array_sum( get_object_vars( wp_count_posts( 'feedback' ) ) );
 			if ( $contact_form_count > 0 ) {
-				$benefits[] = [
+				$benefits[] = array(
 					'name'        => 'contact-form-feedback',
 					'title'       => 'Contact Form Feedback',
 					'description' => 'Form submissions stored by Jetpack',
@@ -136,23 +136,23 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( Jetpack::is_module_active( 'photon' ) ) {
 			$photon_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_mime_type IN ('image/jpeg', 'image/png', 'image/gif')" );
 			if ( $photon_count > 0 ) {
-				$benefits[] = [
+				$benefits[] = array(
 					'name'        => 'image-hosting',
 					'title'       => 'Image Hosting',
 					'description' => 'Super-fast, mobile-ready images served by Jetpack',
 					'value'       => $photon_count,
-				];
+				);
 			}
 		}
 
 		$videopress_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_mime_type = 'video/videopress'" );
 		if ( $videopress_count > 0 ) {
-			$benefits[] = [
+			$benefits[] = array(
 				'name'        => 'video-hosting',
 				'title'       => 'Video Hosting',
 				'description' => 'Ad-free, lightning-fast videos delivered by Jetpack',
 				'value'       => $videopress_count,
-			];
+			);
 		}
 
 		if ( Jetpack::is_module_active( 'publicize' ) ) {
@@ -162,30 +162,30 @@ class Jetpack_Core_API_Site_Endpoint {
 			$number_of_connections = count( $connections );
 
 			if ( $number_of_connections > 0 ) {
-				$benefits[] = [
+				$benefits[] = array(
 					'name'        => 'publicize',
 					'title'       => 'Publicize',
 					'description' => 'Live social media site connections, powered by Jetpack',
 					'value'       => count( $connections ),
-				];
+				);
 			}
 		}
 
 		if ( $stats->stats->shares > 0 ) {
-			$benefits[] = [
+			$benefits[] = array(
 				'name'        => 'sharing',
 				'title'       => 'Sharing',
 				'description' => 'The number of times visitors have shared your posts with the world using Jetpack',
 				'value'       => $stats->stats->shares,
-			];
+			);
 		}
 
 		return rest_ensure_response(
-			[
+			array(
 				'code'    => 'success',
 				'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
 				'data'    => json_encode( $benefits ),
-			]
+			)
 		);
 	}
 }
