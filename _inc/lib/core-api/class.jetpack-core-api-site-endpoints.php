@@ -80,8 +80,8 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
-				'title'       => 'Jetpack Stats',
-				'description' => 'Visitors tracked by Jetpack this year',
+				'title'       => esc_html__('Jetpack Stats'),
+				'description' => esc_html__('Visitors tracked by Jetpack this year'),
 				'value'       => $stats->stats->visitors,
 			);
 		}
@@ -91,8 +91,8 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $protect > 0 ) {
 				$benefits[] = array(
 					'name'        => 'protect',
-					'title'       => 'Brute force protection',
-					'description' => 'The number of malicious login attempts blocked by Jetpack',
+					'title'       => esc_html__('Brute force protection', 'jetpack'),
+					'description' => esc_html__('The number of malicious login attempts blocked by Jetpack'),
 					'value'       => $protect,
 				);
 			}
@@ -102,8 +102,8 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( $followers > 0 ) {
 			$benefits[] = array(
 				'name'        => 'subscribers',
-				'title'       => 'Subscribers',
-				'description' => 'People subscribed to your updates through Jetpack',
+				'title'       => esc_html__('Subscribers'),
+				'description' => esc_html__('People subscribed to your updates through Jetpack'),
 				'value'       => $followers,
 			);
 		}
@@ -114,8 +114,8 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
 				$benefits[] = array(
 					'name'        => 'jetpack-backup',
-					'title'       => 'Jetpack Backup',
-					'description' => 'The number of times Jetpack has backed up your site and kept it safe',
+					'title'       => esc_html__('Jetpack Backup'),
+					'description' => esc_html__('The number of times Jetpack has backed up your site and kept it safe'),
 					'value'       => $data->backups->stats->revisions,
 				);
 			}
@@ -126,8 +126,8 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $contact_form_count > 0 ) {
 				$benefits[] = array(
 					'name'        => 'contact-form-feedback',
-					'title'       => 'Contact Form Feedback',
-					'description' => 'Form submissions stored by Jetpack',
+					'title'       => esc_html__('Contact Form Feedback'),
+					'description' => esc_html__('Form submissions stored by Jetpack'),
 					'value'       => $contact_form_count,
 				];
 			}
@@ -138,8 +138,8 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $photon_count > 0 ) {
 				$benefits[] = array(
 					'name'        => 'image-hosting',
-					'title'       => 'Image Hosting',
-					'description' => 'Super-fast, mobile-ready images served by Jetpack',
+					'title'       => esc_html__('Image Hosting'),
+					'description' => esc_html__('Super-fast, mobile-ready images served by Jetpack'),
 					'value'       => $photon_count,
 				);
 			}
@@ -149,8 +149,8 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( $videopress_count > 0 ) {
 			$benefits[] = array(
 				'name'        => 'video-hosting',
-				'title'       => 'Video Hosting',
-				'description' => 'Ad-free, lightning-fast videos delivered by Jetpack',
+				'title'       => esc_html__('Video Hosting'),
+				'description' => esc_html__('Ad-free, lightning-fast videos delivered by Jetpack'),
 				'value'       => $videopress_count,
 			);
 		}
@@ -164,8 +164,8 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $number_of_connections > 0 ) {
 				$benefits[] = array(
 					'name'        => 'publicize',
-					'title'       => 'Publicize',
-					'description' => 'Live social media site connections, powered by Jetpack',
+					'title'       => esc_html__('Publicize'),
+					'description' => esc_html__('Live social media site connections, powered by Jetpack'),
 					'value'       => count( $connections ),
 				);
 			}
@@ -174,8 +174,8 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( $stats->stats->shares > 0 ) {
 			$benefits[] = array(
 				'name'        => 'sharing',
-				'title'       => 'Sharing',
-				'description' => 'The number of times visitors have shared your posts with the world using Jetpack',
+				'title'       => esc_html__('Sharing'),
+				'description' => esc_html__('The number of times visitors have shared your posts with the world using Jetpack'),
 				'value'       => $stats->stats->shares,
 			);
 		}
