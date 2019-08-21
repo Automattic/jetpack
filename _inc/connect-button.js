@@ -40,7 +40,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 		receiveData: function( event ) {
 			if (
-				event.origin === 'https://jetpack.wordpress.com' &&
+				event.origin === jpConnect.jetpackApiDomain &&
 				event.source === jetpackConnectIframe.get( 0 ).contentWindow &&
 				event.data === 'close'
 			) {

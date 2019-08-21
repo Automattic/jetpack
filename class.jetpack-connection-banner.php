@@ -134,7 +134,7 @@ class Jetpack_Connection_Banner {
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
-				'_inc/connect-button.js',
+				'_inc/connect-button.js', // TODO: minify
 				'_inc/connect-button.js'
 			),
 			array( 'jquery' ),
@@ -150,6 +150,7 @@ class Jetpack_Connection_Banner {
 			)
 		);
 
+		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
 		wp_localize_script(
 			'jetpack-connect-button',
 			'jpConnect',
@@ -159,6 +160,7 @@ class Jetpack_Connection_Banner {
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading', 'jetpack' ),
 				'buttonTextDefault'     => __( 'Set up Jetpack', 'jetpack' ),
+                'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 			)
 		);
 	}
