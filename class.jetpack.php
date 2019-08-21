@@ -3603,7 +3603,7 @@ p {
 		}
 
 		// Require Jetpack authentication for the remote file upload AJAX requests.
-		self::connection()->require_jetpack_authentication();
+		$this->connection_manager->require_jetpack_authentication();
 
 		// Register the remote file upload AJAX handlers.
 		foreach ( $remote_request_actions as $action ) {
