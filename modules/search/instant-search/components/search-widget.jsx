@@ -14,11 +14,10 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import SearchResults from './search-results';
-import JetpackSearchAPI from '../components/api';
+import { search } from './api';
+import { setSearchQuery } from '../lib/query-string';
 
-const api = new JetpackSearchAPI();
-
-class SearchWidget extends Component {
+class SearchApp extends Component {
 	constructor() {
 		super( ...arguments );
 		this.requestId = 0;
@@ -26,8 +25,7 @@ class SearchWidget extends Component {
 			query: this.props.initialValue,
 			results: [],
 		};
-		this.onChangeQuery = this.onChangeQuery.bind( this );
-		this.getResults = debounce( this.getResults.bind( this ), 500 );
+		this.getResults = debounce( this.getResults, 500 );
 		this.getResults( this.props.initialValue );
 	}
 	componentDidMount() {
@@ -40,29 +38,26 @@ class SearchWidget extends Component {
 	onChangeQuery = event => {
 		const query = event.target.value;
 		this.setState( { query } );
+		setSearchQuery( query );
 		this.getResults( query );
 	};
 
-	getResults( query ) {
+	getResults = query => {
 		if ( query ) {
-			if ( api ) {
-				this.requestId++;
-				const requestId = this.requestId;
-				api
-					.fetch( query )
-					.then( response => {
-						return response.json();
-					} )
-					.then( json => {
-						if ( this.requestId === requestId ) {
-							this.setState( { results: json } );
-						}
-					} );
-			}
+			this.requestId++;
+			const requestId = this.requestId;
+
+			search( this.props.siteId, query )
+				.then( response => response.json() )
+				.then( json => {
+					if ( this.requestId === requestId ) {
+						this.setState( { results: json } );
+					}
+				} );
 		} else {
 			this.setState( { results: [] } );
 		}
-	}
+	};
 
 	render() {
 		const { query, results } = this.state;
@@ -70,13 +65,13 @@ class SearchWidget extends Component {
 			<div>
 				<p>
 					<input
-						type="search"
-						value={ query }
 						onInput={ this.onChangeQuery }
 						ref={ this.bindInput }
+						type="search"
+						value={ query }
 					/>
 				</p>
-				<Portal into="#results">
+				<Portal into="main">
 					<SearchResults query={ query } { ...results } />
 				</Portal>
 			</div>
@@ -84,4 +79,4 @@ class SearchWidget extends Component {
 	}
 }
 
-export default SearchWidget;
+export default SearchApp;

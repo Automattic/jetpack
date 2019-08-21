@@ -72,3 +72,4 @@ extensions/**/*.scss
 extensions/**/*.svg
 packages
 **/__snapshots__
+modules/search/instant-search
