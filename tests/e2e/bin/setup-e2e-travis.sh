@@ -3,16 +3,11 @@
 
 set -ex
 
-if [ $# -lt 3 ]; then
-	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version]"
-	exit 1
-fi
-
-DB_NAME=${4-jetpack_test}
-DB_USER=${4-root}
-DB_PASS=${4-}
-DB_HOST=${4-localhost}
-WP_VERSION=${5-latest}
+DB_NAME="jetpack_test"
+DB_USER="root"
+DB_PASS=""
+DB_HOST="localhost"
+WP_VERSION="latest"
 
 WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
 
@@ -26,19 +21,50 @@ if [ "$TRAVIS_PULL_REQUEST_BRANCH" != "" ]; then
 fi
 
 install_ngrok() {
-	# download and install ngrok
+	if $(command_exists "ngrok"); then
+			NGROK_CMD="ngrok"
+			return
+	fi
+
+	if [ -z "$CI" ]; then
+		echo "Please install ngrok on your machine. Instructions: https://ngrok.com/download"
+		exit 1
+	fi
+
+	echo "Installing ngrok in CI..."
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
 	unzip ngrok.zip
-	./ngrok authtoken $NGROK_KEY
-	./ngrok http -log=stdout 80 > /dev/null &
+	NGROK_CMD="./ngrok"
+}
+
+start_ngrok() {
+	install_ngrok
+
+	echo "Killing any rogue ngrok instances just in case..."
+	kill_ngrok
+
+	if [ ! -z "$NGROK_KEY" ]; then
+			$NGROK_CMD authtoken $NGROK_KEY
+	fi
+
+	$NGROK_CMD http -log=stdout 8889 > /dev/null &
 	sleep 3
-	WP_SITE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
 		echo "WP_SITE_URL is not set after launching an ngrok"
 		exit 1
 	fi
 }
+
+get_ngrok_url() {
+	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+}
+
+kill_ngrok() {
+	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
+}
+
 
 setup_nginx() {
 	NGINX_DIR="/etc/nginx"
@@ -78,7 +104,7 @@ setup_nginx() {
 	sudo service nginx restart
 }
 
-install_wp() {
+prepare_wp() {
 	# Set up WordPress using wp-cli
 	mkdir -p "$WP_CORE_DIR"
 	cd "$WP_CORE_DIR"
@@ -104,7 +130,9 @@ PHP
 	wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
 
 	wp db create
+}
 
+install_wp() {
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 }
 
@@ -124,9 +152,30 @@ WORKING_DIR=${WORKING_DIR}
 EOT
 }
 
+reset_wp() {
+	echo "Resetting WordPress"
+	wp db reset --yes
+	install_wp
+	start_ngrok
+	echo $WP_SITE_URL
+	echo $( get_ngrok_url )
+}
+
+if [ "${1}" == "reset_wp" ]; then
+	echo $0
+	reset_wp
+	exit 0
+fi
+
+
 install_ngrok
+start_ngrok
+
 setup_nginx
+
+prepare_wp
 install_wp
+
 prepare_jetpack
 export_env_variables
 

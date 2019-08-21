@@ -6,10 +6,29 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
+import { execShellCommand } from '../lib/utils-helper';
+
+// Activate WordAds module if in CI
+async function resetWordpressInstall() {
+	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
+
+	const out = await execShellCommand( cmd );
+	console.log( out );
+}
+
+async function getNgrokSiteUrl() {
+	const cmd =
+		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
+	const out = await execShellCommand( cmd );
+	console.log( out );
+	return out;
+}
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
-		await ( await WPLoginPage.visit( page ) ).login();
+		await resetWordpressInstall();
+		const url = await getNgrokSiteUrl();
+		await ( await WPLoginPage.visit( page, url ) ).login();
 	} );
 
 	it( 'Can find connect button on plugins page', async () => {
