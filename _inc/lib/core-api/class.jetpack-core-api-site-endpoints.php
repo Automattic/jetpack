@@ -108,7 +108,8 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-		$vaultpress = new VaultPress();
+		if ( Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) && class_exists( 'VaultPress' ) ) {
+			$vaultpress = new VaultPress();
 		if ( $vaultpress->is_registered() ) {
 			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
 			if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
