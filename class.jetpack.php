@@ -2571,6 +2571,11 @@ class Jetpack {
 
 		$file_data_option = get_transient( $cache_key );
 
+		if ( ! is_array( $file_data_option ) ) {
+			delete_transient( $cache_key );
+			$file_data_option = false;
+		}
+
 		if ( false === $file_data_option ) {
 			$file_data_option = array();
 		}
