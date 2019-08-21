@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/php:cli
+    steps:
+      - run: php -r 'echo "¡Hola mundo!" . PHP_EOL;'
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - test
