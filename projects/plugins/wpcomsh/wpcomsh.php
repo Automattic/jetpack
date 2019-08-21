@@ -72,6 +72,7 @@ const WPCOM_CORE_ATOMIC_PLUGINS = [
 	'akismet/akismet.php',
 ];
 const WPCOM_FEATURE_PLUGINS = [
+	'coblocks/class-coblocks.php',
 	'full-site-editing/full-site-editing-plugin.php',
 	'gutenberg/gutenberg.php',
 ];
