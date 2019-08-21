@@ -613,9 +613,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	function get_current_user_capabilities( $post ) {
 		return array(
-			'publish_post' => current_user_can( 'publish_post', $post ),
-			'delete_post'  => current_user_can( 'delete_post', $post ),
-			'edit_post'    => current_user_can( 'edit_post', $post )
+			'publish_post' => current_user_can( 'publish_post', $post->ID ),
+			'delete_post'  => current_user_can( 'delete_post', $post->ID ),
+			'edit_post'    => current_user_can( 'edit_post', $post->ID )
 		);
 	}
 
