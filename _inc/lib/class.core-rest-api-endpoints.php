@@ -3057,15 +3057,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$result = Jetpack_Plugins::install_and_activate_plugin('akismet');
 
 		if ( is_wp_error( $result ) ) {
-			return rest_ensure_response( [
+			return rest_ensure_response( array(
 				'code'    => 'failure',
 				'message' => esc_html__( 'Unable to activate Akismet', 'jetpack' )
-			] );
+			) );
 		} else {
-			return rest_ensure_response( [
+			return rest_ensure_response( array(
 				'code'    => 'success',
 				'message' => esc_html__( 'Activated Akismet', 'jetpack' )
-			] );
+			) );
 		}
 	}
 
