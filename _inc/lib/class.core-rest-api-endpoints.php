@@ -1103,7 +1103,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Registers the Jetpack site
 	 *
 	 * @uses Jetpack::try_registration();
-	 * @since 4.3.0
+	 * @since 7.7.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
