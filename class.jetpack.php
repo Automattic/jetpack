@@ -1705,7 +1705,6 @@ class Jetpack {
 			return $cached_user_data;
 		}
 
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => $user_id,
 		) );
@@ -1726,7 +1725,7 @@ class Jetpack {
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
 		}
-		Jetpack::load_xml_rpc_client();
+
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => $user_id,
 		) );
@@ -3235,7 +3234,7 @@ p {
 		if ( ! self::validate_sync_error_idc_option() ) {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
-			Jetpack::load_xml_rpc_client();
+
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister', get_current_user_id() );
 		}
@@ -5102,11 +5101,13 @@ p {
 /* Client Server API */
 
 	/**
-	 * Loads the Jetpack XML-RPC client
+	 * Loads the Jetpack XML-RPC client.
+	 * No longer necessary, as the XML-RPC client will be automagically loaded.
+	 *
+	 * @deprecated since 7.7.0
 	 */
 	public static function load_xml_rpc_client() {
-		require_once ABSPATH . WPINC . '/class-IXR.php';
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
+		_deprecated_function( __METHOD__, 'jetpack-7.7' );
 	}
 
 	/**
@@ -5400,7 +5401,6 @@ p {
 		if ( is_null( $is_site_publicly_accessible ) ) {
 			$is_site_publicly_accessible = false;
 
-			Jetpack::load_xml_rpc_client();
 			$rpc = new Jetpack_IXR_Client();
 
 			$success = $rpc->query( 'jetpack.isSitePubliclyAccessible', home_url() );
@@ -5440,7 +5440,6 @@ p {
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[$client_blog_id] ) ) {
-			Jetpack::load_xml_rpc_client();
 			$clients[$client_blog_id] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER, ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
@@ -5740,7 +5739,6 @@ p {
 	public function get_cloud_site_options( $option_names ) {
 		$option_names = array_filter( (array) $option_names, 'is_string' );
 
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
 		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
 		if ( $xml->isError() ) {

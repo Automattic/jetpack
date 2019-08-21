@@ -161,7 +161,6 @@ class Jetpack_Keyring_Service_Helper {
 					break;
 
 				case 'completed':
-					Jetpack::load_xml_rpc_client();
 					$xml = new Jetpack_IXR_Client();
 					$xml->query( 'jetpack.fetchPublicizeConnections' );
 
@@ -190,7 +189,6 @@ class Jetpack_Keyring_Service_Helper {
 	 * Remove a Publicize connection
 	 */
 	static function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deletePublicizeConnection', $connection_id );
 

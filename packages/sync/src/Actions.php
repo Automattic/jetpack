@@ -258,8 +258,6 @@ class Actions {
 	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
 	 */
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
-		\Jetpack::load_xml_rpc_client();
-
 		$query_args = array(
 			'sync'      => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
 			'codec'     => $codec_name,

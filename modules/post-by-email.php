@@ -129,7 +129,6 @@ class Jetpack_Post_By_Email {
 	}
 
 	function get_post_by_email_address() {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
@@ -179,7 +178,7 @@ class Jetpack_Post_By_Email {
 		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
 			wp_send_json_error( $error_message );
 		}
-		Jetpack::load_xml_rpc_client();
+
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );

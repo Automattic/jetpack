@@ -250,7 +250,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	function globalize_connection( $connection_id ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'globalize' );
 
@@ -261,7 +260,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	function unglobalize_connection( $connection_id ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.globalizePublicizeConnection', $connection_id, 'unglobalize' );
 
@@ -349,7 +347,6 @@ class Publicize extends Publicize_Base {
 
 		$id = $this->get_connection_id( $connection );
 
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
@@ -655,7 +652,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	function set_remote_publicize_options( $id, $options ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
 

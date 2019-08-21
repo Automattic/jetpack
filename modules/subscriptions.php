@@ -443,7 +443,6 @@ class Jetpack_Subscriptions {
 		}
 
 		if ( !$async ) {
-			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_ClientMulticall();
 		}
 

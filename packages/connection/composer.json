@@ -15,6 +15,9 @@
 		"psr-4": {
 			"Automattic\\Jetpack\\Connection\\": "src"
 		},
+		"files": [
+			"legacy/load-ixr.php"
+		],
 		"classmap": [
 			"legacy"
 		]

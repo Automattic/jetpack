@@ -45,7 +45,6 @@ class Jetpack_Frame_Nonce_Preview {
 			return false;
 		}
 
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.verifyFrameNonce', sanitize_key( $_GET['frame-nonce'] ) );
 

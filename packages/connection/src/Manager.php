@@ -533,7 +533,6 @@ class Manager implements Manager_Interface {
 			return $cached_user_data;
 		}
 
-		\Jetpack::load_xml_rpc_client();
 		$xml = new \Jetpack_IXR_Client(
 			array(
 				'user_id' => $user_id,
@@ -593,7 +592,6 @@ class Manager implements Manager_Interface {
 			return false;
 		}
 
-		\Jetpack::load_xml_rpc_client();
 		$xml = new \Jetpack_IXR_Client( compact( 'user_id' ) );
 		$xml->query( 'jetpack.unlink_user', $user_id );
 
