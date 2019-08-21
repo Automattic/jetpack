@@ -7,7 +7,7 @@ import { sprintf, _n } from '@wordpress/i18n';
 import { h, Component } from 'preact';
 import strip from 'strip';
 
-class SearchResult extends Component {
+class SearchResultMinimal extends Component {
 	render() {
 		return (
 			<div className="jetpack-instant-search__result">
@@ -39,4 +39,4 @@ class SearchResult extends Component {
 	}
 }
 
-export default SearchResult;
+export default SearchResultMinimal;

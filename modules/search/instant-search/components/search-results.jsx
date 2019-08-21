@@ -9,17 +9,23 @@ import { h, Component } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchResult from './search-result';
+import SearchResultMinimal from './search-result-minimal';
 
 class SearchResults extends Component {
+	render_result( result ) {
+		switch ( this.props.result_format ) {
+			case 'minimal':
+			default:
+				return <SearchResultMinimal result={ result } />;
+		}
+	}
+
 	render() {
 		const { results = [], query } = this.props;
 		return (
 			<div className="jetpack-instant-search__search-results">
 				<p>{ sprintf( __( 'You are searching for: "%s"' ), query ) }</p>
-				{ results.map( result => (
-					<SearchResult result={ result } />
-				) ) }
+				{ results.map( result => this.render_result( result ) ) }
 			</div>
 		);
 	}
