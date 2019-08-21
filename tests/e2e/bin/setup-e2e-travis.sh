@@ -3,11 +3,6 @@
 
 set -ex
 
-if [ $# -lt 3 ]; then
-	echo "usage: $0 <db-name> <db-user> <db-pass> [db-host] [wp-version]"
-	exit 1
-fi
-
 DB_NAME=${4-jetpack_test}
 DB_USER=${4-root}
 DB_PASS=${4-}
