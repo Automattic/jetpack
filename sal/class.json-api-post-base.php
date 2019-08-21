@@ -182,9 +182,9 @@ abstract class SAL_Post {
 
 	public function get_current_user_capabilities() {
 		return array(
-			'publish_post' => current_user_can( 'publish_post', $this->post ),
-			'delete_post'  => current_user_can( 'delete_post', $this->post ),
-			'edit_post'    => current_user_can( 'edit_post', $this->post )
+			'publish_post' => current_user_can( 'publish_post', $this->post->ID ),
+			'delete_post'  => current_user_can( 'delete_post', $this->post->ID ),
+			'edit_post'    => current_user_can( 'edit_post', $this->post->ID )
 		);
 	}
 
@@ -458,7 +458,7 @@ abstract class SAL_Post {
 		if ( 0 == $this->post->post_author )
 			return null;
 
-		$show_email = $this->context === 'edit' && current_user_can( 'edit_post', $this->post );
+		$show_email = $this->context === 'edit' && current_user_can( 'edit_post', $this->post->ID );
 
 		$user = get_user_by( 'id', $this->post->post_author );
 
