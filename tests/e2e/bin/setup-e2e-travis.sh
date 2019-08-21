@@ -63,7 +63,6 @@ kill_ngrok() {
 	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
 
-
 setup_nginx() {
 	NGINX_DIR="/etc/nginx"
 	CONFIG_DIR="./tests/e2e/bin/travis"
@@ -102,7 +101,7 @@ setup_nginx() {
 	sudo service nginx restart
 }
 
-prepare_wp() {
+install_wp() {
 	# Set up WordPress using wp-cli
 	mkdir -p "$WP_CORE_DIR"
 	cd "$WP_CORE_DIR"
@@ -116,7 +115,6 @@ prepare_wp() {
 /* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
 define('WP_MEMORY_LIMIT', '256M');
 define('SCRIPT_DEBUG', true);
-
 /* Tweak to fix TOO_MANY_REDIRECTS ngrok problem */
 if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
     \$_SERVER['HTTPS'] = 'on';
@@ -128,9 +126,7 @@ PHP
 	wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
 
 	wp db create
-}
 
-install_wp() {
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 }
 
@@ -152,8 +148,8 @@ EOT
 
 reset_wp() {
 	echo "Resetting WordPress"
-	wp db reset --yes
-	install_wp
+	wp --path=$WP_CORE_DIR db reset --yes
+	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 	start_ngrok
 	echo $WP_SITE_URL
 	echo $( get_ngrok_url )
