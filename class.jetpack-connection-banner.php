@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Abtest;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Assets;
 
@@ -26,7 +27,8 @@ class Jetpack_Connection_Banner {
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
 
-		if ( \Automattic\Jetpack\Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		$abtest = new Abtest();
+		if ( 'in_place' === $abtest->get_variation( 'jetpack_connect_in_place' ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
 		}
 	}
