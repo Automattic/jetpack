@@ -498,28 +498,28 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 			array(
 				'url'   => array(
-					'/feed/',        // WordPress default feed url.
-					'/feeds/',       // Blogspot and others.
-					'/blog/feed',    // No trailing space WordPress feed, could use /feed but may match unexpectedly.
-					'format=RSS',    // Squarespace and others.
-					'/rss',          // Tumblr.
-					'/.rss',         // Reddit.
-					'/rss.xml',      // Moveable Type, Typepad.
-					'http://rss',
-					'https://rss',
+					'/feed/',         // WordPress default feed url.
+					'/feeds/',        // Blogspot and others.
+					'/blog/feed',     // No trailing slash WordPress feed, could use /feed but may match unexpectedly.
+					'format=RSS',     // Squarespace and others.
+					'/rss',           // Tumblr.
+					'/.rss',          // Reddit.
+					'/rss.xml',       // Moveable Type, Typepad.
+					'http://rss.',    // Old custom format.
+					'https://rss.',   // Old custom format.
 					'rss=1',
-					'/feed=rss',     // Catches feed=rss / feed=rss2.
-					'?feed=rss',     // WordPress non-permalink - Catches feed=rss / feed=rss2.
-					'?feed=rdf',     // WordPress non-permalink.
-					'?feed=atom',    // WordPress non-permalink.
-					'http://feeds',  // FeedBurner.
-					'https://feeds', // FeedBurner.
-					'/feed.xml',     // Feedburner Alias, and others.
-					'/index.xml',    // Moveable Type, and others.
-					'/atom.xml',     // Typepad, Squarespace.
-					'.atom',         // Shopify blog.
-					'/atom',         // Some non-WordPress feeds.
-					'index.rdf',     // Typepad.
+					'/feed=rss',      // Catches feed=rss / feed=rss2.
+					'?feed=rss',      // WordPress non-permalink - Catches feed=rss / feed=rss2.
+					'?feed=rdf',      // WordPress non-permalink.
+					'?feed=atom',     // WordPress non-permalink.
+					'http://feeds.',  // FeedBurner.
+					'https://feeds.', // FeedBurner.
+					'/feed.xml',      // Feedburner Alias, and others.
+					'/index.xml',     // Moveable Type, and others.
+					'/atom.xml',      // Typepad, Squarespace.
+					'.atom',          // Shopify blog.
+					'/atom',          // Some non-WordPress feeds.
+					'index.rdf',      // Typepad.
 				),
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
