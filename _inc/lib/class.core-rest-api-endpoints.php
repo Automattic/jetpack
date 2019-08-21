@@ -562,8 +562,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		Jetpack::load_xml_rpc_client();
-		 $xml = new Jetpack_IXR_Client( array(
-		 	'user_id' => get_current_user_id(),
+ 		$xml = new Jetpack_IXR_Client( array(
+ 			'user_id' => get_current_user_id(),
 		) );
 
 		$args = array(
@@ -2445,7 +2445,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			( ! empty( $value['hidden'] ) && ! array_intersect( $value['hidden'], $services ) ) )
 		{
 			return new WP_Error( 'invalid_param', sprintf(
-			/* Translators: placeholder 1 is a parameter holding the services passed to endpoint, placeholder 2 is a list of all Jetpack Sharing services */
+				/* Translators: placeholder 1 is a parameter holding the services passed to endpoint, placeholder 2 is a list of all Jetpack Sharing services */
 				esc_html__( '%1$s visible and hidden items must be a list of %2$s.', 'jetpack' ), $param, join( ', ', $services )
 			) );
 		}
