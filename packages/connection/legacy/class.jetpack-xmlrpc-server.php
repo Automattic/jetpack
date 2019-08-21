@@ -190,8 +190,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		$connection = Jetpack::connection();
-		$user_token = $connection->get_access_token( $user->ID );
+		$user_token = $this->connection->get_access_token( $user->ID );
 
 		if ( $user_token ) {
 			list( $user_token_key ) = explode( '.', $user_token->secret );
@@ -653,7 +652,7 @@ class Jetpack_XMLRPC_Server {
 	 * @return \WP_User|bool
 	 */
 	public function login() {
-		Jetpack::connection()->require_jetpack_authentication();
+		$this->connection->require_jetpack_authentication();
 		$user = wp_authenticate( 'username', 'password' );
 		if ( is_wp_error( $user ) ) {
 			if ( 'authentication_failed' === $user->get_error_code() ) { // Generic error could mean most anything.
@@ -942,7 +941,7 @@ class Jetpack_XMLRPC_Server {
 		if ( $user_id ) {
 			$token_key = false;
 		} else {
-			$verified  = Jetpack::connection()->verify_xml_rpc_signature();
+			$verified  = $this->connection->verify_xml_rpc_signature();
 			$token_key = $verified['token_key'];
 		}
 
