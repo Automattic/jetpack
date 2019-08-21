@@ -13,7 +13,10 @@ jQuery( document ).ready( function( $ ) {
 		isRegistering: false,
 		handleClick: function() {
 			jetpackConnectButton.isRegistering = true;
-			$( '.jp-connect-button' ).text( jpConnect.buttonTextRegistering );
+			$( '.jp-connect-button' )
+				.text( jpConnect.buttonTextRegistering )
+				.attr( 'disabled', true )
+				.blur();
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/connection/register',
 				type: 'POST',
@@ -24,7 +27,9 @@ jQuery( document ).ready( function( $ ) {
 				error: function( error ) {
 					console.warn( error );
 					jetpackConnectButton.isRegistering = false;
-					$( '.jp-connect-button' ).text( jpConnect.buttonTextDefault );
+					$( '.jp-connect-button' )
+						.text( jpConnect.buttonTextDefault )
+						.removeAttr( 'disabled' );
 				},
 				success: function( data ) {
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );
@@ -46,9 +51,6 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleAuthorizationComplete: function() {
 			jetpackConnectButton.isRegistering = false;
-			$( '.jp-connect-full__button-container' ).html(
-				'<p>' + jpConnect.buttonTextFinishing + '<p>'
-			);
 			location.reload();
 		},
 	};

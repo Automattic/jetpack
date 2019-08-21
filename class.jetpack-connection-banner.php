@@ -157,7 +157,6 @@ class Jetpack_Connection_Banner {
 				'apiBaseUrl'            => site_url( '/wp-json/jetpack/v4' ),
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'buttonTextFinishing'   => __( 'Finishing up and reloading page.', 'jetpack' ),
 				'buttonTextRegistering' => __( 'Loading', 'jetpack' ),
 				'buttonTextDefault'     => __( 'Set up Jetpack', 'jetpack' ),
 			)
@@ -184,7 +183,7 @@ class Jetpack_Connection_Banner {
 			<div class="jp-wpcom-connect__container-top-text">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
 				<span>
-			    <?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?>
+					<?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?>
 				</span>
 			</div>
 			<?php
@@ -254,14 +253,14 @@ class Jetpack_Connection_Banner {
 								?>
 							</p>
 
-                            <div class="jp-banner__button-container">
-                                <span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
-                                <a
-                                        href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
-                                        class="dops-button is-primary jp-connect-button">
+							<div class="jp-banner__button-container">
+								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
+								<a
+										href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
+										class="dops-button is-primary jp-connect-button">
 									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-                                </a>
-                            </div>
+								</a>
+							</div>
 
 						</div>
 					</div> <!-- end slide 1 -->
@@ -338,11 +337,11 @@ class Jetpack_Connection_Banner {
 					</div>
 				</div>
 
-                <p class="jp-connect-full__tos-blurb">
+				<p class="jp-connect-full__tos-blurb">
 					<?php jetpack_render_tos_blurb(); ?>
-                </p>
+				</p>
 
-                <p class="jp-connect-full__button-container">
+				<p class="jp-connect-full__button-container">
 					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
 					   class="dops-button is-primary jp-connect-button">
 						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
