@@ -158,7 +158,9 @@ class DashAkismet extends Component {
 					className="jp-dash-item__is-inactive"
 					pro={ true }
 				>
-					{ __( 'Set up Akismet to get spam protection through your Jetpack plan.' ) }
+					{ __(
+						"Your Jetpack plan provides anti-spam protection through Akismet. Click 'set up' to enable it on your site."
+					) }
 				</DashItem>
 			);
 		}
