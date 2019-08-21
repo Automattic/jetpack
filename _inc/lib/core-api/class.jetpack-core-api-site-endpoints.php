@@ -62,6 +62,14 @@ class Jetpack_Core_API_Site_Endpoint {
 		return current_user_can( 'jetpack_manage_modules' );
 	}
 
+
+	/**
+	 * Gets an array of data that show how Jetpack is currently being used to benefit the site.
+	 *
+	 * @since 7.7
+	 *
+	 * @return WP_REST_Response
+	 */
 	public static function get_benefits() {
 		global $wpdb;
 
