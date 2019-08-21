@@ -38,8 +38,6 @@ install_ngrok() {
 }
 
 start_ngrok() {
-	install_ngrok
-
 	echo "Killing any rogue ngrok instances just in case..."
 	kill_ngrok
 
