@@ -165,6 +165,7 @@ class Jetpack_Tiled_Gallery_Block {
 
 if (
 	( defined( 'IS_WPCOM' ) && IS_WPCOM )
+	|| defined( 'VIP_GO_ENV' ) && false !== VIP_GO_ENV
 	|| class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
 ) {
 	Jetpack_Tiled_Gallery_Block::register();
