@@ -1045,7 +1045,7 @@ class Manager implements Manager_Interface {
 	 * @param Integer $user_id The user identifier.
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
-	public function generate_secrets( $action, $user_id, $exp ) {
+	public function generate_secrets( $action, $user_id = false, $exp = 600 ) {
 		$callable = $this->get_secret_callable();
 
 		$secrets = \Jetpack_Options::get_raw_option(
