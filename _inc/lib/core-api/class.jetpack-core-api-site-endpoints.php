@@ -75,9 +75,12 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		$benefits = array();
 
-		$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
+		$stats = null;
+		if ( function_exists( 'stats_get_from_restapi' ) ) {
+			$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
+		}
 
-		if ( $stats->stats->visitors > 0 ) {
+		if ( null !== $stats && $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
 				'title'       => esc_html__( 'Jetpack Stats' ),
@@ -98,13 +101,12 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
-		$followers = $stats->stats->followers_blog;
-		if ( $followers > 0 ) {
+		if ( null !== $stats && $stats->stats->followers_blog > 0 ) {
 			$benefits[] = array(
 				'name'        => 'subscribers',
 				'title'       => esc_html__( 'Subscribers' ),
 				'description' => esc_html__( 'People subscribed to your updates through Jetpack' ),
-				'value'       => $followers,
+				'value'       => $stats->stats->followers_blog,
 			);
 		}
 
@@ -180,7 +182,7 @@ class Jetpack_Core_API_Site_Endpoint {
 				}
 			}
 
-			if ( $stats->stats->shares > 0 ) {
+			if ( null !== $stats && $stats->stats->shares > 0 ) {
 				$benefits[] = array(
 					'name'        => 'sharing',
 					'title'       => esc_html__( 'Sharing' ),
