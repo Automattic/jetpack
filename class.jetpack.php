@@ -623,6 +623,8 @@ class Jetpack {
 			}
 		}
 
+		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
+
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
