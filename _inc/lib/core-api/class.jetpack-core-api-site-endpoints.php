@@ -123,73 +123,74 @@ class Jetpack_Core_API_Site_Endpoint {
 					);
 				}
 			}
+		}
 
-			if ( Jetpack::is_module_active( 'contact-form' ) ) {
-				$contact_form_count = array_sum( get_object_vars( wp_count_posts( 'feedback' ) ) );
-				if ( $contact_form_count > 0 ) {
-					$benefits[] = array(
-						'name'        => 'contact-form-feedback',
-						'title'       => esc_html__( 'Contact Form Feedback' ),
-						'description' => esc_html__( 'Form submissions stored by Jetpack' ),
-						'value'       => $contact_form_count,
-					);
-				}
-			}
-
-			if ( Jetpack::is_module_active( 'photon' ) ) {
-				$photon_count = array_reduce(
-					get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif' ) ) ),
-					function ( $i, $j ) {
-						return $i + $j;
-					}
+		if ( Jetpack::is_module_active( 'contact-form' ) ) {
+			$contact_form_count = array_sum( get_object_vars( wp_count_posts( 'feedback' ) ) );
+			if ( $contact_form_count > 0 ) {
+				$benefits[] = array(
+					'name'        => 'contact-form-feedback',
+					'title'       => esc_html__( 'Contact Form Feedback' ),
+					'description' => esc_html__( 'Form submissions stored by Jetpack' ),
+					'value'       => $contact_form_count,
 				);
-				if ( $photon_count > 0 ) {
-					$benefits[] = array(
-						'name'        => 'image-hosting',
-						'title'       => esc_html__( 'Image Hosting' ),
-						'description' => esc_html__( 'Super-fast, mobile-ready images served by Jetpack' ),
-						'value'       => $photon_count,
-					);
-				}
 			}
+		}
+
+		if ( Jetpack::is_module_active( 'photon' ) ) {
+			$photon_count = array_reduce(
+				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif' ) ) ),
+				function ( $i, $j ) {
+					return $i + $j;
+				}
+			);
+			if ( $photon_count > 0 ) {
+				$benefits[] = array(
+					'name'        => 'image-hosting',
+					'title'       => esc_html__( 'Image Hosting' ),
+					'description' => esc_html__( 'Super-fast, mobile-ready images served by Jetpack' ),
+					'value'       => $photon_count,
+				);
+			}
+		}
 
 			$videopress_count = wp_count_attachments( 'video/videopress' )->{ 'video/videopress' };
-			if ( $videopress_count > 0 ) {
+		if ( $videopress_count > 0 ) {
+			$benefits[] = array(
+				'name'        => 'video-hosting',
+				'title'       => esc_html__( 'Video Hosting' ),
+				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack' ),
+				'value'       => $videopress_count,
+			);
+		}
+
+		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
+			$publicize   = new Publicize();
+			$connections = $publicize->get_all_connections();
+
+			$number_of_connections = 0;
+			if ( is_array( $connections ) && ! empty( $connections ) ) {
+				$number_of_connections = count( $connections );
+			}
+
+			if ( $number_of_connections > 0 ) {
 				$benefits[] = array(
-					'name'        => 'video-hosting',
-					'title'       => esc_html__( 'Video Hosting' ),
-					'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack' ),
-					'value'       => $videopress_count,
+					'name'        => 'publicize',
+					'title'       => esc_html__( 'Publicize' ),
+					'description' => esc_html__( 'Live social media site connections, powered by Jetpack' ),
+					'value'       => count( $connections ),
 				);
 			}
+		}
 
-			if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
-				$publicize   = new Publicize();
-				$connections = $publicize->get_all_connections();
-
-				$number_of_connections = 0;
-				if ( is_array( $connections ) && ! empty( $connections ) ) {
-					$number_of_connections = count( $connections );
-				}
-
-				if ( $number_of_connections > 0 ) {
-					$benefits[] = array(
-						'name'        => 'publicize',
-						'title'       => esc_html__( 'Publicize' ),
-						'description' => esc_html__( 'Live social media site connections, powered by Jetpack' ),
-						'value'       => count( $connections ),
-					);
-				}
-			}
-
-			if ( null !== $stats && $stats->stats->shares > 0 ) {
-				$benefits[] = array(
-					'name'        => 'sharing',
-					'title'       => esc_html__( 'Sharing' ),
-					'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack' ),
-					'value'       => $stats->stats->shares,
-				);
-			}
+		if ( null !== $stats && $stats->stats->shares > 0 ) {
+			$benefits[] = array(
+				'name'        => 'sharing',
+				'title'       => esc_html__( 'Sharing' ),
+				'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack' ),
+				'value'       => $stats->stats->shares,
+			);
+		}
 
 			return rest_ensure_response(
 				array(
@@ -198,6 +199,5 @@ class Jetpack_Core_API_Site_Endpoint {
 					'data'    => json_encode( $benefits ),
 				)
 			);
-		}
 	}
 }
