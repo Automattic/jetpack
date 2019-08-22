@@ -689,4 +689,46 @@ class Jetpack_Gutenberg {
 			}
 		}
 	}
+
+	/**
+	 * Get CSS classes for a block.
+	 *
+	 * @since 7.7.0
+	 *
+	 * @param string $slug  Block slug.
+	 * @param array  $attr  Array containing the block attributes.
+	 * @param array  $extra Array of potential extra classes you may want to provide.
+	 *
+	 * @return string $classes List of CSS classes for a block.
+	 */
+	public static function block_classes( $slug = '', $attr, $extra = array() ) {
+		if ( empty( $slug ) ) {
+			return '';
+		}
+
+		// Basic block name class.
+		$classes = array(
+			'wp-block-jetpack-' . $slug,
+		);
+
+		// Add alignment if provided.
+		if (
+			! empty( $attr['align'] )
+			&& in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true )
+		) {
+			array_push( $classes, 'align' . $attr['align'] );
+		}
+
+		// Add custom classes if provided in the block editor.
+		if ( isset( $attr['className'] ) ) {
+			array_push( $classes, $attr['className'] );
+		}
+
+		// Add any extra classes.
+		if ( is_array( $extra ) && ! empty( $extra ) ) {
+			$classes = array_merge( $classes, $extra );
+		}
+
+		return implode( $classes, ' ' );
+	}
 }
