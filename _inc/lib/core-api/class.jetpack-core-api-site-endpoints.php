@@ -71,8 +71,6 @@ class Jetpack_Core_API_Site_Endpoint {
 	 * @return WP_REST_Response
 	 */
 	public static function get_benefits() {
-		global $wpdb;
-
 		$benefits = array();
 
 		$stats = null;
