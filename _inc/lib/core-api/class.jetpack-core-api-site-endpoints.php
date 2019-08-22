@@ -153,7 +153,7 @@ class Jetpack_Core_API_Site_Endpoint {
 				}
 			}
 
-			$videopress_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_mime_type = 'video/videopress'" );
+			$videopress_count = wp_count_attachments( 'video/videopress' )->{ 'video/videopress' };
 			if ( $videopress_count > 0 ) {
 				$benefits[] = array(
 					'name'        => 'video-hosting',
