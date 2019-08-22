@@ -4431,23 +4431,24 @@ p {
 		return $roles->translate_role_to_cap( $role );
 	}
 
-	static function sign_role( $role, $user_id = null ) {
-		if ( empty( $user_id ) ) {
-			$user_id = (int) get_current_user_id();
-		}
-
-		if ( ! $user_id  ) {
-			return false;
-		}
-
-		$token = Jetpack_Data::get_access_token();
-		if ( ! $token || is_wp_error( $token ) ) {
-			return false;
-		}
-
-		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
+	/**
+	 * Sign a user role with the master access token.
+	 * If not specified, will default to the current user.
+	 *
+	 * @deprecated since 7.7
+	 * @see Automattic\Jetpack\Connection\Manager::sign_role()
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $role    User role.
+	 * @param int    $user_id ID of the user.
+	 * @return string Signed user role.
+	 */
+	public static function sign_role( $role, $user_id = null ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::sign_role' );
+		return self::connection()->sign_role( $role, $user_id );
 	}
-
 
 	/**
 	 * Builds a URL to the Jetpack connection auth page
@@ -4530,7 +4531,7 @@ p {
 
 		$roles       = new Roles();
 		$role        = $roles->translate_current_user_to_role();
-		$signed_role = self::sign_role( $role );
+		$signed_role = self::connection()->sign_role( $role );
 
 		$user = wp_get_current_user();
 

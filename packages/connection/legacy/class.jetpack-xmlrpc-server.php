@@ -389,7 +389,7 @@ class Jetpack_XMLRPC_Server {
 			'user_id'      => $user->ID,
 			'user_email'   => $user->user_email,
 			'user_login'   => $user->user_login,
-			'scope'        => Jetpack::sign_role( $role, $user->ID ),
+			'scope'        => $this->connection->sign_role( $role, $user->ID ),
 			'secret'       => $secrets['secret_1'],
 			'is_active'    => $this->connection->is_active(),
 		);

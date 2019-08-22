@@ -1622,4 +1622,31 @@ class Manager implements Manager_Interface {
 	public function reset_saved_auth_state() {
 		$this->xmlrpc_verification = null;
 	}
+
+	/**
+	 * Sign a user role with the master access token.
+	 * If not specified, will default to the current user.
+	 *
+	 * @access public
+	 *
+	 * @param string $role    User role.
+	 * @param int    $user_id ID of the user.
+	 * @return string Signed user role.
+	 */
+	public function sign_role( $role, $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			$user_id = (int) get_current_user_id();
+		}
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$token = $this->get_access_token();
+		if ( ! $token || is_wp_error( $token ) ) {
+			return false;
+		}
+
+		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
+	}
 }
