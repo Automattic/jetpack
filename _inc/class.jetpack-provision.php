@@ -101,7 +101,7 @@ class Jetpack_Provision { //phpcs:ignore
 			// Role.
 			$roles       = new Roles();
 			$role        = $roles->translate_current_user_to_role();
-			$signed_role = Jetpack::sign_role( $role );
+			$signed_role = Jetpack::connection()->sign_role( $role );
 
 			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
 
