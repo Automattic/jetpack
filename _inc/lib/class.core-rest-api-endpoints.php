@@ -84,7 +84,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', 'marketing/survey', array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => __CLASS__ . '::submit_survey',
-			// 'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
 
 		) );
 
@@ -510,10 +510,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'method'  => 'POST',
 				'headers' => array(
+					'Content-Type'    => 'application/json',
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
 			),
-			[],
+			$request->get_body(),
 			'rest'
 		);
 
@@ -526,9 +527,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $data;
-		// return $request;
-		// return new WP_Error( 'forbidden', __( 'Site endpoint is under construction.', 'jetpack' ) );
-		// return false;
 	}
 
 	/**
