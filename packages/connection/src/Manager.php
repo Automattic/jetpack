@@ -50,26 +50,11 @@ class Manager implements Manager_Interface {
 	 * @todo Implement a proper nonce verification.
 	 */
 	public function init() {
-
-		$is_jetpack_xmlrpc_request = $this->setup_xmlrpc_handlers(
-			$_GET,
+		$this->setup_xmlrpc_handlers(
+			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->is_active(),
 			$this->verify_xml_rpc_signature()
 		);
-
-		// All the XMLRPC functionality has been moved into setup_xmlrpc_handlers.
-		if (
-			! $is_jetpack_xmlrpc_request
-			&& is_admin()
-			&& isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification
-			&& (
-				'jetpack_upload_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-				|| 'jetpack_update_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-			)
-		) {
-			$this->require_jetpack_authentication();
-			return;
-		}
 
 		if ( $this->is_active() ) {
 			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );

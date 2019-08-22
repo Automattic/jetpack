@@ -611,19 +611,7 @@ class Jetpack {
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
 		// Initialize remote file upload request handlers.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_jetpack_xmlrpc_request = isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] && Constants::get_constant( 'XMLRPC_REQUEST' );
-		if (
-			! $is_jetpack_xmlrpc_request
-			&& is_admin()
-			&& isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification
-			&& (
-				'jetpack_upload_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-				|| 'jetpack_update_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-			)
-		) {
-			$this->add_remote_request_handlers();
-		}
+		$this->add_remote_request_handlers();
 
 		if ( Jetpack::is_active() ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
@@ -3591,12 +3579,43 @@ p {
 		}
 	}
 
-	function add_remote_request_handlers() {
-		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
-		add_action( 'wp_ajax_nopriv_jetpack_update_file', array( $this, 'remote_request_handlers' ) );
+	/**
+	 * Register the remote file upload request handlers, if needed.
+	 *
+	 * @access public
+	 */
+	public function add_remote_request_handlers() {
+		// Remote file uploads are allowed only via AJAX requests.
+		if ( ! is_admin() || ! Constants::get_constant( 'DOING_AJAX' ) ) {
+			return;
+		}
+
+		// Remote file uploads are allowed only for a set of specific AJAX actions.
+		$remote_request_actions = array(
+			'jetpack_upload_file',
+			'jetpack_update_file',
+		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! isset( $_POST['action'] ) || ! in_array( $_POST['action'], $remote_request_actions, true ) ) {
+			return;
+		}
+
+		// Require Jetpack authentication for the remote file upload AJAX requests.
+		$this->connection_manager->require_jetpack_authentication();
+
+		// Register the remote file upload AJAX handlers.
+		foreach ( $remote_request_actions as $action ) {
+			add_action( "wp_ajax_nopriv_{$action}", array( $this, 'remote_request_handlers' ) );
+		}
 	}
 
-	function remote_request_handlers() {
+	/**
+	 * Handler for Jetpack remote file uploads.
+	 *
+	 * @access public
+	 */
+	public function remote_request_handlers() {
 		$action = current_filter();
 
 		switch ( current_filter() ) {
