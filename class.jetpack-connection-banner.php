@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Abtest;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -28,7 +29,10 @@ class Jetpack_Connection_Banner {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
 
 		$abtest = new Abtest();
-		if ( 'in_place' === $abtest->get_variation( 'jetpack_connect_in_place' ) ) {
+		if (
+			'in_place' === $abtest->get_variation( 'jetpack_connect_in_place' ) ||
+			Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' )
+		) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
 		}
 	}
