@@ -110,88 +110,92 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		if ( Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) && class_exists( 'VaultPress' ) ) {
 			$vaultpress = new VaultPress();
-		if ( $vaultpress->is_registered() ) {
-			$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-			if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
-				$benefits[] = array(
-					'name'        => 'jetpack-backup',
-					'title'       => esc_html__( 'Jetpack Backup' ),
-					'description' => esc_html__( 'The number of times Jetpack has backed up your site and kept it safe' ),
-					'value'       => $data->backups->stats->revisions,
-				);
-			}
-		}
-
-		if ( Jetpack::is_module_active( 'contact-form' ) ) {
-			$contact_form_count = array_sum( get_object_vars( wp_count_posts( 'feedback' ) ) );
-			if ( $contact_form_count > 0 ) {
-				$benefits[] = array(
-					'name'        => 'contact-form-feedback',
-					'title'       => esc_html__( 'Contact Form Feedback' ),
-					'description' => esc_html__( 'Form submissions stored by Jetpack' ),
-					'value'       => $contact_form_count,
-				);
-			}
-		}
-
-		if ( Jetpack::is_module_active( 'photon' ) ) {
-			$photon_count = array_reduce(
-				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif' ) ) ),
-				function( $i, $j ) {
-					return $i + $j;
+			if ( $vaultpress->is_registered() ) {
+				$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
+				if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
+					$benefits[] = array(
+						'name'        => 'jetpack-backup',
+						'title'       => esc_html__( 'Jetpack Backup' ),
+						'description' => esc_html__( 'The number of times Jetpack has backed up your site and kept it safe' ),
+						'value'       => $data->backups->stats->revisions,
+					);
 				}
-			);
-			if ( $photon_count > 0 ) {
+			}
+
+			if ( Jetpack::is_module_active( 'contact-form' ) ) {
+				$contact_form_count = array_sum( get_object_vars( wp_count_posts( 'feedback' ) ) );
+				if ( $contact_form_count > 0 ) {
+					$benefits[] = array(
+						'name'        => 'contact-form-feedback',
+						'title'       => esc_html__( 'Contact Form Feedback' ),
+						'description' => esc_html__( 'Form submissions stored by Jetpack' ),
+						'value'       => $contact_form_count,
+					);
+				}
+			}
+
+			if ( Jetpack::is_module_active( 'photon' ) ) {
+				$photon_count = array_reduce(
+					get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif' ) ) ),
+					function ( $i, $j ) {
+						return $i + $j;
+					}
+				);
+				if ( $photon_count > 0 ) {
+					$benefits[] = array(
+						'name'        => 'image-hosting',
+						'title'       => esc_html__( 'Image Hosting' ),
+						'description' => esc_html__( 'Super-fast, mobile-ready images served by Jetpack' ),
+						'value'       => $photon_count,
+					);
+				}
+			}
+
+			$videopress_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_mime_type = 'video/videopress'" );
+			if ( $videopress_count > 0 ) {
 				$benefits[] = array(
-					'name'        => 'image-hosting',
-					'title'       => esc_html__( 'Image Hosting' ),
-					'description' => esc_html__( 'Super-fast, mobile-ready images served by Jetpack' ),
-					'value'       => $photon_count,
+					'name'        => 'video-hosting',
+					'title'       => esc_html__( 'Video Hosting' ),
+					'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack' ),
+					'value'       => $videopress_count,
 				);
 			}
-		}
 
-		$videopress_count = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->posts WHERE post_mime_type = 'video/videopress'" );
-		if ( $videopress_count > 0 ) {
-			$benefits[] = array(
-				'name'        => 'video-hosting',
-				'title'       => esc_html__( 'Video Hosting' ),
-				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack' ),
-				'value'       => $videopress_count,
-			);
-		}
+			if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
+				$publicize   = new Publicize();
+				$connections = $publicize->get_all_connections();
 
-		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
-			$publicize = new Publicize();
+				$number_of_connections = 0;
+				if ( is_array( $connections ) && ! empty( $connections ) ) {
+					$number_of_connections = count( $connections );
+				}
 
-			$connections           = $publicize->get_all_connections();
-			$number_of_connections = count( $connections );
+				if ( $number_of_connections > 0 ) {
+					$benefits[] = array(
+						'name'        => 'publicize',
+						'title'       => esc_html__( 'Publicize' ),
+						'description' => esc_html__( 'Live social media site connections, powered by Jetpack' ),
+						'value'       => count( $connections ),
+					);
+				}
+			}
 
-			if ( $number_of_connections > 0 ) {
+			if ( $stats->stats->shares > 0 ) {
 				$benefits[] = array(
-					'name'        => 'publicize',
-					'title'       => esc_html__( 'Publicize' ),
-					'description' => esc_html__( 'Live social media site connections, powered by Jetpack' ),
-					'value'       => count( $connections ),
+					'name'        => 'sharing',
+					'title'       => esc_html__( 'Sharing' ),
+					'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack' ),
+					'value'       => $stats->stats->shares,
 				);
 			}
-		}
 
-		if ( $stats->stats->shares > 0 ) {
-			$benefits[] = array(
-				'name'        => 'sharing',
-				'title'       => esc_html__( 'Sharing' ),
-				'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack' ),
-				'value'       => $stats->stats->shares,
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
+					'data'    => json_encode( $benefits ),
+				)
 			);
 		}
-
-		return rest_ensure_response(
-			array(
-				'code'    => 'success',
-				'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
-				'data'    => json_encode( $benefits ),
-			)
-		);
 	}
 }
