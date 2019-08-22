@@ -891,7 +891,8 @@ function wpcomsh_wp_die_handler( $message, $title, $args ) {
 function wpcomsh_get_wp_die_handler() {
 	return 'wpcomsh_wp_die_handler';
 }
-add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
+// Disabling the die handler per p9F6qB-3TQ-p2
+//add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
 
 function get_atomic_ip_addresses( $domain ) {
 	srand( crc32( $domain ) );
