@@ -101,7 +101,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
-		if ( null !== $stats && $stats->stats->followers_blog > 0 ) {
+		if ( null !== $stats && $stats->stats->followers_blog > 0 && Jetpack::is_module_active( 'subscriptions' ) ) {
 			$benefits[] = array(
 				'name'        => 'subscribers',
 				'title'       => esc_html__( 'Subscribers' ),
