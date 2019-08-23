@@ -13,8 +13,6 @@ class SearchResult extends Component {
 			<div className="jetpack-instant-search__result">
 				<a
 					href={ `//${ this.props.result.fields[ 'permalink.url.raw' ] }` }
-					target="_blank"
-					rel="noopener noreferrer"
 					className="jetpack-instant-search__result-title"
 				>
 					{ strip( this.props.result.fields.title_html ) || 'Unknown Title' }
@@ -25,10 +23,12 @@ class SearchResult extends Component {
 						{ strip( this.props.result.fields.date ).split( ' ' )[ 0 ] }
 					</span>
 				</div>
-				<div className="jetpack-instant-search__result-excerpt">
-					{ strip( this.props.result.fields.excerpt_html ) }
-				</div>
-				<div>
+				{ this.props.result.fields.excerpt_html && (
+					<div className="jetpack-instant-search__result-excerpt">
+						{ strip( this.props.result.fields.excerpt_html ) }
+					</div>
+				) }
+				<div className="jetpack-instant-search__comment-count">
 					{ sprintf(
 						_n( '%d comment', '%d comments', this.props.result.fields.comment_count, 'jetpack' ),
 						this.props.result.fields.comment_count
