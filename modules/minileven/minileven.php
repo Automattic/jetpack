@@ -220,7 +220,7 @@ function jetpack_mobile_theme_setup() {
 					exit;
 				break;
 				case 'ios':
-					header( 'Location: http://itunes.apple.com/us/app/wordpress/id335703880?mt=8' );
+					header( 'Location: https://itunes.apple.com/us/app/wordpress/id335703880?mt=8' );
 					exit;
 				break;
 				case 'blackberry':
