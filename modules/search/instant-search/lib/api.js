@@ -47,10 +47,10 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
-function getAPIUrl( siteId, query, widgets ) {
+function getAPIUrl( siteId, query, aggregations ) {
 	const queryString = encode(
 		flatten( {
-			aggregations: buildFilterAggregations( widgets ),
+			aggregations,
 			fields: FIELDS,
 			query: encodeURIComponent( query ),
 		} )
@@ -59,6 +59,6 @@ function getAPIUrl( siteId, query, widgets ) {
 	return `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`;
 }
 
-export function search( siteId, query, widgets ) {
-	return fetch( getAPIUrl( siteId, query, widgets ) );
+export function search( siteId, query, aggregations ) {
+	return fetch( getAPIUrl( siteId, query, aggregations ) );
 }
