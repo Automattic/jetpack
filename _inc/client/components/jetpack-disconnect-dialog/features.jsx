@@ -76,8 +76,18 @@ const JetpackDisconnectDialogFeatures = ( {
 						/>
 					) ) }
 				</div>
-				<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
+
+				<div className="jetpack-disconnect-dialog__get-help">
+					<p>
+						{ __( 'Have a question? We’d love to help!' ) }{' '}
+						<a href="https://jetpack.com/contact-support/">
+							{ __( 'Chat now with the Jetpack support team.' ) }
+						</a>
+					</p>
+				</div>
+
 				<div className="jetpack-disconnect-dialog__button-row">
+					<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
 					<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
 					<Button primary onClick={ onContinueButtonClick }>
 						{ __( 'Continue' ) }
