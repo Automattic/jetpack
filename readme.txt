@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* WordPress.com Interface: allow language to be changed even if `WPLANG` constant is defined.
 
 **Improved compatibility**
 
