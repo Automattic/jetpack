@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Image CDN: update the size of images used in AMP Stories when using the AMP plugin.
 * Responsive Videos: improve compatibility and avoid validation errors when using the AMP plugin.
+* WordPress.com API: avoid errors when used in combination with the Polylang plugin.
 * WordPress.com API: improve compatibility with plugins that alter the behavior of search queries.
 
 **Bug fixes**
