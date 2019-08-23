@@ -1,6 +1,10 @@
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/variables/_colors.scss';
 
+.jetpack-disconnect-dialog__modal-wrapper.dops-modal {
+	max-width: 635px;
+}
+
 .jetpack-disconnect-dialog {
 	.dops-card {
 		margin: 0;

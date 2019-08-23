@@ -6,8 +6,8 @@ import React from 'react';
 
 const SingleFeature = ( { title, description, gridIcon } ) => {
 	return (
-		<div>
-			<div>
+		<div className="jetpack-disconnect-dialog__feature">
+			<div className="jetpack-disconnect-dialog__feature-header">
 				<h3>{ title }</h3>
 				<Gridicon icon={ gridIcon } />
 			</div>
