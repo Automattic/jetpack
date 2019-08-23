@@ -9,13 +9,8 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import SearchWidget from './components/search-widget';
+import { removeChildren } from './lib/dom';
 import { getSearchQuery } from './lib/query-string';
-
-function removeChildren( htmlElement ) {
-	while ( htmlElement.lastChild ) {
-		htmlElement.removeChild( htmlElement.lastChild );
-	}
-}
 
 const hideSearchHeader = () => {
 	const titleElements = document.getElementById( 'content' ).getElementsByClassName( 'page-title' );
