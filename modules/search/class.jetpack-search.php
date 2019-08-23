@@ -209,6 +209,15 @@ class Jetpack_Search {
 				$options = array(
 					'siteId' => $_blog_id,
 				);
+				/**
+				 * Customize Instant Search Options.
+				 *
+				 * @module search
+				 *
+				 * @since 7.7.0
+				 *
+				 * @param array $options Array of parameters used in Instant Search queries.
+				 */
 				$options = apply_filters( 'jetpack_instant_search_options', $options );
 
 				wp_localize_script(
