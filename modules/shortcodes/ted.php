@@ -13,8 +13,8 @@
  * @package Jetpack
  */
 
-wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/view/id/.+!i', 'http://www.ted.com/talks/oembed.json', true );
-wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/[a-zA-Z\-\_]+\.html!i', 'http://www.ted.com/talks/oembed.json', true );
+wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/view/id/.+!i', 'https://www.ted.com/talks/oembed.json', true );
+wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/[a-zA-Z\-\_]+\.html!i', 'https://www.ted.com/talks/oembed.json', true );
 
 /**
  * Get the unique ID of a TED video.
@@ -48,9 +48,9 @@ function shortcode_ted( $atts ) {
 
 	$url = '';
 	if ( preg_match( '#^[\d]+$#', $atts['id'], $matches ) ) {
-		$url = 'http://ted.com/talks/view/id/' . $matches[0];
+		$url = 'https://ted.com/talks/view/id/' . $matches[0];
 	} elseif ( preg_match( '#^https?://(www\.)?ted\.com/talks/view/id/[0-9]+$#', $atts['id'], $matches ) ) {
-		$url = $matches[0];
+		$url = set_url_scheme( $matches[0], 'https' );
 	}
 
 	unset( $atts['id'] );
