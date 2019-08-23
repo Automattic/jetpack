@@ -152,13 +152,17 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
-			$videopress_count = wp_count_attachments( 'video/videopress' )->{ 'video/videopress' };
-		if ( $videopress_count > 0 ) {
+		// Fetch number of VideoPress videos on the site.
+		$videopress_attachments = wp_count_attachments( 'video/videopress' );
+		if (
+			isset( $videopress_attachments->{ 'video/videopress' } )
+			&& $videopress_attachments->{ 'video/videopress' } > 0
+		) {
 			$benefits[] = array(
 				'name'        => 'video-hosting',
 				'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
 				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
-				'value'       => $videopress_count,
+				'value'       => absint( $videopress_attachments->{ 'video/videopress' } ),
 			);
 		}
 
