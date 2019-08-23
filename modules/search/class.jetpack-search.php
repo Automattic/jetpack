@@ -208,7 +208,7 @@ class Jetpack_Search {
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
 					'siteId' => $_blog_id,
-				];
+				);
 				$options = apply_filters( 'jetpack_instant_search_options', $options );
 
 				wp_localize_script(
