@@ -1,6 +1,19 @@
 ## 7.7
 
+### Jetpack Videos
 
+We've added extra settings to the Video block. To test this, try the following:
+
+- Go to Media > Library and upload a video.
+- Purchase a paid plan
+- Enable the Video option under Jetpack > Settings > Performance
+- Go to Media > Library and upload a video.
+- Once it's converted, go to Posts > Add New.
+- In that new post, look for **the Video block**.
+- Look for the first video you've uploaded first, and try to use any of the settings in the block sidebar. Make sure they work well.
+- Then, insert an additional block with the second video, uploaded using Jetpack Videos. The video preview should use the Jetpack Video player, but the block sidebar options should still be there and work.
+
+**Note**: some browsers do not respect the autoplay settings, so that setting may not work in all browsers.
 
 ### Others
 
