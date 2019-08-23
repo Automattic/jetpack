@@ -101,6 +101,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: September 3, 2019
 * Release post: https://wp.me/p1moTy-log
 
+**Major Enhancements**
+
+* This release brings in multiple improvements to the WordPress.com connection process, to fix issues site owners may experience when first connecting their site to WordPress.com.
+
 **Enhancements**
 
 * Videos: Add video settings to Jetpack's enhanced video block.

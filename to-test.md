@@ -1,5 +1,9 @@
 ## 7.7
 
+### Jetpack Connection
+
+In this release, we've made multiple changes to the connection process in order to make more reliable. Do not hesitate to report any issues you may experience when you connect your test site to WordPress.com.
+
 ### Jetpack Videos
 
 We've added extra settings to the Video block. To test this, try the following:
