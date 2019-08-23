@@ -85,7 +85,8 @@ const JetpackDisconnectDialogFeatures = ( {
 						</a>
 					</p>
 				</div>
-
+			</Card>
+			<Card>
 				<div className="jetpack-disconnect-dialog__button-row">
 					<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
 					<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
