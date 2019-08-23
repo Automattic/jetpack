@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Anti-spam: improve the flow to configure Akismet from Jetpack's Dashboard.
 * Bruteforce Login Protection: improve Network Activation detection on Multisite networks.
 * Dashboard: update all illustrations to use new color scheme.
 * Sharing / Publicize: add Open Graph Meta Tags to archive pages.
