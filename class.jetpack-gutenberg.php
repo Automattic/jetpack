@@ -720,7 +720,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Add custom classes if provided in the block editor.
-		if ( isset( $attr['className'] ) ) {
+		if ( ! empty( $attr['className'] ) ) {
 			array_push( $classes, $attr['className'] );
 		}
 
