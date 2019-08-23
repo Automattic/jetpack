@@ -11,7 +11,7 @@ import { get } from 'lodash';
  */
 import QueryAkismetData from 'components/data/query-akismet-data';
 import QuerySite from 'components/data/query-site';
-import QuerySiteBenefits from 'components/data/query-site-benefits';
+// import QuerySiteBenefits from 'components/data/query-site-benefits';
 import JetpackDisconnectFeatures from 'components/jetpack-disconnect-dialog/features';
 import restApi from 'rest-api';
 import { getAkismetData } from 'state/at-a-glance';
@@ -43,7 +43,7 @@ class JetpackDisconnectDialogContainer extends React.Component {
 			<>
 				<QuerySite />
 				<QueryAkismetData />
-				<QuerySiteBenefits />
+				{ /* <QuerySiteBenefits /> */ }
 				<JetpackDisconnectFeatures
 					onCloseButtonClick={ this.props.onCloseButtonClick }
 					onContinueButtonClick={ this.props.onContinueButtonClick }
