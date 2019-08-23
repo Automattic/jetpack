@@ -1,7 +1,8 @@
 /* global jpConnect */
 
 jQuery( document ).ready( function( $ ) {
-	$( '.jp-connect-button' ).click( function( event ) {
+	var connectButton = $( '.jp-connect-button' );
+	connectButton.click( function( event ) {
 		event.preventDefault();
 		if ( ! jetpackConnectButton.isRegistering ) {
 			jetpackConnectButton.handleClick();
@@ -13,7 +14,7 @@ jQuery( document ).ready( function( $ ) {
 		isRegistering: false,
 		handleClick: function() {
 			jetpackConnectButton.isRegistering = true;
-			$( '.jp-connect-button' )
+			connectButton
 				.text( jpConnect.buttonTextRegistering )
 				.attr( 'disabled', true )
 				.blur();
@@ -25,11 +26,9 @@ jQuery( document ).ready( function( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: function( error ) {
-					console.warn( error );
+					console.warn( 'Connection failed. Falling back to the regular flow', error );
 					jetpackConnectButton.isRegistering = false;
-					$( '.jp-connect-button' )
-						.text( jpConnect.buttonTextDefault )
-						.removeAttr( 'disabled' );
+					window.location = connectButton.attr( 'href' );
 				},
 				success: function( data ) {
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );

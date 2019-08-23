@@ -165,8 +165,7 @@ class Jetpack_Connection_Banner {
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading', 'jetpack' ),
-				'buttonTextDefault'     => __( 'Set up Jetpack', 'jetpack' ),
-                'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
+				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 			)
 		);
 	}
@@ -306,6 +305,17 @@ class Jetpack_Connection_Banner {
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ) ?></h2>
 				</div>
 
+				<p class="jp-connect-full__tos-blurb">
+					<?php jetpack_render_tos_blurb(); ?>
+				</p>
+
+				<p class="jp-connect-full__button-container">
+					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
+					   class="dops-button is-primary jp-connect-button">
+						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+					</a>
+				</p>
+
 				<div class="jp-connect-full__row">
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
@@ -345,17 +355,6 @@ class Jetpack_Connection_Banner {
 					</div>
 				</div>
 
-				<p class="jp-connect-full__tos-blurb">
-					<?php jetpack_render_tos_blurb(); ?>
-				</p>
-
-				<p class="jp-connect-full__button-container">
-					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
-					   class="dops-button is-primary jp-connect-button">
-						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-					</a>
-				</p>
-
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<p class="jp-connect-full__dismiss-paragraph">
 						<a>
@@ -366,7 +365,7 @@ class Jetpack_Connection_Banner {
 					</p>
 				<?php endif; ?>
 			</div>
-        </div>
+		</div>
 		<?php
 	}
 
