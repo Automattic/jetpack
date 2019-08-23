@@ -9,6 +9,7 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import SearchWidget from './components/search-widget';
+import { buildFilterAggregations } from './lib/api';
 import { removeChildren } from './lib/dom';
 import { getSearchQuery } from './lib/query-string';
 
@@ -22,8 +23,9 @@ const hideSearchHeader = () => {
 const injectSearchWidget = ( initialValue, target, grabFocus ) => {
 	render(
 		<SearchWidget
-			initialValue={ initialValue }
+			aggregations={ buildFilterAggregations( window.JetpackInstantSearchOptions.widgets ) }
 			grabFocus={ grabFocus }
+			initialValue={ initialValue }
 			siteId={ window.JetpackInstantSearchOptions.siteId }
 			widgets={ window.JetpackInstantSearchOptions.widgets }
 		/>,

@@ -14,8 +14,10 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import SearchResults from './search-results';
-import { search } from './api';
+import SearchFiltersWidget from './search-filters-widget';
+import { search } from '../lib/api';
 import { setSearchQuery } from '../lib/query-string';
+import { removeChildren } from '../lib/dom';
 
 class SearchApp extends Component {
 	constructor() {
@@ -23,15 +25,20 @@ class SearchApp extends Component {
 		this.requestId = 0;
 		this.state = {
 			query: this.props.initialValue,
-			results: [],
+			results: {},
 		};
 		this.getResults = debounce( this.getResults, 500 );
 		this.getResults( this.props.initialValue );
 	}
+
 	componentDidMount() {
 		if ( this.props.grabFocus ) {
 			this.input.focus();
 		}
+
+		this.props.widgets.forEach( function( widget ) {
+			removeChildren( document.getElementById( widget.widget_id ) );
+		} );
 	}
 
 	bindInput = input => ( this.input = input );
@@ -47,7 +54,7 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( this.props.siteId, query, this.props.widgets )
+			search( this.props.siteId, query, this.props.aggregations )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
@@ -62,15 +69,22 @@ class SearchApp extends Component {
 	render() {
 		const { query, results } = this.state;
 		return (
-			<div>
-				<p>
+			<div class="jetpack-instant-search">
+				<div>
 					<input
 						onInput={ this.onChangeQuery }
 						ref={ this.bindInput }
 						type="search"
 						value={ query }
 					/>
-				</p>
+				</div>
+
+				{ this.props.widgets.map( widget => (
+					<Portal into={ `#${ widget.widget_id }` }>
+						<SearchFiltersWidget widget={ widget } results={ this.state.results } />
+					</Portal>
+				) ) }
+
 				<Portal into="main">
 					<SearchResults query={ query } { ...results } />
 				</Portal>
