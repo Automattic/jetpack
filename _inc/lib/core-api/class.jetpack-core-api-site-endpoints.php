@@ -83,7 +83,7 @@ class Jetpack_Core_API_Site_Endpoint {
 				'name'        => 'jetpack-stats',
 				'title'       => esc_html__( 'Jetpack Stats', 'jetpack' ),
 				'description' => esc_html__( 'Visitors tracked by Jetpack this year', 'jetpack' ),
-				'value'       => $stats->stats->visitors,
+				'value'       => absint( $stats->stats->visitors ),
 			);
 		}
 
@@ -94,7 +94,7 @@ class Jetpack_Core_API_Site_Endpoint {
 					'name'        => 'protect',
 					'title'       => esc_html__( 'Brute force protection', 'jetpack' ),
 					'description' => esc_html__( 'The number of malicious login attempts blocked by Jetpack', 'jetpack' ),
-					'value'       => $protect,
+					'value'       => absint( $protect ),
 				);
 			}
 		}
@@ -104,7 +104,7 @@ class Jetpack_Core_API_Site_Endpoint {
 				'name'        => 'subscribers',
 				'title'       => esc_html__( 'Subscribers', 'jetpack' ),
 				'description' => esc_html__( 'People subscribed to your updates through Jetpack', 'jetpack' ),
-				'value'       => $stats->stats->followers_blog,
+				'value'       => absint( $stats->stats->followers_blog ),
 			);
 		}
 
@@ -117,7 +117,7 @@ class Jetpack_Core_API_Site_Endpoint {
 						'name'        => 'jetpack-backup',
 						'title'       => esc_html__( 'Jetpack Backup', 'jetpack' ),
 						'description' => esc_html__( 'The number of times Jetpack has backed up your site and kept it safe', 'jetpack' ),
-						'value'       => $data->backups->stats->revisions,
+						'value'       => absint( $data->backups->stats->revisions ),
 					);
 				}
 			}
@@ -130,7 +130,7 @@ class Jetpack_Core_API_Site_Endpoint {
 					'name'        => 'contact-form-feedback',
 					'title'       => esc_html__( 'Contact Form Feedback', 'jetpack' ),
 					'description' => esc_html__( 'Form submissions stored by Jetpack', 'jetpack' ),
-					'value'       => $contact_form_count,
+					'value'       => absint( $contact_form_count ),
 				);
 			}
 		}
@@ -147,7 +147,7 @@ class Jetpack_Core_API_Site_Endpoint {
 					'name'        => 'image-hosting',
 					'title'       => esc_html__( 'Image Hosting', 'jetpack' ),
 					'description' => esc_html__( 'Super-fast, mobile-ready images served by Jetpack', 'jetpack' ),
-					'value'       => $photon_count,
+					'value'       => absint( $photon_count ),
 				);
 			}
 		}
@@ -190,7 +190,7 @@ class Jetpack_Core_API_Site_Endpoint {
 				'name'        => 'sharing',
 				'title'       => esc_html__( 'Sharing', 'jetpack' ),
 				'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack', 'jetpack' ),
-				'value'       => $stats->stats->shares,
+				'value'       => absint( $stats->stats->shares ),
 			);
 		}
 
