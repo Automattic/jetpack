@@ -116,7 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* WordPress.com API: improve compatibility with plugins that alter the behavior of search queries.
 
 **Bug fixes**
 
