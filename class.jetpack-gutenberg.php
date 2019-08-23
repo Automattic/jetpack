@@ -696,8 +696,8 @@ class Jetpack_Gutenberg {
 	 * @since 7.7.0
 	 *
 	 * @param string $slug  Block slug.
-	 * @param array  $attr  Array containing the block attributes.
-	 * @param array  $extra Array of potential extra classes you may want to provide.
+	 * @param array  $attr  Block attributes.
+	 * @param array  $extra Potential extra classes you may want to provide.
 	 *
 	 * @return string $classes List of CSS classes for a block.
 	 */
