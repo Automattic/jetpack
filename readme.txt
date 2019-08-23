@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Dashboard: update all illustrations to use new color scheme.
+* Sharing / Publicize: add Open Graph Meta Tags to archive pages.
 * Sitemaps: reduce sitemap cache duration when using Jetpack's Development mode.
 * Videos: Add video settings to Jetpack's enhanced video block.
 * Widgets: add new `jetpack_widget_authors_params` filter to the Authors widget, to allow site owners to customize the list of authors.
