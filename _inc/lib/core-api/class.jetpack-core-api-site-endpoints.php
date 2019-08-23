@@ -194,7 +194,7 @@ class Jetpack_Core_API_Site_Endpoint {
 				array(
 					'code'    => 'success',
 					'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
-					'data'    => json_encode( $benefits ),
+					'data'    => wp_json_encode( $benefits ),
 				)
 			);
 	}
