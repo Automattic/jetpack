@@ -180,7 +180,7 @@ class Jetpack_Core_API_Site_Endpoint {
 					'name'        => 'publicize',
 					'title'       => esc_html__( 'Publicize', 'jetpack' ),
 					'description' => esc_html__( 'Live social media site connections, powered by Jetpack', 'jetpack' ),
-					'value'       => count( $connections ),
+					'value'       => absint( $number_of_connections ),
 				);
 			}
 		}
