@@ -21,6 +21,7 @@ class SearchApp extends Component {
 	constructor() {
 		super( ...arguments );
 		this.requestId = 0;
+		this.props.resultFormat = 'minimal';
 		this.state = {
 			query: this.props.initialValue,
 			results: [],
@@ -47,7 +48,7 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( this.props.siteId, query )
+			search( this.props.siteId, query, {}, {}, this.props.resultFormat )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {

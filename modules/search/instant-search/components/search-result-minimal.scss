@@ -1,0 +1,34 @@
+.jetpack-instant-search__result-minimal {
+	padding: 0.125em 0;
+	margin: 1em 0;
+	position: relative;
+}
+
+.jetpack-instant-search__result-minimal h3 {
+	overflow: hidden;
+}
+
+.jetpack-instant-search__result-minimal-date {
+	margin: 0.5em 0;
+	display: flex;
+	float: right;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	font-size: 0.85em;
+}
+
+.jetpack-instant-search__result-minimal-comment-h {
+	font-size: 0.85em;
+	margin: 0.5em 10px;
+}
+.jetpack-instant-search__result-minimal-comment-span {
+	font-size: 0.85em;
+	margin: 0.5em 0;
+}
+
+.jetpack-instant-search__result-minimal-title b,
+.jetpack-instant-search__result-minimal-excerpt b,
+.jetpack-instant-search__result-minimal-comment-span b {
+	text-decoration: underline;
+}
