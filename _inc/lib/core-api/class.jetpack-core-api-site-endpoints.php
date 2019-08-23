@@ -137,7 +137,7 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		if ( Jetpack::is_module_active( 'photon' ) ) {
 			$photon_count = array_reduce(
-				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif' ) ) ),
+				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif', 'image/bmp' ) ) ),
 				function ( $i, $j ) {
 					return $i + $j;
 				}
