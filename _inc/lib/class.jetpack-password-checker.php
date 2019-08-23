@@ -518,7 +518,7 @@ class Jetpack_Password_Checker {
 	 * L = String length (the for iterator)
 	 * N = Our charset size, via get_charset_size()
 	 *
-	 * @see http://en.wikipedia.org/wiki/Password_strength#Random_passwords
+	 * @see https://en.wikipedia.org/wiki/Password_strength#Random_passwords
 	 *
 	 * On top of the base formula, we're also multiplying the bits of entropy for every char
 	 * by 1 - (the probabily of it following the previous char)

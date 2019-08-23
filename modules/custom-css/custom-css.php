@@ -26,7 +26,7 @@ class Jetpack_Custom_CSS {
 			! Jetpack_User_Agent_Info::is_ipad() &&
 			/**
 			 * Should the Custom CSS module use ACE to process CSS.
-			 * @see http://ace.c9.io/
+			 * @see https://ace.c9.io/
 			 *
 			 * @module custom-css
 			 *

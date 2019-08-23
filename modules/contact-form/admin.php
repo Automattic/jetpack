@@ -89,7 +89,7 @@ color: #D98500;
  * Hack a 'Bulk Delete' option for bulk edit in spam view
  *
  * There isn't a better way to do this until
- * http://core.trac.wordpress.org/changeset/17297 is resolved
+ * https://core.trac.wordpress.org/changeset/17297 is resolved
  */
 add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
 function grunion_add_bulk_edit_option() {

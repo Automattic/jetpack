@@ -503,7 +503,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			Add Featured Content settings.
 			 *
 			 * Sanitization callback registered in Featured_Content::validate_settings().
-			 * See http://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
+			 * See https://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
 			 */
 			$wp_customize->add_setting(
 				'featured-content[tag-name]',

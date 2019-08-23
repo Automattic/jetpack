@@ -33,7 +33,7 @@ class Jetpack_Sitemap_Stylist {
 	 *
 	 * @access private
 	 * @since 4.8.0
-	 * @link http://php.net/manual/en/function.vsprintf.php Format string documentation.
+	 * @link https://php.net/manual/en/function.vsprintf.php Format string documentation.
 	 *
 	 * @param string $format A vsprintf-style format string to be sanitized.
 	 * @param array  $url_array The string substitution array to be passed to vsprintf.

@@ -998,7 +998,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the sitemap index url entry for a sitemap row.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
+	 * @link https://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
 	 * @access private
 	 * @since 4.8.0
@@ -1104,7 +1104,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the sitemap url entry for a WP_Post.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 * @access private
 	 * @since 4.8.0
 	 *
@@ -1182,7 +1182,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the image sitemap url entry for a WP_Post of image type.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @access private
 	 * @since 4.8.0
@@ -1267,7 +1267,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the video sitemap url entry for a WP_Post of video type.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 * @link https://developers.google.com/webmasters/videosearch/sitemaps
 	 *
 	 * @access private
@@ -1377,7 +1377,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the news sitemap url entry for a WP_Post.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @access private
 	 * @since 4.8.0
@@ -1417,7 +1417,7 @@ class Jetpack_Sitemap_Builder {
 		/*
 		 * Trim the locale to an ISO 639 language code as required by Google.
 		 * Special cases are zh-cn (Simplified Chinese) and zh-tw (Traditional Chinese).
-		 * @link http://www.loc.gov/standards/iso639-2/php/code_list.php
+		 * @link https://www.loc.gov/standards/iso639-2/php/code_list.php
 		 */
 		$language = strtolower( get_locale() );
 

@@ -317,7 +317,7 @@ class VideoPress_Player {
 	 * No Flash fallback.
 	 *
 	 * @since 1.2
-	 * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/video.html HTML5 video
+	 * @link https://html.spec.whatwg.org/multipage/media.html#the-video-element HTML5 video
 	 * @return string HTML5 video element and children
 	 */
 	private function html5_static() {
@@ -516,7 +516,7 @@ class VideoPress_Player {
 		if ( $age_gate_required ) {
 			$html .= 'if ( jQuery.VideoPress.support.flash() ) {' . PHP_EOL;
 			/**
-			 * @link http://code.google.com/p/swfobject/wiki/api#swfobject.embedSWF(swfUrlStr,_replaceElemIdStr,_widthStr,_height
+			 * @link https://github.com/swfobject/swfobject/wiki/SWFObject-API#swfobjectembedswfswfurlstr-replaceelemidstr-widthstr-heightstr-swfversionstr-xiswfurlstr-flashvarsobj-parobj-attobj-callbackfn
 			 */
 			$html .= 'swfobject.embedSWF(' . implode(
 				',',
@@ -688,11 +688,11 @@ class VideoPress_Player {
 	 * Only allow legitimate Flash parameters and their values
 	 *
 	 * @since 1.2
-	 * @link http://kb2.adobe.com/cps/127/tn_12701.html Flash object and embed attributes
-	 * @link http://kb2.adobe.com/cps/133/tn_13331.html devicefont
-	 * @link http://kb2.adobe.com/cps/164/tn_16494.html allowscriptaccess
-	 * @link http://www.adobe.com/devnet/flashplayer/articles/full_screen_mode.html full screen mode
-	 * @link http://livedocs.adobe.com/flash/9.0/main/wwhelp/wwhimpl/common/html/wwhelp.htm?context=LiveDocs_Parts&file=00001079.html allownetworking
+	 * @link https://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html Flash object and embed attributes
+	 * @link https://helpx.adobe.com/flash/kb/font-outlines-device-fonts.html devicefont
+	 * @link https://helpx.adobe.com/flash/kb/control-access-scripts-host-web.html allowscriptaccess
+	 * @link https://www.adobe.com/devnet/flashplayer/articles/full_screen_mode.html full screen mode
+	 * @link https://help.adobe.com/en_US/as3/dev/WS1EFE2EDA-026D-4d14-864E-79DFD56F87C6.html allownetworking
 	 * @param array $flash_params Flash parameters expressed in key-value form
 	 * @return array validated Flash parameters
 	 */
@@ -796,7 +796,7 @@ class VideoPress_Player {
 	 * Flash player markup in a HTML embed element.
 	 *
 	 * @since 1.1
-	 * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#the-embed-element embed element
+	 * @link https://html.spec.whatwg.org/multipage/iframe-embed-object.html#the-embed-element embed element
 	 * @link http://www.google.com/support/reader/bin/answer.py?answer=70664 Google Reader markup support
 	 * @return string HTML markup. Embed element with no children
 	 */

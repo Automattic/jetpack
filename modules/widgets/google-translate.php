@@ -4,11 +4,11 @@ use Automattic\Jetpack\Assets;
 
 /**
  * Plugin Name: Google Translate Widget for WordPress.com
- * Plugin URI: http://automattic.com
+ * Plugin URI: https://automattic.com
  * Description: Add a widget for automatic translation
  * Author: Artur Piszek
  * Version: 0.1
- * Author URI: http://automattic.com
+ * Author URI: https://automattic.com
  * Text Domain: jetpack
  */
 if ( ! defined( 'ABSPATH' ) ) {

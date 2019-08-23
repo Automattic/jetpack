@@ -4,8 +4,8 @@ Plugin Name: Sharedaddy
 Description: The most super duper sharing tool on the interwebs.
 Version: 0.3.1
 Author: Automattic, Inc.
-Author URI: http://automattic.com/
-Plugin URI: http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
+Author URI: https://automattic.com/
+Plugin URI: https://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
 */
 
 require_once plugin_dir_path( __FILE__ ).'sharing.php';
