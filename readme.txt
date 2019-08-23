@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Dashboard: update all illustrations to use new color scheme.
 * Videos: Add video settings to Jetpack's enhanced video block.
 * WordPress.com Interface: allow language to be changed even if `WPLANG` constant is defined.
 
