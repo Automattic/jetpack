@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * WordPress.com API: fix API responses which contain malformed (non-UTF-8) data.
+* WordPress.com Toolbar: limit access to Stats and Plan menu items.
 
 --------
 
