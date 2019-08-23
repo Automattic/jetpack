@@ -19,6 +19,14 @@ We've added extra settings to the Video block. To test this, try the following:
 
 **Note**: some browsers do not respect the autoplay settings, so that setting may not work in all browsers.
 
+### Widgets
+
+We've made some changes to the Contact Info Widget in this release. It could sometimes prove difficult to add a map to the widget. We've tried to make that process more straightforward by fixing some bugs, surfacing errors for site owners, and displaying previews in the dashboard. 
+
+To test this, activate the Extra Sidebar Widgets feature on your site, head over to Appearance > Customize or Appearance > Widgets, and try to add a Contact Info Widget with a map.
+
+You'll want to test and see what happens when you don't provide an API key, when you provide an incorrect key, or when your Google API settings restrict access to that key.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
