@@ -316,7 +316,7 @@ class MembershipsButtonEdit extends Component {
 	render = () => {
 		const { className, notices } = this.props;
 		const { connected, connectURL, products } = this.state;
-
+		const align = this.props.attributes.align;
 		const inspectorControls = (
 			<InspectorControls>
 				<PanelBody title={ __( 'Product', 'jetpack' ) }>
@@ -343,6 +343,7 @@ class MembershipsButtonEdit extends Component {
 			'components-button',
 			'is-primary',
 			'is-button',
+			`align${ align }`,
 		] );
 		const blockContent = (
 			<SubmitButton

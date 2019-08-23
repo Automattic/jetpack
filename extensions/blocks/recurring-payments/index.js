@@ -44,9 +44,17 @@ export const settings = {
 		customTextButtonColor: {
 			type: 'string',
 		},
+		align: {
+			type: 'string',
+			default: 'left',
+		},
 	},
 	edit,
 	save: () => null,
+	supports: {
+		html: false,
+		align: true,
+	},
 };
 
 // These are Stripe Settlement currencies https://stripe.com/docs/currencies since memberships supports only Stripe ATM.
