@@ -73,11 +73,18 @@ class Jetpack_Core_API_Site_Endpoint {
 	public static function get_benefits() {
 		$benefits = array();
 
+		/*
+		 * We get different benefits from Stats:
+		 * - this year's visitors
+		 * - Followers (only if subs module is active)
+		 * - Sharing counts (not currently supported in Jetpack -- https://github.com/Automattic/jetpack/issues/844 )
+		 */
 		$stats = null;
 		if ( function_exists( 'stats_get_from_restapi' ) ) {
 			$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
 		}
 
+		// Yearly visitors.
 		if ( null !== $stats && $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
@@ -87,6 +94,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
+		// Protect blocked logins.
 		if ( Jetpack::is_module_active( 'protect' ) ) {
 			$protect = get_site_option( 'jetpack_protect_blocked_attempts' );
 			if ( $protect > 0 ) {
@@ -99,6 +107,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
+		// Number of followers.
 		if ( null !== $stats && $stats->stats->followers_blog > 0 && Jetpack::is_module_active( 'subscriptions' ) ) {
 			$benefits[] = array(
 				'name'        => 'subscribers',
@@ -108,6 +117,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
+		// VaultPress backups.
 		if ( Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) && class_exists( 'VaultPress' ) ) {
 			$vaultpress = new VaultPress();
 			if ( $vaultpress->is_registered() ) {
@@ -123,6 +133,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
+		// Number of forms sent via a Jetpack contact form.
 		if ( Jetpack::is_module_active( 'contact-form' ) ) {
 			$contact_form_count = array_sum( get_object_vars( wp_count_posts( 'feedback' ) ) );
 			if ( $contact_form_count > 0 ) {
@@ -135,6 +146,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
+		// Number of images in the library if Photon is active.
 		if ( Jetpack::is_module_active( 'photon' ) ) {
 			$photon_count = array_reduce(
 				get_object_vars( wp_count_attachments( array( 'image/jpeg', 'image/png', 'image/gif', 'image/bmp' ) ) ),
@@ -152,7 +164,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
-		// Fetch number of VideoPress videos on the site.
+		// Number of VideoPress videos on the site.
 		$videopress_attachments = wp_count_attachments( 'video/videopress' );
 		if (
 			isset( $videopress_attachments->{ 'video/videopress' } )
@@ -166,6 +178,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
+		// Number of active Publicize connections.
 		if ( Jetpack::is_module_active( 'publicize' ) && class_exists( 'Publicize' ) ) {
 			$publicize   = new Publicize();
 			$connections = $publicize->get_all_connections();
@@ -185,6 +198,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			}
 		}
 
+		// Total number of shares.
 		if ( null !== $stats && $stats->stats->shares > 0 ) {
 			$benefits[] = array(
 				'name'        => 'sharing',
@@ -194,12 +208,13 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-			return rest_ensure_response(
-				array(
-					'code'    => 'success',
-					'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
-					'data'    => wp_json_encode( $benefits ),
-				)
-			);
+		// Finally, return the whole list of benefits.
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Site benefits correctly received.', 'jetpack' ),
+				'data'    => wp_json_encode( $benefits ),
+			)
+		);
 	}
 }
