@@ -241,9 +241,10 @@ class ProStatus extends React.Component {
 						! this.props.isAkismetKeyValid &&
 						! this.props.fetchingAkismetData &&
 						active &&
-						installed
+						installed &&
+						! hasFree
 					) {
-						return this.getProActions( 'invalid_key', 'anti-spam' );
+						return this.getSetUpButton( feature );
 					}
 					break;
 			}
