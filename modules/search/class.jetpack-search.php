@@ -205,7 +205,7 @@ class Jetpack_Search {
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 				$_blog_id = Jetpack::get_option( 'id' );
-				//this is probably a temporary filter for testing the prototype
+				// This is probably a temporary filter for testing the prototype.
 				$options = [
 					'siteId' => $_blog_id,
 				];
