@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Bruteforce Login Protection: improve Network Activation detection on Multisite networks.
 * Dashboard: update all illustrations to use new color scheme.
 * Sharing / Publicize: add Open Graph Meta Tags to archive pages.
 * Sitemaps: reduce sitemap cache duration when using Jetpack's Development mode.
