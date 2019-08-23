@@ -132,6 +132,11 @@
 	&.toplevel_page_jetpack .jp-jetpack-connect__container {
 		.jp-connect-full__container {
 			display: block;
+			.jp-connect-full__step-header h2 {
+				@include breakpoint(large-phone) {
+					margin: 0;
+				};
+			}
 		}
 	}
 }
@@ -163,7 +168,7 @@
 		color: black;
 
 		@include breakpoint(large-phone) {
-			margin: 0;
+			margin-top: rem( 16px );
 		};
 	}
 
