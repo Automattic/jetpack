@@ -52,7 +52,7 @@ function scribd_shortcode_handler( $atts ) {
 function scribd_shortcode_markup( $atts ) {
 	$markup = <<<EOD
 <iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
-<div style="font-size:10px;text-align:center;width:100%"><a href="http://www.scribd.com/doc/$atts[id]" target="_blank">View this document on Scribd</a></div>
+<div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/$atts[id]" target="_blank">View this document on Scribd</a></div>
 EOD;
 
 	return $markup;

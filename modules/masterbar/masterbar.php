@@ -597,7 +597,7 @@ class A8C_WPCOM_Masterbar {
 
 		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
-		$user_info .= '<a class="username" href="http://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
+		$user_info .= '<a class="username" href="https://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
 
 		$user_info .= sprintf(
 			'<div><a href="%s" class="ab-sign-out">%s</a></div>',

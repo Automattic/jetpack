@@ -74,7 +74,7 @@ class Jetpack_Sitemap_Stylist {
 				'jetpack'
 			),
 			array(
-				1 => 'http://jetpack.com/',
+				1 => 'https://jetpack.com/',
 				2 => 'https://www.google.com/',
 				3 => 'https://www.bing.com/',
 			)
@@ -86,7 +86,7 @@ class Jetpack_Sitemap_Stylist {
 				'jetpack'
 			),
 			array(
-				1 => 'http://sitemaps.org',
+				1 => 'https://sitemaps.org',
 			)
 		);
 
@@ -186,7 +186,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://jetpack.com/',
+				1 => 'https://jetpack.com/',
 				2 => 'https://www.google.com/',
 				3 => 'https://www.bing.com/',
 			)
@@ -206,7 +206,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://sitemaps.org',
+				1 => 'https://sitemaps.org',
 			)
 		);
 
@@ -314,7 +314,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://jetpack.com/',
+				1 => 'https://jetpack.com/',
 				2 => 'https://www.google.com/',
 				3 => 'https://www.bing.com/',
 			)
@@ -326,7 +326,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://sitemaps.org',
+				1 => 'https://sitemaps.org',
 			)
 		);
 
@@ -454,7 +454,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://jetpack.com/',
+				1 => 'https://jetpack.com/',
 				2 => 'https://www.google.com/',
 				3 => 'https://www.bing.com/',
 			)
@@ -466,7 +466,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://sitemaps.org',
+				1 => 'https://sitemaps.org',
 			)
 		);
 
@@ -594,7 +594,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://jetpack.com/',
+				1 => 'https://jetpack.com/',
 				2 => 'https://www.google.com/',
 				3 => 'https://www.bing.com/',
 			)
@@ -606,7 +606,7 @@ XSL;
 				'jetpack'
 			),
 			array(
-				1 => 'http://sitemaps.org',
+				1 => 'https://sitemaps.org',
 			)
 		);
 
