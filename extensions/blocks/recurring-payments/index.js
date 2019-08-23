@@ -46,7 +46,7 @@ export const settings = {
 		},
 		align: {
 			type: 'string',
-			default: 'left',
+			default: 'center',
 		},
 	},
 	edit,
