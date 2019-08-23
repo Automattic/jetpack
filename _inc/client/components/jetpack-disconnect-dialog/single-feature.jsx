@@ -4,7 +4,7 @@
 import Gridicon from 'components/gridicon';
 import React from 'react';
 
-const SingleFeature = ( { title, description, gridIcon } ) => {
+const SingleFeature = ( { amount, description, gridIcon, title } ) => {
 	return (
 		<div className="jetpack-disconnect-dialog__feature">
 			<div className="jetpack-disconnect-dialog__feature-header">
@@ -12,7 +12,7 @@ const SingleFeature = ( { title, description, gridIcon } ) => {
 				<Gridicon icon={ gridIcon } />
 			</div>
 			<div className="jetpack-disconnect-dialog__feature-body">
-				{ /* <p className="jetpack-disconnect-dialog__feature-body-amount">{ amount }</p> */ }
+				<p className="jetpack-disconnect-dialog__feature-body-amount">{ amount }</p>
 				<p className="jetpack-disconnect-dialog__feature-body-description">{ description }</p>
 			</div>
 		</div>

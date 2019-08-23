@@ -69,10 +69,10 @@ const JetpackDisconnectDialogFeatures = ( {
 				<div className="jetpack-disconnect-dialog__features-list">
 					{ featurePlaceholders.map( ( { title, description, amount, gridIcon } ) => (
 						<SingleFeature
-							title={ title }
-							description={ description }
 							amount={ amount }
+							description={ description }
 							gridIcon={ gridIcon }
+							title={ title }
 						/>
 					) ) }
 				</div>

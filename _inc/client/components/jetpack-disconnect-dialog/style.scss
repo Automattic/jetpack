@@ -20,11 +20,11 @@
 
 .jetpack-disconnect-dialog__features-list {
 	position: relative;
-	left: calc( -0.5em );
+	left: calc( -1em );
 	display: flex;
 	flex-wrap: wrap;
 	// margins of the items will "hang off the side" invisibly
-	width: calc( 100% + 1em );
+	width: calc( 100% + 2em );
 }
 
 .jetpack-disconnect-dialog__feature {
@@ -32,10 +32,10 @@
 	border: 1px solid rgba( 213, 213, 213, 0.5 );
 	box-sizing: border-box;
 	box-shadow: 0px 1px 2px $gray-light;
-	width: calc( 100% - 1em );
-	margin: 0.5em;
+	width: calc( 100% - 2em );
+	margin: 1em;
 	@include breakpoint( '>660px' ) {
-		width: calc( 50% - 1em );
+		width: calc( 50% - 2em );
 	}
 }
 
@@ -63,6 +63,8 @@
 		font-weight: bold;
 		font-size: 24px;
 		line-height: 26px;
+		margin-top: 12px;
+		margin-bottom: 12px;
 	}
 }
 
