@@ -204,10 +204,23 @@ class Jetpack_Search {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
-				$_blog_id = Jetpack::get_option( 'id' );
+
+				$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
+				$widgets = array();
+				foreach( $filters as $key => $filter ) {
+					if ( ! isset( $widgets[$filter[ 'widget_id' ]] ) ) {
+						$widgets[$filter[ 'widget_id' ]][ 'filters' ] = array();
+						$widgets[$filter[ 'widget_id' ]][ 'widget_id' ] = $filter[ 'widget_id' ];
+					}
+					$new_filter = $filter;
+					$new_filter[ 'filter_id' ] = $key;
+					$widgets[$filter[ 'widget_id' ]][ 'filters' ][] = $new_filter;
+				}
+
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
-					'siteId' => $_blog_id,
+					'siteId'  => Jetpack::get_option( 'id' ),
+					'widgets' => array_values( $widgets ),
 				);
 				/**
 				 * Customize Instant Search Options.
@@ -221,9 +234,7 @@ class Jetpack_Search {
 				$options = apply_filters( 'jetpack_instant_search_options', $options );
 
 				wp_localize_script(
-					'jetpack-instant-search',
-					'jetpack_instant_search_options',
-					$options
+					'jetpack-instant-search', 'JetpackInstantSearchOptions', $options
 				);
 			}
 

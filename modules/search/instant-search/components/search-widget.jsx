@@ -47,7 +47,7 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( this.props.siteId, query )
+			search( this.props.siteId, query, this.props.widgets )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
