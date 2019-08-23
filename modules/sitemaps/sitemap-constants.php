@@ -27,7 +27,7 @@ if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
  * Maximum size (in bytes) of a sitemap xml file.
  * Max is 716800 = 700kb to avoid potential failures for default memcached limits (1MB)
  *
- * @link http://www.sitemaps.org/
+ * @link https://www.sitemaps.org/
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
@@ -38,7 +38,7 @@ if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
  * Maximum size (in url nodes) of a sitemap xml file.
  * Per the spec, max value is 50000.
  *
- * @link http://www.sitemaps.org/
+ * @link https://www.sitemaps.org/
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_ITEMS' ) ) {

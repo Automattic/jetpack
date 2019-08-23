@@ -184,7 +184,7 @@ class Jetpack_Protect_Module {
 				<a class="button-primary" href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>">
 					<?php esc_html_e( 'View Network Admin', 'jetpack' ); ?>
 				</a>
-				<a class="button" href="<?php echo esc_url( __( 'http://jetpack.com/support/multisite-protect', 'jetpack' ) ); ?>" target="_blank">
+				<a class="button" href="<?php echo esc_url( __( 'https://jetpack.com/support/multisite-protect', 'jetpack' ) ); ?>" target="_blank">
 					<?php esc_html_e( 'Learn More' ); ?>
 				</a>
 			</p>

@@ -1,7 +1,7 @@
 <?php
 /*
  * Site Logo.
- * @see http://jetpack.com/support/site-logo/
+ * @see https://jetpack.com/support/site-logo/
  *
  * This feature will only be activated for themes that declare their support.
  * This can be done by adding code similar to the following during the

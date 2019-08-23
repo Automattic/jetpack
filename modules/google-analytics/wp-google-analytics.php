@@ -20,7 +20,7 @@
 /**
  * Jetpack_Google_Analytics is the class that handles ALL of the plugin functionality.
  * It helps us avoid name collisions
- * http://codex.wordpress.org/Writing_a_Plugin#Avoiding_Function_Name_Collisions
+ * https://codex.wordpress.org/Writing_a_Plugin#Avoiding_Function_Name_Collisions
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

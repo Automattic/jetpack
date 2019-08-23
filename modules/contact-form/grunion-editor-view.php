@@ -5,7 +5,7 @@ use Automattic\Jetpack\Assets;
 /*
  * A prototype to allow inline editing / editor views for contact forms.\
  *
- * Originally developed in: http://github.com/automattic/gm2016-grunion-editor
+ * Originally developed in: https://github.com/automattic/gm2016-grunion-editor
  * Authors: Michael Arestad, Andrew Ozz, and George Stephanis
  */
 

@@ -5,9 +5,9 @@ use Automattic\Jetpack\Assets;
 /*
 Plugin Name: Grunion Contact Form
 Description: Add a contact form to any post, page or text widget.  Emails will be sent to the post's author by default, or any email address you choose.  As seen on WordPress.com.
-Plugin URI: http://automattic.com/#
+Plugin URI: https://automattic.com/#
 AUthor: Automattic, Inc.
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 Version: 2.4
 License: GPLv2 or later
 */
@@ -1406,7 +1406,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * Additionally, Excel exposes the ability to launch arbitrary commands through the DDE protocol.
 	 *
-	 * @see http://www.contextis.com/resources/blog/comma-separated-vulnerabilities/
+	 * @see https://www.contextis.com/en/blog/comma-separated-vulnerabilities
 	 *
 	 * @param string $field
 	 *

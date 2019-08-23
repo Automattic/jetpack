@@ -4,7 +4,7 @@ Plugin Name: Milestone
 Description: Countdown to a specific date.
 Version: 1.0
 Author: Automattic Inc.
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GPLv2 or later
 */
 
@@ -533,7 +533,7 @@ class Milestone_Widget extends WP_Widget {
 	 * Sanitize an instance of this widget.
 	 *
 	 * Date ranges match the documentation for mktime in the php manual.
-	 * @see http://php.net/manual/en/function.mktime.php#refsect1-function.mktime-parameters
+	 * @see https://php.net/manual/en/function.mktime.php#refsect1-function.mktime-parameters
 	 *
 	 * @uses Milestone_Widget::sanitize_range().
 	 */
