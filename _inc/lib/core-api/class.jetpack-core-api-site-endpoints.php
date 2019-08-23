@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * List of /site core REST API endpoints used in Jetpack's dashboard.
+ *
+ * @package Jetpack
+ */
 
 use Automattic\Jetpack\Connection\Client;
 
@@ -17,11 +22,11 @@ class Jetpack_Core_API_Site_Endpoint {
 	 */
 	public static function get_features() {
 
-		// Make the API request
+		// Make the API request.
 		$request  = sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
-		// Bail if there was an error or malformed response
+		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
 			return new WP_Error(
 				'failed_to_fetch_data',
@@ -30,10 +35,10 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-		// Decode the results
+		// Decode the results.
 		$results = json_decode( $response['body'], true );
 
-		// Bail if there were no results or plan details returned
+		// Bail if there were no results or plan details returned.
 		if ( ! is_array( $results ) ) {
 			return new WP_Error(
 				'failed_to_fetch_data',
@@ -121,7 +126,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) && class_exists( 'VaultPress' ) ) {
 			$vaultpress = new VaultPress();
 			if ( $vaultpress->is_registered() ) {
-				$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
+				$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
 					$benefits[] = array(
 						'name'        => 'jetpack-backup',
