@@ -39,5 +39,5 @@ function jetpack_repeat_visitor_block_render( $attributes, $content ) {
 	}
 
 	// return an empty div so that view script increments the visit counter in the cookie.
-	return '<div class="' . $classes . '"></div>';
+	return '<div class="' . esc_attr( $classes ) . '"></div>';
 }
