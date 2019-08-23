@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Contact Form: update the feedback post type capability to a valid value.
 * Image CDN: support the `medium_large` image sizes.
+* Related Posts: ensure Related Posts can be displayed when using the AMP plugin and Jetpack's Sharing feature.
 * Search: authenticated search requests will now display non-public content.
 * Stats: load RTL stylesheet for dashboard widget, to fix layout issues on RTL language sites.
 * WordPress.com API: fix API responses which contain malformed (non-UTF-8) data.
