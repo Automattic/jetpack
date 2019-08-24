@@ -21,7 +21,12 @@ class JetpackDisconnectDialog extends Component {
 		disconnectJetpack: PropTypes.func.isRequired,
 		siteId: PropTypes.number,
 		sitePlan: PropTypes.object,
+		showModalClose: PropTypes.bool,
 		location: PropTypes.string.isRequired,
+	};
+
+	static defaultProps = {
+		showModalClose: false,
 	};
 
 	constructor( props ) {
@@ -60,6 +65,7 @@ class JetpackDisconnectDialog extends Component {
 			<FeaturesContainer
 				onContinueButtonClick={ this.handleFeaturesContinueClick }
 				onCloseButtonClick={ this.props.closeDialog }
+				showModalClose={ this.props.showModalClose }
 			/>
 		);
 	}
@@ -73,6 +79,7 @@ class JetpackDisconnectDialog extends Component {
 				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
 				surveyAnswerId={ surveyAnswerId }
 				surveyAnswerText={ surveyAnswerText }
+				showModalClose={ this.props.showModalClose }
 			/>
 		);
 	}

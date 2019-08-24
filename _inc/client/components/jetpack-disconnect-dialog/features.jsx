@@ -3,6 +3,7 @@
  */
 import Button from 'components/button';
 import Card from 'components/card';
+import Gridicon from 'components/gridicon';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
@@ -22,6 +23,7 @@ const JetpackDisconnectDialogFeatures = ( {
 	/*siteBenefits,*/ onCloseButtonClick,
 	onContinueButtonClick,
 	siteName,
+	showModalClose,
 } ) => {
 	const featurePlaceholders = [
 		{
@@ -53,7 +55,18 @@ const JetpackDisconnectDialogFeatures = ( {
 	return (
 		<div className="jetpack-disconnect-dialog">
 			<Card>
-				<h1 className="jetpack-disconnect-dialog__header">{ __( 'Disable Jetpack' ) }</h1>
+				<div className="jetpack-disconnect-dialog__header">
+					<h1>{ __( 'Disable Jetpack' ) }</h1>
+					{ showModalClose ? (
+						<Gridicon
+							icon="cross"
+							// className="gsuite-stats-nudge__close-icon"
+							onClick={ onCloseButtonClick }
+						/>
+					) : (
+						''
+					) }
+				</div>
 			</Card>
 			<Card>
 				<p className="jetpack-disconnect-dialog__info">

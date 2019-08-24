@@ -8,9 +8,13 @@
 }
 
 .jetpack-disconnect-dialog__header {
-	margin: 0;
-	font-size: 28px;
-	line-height: 24px;
+	h1 {
+		margin: 0;
+		font-size: 28px;
+		line-height: 24px;
+	}
+	display: flex;
+	flex-direction: row;
 }
 
 .jetpack-disconnect-dialog__info {

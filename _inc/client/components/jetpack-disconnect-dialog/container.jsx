@@ -29,6 +29,7 @@ class JetpackDisconnectDialogContainer extends React.Component {
 		onCloseButtonClick: PropTypes.func,
 		onContinueButtonClick: PropTypes.func,
 		siteBenefits: PropTypes.object,
+		showModalClose: PropTypes.bool,
 	};
 
 	UNSAFE_componentWillMount() {
@@ -49,6 +50,7 @@ class JetpackDisconnectDialogContainer extends React.Component {
 					onContinueButtonClick={ this.props.onContinueButtonClick }
 					siteBenefits={ this.props.siteBenefits }
 					siteName={ this.props.siteName }
+					showModalClose={ this.props.showModalClose }
 				>
 					{ this.props.children }
 				</JetpackDisconnectFeatures>
