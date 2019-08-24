@@ -6301,10 +6301,10 @@ https-proxy-agent@^2.2.1:
     agent-base "^4.3.0"
     debug "^3.1.0"
 
-husky@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-2.3.0.tgz#8b78ed24d763042df7fd899991985d65a976dd13"
-  integrity sha512-A/ZQSEILoq+mQM3yC3RIBSaw1bYXdkKnyyKVSUiJl+iBjVZc5LQEXdGY1ZjrDxC4IzfRPiJ0IqzEQGCN5TQa/A==
+husky@2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-2.7.0.tgz#c0a9a6a3b51146224e11bba0b46bba546e461d05"
+  integrity sha512-LIi8zzT6PyFpcYKdvWRCn/8X+6SuG2TgYYMrM6ckEYhlp44UcEduVymZGIZNLiwOUjrEud+78w/AsAiqJA/kRg==
   dependencies:
     cosmiconfig "^5.2.0"
     execa "^1.0.0"
