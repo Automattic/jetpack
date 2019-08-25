@@ -735,7 +735,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user is able to change master user.
 	 */
 	public static function set_connection_owner_permission_callback() {
-		if ( get_current_user_id() === Jetpack_Options::get_option( 'master_user' ) ) {
+		if ( current_user_can( 'jetpack_connect' ) ) {
 			return true;
 		}
 
