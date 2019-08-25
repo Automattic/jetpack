@@ -731,6 +731,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Check that user has permission to change the master user.
 	 *
 	 * @since 6.2.0
+	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
 	 *
 	 * @return bool|WP_Error True if user is able to change master user.
 	 */
