@@ -528,6 +528,31 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Able to select by specific capability.
+	 *
+	 * @param string The capability of the user
+	 * @return array Array of WP_User objects if found.
+	 */
+	public function get_connected_users( $capability = 'any' ) {
+		$connected_users    = array();
+		$connected_user_ids = array_keys( \Jetpack_Options::get_option( 'user_tokens' ) );
+
+		if ( ! empty( $connected_user_ids ) ) {
+			foreach ( $connected_user_ids as $id ) {
+				// Check for capability
+				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
+					continue;
+				}
+
+				$connected_users[] = get_userdata( $id );
+			}
+		}
+
+		return $connected_users;
+	}
+
+	/**
 	 * Get the wpcom user data of the current|specified connected user.
 	 *
 	 * @todo Refactor to properly load the XMLRPC client independently.
@@ -560,6 +585,22 @@ class Manager implements Manager_Interface {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns a user object of the connection owner.
+	 *
+	 * @return object|false False if no connection owner found.
+	 */
+	public function get_connection_owner() {
+		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+
+		$connection_owner = false;
+		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
+			$connection_owner = get_userdata( $user_token->external_user_id );
+		}
+
+		return $connection_owner;
 	}
 
 	/**
