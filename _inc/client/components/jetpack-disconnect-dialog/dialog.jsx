@@ -43,8 +43,9 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	handleJetpackDisconnect() {
-		this.props.disconnectJetpack();
-		this.props.closeDialog();
+		// console.log( `surveyAnwserId: ${ this.state.surveyAnswerId }` );
+		// this.props.disconnectJetpack();
+		// this.props.closeDialog();
 	}
 
 	handleFeaturesContinueClick() {
