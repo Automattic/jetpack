@@ -262,11 +262,14 @@ class Jetpack_Connection_Banner {
 
 							<div class="jp-banner__button-container">
 								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
-								<a
+								<div class="jp-connect-full__button-container is-compact">
+									<a
 										href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
-										class="dops-button is-primary">
-									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-								</a>
+										class="dops-button is-primary jp-connect-button"
+									>
+										<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+									</a>
+								</div>
 							</div>
 
 						</div>
