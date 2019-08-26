@@ -200,7 +200,7 @@ class JITM {
 		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
 		echo '<p>' . sprintf(
 			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack' ),
-			isset( $connection_owner_userdata ) ? esc_html( $connection_owner_userdata->data->user_login ) : ''
+			is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : ''
 		) . '</p>';
 
 		if ( ! empty( $connected_admins ) && count( $connected_admins ) > 1 ) {
