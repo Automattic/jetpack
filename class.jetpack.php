@@ -2242,7 +2242,7 @@ class Jetpack {
 		);
 
 		Jetpack::state( 'message', 'modules_activated' );
-		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
+		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
 			$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
