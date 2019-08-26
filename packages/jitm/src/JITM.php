@@ -192,22 +192,9 @@ class JITM {
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
 		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
-		echo '<p>';
-		printf(
-			wp_kses(
-				__( "Warning! You are about to delete the Jetpack <a href='%1\$1s' target='_blank' rel='noopener noreferrer'>connection owner</a> (%2\$2s) for this site, which may affect some of your features.", 'jetpack' ),
-				array(
-					'a' => array(
-						'href'   => true,
-						'target' => true,
-						'rel'    => true,
-					),
-				)
-			),
-			'https://jetpack.com/support/primary-user/',
+		echo '<p>' . sprintf( esc_html__( "Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.", 'jetpack' ),
 			esc_html( $connection_owner->data->user_login )
-		);
-		echo '</p>';
+		) . '</p>';
 
 		if ( ! empty( $connected_users ) && count( $connected_users ) > 1 ) {
 			echo '<form id="jp-switch-connection-owner" action="" method="post">';
@@ -229,17 +216,6 @@ class JITM {
 			);
 
 			submit_button( __( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit' );
-
-			echo '<p>' . wp_kses(
-				__( 'As always, feel free to <a href="https://jetpack.com/contact-support" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
-				array(
-					'a' => array(
-						'href'   => true,
-						'target' => true,
-						'rel'    => true,
-					),
-				)
-			) . '</p>';
 
 			echo "<div id='jp-switch-user-results'></div>";
 			echo '</form>';
@@ -277,24 +253,37 @@ class JITM {
 			</script>
 			<?php
 		} else {
-			echo '<p><strong>' . esc_html__( 'If the site does not have a connection owner, some of your Jetpack features will stop working!', 'jetpack' ) . '</strong></p>';
-			echo '<p>';
-			printf(
-				wp_kses(
-					__( 'If you would like to be the new connection owner for this site, please connect to your WordPress.com account by clicking <a href="%s" target="_blank" rel="noopener noreferrer">this link</a>. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ),
-					array(
-						'a' => array(
-							'href'   => true,
-							'target' => true,
-							'rel'    => true,
-						),
-					)
-				),
-				\Jetpack::init()->build_connect_url( false, false, 'connection_owner_notice' )
-			);
-			echo '</p>';
+			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . "</p>";
+			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'connection_owner_notice' );
+			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to Wordpress.com' ) . "</a>";
 		}
 
+		echo '<p>';
+		printf(
+			wp_kses(
+				__( "<a href='%1$1s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+						'rel'    => true,
+					),
+				)
+			),
+			'https://jetpack.com/support/primary-user/',
+			esc_html( $connection_owner->data->user_login )
+		);
+		echo '</p>';
+		echo '<p>' . wp_kses(
+				__( 'As always, feel free to <a href="https://jetpack.com/contact-support" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+						'rel'    => true,
+					),
+				)
+			) . '</p>';
 		echo '</div>';
 	}
 
