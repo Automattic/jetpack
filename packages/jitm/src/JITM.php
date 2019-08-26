@@ -187,6 +187,11 @@ class JITM {
 			return;
 		}
 
+		// Bail if they're trying to delete themselves to avoid confusion.
+		if ( $connection_owner->ID == get_current_user_id() ) {
+			return;
+		}
+
 		$connection_manager = new Manager();
 		$connected_users    = $connection_manager->get_connected_users( 'jetpack_connect' );
 
@@ -237,7 +242,7 @@ class JITM {
 								'X-WP-Nonce': "<?php echo wp_create_nonce( 'wp_rest' ); ?>",
 							},
 							success: function() {
-								results.innerHTML = "Success! thank you.";
+								results.innerHTML = <?php esc_html_e( "Success!", 'jetpack' ); ?>;
 								setTimeout( function() {
 									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
 								}, 1000 );
