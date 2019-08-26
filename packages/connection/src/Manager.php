@@ -483,6 +483,20 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Checks to see if the connection owner of the site is missing.
+	 *
+	 * @return bool
+	 */
+	public function is_missing_connection_owner() {
+		$connection_owner = $this->get_connection_owner_id();
+		if ( ! get_user_by( 'id', $connection_owner ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
@@ -496,6 +510,21 @@ class Manager implements Manager_Interface {
 		}
 
 		return (bool) $this->get_access_token( $user_id );
+	}
+
+	/**
+	 * Returns the local user ID of the connection owner.
+	 *
+	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
+	 */
+	public function get_connection_owner_id() {
+		$user_token       = $this->get_access_token( JETPACK_MASTER_USER );
+		$connection_owner = false;
+		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
+			$connection_owner = $user_token->external_user_id;
+		}
+
+		return $connection_owner;
 	}
 
 	/**
