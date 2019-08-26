@@ -34,7 +34,7 @@ class Visitor extends NodeVisitorAbstract {
 			if ( $node->name instanceof Node\Expr\Variable ) {
 				$function_name = '$' . Utils::maybe_stringify( $node->name->name );
 			} elseif ( $node->name instanceof Node\Expr\ArrayDimFetch ) {
-				$function_name = '$' . Utils::maybe_stringify( $node->name->var->name ) . '[' . Utils::maybe_stringify( $node->name->dim->name ) . ']';
+				$function_name = '$' . Utils::maybe_stringify( $node->name->var->name ) . '[' . Utils::maybe_stringify( $node->name->dim->value ) . ']';
 			} else {
 				$function_name = implode( '\\', $node->name->parts );
 			}
