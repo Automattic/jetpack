@@ -4,12 +4,11 @@ jQuery( document ).ready( function( $ ) {
 	var connectButton = $( '.jp-connect-button' );
 	connectButton.click( function( event ) {
 		event.preventDefault();
-		console.log( jpConnect );
 		if ( ! jetpackConnectButton.isRegistering ) {
 			if ( 'original' === jpConnect.forceVariation ) {
 				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`.
 				jetpackConnectButton.handleOriginalFlow();
-			} else if ( 'iframe' === jpConnect.forceVariation ) {
+			} else if ( 'in_place' === jpConnect.forceVariation ) {
 				// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
 				jetpackConnectButton.handleConnectInPlaceFlow();
 			} else {
