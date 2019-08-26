@@ -39,8 +39,8 @@
 
 	&[disabled],
 	&:disabled {
-		background: tint( $blue-light, 50% );
-		border-color: tint( $blue-wordpress, 55% );
+		background: tint( $blue-medium, 40% );
+		border-color: tint( $blue-dark, 40% );
 		color: $white;
 	}
 }
