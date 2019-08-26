@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Bruteforce Login Protection: fix the display of the admin notice displayed on Multisite networks.
 * Contact Form: update the feedback post type capability to a valid value.
+* Dashboard: improve the layout of the Connection modal on mobile devices.
 * Image CDN: support the `medium_large` image sizes.
 * Related Posts: ensure Related Posts can be displayed when using the AMP plugin and Jetpack's Sharing feature.
 * Search: authenticated search requests will now display non-public content.
