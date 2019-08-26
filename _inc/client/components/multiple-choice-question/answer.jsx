@@ -80,20 +80,18 @@ class MultipleChoiceAnswer extends Component {
 					disabled={ disabled }
 				/>
 				<span>{ answerText }</span>
-				{ isSelected && (
-					<div className="multiple-choice-question__answer-item-content">
-						{ textInput && (
-							<FormTextInput
-								className="multiple-choice-question__answer-item-text-input"
-								value={ value }
-								onChange={ this.handleTextChange }
-								placeholder={ textInputPrompt ? textInputPrompt : '' }
-								disabled={ disabled }
-							/>
-						) }
-						{ children }
-					</div>
-				) }
+				<div className="multiple-choice-question__answer-item-content">
+					{ textInput && (
+						<FormTextInput
+							className="multiple-choice-question__answer-item-text-input"
+							value={ value }
+							onChange={ this.handleTextChange }
+							placeholder={ textInputPrompt ? textInputPrompt : '' }
+							disabled={ disabled }
+						/>
+					) }
+					{ children }
+				</div>
 			</FormLabel>
 		);
 	}

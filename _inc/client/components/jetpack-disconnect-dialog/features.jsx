@@ -53,7 +53,7 @@ const JetpackDisconnectDialogFeatures = ( {
 	];
 
 	return (
-		<div className="jetpack-disconnect-dialog">
+		<div className="jetpack-disconnect-dialog__features">
 			<Card>
 				<div className="jetpack-disconnect-dialog__header">
 					<h1>{ __( 'Disable Jetpack' ) }</h1>
@@ -102,10 +102,12 @@ const JetpackDisconnectDialogFeatures = ( {
 			<Card>
 				<div className="jetpack-disconnect-dialog__button-row">
 					<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
-					<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
-					<Button primary onClick={ onContinueButtonClick }>
-						{ __( 'Continue' ) }
-					</Button>
+					<div>
+						<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
+						<Button primary onClick={ onContinueButtonClick }>
+							{ __( 'Continue' ) }
+						</Button>
+					</div>
 				</div>
 			</Card>
 		</div>

@@ -41,12 +41,18 @@ const JetpackDisconnectDialogSurvey = ( {
 			<Card>
 				<MultiChoiceQuestion
 					answers={ answers }
-					question={ 'Please choose one of the following:' }
+					question={ __( "Please let us know why you're disabling Jetpack" ) }
+					subHeader={ __( 'Your feedback will help us improve the product.' ) }
 					onAnswerChange={ onSurveyAnswerChange }
 					selectedAnswerId={ surveyAnswerId }
 					selectedAnswerText={ surveyAnswerText }
 				/>
+			</Card>
+			<Card>
 				<div className="jetpack-disconnect-dialog__button-row">
+					<p>
+						{ __( 'Have a question?' ) } <a href="">{ __( " Let's Talk. " ) }</a>
+					</p>
 					<Button scary onClick={ onDisconnectButtonClick }>
 						{ __( 'Disconnect' ) }
 					</Button>
