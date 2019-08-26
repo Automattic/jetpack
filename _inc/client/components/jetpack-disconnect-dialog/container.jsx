@@ -21,12 +21,24 @@ function mapBenefitNameToGridicon( benefitName ) {
 	switch ( benefitName ) {
 		case 'contact-form':
 			return 'align-image-center';
+		case 'contact-form-feedback':
+			return 'mail';
+		case 'image-hosting':
+			return 'image';
+		case 'jetpack-backup':
+			return 'cloud-download';
+		case 'jetpack-stats':
+			return 'stats-alt';
 		case 'protect':
 			return 'lock';
 		case 'publicize':
 			return 'share';
+		case 'sharing':
+			return 'share';
 		case 'subscribers':
 			return 'user';
+		case 'video-hosting':
+			return 'video-camera';
 		default:
 			return 'checkmark';
 	}
