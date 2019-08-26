@@ -168,11 +168,6 @@ class JITM {
 			return;
 		}
 
-		// Get these from the URL params.
-		$user_ids = $_REQUEST['users'];
-
-		$deleting_connection_owner = false;
-
 		// Get connection owner or bail
 		$connection_manager = new Manager();
 		$connection_owner   = $connection_manager->get_connection_owner();
@@ -180,14 +175,9 @@ class JITM {
 			return;
 		}
 
-		// Are any of the users the connection owner?
-		foreach ( $user_ids as $user_id ) {
-			if ( $connection_owner->ID == $user_id ) {
-				$deleting_connection_owner = true;
-				break;
-			}
-		}
-
+		// Bail if we're not trying to delete connection owner.
+		$user_ids_to_delete        = $_REQUEST['users'];
+		$deleting_connection_owner = in_array( $connection_owner->ID, (array) $user_ids_to_delete );
 		if ( ! $deleting_connection_owner ) {
 			return;
 		}
@@ -224,11 +214,10 @@ class JITM {
 
 			submit_button( __( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit' );
 
-			_e( '<p>As always, feel free to <a href="https://jetpack.com/contact-support/?rel=support" target="_blank">contact our support team</a> if you have any questions.</p>', 'jetpack' );
+			_e( '<p>As always, feel free to <a href="https://jetpack.com/contact-support" target="_blank">contact our support team</a> if you have any questions.</p>', 'jetpack' );
 
 			echo "<div id='jp-switch-user-results'></div>";
 			echo '</form>';
-
 			?>
 			<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
@@ -266,7 +255,7 @@ class JITM {
 			_e( '<p>Unfortunately, there are no other connected admins to transfer the connection to.</p>', 'jetpack' );
 			printf(
 				__( '<p>If you would like to be the new connection owner for this site, please connect to your WordPress.com account by clicking <a href="%s" target="_blank">this link</a>. Once you connect, you may refresh this page to see an option to change the connection owner.</p>', 'jetpack' ),
-				\Jetpack::init()->build_connect_url( false, false, 'delete_user_page' )
+				\Jetpack::init()->build_connect_url( false, false, 'connection_owner_notice' )
 			);
 			_e( '<p>If the site does not have a connection owner, it will be disconnected from Jetpack servers.</p>', 'jetpack' );
 		}
