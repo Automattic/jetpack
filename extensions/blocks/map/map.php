@@ -27,26 +27,45 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 
-		$attr['api_key'] = $api_key;
-		$attr['content'] = $content;
+		// Get the original state.
+		$scripts_queue = wp_scripts()->queue;
+		$scripts_done  = wp_scripts()->done;
+		$styles_queue  = wp_styles()->queue;
+		$styles_done   = wp_styles()->done;
 
-		$attr = wp_json_encode( $attr );
-		$hmac = wp_hash( $attr );
+		// Empty out everything.
+		wp_scripts()->queue = [];
+		wp_scripts()->done  = [];
+		wp_styles()->queue  = [];
+		wp_styles()->done   = [];
 
-		$src = add_query_arg(
-			array(
-				'jetpack_map_block_attr' => rawurlencode( $attr ),
-				'jetpack_map_block_hmac' => rawurlencode( $hmac ),
-			),
-			home_url( '/' )
+		// Get what we need.
+		ob_start();
+		add_filter( 'jetpack_is_amp_request', '__return_false' );
+		Jetpack_Gutenberg::load_assets_as_required( 'map' );
+		wp_scripts()->do_items();
+		wp_styles()->do_items();
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$assets_html = ob_get_clean();
+
+		// Restore to the original state.
+		wp_scripts()->queue = $scripts_queue;
+		wp_scripts()->done  = $scripts_done;
+		wp_styles()->queue  = $styles_queue;
+		wp_styles()->done   = $styles_done;
+
+		$html = sprintf(
+			'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
+			$assets_html,
+			preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $api_key ) . '" ', $content, 1 )
 		);
 
 		$placeholder = preg_replace( '/(?<=<div\s)/', 'placeholder ', $content );
 
 		// @todo Is intrinsic size right? Is content_width the right dimensions?
 		return sprintf(
-			'<amp-iframe src="%s" width="%d" height="%d" layout="intrinsic" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
-			esc_url( $src ),
+			'<amp-iframe srcdoc="%s" width="%d" height="%d" layout="intrinsic" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
+			htmlspecialchars( $html ),
 			Jetpack::get_content_width(),
 			Jetpack::get_content_width(),
 			$placeholder
@@ -58,45 +77,3 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		return preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $api_key ) . '" ', $content, 1 );
 	}
 }
-
-/**
- * Render standalone document for a map block, for use inside an iframe (such as on an AMP page).
- */
-function jetpack_map_block_render_standalone() {
-	if ( ! isset( $_GET['jetpack_map_block_attr'] ) || ! isset( $_GET['jetpack_map_block_hmac'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-	$hmac = wp_unslash( $_GET['jetpack_map_block_hmac'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$attr = wp_unslash( $_GET['jetpack_map_block_attr'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( wp_hash( $attr ) !== $hmac ) {
-		wp_die( 'HMAC failure' );
-	}
-	$attr = json_decode( $attr, true );
-	if ( ! is_array( $attr ) ) {
-		wp_die( 'Parse error in jetpack_map_block JSON.' );
-	}
-	remove_theme_support( 'amp' ); // Prevent page from being served as AMP on standard-mode sites.
-	?>
-	<!DOCTYPE html>
-	<html>
-		<head>
-			<style>
-				html, body { margin: 0; padding: 0; }
-			</style>
-		</head>
-		<body>
-			<?php Jetpack_Gutenberg::load_assets_as_required( 'map' ); ?>
-			<?php
-			echo preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $attr['api_key'] ) . '" ', $attr['content'], 1 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			// @todo Are there non-required dependencies being added?
-			wp_styles()->do_items();
-			wp_scripts()->do_items();
-			?>
-		</body>
-	</html>
-	<?php
-	exit;
-
-}
-add_action( 'wp', 'jetpack_map_block_render_standalone', 0 );
