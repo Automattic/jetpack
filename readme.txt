@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: improve the creation process and display of maps inside the Contact Info Widget.
 * Widgets: add more RSS feed patterns to the Social Icons Widget.
 * Widgets: add new `jetpack_widget_authors_params` filter to the Authors widget, to allow site owners to customize the list of authors.
+* WordPress.com API: add option to manage Full Site Editing.
 * WordPress.com Interface: allow language to be changed even if `WPLANG` constant is defined.
 * WooCommerce Analytics: use core WordPress function to enqueue script asynchronously.
 
