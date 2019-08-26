@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Ads: make sure the Ad block generates ads that are compatible with the AMP plugin.
 * Image CDN: update the size of images used in AMP Stories when using the AMP plugin.
 * Responsive Videos: improve compatibility and avoid validation errors when using the AMP plugin.
 * WordPress.com API: avoid errors when used in combination with the Polylang plugin.
