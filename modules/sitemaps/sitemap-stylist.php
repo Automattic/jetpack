@@ -773,7 +773,7 @@ XSL;
 			border-bottom: none;
 		}
 
-		img.thumbnail {
+		img {
 			max-height: 100px;
 			max-width: 100px;
 		}
