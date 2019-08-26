@@ -17,6 +17,12 @@ class Jetpack_Admin {
 	static function init() {
 		if( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
+
+			// suppress wpadmin stuffs when rendering iframes
+			if( isset( $_GET['iframe_request'] ) && $_GET['iframe_request'] && ! defined( 'IFRAME_REQUEST') ) {
+				define( 'IFRAME_REQUEST', true );
+			}
+
 		}
 
 		if ( is_null( self::$instance ) ) {
