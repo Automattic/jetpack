@@ -160,11 +160,11 @@ class JITM {
 	function delete_user_update_connection_owner_notice() {
 		global $current_screen;
 
-		if ( 'users' !== $current_screen->base ) {
+		if ( ! isset( $current_screen->base ) || 'users' !== $current_screen->base ) {
 			return;
 		}
 
-		if ( 'delete' !== $_REQUEST['action'] ) {
+		if ( ! isset( $_REQUEST['action'] ) || 'delete' !== $_REQUEST['action'] ) {
 			return;
 		}
 
@@ -176,7 +176,12 @@ class JITM {
 		}
 
 		// Bail if we're not trying to delete connection owner.
-		$user_ids_to_delete        = $_REQUEST['users'];
+		$user_ids_to_delete = array();
+		if ( isset( $_REQUEST['users'] ) ) {
+			$user_ids_to_delete = $_REQUEST['users'];
+		} elseif ( isset( $_REQUEST['user'] ) ) {
+			$user_ids_to_delete[] = $_REQUEST['user'];
+		}
 		$deleting_connection_owner = in_array( $connection_owner->ID, (array) $user_ids_to_delete );
 		if ( ! $deleting_connection_owner ) {
 			return;
@@ -186,16 +191,27 @@ class JITM {
 		$connected_users    = $connection_manager->get_connected_users( 'jetpack_connect' );
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
-		_e( '<h2>Important notice about your Jetpack connection: </h2>', 'jetpack' );
+		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
+		echo '<p>';
 		printf(
-			__( "<p>Warning! You are about to delete the Jetpack <a href='%1\$1s' target='_blank'>connection owner</a> (%2\$2s) for this site, which may affect some of your features.</p>", 'jetpack' ),
+			wp_kses(
+				__( "Warning! You are about to delete the Jetpack <a href='%1\$1s' target='_blank' rel='noopener noreferrer'>connection owner</a> (%2\$2s) for this site, which may affect some of your features.", 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+						'rel'    => true,
+					),
+				)
+			),
 			'https://jetpack.com/support/primary-user/',
 			esc_html( $connection_owner->data->user_login )
 		);
+		echo '</p>';
 
 		if ( ! empty( $connected_users ) && count( $connected_users ) > 1 ) {
 			echo '<form id="jp-switch-connection-owner" action="" method="post">';
-			echo "<label for='owner'>" . __( 'You can choose to transfer connection ownership to one of these already-connected admins: ', 'jetpack' ) . '</label>';
+			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins: ', 'jetpack' ) . '</label>';
 
 			$connected_user_ids = array_map(
 				function( $connected_user ) {
@@ -214,7 +230,16 @@ class JITM {
 
 			submit_button( __( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit' );
 
-			_e( '<p>As always, feel free to <a href="https://jetpack.com/contact-support" target="_blank">contact our support team</a> if you have any questions.</p>', 'jetpack' );
+			echo '<p>' . wp_kses(
+				__( 'As always, feel free to <a href="https://jetpack.com/contact-support" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+						'rel'    => true,
+					),
+				)
+			) . '</p>';
 
 			echo "<div id='jp-switch-user-results'></div>";
 			echo '</form>';
@@ -222,9 +247,9 @@ class JITM {
 			<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
 					$( '#jp-switch-connection-owner' ).on( 'submit', function( e ) {
-						const formData = $( this ).serialize();
-						const submitBtn = document.getElementById( 'jp-switch-connection-owner-submit' );
-						const results = document.getElementById( 'jp-switch-user-results' );
+						var formData = $( this ).serialize();
+						var submitBtn = document.getElementById( 'jp-switch-connection-owner-submit' );
+						var results = document.getElementById( 'jp-switch-user-results' );
 
 						submitBtn.disabled = true;
 
@@ -252,12 +277,22 @@ class JITM {
 			</script>
 			<?php
 		} else {
-			_e( '<p>Unfortunately, there are no other connected admins to transfer the connection to.</p>', 'jetpack' );
+			echo '<p><strong>' . esc_html__( 'If the site does not have a connection owner, some of your Jetpack features will stop working!', 'jetpack' ) . '</strong></p>';
+			echo '<p>';
 			printf(
-				__( '<p>If you would like to be the new connection owner for this site, please connect to your WordPress.com account by clicking <a href="%s" target="_blank">this link</a>. Once you connect, you may refresh this page to see an option to change the connection owner.</p>', 'jetpack' ),
+				wp_kses(
+					__( 'If you would like to be the new connection owner for this site, please connect to your WordPress.com account by clicking <a href="%s" target="_blank" rel="noopener noreferrer">this link</a>. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href'   => true,
+							'target' => true,
+							'rel'    => true,
+						),
+					)
+				),
 				\Jetpack::init()->build_connect_url( false, false, 'connection_owner_notice' )
 			);
-			_e( '<p>If the site does not have a connection owner, it will be disconnected from Jetpack servers.</p>', 'jetpack' );
+			echo '</p>';
 		}
 
 		echo '</div>';
