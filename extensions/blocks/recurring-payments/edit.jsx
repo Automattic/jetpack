@@ -19,7 +19,7 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, BlockIcon } from '@wordpress/editor';
+import { InspectorControls } from '@wordpress/editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
@@ -358,7 +358,7 @@ class MembershipsButtonEdit extends Component {
 				{ this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
+							icon={ icon }
 							label={ __( 'Recurring Payments', 'jetpack' ) }
 							notices={ notices }
 						>
@@ -380,7 +380,7 @@ class MembershipsButtonEdit extends Component {
 				{ ( connected === API_STATE_LOADING ||
 					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
 					! this.props.attributes.planId && (
-						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
+						<Placeholder icon={ icon } notices={ notices }>
 							<Spinner />
 						</Placeholder>
 					) }
@@ -389,7 +389,7 @@ class MembershipsButtonEdit extends Component {
 					connected === API_STATE_NOTCONNECTED && (
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
+								icon={ icon }
 								label={ __( 'Recurring Payments', 'jetpack' ) }
 								notices={ notices }
 							>
@@ -418,7 +418,7 @@ class MembershipsButtonEdit extends Component {
 					products.length === 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
+								icon={ icon }
 								label={ __( 'Recurring Payments', 'jetpack' ) }
 								notices={ notices }
 							>
@@ -437,7 +437,7 @@ class MembershipsButtonEdit extends Component {
 					products.length > 0 && (
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
-								icon={ <BlockIcon icon={ icon } /> }
+								icon={ icon }
 								label={ __( 'Recurring Payments', 'jetpack' ) }
 								notices={ notices }
 							>
