@@ -233,11 +233,8 @@ class Jetpack_Twitter_Cards {
             trim( get_option( 'twitter_via' ) ) :
             Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' );
 		if ( empty( $site_tag ) ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				return 'wordpressdotcom';
-			} else {
-				return;
-			}
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			return apply_filters( 'jetpack_sharing_twitter_via', '', null );
 		}
 		return $site_tag;
 	}
