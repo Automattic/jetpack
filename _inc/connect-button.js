@@ -1,15 +1,15 @@
-/* global _jpConnect */
+/* global jpConnect */
 
 jQuery( document ).ready( function( $ ) {
-	var jpConnect = _jpConnect._;
 	var connectButton = $( '.jp-connect-button' );
 	connectButton.click( function( event ) {
 		event.preventDefault();
+		console.log( jpConnect );
 		if ( ! jetpackConnectButton.isRegistering ) {
-			if ( jpConnect.forceConnectInPlace === false ) {
+			if ( 'original' === jpConnect.forceVariation ) {
 				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`.
 				jetpackConnectButton.handleOriginalFlow();
-			} else if ( jpConnect.forceConnectInPlace === true ) {
+			} else if ( 'iframe' === jpConnect.forceVariation ) {
 				// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
 				jetpackConnectButton.handleConnectInPlaceFlow();
 			} else {
