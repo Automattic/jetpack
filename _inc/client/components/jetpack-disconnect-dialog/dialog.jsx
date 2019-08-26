@@ -46,7 +46,7 @@ class JetpackDisconnectDialog extends Component {
 	handleJetpackDisconnect() {
 		const { siteId, sitePlan } = this.props;
 		const { surveyAnswerId, surveyAnswerText } = this.state;
-		submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText );
+		this.props.submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText );
 		// this.props.disconnectJetpack();
 		// this.props.closeDialog();
 	}
@@ -97,7 +97,14 @@ class JetpackDisconnectDialog extends Component {
 	}
 }
 
-export default connect( state => ( {
-	siteId: getSiteID( state ),
-	sitePlan: getSitePlan( state ),
-} ) )( JetpackDisconnectDialog );
+export default connect(
+	state => (
+		{
+			siteId: getSiteID( state ),
+			sitePlan: getSitePlan( state ),
+		},
+		{
+			submitSurvey,
+		}
+	)
+)( JetpackDisconnectDialog );
