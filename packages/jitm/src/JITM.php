@@ -203,7 +203,7 @@ class JITM {
 
 		if ( ! empty( $connected_users ) && count( $connected_users ) > 1 ) {
 			echo '<form id="jp-switch-connection-owner" action="" method="post">';
-			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins: ', 'jetpack' ) . '</label>';
+			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack' ) . ' </label>';
 
 			$connected_user_ids = array_map(
 				function( $connected_user ) {
@@ -220,7 +220,10 @@ class JITM {
 				)
 			);
 
-			submit_button( __( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit' );
+			echo "<p>";
+			submit_button( esc_html__( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit', false );
+			echo "</p>";
+
 
 			echo "<div id='jp-switch-user-results'></div>";
 			echo '</form>';
@@ -242,7 +245,7 @@ class JITM {
 								'X-WP-Nonce': "<?php echo wp_create_nonce( 'wp_rest' ); ?>",
 							},
 							success: function() {
-								results.innerHTML = <?php esc_html_e( "Success!", 'jetpack' ); ?>;
+								results.innerHTML = "<?php esc_html_e( "Success!", 'jetpack' ); ?>";
 								setTimeout( function() {
 									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
 								}, 1000 );
@@ -266,7 +269,7 @@ class JITM {
 		echo '<p>';
 		printf(
 			wp_kses(
-				__( "<a href='%1$1s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
+				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
 				array(
 					'a' => array(
 						'href'   => true,
@@ -275,12 +278,13 @@ class JITM {
 					),
 				)
 			),
-			'https://jetpack.com/support/primary-user/',
-			esc_html( $connection_owner->data->user_login )
+			'https://jetpack.com/support/primary-user/'
 		);
 		echo '</p>';
-		echo '<p>' . wp_kses(
-				__( 'As always, feel free to <a href="https://jetpack.com/contact-support" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
+		echo '<p>';
+		printf(
+			wp_kses(
+				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
 				array(
 					'a' => array(
 						'href'   => true,
@@ -288,7 +292,10 @@ class JITM {
 						'rel'    => true,
 					),
 				)
-			) . '</p>';
+			),
+			'https://jetpack.com/contact-support'
+		);
+		echo "</p>";
 		echo '</div>';
 	}
 
