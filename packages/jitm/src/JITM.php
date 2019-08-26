@@ -169,11 +169,12 @@ class JITM {
 		}
 
 		// Get connection owner or bail
-		$connection_manager = new Manager();
-		$connection_owner   = $connection_manager->get_connection_owner();
-		if ( ! $connection_owner ) {
+		$connection_manager  = new Manager();
+		$connection_owner_id = $connection_manager->get_connection_owner_id();
+		if ( ! $connection_owner_id ) {
 			return;
 		}
+		$connection_owner_userdata = get_userdata( $connection_owner_id );
 
 		// Bail if we're not trying to delete connection owner.
 		$user_ids_to_delete = array();
@@ -182,13 +183,13 @@ class JITM {
 		} elseif ( isset( $_REQUEST['user'] ) ) {
 			$user_ids_to_delete[] = $_REQUEST['user'];
 		}
-		$deleting_connection_owner = in_array( $connection_owner->ID, (array) $user_ids_to_delete );
+		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete );
 		if ( ! $deleting_connection_owner ) {
 			return;
 		}
 
 		// Bail if they're trying to delete themselves to avoid confusion.
-		if ( $connection_owner->ID == get_current_user_id() ) {
+		if ( $connection_owner_id == get_current_user_id() ) {
 			return;
 		}
 
@@ -199,7 +200,7 @@ class JITM {
 		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
 		echo '<p>' . sprintf(
 			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack' ),
-			esc_html( $connection_owner->data->user_login )
+			isset( $connection_owner_userdata ) ? esc_html( $connection_owner_userdata->data->user_login ) : ''
 		) . '</p>';
 
 		if ( ! empty( $connected_admins ) && count( $connected_admins ) > 1 ) {
