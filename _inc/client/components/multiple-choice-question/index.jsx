@@ -77,8 +77,8 @@ class MultipleChoiceQuestion extends Component {
 
 		return (
 			<FormFieldset className="multiple-choice-question">
-				<h2>{ question }</h2>
-				{ subHeader && <h3>{ subHeader }</h3> }
+				<h2 className="multiple-choice-question__question">{ question }</h2>
+				{ subHeader && <h3 className="multiple-choice-question__subheader">{ subHeader }</h3> }
 				{ shuffledAnswers.map( answer => (
 					<MultipleChoiceAnswer
 						key={ answer.id }

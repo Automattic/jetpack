@@ -6,6 +6,12 @@
 	.dops-card {
 		margin: 0;
 	}
+
+	// dops-card pasdding is enough
+	.multiple-choice-question__question {
+		margin-top: 0;
+	}
+
 }
 
 .jetpack-disconnect-dialog__header {
@@ -24,6 +30,8 @@
 .jetpack-disconnect-dialog__info {
 	font-size: 16px;
 	line-height: 24px;
+	// dops-card padding is enough
+	margin-top: 0;
 }
 
 .jetpack-disconnect-dialog__features-list {
