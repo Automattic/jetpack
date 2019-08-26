@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Anti-spam: improve the flow to configure Akismet from Jetpack's Dashboard.
 * Bruteforce Login Protection: improve Network Activation detection on Multisite networks.
 * Dashboard: update all illustrations to use new color scheme.
+* General: use HTTPS URLs when linking to external sites when possible.
 * Sharing / Publicize: add Open Graph Meta Tags to archive pages.
 * Sitemaps: reduce sitemap cache duration when using Jetpack's Development mode.
 * Social menus: replace the outdated Medium icon with updated logo.
