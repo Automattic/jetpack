@@ -44,3 +44,9 @@
 		color: $white;
 	}
 }
+
+.jp-connect-full__button-container.is-compact {
+	.jp-jetpack-connect__iframe {
+		margin-left: -40px;
+	}
+}
