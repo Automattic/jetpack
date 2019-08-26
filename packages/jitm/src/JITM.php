@@ -263,7 +263,7 @@ class JITM {
 		} else {
 			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . "</p>";
 			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'connection_owner_notice' );
-			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to Wordpress.com' ) . "</a>";
+			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . "</a>";
 		}
 
 		echo '<p>';
