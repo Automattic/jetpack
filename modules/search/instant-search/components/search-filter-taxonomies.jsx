@@ -14,22 +14,19 @@ export default class SearchFilterTaxonomies extends Component {
 				<ul className="jetpack-search-filters-widget__filter-list">
 					{ this.props.aggregation &&
 						'buckets' in this.props.aggregation &&
-						this.props.aggregation.buckets
-							// TODO: Remove this filter; API should only be sending buckets with document counts.
-							.filter( bucket => !! bucket && bucket.doc_count > 0 )
-							.map( bucket => (
-								<div>
-									<input
-										disabled
-										id={ `jp-instant-search-filter-taxonomies-${ bucket.key }` }
-										name={ bucket.key }
-										type="checkbox"
-									/>
-									<label htmlFor={ `jp-instant-search-filter-taxonomies-${ bucket.key }` }>
-										{ strip( bucket.key ) } ({ bucket.doc_count })
-									</label>
-								</div>
-							) ) }
+						this.props.aggregation.buckets.map( bucket => (
+							<div>
+								<input
+									disabled
+									id={ `jp-instant-search-filter-taxonomies-${ bucket.key }` }
+									name={ bucket.key }
+									type="checkbox"
+								/>
+								<label htmlFor={ `jp-instant-search-filter-taxonomies-${ bucket.key }` }>
+									{ strip( bucket.key ) } ({ bucket.doc_count })
+								</label>
+							</div>
+						) ) }
 				</ul>
 			</div>
 		);
