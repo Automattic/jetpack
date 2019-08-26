@@ -15,13 +15,6 @@
 
 	.jp-banner__button-container {
 		padding: rem( 32px ) 0 0;
-		flex-direction: row-reverse;
-		align-items: center;
-		justify-content: flex-end;
-
-		@include minbreakpoint(phablet) {
-			display: flex;
-		}
 	}
 
 	.jp-banner__tos-blurb {
@@ -30,9 +23,6 @@
 		line-height: 1.5;
 		font-size: rem( 11px );
 		color: $gray-dark;
-		@include minbreakpoint(phablet) {
-			margin-left: rem(18px);
-		}
 
 		a {
 			color: inherit;
