@@ -85,8 +85,8 @@ module.exports = [
 		performance: isDevelopment
 			? {}
 			: {
-					maxAssetSize: 30000,
-					maxEntrypointSize: 30000,
+					maxAssetSize: 35000,
+					maxEntrypointSize: 35000,
 					hints: 'error',
 			  },
 	},
