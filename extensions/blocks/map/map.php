@@ -82,8 +82,6 @@ function jetpack_map_block_render_standalone() {
 		<head>
 			<style>
 				html, body { margin: 0; padding: 0; }
-				/* @todo Map Box isn't actually stretching to the bottom of the div here.  */
-				body > div { position: absolute; top: 0; bottom: 0; left: 0; right: 0; }
 			</style>
 		</head>
 		<body>
