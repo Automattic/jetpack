@@ -187,6 +187,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return current_user_can( $role );
 	}
 
+	function is_fse_active() {
+		$fse_enabled = Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' );
+		$has_method  = method_exists( '\A8C\FSE\Full_Site_Editing', 'is_supported_theme' );
+		if ( $fse_enabled && $has_method ) {
+			$fse  = \A8C\FSE\Full_Site_Editing::get_instance();
+			$slug = get_option( 'stylesheet' );
+			return $fse->is_supported_theme( $slug );
+		}
+		return false;
+	}
+
 	/**
 	 * Post functions
 	 */
