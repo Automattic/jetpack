@@ -60,7 +60,7 @@ const JetpackDisconnectDialogFeatures = ( {
 					{ showModalClose && (
 						<Gridicon
 							icon="cross"
-							// className="gsuite-stats-nudge__close-icon"
+							className="jetpack-disconnect-dialog__close-icon"
 							onClick={ onCloseButtonClick }
 						/>
 					) }
