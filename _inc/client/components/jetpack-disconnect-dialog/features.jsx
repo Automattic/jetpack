@@ -20,12 +20,14 @@ import SingleFeature from './single-feature';
 import './style.scss';
 
 const JetpackDisconnectDialogFeatures = ( {
-	/*siteBenefits,*/ onCloseButtonClick,
+	siteBenefits,
+	onCloseButtonClick,
 	onContinueButtonClick,
 	siteName,
 	showModalClose,
 } ) => {
-	const featurePlaceholders = [
+	// TODO: remove test data before merging
+	siteBenefits = siteBenefits.concat( [
 		{
 			title: 'Brute Force Protection',
 			description: 'The number of malicious login attempts blocked by Jetpack.',
@@ -50,7 +52,7 @@ const JetpackDisconnectDialogFeatures = ( {
 			amount: 4200,
 			gridIcon: 'user',
 		},
-	];
+	] );
 
 	return (
 		<div className="jetpack-disconnect-dialog__features">
@@ -78,7 +80,7 @@ const JetpackDisconnectDialogFeatures = ( {
 					) }
 				</p>
 				<div className="jetpack-disconnect-dialog__features-list">
-					{ featurePlaceholders.map( ( { title, description, amount, gridIcon } ) => (
+					{ siteBenefits.map( ( { title, description, amount, gridIcon } ) => (
 						<SingleFeature
 							amount={ amount }
 							description={ description }

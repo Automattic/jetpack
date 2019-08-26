@@ -127,7 +127,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			$vaultpress = new VaultPress();
 			if ( $vaultpress->is_registered() ) {
 				$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-				if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
+				if ( $data->features->backups && ! empty( $data->backups->stats ) && $data->backups->stats->revisions > 0 ) {
 					$benefits[] = array(
 						'name'        => 'jetpack-backup',
 						'title'       => esc_html__( 'Jetpack Backup', 'jetpack' ),
