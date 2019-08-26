@@ -49,12 +49,14 @@ class MultipleChoiceAnswer extends Component {
 		onAnswerChange( id, textResponse );
 	}
 
-	handleTextChange( target ) {
+	handleTextChange( event ) {
 		const {
 			onAnswerChange,
 			answer: { id },
 		} = this.props;
-		const { value } = target;
+		const {
+			target: { value },
+		} = event;
 
 		onAnswerChange( id, value );
 		this.setState( {

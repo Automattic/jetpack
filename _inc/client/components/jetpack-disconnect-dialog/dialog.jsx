@@ -11,6 +11,7 @@ import React, { Component } from 'react';
 import FeaturesContainer from './container';
 import { getSiteID, getSitePlan } from 'state/site';
 import Survey from './survey';
+import { submitSurvey } from 'state/survey/actions';
 
 const JETPACK_DISCONNECT_INITIAL_STEP = 'jetpack_disconnect_initial_step';
 const JETPACK_DISCONNECT_SURVEY_STEP = 'jetpack_disconnect_survey_step';
@@ -43,7 +44,9 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	handleJetpackDisconnect() {
-		// console.log( `surveyAnwserId: ${ this.state.surveyAnswerId }` );
+		const { siteId, sitePlan } = this.props;
+		const { surveyAnswerId, surveyAnswerText } = this.state;
+		submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText );
 		// this.props.disconnectJetpack();
 		// this.props.closeDialog();
 	}
