@@ -153,12 +153,14 @@ class Jetpack_Connection_Banner {
 			'jetpack-connect-button',
 			'jpConnect',
 			array(
-				'apiBaseUrl'            => site_url( '/wp-json/jetpack/v4' ),
-				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
-				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
-				'forceConnectInPlace'   => Constants::get_constant( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ),
+				'details' => array(
+					'apiBaseUrl'            => site_url( '/wp-json/jetpack/v4' ),
+					'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
+					'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+					'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
+					'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
+					'forceConnectInPlace'   => Constants::get_constant( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ),
+				)
 			)
 		);
 	}
