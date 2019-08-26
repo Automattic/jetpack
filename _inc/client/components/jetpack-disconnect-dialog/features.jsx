@@ -57,14 +57,12 @@ const JetpackDisconnectDialogFeatures = ( {
 			<Card>
 				<div className="jetpack-disconnect-dialog__header">
 					<h1>{ __( 'Disable Jetpack' ) }</h1>
-					{ showModalClose ? (
+					{ showModalClose && (
 						<Gridicon
 							icon="cross"
 							// className="gsuite-stats-nudge__close-icon"
 							onClick={ onCloseButtonClick }
 						/>
-					) : (
-						''
 					) }
 				</div>
 			</Card>

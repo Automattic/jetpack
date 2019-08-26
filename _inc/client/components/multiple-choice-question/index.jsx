@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MultipleChoiceAnswer from './answer';
-import { FormFieldset, FormLegend } from 'components/forms';
+import { FormFieldset } from 'components/forms';
 
 /**
  * Style dependencies
@@ -42,6 +42,7 @@ class MultipleChoiceQuestion extends Component {
 		question: PropTypes.string.isRequired,
 		selectedAnswerId: PropTypes.string,
 		selectedAnswerText: PropTypes.string,
+		subHeader: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -68,7 +69,7 @@ class MultipleChoiceQuestion extends Component {
 	}
 
 	render() {
-		const { disabled, answers, question, selectedAnswerText } = this.props;
+		const { disabled, answers, question, selectedAnswerText, subHeader } = this.props;
 
 		const { selectedAnswerId } = this.state;
 
@@ -76,7 +77,8 @@ class MultipleChoiceQuestion extends Component {
 
 		return (
 			<FormFieldset className="multiple-choice-question">
-				<FormLegend>{ question }</FormLegend>
+				<h2>{ question }</h2>
+				{ subHeader && <h3>{ subHeader }</h3> }
 				{ shuffledAnswers.map( answer => (
 					<MultipleChoiceAnswer
 						key={ answer.id }

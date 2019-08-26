@@ -3,6 +3,7 @@
  */
 import Button from 'components/button';
 import Card from 'components/card';
+import Gridicon from 'components/gridicon';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
@@ -28,15 +29,26 @@ const answers = [
 ];
 
 const JetpackDisconnectDialogSurvey = ( {
+	onCloseButtonClick,
 	onDisconnectButtonClick,
 	onSurveyAnswerChange,
+	showModalClose,
 	surveyAnswerId,
 	surveyAnswerText,
 } ) => {
 	return (
 		<div className="jetpack-disconnect-dialog__survey">
 			<Card>
-				<h1 className="jetpack-disconnect-dialog__header">{ __( 'Disable Jetpack' ) }</h1>
+				<div className="jetpack-disconnect-dialog__header">
+					<h1>{ __( 'Disable Jetpack' ) }</h1>
+					{ showModalClose && (
+						<Gridicon
+							icon="cross"
+							// className="gsuite-stats-nudge__close-icon"
+							onClick={ onCloseButtonClick }
+						/>
+					) }
+				</div>
 			</Card>
 			<Card>
 				<MultiChoiceQuestion

@@ -75,6 +75,7 @@ class JetpackDisconnectDialog extends Component {
 
 		return (
 			<Survey
+				onCloseButtonClick={ this.props.closeDialog }
 				onDisconnectButtonClick={ this.handleJetpackDisconnect }
 				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
 				surveyAnswerId={ surveyAnswerId }
