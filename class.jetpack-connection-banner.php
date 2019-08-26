@@ -1,8 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Abtest;
-use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
 
 class Jetpack_Connection_Banner {
@@ -27,14 +26,7 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
-
-		$abtest = new Abtest();
-		if (
-			'in_place' === $abtest->get_variation( 'jetpack_connect_in_place' ) ||
-			Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' )
-		) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
-		}
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
 	}
 
 	/**
@@ -157,6 +149,15 @@ class Jetpack_Connection_Banner {
 		);
 
 		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
+
+		if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			$force_variation = 'in_place';
+		} else if ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			$force_variation = 'original';
+		} else {
+			$force_variation = null;
+		}
+
 		wp_localize_script(
 			'jetpack-connect-button',
 			'jpConnect',
@@ -166,6 +167,7 @@ class Jetpack_Connection_Banner {
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
+				'forceVariation'        => $force_variation,
 			)
 		);
 	}

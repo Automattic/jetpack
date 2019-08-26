@@ -5,14 +5,41 @@ jQuery( document ).ready( function( $ ) {
 	connectButton.click( function( event ) {
 		event.preventDefault();
 		if ( ! jetpackConnectButton.isRegistering ) {
-			jetpackConnectButton.handleClick();
+			if ( 'original' === jpConnect.forceVariation ) {
+				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`.
+				jetpackConnectButton.handleOriginalFlow();
+			} else if ( 'in_place' === jpConnect.forceVariation ) {
+				// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
+				jetpackConnectButton.handleConnectInPlaceFlow();
+			} else {
+				// Forcing A/B test driven connection flow variation, `JETPACK_SHOULD_USE_CONNECTION_IFRAME` not defined.
+				jetpackConnectButton.startConnectionFlow();
+			}
 		}
 	} );
 	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
 
 	var jetpackConnectButton = {
 		isRegistering: false,
-		handleClick: function() {
+		startConnectionFlow: function() {
+			var abTestName = 'jetpack_connect_in_place';
+			$.ajax( {
+				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
+				type: 'GET',
+				error: jetpackConnectButton.handleConnectionError,
+				success: function( data ) {
+					if ( data && 'in_place' === data.variation ) {
+						jetpackConnectButton.handleConnectInPlaceFlow();
+						return;
+					}
+					jetpackConnectButton.handleOriginalFlow();
+				},
+			} );
+		},
+		handleOriginalFlow: function() {
+			window.location = connectButton.attr( 'href' );
+		},
+		handleConnectInPlaceFlow: function() {
 			jetpackConnectButton.isRegistering = true;
 			connectButton
 				.text( jpConnect.buttonTextRegistering )
@@ -25,11 +52,7 @@ jQuery( document ).ready( function( $ ) {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
 				},
-				error: function( error ) {
-					console.warn( 'Connection failed. Falling back to the regular flow', error );
-					jetpackConnectButton.isRegistering = false;
-					window.location = connectButton.attr( 'href' );
-				},
+				error: jetpackConnectButton.handleConnectionError,
 				success: function( data ) {
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );
 					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
@@ -50,6 +73,11 @@ jQuery( document ).ready( function( $ ) {
 		handleAuthorizationComplete: function() {
 			jetpackConnectButton.isRegistering = false;
 			location.reload();
+		},
+		handleConnectionError: function( error ) {
+			console.warn( 'Connection failed. Falling back to the regular flow', error );
+			jetpackConnectButton.isRegistering = false;
+			jetpackConnectButton.handleOriginalFlow();
 		},
 	};
 } );
