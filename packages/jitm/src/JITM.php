@@ -217,7 +217,7 @@ class JITM {
 			wp_dropdown_users(
 				array(
 					'name'    => 'owner',
-					'include' => array_diff( $connected_admin_ids, array( $connection_owner->ID ) ),
+					'include' => array_diff( $connected_admin_ids, array( $connection_owner_id ) ),
 					'show'    => 'display_name_with_login',
 				)
 			);
