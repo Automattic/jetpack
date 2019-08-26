@@ -1,7 +1,7 @@
-/* global jpConnect */
+/* global _jpConnect */
 
 jQuery( document ).ready( function( $ ) {
-	var jpConnect = jpConnect.details;
+	var jpConnect = _jpConnect._;
 	var connectButton = $( '.jp-connect-button' );
 	connectButton.click( function( event ) {
 		event.preventDefault();
