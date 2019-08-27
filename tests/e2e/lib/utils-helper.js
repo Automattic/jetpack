@@ -14,3 +14,13 @@ export function execShellCommand( cmd ) {
 		} );
 	} );
 }
+
+export async function getNgrokSiteUrl() {
+	const cmd =
+		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
+	console.log( 'getNgrokSiteUrl' );
+	const out = await execShellCommand( cmd );
+
+	console.log( out );
+	return out;
+}

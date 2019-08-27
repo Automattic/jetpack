@@ -152,6 +152,7 @@ reset_wp() {
 	echo "Resetting WordPress"
 	wp --path=$WP_CORE_DIR db reset --yes
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
+	install_ngrok
 	start_ngrok
 	echo $WP_SITE_URL
 	echo $( get_ngrok_url )
