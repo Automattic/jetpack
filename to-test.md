@@ -4,6 +4,20 @@
 
 In this release, we've made multiple changes to the connection process in order to make more reliable. Do not hesitate to report any issues you may experience when you connect your test site to WordPress.com.
 
+#### Transfer Jetpack ownership to another admin
+
+We've also added a new notice to the Users screen, to warn admins that are about to delete another admin user, when that user happens to be the main Jetpack admin on the site. We then offer that admin the option to transfer the Jetpack connection before to delete the user.
+
+To test this:
+
+1. On your connected site, go to the Users Menu.
+2. Add a new admin user to the site - let'a call it User B.
+3. In a separate (incognito?) window, log into the site as User B.
+4. Go to the Jetpack dashboard and connect User B to WordPress.com.
+5. Still logged in as User B, go to the users page.
+6. Click to delete the main user.
+    - You should be taken to a confirmation page to delete, where you should see a new notice inviting you to transfer Jetpack ownership.
+
 ### Jetpack Videos
 
 We've added extra settings to the Video block. To test this, try the following:

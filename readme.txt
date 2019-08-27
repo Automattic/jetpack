@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Bruteforce Login Protection: improve Network Activation detection on Multisite networks.
 * Dashboard: update all illustrations to use new color scheme.
 * General: use HTTPS URLs when linking to external sites when possible.
+* General: warn admins when about to delete another admin user that happens to be the main Jetpack admin on the site.
 * Sharing / Publicize: add Open Graph Meta Tags to archive pages.
 * Sitemaps: reduce sitemap cache duration when using Jetpack's Development mode.
 * Social menus: replace the outdated Medium icon with updated logo.
