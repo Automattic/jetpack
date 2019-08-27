@@ -8,7 +8,7 @@ const WP_ADMIN_USER = config.get( 'WP_ADMIN_USER' );
 
 const ngrokURL = execSync(
 	'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)'
-);
+).toString();
 
 const {
 	WP_USERNAME = WP_ADMIN_USER.username,

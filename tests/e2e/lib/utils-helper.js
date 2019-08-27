@@ -21,7 +21,7 @@ export function execShellCommand( cmd ) {
 }
 
 export function execSyncShellCommand( cmd ) {
-	return execSync( cmd );
+	return execSync( cmd ).toString();
 }
 
 export async function getNgrokSiteUrl() {

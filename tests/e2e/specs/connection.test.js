@@ -19,7 +19,7 @@ function resetWordpressInstall() {
 	console.log( 'resetWordpressInstall' );
 	console.log( execSync( 'pwd' ).toString() );
 
-	const out = execSync( cmd );
+	const out = execSync( cmd ).toString();
 
 	console.log( out );
 }
@@ -28,7 +28,7 @@ function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	console.log( 'getNgrokSiteUrl' );
-	const out = execSync( cmd );
+	const out = execSync( cmd ).toString();
 
 	console.log( out );
 	return out;
@@ -36,7 +36,7 @@ function getNgrokSiteUrl() {
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
-		// resetWordpressInstall();
+		resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();
 	} );
