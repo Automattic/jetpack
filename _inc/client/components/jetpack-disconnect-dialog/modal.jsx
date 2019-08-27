@@ -43,7 +43,7 @@ class JetpackDisconnectDialogModal extends Component {
 					<JetpackDisconnectDialog
 						closeDialog={ this.props.toggleModal }
 						disconnectJetpack={ this.disconnectJetpack }
-						showModalClose={ true }
+						location={ 'dashboard' }
 					/>
 				</Modal>
 			)

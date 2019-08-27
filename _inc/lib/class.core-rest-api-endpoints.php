@@ -502,7 +502,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function submit_survey( $request ) {
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
+		$wpcom_request = Client::wpcom_json_api_request_as_blog(
 			'/marketing/survey',
 			'1.1',
 			array(

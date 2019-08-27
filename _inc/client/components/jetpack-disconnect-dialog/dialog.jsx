@@ -22,8 +22,7 @@ class JetpackDisconnectDialog extends Component {
 		disconnectJetpack: PropTypes.func.isRequired,
 		siteId: PropTypes.number,
 		sitePlan: PropTypes.object,
-		showModalClose: PropTypes.bool,
-		location: PropTypes.string.isRequired,
+		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 	};
 
 	static defaultProps = {
@@ -44,9 +43,9 @@ class JetpackDisconnectDialog extends Component {
 	}
 
 	handleJetpackDisconnect() {
-		const { siteId, sitePlan } = this.props;
+		const { siteId, sitePlan, location } = this.props;
 		const { surveyAnswerId, surveyAnswerText } = this.state;
-		this.props.submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText );
+		this.props.submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText, location );
 		// this.props.disconnectJetpack();
 		// this.props.closeDialog();
 	}
@@ -69,7 +68,7 @@ class JetpackDisconnectDialog extends Component {
 			<FeaturesContainer
 				onContinueButtonClick={ this.handleFeaturesContinueClick }
 				onCloseButtonClick={ this.props.closeDialog }
-				showModalClose={ this.props.showModalClose }
+				showModalClose={ 'dashboard' === this.props.location }
 			/>
 		);
 	}
@@ -84,7 +83,7 @@ class JetpackDisconnectDialog extends Component {
 				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
 				surveyAnswerId={ surveyAnswerId }
 				surveyAnswerText={ surveyAnswerText }
-				showModalClose={ this.props.showModalClose }
+				showModalClose={ 'dashboard' === this.props.location }
 			/>
 		);
 	}
@@ -98,13 +97,11 @@ class JetpackDisconnectDialog extends Component {
 }
 
 export default connect(
-	state => (
-		{
-			siteId: getSiteID( state ),
-			sitePlan: getSitePlan( state ),
-		},
-		{
-			submitSurvey,
-		}
-	)
+	state => ( {
+		siteId: getSiteID( state ),
+		sitePlan: getSitePlan( state ),
+	} ),
+	{
+		submitSurvey,
+	}
 )( JetpackDisconnectDialog );

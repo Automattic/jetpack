@@ -33,6 +33,7 @@ class JetpackDisconnectDialogPluginsInstallModal extends Component {
 			<JetpackDisconnectDialog
 				disconnectJetpack={ this.disconnectJetpack }
 				closeDialog={ this.closeDialog }
+				location={ 'plugins' }
 			/>
 		);
 	}

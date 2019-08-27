@@ -10,7 +10,7 @@ import {
 // import { translate as __ } from 'i18n-calypso';
 // import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
-export const submitSurvey = ( siteId, sitePlan, surveyAnswerId, surveyAnswerText ) => {
+export const submitSurvey = ( siteId, sitePlan, surveyAnswerId, surveyAnswerText, location ) => {
 	const surveyResponse = {
 		survey_id: 'calypso-disconnect-jetpack-july2019',
 		site_id: siteId,
@@ -20,7 +20,7 @@ export const submitSurvey = ( siteId, sitePlan, surveyAnswerId, surveyAnswerText
 				response: surveyAnswerId,
 			},
 			source: {
-				from: 'Jetpack',
+				from: 'plugins' === location ? 'Jetpack-Plugins' : 'Jetpack-Dashboard',
 			},
 		},
 	};
