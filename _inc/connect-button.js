@@ -72,7 +72,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleAuthorizationComplete: function() {
 			jetpackConnectButton.isRegistering = false;
-			location.reload();
+			window.location = window.location.href + '/plans';
 		},
 		handleConnectionError: function( error ) {
 			console.warn( 'Connection failed. Falling back to the regular flow', error );

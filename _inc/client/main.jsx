@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { includes } from 'lodash';
 import { createHistory } from 'history';
@@ -43,6 +43,7 @@ import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
+import PlansModal from 'components/plans-modal';
 
 const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
 
@@ -211,6 +212,17 @@ class Main extends React.Component {
 					/>
 				);
 				break;
+			case '/plans-prompt':
+				pageComponent = (
+					<Fragment>
+						<AtAGlance
+							siteRawUrl={ this.props.siteRawUrl }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							rewindStatus={ this.props.rewindStatus }
+						/>
+					</Fragment>
+				);
+				break;
 			case '/settings':
 			case '/security':
 			case '/performance':
@@ -266,6 +278,10 @@ class Main extends React.Component {
 		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
 	}
 
+	shouldShowPlansModal() {
+		return this.props.params.extra && this.props.params.extra === 'plans';
+	}
+
 	render() {
 		return (
 			<div>
@@ -277,6 +293,7 @@ class Main extends React.Component {
 					{ this.renderMainContent( this.props.route.path ) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
+					{ this.shouldShowPlansModal() && <PlansModal /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
