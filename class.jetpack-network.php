@@ -456,7 +456,7 @@ class Jetpack_Network {
 			return $result;
 		}
 
-		Jetpack::activate_default_modules();
+		Jetpack::activate_default_modules( false, false, array(), false );
 
 		restore_current_blog();
 	}

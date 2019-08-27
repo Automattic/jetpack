@@ -2244,7 +2244,7 @@ class Jetpack {
 		);
 
 		Jetpack::state( 'message', 'modules_activated' );
-		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
+		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
 			$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
@@ -2777,10 +2777,34 @@ class Jetpack {
 		$min_version = false,
 		$max_version = false,
 		$other_modules = array(),
-		$redirect = true,
-		$send_state_messages = true
+		$redirect = null,
+		$send_state_messages = null
 	) {
 		$jetpack = Jetpack::init();
+
+		if ( is_null( $redirect ) ) {
+			if (
+				( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			||
+				( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			||
+				( defined( 'WP_CLI' ) && WP_CLI )
+			||
+				( defined( 'DOING_CRON' ) && DOING_CRON )
+			||
+				( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			) {
+				$redirect = false;
+			} elseif ( is_admin() ) {
+				$redirect = true;
+			} else {
+				$redirect = false;
+			}
+		}
+
+		if ( is_null( $send_state_messages ) ) {
+			$send_state_messages = current_user_can( 'jetpack_activate_modules' );
+		}
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
 		$modules = array_merge( $other_modules, $modules );
@@ -2802,18 +2826,22 @@ class Jetpack {
 			}
 		}
 
-		if ( $deactivated && $redirect ) {
-			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+		if ( $deactivated ) {
+			if ( $send_state_messages ) {
+				Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			}
 
-			$url = add_query_arg(
-				array(
-					'action'   => 'activate_default_modules',
-					'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
-				),
-				add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
-			);
-			wp_safe_redirect( $url );
-			exit;
+			if ( $redirect ) {
+				$url = add_query_arg(
+					array(
+						'action'   => 'activate_default_modules',
+						'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
+					),
+					add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
+				);
+				wp_safe_redirect( $url );
+				exit;
+			}
 		}
 
 		/**
