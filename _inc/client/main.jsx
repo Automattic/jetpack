@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { includes } from 'lodash';
 import { createHistory } from 'history';
@@ -32,6 +32,7 @@ import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Plans from 'plans/index.jsx';
+import PlansPrompt from 'plans-prompt/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import AppsCard from 'components/apps-card';
@@ -43,7 +44,6 @@ import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
-import PlansModal from 'components/plans-modal';
 
 const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
 
@@ -212,17 +212,6 @@ class Main extends React.Component {
 					/>
 				);
 				break;
-			case '/plans-prompt':
-				pageComponent = (
-					<Fragment>
-						<AtAGlance
-							siteRawUrl={ this.props.siteRawUrl }
-							siteAdminUrl={ this.props.siteAdminUrl }
-							rewindStatus={ this.props.rewindStatus }
-						/>
-					</Fragment>
-				);
-				break;
 			case '/settings':
 			case '/security':
 			case '/performance':
@@ -278,11 +267,20 @@ class Main extends React.Component {
 		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
 	}
 
-	shouldShowPlansModal() {
-		return this.props.params.extra && this.props.params.extra === 'plans';
-	}
-
 	render() {
+		if ( this.props.route.path === '/plans-prompt' ) {
+			return (
+				<div>
+					<div className="jp-lower">
+						<AdminNotices />
+						<JetpackNotices />
+						<PlansPrompt />
+					</div>
+					<Tracker analytics={ analytics } />
+				</div>
+			);
+		}
+
 		return (
 			<div>
 				<Masthead route={ this.props.route } />
@@ -293,7 +291,6 @@ class Main extends React.Component {
 					{ this.renderMainContent( this.props.route.path ) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
-					{ this.shouldShowPlansModal() && <PlansModal /> }
 				</div>
 				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />

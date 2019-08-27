@@ -74,11 +74,7 @@ function render() {
 						name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) }
 						component={ Main }
 					/>
-					<Route
-						path="/dashboard/:extra"
-						name={ i18n.translate( 'At A Glance' ) }
-						component={ Main }
-					/>
+					<Route path="/dashboard" name={ i18n.translate( 'At A Glance' ) } component={ Main } />
 					<Route
 						path="/my-plan"
 						name={ i18n.translate( 'My Plan', { context: 'Navigation item.' } ) }
@@ -91,7 +87,7 @@ function render() {
 					/>
 					<Route
 						path="/plans-prompt"
-						name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) }
+						name={ i18n.translate( 'Plans Prompt', { context: 'Navigation item.' } ) }
 						component={ Main }
 					/>
 					<Route
