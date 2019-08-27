@@ -30,8 +30,11 @@ kill_ngrok() {
 
 install_ngrok() {
 	if $(type -t "ngrok" >/dev/null 2>&1); then
-			NGROK_CMD="ngrok"
-			return
+		NGROK_CMD="ngrok"
+		return
+	elif [ -f "./ngrok" ]; then
+		NGROK_CMD="./ngrok"
+		return
 	fi
 
 	if [ -z "$CI" ]; then
