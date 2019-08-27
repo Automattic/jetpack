@@ -10,7 +10,7 @@ export function execShellCommand( cmd ) {
 			if ( error ) {
 				console.warn( error );
 			}
-			resolve( stdout ? stdout : stderr );
+			return resolve( stdout ? stdout : stderr );
 		} );
 	} );
 }

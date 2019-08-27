@@ -13,6 +13,8 @@ async function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 
 	const out = await execShellCommand( cmd );
+	console.log( 'resetWordpressInstall' );
+
 	console.log( out );
 }
 
@@ -20,6 +22,8 @@ async function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	const out = await execShellCommand( cmd );
+	console.log( 'getNgrokSiteUrl' );
+
 	console.log( out );
 	return out;
 }
