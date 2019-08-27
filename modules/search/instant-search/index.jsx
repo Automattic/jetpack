@@ -24,12 +24,12 @@ const hideSearchHeader = () => {
 	}
 };
 
-const injectSearchWidget = ( initialValue, target, grabFocus ) => {
+const injectSearchWidget = ( initialValue, target, options, grabFocus ) => {
 	render(
 		<SearchWidget
 			initialValue={ initialValue }
 			grabFocus={ grabFocus }
-			siteId={ window.JetpackInstantSearchOptions.siteId }
+			options={ options }
 		/>,
 		target
 	);
@@ -46,7 +46,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			removeChildren( widget );
 			removeChildren( document.querySelector( 'main' ) );
 			hideSearchHeader();
-			injectSearchWidget( getSearchQuery(), widget );
+			injectSearchWidget( getSearchQuery(), widget, options );
 		}
 	}
 } );

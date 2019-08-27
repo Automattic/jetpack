@@ -5,12 +5,16 @@ import fetch from 'unfetch';
 
 /**
  * @preserve jquery-param (c) 2015 KNOWLEDGECODE | MIT
+ * @param {object} a - parameters to add
+ * @returns {string} url query string
  * From https://github.com/knowledgecode/jquery-param
  */
 function query_params( a ) {
+	//eslint-disable-next-line no-var
 	var s = [];
 	const add = function( k, v ) {
 		v = typeof v === 'function' ? v() : v;
+		//eslint-disable-next-line no-nested-ternary
 		v = v === null ? '' : v === undefined ? '' : v;
 		s[ s.length ] = encodeURIComponent( k ) + '=' + encodeURIComponent( v );
 	};
@@ -55,15 +59,7 @@ export function search( siteId, query, aggs, filter, resultFormat ) {
 		case 'minimal':
 		default:
 			highlight_fields = [ 'title', 'content', 'comments' ];
-			fields = [
-				'author',
-				'comment_count',
-				'date',
-				'excerpt_html',
-				'gravatar_url',
-				'permalink.url.raw',
-				'title_html',
-			];
+			fields = [ 'date', 'permalink.url.raw', 'tag.name.default', 'category.name.default' ];
 	}
 
 	const obj = {

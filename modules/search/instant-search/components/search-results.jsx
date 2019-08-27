@@ -13,7 +13,9 @@ import SearchResultMinimal from './search-result-minimal';
 
 class SearchResults extends Component {
 	render_result( result ) {
-		switch ( this.props.result_format ) {
+		switch ( this.props.resultFormat ) {
+			case 'engagement':
+			case 'product':
 			case 'minimal':
 			default:
 				return <SearchResultMinimal result={ result } />;

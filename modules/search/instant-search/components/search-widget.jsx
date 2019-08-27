@@ -48,7 +48,7 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( this.props.siteId, query, {}, {}, this.props.resultFormat )
+			search( this.props.options.siteId, query, {}, {}, this.props.options.resultFormat )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
@@ -73,7 +73,11 @@ class SearchApp extends Component {
 					/>
 				</p>
 				<Portal into="main">
-					<SearchResults query={ query } { ...results } />
+					<SearchResults
+						query={ query }
+						{ ...results }
+						result_format={ this.props.options.resultFormat }
+					/>
 				</Portal>
 			</div>
 		);

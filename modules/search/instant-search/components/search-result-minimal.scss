@@ -3,6 +3,9 @@
 	margin: 1em 0;
 	position: relative;
 }
+.jetpack-instant-search__result-minimal .gridicon {
+	margin-right: 5px;
+}
 
 .jetpack-instant-search__result-minimal h3 {
 	overflow: hidden;
@@ -18,17 +21,19 @@
 	font-size: 0.85em;
 }
 
-.jetpack-instant-search__result-minimal-comment-h {
-	font-size: 0.85em;
-	margin: 0.5em 10px;
+.jetpack-instant-search__result-minimal-tag span,
+.jetpack-instant-search__result-minimal-cat span {
+	margin-right: 0.5em;
 }
-.jetpack-instant-search__result-minimal-comment-span {
-	font-size: 0.85em;
-	margin: 0.5em 0;
+
+.jetpack-instant-search__result-minimal-tag,
+.jetpack-instant-search__result-minimal-cat,
+.jetpack-instant-search__result-minimal-comment {
+	padding-left: 10px;
 }
 
 .jetpack-instant-search__result-minimal-title b,
-.jetpack-instant-search__result-minimal-excerpt b,
+.jetpack-instant-search__result-minimal-content b,
 .jetpack-instant-search__result-minimal-comment-span b {
 	text-decoration: underline;
 }
