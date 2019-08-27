@@ -17,7 +17,7 @@ function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 
 	console.log( 'resetWordpressInstall' );
-	console.log( execSync( 'pwd' ) );
+	console.log( execSync( 'pwd' ).toString() );
 
 	const out = execSync( cmd );
 
@@ -36,7 +36,7 @@ function getNgrokSiteUrl() {
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
-		resetWordpressInstall();
+		// resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();
 	} );
