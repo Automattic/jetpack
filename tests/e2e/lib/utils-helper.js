@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { execSync } from 'child_process';
+
+/**
  * Executes a shell command and return it as a Promise.
  * @param {string} cmd  shell command
  * @return {Promise<string>} output
@@ -13,6 +18,10 @@ export function execShellCommand( cmd ) {
 			return resolve( stdout ? stdout : stderr );
 		} );
 	} );
+}
+
+export function execSyncShellCommand( cmd ) {
+	return execSync( cmd );
 }
 
 export async function getNgrokSiteUrl() {
