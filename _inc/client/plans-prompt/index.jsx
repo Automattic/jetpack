@@ -26,7 +26,7 @@ export class PlansPrompt extends React.Component {
 	renderFooter() {
 		return (
 			<div className="plans-prompt__footer">
-				<Button href="#/dashboard">
+				<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack' }>
 					{ __( 'Start with free' ) }
 					<Gridicon icon={ 'arrow-right' } size={ 18 } />
 				</Button>

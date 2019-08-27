@@ -274,7 +274,7 @@ class Main extends React.Component {
 					<div className="jp-lower">
 						<AdminNotices />
 						<JetpackNotices />
-						<PlansPrompt />
+						<PlansPrompt siteAdminUrl={ this.props.siteAdminUrl } />
 					</div>
 					<Tracker analytics={ analytics } />
 				</div>
