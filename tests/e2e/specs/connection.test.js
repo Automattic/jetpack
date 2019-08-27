@@ -6,7 +6,10 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { execShellCommand, execSyncShellCommand } from '../lib/utils-helper';
+/**
+ * External dependencies
+ */
+import { execSync } from 'child_process';
 
 jest.setTimeout( 600000 );
 
@@ -14,7 +17,9 @@ function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 
 	console.log( 'resetWordpressInstall' );
-	const out = execSyncShellCommand( cmd );
+	console.log( execSync( 'pwd' ) );
+
+	const out = execSync( cmd );
 
 	console.log( out );
 }
@@ -23,7 +28,7 @@ async function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	console.log( 'getNgrokSiteUrl' );
-	const out = await execShellCommand( cmd );
+	const out = await execSync( cmd );
 
 	console.log( out );
 	return out;
