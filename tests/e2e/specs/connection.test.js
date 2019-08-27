@@ -10,8 +10,7 @@ import { execShellCommand, execSyncShellCommand } from '../lib/utils-helper';
 
 jest.setTimeout( 600000 );
 
-// Activate WordAds module if in CI
-async function resetWordpressInstall() {
+function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 
 	console.log( 'resetWordpressInstall' );

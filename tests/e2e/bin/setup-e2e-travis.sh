@@ -83,7 +83,8 @@ setup_nginx() {
 
 
 	# Figure out domain name and replace the value in config
-	DOMAIN_NAME=$(echo $WP_SITE_URL | awk -F/ '{print $3}')
+	# DOMAIN_NAME=$(echo $WP_SITE_URL | awk -F/ '{print $3}')
+	DOMAIN_NAME="localhost"
 	if [ -z "$DOMAIN_NAME" ]; then
 		echo "DOMAIN_NAME is empty! Does ngrok started correctly?"
 		exit 1
