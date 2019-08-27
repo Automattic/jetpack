@@ -1053,7 +1053,6 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
 		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
-		}
 	}
 
 	/**

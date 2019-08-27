@@ -288,6 +288,8 @@ class Jetpack_Photon {
 
 			$image_sizes = self::image_sizes();
 
+			$upload_dir = wp_get_upload_dir();
+
 			foreach ( $images[0] as $index => $tag ) {
 				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
 				$transform = 'resize';
@@ -357,7 +359,7 @@ class Jetpack_Photon {
 					// WP Attachment ID, if uploaded to this site
 					if (
 						preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
-						self::is_local_upload( $src ) &&
+						0 === strpos( $src, $upload_dir['baseurl'] ) &&
 						/**
 						 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
 						 *
@@ -446,7 +448,7 @@ class Jetpack_Photon {
 						$fullsize_url = true;
 
 					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon
-					if ( ! $fullsize_url ) {
+					if ( ! $fullsize_url && 0 === strpos( $src, $upload_dir['baseurl'] ) ) {
 						$src = self::strip_image_dimensions_maybe( $src );
 					}
 
@@ -1085,9 +1087,7 @@ class Jetpack_Photon {
 		$stripped_src = $src;
 
 		// Build URL, first removing WP's resized string so we pass the original image to Photon
-		if ( self::is_local_upload( $src ) &&
-			preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
-		{
+		if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
 			$stripped_src = str_replace( $src_parts[1], '', $src );
 			$upload_dir = wp_get_upload_dir();
 
@@ -1291,18 +1291,5 @@ class Jetpack_Photon {
 	 */
 	private static function is_amp_endpoint() {
 		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
-	}
-
-	/**
-	 * Checks if image is a locally uploaded file via its URL
-	 *
-	 * @param string $url
-	 *
-	 * @return bool
-	 */
-	public static function is_local_upload( $url ) {
-		$upload_dir = wp_get_upload_dir();
-
-		return 0 === strpos( $url, $upload_dir['baseurl'] );
 	}
 }
