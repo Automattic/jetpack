@@ -2776,7 +2776,7 @@ class Jetpack {
 		$max_version = false,
 		$other_modules = array(),
 		$redirect = null,
-		$send_state_messages = true
+		$send_state_messages = null
 	) {
 		$jetpack = Jetpack::init();
 
@@ -2800,6 +2800,10 @@ class Jetpack {
 			}
 		}
 
+		if ( is_null( $send_state_messages ) ) {
+			$send_state_messages = current_user_can( 'jetpack_activate_modules' );
+		}
+
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
 		$modules = array_merge( $other_modules, $modules );
 
@@ -2821,7 +2825,9 @@ class Jetpack {
 		}
 
 		if ( $deactivated ) {
-			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			if ( $send_state_messages ) {
+				Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			}
 
 			if ( $redirect ) {
 				$url = add_query_arg(
