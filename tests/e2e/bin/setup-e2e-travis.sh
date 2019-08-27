@@ -32,9 +32,6 @@ install_ngrok() {
 	if $(type -t "ngrok" >/dev/null 2>&1); then
 		NGROK_CMD="ngrok"
 		return
-	# elif [ -f "./ngrok" ]; then
-	# 	NGROK_CMD="./ngrok"
-	# 	return
 	fi
 
 	if [ -z "$CI" ]; then
@@ -44,7 +41,7 @@ install_ngrok() {
 
 	echo "Installing ngrok in CI..."
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
-	unzip ngrok.zip
+	unzip -o ngrok.zip
 	NGROK_CMD="./ngrok"
 }
 
@@ -84,7 +81,8 @@ setup_nginx() {
 
 	# Figure out domain name and replace the value in config
 	# DOMAIN_NAME=$(echo $WP_SITE_URL | awk -F/ '{print $3}')
-	DOMAIN_NAME="localhost"
+	# DOMAIN_NAME="localhost"
+	DOMAIN_NAME="*.ngrok.io"
 	if [ -z "$DOMAIN_NAME" ]; then
 		echo "DOMAIN_NAME is empty! Does ngrok started correctly?"
 		exit 1
