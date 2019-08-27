@@ -2800,18 +2800,20 @@ class Jetpack {
 			}
 		}
 
-		if ( $deactivated && $redirect ) {
+		if ( $deactivated ) {
 			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
 
-			$url = add_query_arg(
-				array(
-					'action'   => 'activate_default_modules',
-					'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
-				),
-				add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
-			);
-			wp_safe_redirect( $url );
-			exit;
+			if ( $redirect ) {
+				$url = add_query_arg(
+					array(
+						'action'   => 'activate_default_modules',
+						'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
+					),
+					add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
+				);
+				wp_safe_redirect( $url );
+				exit;
+			}
 		}
 
 		/**
