@@ -8,12 +8,14 @@ import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { execShellCommand } from '../lib/utils-helper';
 
+jest.setTimeout( 600000 );
+
 // Activate WordAds module if in CI
 async function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 
-	const out = await execShellCommand( cmd );
 	console.log( 'resetWordpressInstall' );
+	const out = await execShellCommand( cmd );
 
 	console.log( out );
 }
@@ -21,8 +23,8 @@ async function resetWordpressInstall() {
 async function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	const out = await execShellCommand( cmd );
 	console.log( 'getNgrokSiteUrl' );
+	const out = await execShellCommand( cmd );
 
 	console.log( out );
 	return out;
@@ -30,6 +32,9 @@ async function getNgrokSiteUrl() {
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
+		const out = await execShellCommand( 'pwd' );
+		console.log( out );
+		await getNgrokSiteUrl();
 		await resetWordpressInstall();
 		const url = await getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();
