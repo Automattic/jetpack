@@ -36,11 +36,10 @@ const injectSearchWidget = ( initialValue, target, options, grabFocus ) => {
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	if (
-		'siteId' in window.JetpackInstantSearchOptions &&
-		document.body &&
-		document.body.classList.contains( 'search' )
-	) {
+	//This var is provided by wp_localize_script() so we have limited control
+	const options = jetpack_instant_search_options; // eslint-disable-line no-undef
+
+	if ( 'siteId' in options && document.body && document.body.classList.contains( 'search' ) ) {
 		const widget = document.querySelector( '.widget_search' );
 		if ( !! widget ) {
 			removeChildren( widget );

@@ -574,6 +574,8 @@ class Jetpack {
 			};
 		} );
 
+		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
+
 		$this->connection_manager = new Connection_Manager();
 		$this->connection_manager->init();
 
@@ -611,19 +613,7 @@ class Jetpack {
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
 		// Initialize remote file upload request handlers.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_jetpack_xmlrpc_request = isset( $_GET['for'] ) && 'jetpack' === $_GET['for'] && Constants::get_constant( 'XMLRPC_REQUEST' );
-		if (
-			! $is_jetpack_xmlrpc_request
-			&& is_admin()
-			&& isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification
-			&& (
-				'jetpack_upload_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-				|| 'jetpack_update_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-			)
-		) {
-			$this->add_remote_request_handlers();
-		}
+		$this->add_remote_request_handlers();
 
 		if ( Jetpack::is_active() ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
@@ -634,6 +624,8 @@ class Jetpack {
 				Jetpack_Search_Performance_Logger::init();
 			}
 		}
+
+		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
@@ -2252,7 +2244,7 @@ class Jetpack {
 		);
 
 		Jetpack::state( 'message', 'modules_activated' );
-		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
+		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
 			$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
@@ -2785,10 +2777,34 @@ class Jetpack {
 		$min_version = false,
 		$max_version = false,
 		$other_modules = array(),
-		$redirect = true,
-		$send_state_messages = true
+		$redirect = null,
+		$send_state_messages = null
 	) {
 		$jetpack = Jetpack::init();
+
+		if ( is_null( $redirect ) ) {
+			if (
+				( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			||
+				( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			||
+				( defined( 'WP_CLI' ) && WP_CLI )
+			||
+				( defined( 'DOING_CRON' ) && DOING_CRON )
+			||
+				( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			) {
+				$redirect = false;
+			} elseif ( is_admin() ) {
+				$redirect = true;
+			} else {
+				$redirect = false;
+			}
+		}
+
+		if ( is_null( $send_state_messages ) ) {
+			$send_state_messages = current_user_can( 'jetpack_activate_modules' );
+		}
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
 		$modules = array_merge( $other_modules, $modules );
@@ -2810,18 +2826,22 @@ class Jetpack {
 			}
 		}
 
-		if ( $deactivated && $redirect ) {
-			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+		if ( $deactivated ) {
+			if ( $send_state_messages ) {
+				Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			}
 
-			$url = add_query_arg(
-				array(
-					'action'   => 'activate_default_modules',
-					'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
-				),
-				add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
-			);
-			wp_safe_redirect( $url );
-			exit;
+			if ( $redirect ) {
+				$url = add_query_arg(
+					array(
+						'action'   => 'activate_default_modules',
+						'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
+					),
+					add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
+				);
+				wp_safe_redirect( $url );
+				exit;
+			}
 		}
 
 		/**
@@ -3591,12 +3611,43 @@ p {
 		}
 	}
 
-	function add_remote_request_handlers() {
-		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
-		add_action( 'wp_ajax_nopriv_jetpack_update_file', array( $this, 'remote_request_handlers' ) );
+	/**
+	 * Register the remote file upload request handlers, if needed.
+	 *
+	 * @access public
+	 */
+	public function add_remote_request_handlers() {
+		// Remote file uploads are allowed only via AJAX requests.
+		if ( ! is_admin() || ! Constants::get_constant( 'DOING_AJAX' ) ) {
+			return;
+		}
+
+		// Remote file uploads are allowed only for a set of specific AJAX actions.
+		$remote_request_actions = array(
+			'jetpack_upload_file',
+			'jetpack_update_file',
+		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! isset( $_POST['action'] ) || ! in_array( $_POST['action'], $remote_request_actions, true ) ) {
+			return;
+		}
+
+		// Require Jetpack authentication for the remote file upload AJAX requests.
+		$this->connection_manager->require_jetpack_authentication();
+
+		// Register the remote file upload AJAX handlers.
+		foreach ( $remote_request_actions as $action ) {
+			add_action( "wp_ajax_nopriv_{$action}", array( $this, 'remote_request_handlers' ) );
+		}
 	}
 
-	function remote_request_handlers() {
+	/**
+	 * Handler for Jetpack remote file uploads.
+	 *
+	 * @access public
+	 */
+	public function remote_request_handlers() {
 		$action = current_filter();
 
 		switch ( current_filter() ) {
@@ -4286,6 +4337,35 @@ p {
 	}
 
 	/**
+	 * We can't always respond to a signed XML-RPC request with a
+	 * helpful error message. In some circumstances, doing so could
+	 * leak information.
+	 *
+	 * Instead, track that the error occurred via a Jetpack_Option,
+	 * and send that data back in the heartbeat.
+	 * All this does is increment a number, but it's enough to find
+	 * trends.
+	 *
+	 * @param WP_Error $xmlrpc_error The error produced during
+	 *                               signature validation.
+	 */
+	function track_xmlrpc_error( $xmlrpc_error ) {
+		$code = is_wp_error( $xmlrpc_error )
+			? $xmlrpc_error->get_error_code()
+			: 'should-not-happen';
+
+		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
+			// No need to update the option if we already have
+			// this code stored.
+			return;
+		}
+		$xmlrpc_errors[ $code ] = true;
+
+		Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
+	}
+
+	/**
 	 * Record a stat for later output.  This will only currently output in the admin_footer.
 	 */
 	function stat( $group, $detail ) {
@@ -4412,23 +4492,24 @@ p {
 		return $roles->translate_role_to_cap( $role );
 	}
 
-	static function sign_role( $role, $user_id = null ) {
-		if ( empty( $user_id ) ) {
-			$user_id = (int) get_current_user_id();
-		}
-
-		if ( ! $user_id  ) {
-			return false;
-		}
-
-		$token = Jetpack_Data::get_access_token();
-		if ( ! $token || is_wp_error( $token ) ) {
-			return false;
-		}
-
-		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
+	/**
+	 * Sign a user role with the master access token.
+	 * If not specified, will default to the current user.
+	 *
+	 * @deprecated since 7.7
+	 * @see Automattic\Jetpack\Connection\Manager::sign_role()
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $role    User role.
+	 * @param int    $user_id ID of the user.
+	 * @return string Signed user role.
+	 */
+	public static function sign_role( $role, $user_id = null ) {
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::sign_role' );
+		return self::connection()->sign_role( $role, $user_id );
 	}
-
 
 	/**
 	 * Builds a URL to the Jetpack connection auth page
@@ -4511,7 +4592,7 @@ p {
 
 		$roles       = new Roles();
 		$role        = $roles->translate_current_user_to_role();
-		$signed_role = self::sign_role( $role );
+		$signed_role = self::connection()->sign_role( $role );
 
 		$user = wp_get_current_user();
 
@@ -4661,21 +4742,6 @@ p {
 					require_once ABSPATH . 'wp-admin/includes/plugin.php';
 					deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
 					wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
-				}
-				break;
-			case 'jetpack-protect-multisite-opt-out':
-
-				if ( check_admin_referer( 'jetpack_protect_multisite_banner_opt_out' ) ) {
-					// Don't show the banner again
-
-					update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
-					// redirect back to the page that had the notice
-					if ( wp_get_referer() ) {
-						wp_safe_redirect( wp_get_referer() );
-					} else {
-						// Take me to Jetpack
-						wp_safe_redirect( admin_url( 'admin.php?page=jetpack' ) );
-					}
 				}
 				break;
 		}

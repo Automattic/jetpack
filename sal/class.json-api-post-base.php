@@ -472,9 +472,9 @@ abstract class SAL_Post {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
 			$site_id     = $active_blog->blog_id;
-			$profile_URL = "http://en.gravatar.com/{$user->user_login}";
+			$profile_URL = "https://en.gravatar.com/{$user->user_login}";
 		} else {
-			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
+			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
 			$site_id     = -1;
 		}
 

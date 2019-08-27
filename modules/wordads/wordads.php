@@ -61,6 +61,32 @@ class WordAds {
 		'inline-plugin' => 320,
 	);
 
+	/**
+	 * Counter to enable unique, sequential section IDs for all amp-ad units
+	 *
+	 * @var int
+	 */
+	public static $amp_section_id = 1;
+
+	/**
+	 * Checks for AMP support and returns true iff active & AMP request
+	 * @return boolean True if supported AMP request
+	 *
+	 * @since 7.5.0
+	 */
+	public static function is_amp() {
+		return class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+	}
+
+	/**
+	 * Increment the AMP section ID and return the value
+	 *
+	 * @return int
+	 */
+	public static function get_amp_section_id() {
+		return self::$amp_section_id++;
+	}
+
 	public static $SOLO_UNIT_CSS = 'float:left;margin-right:5px;margin-top:0px;';
 
 	/**
@@ -106,7 +132,8 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'init' ) );
+		add_action( 'rest_api_init', array( $this, 'init' ) );
 	}
 
 	/**
@@ -206,15 +233,19 @@ class WordAds {
 		}
 
 		if ( $this->option( 'enable_header_ad', true ) ) {
-			switch ( get_stylesheet() ) {
-				case 'twentyseventeen':
-				case 'twentyfifteen':
-				case 'twentyfourteen':
-					add_action( 'wp_footer', array( $this, 'insert_header_ad_special' ) );
-					break;
-				default:
-					add_action( 'wp_head', array( $this, 'insert_header_ad' ), 100 );
-					break;
+			if ( self::is_amp() ) {
+				add_filter( 'the_content', array( $this, 'insert_header_ad_amp' ) );
+			} else {
+				switch ( get_stylesheet() ) {
+					case 'twentyseventeen':
+					case 'twentyfifteen':
+					case 'twentyfourteen':
+						add_action( 'wp_footer', array( $this, 'insert_header_ad_special' ) );
+						break;
+					default:
+						add_action( 'wp_head', array( $this, 'insert_header_ad' ), 100 );
+						break;
+				}
 			}
 		}
 	}
@@ -239,6 +270,9 @@ class WordAds {
 	 * @return [type] [description]
 	 */
 	function insert_head_meta() {
+		if ( self::is_amp() ) {
+			return;
+		}
 		$themename = esc_js( get_stylesheet() );
 		$pagetype  = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
@@ -261,6 +295,9 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_head_iponweb() {
+		if ( self::is_amp() ) {
+			return;
+		}
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		echo <<<HTML
 		<link rel='dns-prefetch' href='//s.pubmine.com' />
@@ -396,11 +433,30 @@ HTML;
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
 		echo $this->get_ad( 'top', $ad_type );
-		echo <<<HTML
+		if ( ! self::is_amp() ) {
+			echo <<<HTML
 		<script type="text/javascript">
 			jQuery('.wpcnt-header').insertBefore('$selector');
 		</script>
 HTML;
+		}
+	}
+
+	/**
+	 * Header unit for AMP
+	 *
+	 * @param string $content Content of the page.
+	 *
+	 * @since 7.5.0
+	 */
+	public function insert_header_ad_amp( $content ) {
+
+		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
+		if ( 'house' === $ad_type ) {
+			return $content;
+		}
+		return $this->get_ad( 'top_amp', $ad_type ) . $content;
+
 	}
 
 	/**
@@ -456,6 +512,11 @@ HTML;
 			} elseif ( 'inline' === $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
 				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$SOLO_UNIT_CSS );
+			} elseif ( 'top_amp' === $spot ) {
+				// 320x50 unit which can safely be inserted below title, above content in a variety of themes.
+				$width   = 320;
+				$height  = 50;
+				$snippet = $this->get_ad_snippet( null, $height, $width );
 			}
 		} elseif ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -481,14 +542,28 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
+	public function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
 		$this->ads[] = array(
 			'location' => $location,
 			'width'    => $width,
 			'height'   => $height,
 		);
-		$ad_number   = count( $this->ads ) . '-' . uniqid();
 
+		if ( self::is_amp() ) {
+			$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad"
+			$width          = esc_attr( $width );
+			$amp_section_id = esc_attr( self::get_amp_section_id() );
+			$site_id        = esc_attr( $this->params->blog_id );
+			return <<<HTML
+			<amp-ad width="$width" height="$height"
+			    type="pubmine"
+			    data-siteid="$site_id"
+			    data-section="$amp_section_id">
+			</amp-ad>
+HTML;
+		}
+
+		$ad_number = count( $this->ads ) . '-' . uniqid();
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
 		$css = esc_attr( $css );
 

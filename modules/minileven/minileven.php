@@ -8,7 +8,7 @@
 // http://alexking.org/projects/wordpress
 //
 // Released under the GPL license
-// http://www.opensource.org/licenses/gpl-license.php
+// https://www.opensource.org/licenses/gpl-license.php
 //
 // **********************************************************************
 // This program is distributed in the hope that it will be useful, but
@@ -220,7 +220,7 @@ function jetpack_mobile_theme_setup() {
 					exit;
 				break;
 				case 'ios':
-					header( 'Location: http://itunes.apple.com/us/app/wordpress/id335703880?mt=8' );
+					header( 'Location: https://itunes.apple.com/us/app/wordpress/id335703880?mt=8' );
 					exit;
 				break;
 				case 'blackberry':

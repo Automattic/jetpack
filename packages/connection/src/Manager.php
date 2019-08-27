@@ -50,26 +50,11 @@ class Manager implements Manager_Interface {
 	 * @todo Implement a proper nonce verification.
 	 */
 	public function init() {
-
-		$is_jetpack_xmlrpc_request = $this->setup_xmlrpc_handlers(
-			$_GET,
+		$this->setup_xmlrpc_handlers(
+			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->is_active(),
 			$this->verify_xml_rpc_signature()
 		);
-
-		// All the XMLRPC functionality has been moved into setup_xmlrpc_handlers.
-		if (
-			! $is_jetpack_xmlrpc_request
-			&& is_admin()
-			&& isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification
-			&& (
-				'jetpack_upload_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-				|| 'jetpack_update_file' === $_POST['action']  // phpcs:ignore WordPress.Security.NonceVerification
-			)
-		) {
-			$this->require_jetpack_authentication();
-			return;
-		}
 
 		if ( $this->is_active() ) {
 			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
@@ -498,6 +483,20 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Checks to see if the connection owner of the site is missing.
+	 *
+	 * @return bool
+	 */
+	public function is_missing_connection_owner() {
+		$connection_owner = $this->get_connection_owner_id();
+		if ( ! get_user_by( 'id', $connection_owner ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
@@ -511,6 +510,46 @@ class Manager implements Manager_Interface {
 		}
 
 		return (bool) $this->get_access_token( $user_id );
+	}
+
+	/**
+	 * Returns the local user ID of the connection owner.
+	 *
+	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
+	 */
+	public function get_connection_owner_id() {
+		$user_token       = $this->get_access_token( JETPACK_MASTER_USER );
+		$connection_owner = false;
+		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
+			$connection_owner = $user_token->external_user_id;
+		}
+
+		return $connection_owner;
+	}
+
+	/**
+	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Able to select by specific capability.
+	 *
+	 * @param string The capability of the user
+	 * @return array Array of WP_User objects if found.
+	 */
+	public function get_connected_users( $capability = 'any' ) {
+		$connected_users    = array();
+		$connected_user_ids = array_keys( \Jetpack_Options::get_option( 'user_tokens' ) );
+
+		if ( ! empty( $connected_user_ids ) ) {
+			foreach ( $connected_user_ids as $id ) {
+				// Check for capability
+				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
+					continue;
+				}
+
+				$connected_users[] = get_userdata( $id );
+			}
+		}
+
+		return $connected_users;
 	}
 
 	/**
@@ -546,6 +585,22 @@ class Manager implements Manager_Interface {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns a user object of the connection owner.
+	 *
+	 * @return object|false False if no connection owner found.
+	 */
+	public function get_connection_owner() {
+		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+
+		$connection_owner = false;
+		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
+			$connection_owner = get_userdata( $user_token->external_user_id );
+		}
+
+		return $connection_owner;
 	}
 
 	/**
@@ -1215,11 +1270,27 @@ class Manager implements Manager_Interface {
 			);
 		}
 
-		if ( ! $stored_secrets ) {
+		if ( self::SECRETS_MISSING === $stored_secrets ) {
 			return $return_error(
 				new \WP_Error(
 					'verify_secrets_missing',
 					__( 'Verification secrets not found', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( self::SECRETS_EXPIRED === $stored_secrets ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_expired',
+					__( 'Verification took too long', 'jetpack' ),
+					400
+				)
+			);
+		} elseif ( ! $stored_secrets ) {
+			return $return_error(
+				new \WP_Error(
+					'verify_secrets_empty',
+					__( 'Verification secrets are empty', 'jetpack' ),
 					400
 				)
 			);
@@ -1636,5 +1707,32 @@ class Manager implements Manager_Interface {
 	 */
 	public function reset_saved_auth_state() {
 		$this->xmlrpc_verification = null;
+	}
+
+	/**
+	 * Sign a user role with the master access token.
+	 * If not specified, will default to the current user.
+	 *
+	 * @access public
+	 *
+	 * @param string $role    User role.
+	 * @param int    $user_id ID of the user.
+	 * @return string Signed user role.
+	 */
+	public function sign_role( $role, $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			$user_id = (int) get_current_user_id();
+		}
+
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$token = $this->get_access_token();
+		if ( ! $token || is_wp_error( $token ) ) {
+			return false;
+		}
+
+		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
 }

@@ -72,7 +72,7 @@ if ( is_admin() ) {
 	jetpack_require_lib( 'debugger' );
 }
 
-// Play nice with http://wp-cli.org/.
+// Play nice with https://wp-cli.org/.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php';
 }
@@ -89,7 +89,7 @@ add_filter( 'is_jetpack_site', '__return_true' );
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
  *
- * See: http://jetpack.com/2013/07/11/photon-and-themes/
+ * See: https://jetpack.com/2013/07/11/photon-and-themes/
  */
 if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );

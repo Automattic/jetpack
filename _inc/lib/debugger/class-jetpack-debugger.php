@@ -144,9 +144,9 @@ class Jetpack_Debugger {
 									),
 								)
 							),
-							'http://jetpack.com/support/getting-started-with-jetpack/known-issues/',
-							'http://jetpack.com/support/getting-started-with-jetpack/known-issues/',
-							'http://jetpack.com/support/',
+							'https://jetpack.com/support/getting-started-with-jetpack/known-issues/',
+							'https://jetpack.com/support/getting-started-with-jetpack/known-issues/',
+							'https://jetpack.com/support/',
 							'https://wordpress.org/support/plugin/jetpack'
 						);
 						?>

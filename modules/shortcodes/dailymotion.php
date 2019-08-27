@@ -208,7 +208,7 @@ function dailymotion_shortcode( $atts ) {
 			&& array_key_exists( 'title', $atts )
 			&& $title
 		) {
-			$output .= '<br /><strong><a href="' . esc_url( 'http://www.dailymotion.com/video/' . $video ) . '" target="_blank">' . esc_html( $title ) . '</a></strong>';
+			$output .= '<br /><strong><a href="' . esc_url( 'https://www.dailymotion.com/video/' . $video ) . '" target="_blank">' . esc_html( $title ) . '</a></strong>';
 		}
 
 		$user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] );
@@ -218,7 +218,7 @@ function dailymotion_shortcode( $atts ) {
 				sprintf(
 					/* Translators: placeholder is a Dailymotion username, linking to a Dailymotion profile page. */
 					__( 'Uploaded by %s', 'jetpack' ),
-					'<a href="' . esc_url( 'http://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>'
+					'<a href="' . esc_url( 'https://www.dailymotion.com/' . $user ) . '" target="_blank">' . esc_html( $user ) . '</a>'
 				),
 				array(
 					'a' => array(

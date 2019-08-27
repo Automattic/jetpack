@@ -157,6 +157,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		activateAkismet: () =>
+			postRequest( `${ apiRoot }jetpack/v4/plugins/akismet/activate`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		getAkismetData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/akismet/data`, getParams )
 				.then( checkStatus )

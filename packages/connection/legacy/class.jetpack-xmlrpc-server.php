@@ -389,7 +389,7 @@ class Jetpack_XMLRPC_Server {
 			'user_id'      => $user->ID,
 			'user_email'   => $user->user_email,
 			'user_login'   => $user->user_login,
-			'scope'        => Jetpack::sign_role( $role, $user->ID ),
+			'scope'        => $this->connection->sign_role( $role, $user->ID ),
 			'secret'       => $secrets['secret_1'],
 			'is_active'    => $this->connection->is_active(),
 		);
@@ -779,7 +779,15 @@ class Jetpack_XMLRPC_Server {
 			wp_set_current_user( $this->user->ID );
 		}
 
-		Jetpack::log( 'disconnect' );
+		/**
+		 * Fired when we want to log an event to the Jetpack event log.
+		 *
+		 * @since 7.7.0
+		 *
+		 * @param string $code Unique name for the event.
+		 * @param string $data Optional data about the event.
+		 */
+		do_action( 'jetpack_event_log', 'disconnect' );
 		Jetpack::disconnect();
 
 		return true;
@@ -791,7 +799,15 @@ class Jetpack_XMLRPC_Server {
 	 * This will fail if called by the Master User.
 	 */
 	public function unlink_user() {
-		Jetpack::log( 'unlink' );
+		/**
+		 * Fired when we want to log an event to the Jetpack event log.
+		 *
+		 * @since 7.7.0
+		 *
+		 * @param string $code Unique name for the event.
+		 * @param string $data Optional data about the event.
+		 */
+		do_action( 'jetpack_event_log', 'unlink' );
 		return Connection_Manager::disconnect_user();
 	}
 

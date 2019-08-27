@@ -268,7 +268,7 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'scope', 'Malformed Scope', $code );
 		}
 
-		if ( Jetpack::sign_role( $role ) !== $json->scope ) {
+		if ( Jetpack::connection()->sign_role( $role ) !== $json->scope ) {
 			return new Jetpack_Error( 'scope', 'Invalid Scope', $code );
 		}
 

@@ -14,7 +14,7 @@
  *    well as the home url. To include other post types use the 'jetpack_sitemap_post_types'
  *    filter.
  *
- * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
+ * @link https://www.sitemaps.org/protocol.html Base sitemaps protocol.
  * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
  * @link https://developers.google.com/webmasters/videosearch/sitemaps Video sitemap extension.
  *
@@ -23,7 +23,7 @@
  *    completeness, instead including at most 1000 of the most recent published posts
  *    from the previous 2 days, per the news-sitemap spec.
  *
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 News sitemap extension.
+ * @link https://support.google.com/webmasters/answer/74288 News sitemap extension.
  *
  * @package Jetpack
  * @since 3.9.0
@@ -546,7 +546,7 @@ class Jetpack_Sitemap_Manager {
 			 * This way we don't have to wait for init to finish before building sitemaps.
 			 *
 			 * @link https://tools.ietf.org/html/rfc3986#section-3.3 RFC 3986
-			 * @link http://www.sitemaps.org/ The sitemap protocol
+			 * @link https://www.sitemaps.org/ The sitemap protocol
 			 *
 			 * @since 4.8.0
 			 */

@@ -71,7 +71,7 @@ function videopress_get_video_details( $guid ) {
 /**
  * Get an attachment ID given a URL.
  *
- * Modified from http://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
+ * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
  * @todo: Add some caching in here.
  *

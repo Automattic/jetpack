@@ -1,7 +1,4 @@
 <?php
-
-use Automattic\Jetpack\Assets;
-
 /**
  * Instagram Embeds.
  *
@@ -15,6 +12,8 @@ use Automattic\Jetpack\Assets;
  *
  * @package Jetpack
  */
+
+use Automattic\Jetpack\Assets;
 
 /**
  * Embed Reversal for Instagram
@@ -110,7 +109,7 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	if ( is_feed() ) {
 		// Instagram offers direct links to images, but not to videos.
 		if ( 'p' === $matches[1] ) {
-			$media_url = sprintf( 'http://instagr.am/p/%1$s/media/?size=l', $matches[2] );
+			$media_url = sprintf( 'https://instagr.am/p/%1$s/media/?size=l', $matches[2] );
 			return sprintf(
 				'<a href="%1$s" title="%2$s" target="_blank"><img src="%3$s" alt="%4$s" /></a>',
 				esc_url( $url ),

@@ -32,17 +32,8 @@ function jetpack_gif_block_render( $attr ) {
 		return null;
 	}
 
-	/* TODO: replace with centralized block_class function */
-	$align   = isset( $attr['align'] ) ? $attr['align'] : 'center';
-	$type    = 'gif';
-	$classes = array(
-		'wp-block-jetpack-' . $type,
-		'align' . $align,
-	);
-	if ( isset( $attr['className'] ) ) {
-		array_push( $classes, $attr['className'] );
-	}
-	$classes     = implode( $classes, ' ' );
+	$classes = Jetpack_Gutenberg::block_classes( 'gif', $attr );
+
 	$placeholder = sprintf( '<a href="%s">%s</a>', esc_url( $giphy_url ), esc_attr( $search_text ) );
 
 	ob_start();

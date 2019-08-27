@@ -3,7 +3,7 @@
 /**
  * Generates a Photon URL.
  *
- * @see http://developer.wordpress.com/docs/photon/
+ * @see https://developer.wordpress.com/docs/photon/
  *
  * @param string $image_url URL to the publicly accessible image you want to manipulate
  * @param array|string $args An array of arguments, i.e. array( 'w' => '300', 'resize' => array( 123, 456 ) ), or in string form (w=123&h=456)
@@ -88,7 +88,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		}
 
 		// Encode values
-		// See http://core.trac.wordpress.org/ticket/17923
+		// See https://core.trac.wordpress.org/ticket/17923
 		$args = rawurlencode_deep( $args );
 	}
 
@@ -273,7 +273,7 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
  * A wrapper for PHP's parse_url, prepending assumed scheme for network path
  * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
  *
- * @see http://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
+ * @see https://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
  *
  * @param string $url The URL to parse
  * @param integer $component Retrieve specific URL component

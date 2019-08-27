@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager;
+
 class Jetpack_Heartbeat {
 
 	/**
@@ -117,6 +119,16 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 		$return["{$prefix}manage-enabled"] = true;
+
+		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( $xmlrpc_errors ) {
+			$return["{$prefix}xmlrpc-errors"] = implode( ',', array_keys( $xmlrpc_errors ) );
+			Jetpack_Options::delete_option( 'xmlrpc_errors' );
+		}
+
+		// Missing the connection owner?
+		$connection_manager = new Manager();
+		$return["{$prefix}missing-owner"] = $connection_manager->is_missing_connection_owner();
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';
