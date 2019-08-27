@@ -20,14 +20,43 @@ if [ "$TRAVIS_PULL_REQUEST_BRANCH" != "" ]; then
 	REPO=$TRAVIS_PULL_REQUEST_SLUG
 fi
 
+get_ngrok_url() {
+	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+}
+
+kill_ngrok() {
+	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
+}
+
 install_ngrok() {
-	# download and install ngrok
+	if $(type -t "ngrok" >/dev/null 2>&1); then
+			NGROK_CMD="ngrok"
+			return
+	fi
+
+	if [ -z "$CI" ]; then
+		echo "Please install ngrok on your machine. Instructions: https://ngrok.com/download"
+		exit 1
+	fi
+
+	echo "Installing ngrok in CI..."
 	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
 	unzip ngrok.zip
-	./ngrok authtoken $NGROK_KEY
-	./ngrok http -log=stdout 80 > /dev/null &
+	NGROK_CMD="./ngrok"
+}
+
+start_ngrok() {
+	echo "Killing any rogue ngrok instances just in case..."
+	kill_ngrok
+
+	if [ ! -z "$NGROK_KEY" ]; then
+			$NGROK_CMD authtoken $NGROK_KEY
+	fi
+
+	$NGROK_CMD http -log=stdout 80 > /dev/null &
+
 	sleep 3
-	WP_SITE_URL=$(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+	WP_SITE_URL=$(get_ngrok_url)
 
 	if [ -z "$WP_SITE_URL" ]; then
 		echo "WP_SITE_URL is not set after launching an ngrok"
@@ -119,10 +148,29 @@ WORKING_DIR=${WORKING_DIR}
 EOT
 }
 
+reset_wp() {
+	echo "Resetting WordPress"
+	wp --path=$WP_CORE_DIR db reset --yes
+	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
+	start_ngrok
+	echo $WP_SITE_URL
+	echo $( get_ngrok_url )
+}
+
+if [ "${1}" == "reset_wp" ]; then
+	echo $0
+	reset_wp
+	exit 0
+fi
+
 install_ngrok
+start_ngrok
+
 setup_nginx
+
 install_wp
 prepare_jetpack
+
 export_env_variables
 
 echo $WP_SITE_URL
