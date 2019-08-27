@@ -2,13 +2,16 @@
  * External dependencies
  */
 import config from 'config';
-import { execSync } from 'child_process';
+/**
+ * Internal dependencies
+ */
+import { execSyncShellCommand } from './utils-helper';
 
 const WP_ADMIN_USER = config.get( 'WP_ADMIN_USER' );
 
-const ngrokURL = execSync(
+const ngrokURL = execSyncShellCommand(
 	'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)'
-).toString();
+);
 
 const {
 	WP_USERNAME = WP_ADMIN_USER.username,

@@ -9,7 +9,7 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 /**
  * External dependencies
  */
-import { execSync } from 'child_process';
+import { execSyncShellCommand } from '../lib/utils-helper';
 
 jest.setTimeout( 600000 );
 
@@ -17,9 +17,10 @@ function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 
 	console.log( 'resetWordpressInstall' );
-	console.log( execSync( 'pwd' ).toString() );
+	const r = execSyncShellCommand( 'pwd' );
+	console.log( r );
 
-	const out = execSync( cmd ).toString();
+	const out = execSyncShellCommand( cmd );
 
 	console.log( out );
 }
@@ -28,7 +29,7 @@ function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	console.log( 'getNgrokSiteUrl' );
-	const out = execSync( cmd ).toString();
+	const out = execSyncShellCommand( cmd );
 
 	console.log( out );
 	return out;

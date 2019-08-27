@@ -21,7 +21,7 @@ export function execShellCommand( cmd ) {
 }
 
 export function execSyncShellCommand( cmd ) {
-	return execSync( cmd ).toString();
+	return execSync( cmd, { stdio: 'inherit' } ).toString();
 }
 
 export async function getNgrokSiteUrl() {
