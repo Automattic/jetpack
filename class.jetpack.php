@@ -2775,10 +2775,30 @@ class Jetpack {
 		$min_version = false,
 		$max_version = false,
 		$other_modules = array(),
-		$redirect = true,
+		$redirect = null,
 		$send_state_messages = true
 	) {
 		$jetpack = Jetpack::init();
+
+		if ( is_null( $redirect ) ) {
+			if (
+				( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			||
+				( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			||
+				( defined( 'WP_CLI' ) && WP_CLI )
+			||
+				( defined( 'DOING_CRON' ) && DOING_CRON )
+			||
+				( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			) {
+				$redirect = false;
+			} elseif ( is_admin() ) {
+				$redirect = true;
+			} else {
+				$redirect = false;
+			}
+		}
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
 		$modules = array_merge( $other_modules, $modules );
