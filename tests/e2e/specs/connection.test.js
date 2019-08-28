@@ -11,22 +11,17 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
  */
 import { execSyncShellCommand, execShellCommand } from '../lib/utils-helper';
 
-// jest.setTimeout( 600000 );
+jest.setTimeout( 600000 );
 
 async function resetWordpressInstall() {
 	console.log( 'resetWordpressInstall' );
-	const r = await execShellCommand( 'pwd' );
-	console.log( r );
-
 	const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
-
 	console.log( out );
 }
 
 function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	console.log( 'getNgrokSiteUrl' );
 	const out = execSyncShellCommand( cmd );
 
 	console.log( out );
@@ -35,8 +30,7 @@ function getNgrokSiteUrl() {
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
-		// console.log( '!!!!!!!!!!!' );
-		// getNgrokSiteUrl();
+		getNgrokSiteUrl();
 		resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();

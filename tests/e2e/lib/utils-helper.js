@@ -16,7 +16,6 @@ export function execShellCommand( cmd ) {
 			}
 			return resolve( stdout ? stdout : stderr );
 		} );
-		cmdExec.stdout.pipe( process.stdout );
 		cmdExec.stdout.on( 'data', function( data ) {
 			console.log( data );
 		} );
