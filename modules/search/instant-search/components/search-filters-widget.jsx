@@ -22,11 +22,11 @@ export default class SearchFiltersWidget extends Component {
 			const results = aggregations ? aggregations[ filter.filter_id ] : null;
 			switch ( filter.type ) {
 				case 'date_histogram':
-					return <SearchFilterDates aggregation={ results } filter={ filter } />;
+					return results && <SearchFilterDates aggregation={ results } filter={ filter } />;
 				case 'taxonomy':
-					return <SearchFilterTaxonomies aggregation={ results } filter={ filter } />;
+					return results && <SearchFilterTaxonomies aggregation={ results } filter={ filter } />;
 				case 'post_type':
-					return <SearchFilterPostTypes aggregation={ results } filter={ filter } />;
+					return results && <SearchFilterPostTypes aggregation={ results } filter={ filter } />;
 			}
 		};
 	}
