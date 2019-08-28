@@ -150,18 +150,6 @@ WORKING_DIR=${WORKING_DIR}
 EOT
 }
 
-reset_wp() {
-	echo "Resetting WordPress"
-	install_ngrok
-	start_ngrok
-
-	echo "WP SITE URL: $WP_SITE_URL"
-	echo $( get_ngrok_url )
-
-	wp --path=$WP_CORE_DIR db reset --yes
-	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
-}
-
 if [ "${1}" == "reset_wp" ]; then
 	echo "Resetting WordPress"
 	install_ngrok
@@ -173,7 +161,6 @@ if [ "${1}" == "reset_wp" ]; then
 	wp --path=$WP_CORE_DIR db reset --yes
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 	echo "rest_wp DONE!"
-	exit 0
 	exit 0
 fi
 
