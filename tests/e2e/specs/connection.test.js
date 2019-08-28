@@ -39,7 +39,7 @@ describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
 		console.log( '!!!!!!!!!!!' );
 
-		resetWordpressInstall();
+		// resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();
 	} );
