@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import Preact, { h, Component } from 'preact';
 import Portal from 'preact-portal';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
@@ -17,11 +17,12 @@ import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
 import { search } from '../lib/api';
 import { setSearchQuery } from '../lib/query-string';
-import { removeChildren } from '../lib/dom';
+import { removeChildren, hideSearchHeader } from '../lib/dom';
 
 class SearchApp extends Component {
 	constructor() {
 		super( ...arguments );
+		this.input = Preact.createRef();
 		this.requestId = 0;
 		this.state = {
 			query: this.props.initialValue,
@@ -33,15 +34,16 @@ class SearchApp extends Component {
 
 	componentDidMount() {
 		if ( this.props.grabFocus ) {
-			this.input.focus();
+			this.input.current.focus();
 		}
 
+		hideSearchHeader();
+		removeChildren( document.querySelector( 'main' ) );
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
 		} );
 	}
 
-	bindInput = input => ( this.input = input );
 	onChangeQuery = event => {
 		const query = event.target.value;
 		this.setState( { query } );
@@ -69,30 +71,40 @@ class SearchApp extends Component {
 	render() {
 		const { query, results } = this.state;
 		return (
-			<div class="jetpack-instant-search">
-				<div>
-					<input
-						onInput={ this.onChangeQuery }
-						ref={ this.bindInput }
-						type="search"
-						value={ query }
-					/>
-				</div>
-
-				{ this.props.widgets.map( widget => (
+			<Preact.Fragment>
+				{ this.props.widgets.map( ( widget, index ) => (
 					<Portal into={ `#${ widget.widget_id }` }>
-						<SearchFiltersWidget
-							postTypes={ this.props.postTypes }
-							results={ this.state.results }
-							widget={ widget }
-						/>
+						<div id={ `${ widget.widget_id }-wrapper` }>
+							<div className="search-form">
+								{ /* TODO: Add support for preserving label text */ }
+								<input
+									className="search-field"
+									onInput={ this.onChangeQuery }
+									ref={ index === 0 ? this.input : null }
+									type="search"
+									value={ query }
+								/>
+								<button type="submit" className="search-submit">
+									<svg className="icon icon-search" aria-hidden="true" role="img">
+										<use href="#icon-search" />
+									</svg>
+									<span className="screen-reader-text">Search</span>
+								</button>
+							</div>
+							<div className="jetpack-search-sort-wrapper" />
+							<SearchFiltersWidget
+								postTypes={ this.props.postTypes }
+								results={ this.state.results }
+								widget={ widget }
+							/>
+						</div>
 					</Portal>
 				) ) }
 
 				<Portal into="main">
 					<SearchResults query={ query } { ...results } />
 				</Portal>
-			</div>
+			</Preact.Fragment>
 		);
 	}
 }

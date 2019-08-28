@@ -3,3 +3,10 @@ export function removeChildren( htmlElement ) {
 		htmlElement.removeChild( htmlElement.lastChild );
 	}
 }
+
+export function hideSearchHeader() {
+	const title = document.querySelector( '#content .page-title' );
+	if ( title ) {
+		title.style.display = 'none';
+	}
+}

@@ -39,7 +39,7 @@ export default class SearchFiltersWidget extends Component {
 	render() {
 		const aggregations = get( this.props.results, 'aggregations' );
 		return (
-			<div id={ `${ this.props.widget.widget_id }-wrapper` }>
+			<div className="jetpack-instant-search__filters-widget">
 				{ get( this.props.widget, 'filters' )
 					.map( filter =>
 						aggregations ? { filter, results: aggregations[ filter.filter_id ] } : null
