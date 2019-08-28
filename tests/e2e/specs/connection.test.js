@@ -11,7 +11,7 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
  */
 import { execSyncShellCommand } from '../lib/utils-helper';
 
-jest.setTimeout( 600000 );
+// jest.setTimeout( 600000 );
 
 function resetWordpressInstall() {
 	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
