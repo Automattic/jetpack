@@ -11,6 +11,7 @@ import rename from 'gulp-rename';
 import saveLicense from 'uglify-save-license';
 import sourcemaps from 'gulp-sourcemaps';
 import webpack from 'webpack';
+import { build_module_assets } from '@automattic/jetpack-build';
 
 function getWebpackConfig() {
 	return require( './../../webpack.config.js' );
@@ -103,6 +104,9 @@ function onBuild( done, err, stats ) {
 
 	// Don't process minified JS in _inc or modules directories
 	const sourceNegations = [ '!_inc/*.min.js', '!modules/**/*.min.js' ];
+
+	build_module_assets( done, err, stats );
+
 	gulp
 		.src( [ ...sources, ...sourceNegations ] )
 		.pipe(

@@ -24,13 +24,13 @@
 		"clean-extensions": "rm -rf _inc/blocks/ ",
 		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files",
 		"distclean": "rm -rf node_modules && yarn clean",
-		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php && yarn build-extensions",
+		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-php && yarn build-client && yarn build-extensions",
 		"build-client": "gulp",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
 		"build-php": "composer install",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
-		"build-production": "yarn distclean && yarn install --production && yarn build-production-client && yarn build-production-php && NODE_ENV=production yarn build-extensions && gulp languages:extract",
+		"build-production": "yarn distclean && yarn install --production && yarn build-production-php && yarn build-production-client && NODE_ENV=production yarn build-extensions && gulp languages:extract",
 		"build-languages": "gulp languages",
 		"docker:compose": "yarn docker:env && docker-compose -f docker/docker-compose.yml",
 		"docker:up": "yarn docker:compose up",
@@ -155,6 +155,7 @@
 		"react-dom": "16.8.6"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-build": "./packages/build",
 		"@slack/web-api": "5.1.0",
 		"@wordpress/components": "8.0.0",
 		"@wordpress/core-data": "2.4.0",

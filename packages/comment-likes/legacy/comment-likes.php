@@ -12,6 +12,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
 
 Jetpack::dns_prefetch(
 	array(
@@ -19,8 +20,8 @@ Jetpack::dns_prefetch(
 	)
 );
 
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
+require_once Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . '/modules/likes/jetpack-likes-master-iframe.php';
+require_once Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . '/modules/likes/jetpack-likes-settings.php';
 
 class Jetpack_Comment_Likes {
 
@@ -105,8 +106,9 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_script(
 			'comment-like-count',
 			Assets::get_file_url_for_environment(
-				'_inc/build/comment-likes/comment-like-count.min.js',
-				'modules/comment-likes/comment-like-count.js'
+				// TODO - standardise where these files end up
+				'_inc/build/jetpack-module-comment-likes/assets/js/comment-like-count.min.js',
+				'vendor/automattic/jetpack-module-comment-likes/assets/js/comment-like-count.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION

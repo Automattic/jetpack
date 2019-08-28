@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e107ddbf5e4b493a152a728ca84fe70b",
+    "content-hash": "07e4d155ac1a4a6468794ca31ef807e1",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -12,8 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "b873be98786907a49ac5cd21836167f662212aa0",
-                "shasum": null
+                "reference": "b873be98786907a49ac5cd21836167f662212aa0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -46,8 +45,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9",
-                "shasum": null
+                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -79,8 +77,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb",
-                "shasum": null
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -114,8 +111,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
-                "reference": "cd47566548267b29b0df1574a7c6be67de9c5cc9",
-                "shasum": null
+                "reference": "cd47566548267b29b0df1574a7c6be67de9c5cc9"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -147,8 +143,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510",
-                "shasum": null
+                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -187,8 +182,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95",
-                "shasum": null
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -216,8 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
-                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4",
-                "shasum": null
+                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -245,8 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca",
-                "shasum": null
+                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -284,8 +276,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610",
-                "shasum": null
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -309,13 +300,41 @@
             "description": "A logo for Jetpack"
         },
         {
+            "name": "automattic/jetpack-module-comment-likes",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/comment-likes",
+                "reference": "0647d87dbcae3ee56bb473172dd34517a38fe528"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "10up/wp_mock": "0.4.2",
+                "phpunit/phpunit": "7.*.*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "legacy"
+                ],
+                "files": [
+                    "module.php"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "The Comment Likes module"
+        },
+        {
             "name": "automattic/jetpack-options",
             "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f",
-                "shasum": null
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -341,8 +360,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
-                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7",
-                "shasum": null
+                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -371,8 +389,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9",
-                "shasum": null
+                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -401,8 +418,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a",
-                "shasum": null
+                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -429,8 +445,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85",
-                "shasum": null
+                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
             },
             "require": {
                 "automattic/jetpack-options": "@dev"
@@ -844,7 +859,8 @@
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-compat": 20
+        "automattic/jetpack-compat": 20,
+        "automattic/jetpack-module-comment-likes": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

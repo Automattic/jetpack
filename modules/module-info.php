@@ -840,25 +840,6 @@ function jetpack_search_more_info() {
 add_action( 'jetpack_module_more_info_search', 'jetpack_search_more_info' );
 
 /**
- * Comment Likes support link.
- */
-function jetpack_comment_likes_more_link() {
-	echo 'https://jetpack.com/support/comment-likes/';
-}
-add_action( 'jetpack_learn_more_button_comment-likes', 'jetpack_comment_likes_more_link' );
-
-/**
- * Comment Likes description.
- */
-function jetpack_comment_likes_more_info() {
-	esc_html_e(
-		'Increase visitor engagement by adding a Like button to comments.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_comment-likes', 'jetpack_comment_likes_more_info' );
-
-/**
  * Progressive Web Apps support link.
  */
 function jetpack_pwa_more_link() {

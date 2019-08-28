@@ -17,11 +17,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
 			),
 
-			'comment-likes' => array(
-				'name' => _x( 'Comment Likes', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Increase visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
-			),
-
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Let visitors use a WordPress.com, Twitter, Facebook, or Google account to comment', 'Module Description', 'jetpack' ),
@@ -256,7 +251,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			'Photos and Videos' =>_x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Social` tag:
-			//  - modules/comment-likes.php
 			//  - modules/comments.php
 			//  - modules/gravatar-hovercards.php
 			//  - modules/likes.php
