@@ -23,7 +23,7 @@ export default class SearchFilterDates extends Component {
 										<input
 											disabled
 											id={ `jp-instant-search-filter-dates-${ bucket.key_as_string }` }
-											name={ bucket.key }
+											name={ bucket.key_as_string }
 											type="checkbox"
 										/>
 										<label htmlFor={ `jp-instant-search-filter-dates-${ bucket.key_as_string }` }>
