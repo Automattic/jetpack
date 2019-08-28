@@ -29,8 +29,8 @@ $tags   = array(
 	'Other' => array(),
 );
 foreach ( $modules as $module_slug ) {
-	$absolute_path  = $file;		$absolute_path = Jetpack::get_module_path( $module_slug );
-	$relative_path  = str_replace( $jp_dir, '', $file );		$relative_path  = str_replace( $jp_dir, '', $absolute_path );
+	$absolute_path = Jetpack::get_module_path( $module_slug );
+	$relative_path  = str_replace( $jp_dir, '', $absolute_path );
 	$_file_contents = '';
 
 	$file      = fopen( $absolute_path, 'r' );
