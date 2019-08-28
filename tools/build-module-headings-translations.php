@@ -17,13 +17,20 @@ function jetpack_get_module_i18n( \$key ) {
 
 $jp_dir = dirname( dirname( __FILE__ ) ) . '/';
 
-$files  = glob( "{$jp_dir}modules/*.php" );
+// $files  = glob( "{$jp_dir}modules/*.php" );
+
+// autoload any modules in dependent dirs
+require $jp_dir . 'vendor/autoload.php';
+$modules = Jetpack::get_available_modules();
+
+print_r( $modules );
+
 $tags   = array(
 	'Other' => array(),
 );
-foreach ( $files as $file ) {
-	$absolute_path  = $file;
-	$relative_path  = str_replace( $jp_dir, '', $file );
+foreach ( $modules as $module_slug ) {
+	$absolute_path  = $file;		$absolute_path = Jetpack::get_module_path( $module_slug );
+	$relative_path  = str_replace( $jp_dir, '', $file );		$relative_path  = str_replace( $jp_dir, '', $absolute_path );
 	$_file_contents = '';
 
 	$file      = fopen( $absolute_path, 'r' );

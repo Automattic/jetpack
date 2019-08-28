@@ -1,7 +1,5 @@
 <?php
 
-error_log("module running");
-
 // exit unless in WP
 if ( ! defined('ABSPATH') ) {
 	exit;
@@ -18,10 +16,6 @@ add_filter( 'jetpack_get_module_path', function( $path, $slug ) {
 	}
 	return $path;
 }, 10, 2 );
-
-// return apply_filters( 'jetpack_get_module_path', JETPACK__PLUGIN_DIR . "modules/$slug.php", $slug );
-
-// $mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
 
 /**
  * This is from modules/module-info.php

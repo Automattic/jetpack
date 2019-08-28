@@ -60,6 +60,11 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
+"@automattic/jetpack-build@./packages/build":
+  version "1.0.0"
+  dependencies:
+    through2 "^3.0.1"
+
 "@automattic/wordpress-external-dependencies-plugin@1.0.0", "@automattic/wordpress-external-dependencies-plugin@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/wordpress-external-dependencies-plugin/-/wordpress-external-dependencies-plugin-1.0.0.tgz#1f05e3eb6ff4647b3abe1d6a06aa5ac9bb111b4b"

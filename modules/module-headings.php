@@ -221,6 +221,11 @@ function jetpack_get_module_i18n( $key ) {
 				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Earn income by allowing Jetpack to display high quality ads.', 'Module Description', 'jetpack' ),
 			),
+
+			'comment-likes' => array(
+				'name' => _x( 'Comment Likes', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Increase visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
+			),
 		);
 	}
 	return $modules[ $key ];
@@ -261,6 +266,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/shortlinks.php
 			//  - modules/subscriptions.php
 			//  - modules/widgets.php
+			//  - packages/comment-likes/legacy/comment-likes.php
 			'Social' =>_x( 'Social', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Writing` tag:
