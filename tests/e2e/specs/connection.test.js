@@ -14,13 +14,11 @@ import { execSyncShellCommand } from '../lib/utils-helper';
 // jest.setTimeout( 600000 );
 
 function resetWordpressInstall() {
-	const cmd = 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp';
-
 	console.log( 'resetWordpressInstall' );
 	const r = execSyncShellCommand( 'pwd' );
 	console.log( r );
 
-	const out = execSyncShellCommand( cmd );
+	const out = execSyncShellCommand( 'bash tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 
 	console.log( out );
 }
@@ -39,7 +37,7 @@ describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
 		console.log( '!!!!!!!!!!!' );
 
-		// resetWordpressInstall();
+		resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();
 	} );
