@@ -19,6 +19,7 @@ export function execShellCommand( cmd ) {
 			return resolve( stdout ? stdout : stderr );
 		} );
 		cmdExec.stdout.on( 'data', data => console.log( data ) );
+		cmdExec.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
 	} );
 }
 
