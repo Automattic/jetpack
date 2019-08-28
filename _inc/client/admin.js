@@ -87,7 +87,7 @@ function render() {
 					/>
 					<Route
 						path="/plans-prompt"
-						name={ i18n.translate( 'Plans Prompt', { context: 'Navigation item.' } ) }
+						name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) }
 						component={ Main }
 					/>
 					<Route
