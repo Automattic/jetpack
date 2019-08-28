@@ -151,23 +151,15 @@ prepare_jetpack() {
 	wp plugin activate jetpack
 }
 
-export_env_variables() {
-	cd $WORKING_DIR
-	cat <<EOT >> env-file
-WP_SITE_URL=${WP_SITE_URL}
-WORKING_DIR=${WORKING_DIR}
-EOT
-}
-
 if [ "${1}" == "reset_wp" ]; then
 	echo "Resetting WordPress"
 	restart_tunnel
 
 	echo "WP SITE URL: $WP_SITE_URL"
-	echo $( get_ngrok_url )
 
 	wp --path=$WP_CORE_DIR db reset --yes
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
+	prepare_jetpack
 	echo "rest_wp DONE!"
 	exit 0
 fi
@@ -179,7 +171,5 @@ setup_nginx
 
 install_wp
 prepare_jetpack
-
-export_env_variables
 
 echo $WP_SITE_URL

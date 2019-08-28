@@ -9,37 +9,12 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 /**
  * External dependencies
  */
-import { execSyncShellCommand, execShellCommand, execShellFile } from '../lib/utils-helper';
-import { spawn } from 'child_process';
+import { execSyncShellCommand, execShellCommand } from '../lib/utils-helper';
 
 jest.setTimeout( 600000 );
 
-async function execWithPromise( command ) {
-	return new Promise( async ( resolve, reject ) => {
-		const process = spawn( command, {
-			detached: true,
-			stdio: 'ignore',
-		} );
-		process.on( 'data', data => {
-			console.log( data );
-			return resolve( data );
-		} );
-		process.on( 'error', e => reject( e ) );
-		process.on( 'close', e => reject( e ) );
-		process.unref();
-	} );
-}
-
 async function resetWordpressInstall() {
-	// const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
-	// const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
-	const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
-	console.log( '!!!!!!!!!!!!!!!!!' );
-	// const file = fs.readFileSync( './out.log' );
-	// console.log( file );
-	// console.log( '======' );
-
-	console.log( out );
+	await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 }
 
 function getNgrokSiteUrl() {

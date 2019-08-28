@@ -12,29 +12,11 @@ export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout, stderr ) => {
 			if ( error ) {
-				console.log( '!!! ERROR' );
-
 				console.warn( error );
 			}
 			return resolve( stdout ? stdout : stderr );
 		} );
 		cmdExec.stdout.on( 'data', data => console.log( data ) );
-		cmdExec.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
-	} );
-}
-
-export async function execShellFile( file, opts ) {
-	return await new Promise( resolve => {
-		const cmdExec = execFile( file, opts, ( error, stdout, stderr ) => {
-			if ( error ) {
-				console.log( '!!! ERROR' );
-
-				console.warn( error );
-			}
-			return resolve( stdout ? stdout : stderr );
-		} );
-		cmdExec.stdout.on( 'data', data => console.log( data ) );
-		cmdExec.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
 	} );
 }
 
