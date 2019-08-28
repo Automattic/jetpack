@@ -16,8 +16,6 @@ import { takeScreenshot } from './reporters/screenshot';
 let currentBlock;
 const { CI, E2E_DEBUG } = process.env;
 
-console.log( 'jest.test.failure!' );
-
 // Use wrap to preserve all previous `wrap`s
 jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) => {
 	try {
