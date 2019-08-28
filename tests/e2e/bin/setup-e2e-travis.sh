@@ -174,6 +174,7 @@ if [ "${1}" == "reset_wp" ]; then
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 	echo "rest_wp DONE!"
 	exit 0
+	exit 0
 fi
 
 install_ngrok

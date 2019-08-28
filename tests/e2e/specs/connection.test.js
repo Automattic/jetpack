@@ -10,11 +10,27 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
  * External dependencies
  */
 import { execSyncShellCommand, execShellCommand, execShellFile } from '../lib/utils-helper';
+import { spawn } from 'child_process';
 
 jest.setTimeout( 600000 );
 
+const execWithPromise = async command => {
+	return new Promise( async ( resolve, reject ) => {
+		const process = spawn( command );
+		process.stdout.on( 'data', data => console.log( data ) );
+		process.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
+		process.on( 'data', data => {
+			console.log( data );
+			return resolve( data );
+		} );
+		process.on( 'error', err => reject( err ) );
+		process.on( 'close', err => reject( err ) );
+	} );
+};
+
 async function resetWordpressInstall() {
-	const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	const out = await execWithPromise( 'sh ./tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+	// const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
 	// const out = await execShellCommand( 'sh ./tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	console.log( '!!!!!!!!!!!!!!!!!' );
 	console.log( out );
