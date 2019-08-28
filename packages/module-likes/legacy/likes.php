@@ -21,9 +21,6 @@ Jetpack::dns_prefetch( array(
 	'//2.gravatar.com',
 ) );
 
-include_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-include_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
-
 class Jetpack_Likes {
 	public static function init() {
 		static $instance = NULL;
@@ -142,7 +139,7 @@ class Jetpack_Likes {
 	 */
 	function load_styles_register_scripts() {
 		if ( $this->in_jetpack ) {
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'jetpack_likes', plugins_url( '../assets/css/style.css', __FILE__ ), array(), JETPACK__VERSION );
 			$this->register_scripts();
 		}
 	}
@@ -311,8 +308,8 @@ class Jetpack_Likes {
 		wp_register_script(
 			'jetpack_likes_queuehandler',
 			Assets::get_file_url_for_environment(
-				'_inc/build/likes/queuehandler.min.js',
-				'modules/likes/queuehandler.js'
+				'_inc/build/jetpack-module-likes/assets/js/queuehandler.min.js',
+				'vendor/automattic/jetpack-module-likes/assets/js/queuehandler.js'
 			),
 			array( 'jquery', 'postmessage', 'jetpack_resize' ),
 			JETPACK__VERSION,
@@ -372,8 +369,8 @@ class Jetpack_Likes {
 				wp_enqueue_script(
 					'likes-post-count',
 					Assets::get_file_url_for_environment(
-						'_inc/build/likes/post-count.min.js',
-						'modules/likes/post-count.js'
+						'_inc/build/jetpack-module-likes/assets/js/_inc/build/likes/post-count.min.js',
+						'vendor/automattic/jetpack-module-likes/assets/js/post-count.js'
 					),
 					array( 'jquery' ),
 					JETPACK__VERSION
@@ -381,13 +378,14 @@ class Jetpack_Likes {
 				wp_enqueue_script(
 					'likes-post-count-jetpack',
 					Assets::get_file_url_for_environment(
-						'_inc/build/likes/post-count-jetpack.min.js',
-						'modules/likes/post-count-jetpack.js'
+						'_inc/build/jetpack-module-likes/assets/js/_inc/build/likes/post-count-jetpack.min.js',
+						'vendor/automattic/jetpack-module-likes/assets/js/post-count-jetpack.js'
 					),
 					array( 'likes-post-count' ),
 					JETPACK__VERSION
 				);
 			} else {
+				// TODO: fix for WPCOM
 				wp_enqueue_script( 'jquery.wpcom-proxy-request', "/wp-content/js/jquery/jquery.wpcom-proxy-request.js", array('jquery'), NULL, true );
 				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
 				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', dirname( __FILE__ ) ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION );
@@ -451,7 +449,7 @@ class Jetpack_Likes {
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
-		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		add_action( 'wp_footer', array( 'Jetpack_Likes_Master_Iframe', 'render' ), 21 );
 
 		/**
 		* if the same post appears more then once on a page the page goes crazy
@@ -536,7 +534,7 @@ class Jetpack_Likes {
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
-		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		add_action( 'wp_footer', array( 'Jetpack_Likes_Master_Iframe', 'render' ), 21 );
 
 		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
@@ -564,7 +562,7 @@ class Jetpack_Likes {
 function jetpack_post_likes_get_value( array $post ) {
 	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
 
-	/** This filter is documented in modules/jetpack-likes-settings.php */
+	/** This filter is documented in jetpack-likes-settings.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
 	// an empty string: post meta was not set, so go with the global setting

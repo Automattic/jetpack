@@ -18,6 +18,55 @@ import SupportInfo from 'components/support-info';
 
 import './style.scss';
 
+wp.blocks.registerBlockStyle;
+
+/**
+ * Testing
+ */
+const jetpack = {
+	settings: {
+		registerSettingsPanel: function() {},
+	},
+};
+
+{
+	foundCommentLikes && (
+		<div className="jp-toggle-set">
+			<FormFieldset>
+				<ModuleToggle
+					slug="comment-likes"
+					compact
+					disabled={ commentLikesUnavailable }
+					activated={ commentLikesActive }
+					toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
+					toggleModule={ this.props.toggleModuleNow }
+				>
+					<span className="jp-form-toggle-explanation">{ __( 'Enable comment likes.' ) }</span>
+				</ModuleToggle>
+			</FormFieldset>
+			<SupportInfo
+				text={ __( 'Allow readers to like individual comments.' ) }
+				link="https://jetpack.com/support/comment-likes/"
+				privacyLink="https://jetpack.com/support/comment-likes/#privacy"
+			/>
+		</div>
+	);
+}
+
+// jetpack-modules-comments-config
+
+jetpack.settings.registerSettingsPanel( 'jetpack/module-comment-likes', {
+	edit: () => {
+		return <CommentLikesPanel />;
+	},
+} );
+
+/**
+ * Renders any components hooked to the jetpack config area
+ * @param {*} slug The config area slug
+ */
+function renderJetpackConfigArea( slug ) {}
+
 class CommentsComponent extends React.Component {
 	/**
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
@@ -191,29 +240,7 @@ class CommentsComponent extends React.Component {
 								/>
 							</div>
 						) }
-						{ foundCommentLikes && (
-							<div className="jp-toggle-set">
-								<FormFieldset>
-									<ModuleToggle
-										slug="comment-likes"
-										compact
-										disabled={ commentLikesUnavailable }
-										activated={ commentLikesActive }
-										toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
-										toggleModule={ this.props.toggleModuleNow }
-									>
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Enable comment likes.' ) }
-										</span>
-									</ModuleToggle>
-								</FormFieldset>
-								<SupportInfo
-									text={ __( 'Allow readers to like individual comments.' ) }
-									link="https://jetpack.com/support/comment-likes/"
-									privacyLink="https://jetpack.com/support/comment-likes/#privacy"
-								/>
-							</div>
-						) }
+						{ renderJetpackConfigArea( 'jetpack-modules-comments-config' ) }
 					</SettingsGroup>
 				) }
 			</SettingsCard>

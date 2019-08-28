@@ -20,9 +20,6 @@ Jetpack::dns_prefetch(
 	)
 );
 
-require_once Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . '/modules/likes/jetpack-likes-master-iframe.php';
-require_once Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) . '/modules/likes/jetpack-likes-settings.php';
-
 class Jetpack_Comment_Likes {
 
 	public static function init() {
@@ -175,8 +172,8 @@ class Jetpack_Comment_Likes {
 
 		// In case master iframe hasn't been loaded. This could be the case when Post Likes module is disabled,
 		// or on pages on which we have comments but post likes are disabled.
-		if ( false === has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {
-			add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
+		if ( false === has_action( 'wp_footer', array( 'Jetpack_Likes_Master_Iframe', 'render' ) ) ) {
+			add_action( 'wp_footer', array( 'Jetpack_Likes_Master_Iframe', 'render' ), 21 );
 		}
 
 		$uniqid = uniqid();

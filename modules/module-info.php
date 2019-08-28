@@ -523,26 +523,6 @@ function jetpack_tiled_gallery_more_info() {
 add_action( 'jetpack_module_more_info_tiled-gallery', 'jetpack_tiled_gallery_more_info' );
 
 /**
- * Likes support link.
- */
-function jetpack_likes_more_link() {
-	echo 'https://jetpack.com/support/likes/';
-}
-add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
-
-/**
- * Likes description.
- */
-function jetpack_likes_more_info() {
-	esc_html_e(
-		'Allow your readers to show their appreciation for your posts and other content. Likes show up
-		below each post and your readers will also be able to review their liked posts from WordPress.com.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
-
-/**
  * Widget Visibility support link.
  */
 function jetpack_widget_visibility_more_link() {

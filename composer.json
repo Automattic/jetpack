@@ -22,6 +22,7 @@
 		"automattic/jetpack-tracking": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-compat": "@dev",
+		"automattic/jetpack-module-likes": "@dev",
 		"automattic/jetpack-module-comment-likes": "@dev"
 	},
 	"require-dev": {

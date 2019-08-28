@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "07e4d155ac1a4a6468794ca31ef807e1",
+    "content-hash": "4da0cd1016401856ec1ef15a7bfb7c01",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
@@ -41,7 +41,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -73,16 +73,11 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "4ad9631e68e9da8b8a764615766287becfb27f81"
-            },
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/4ad9631e68e9da8b8a764615766287becfb27f81",
-                "reference": "4ad9631e68e9da8b8a764615766287becfb27f81"
+                "url": "./packages/autoloader",
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -112,7 +107,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -144,7 +139,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -183,16 +178,11 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "f0578024a09088022be6accd1f3d4cb69ada98db"
-            },
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/f0578024a09088022be6accd1f3d4cb69ada98db",
-                "reference": "f0578024a09088022be6accd1f3d4cb69ada98db"
+                "url": "./packages/constants",
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -216,7 +206,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -244,7 +234,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -282,16 +272,11 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "c02750b6af95d114ba08562a7df74bab98235fef"
-            },
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/c02750b6af95d114ba08562a7df74bab98235fef",
-                "reference": "c02750b6af95d114ba08562a7df74bab98235fef"
+                "url": "./packages/logo",
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -316,11 +301,40 @@
         },
         {
             "name": "automattic/jetpack-module-comment-likes",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
-                "url": "./packages/comment-likes",
-                "reference": "0647d87dbcae3ee56bb473172dd34517a38fe528"
+                "url": "./packages/module-comment-likes",
+                "reference": "2a12aed3111945da6a752170495b5c9a829a72f8"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "10up/wp_mock": "0.4.2",
+                "phpunit/phpunit": "7.*.*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "legacy"
+                ],
+                "files": [
+                    "module.php"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "The Comment Likes module"
+        },
+        {
+            "name": "automattic/jetpack-module-likes",
+            "version": "dev-try/move-comment-likes-to-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/module-likes",
+                "reference": "443bc7e35afe4d4d67c2d647f40947695f69a700"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -345,16 +359,11 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-options.git",
-                "reference": "4edf1232529ec12457cc061b387036bc31e405bc"
-            },
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
-                "url": "https://api.github.com/repos/Automattic/jetpack-options/zipball/4edf1232529ec12457cc061b387036bc31e405bc",
-                "reference": "4edf1232529ec12457cc061b387036bc31e405bc"
+                "url": "./packages/options",
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -376,7 +385,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -405,7 +414,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -434,7 +443,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -461,7 +470,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-try/move-comment-likes-to-package",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -536,9 +545,9 @@
             "authors": [
                 {
                     "name": "Franck Nijhof",
+                    "role": "Developer / IT Manager",
                     "email": "franck.nijhof@dealerdirect.com",
-                    "homepage": "http://www.frenck.nl",
-                    "role": "Developer / IT Manager"
+                    "homepage": "http://www.frenck.nl"
                 }
             ],
             "description": "PHP_CodeSniffer Standards Composer Installer Plugin",
@@ -564,16 +573,16 @@
         },
         {
             "name": "phpcompatibility/php-compatibility",
-            "version": "9.2.0",
+            "version": "9.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "3db1bf1e28123fd574a4ae2e9a84072826d51b5e"
+                "reference": "06cc8d2c2ed62a70f52963dbdf5eaa1ec0fe34c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/3db1bf1e28123fd574a4ae2e9a84072826d51b5e",
-                "reference": "3db1bf1e28123fd574a4ae2e9a84072826d51b5e",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/06cc8d2c2ed62a70f52963dbdf5eaa1ec0fe34c5",
+                "reference": "06cc8d2c2ed62a70f52963dbdf5eaa1ec0fe34c5",
                 "shasum": ""
             },
             "require": {
@@ -597,18 +606,18 @@
             ],
             "authors": [
                 {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/PHPCompatibility/PHPCompatibility/graphs/contributors"
-                },
-                {
                     "name": "Wim Godden",
-                    "homepage": "https://github.com/wimg",
-                    "role": "lead"
+                    "role": "lead",
+                    "homepage": "https://github.com/wimg"
                 },
                 {
                     "name": "Juliette Reinders Folmer",
-                    "homepage": "https://github.com/jrfnl",
-                    "role": "lead"
+                    "role": "lead",
+                    "homepage": "https://github.com/jrfnl"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/PHPCompatibility/PHPCompatibility/graphs/contributors"
                 }
             ],
             "description": "A set of sniffs for PHP_CodeSniffer that checks for PHP cross-version compatibility.",
@@ -618,30 +627,32 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-06-27T19:58:56+00:00"
+            "time": "2019-08-28T15:29:06+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
-            "version": "1.0.1",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie.git",
-                "reference": "9160de79fcd683b5c99e9c4133728d91529753ea"
+                "reference": "b1bb79a7cab1fb856b56f1b5cf110b6e52d8e936"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/9160de79fcd683b5c99e9c4133728d91529753ea",
-                "reference": "9160de79fcd683b5c99e9c4133728d91529753ea",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/b1bb79a7cab1fb856b56f1b5cf110b6e52d8e936",
+                "reference": "b1bb79a7cab1fb856b56f1b5cf110b6e52d8e936",
                 "shasum": ""
             },
             "require": {
                 "phpcompatibility/php-compatibility": "^9.0"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4"
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.5",
+                "paragonie/random_compat": "dev-master",
+                "paragonie/sodium_compat": "dev-master"
             },
             "suggest": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4 || This Composer plugin will sort out the PHP_CodeSniffer 'installed_paths' automatically.",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.5 || This Composer plugin will sort out the PHP_CodeSniffer 'installed_paths' automatically.",
                 "roave/security-advisories": "dev-master || Helps prevent installing dependencies with known security issues."
             },
             "type": "phpcodesniffer-standard",
@@ -668,7 +679,7 @@
                 "polyfill",
                 "standards"
             ],
-            "time": "2018-12-16T19:10:44+00:00"
+            "time": "2019-08-28T15:58:19+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-wp",
@@ -880,6 +891,7 @@
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-compat": 20,
+        "automattic/jetpack-module-likes": 20,
         "automattic/jetpack-module-comment-likes": 20
     },
     "prefer-stable": true,

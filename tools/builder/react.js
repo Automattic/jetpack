@@ -90,7 +90,6 @@ function onBuild( done, err, stats ) {
 		'infinite-scroll',
 		'masterbar',
 		'videopress',
-		'comment-likes',
 		'lazy-images',
 	];
 
