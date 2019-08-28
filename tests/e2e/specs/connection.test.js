@@ -37,12 +37,12 @@ const execWithPromise = async command => {
 
 async function resetWordpressInstall() {
 	// const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
-	// const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
-	const out = await execShellCommand( 'sh ./tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+	const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	// const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	console.log( '!!!!!!!!!!!!!!!!!' );
-	const file = fs.readFileSync( './out.log' );
-	console.log( file );
-	console.log( '======' );
+	// const file = fs.readFileSync( './out.log' );
+	// console.log( file );
+	// console.log( '======' );
 
 	console.log( out );
 }

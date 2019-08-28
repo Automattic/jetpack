@@ -9,7 +9,7 @@ import { execSync, exec, execFile } from 'child_process';
  * @return {Promise<string>} output
  */
 export async function execShellCommand( cmd ) {
-	return await new Promise( resolve => {
+	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout, stderr ) => {
 			if ( error ) {
 				console.log( '!!! ERROR' );
