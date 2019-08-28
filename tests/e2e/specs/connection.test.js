@@ -21,7 +21,8 @@ const execWithPromise = async command => {
 	return new Promise( async ( resolve, reject ) => {
 		const process = spawn( command, {
 			detached: true,
-			stdio: [ 'ignore', out, err ],
+			stdio: 'ignore',
+			// stdio: [ 'ignore', out, err ],
 		} );
 		// process.stdout.on( 'data', data => console.log( data ) );
 		// process.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
