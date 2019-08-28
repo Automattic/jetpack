@@ -81,7 +81,11 @@ class SearchApp extends Component {
 
 				{ this.props.widgets.map( widget => (
 					<Portal into={ `#${ widget.widget_id }` }>
-						<SearchFiltersWidget widget={ widget } results={ this.state.results } />
+						<SearchFiltersWidget
+							postTypes={ this.props.postTypes }
+							results={ this.state.results }
+							widget={ widget }
+						/>
 					</Portal>
 				) ) }
 

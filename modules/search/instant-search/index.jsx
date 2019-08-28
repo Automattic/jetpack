@@ -26,6 +26,7 @@ const injectSearchWidget = ( initialValue, target, grabFocus ) => {
 			aggregations={ buildFilterAggregations( window.JetpackInstantSearchOptions.widgets ) }
 			grabFocus={ grabFocus }
 			initialValue={ initialValue }
+			postTypes={ window.JetpackInstantSearchOptions.postTypes }
 			siteId={ window.JetpackInstantSearchOptions.siteId }
 			widgets={ window.JetpackInstantSearchOptions.widgets }
 		/>,
@@ -36,6 +37,7 @@ const injectSearchWidget = ( initialValue, target, grabFocus ) => {
 document.addEventListener( 'DOMContentLoaded', function() {
 	if (
 		!! window.JetpackInstantSearchOptions &&
+		'postTypes' in window.JetpackInstantSearchOptions &&
 		'siteId' in window.JetpackInstantSearchOptions &&
 		'widgets' in window.JetpackInstantSearchOptions &&
 		document.body &&

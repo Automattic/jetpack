@@ -7,6 +7,22 @@ import { h, Component } from 'preact';
 import strip from 'strip';
 
 export default class SearchFilterPostTypes extends Component {
+	renderPostType = ( { key, doc_count: count } ) => {
+		const name = this.props.postTypes[ key ];
+		return (
+			<div>
+				<input
+					disabled
+					id={ `jp-instant-search-filter-post-types-${ key }` }
+					name={ key }
+					type="checkbox"
+				/>
+				<label htmlFor={ `jp-instant-search-filter-post-types-${ key }` }>
+					{ strip( name ) } ({ count })
+				</label>
+			</div>
+		);
+	};
 	render() {
 		return (
 			<div>
@@ -14,19 +30,7 @@ export default class SearchFilterPostTypes extends Component {
 				<ul className="jetpack-search-filters-widget__filter-list">
 					{ this.props.aggregation &&
 						'buckets' in this.props.aggregation &&
-						this.props.aggregation.buckets.map( bucket => (
-							<div>
-								<input
-									type="checkbox"
-									name=""
-									id={ `jp-instant-search-filter-post-types-${ bucket.key }` }
-									disabled
-								/>
-								<label htmlFor={ `jp-instant-search-filter-post-types-${ bucket.key }` }>
-									{ strip( bucket.key ) } ({ bucket.doc_count })
-								</label>
-							</div>
-						) ) }
+						this.props.aggregation.buckets.map( this.renderPostType ) }
 				</ul>
 			</div>
 		);

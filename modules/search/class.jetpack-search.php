@@ -219,8 +219,9 @@ class Jetpack_Search {
 
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
-					'siteId'  => Jetpack::get_option( 'id' ),
-					'widgets' => array_values( $widgets ),
+					'postTypes' => get_post_types(),
+					'siteId'		=> Jetpack::get_option( 'id' ),
+					'widgets' 	=> array_values( $widgets ),
 				);
 				/**
 				 * Customize Instant Search Options.
