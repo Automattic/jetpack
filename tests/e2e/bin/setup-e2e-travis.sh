@@ -64,6 +64,12 @@ start_ngrok() {
 	fi
 }
 
+restart_tunnel() {
+	curl -X "DELETE" localhost:4040/api/tunnels/command_line
+
+	curl -X POST -H "Content-Type: application/json" -d '{"name":"command_line","addr":"http://localhost:80","proto":"http"}' localhost:4040/api/tunnels
+}
+
 setup_nginx() {
 	NGINX_DIR="/etc/nginx"
 	CONFIG_DIR="./tests/e2e/bin/travis"
@@ -152,8 +158,7 @@ EOT
 
 if [ "${1}" == "reset_wp" ]; then
 	echo "Resetting WordPress"
-	install_ngrok
-	start_ngrok
+	restart_tunnel
 
 	echo "WP SITE URL: $WP_SITE_URL"
 	echo $( get_ngrok_url )

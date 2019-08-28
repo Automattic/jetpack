@@ -11,7 +11,6 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
  */
 import { execSyncShellCommand, execShellCommand, execShellFile } from '../lib/utils-helper';
 import { spawn } from 'child_process';
-const fs = require( 'fs' );
 
 jest.setTimeout( 600000 );
 
@@ -32,9 +31,9 @@ async function execWithPromise( command ) {
 }
 
 async function resetWordpressInstall() {
-	const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	// const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
 	// const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
-	// const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+	const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	console.log( '!!!!!!!!!!!!!!!!!' );
 	// const file = fs.readFileSync( './out.log' );
 	// console.log( file );
