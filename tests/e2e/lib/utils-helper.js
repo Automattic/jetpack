@@ -12,13 +12,13 @@ export function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout, stderr ) => {
 			if ( error ) {
+				console.log( '!!! ERROR' );
+
 				console.warn( error );
 			}
 			return resolve( stdout ? stdout : stderr );
 		} );
-		cmdExec.stdout.on( 'data', function( data ) {
-			console.log( data );
-		} );
+		cmdExec.stdout.on( 'data', data => console.log( data ) );
 	} );
 }
 
