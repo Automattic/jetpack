@@ -35,9 +35,9 @@ function getNgrokSiteUrl() {
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {
-		console.log( '!!!!!!!!!!!' );
-		getNgrokSiteUrl();
-		resetWordpressInstall();
+		// console.log( '!!!!!!!!!!!' );
+		// getNgrokSiteUrl();
+		// resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url ) ).login();
 	} );

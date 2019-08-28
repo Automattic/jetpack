@@ -48,7 +48,7 @@ matrix:
     - "sysctl kernel.unprivileged_userns_clone=1"
     - nvm install
     - yarn && yarn build
-    - bash tests/e2e/bin/setup-e2e-travis.sh
+    - ./tests/e2e/bin/setup-e2e-travis.sh
     - source ./env-file
     - yarn test-decrypt-config
     script:
