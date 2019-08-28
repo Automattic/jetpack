@@ -5,13 +5,11 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import { execSyncShellCommand } from './utils-helper';
+import { getNgrokSiteUrl } from './utils-helper';
 
 const WP_ADMIN_USER = config.get( 'WP_ADMIN_USER' );
 
-const ngrokURL = execSyncShellCommand(
-	'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)'
-);
+const ngrokURL = getNgrokSiteUrl();
 
 const {
 	WP_USERNAME = WP_ADMIN_USER.username,

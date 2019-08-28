@@ -24,12 +24,8 @@ export function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
-export async function getNgrokSiteUrl() {
+export function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	console.log( 'getNgrokSiteUrl' );
-	const out = await execShellCommand( cmd );
-
-	console.log( out );
-	return out;
+	return execSyncShellCommand( cmd );
 }

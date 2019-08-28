@@ -28,6 +28,16 @@ kill_ngrok() {
 	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
 
+# ngrok API docs: https://ngrok.com/docs#client-api
+restart_tunnel() {
+	curl -X "DELETE" localhost:4040/api/tunnels/command_line
+
+	curl -X POST -H "Content-Type: application/json" -d '{"name":"command_line","addr":"http://localhost:80","proto":"http"}' localhost:4040/api/tunnels
+
+	sleep 3
+	WP_SITE_URL=$(get_ngrok_url)
+}
+
 install_ngrok() {
 	if $(type -t "ngrok" >/dev/null 2>&1); then
 		NGROK_CMD="ngrok"
@@ -62,15 +72,6 @@ start_ngrok() {
 		echo "WP_SITE_URL is not set after launching an ngrok"
 		exit 1
 	fi
-}
-
-restart_tunnel() {
-	curl -X "DELETE" localhost:4040/api/tunnels/command_line
-
-	curl -X POST -H "Content-Type: application/json" -d '{"name":"command_line","addr":"http://localhost:80","proto":"http"}' localhost:4040/api/tunnels
-
-	sleep 3
-	WP_SITE_URL=$(get_ngrok_url)
 }
 
 setup_nginx() {
@@ -158,18 +159,16 @@ if [ "${1}" == "reset_wp" ]; then
 	echo "WP SITE URL: $WP_SITE_URL"
 
 	wp --path=$WP_CORE_DIR db reset --yes
-	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
+	wp --path=$WP_CORE_DIR core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com
 	wp --path=$WP_CORE_DIR plugin activate jetpack
-	echo "rest_wp DONE!"
-	exit 0
+else
+	install_ngrok
+	start_ngrok
+
+	setup_nginx
+
+	install_wp
+	prepare_jetpack
 fi
-
-install_ngrok
-start_ngrok
-
-setup_nginx
-
-install_wp
-prepare_jetpack
 
 echo $WP_SITE_URL
