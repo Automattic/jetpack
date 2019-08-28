@@ -33,7 +33,7 @@ describe( 'Jetpack connection', () => {
 		getNgrokSiteUrl();
 		resetWordpressInstall();
 		const url = getNgrokSiteUrl();
-		await ( await WPLoginPage.visit( page, url ) ).login();
+		await ( await WPLoginPage.visit( page, url + '/wp-login.php' ) ).login();
 	} );
 
 	it( 'Can find connect button on plugins page', async () => {
