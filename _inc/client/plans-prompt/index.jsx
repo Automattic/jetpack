@@ -16,7 +16,7 @@ import JetpackLogo from '../components/jetpack-logo';
 export class PlansPrompt extends React.Component {
 	trackStartWithFreeClick() {
 		analytics.tracks.recordJetpackClick( {
-			target: 'start-free',
+			target: 'free-plan',
 			feature: 'plans-prompt',
 		} );
 	}
