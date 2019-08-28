@@ -6,6 +6,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Plans from '../plans';
 import { translate as __ } from 'i18n-calypso';
@@ -13,6 +14,13 @@ import Gridicon from '../components/gridicon';
 import JetpackLogo from '../components/jetpack-logo';
 
 export class PlansPrompt extends React.Component {
+	trackStartWithFreeClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'start-free',
+			feature: 'plans-prompt',
+		} );
+	}
+
 	renderBanner() {
 		return (
 			<div className="plans-prompt__banner">
@@ -28,7 +36,10 @@ export class PlansPrompt extends React.Component {
 	renderFooter() {
 		return (
 			<div className="plans-prompt__footer">
-				<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack' }>
+				<Button
+					href={ this.props.siteAdminUrl + 'admin.php?page=jetpack' }
+					onClick={ this.trackStartWithFreeClick }
+				>
 					{ __( 'Start with free' ) }
 					<Gridicon icon={ 'arrow-right' } size={ 18 } />
 				</Button>
