@@ -207,6 +207,7 @@ $plan-features-sidebar-width: 272px;
 	}
 }
 
+.plans-mobile-notice,
 .plans-mobile-notice.dops-card {
 	@include breakpoint( ">660px" ) {
 		display: none;
