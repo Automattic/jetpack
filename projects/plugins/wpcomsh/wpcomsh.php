@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.39
+ * Version: 2.4.40
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.39' );
+define( 'WPCOMSH_VERSION', '2.4.40' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -21,7 +21,20 @@ require_once( 'plugin-hotfixes.php' );
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'storefront/storefront.php' );
 require_once( 'custom-colors/colors.php' );
+
+// Interoperability with the core WordPress data privacy functionality (See also "GDPR")
 require_once( 'privacy/participating-plugins.php' );
+
+// Functionality to make sites private and only accessible to members with appropriate capabilities
+if (
+	// This feature is currently in testing. It's only enabled for proxied requests...
+	( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ||
+	// ...and when wpcomsh is installed as a "regular" plugin (for development purposes).
+	! ( defined( 'ATOMIC_MU_DEV_LOADED' ) && ATOMIC_MU_DEV_LOADED )
+) {
+	require_once 'private-site/private-site.php';
+}
+
 require_once( 'class.wpcomsh-log.php' );
 require_once( 'safeguard/plugins.php' );
 require_once( 'logo-tool/logo-tool.php' );
