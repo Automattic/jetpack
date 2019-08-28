@@ -155,9 +155,6 @@ class Jetpack {
 			'Google+ Comments'                     => 'google-plus-comments/google-plus-comments.php',
 			'WP-SpamShield Anti-Spam'              => 'wp-spamshield/wp-spamshield.php',
 		),
-		'comment-likes' => array(
-			'Epoch'                                => 'epoch/plugincore.php',
-		),
 		'contact-form'      => array(
 			'Contact Form 7'                       => 'contact-form-7/wp-contact-form-7.php',
 			'Gravity Forms'                        => 'gravityforms/gravityforms.php',
@@ -2418,9 +2415,10 @@ class Jetpack {
 			// For each module we'd like to auto-activate...
 			foreach ( $modules as $key => $module ) {
 				// If there are potential conflicts for it...
-				if ( ! empty( $this->conflicting_plugins[ $module ] ) ) {
+				$module_conflicting_plugins = apply_filters( 'jetpack_module_conflicting_plugins', $this->conflicting_plugins[ $module ] ?? array(), $module );
+				if ( ! empty( $module_conflicting_plugins ) ) {
 					// For each potential conflict...
-					foreach ( $this->conflicting_plugins[ $module ] as $title => $plugin ) {
+					foreach ( $module_conflicting_plugins as $title => $plugin ) {
 						// If that conflicting plugin is active...
 						if ( in_array( $plugin, $active_plugins ) ) {
 							// Remove that item from being auto-activated.

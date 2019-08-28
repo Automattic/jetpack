@@ -37,3 +37,20 @@ add_action( 'jetpack_module_more_info_comment-likes', function() {
 		'jetpack'
 	);
 } );
+
+/**
+ * This is from class.jetpack.php
+ */
+/**
+ * Removed from class.jetpack.php:
+ *
+ * 'comment-likes' => array(
+ *			'Epoch'                                => 'epoch/plugincore.php',
+ *		),
+ */
+add_filter( 'jetpack_module_conflicting_plugins', function( $conflicts, $module_slug ) {
+	if ( 'comment-likes' === $module_slug ) {
+		$conflicts['Epoch'] = 'epoch/plugincore.php';
+	}
+	return $conflicts;
+});
