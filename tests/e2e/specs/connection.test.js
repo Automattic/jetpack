@@ -36,6 +36,8 @@ function getNgrokSiteUrl() {
 }
 
 beforeAll( async () => {
+	console.log( '!!!!!!!!!!!' );
+
 	resetWordpressInstall();
 	const url = getNgrokSiteUrl();
 	await ( await WPLoginPage.visit( page, url ) ).login();
