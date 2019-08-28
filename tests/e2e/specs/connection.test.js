@@ -13,10 +13,20 @@ import { execSyncShellCommand, execShellCommand } from '../lib/utils-helper';
 
 jest.setTimeout( 600000 );
 
+const util = require( 'util' );
+const exec = util.promisify( require( 'child_process' ).exec );
+
 async function resetWordpressInstall() {
-	const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
-	console.log( '!!!!!!!!!!!!!!!!!' );
-	console.log( out );
+	try {
+		const { stdout, stderr } = await exec( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+		console.log( 'stdout:', stdout );
+		console.log( 'stderr:', stderr );
+	} catch ( err ) {
+		console.error( err );
+	}
+	// const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+	// console.log( '!!!!!!!!!!!!!!!!!' );
+	// console.log( out );
 }
 
 function getNgrokSiteUrl() {
