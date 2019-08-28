@@ -168,6 +168,7 @@ class Jetpack_Connection_Banner {
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 				'forceVariation'        => $force_variation,
+				'redirectUrl'           => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
 			)
 		);
 	}
