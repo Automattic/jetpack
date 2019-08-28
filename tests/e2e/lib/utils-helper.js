@@ -1,24 +1,29 @@
 /**
+ * External dependencies
+ */
+import { execSync, exec } from 'child_process';
+
+/**
  * Executes a shell command and return it as a Promise.
  * @param {string} cmd  shell command
  * @return {Promise<string>} output
  */
 export function execShellCommand( cmd ) {
-	const exec = require( 'child_process' ).exec;
 	return new Promise( resolve => {
-		exec( cmd, ( error, stdout, stderr ) => {
+		const cmdExec = exec( cmd, ( error, stdout, stderr ) => {
 			if ( error ) {
 				console.warn( error );
 			}
 			return resolve( stdout ? stdout : stderr );
 		} );
+		cmdExec.stdout.pipe( process.stdout );
+		cmdExec.stdout.on( 'data', function( data ) {
+			console.log( data );
+		} );
 	} );
 }
 
 export function execSyncShellCommand( cmd ) {
-	console.log( 'execSyncShellCommand' );
-
-	const execSync = require( 'child_process' ).execSync;
 	return execSync( cmd ).toString();
 }
 
