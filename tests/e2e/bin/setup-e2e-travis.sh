@@ -139,6 +139,11 @@ PHP
 	wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
 	wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
 
+	# NOTE: Force classic connection flow
+	# https://github.com/Automattic/jetpack/pull/13288
+	wp --allow-root config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant
+
+
 	wp db create
 
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
