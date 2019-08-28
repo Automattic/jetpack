@@ -9,24 +9,15 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 /**
  * External dependencies
  */
-import { execSyncShellCommand, execShellCommand } from '../lib/utils-helper';
+import { execSyncShellCommand, execShellCommand, execShellFile } from '../lib/utils-helper';
 
 jest.setTimeout( 600000 );
 
-const util = require( 'util' );
-const exec = util.promisify( require( 'child_process' ).exec );
-
 async function resetWordpressInstall() {
-	try {
-		const { stdout, stderr } = await exec( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
-		console.log( 'stdout:', stdout );
-		console.log( 'stderr:', stderr );
-	} catch ( err ) {
-		console.error( err );
-	}
-	// const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
-	// console.log( '!!!!!!!!!!!!!!!!!' );
-	// console.log( out );
+	const out = execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	// const out = await execShellCommand( 'sh ./tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+	console.log( '!!!!!!!!!!!!!!!!!' );
+	console.log( out );
 }
 
 function getNgrokSiteUrl() {
