@@ -14,7 +14,7 @@ import { execSyncShellCommand, execShellCommand, execShellFile } from '../lib/ut
 jest.setTimeout( 600000 );
 
 async function resetWordpressInstall() {
-	const out = execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
 	// const out = await execShellCommand( 'sh ./tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	console.log( '!!!!!!!!!!!!!!!!!' );
 	console.log( out );
