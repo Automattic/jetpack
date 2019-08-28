@@ -35,15 +35,15 @@ function getNgrokSiteUrl() {
 	return out;
 }
 
-beforeAll( async () => {
-	console.log( '!!!!!!!!!!!' );
-
-	resetWordpressInstall();
-	const url = getNgrokSiteUrl();
-	await ( await WPLoginPage.visit( page, url ) ).login();
-} );
-
 describe( 'Jetpack connection', () => {
+	beforeAll( async () => {
+		console.log( '!!!!!!!!!!!' );
+
+		resetWordpressInstall();
+		const url = getNgrokSiteUrl();
+		await ( await WPLoginPage.visit( page, url ) ).login();
+	} );
+
 	it( 'Can find connect button on plugins page', async () => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
