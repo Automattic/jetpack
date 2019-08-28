@@ -26,6 +26,10 @@ process.env = Object.assign( process.env, {
 	WP_BASE_URL,
 } );
 
+console.log( '1' );
+
 console.log( 'Running tests against ' + WP_BASE_URL );
+
+console.log( '2' );
 
 export { WP_PASSWORD, WP_ADMIN_USER, WP_USERNAME, WP_BASE_URL };
