@@ -26,12 +26,8 @@ require_once( 'custom-colors/colors.php' );
 require_once( 'privacy/participating-plugins.php' );
 
 // Functionality to make sites private and only accessible to members with appropriate capabilities
-if (
+if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 	// This feature is currently in testing. It's only enabled for proxied requests...
-	( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ||
-	// ...and when wpcomsh is installed as a "regular" plugin (for development purposes).
-	! ( defined( 'ATOMIC_MU_DEV_LOADED' ) && ATOMIC_MU_DEV_LOADED )
-) {
 	require_once 'private-site/private-site.php';
 }
 
