@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { execSync, exec, execFile } from 'child_process';
+import { execSync, exec } from 'child_process';
 
 /**
  * Executes a shell command and return it as a Promise.
