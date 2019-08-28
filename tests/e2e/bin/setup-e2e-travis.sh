@@ -68,6 +68,9 @@ restart_tunnel() {
 	curl -X "DELETE" localhost:4040/api/tunnels/command_line
 
 	curl -X POST -H "Content-Type: application/json" -d '{"name":"command_line","addr":"http://localhost:80","proto":"http"}' localhost:4040/api/tunnels
+
+	sleep 3
+	WP_SITE_URL=$(get_ngrok_url)
 }
 
 setup_nginx() {
