@@ -15,17 +15,12 @@ const fs = require( 'fs' );
 
 jest.setTimeout( 600000 );
 
-const execWithPromise = async command => {
-	const out = fs.openSync( './out.log', 'a' );
-	const err = fs.openSync( './out.log', 'a' );
+async function execWithPromise( command ) {
 	return new Promise( async ( resolve, reject ) => {
 		const process = spawn( command, {
 			detached: true,
 			stdio: 'ignore',
-			// stdio: [ 'ignore', out, err ],
 		} );
-		// process.stdout.on( 'data', data => console.log( data ) );
-		// process.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
 		process.on( 'data', data => {
 			console.log( data );
 			return resolve( data );
@@ -34,7 +29,7 @@ const execWithPromise = async command => {
 		process.on( 'close', e => reject( e ) );
 		process.unref();
 	} );
-};
+}
 
 async function resetWordpressInstall() {
 	const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
