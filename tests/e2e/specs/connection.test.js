@@ -23,7 +23,6 @@ const execWithPromise = async command => {
 			detached: true,
 			stdio: [ 'ignore', out, err ],
 		} );
-		process.unref();
 		// process.stdout.on( 'data', data => console.log( data ) );
 		// process.stderr.on( 'data', data => console.log( 'ERR: ' + data ) );
 		process.on( 'data', data => {
@@ -32,12 +31,13 @@ const execWithPromise = async command => {
 		} );
 		process.on( 'error', e => reject( e ) );
 		process.on( 'close', e => reject( e ) );
+		process.unref();
 	} );
 };
 
 async function resetWordpressInstall() {
-	// const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
-	const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	const out = await execWithPromise( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
+	// const out = await execShellFile( './tests/e2e/bin/setup-e2e-travis.sh', [ 'reset_wp' ] );
 	// const out = await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 	console.log( '!!!!!!!!!!!!!!!!!' );
 	// const file = fs.readFileSync( './out.log' );
