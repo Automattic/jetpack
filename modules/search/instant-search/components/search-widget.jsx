@@ -15,7 +15,7 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
-import { search } from '../lib/api';
+import { search, buildFilter } from '../lib/api';
 import { setSearchQuery } from '../lib/query-string';
 import { removeChildren } from '../lib/dom';
 
@@ -27,6 +27,7 @@ class SearchApp extends Component {
 			query: this.props.initialValue,
 			results: {},
 		};
+		this.props.filter = buildFilter( this.props.options.filters ); //I guess should be added to state
 		this.getResults = debounce( this.getResults, 500 );
 		this.getResults( this.props.initialValue );
 	}
@@ -54,7 +55,7 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( this.props.siteId, query, this.props.aggregations )
+			search( this.props.siteId, query, this.props.aggregations, this.props.filter )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
