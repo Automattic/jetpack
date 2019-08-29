@@ -9,22 +9,22 @@ class JetpackLogo extends React.Component {
 		className: PropTypes.string,
 		width: PropTypes.number,
 		height: PropTypes.number,
-		x: PropTypes.string,
-		y: PropTypes.string,
-		viewBox: PropTypes.string,
 	};
 
 	static defaultProps = {
 		className: 'jetpack-logo',
 		height: 32,
-		x: '0px',
-		y: '0px',
-		viewBox: '0 0 118 32',
 	};
 
 	render() {
 		return (
-			<svg xmlns="http://www.w3.org/2000/svg" { ...this.props }>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				x="0px"
+				y="0px"
+				viewBox="0 0 118 32"
+				{ ...this.props }
+			>
 				<path
 					fill="#00BE28"
 					d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"
