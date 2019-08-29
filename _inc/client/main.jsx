@@ -46,6 +46,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
 const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+const plansPromptRoute = '#/plans-prompt';
 
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
@@ -212,6 +213,10 @@ class Main extends React.Component {
 					/>
 				);
 				break;
+			case '/plans-prompt':
+				navComponent = null;
+				pageComponent = <PlansPrompt siteAdminUrl={ this.props.siteAdminUrl } />;
+				break;
 			case '/settings':
 			case '/security':
 			case '/performance':
@@ -267,32 +272,37 @@ class Main extends React.Component {
 		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
 	}
 
-	render() {
-		if ( this.props.route.path === '/plans-prompt' ) {
-			return (
-				<div>
-					<div className="jp-lower">
-						<AdminNotices />
-						<JetpackNotices />
-						<PlansPrompt siteAdminUrl={ this.props.siteAdminUrl } />
-					</div>
-					<Tracker analytics={ analytics } />
-				</div>
-			);
-		}
+	shouldShowRewindStatus() {
+		// Do not show on plans prompt page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && hashRoute !== plansPromptRoute;
+	}
 
+	shouldShowMasthead() {
+		// Do not show on plans prompt page
+		const hashRoute = '#' + this.props.route.path;
+		return hashRoute !== plansPromptRoute;
+	}
+
+	shouldShowFooter() {
+		// Do not show on plans prompt page
+		const hashRoute = '#' + this.props.route.path;
+		return hashRoute !== plansPromptRoute;
+	}
+
+	render() {
 		return (
 			<div>
-				<Masthead route={ this.props.route } />
+				{ this.shouldShowMasthead() && <Masthead route={ this.props.route } /> }
 				<div className="jp-lower">
-					{ this.props.isSiteConnected && <QueryRewindStatus /> }
+					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
-				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+				{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }
 				<Tracker analytics={ analytics } />
 			</div>
 		);
