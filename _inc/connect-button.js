@@ -21,6 +21,7 @@ jQuery( document ).ready( function( $ ) {
 
 	var jetpackConnectButton = {
 		isRegistering: false,
+		isPaidPlan: false,
 		startConnectionFlow: function() {
 			var abTestName = 'jetpack_connect_in_place';
 			$.ajax( {
@@ -45,6 +46,7 @@ jQuery( document ).ready( function( $ ) {
 				.text( jpConnect.buttonTextRegistering )
 				.attr( 'disabled', true )
 				.blur();
+
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/connection/register',
 				type: 'POST',
@@ -54,9 +56,23 @@ jQuery( document ).ready( function( $ ) {
 				},
 				error: jetpackConnectButton.handleConnectionError,
 				success: function( data ) {
+					jetpackConnectButton.fetchPlanType();
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );
 					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
 					$( '.jp-connect-full__button-container' ).html( jetpackConnectIframe );
+				},
+			} );
+		},
+		fetchPlanType: function() {
+			$.ajax( {
+				url: jpConnect.apiBaseUrl + '/site',
+				type: 'GET',
+				data: {
+					_wpnonce: jpConnect.apiSiteDataNonce,
+				},
+				success: function( data ) {
+					var siteData = JSON.parse( data.data );
+					jetpackConnectButton.isPaidPlan = ! siteData.plan.is_free;
 				},
 			} );
 		},
@@ -72,7 +88,13 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleAuthorizationComplete: function() {
 			jetpackConnectButton.isRegistering = false;
-			window.location = jpConnect.redirectUrl;
+
+			if ( jetpackConnectButton.isPaidPlan ) {
+				window.location.assign( jpConnect.dashboardUrl );
+			} else {
+				window.location.assign( jpConnect.plansPromptUrl );
+			}
+			window.location.reload( true );
 		},
 		handleConnectionError: function( error ) {
 			console.warn( 'Connection failed. Falling back to the regular flow', error );

@@ -165,10 +165,12 @@ class Jetpack_Connection_Banner {
 				'apiBaseUrl'            => site_url( '/wp-json/jetpack/v4' ),
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 				'forceVariation'        => $force_variation,
-				'redirectUrl'           => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
+				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
+				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
 			)
 		);
 	}
