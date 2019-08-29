@@ -506,7 +506,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			'/marketing/survey',
-			'1.1',
+			'v2',
 			array(
 				'method'  => 'POST',
 				'headers' => array(
@@ -514,8 +514,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
 			),
-			$request->get_body(),
-			'rest'
+			$request->get_json_params()
 		);
 
 		$wpcom_request_body = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
