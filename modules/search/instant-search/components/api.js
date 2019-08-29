@@ -70,6 +70,6 @@ export function search( siteId, query, aggs, filter, resultFormat ) {
 		filter: filter,
 	};
 	return fetch(
-		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?` + query_params( obj )
+		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ query_params( obj ) }`
 	);
 }
