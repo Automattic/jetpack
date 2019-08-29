@@ -72,9 +72,6 @@ extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
-extensions/blocks/videopress/deprecated/v1
-extensions/shared/with-has-warning-is-interactive-class-names
-extensions/shared/components/upgrade-nudge
 extensions/.eslintrc.js
 packages
 **/__snapshots__
