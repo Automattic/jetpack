@@ -84,7 +84,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', 'marketing/survey', array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => __CLASS__ . '::submit_survey',
-			'permission_callback' => __CLASS__ . '::unlink_user_permission_callback',
+			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 
 		) );
 
