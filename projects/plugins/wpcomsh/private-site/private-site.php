@@ -7,13 +7,26 @@
 
 namespace Private_Site;
 
+function is_module_active() {
+	// This feature is currently in testing. It's only enabled for sites that have explicitly set the option
+	return 1 == get_option( 'wpcomsh_private_site_module_active' );
+}
+
 function admin_init() {
+	if ( ! is_module_active() ) {
+		return;
+	}
+
 	// Add the radio option to the wp-admin Site Privacy selector
 	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
 }
 add_action( 'admin_init', '\Private_Site\admin_init' );
 
 function init() {
+	if ( ! is_module_active() ) {
+		return;
+	}
+
 	if ( ! site_is_private() ) {
 		return;
 	}

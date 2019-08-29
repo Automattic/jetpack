@@ -179,3 +179,5 @@ wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin 
 ### Private Site support
 
 Enables setting a site to "private." Doing so prevents viewing or interacting with site content to unauthenticated clients (and anyone without `read` capabilities).
+
+As this module is currently being developed & evaluated, it is only enabled when the `wpcomsh_private_site_module_active` site option is set to `1` (such that `\Private_Site\is_module_active()` returns `true`).

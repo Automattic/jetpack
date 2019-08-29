@@ -26,14 +26,7 @@ require_once( 'custom-colors/colors.php' );
 require_once( 'privacy/participating-plugins.php' );
 
 // Functionality to make sites private and only accessible to members with appropriate capabilities
-if (
-	// This feature is currently in testing. It's only enabled for proxied requests...
-	( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ||
-	// ...and when someone has set this site to private (so they can change it back to public themselves)
-	'-1' == get_option( 'blog_public' )
-) {
-	require_once 'private-site/private-site.php';
-}
+require_once 'private-site/private-site.php';
 
 require_once( 'class.wpcomsh-log.php' );
 require_once( 'safeguard/plugins.php' );
