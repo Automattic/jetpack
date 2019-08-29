@@ -4,9 +4,9 @@
 import { __, _x } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
-import { filter, pick } from 'lodash';
+import { filter, get, isEmpty, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 import {
 	BlockControls,
 	BlockIcon,
@@ -41,8 +41,14 @@ const effectOptions = [
 	{ label: _x( 'Fade', 'Slideshow transition effect', 'jetpack' ), value: 'fade' },
 ];
 
-export const pickRelevantMediaFiles = image =>
-	pick( image, [ 'alt', 'id', 'link', 'url', 'caption' ] );
+export const pickRelevantMediaFiles = image => {
+	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );
+	imageProps.url =
+		get( image, [ 'sizes', 'large', 'url' ] ) ||
+		get( image, [ 'media_details', 'sizes', 'large', 'source_url' ] ) ||
+		image.url;
+	return imageProps;
+};
 
 class SlideshowEdit extends Component {
 	constructor() {
@@ -101,6 +107,23 @@ class SlideshowEdit extends Component {
 		} );
 	};
 	uploadFromFiles = event => this.addFiles( event.target.files );
+	getImageSizeOptions() {
+		const { imageSizes } = this.props;
+		return map( imageSizes, ( { name, slug } ) => ( { value: slug, label: name } ) );
+	}
+	updateImagesSize = sizeSlug => {
+		const { attributes, getImage } = this.props;
+		const { images } = attributes;
+
+		images.forEach( image => {
+			const url = get( getImage( image.id ), [ 'media_details', 'sizes', sizeSlug, 'source_url' ] );
+			if ( url ) {
+				images.url = url;
+			}
+		} );
+
+		this.setAttributes( { images } );
+	};
 	render() {
 		const {
 			attributes,
@@ -110,10 +133,11 @@ class SlideshowEdit extends Component {
 			noticeUI,
 			setAttributes,
 		} = this.props;
-		const { align, autoplay, delay, effect, images } = attributes;
+		const { align, autoplay, delay, effect, images, sizeSlug } = attributes;
 		const prefersReducedMotion =
 			typeof window !== 'undefined' &&
 			window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		const imageSizeOptions = this.getImageSizeOptions();
 		const controls = (
 			<Fragment>
 				<InspectorControls>
@@ -156,6 +180,16 @@ class SlideshowEdit extends Component {
 							options={ effectOptions }
 						/>
 					</PanelBody>
+					{ ! isEmpty( imageSizeOptions ) && (
+						<PanelBody title={ __( 'Image Settings', 'jetpack' ) }>
+							<SelectControl
+								label={ __( 'Image Size' ) }
+								value={ sizeSlug }
+								options={ imageSizeOptions }
+								onChange={ this.updateImagesSize }
+							/>
+						</PanelBody>
+					) }
 				</InspectorControls>
 				<BlockControls>
 					{ !! images.length && (
@@ -238,6 +272,12 @@ class SlideshowEdit extends Component {
 	}
 }
 export default compose(
+	withSelect( select => {
+		return {
+			getImage: imageId => select( 'core' ).getMedia( imageId ),
+			imageSizes: select( 'core/editor' ).getEditorSettings().imageSizes,
+		};
+	} ),
 	withDispatch( dispatch => {
 		const { lockPostSaving, unlockPostSaving } = dispatch( 'core/editor' );
 		return {
