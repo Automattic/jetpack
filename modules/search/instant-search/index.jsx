@@ -15,7 +15,7 @@ const injectSearchWidget = ( initialSearch, initialSort, grabFocus ) => {
 	render(
 		<SearchWidget
 			grabFocus={ grabFocus }
-			initialValue={ initialValue }
+			initialValue={ initialSearch }
 			initialSort={ initialSort }
 			options={ window.JetpackInstantSearchOptions }
 		/>,
@@ -25,6 +25,6 @@ const injectSearchWidget = ( initialSearch, initialSort, grabFocus ) => {
 
 document.addEventListener( 'DOMContentLoaded', function() {
 	if ( !! window.JetpackInstantSearchOptions && 'siteId' in window.JetpackInstantSearchOptions ) {
-		injectSearchWidget( getSearchQuery() );
+		injectSearchWidget( getSearchQuery(), getSearchSort() );
 	}
 } );

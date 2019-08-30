@@ -37,7 +37,7 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
-export function search( siteId, query, aggregations, filter, resultFormat ) {
+export function search( siteId, query, aggregations, filter, resultFormat, sort ) {
 	let fields = [];
 	let highlight_fields = [];
 	switch ( resultFormat ) {
