@@ -4576,12 +4576,6 @@ p {
 		// Get affiliate code and add it to the URL
 		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
 
-		$calypso_env = $this->get_calypso_env();
-
-		if ( ! empty( $calypso_env ) ) {
-			$url = add_query_arg( 'calypso_env', $calypso_env, $url );
-		}
-
 		return $raw ? esc_url_raw( $url ) : esc_url( $url );
 	}
 
@@ -4657,6 +4651,12 @@ p {
 		self::apply_activation_source_to_args( $args );
 
 		$connection = self::connection();
+
+		$calypso_env = self::get_calypso_env();
+
+		if ( ! empty( $calypso_env ) ) {
+		    $args['calypso_env'] = $calypso_env;
+		}
 
 		$api_url = $iframe ? $connection->api_url( 'authorize_iframe' ) : $connection->api_url( 'authorize' );
 
