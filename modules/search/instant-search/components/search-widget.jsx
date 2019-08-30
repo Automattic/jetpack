@@ -30,9 +30,10 @@ class SearchApp extends Component {
 		this.state = {
 			query: this.props.initialValue,
 			results: {},
+			sort: this.props.initialSort,
 		};
 		this.getResults = debounce( this.getResults, 500 );
-		this.getResults( this.props.initialValue );
+		this.getResults( this.props.initialValue, this.props.initialSort );
 	}
 
 	componentDidMount() {
@@ -51,10 +52,10 @@ class SearchApp extends Component {
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
-		this.getResults( query );
+		this.getResults( query, this.state.sort );
 	};
 
-	getResults = query => {
+	getResults = ( query, sort ) => {
 		if ( query ) {
 			this.requestId++;
 			const requestId = this.requestId;
@@ -64,7 +65,8 @@ class SearchApp extends Component {
 				query,
 				this.props.aggregations,
 				{},
-				this.props.options.resultFormat
+				this.props.options.resultFormat,
+				sort
 			)
 				.then( response => response.json() )
 				.then( json => {

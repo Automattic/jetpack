@@ -9,13 +9,14 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import SearchWidget from './components/search-widget';
-import { getSearchQuery } from './lib/query-string';
+import { getSearchQuery, getSearchSort } from './lib/query-string';
 
-const injectSearchWidget = ( initialValue, grabFocus ) => {
+const injectSearchWidget = ( initialSearch, initialSort, grabFocus ) => {
 	render(
 		<SearchWidget
 			grabFocus={ grabFocus }
 			initialValue={ initialValue }
+			initialSort={ initialSort }
 			options={ window.JetpackInstantSearchOptions }
 		/>,
 		document.body

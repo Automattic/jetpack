@@ -56,6 +56,7 @@ export function search( siteId, query, aggregations, filter, resultFormat ) {
 			highlight_fields,
 			filter,
 			query: encodeURIComponent( query ),
+			sort: sort,
 		} )
 	);
 
