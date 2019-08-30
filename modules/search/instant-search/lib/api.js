@@ -5,16 +5,6 @@ import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 
-const FIELDS = [
-	'author',
-	'comment_count',
-	'date',
-	'excerpt_html',
-	'gravatar_url',
-	'permalink.url.raw',
-	'title_html',
-];
-
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
 	widgets.forEach( ( { filters: widgetFilters } ) =>
@@ -47,18 +37,29 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
-function getAPIUrl( siteId, query, aggregations ) {
+export function search( siteId, query, aggregations, filter, resultFormat ) {
+	let fields = [];
+	let highlight_fields = [];
+	switch ( resultFormat ) {
+		case 'engagement':
+		case 'product':
+		case 'minimal':
+		default:
+			highlight_fields = [ 'title', 'content', 'comments' ];
+			fields = [ 'date', 'permalink.url.raw', 'tag.name.default', 'category.name.default' ];
+	}
+
 	const queryString = encode(
 		flatten( {
 			aggregations,
-			fields: FIELDS,
+			fields,
+			highlight_fields,
+			filter,
 			query: encodeURIComponent( query ),
 		} )
 	);
 
-	return `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`;
-}
-
-export function search( siteId, query, aggregations ) {
-	return fetch( getAPIUrl( siteId, query, aggregations ) );
+	return fetch(
+		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
+	);
 }

@@ -574,6 +574,8 @@ class Jetpack {
 			};
 		} );
 
+		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
+
 		$this->connection_manager = new Connection_Manager();
 		$this->connection_manager->init();
 
@@ -2242,7 +2244,7 @@ class Jetpack {
 		);
 
 		Jetpack::state( 'message', 'modules_activated' );
-		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
+		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
 			$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
@@ -2775,10 +2777,34 @@ class Jetpack {
 		$min_version = false,
 		$max_version = false,
 		$other_modules = array(),
-		$redirect = true,
-		$send_state_messages = true
+		$redirect = null,
+		$send_state_messages = null
 	) {
 		$jetpack = Jetpack::init();
+
+		if ( is_null( $redirect ) ) {
+			if (
+				( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			||
+				( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			||
+				( defined( 'WP_CLI' ) && WP_CLI )
+			||
+				( defined( 'DOING_CRON' ) && DOING_CRON )
+			||
+				( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			) {
+				$redirect = false;
+			} elseif ( is_admin() ) {
+				$redirect = true;
+			} else {
+				$redirect = false;
+			}
+		}
+
+		if ( is_null( $send_state_messages ) ) {
+			$send_state_messages = current_user_can( 'jetpack_activate_modules' );
+		}
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
 		$modules = array_merge( $other_modules, $modules );
@@ -2800,18 +2826,22 @@ class Jetpack {
 			}
 		}
 
-		if ( $deactivated && $redirect ) {
-			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+		if ( $deactivated ) {
+			if ( $send_state_messages ) {
+				Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			}
 
-			$url = add_query_arg(
-				array(
-					'action'   => 'activate_default_modules',
-					'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
-				),
-				add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
-			);
-			wp_safe_redirect( $url );
-			exit;
+			if ( $redirect ) {
+				$url = add_query_arg(
+					array(
+						'action'   => 'activate_default_modules',
+						'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
+					),
+					add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) )
+				);
+				wp_safe_redirect( $url );
+				exit;
+			}
 		}
 
 		/**
@@ -4304,6 +4334,35 @@ p {
 	</div>
 </div>
 <?php endif;
+	}
+
+	/**
+	 * We can't always respond to a signed XML-RPC request with a
+	 * helpful error message. In some circumstances, doing so could
+	 * leak information.
+	 *
+	 * Instead, track that the error occurred via a Jetpack_Option,
+	 * and send that data back in the heartbeat.
+	 * All this does is increment a number, but it's enough to find
+	 * trends.
+	 *
+	 * @param WP_Error $xmlrpc_error The error produced during
+	 *                               signature validation.
+	 */
+	function track_xmlrpc_error( $xmlrpc_error ) {
+		$code = is_wp_error( $xmlrpc_error )
+			? $xmlrpc_error->get_error_code()
+			: 'should-not-happen';
+
+		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( isset( $xmlrpc_errors[ $code ] ) && $xmlrpc_errors[ $code ] ) {
+			// No need to update the option if we already have
+			// this code stored.
+			return;
+		}
+		$xmlrpc_errors[ $code ] = true;
+
+		Jetpack_Options::update_option( 'xmlrpc_errors', $xmlrpc_errors, false );
 	}
 
 	/**

@@ -15,7 +15,7 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
-import { search } from '../lib/api';
+import { search, buildFilterAggregations } from '../lib/api';
 import { setSearchQuery } from '../lib/query-string';
 import { removeChildren, hideSearchHeader } from '../lib/dom';
 
@@ -24,6 +24,9 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = Preact.createRef();
 		this.requestId = 0;
+		this.props.resultFormat = 'minimal';
+		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
+		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
 		this.state = {
 			query: this.props.initialValue,
 			results: {},
@@ -56,7 +59,13 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search( this.props.siteId, query, this.props.aggregations )
+			search(
+				this.props.options.siteId,
+				query,
+				this.props.aggregations,
+				{},
+				this.props.options.resultFormat
+			)
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
@@ -93,7 +102,7 @@ class SearchApp extends Component {
 							</div>
 							<div className="jetpack-search-sort-wrapper" />
 							<SearchFiltersWidget
-								postTypes={ this.props.postTypes }
+								postTypes={ this.props.options.postTypes }
 								results={ this.state.results }
 								widget={ widget }
 							/>
@@ -102,7 +111,11 @@ class SearchApp extends Component {
 				) ) }
 
 				<Portal into="main">
-					<SearchResults query={ query } { ...results } />
+					<SearchResults
+						query={ query }
+						{ ...results }
+						result_format={ this.props.options.resultFormat }
+					/>
 				</Portal>
 			</Preact.Fragment>
 		);

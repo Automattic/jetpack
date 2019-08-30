@@ -82,7 +82,7 @@ class DashPluginUpdates extends Component {
 									count: pluginUpdates.count,
 								} ) + ' ',
 								! this.props.isDevMode &&
-									__( '{{a}}Turn on plugin autoupdates{{/a}}', {
+									__( '{{a}}Turn on plugin autoupdates.{{/a}}', {
 										components: { a: <a href={ managePluginsUrl } /> },
 									} ),
 						  ]
