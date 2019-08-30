@@ -24,9 +24,13 @@ const hideSearchHeader = () => {
 	}
 };
 
-const injectSearchWidget = ( initialValue, target, siteId, grabFocus ) => {
+const injectSearchWidget = ( initialValue, target, options, grabFocus ) => {
 	render(
-		<SearchWidget initialValue={ initialValue } grabFocus={ grabFocus } siteId={ siteId } />,
+		<SearchWidget
+			initialValue={ initialValue }
+			grabFocus={ grabFocus }
+			options={ options }
+		/>,
 		target
 	);
 };
@@ -41,7 +45,7 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			removeChildren( widget );
 			removeChildren( document.querySelector( 'main' ) );
 			hideSearchHeader();
-			injectSearchWidget( getSearchQuery(), widget, options.siteId );
+			injectSearchWidget( getSearchQuery(), widget, options );
 		}
 	}
 } );

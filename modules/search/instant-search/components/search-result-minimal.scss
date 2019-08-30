@@ -1,0 +1,39 @@
+.jetpack-instant-search__result-minimal {
+	padding: 0.125em 0;
+	margin: 1em 0;
+	position: relative;
+}
+.jetpack-instant-search__result-minimal .gridicon {
+	margin-right: 5px;
+}
+
+.jetpack-instant-search__result-minimal h3 {
+	overflow: hidden;
+}
+
+.jetpack-instant-search__result-minimal-date {
+	margin: 0.5em 0;
+	display: flex;
+	float: right;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	font-size: 0.85em;
+}
+
+.jetpack-instant-search__result-minimal-tag span,
+.jetpack-instant-search__result-minimal-cat span {
+	margin-right: 0.5em;
+}
+
+.jetpack-instant-search__result-minimal-tag,
+.jetpack-instant-search__result-minimal-cat,
+.jetpack-instant-search__result-minimal-comment {
+	padding-left: 10px;
+}
+
+.jetpack-instant-search__result-minimal-title b,
+.jetpack-instant-search__result-minimal-content b,
+.jetpack-instant-search__result-minimal-comment-span b {
+	text-decoration: underline;
+}
