@@ -132,7 +132,7 @@ class Jetpack_Connection_Banner {
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
-				'_inc/connect-button.js', // TODO: minify
+				'_inc/build/connect-button.min.js',
 				'_inc/connect-button.js'
 			),
 			array( 'jquery' ),
