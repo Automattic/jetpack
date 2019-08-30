@@ -132,7 +132,7 @@ class Jetpack_Connection_Banner {
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
-				'_inc/connect-button.js', // TODO: minify
+				'_inc/build/connect-button.min.js',
 				'_inc/connect-button.js'
 			),
 			array( 'jquery' ),
@@ -150,7 +150,9 @@ class Jetpack_Connection_Banner {
 
 		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
 
-		if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		if ( jetpack_is_mobile() ) {
+			$force_variation = 'original';
+		} else if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'in_place';
 		} else if ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
@@ -165,9 +167,12 @@ class Jetpack_Connection_Banner {
 				'apiBaseUrl'            => site_url( '/wp-json/jetpack/v4' ),
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 				'forceVariation'        => $force_variation,
+				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
+				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
 			)
 		);
 	}

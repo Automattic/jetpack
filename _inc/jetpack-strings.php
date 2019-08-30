@@ -5,13 +5,14 @@ _x( "At A Glance", "Navigation item.", "jetpack" ), // _inc/client/admin.js:74
 __( "At A Glance", "jetpack" ), // _inc/client/admin.js:77
 _x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/admin.js:80
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/admin.js:85
-_x( "Settings", "Navigation item.", "jetpack" ), // _inc/client/admin.js:90
-_x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/admin.js:95
-_x( "Security", "Navigation item.", "jetpack" ), // _inc/client/admin.js:100
-_x( "Performance", "Navigation item.", "jetpack" ), // _inc/client/admin.js:105
-_x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/admin.js:110
-_x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:115
-_x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:120
+_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/admin.js:90
+_x( "Settings", "Navigation item.", "jetpack" ), // _inc/client/admin.js:95
+_x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/admin.js:100
+_x( "Security", "Navigation item.", "jetpack" ), // _inc/client/admin.js:105
+_x( "Performance", "Navigation item.", "jetpack" ), // _inc/client/admin.js:110
+_x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/admin.js:115
+_x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:120
+_x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:125
 __( "View your setup checklist", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-cta.js:20
 __( "Jetpack Free Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:41
 __( "Your plan: Jetpack Free", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:46
@@ -63,8 +64,8 @@ __( "Error updating privacy settings. %(error)s", "jetpack" ), // _inc/client/st
 __( "Your Jetpack setup progress", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-progress-card/index.js:40
 /* translators: Text on link to list of onboarding tasks */
 __( "Complete Jetpack Setup", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-progress-card/index.js:55
-__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:87
-__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:106
+__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:89
+__( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:108
 __( "Jetpack keeps a complete record of everything that happens on your site, taking the guesswork out of site management, debugging, and repair.", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:51
 __( "Activity", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:58
 __( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/activity.jsx:66
@@ -292,6 +293,9 @@ __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
 __( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:28
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:43
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
@@ -629,8 +633,8 @@ __( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // 
 __( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:213
 __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:217
 __( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:223
-__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:113
-__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:121
+__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:95
+__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:103
 __( "Email me a link to log in to the app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:52
 __( "Easily log in to the WordPress app by clicking the link we'll send to the email address on your account.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:54
 _x( "Cancel", "A caption for a button to cancel an action.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:63
