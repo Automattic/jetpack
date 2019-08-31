@@ -44,9 +44,9 @@ class Jetpack_Tiled_Gallery_Block {
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
 
-		$jetack_plan = Jetpack_Plan::get();
+		$jetpack_plan = Jetpack_Plan::get();
 
-		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetack_plan ) );
+		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**

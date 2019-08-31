@@ -108,7 +108,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 }
 function isVIP() {
 	/*global jetpack_plan*/
-	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data.product_slug === 'vip' ) {
+	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
 		return true;
 	}
 }
