@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4da0cd1016401856ec1ef15a7bfb7c01",
+    "content-hash": "88bfa2f43d7bd3085c23cde8ead0bd4e",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -104,6 +104,32 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme."
+        },
+        {
+            "name": "automattic/jetpack-bootstrap",
+            "version": "dev-try/move-comment-likes-to-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/bootstrap",
+                "reference": "e53d1b027f3e28dbce4781d603ec3c5c3fd242aa"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "10up/wp_mock": "0.4.2",
+                "phpunit/phpunit": "7.*.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Classes and functions for initialising Jetpack and its modules"
         },
         {
             "name": "automattic/jetpack-compat",
@@ -305,10 +331,11 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/module-comment-likes",
-                "reference": "2a12aed3111945da6a752170495b5c9a829a72f8"
+                "reference": "f519379bd5b719b4373c9c0b761eaa7997325840"
             },
             "require": {
-                "automattic/jetpack-constants": "@dev"
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-module-likes": "@dev"
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
@@ -891,6 +918,7 @@
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-compat": 20,
+        "automattic/jetpack-bootstrap": 20,
         "automattic/jetpack-module-likes": 20,
         "automattic/jetpack-module-comment-likes": 20
     },

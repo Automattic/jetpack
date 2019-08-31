@@ -88,10 +88,12 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Automattic\Jetpack\Sync\Main',
 						'Automattic\Jetpack\Constants',
 						'Automattic\Jetpack\Tracking',
+						'Automattic\Jetpack\Bootstrap',
 						'Automattic\Jetpack\Plugin\Tracking',
 					),
 					true
 				);
+				error_log("checking if $class_name matches Automattic\Jetpack\Bootstrap");
 				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
 						esc_html( $class_name ),
