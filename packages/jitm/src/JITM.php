@@ -243,14 +243,6 @@ class JITM {
 
 						submitBtn.disabled = true;
 
-						// Track it
-						if ( typeof window.jpTracksAJAX.record_ajax_event === "function" ) {
-							window.jpTracksAJAX.record_ajax_event(
-								'delete_user_notice_switch_owner',
-								'click'
-							);
-						}
-
 						$.ajax( {
 							type        : "POST",
 							url         : "<?php echo get_rest_url() . 'jetpack/v4/connection/owner'; ?>",
