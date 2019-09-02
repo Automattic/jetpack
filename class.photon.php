@@ -1205,8 +1205,8 @@ class Jetpack_Photon {
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),
-			array(),
-			20190201,
+			array( 'wp-dom-ready' ),
+			20190901,
 			true
 		);
 	}
