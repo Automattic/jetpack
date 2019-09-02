@@ -187,6 +187,18 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return current_user_can( $role );
 	}
 
+	/** 
+	 * Check if full site editing should be considered as currently active. Full site editing
+	 * requires the FSE plugin to be installed and activated, as well the current
+	 * theme to be FSE compatible. The plugin can also be explicitly disabled via the 
+	 * a8c_disable_full_site_editing filter.
+	 * 
+	 * @module json-api 
+	 * 
+	 * @since 7.7.0 
+	 * 
+	 * @return bool true is full site editing is currently active
+	 */ 
 	function is_fse_active() {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
@@ -195,7 +207,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 			return false;
 		}
 		$has_is_supported_theme_method  = method_exists( '\A8C\FSE\Full_Site_Editing', 'is_supported_theme' );
-		$has_normalize_theme_slug  = method_exists( '\A8C\FSE\Full_Site_Editing', 'is_supported_theme' );
+		$has_normalize_theme_slug  = method_exists( '\A8C\FSE\Full_Site_Editing', 'normalize_theme_slug' );
 		if ( $has_is_supported_theme_method && $has_normalize_theme_slug ) {
 			$slug = \A8C\FSE\Full_Site_Editing::get_instance()->normalize_theme_slug( get_option( 'stylesheet' ) );
 			return \A8C\FSE\Full_Site_Editing::get_instance()->is_supported_theme( $slug );
