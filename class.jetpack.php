@@ -4655,7 +4655,7 @@ p {
 		$calypso_env = self::get_calypso_env();
 
 		if ( ! empty( $calypso_env ) ) {
-		    $args['calypso_env'] = $calypso_env;
+			$args['calypso_env'] = $calypso_env;
 		}
 
 		$api_url = $iframe ? $connection->api_url( 'authorize_iframe' ) : $connection->api_url( 'authorize' );
