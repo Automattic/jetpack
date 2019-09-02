@@ -193,6 +193,11 @@ class JITM {
 			return;
 		}
 
+		// Track it!
+		if ( method_exists( $this->tracking, 'record_user_event' ) ) {
+			$this->tracking->record_user_event( 'delete_connection_owner_notice_view' );
+		}
+
 		$connection_manager = new Manager();
 		$connected_admins   = $connection_manager->get_connected_users( 'jetpack_disconnect' );
 
@@ -238,6 +243,14 @@ class JITM {
 
 						submitBtn.disabled = true;
 
+						// Track it
+						if ( typeof window.jpTracksAJAX.record_ajax_event === "function" ) {
+							window.jpTracksAJAX.record_ajax_event(
+								'delete_user_notice_switch_owner',
+								'click'
+							);
+						}
+
 						$.ajax( {
 							type        : "POST",
 							url         : "<?php echo get_rest_url() . 'jetpack/v4/connection/owner'; ?>",
@@ -263,7 +276,7 @@ class JITM {
 			<?php
 		} else {
 			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . '</p>';
-			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'connection_owner_notice' );
+			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'delete_connection_owner_notice' );
 			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . '</a>';
 		}
 
