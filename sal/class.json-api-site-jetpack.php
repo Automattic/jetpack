@@ -197,7 +197,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * 
 	 * @since 7.7.0 
 	 * 
-	 * @return bool true is full site editing is currently active
+	 * @return bool true if full site editing is currently active
 	 */ 
 	function is_fse_active() {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
