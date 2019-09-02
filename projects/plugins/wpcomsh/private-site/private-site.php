@@ -138,7 +138,12 @@ function parse_request() {
 		return;
 	}
 
-	status_header( 403 );
+	/**
+	 * Ideally this would be a 403, but when nginx sees that, ErrorDocument takes over the output.
+	 * Since we want to show our custom template, use 503 instead.
+	 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
+	 */
+	status_header( 503 );
 
 	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
 		 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' )
