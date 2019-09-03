@@ -29,6 +29,10 @@ jQuery( document ).ready( function( $ ) {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
 				type: 'GET',
 				error: jetpackConnectButton.handleConnectionError,
+				xhrFields: {
+					withCredentials: true,
+				},
+				crossDomain: true,
 				success: function( data ) {
 					if ( data && 'in_place' === data.variation ) {
 						jetpackConnectButton.handleConnectInPlaceFlow();
