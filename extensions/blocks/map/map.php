@@ -28,11 +28,15 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		global $wp, $map_block_counter;
 		if ( ! $map_block_counter ) {
-			$map_block_counter = 1;
+			$map_block_counter = array();
 		}
-		$iframe_url = home_url( $wp->request ) . '?map-block-counter=' . $map_block_counter;
+		$id = get_the_ID();
+		if ( ! $map_block_counter[ $id ] ) {
+			$map_block_counter[ $id ] = 0;
+		}
+		$map_block_counter[ $id ]++;
 
-		$map_block_counter++;
+		$iframe_url = home_url( $wp->request ) . '?map-block-counter=' . $map_block_counter[ $id ] . '&map-block-post-id=' . get_the_ID();
 
 		$placeholder = preg_replace( '/(?<=<div\s)/', 'placeholder ', $content );
 
@@ -56,12 +60,13 @@ function jetpack_map_block_load_assets( $attr, $content ) {
  */
 function jetpack_map_block_render_single_block_page() {
 	$map_block_counter = (int) filter_input( INPUT_GET, 'map-block-counter', FILTER_SANITIZE_NUMBER_INT );
-	if ( ! $map_block_counter ) {
+	$map_block_post_id = (int) filter_input( INPUT_GET, 'map-block-post-id', FILTER_SANITIZE_NUMBER_INT );
+	if ( ! $map_block_counter || ! $map_block_post_id ) {
 		return;
 	}
 
 	/* Create an array of all root-level DIVs that are Map Blocks */
-	global $post;
+	$post = get_post( $map_block_post_id );
 
 	$post_html = new DOMDocument();
 	$post_html->loadHTML( $post->post_content );
