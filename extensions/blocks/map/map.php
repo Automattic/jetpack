@@ -28,7 +28,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		global $wp, $map_block_counter;
 		if ( ! $map_block_counter ) {
-			$map_block_counter = 0;
+			$map_block_counter = 1;
 		}
 		$iframe_url = home_url( $wp->request ) . '?map-block-counter=' . $map_block_counter;
 
@@ -55,11 +55,10 @@ function jetpack_map_block_load_assets( $attr, $content ) {
  * Render a page containing only a single Map block.
  */
 function jetpack_map_block_render_single_block_page() {
-	$map_block_counter_as_string = filter_input( INPUT_GET, 'map-block-counter', FILTER_SANITIZE_STRING );
-	if ( strlen( $map_block_counter_as_string ) < 1 ) {
+	$map_block_counter = (int) filter_input( INPUT_GET, 'map-block-counter', FILTER_SANITIZE_NUMBER_INT );
+	if ( ! $map_block_counter ) {
 		return;
 	}
-	$map_block_counter = intval( $map_block_counter_as_string );
 
 	/* Create an array of all root-level DIVs that are Map Blocks */
 	global $post;
@@ -77,7 +76,7 @@ function jetpack_map_block_render_single_block_page() {
 	}
 
 	/* Check that we have a block matching the counter position */
-	if ( ! isset( $map_block_divs[ $map_block_counter ] ) ) {
+	if ( ! isset( $map_block_divs[ $map_block_counter - 1 ] ) ) {
 		return;
 	}
 
@@ -95,7 +94,7 @@ function jetpack_map_block_render_single_block_page() {
 	$head_content = ob_get_clean();
 
 	/* Put together a new complete document containing only the requested block markup and the scripts/styles needed to render it */
-	$block_markup = $post_html->saveHTML( $map_block_divs[ $map_block_counter ] );
+	$block_markup = $post_html->saveHTML( $map_block_divs[ $map_block_counter - 1 ] );
 	$api_key      = Jetpack_Options::get_option( 'mapbox_api_key' );
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
