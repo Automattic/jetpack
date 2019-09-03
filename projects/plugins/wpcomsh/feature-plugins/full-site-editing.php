@@ -32,8 +32,16 @@ function wpcomsh_maybe_disable_spt( $should_disable ) {
 }
 add_filter( 'a8c_disable_starter_page_templates', 'wpcomsh_maybe_disable_spt' );
 
-// Disable until they're ready for prime time.
-add_filter( 'a8c_disable_full_site_editing', '__return_true', 99 );
+/**
+ * Disables Full Site Editing if the eligability option does not exist.
+ * 
+ * @return bool true if FSE should be disabled, false if FSE should be enabled
+ */
+function wpcomsh_maybe_disable_fse() {
+	// Always disable FSE if the site is not eligible:
+	return ! get_option( 'a8c-fse-is-eligible' );
+}
+add_filter( 'a8c_disable_full_site_editing', 'wpcomsh_maybe_disable_fse' );
 
 /**
  * Adds the tracking identity to config that is passed to Starter Page Template frontend.
