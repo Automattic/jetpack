@@ -164,7 +164,7 @@ class Jetpack_Connection_Banner {
 			'jetpack-connect-button',
 			'jpConnect',
 			array(
-				'apiBaseUrl'            => esc_url_raw( rest_url( 'jetpack/v4') ),
+				'apiBaseUrl'            => esc_url_raw( rest_url( 'jetpack/v4' ) ),
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
