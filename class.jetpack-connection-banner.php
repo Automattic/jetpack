@@ -150,9 +150,7 @@ class Jetpack_Connection_Banner {
 
 		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
 
-		if ( jetpack_is_mobile() ) {
-			$force_variation = 'original';
-		} else if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'in_place';
 		} else if ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
