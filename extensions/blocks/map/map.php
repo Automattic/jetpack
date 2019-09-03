@@ -32,6 +32,8 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		}
 		$iframe_url = home_url( $wp->request ) . '?map-block-counter=' . $map_block_counter;
 
+		$map_block_counter++;
+
 		$placeholder = preg_replace( '/(?<=<div\s)/', 'placeholder ', $content );
 
 		// @todo Is intrinsic size right? Is content_width the right dimensions?
