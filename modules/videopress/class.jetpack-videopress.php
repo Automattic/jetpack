@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * VideoPress in Jetpack
@@ -46,6 +47,10 @@ class Jetpack_VideoPress {
 
 		if ( Jetpack_Plan::supports( 'videopress' ) ) {
 			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
+		}
+
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			add_filter( 'add_attachment', array( $this, 'transcode_video' ) );
 		}
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
@@ -335,6 +340,30 @@ class Jetpack_VideoPress {
 		$extensions[] = 'videopress';
 
 		return $extensions;
+	}
+
+	public function transcode_video( $attachment_id ) {
+		// Bail if attachment is not a video.
+		if ( ! wp_attachment_is( 'video', $attachment_id ) ) {
+			return;
+		}
+
+		// Bail if video is already transcoded.
+		if ( 'video/videopress' === get_post_mime_type( $attachment_id ) ) {
+			return;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/videopress/%d/transcode', $site_id, $attachment_id ),
+			'2',
+			array(
+				'method'  => 'POST',
+			),
+			null,
+			'wpcom'
+		);
 	}
 }
 
