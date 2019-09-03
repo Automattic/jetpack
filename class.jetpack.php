@@ -5173,7 +5173,8 @@ p {
 	 * @deprecated since 7.7.0
 	 */
 	public static function load_xml_rpc_client() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7' );
+	    // Removed the php notice that shows up in order to give time to Akismet and VaultPress time to update.
+		// _deprecated_function( __METHOD__, 'jetpack-7.7' );
 	}
 
 	/**
