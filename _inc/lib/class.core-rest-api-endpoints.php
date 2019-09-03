@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -1232,6 +1233,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		if ( $updated && ! $xml->isError() ) {
+
+			// Track it
+			if ( class_exists( 'Automattic\Jetpack\Tracking' ) ) {
+				$tracking = new Tracking();
+				$tracking->record_user_event( 'set_connection_owner_success' );
+			}
+
 			return rest_ensure_response(
 				array(
 					'code' => 'success',
