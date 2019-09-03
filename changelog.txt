@@ -2,6 +2,17 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.7.1 =
+
+* Release date: September 6, 2019
+
+**Bug fixes**
+
+* Connection Flow: avoid any errors linked to browser cookie policies during connection request.
+* General: additional check to avoid warnings on plugin update.
+* SSO: avoid Fatal errors happening during some log in attempts.
+* Sync: check if IXR client exists to prevent errors when updating the plugin.
+
 = 7.7 =
 
 * Release date: September 3, 2019
