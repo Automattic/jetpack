@@ -2,6 +2,7 @@
 
 jQuery( document ).ready( function( $ ) {
 	var connectButton = $( '.jp-connect-button' );
+	var tosText = $( '.jp-connect-full__tos-blurb' );
 	connectButton.click( function( event ) {
 		event.preventDefault();
 		if ( ! jetpackConnectButton.isRegistering ) {
@@ -42,6 +43,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleConnectInPlaceFlow: function() {
 			jetpackConnectButton.isRegistering = true;
+			tosText.hide();
 			connectButton
 				.text( jpConnect.buttonTextRegistering )
 				.attr( 'disabled', true )
