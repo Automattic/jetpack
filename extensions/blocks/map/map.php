@@ -65,15 +65,8 @@ function jetpack_map_block_render_single_block_page() {
 
 	$post_html = new DOMDocument();
 	$post_html->loadHTML( $post->post_content );
-	$divs = $post_html->getElementsByTagName( 'div' );
-
-	$map_block_divs = array();
-	foreach ( $divs as $div ) {
-		$classes = explode( ' ', $div->getAttribute( 'class' ) );
-		if ( in_array( 'wp-block-jetpack-map', $classes, true ) ) {
-			$map_block_divs[] = $div;
-		}
-	}
+	$xpath          = new DOMXPath( $post_html );
+	$map_block_divs = $xpath->query( '//div[ contains( @class, "wp-block-jetpack-map" ) ]' );
 
 	/* Check that we have a block matching the counter position */
 	if ( ! isset( $map_block_divs[ $map_block_counter - 1 ] ) ) {
