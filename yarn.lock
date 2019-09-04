@@ -10307,6 +10307,11 @@ puppeteer@1.19.0:
     rimraf "^2.6.1"
     ws "^6.1.0"
 
+q-flat@1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/q-flat/-/q-flat-1.0.7.tgz#4cf81aede99d2a9acbafcf503af0d0184a850d3d"
+  integrity sha512-Ug+B6yajVE5HF7eAszOvAcYmQ+DbYaDcQlxYuW9RaAqwZTRZQq+lHMGqHlnaxKP7CfuGCpXQXOb4qymRYMkYEQ==
+
 q@^1.1.2:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
