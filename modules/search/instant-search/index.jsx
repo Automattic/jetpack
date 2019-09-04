@@ -9,13 +9,14 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import SearchWidget from './components/search-widget';
-import { getSearchQuery } from './lib/query-string';
+import { getSearchQuery, getFilterQuery } from './lib/query-string';
 
-const injectSearchWidget = ( initialValue, grabFocus ) => {
+const injectSearchWidget = grabFocus => {
 	render(
 		<SearchWidget
 			grabFocus={ grabFocus }
-			initialValue={ initialValue }
+			initialFilters={ getFilterQuery() }
+			initialValue={ getSearchQuery() }
 			options={ window.JetpackInstantSearchOptions }
 		/>,
 		document.body
@@ -24,6 +25,6 @@ const injectSearchWidget = ( initialValue, grabFocus ) => {
 
 document.addEventListener( 'DOMContentLoaded', function() {
 	if ( !! window.JetpackInstantSearchOptions && 'siteId' in window.JetpackInstantSearchOptions ) {
-		injectSearchWidget( getSearchQuery() );
+		injectSearchWidget();
 	}
 } );
