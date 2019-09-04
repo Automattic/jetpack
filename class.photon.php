@@ -287,6 +287,7 @@ class Jetpack_Photon {
 			$content_width = Jetpack::get_content_width();
 
 			$image_sizes = self::image_sizes();
+
 			$upload_dir = wp_get_upload_dir();
 
 			foreach ( $images[0] as $index => $tag ) {
@@ -447,7 +448,7 @@ class Jetpack_Photon {
 						$fullsize_url = true;
 
 					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon
-					if ( ! $fullsize_url ) {
+					if ( ! $fullsize_url && 0 === strpos( $src, $upload_dir['baseurl'] ) ) {
 						$src = self::strip_image_dimensions_maybe( $src );
 					}
 
