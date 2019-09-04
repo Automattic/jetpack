@@ -321,7 +321,7 @@ class Jetpack_Connection_Banner {
 					</a>
 				</p>
 
-				<div class="jp-connect-full__row">
+				<div class="jp-connect-full__row" id="jetpack-connection-cards">
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
 							<img
