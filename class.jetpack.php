@@ -656,13 +656,13 @@ class Jetpack {
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
-		add_action( 'wp_head', array( $this, 'check_open_graph' ),       1 );
-		add_action( 'amp_story_head', array( $this, 'check_open_graph' ),1 );
-		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
+		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'amp_story_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
-		add_filter( 'plugins_url',      array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
-		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2  );
+		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
+		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2 );
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
