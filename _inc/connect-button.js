@@ -5,7 +5,7 @@ jQuery( document ).ready( function( $ ) {
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	connectButton.click( function( event ) {
 		event.preventDefault();
-		$('#jetpack-connection-cards').fadeOut(100);
+		$( '#jetpack-connection-cards' ).fadeOut( 600 );
 		if ( ! jetpackConnectButton.isRegistering ) {
 			if ( 'original' === jpConnect.forceVariation ) {
 				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`.
