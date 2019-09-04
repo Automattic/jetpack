@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import SearchResultMinimal from './search-result-minimal';
+import ScrollButton from './scroll-button';
 
 class SearchResults extends Component {
 	render_result( result ) {
@@ -23,7 +24,16 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const { results = [], query, total = 0, corrected_query = false, loading = false } = this.props;
+		const {
+			results = [],
+			query,
+			total = 0,
+			corrected_query = false,
+			moreToLoad = false,
+			loading = false,
+			loadMoreAction,
+		} = this.props;
+
 		if ( query === '' ) {
 			return <div className="jetpack-instant-search__search-results" />;
 		}
@@ -59,6 +69,7 @@ class SearchResults extends Component {
 					</p>
 				) }
 				{ results.map( result => this.render_result( result ) ) }
+				{ moreToLoad && <ScrollButton onClick={ loadMoreAction } loading={ loading } /> }
 			</div>
 		);
 	}

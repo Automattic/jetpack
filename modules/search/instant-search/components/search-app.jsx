@@ -32,6 +32,7 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = Preact.createRef();
 		this.requestId = 0;
+		this.newResults = true;
 		this.props.resultFormat = 'minimal';
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
@@ -63,6 +64,7 @@ class SearchApp extends Component {
 
 	onChangeQuery = event => {
 		const query = event.target.value;
+		this.newResults = true;
 		this.setState( { query } );
 		setSearchQuery( query );
 		this.getResults( query, getFilterQuery(), getSortQuery() );
@@ -78,7 +80,7 @@ class SearchApp extends Component {
 		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
 	};
 
-	getResults = ( query, filter, sort ) => {
+	getResults = ( query, filter, sort, pageHandle = false ) => {
 		if ( query ) {
 			this.requestId++;
 			const requestId = this.requestId;
@@ -101,6 +103,35 @@ class SearchApp extends Component {
 					} );
 				}
 			} );
+
+			//don't need to query aggs when paging
+			const aggs = pageHandle === false ? this.props.aggregations : {};
+
+			this.setState( { loading: true } );
+			search(
+				this.props.options.siteId,
+				query,
+				aggs,
+				{},
+				this.props.options.resultFormat,
+				pageHandle
+			)
+				.then( response => response.json() )
+				.then( json => {
+					if ( this.requestId === requestId ) {
+						if ( this.newResults ) {
+							this.setState( {
+								results: json,
+								loading: false,
+							} );
+						} else {
+							this.setState( {
+								results: json,
+								loading: false,
+							} );
+						}
+					}
+				} );
 		} else {
 			this.setState( {
 				results: [],
@@ -109,11 +140,17 @@ class SearchApp extends Component {
 		}
 	};
 
+	loadMore = () => {
+		this.newResults = false;
+		this.getResults( this.state.query, this.state.results.page_handle );
+	};
+
 	render() {
-		const { query, results } = this.state;
+		const { query, results, loading } = this.state;
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
+		const moreToLoad = !! results.page_handle;
 		return (
 			<Preact.Fragment>
 				{ this.props.widgets.map( widget => (
@@ -161,6 +198,9 @@ class SearchApp extends Component {
 						loading={ this.state.loading }
 						{ ...results }
 						result_format={ this.props.options.resultFormat }
+						moreToLoad={ moreToLoad }
+						loading={ loading }
+						loadMoreAction={ this.loadMore }
 					/>
 				</Portal>
 			</Preact.Fragment>
