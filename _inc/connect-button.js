@@ -80,12 +80,20 @@ jQuery( document ).ready( function( $ ) {
 		},
 		receiveData: function( event ) {
 			if (
-				event.origin === jpConnect.jetpackApiDomain &&
-				event.source === jetpackConnectIframe.get( 0 ).contentWindow &&
-				event.data === 'close'
+				event.origin !== jpConnect.jetpackApiDomain ||
+				event.source !== jetpackConnectIframe.get( 0 ).contentWindow
 			) {
-				window.removeEventListener( 'message', this.receiveData );
-				jetpackConnectButton.handleAuthorizationComplete();
+				return;
+			}
+
+			var type = event.data.type || 'close';
+			switch ( type ) {
+				case 'close':
+					window.removeEventListener( 'message', this.receiveData );
+					jetpackConnectButton.handleAuthorizationComplete();
+					break;
+				case 'resize':
+					jetpackConnectIframe.height( event.data.height );
 			}
 		},
 		handleAuthorizationComplete: function() {
