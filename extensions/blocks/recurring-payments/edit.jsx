@@ -453,6 +453,7 @@ class MembershipsButtonEdit extends Component {
 										disabled={ ! stripeConnectUrl }
 										href={ stripeConnectUrl }
 										target={ stripeConnectTarget }
+										rel={ stripeConnectTarget === '_blank' ? 'noopener noreferrer' : undefined }
 										onClick={ this.props.autosaveAndNavigateToConnection }
 									>
 										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
