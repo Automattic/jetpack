@@ -9,7 +9,7 @@ import { trimEnd } from 'lodash';
 import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 import {
 	Button,
@@ -319,14 +319,17 @@ class MembershipsButtonEdit extends Component {
 		const { postId } = this.props;
 		const { connectURL } = this.state;
 
-		if ( ! postId || ! isURL( connectURL ) ) {
+		if ( ! isURL( connectURL ) ) {
 			return null;
 		}
 
-		const state = getQueryArg( connectURL, 'state' );
-		let decodedState;
+		if ( ! postId ) {
+			return connectURL;
+		}
 
+		let decodedState;
 		try {
+			const state = getQueryArg( connectURL, 'state' );
 			decodedState = JSON.parse( atob( state ) );
 		} catch ( err ) {
 			if ( process.env.NODE_ENV !== 'production' ) {
@@ -341,11 +344,24 @@ class MembershipsButtonEdit extends Component {
 	}
 
 	render = () => {
-		const { className, notices, attributes } = this.props;
+		const { attributes, className, notices, postId } = this.props;
 		const { connected, products } = this.state;
 		const { align } = attributes;
 
 		const stripeConnectUrl = this.getConnectUrl();
+		/**
+		 * If we know the postId, assume we'll return to the editor and navigate away.
+		 * Otherwise, open a new window.
+		 *
+		 * If the block is mounted in an iframe, target the parent to navigate.
+		 */
+		let stripeConnectTarget = undefined;
+		if ( postId ) {
+			// Navigate the iframe parent or self if not iframed.
+			stripeConnectTarget = '_parent';
+		} else {
+			stripeConnectTarget = '_blank';
+		}
 
 		const inspectorControls = (
 			<InspectorControls>
@@ -436,7 +452,8 @@ class MembershipsButtonEdit extends Component {
 										isLarge
 										disabled={ ! stripeConnectUrl }
 										href={ stripeConnectUrl }
-										target="_blank"
+										target={ stripeConnectTarget }
+										onClick={ this.props.autosaveAndNavigateToConnection }
 									>
 										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
 									</Button>
@@ -497,5 +514,18 @@ class MembershipsButtonEdit extends Component {
 
 export default compose( [
 	withSelect( select => ( { postId: select( 'core/editor' ).getCurrentPostId() } ) ),
+	withDispatch( dispatch => ( {
+		autosaveAndNavigateToConnection: async event => {
+			const { href, target } = event.target;
+
+			// Special handling if we're opening in _this_ window. Otherwise, just let the navigation happen.
+			if ( href && target !== '_blank' ) {
+				event.preventDefault();
+				await dispatch( 'core/editor' ).autosave();
+				// Using window.top to escape from the editor iframe on WordPress.com
+				window.top.location.href = href;
+			}
+		},
+	} ) ),
 	withNotices,
 ] )( MembershipsButtonEdit );
