@@ -358,7 +358,7 @@ class MembershipsButtonEdit extends Component {
 		let stripeConnectTarget = undefined;
 		if ( postId ) {
 			// Navigate the iframe parent or self if not iframed.
-			stripeConnectTarget = '_parent';
+			stripeConnectTarget = '_top';
 		} else {
 			stripeConnectTarget = '_blank';
 		}
