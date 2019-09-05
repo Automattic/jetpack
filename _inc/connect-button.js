@@ -50,9 +50,12 @@ jQuery( document ).ready( function( $ ) {
 			jetpackConnectButton.isRegistering = true;
 			tosText.hide();
 			connectButton
-				.text( jpConnect.buttonTextRegistering )
-				.attr( 'disabled', true )
-				.blur();
+				.hide()
+				.after(
+					'<span class="jp-connect-full__button-container-loading">' +
+						jpConnect.buttonTextRegistering +
+						'</span>'
+				);
 
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/connection/register',
@@ -66,7 +69,12 @@ jQuery( document ).ready( function( $ ) {
 					jetpackConnectButton.fetchPlanType();
 					window.addEventListener( 'message', jetpackConnectButton.receiveData );
 					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
-					$( '.jp-connect-full__button-container' ).html( jetpackConnectIframe );
+					jetpackConnectIframe.load( function() {
+						jetpackConnectIframe.show();
+						$( '.jp-connect-full__button-container' ).hide();
+					} );
+					jetpackConnectIframe.hide();
+					$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
 				},
 			} );
 		},
@@ -104,7 +112,6 @@ jQuery( document ).ready( function( $ ) {
 			window.location.reload( true );
 		},
 		handleConnectionError: function( error ) {
-			console.warn( 'Connection failed. Falling back to the regular flow', error );
 			jetpackConnectButton.isRegistering = false;
 			jetpackConnectButton.handleOriginalFlow();
 		},
