@@ -27,6 +27,8 @@ function init() {
 		return;
 	}
 
+	add_action( 'update_option_blog_public', '\Private_Site\update_option_blog_public' );
+
 	if ( ! site_is_private() ) {
 		return;
 	}
@@ -70,8 +72,29 @@ function init() {
 }
 add_action( 'init', '\Private_Site\init' );
 
+/**
+ * The site is determined to be "private" when both:
+ * - The `blog_public` option is `-1`
+ * - The `wpcom_blog_public_updated` option is truthy
+ *
+ * The `wpcom_blog_public_updated` check is intended to only treat sites as private which have
+ * altered this setting since the Private Site module was launched.
+ *
+ * This is in contrast to WordPress.com Simple sites which only rely on the `blog_public` option.
+ * @return bool
+ */
 function site_is_private() {
-	return '-1' == get_option( 'blog_public' );
+	return '-1' == get_option( 'blog_public' ) && get_option( 'wpcom_blog_public_updated' );
+}
+
+/**
+ * Hooked into action: `update_option_blog_public`
+ * Sets a secondary option (`wpcom_blog_public_updated`) to `1` when the `blog_public` option is updated
+ * This will be used to determine that the option has been set after the launch of the Private Site module.
+ * @see `site_is_private`
+ */
+function update_option_blog_public() {
+	update_option( 'wpcom_blog_public_updated', 1 );
 }
 
 /**
