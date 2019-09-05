@@ -349,19 +349,10 @@ class MembershipsButtonEdit extends Component {
 		const { align } = attributes;
 
 		const stripeConnectUrl = this.getConnectUrl();
-		/**
-		 * If we know the postId, assume we'll return to the editor and navigate away.
-		 * Otherwise, open a new window.
-		 *
-		 * If the block is mounted in an iframe, target the parent to navigate.
-		 */
-		let stripeConnectTarget = undefined;
-		if ( postId ) {
-			// Navigate the iframe parent or self if not iframed.
-			stripeConnectTarget = '_top';
-		} else {
-			stripeConnectTarget = '_blank';
-		}
+
+		// If we know the postId, assume we'll return to the editor. Navigate the top window.
+		// Otherwise, open a new window.
+		const stripeConnectTarget = postId ? '_top' : '_blank';
 
 		const inspectorControls = (
 			<InspectorControls>
