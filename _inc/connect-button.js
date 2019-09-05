@@ -53,7 +53,6 @@ jQuery( document ).ready( function( $ ) {
 
 			var loadingText = $( '<span>' );
 			loadingText.addClass( 'jp-connect-full__button-container-loading' );
-			loadingText.css( { marginTop: '84px', display: 'block' } );
 			loadingText.text( jpConnect.buttonTextRegistering );
 			loadingText.appendTo( '.jp-connect-full__button-container' );
 
