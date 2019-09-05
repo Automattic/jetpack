@@ -65,18 +65,19 @@ jQuery( document ).ready( function( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: function( data ) {
-					jetpackConnectButton.fetchPlanType();
-					window.addEventListener( 'message', jetpackConnectButton.receiveData );
-					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
-					jetpackConnectIframe.load( function() {
-						jetpackConnectIframe.show();
-						$( '.jp-connect-full__button-container' ).hide();
-					} );
-					jetpackConnectIframe.hide();
-					$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
-				},
+				success: jetpackConnectButton.handleConnectionSuccess,
 			} );
+		},
+		handleConnectionSuccess: function( data ) {
+			jetpackConnectButton.fetchPlanType();
+			window.addEventListener( 'message', jetpackConnectButton.receiveData );
+			jetpackConnectIframe.attr( 'src', data.authorizeUrl );
+			jetpackConnectIframe.on( 'load', function() {
+				jetpackConnectIframe.show();
+				$( '.jp-connect-full__button-container' ).hide();
+			} );
+			jetpackConnectIframe.hide();
+			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
 		},
 		fetchPlanType: function() {
 			$.ajax( {
