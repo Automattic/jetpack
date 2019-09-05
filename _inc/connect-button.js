@@ -49,10 +49,12 @@ jQuery( document ).ready( function( $ ) {
 		handleConnectInPlaceFlow: function() {
 			jetpackConnectButton.isRegistering = true;
 			tosText.hide();
-			connectButton
-				.text( jpConnect.buttonTextRegistering )
-				.attr( 'disabled', true )
-				.blur();
+			connectButton.hide();
+
+			var loadingText = $( '<span>' );
+			loadingText.addClass( 'jp-connect-full__button-container-loading' );
+			loadingText.text( jpConnect.buttonTextRegistering );
+			loadingText.appendTo( '.jp-connect-full__button-container' );
 
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/connection/register',
@@ -62,13 +64,19 @@ jQuery( document ).ready( function( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: function( data ) {
-					jetpackConnectButton.fetchPlanType();
-					window.addEventListener( 'message', jetpackConnectButton.receiveData );
-					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
-					$( '.jp-connect-full__button-container' ).html( jetpackConnectIframe );
-				},
+				success: jetpackConnectButton.handleConnectionSuccess,
 			} );
+		},
+		handleConnectionSuccess: function( data ) {
+			jetpackConnectButton.fetchPlanType();
+			window.addEventListener( 'message', jetpackConnectButton.receiveData );
+			jetpackConnectIframe.attr( 'src', data.authorizeUrl );
+			jetpackConnectIframe.on( 'load', function() {
+				jetpackConnectIframe.show();
+				$( '.jp-connect-full__button-container' ).hide();
+			} );
+			jetpackConnectIframe.hide();
+			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
 		},
 		fetchPlanType: function() {
 			$.ajax( {
@@ -104,7 +112,6 @@ jQuery( document ).ready( function( $ ) {
 			window.location.reload( true );
 		},
 		handleConnectionError: function( error ) {
-			console.warn( 'Connection failed. Falling back to the regular flow', error );
 			jetpackConnectButton.isRegistering = false;
 			jetpackConnectButton.handleOriginalFlow();
 		},
