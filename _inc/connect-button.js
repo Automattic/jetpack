@@ -49,13 +49,13 @@ jQuery( document ).ready( function( $ ) {
 		handleConnectInPlaceFlow: function() {
 			jetpackConnectButton.isRegistering = true;
 			tosText.hide();
-			connectButton
-				.hide()
-				.after(
-					'<span class="jp-connect-full__button-container-loading">' +
-						jpConnect.buttonTextRegistering +
-						'</span>'
-				);
+			connectButton.hide();
+
+			var loadingText = $( '<span>' );
+			loadingText.addClass( 'jp-connect-full__button-container-loading' );
+			loadingText.css( { marginTop: '84px', display: 'block' } );
+			loadingText.text( jpConnect.buttonTextRegistering );
+			loadingText.appendTo( '.jp-connect-full__button-container' );
 
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/connection/register',
