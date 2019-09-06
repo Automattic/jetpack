@@ -23,7 +23,11 @@ const injectSearchWidget = ( initialValue, grabFocus ) => {
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	if ( !! window.JetpackInstantSearchOptions && 'siteId' in window.JetpackInstantSearchOptions ) {
+	if (
+		!! window.JetpackInstantSearchOptions &&
+		'siteId' in window.JetpackInstantSearchOptions &&
+		document.body.classList.contains( 'search' )
+	) {
 		injectSearchWidget( getSearchQuery() );
 	}
 } );
