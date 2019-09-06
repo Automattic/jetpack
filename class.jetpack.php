@@ -2562,6 +2562,11 @@ class Jetpack {
 
 		$file_data_option = get_transient( $cache_key );
 
+		if ( ! is_array( $file_data_option ) ) {
+			delete_transient( $cache_key );
+			$file_data_option = false;
+		}
+
 		if ( false === $file_data_option ) {
 			$file_data_option = array();
 		}
@@ -5729,7 +5734,7 @@ p {
 		$timestamp = (int) $environment['timestamp'];
 		$nonce     = stripslashes( (string) $environment['nonce'] );
 
-		if ( ! $this->connection->add_nonce( $timestamp, $nonce ) ) {
+		if ( ! $this->connection_manager->add_nonce( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
 			// We have to reuse this nonce at least once (used the first time when the initial request is made, used a second time when the login form is POSTed)
 			$old_nonce_time = get_option( "jetpack_nonce_{$timestamp}_{$nonce}" );
