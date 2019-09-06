@@ -540,9 +540,52 @@ class Jetpack_Carousel {
 			 * @param array $extra_data Array of data about the site and the post.
 			 */
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
+
 			foreach ( (array) $extra_data as $data_key => $data_values ) {
-				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' ", $html );
-				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
+				// Let's grab all containers from the HTML.
+				$dom_doc = new DOMDocument();
+
+				/*
+				 * The @ is not enough to suppress errors when dealing with libxml,
+				 * we have to tell it directly how we want to handle errors.
+				 */
+				libxml_use_internal_errors( true );
+				@$dom_doc->loadHTML( $html ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				libxml_use_internal_errors( false );
+
+				// Let's look for lists and divs.
+				$ul_tags  = $dom_doc->getElementsByTagName( 'ul' );
+				$div_tags = $dom_doc->getElementsByTagName( 'div' );
+
+				// Loop through each ul, and add the data to it if it is a gallery block.
+				foreach ( $ul_tags as $ul_tag ) {
+					if ( false !== strpos( $ul_tag->getAttribute( 'class' ), 'wp-block-gallery' ) ) {
+						$ul_tag->setAttribute(
+							esc_attr( $data_key ),
+							wp_json_encode( $data_values )
+						);
+					}
+				}
+
+				/*
+				 * Loop through each div and add the data, only when it's a gallery block div.
+				 * We want to avoid adding data to divs like wp-block-columns.
+				 * We do however want data on divs like wp-block-jetpack-tiled-gallery.
+				 */
+				foreach ( $div_tags as $div_tag ) {
+					if (
+						false === strpos( $div_tag->getAttribute( 'class' ), 'wp-block-' )
+						|| false !== strpos( $div_tag->getAttribute( 'class' ), 'gallery' )
+					) {
+						$div_tag->setAttribute(
+							esc_attr( $data_key ),
+							wp_json_encode( $data_values )
+						);
+					}
+				}
+
+				// Save our updated HTML.
+				$html = $dom_doc->saveHTML();
 			}
 		}
 
