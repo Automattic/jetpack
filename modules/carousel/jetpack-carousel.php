@@ -542,6 +542,11 @@ class Jetpack_Carousel {
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
 
 			foreach ( (array) $extra_data as $data_key => $data_values ) {
+				// Do not go any further if DOMDocument is disabled on the server.
+				if ( ! class_exists( 'DOMDocument' ) ) {
+					return $html;
+				}
+
 				// Let's grab all containers from the HTML.
 				$dom_doc = new DOMDocument();
 
