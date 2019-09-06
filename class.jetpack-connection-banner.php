@@ -130,7 +130,7 @@ class Jetpack_Connection_Banner {
 	/**
 	 * Enqueues JavaScript and CSS for new connect-in-place flow.
 	 *
-	 * @since 7.2
+	 * @since 7.7
 	 */
 	public static function enqueue_connect_button_scripts() {
 		wp_enqueue_script(
