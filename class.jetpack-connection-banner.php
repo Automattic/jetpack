@@ -26,7 +26,6 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
 	}
 
 	/**
@@ -128,6 +127,11 @@ class Jetpack_Connection_Banner {
 		);
 	}
 
+	/**
+	 * Enqueues JavaScript and CSS for new connect-in-place flow.
+	 *
+	 * @since 7.2
+	 */
 	public static function enqueue_connect_button_scripts() {
 		wp_enqueue_script(
 			'jetpack-connect-button',
