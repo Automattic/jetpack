@@ -27,7 +27,7 @@ function init() {
 		return;
 	}
 
-	add_action( 'update_option_blog_public', '\Private_Site\update_option_blog_public' );
+	add_filter( 'pre_update_option_blog_public', '\Private_Site\pre_update_option_blog_public' );
 
 	if ( ! site_is_private() ) {
 		return;
@@ -88,13 +88,18 @@ function site_is_private() {
 }
 
 /**
- * Hooked into action: `update_option_blog_public`
+ * Hooked into filter: `pre_update_option_blog_public`
  * Sets a secondary option (`wpcom_blog_public_updated`) to `1` when the `blog_public` option is updated
  * This will be used to determine that the option has been set after the launch of the Private Site module.
+ *
+ * @param $new_value
+ *
+ * @return mixed $new_value is always returned
  * @see `site_is_private`
  */
-function update_option_blog_public() {
+function pre_update_option_blog_public( $new_value ) {
 	update_option( 'wpcom_blog_public_updated', 1 );
+	return $new_value;
 }
 
 /**
@@ -255,8 +260,22 @@ function preprocess_comment( $comment ) {
 function privatize_blog_priv_selector() {
 	?>
 <br/><input id="blog-private" type="radio" name="blog_public"
-			value="-1" <?php checked( '-1', get_option( 'blog_public' ) ); ?> />
+			value="-1" <?php checked( site_is_private()); ?> />
 <label for="blog-private"><?php _e( 'I would like my site to be private, visible only to myself and users I choose' ) ?></label>
+	<?php // Select the "public" radio button if none is selected. ?>
+<script>
+  (function(){
+    var btns = document.querySelectorAll( '.option-site-visibility input' );
+    if ( ! btns.length ) {
+      return;
+	}
+    if ( ! Array.prototype.filter.call( btns, function( node ) {
+	  return node.checked;
+    } ).length ) {
+      document.querySelector( '#blog-public' ).checked = true;
+	}
+  })();
+</script>
 	<?php
 }
 
