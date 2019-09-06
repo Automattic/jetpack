@@ -69,6 +69,7 @@ abstract class Jetpack_Admin_Page {
 			&& ! Jetpack::is_development_mode()
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 			add_action( 'admin_notices', array( 'Jetpack_Connection_Banner', 'render_connect_prompt_full_screen' ) );
 			delete_transient( 'activated_jetpack' );
