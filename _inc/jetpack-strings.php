@@ -289,13 +289,13 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:28
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:43
 __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
 __( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
-__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:28
-__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
-__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:43
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
