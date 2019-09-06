@@ -291,7 +291,7 @@ class Jetpack_XMLRPC_Server {
 		$nonce = sanitize_text_field( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		$api_url  = Jetpack::fix_url_for_bad_hosts(
+		$api_url  = Connection_Manager::fix_url_for_bad_hosts(
 			$this->connection->api_url( 'partner_provision_nonce_check' )
 		);
 		$response = Client::_wp_remote_request(

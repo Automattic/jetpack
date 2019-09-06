@@ -13,6 +13,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -865,7 +866,7 @@ class Jetpack_Protect_Module {
 		}
 
 		//Check to see if we can use SSL
-		$this->api_endpoint = Jetpack::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
+		$this->api_endpoint = Connection_Manager::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
 
 		return $this->api_endpoint;
 	}

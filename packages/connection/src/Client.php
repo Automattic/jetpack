@@ -131,7 +131,7 @@ class Client {
 		}
 
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
-		$url = \Jetpack::fix_url_for_bad_hosts( $url );
+		$url = Manager::fix_url_for_bad_hosts( $url );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
@@ -171,7 +171,7 @@ class Client {
 	 * The option is checked on each request.
 	 *
 	 * @internal
-	 * @see Jetpack::fix_url_for_bad_hosts()
+	 * @see Manager::fix_url_for_bad_hosts()
 	 *
 	 * @param String  $url the request URL.
 	 * @param Array   $args request arguments.
