@@ -1775,4 +1775,24 @@ class Manager {
 
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
+
+	/**
+	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
+	 */
+	public static function fix_url_for_bad_hosts( $url ) {
+		if ( 0 !== strpos( $url, 'https://' ) ) {
+			return $url;
+		}
+
+		switch ( JETPACK_CLIENT__HTTPS ) {
+			case 'ALWAYS':
+				return $url;
+			case 'NEVER':
+				return set_url_scheme( $url, 'http' );
+			// default : case 'AUTO' :
+		}
+
+		// we now return the unmodified SSL URL by default, as a security precaution
+		return $url;
+	}
 }

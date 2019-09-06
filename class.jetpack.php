@@ -3533,7 +3533,7 @@ p {
 			$args       = array();
 			$connection = self::connection();
 			Client::_wp_remote_request(
-				self::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
+				Connection_Manager::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
 				$args,
 				true
 			);
@@ -4816,23 +4816,13 @@ endif;
 	}
 
 	/**
+	 * @deprecated 7.8 Use Automattic\Jetpack\Connection\Manager::fix_url_for_bad_hosts() instead.
+     *
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		if ( 0 !== strpos( $url, 'https://' ) ) {
-			return $url;
-		}
-
-		switch ( JETPACK_CLIENT__HTTPS ) {
-			case 'ALWAYS':
-				return $url;
-			case 'NEVER':
-				return set_url_scheme( $url, 'http' );
-			// default : case 'AUTO' :
-		}
-
-		// we now return the unmodified SSL URL by default, as a security precaution
-		return $url;
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\Jetpack\Connection\Manager' );
+		return Connection_Manager::fix_url_for_bad_hosts( $url );
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
