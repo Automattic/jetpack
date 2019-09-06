@@ -7,8 +7,8 @@ import '@wordpress/notices';
 import { parse as parseUrl } from 'url';
 
 /**
- * Shows a notification when a Stripe has been connected
- * after redirection from WPCOM.
+ * Shows a notification when a Stripe has been connected or
+ * connection has been cancelled after redirection from WPCOM.
  */
 if ( undefined !== typeof window && window.location ) {
 	const { query } = parseUrl( window.location.href, true );
