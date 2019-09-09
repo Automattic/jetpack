@@ -566,7 +566,7 @@ class Jetpack_Carousel {
 				foreach ( $ul_tags as $ul_tag ) {
 					if ( false !== strpos( $ul_tag->getAttribute( 'class' ), 'wp-block-gallery' ) ) {
 						$ul_tag->setAttribute(
-							esc_attr( $data_key ),
+							$data_key,
 							wp_json_encode( $data_values )
 						);
 					}
@@ -583,7 +583,7 @@ class Jetpack_Carousel {
 						|| false !== strpos( $div_tag->getAttribute( 'class' ), 'gallery' )
 					) {
 						$div_tag->setAttribute(
-							esc_attr( $data_key ),
+							$data_key,
 							wp_json_encode( $data_values )
 						);
 					}
