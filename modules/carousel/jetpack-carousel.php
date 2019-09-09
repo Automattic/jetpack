@@ -554,9 +554,11 @@ class Jetpack_Carousel {
 				 * The @ is not enough to suppress errors when dealing with libxml,
 				 * we have to tell it directly how we want to handle errors.
 				 */
-				$old_libxml_use_internal_errors = libxml_use_internal_errors( true );
+				$old_libxml_disable_entity_loader = libxml_disable_entity_loader( true );
+				$old_libxml_use_internal_errors   = libxml_use_internal_errors( true );
 				@$dom_doc->loadHTML( $html ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 				libxml_use_internal_errors( $old_libxml_use_internal_errors );
+				libxml_disable_entity_loader( $old_libxml_disable_entity_loader );
 
 				// Let's look for lists and divs.
 				$ul_tags  = $dom_doc->getElementsByTagName( 'ul' );
