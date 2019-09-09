@@ -5,9 +5,9 @@
 }
 
 .jetpack-instant-search__search-results-count {
-	position: absolute;
-	top: 0;
-	right: 0;
+	float: right;
+	margin-left: 0.5em;
+	display: block;
 }
 
 .jetpack-instant-search__search-results-real-query {

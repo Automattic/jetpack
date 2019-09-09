@@ -46,7 +46,15 @@ export function search( siteId, query, aggregations, filter, resultFormat ) {
 		case 'minimal':
 		default:
 			highlight_fields = [ 'title', 'content', 'comments' ];
-			fields = [ 'date', 'permalink.url.raw', 'tag.name.default', 'category.name.default' ];
+			fields = [
+				'date',
+				'permalink.url.raw',
+				'tag.name.default',
+				'category.name.default',
+				'post_type',
+				'has.image',
+				'shortcode_types',
+			];
 	}
 
 	const queryString = encode(

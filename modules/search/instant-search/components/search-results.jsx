@@ -39,6 +39,9 @@ class SearchResults extends Component {
 
 		return (
 			<div className="jetpack-instant-search__search-results">
+				<span className="jetpack-instant-search__search-results-count">
+					{ sprintf( __( '%d Results' ), total ) }
+				</span>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ corrected_query !== false
 						? sprintf( __( 'Showing results for "%s"' ), corrected_query )
@@ -49,9 +52,6 @@ class SearchResults extends Component {
 						{ sprintf( __( 'No results for "%s"' ), query ) }
 					</p>
 				) }
-				<span className="jetpack-instant-search__search-results-count">
-					{ sprintf( __( '%d Results' ), total ) }
-				</span>
 				{ results.map( result => this.render_result( result ) ) }
 			</div>
 		);
