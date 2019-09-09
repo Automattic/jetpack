@@ -342,6 +342,14 @@ class Jetpack_VideoPress {
 		return $extensions;
 	}
 
+
+
+	/**
+	 * Request a VideoPress transcoding job by WordPress.com.
+	 *
+	 * @param int $attachment_id ID of a new attachment.
+	 * @return null
+	 */
 	public function transcode_video( $attachment_id ) {
 		// Bail if attachment is not a video.
 		if ( ! wp_attachment_is( 'video', $attachment_id ) ) {
@@ -359,7 +367,7 @@ class Jetpack_VideoPress {
 			sprintf( '/sites/%d/videopress/%d/transcode', $site_id, $attachment_id ),
 			'2',
 			array(
-				'method'  => 'POST',
+				'method' => 'POST',
 			),
 			null,
 			'wpcom'
