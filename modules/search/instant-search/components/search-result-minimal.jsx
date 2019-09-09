@@ -64,23 +64,16 @@ class SearchResultMinimal extends Component {
 		if ( ! Array.isArray( cats ) ) {
 			cats = [ cats ];
 		}
-		const no_tags = tags.length === 0 && cats.length === 0;
+		const noTags = tags.length === 0 && cats.length === 0;
 
 		let hasVideo = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
 		let hasAudio = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
 		const hasCode = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.code );
 
-		let hasGallery = false;
-		let hasImage = false;
-		if ( fields[ 'has.image' ] === 1 ) {
-			hasImage = true;
-		}
-		if ( fields[ 'has.image' ] > 1 ) {
-			hasGallery = true;
-		}
-		if ( this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery ) ) {
-			hasGallery = true;
-		}
+		let hasGallery =
+			this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery ) ||
+			fields[ 'has.image' ] > 1;
+		let hasImage = fields[ 'has.image' ] === 1;
 
 		let postTypeIcon = null;
 		switch ( fields.post_type ) {
@@ -142,7 +135,7 @@ class SearchResultMinimal extends Component {
 
 				{ no_content && (
 					<div className="jetpack-instant-search__result-minimal-content">
-						{ no_tags && (
+						{ noTags && (
 							<div className="jetpack-instant-search__result-minimal-path">{ path }</div>
 						) }
 						{ tags.length !== 0 && (
