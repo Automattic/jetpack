@@ -11,6 +11,8 @@ It has been modified to work with Preact, and only includes the icons that we ne
  * External dependencies
  */
 import { h, Component } from 'preact';
+import { __ } from '@wordpress/i18n';
+
 import './style.scss';
 
 class Gridicon extends Component {
@@ -117,6 +119,37 @@ class Gridicon extends Component {
 			return size % 18 === 0;
 		}
 		return false;
+	}
+
+	getSVGTitle( icon ) {
+		switch ( icon ) {
+			default:
+				return null;
+			case 'gridicons-attachment':
+				return <title>{ __( 'Has an attachment' ) }</title>;
+			case 'gridicons-audio':
+				return <title>{ __( 'Has audio' ) }</title>;
+			case 'gridicons-calendar':
+				return <title>{ __( 'Is an event' ) }</title>;
+			case 'gridicons-cart':
+				return <title>{ __( 'Is a product' ) }</title>;
+			case 'gridicons-code':
+				return <title>{ __( 'Has example code' ) }</title>;
+			case 'gridicons-comment':
+				return <title>{ __( 'Matching comment' ) }</title>;
+			case 'gridicons-folder':
+				return <title>{ __( 'Category' ) }</title>;
+			case 'gridicons-image-multiple':
+				return <title>{ __( 'Has multiple images' ) }</title>;
+			case 'gridicons-image':
+				return <title>{ __( 'Has an image' ) }</title>;
+			case 'gridicons-search':
+				return <title>{ __( 'Search' ) }</title>;
+			case 'gridicons-tag':
+				return <title>{ __( 'Tag' ) }</title>;
+			case 'gridicons-video':
+				return <title>{ __( 'Has a video' ) }</title>;
+		}
 	}
 
 	renderIcon( icon ) {
@@ -371,6 +404,7 @@ class Gridicon extends Component {
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 24 24"
 			>
+				{ this.getSVGTitle( icon ) }
 				{ this.renderIcon( icon ) }
 			</svg>
 		);
