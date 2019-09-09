@@ -104,8 +104,8 @@ class Jetpack_Notifications {
 
 	function styles_and_scripts() {
 		$is_rtl = is_rtl();
-		$style_handles  = [];
-		$script_handles = [];
+		$style_handles  = array();
+		$script_handles = array();
 
 		if ( Jetpack::is_module_active( 'masterbar' ) ) {
 			/**
