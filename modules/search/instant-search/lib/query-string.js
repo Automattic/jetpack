@@ -26,3 +26,30 @@ export function setSearchQuery( searchValue ) {
 	query.s = searchValue;
 	pushQueryString( encode( query ) );
 }
+
+function getFilterQueryByKey( filterKey ) {
+	const query = getQuery();
+	if ( ! ( filterKey in query ) ) {
+		return [];
+	}
+	if ( typeof query[ filterKey ] === 'string' ) {
+		return [ query[ filterKey ] ];
+	}
+	return query[ filterKey ];
+}
+
+export function getFilterQuery( filterKey ) {
+	if ( filterKey ) {
+		return getFilterQueryByKey( filterKey );
+	}
+
+	return {
+		postTypes: getFilterQueryByKey( 'postTypes' ),
+	};
+}
+
+export function setFilterQuery( filterKey, filterValue ) {
+	const query = getQuery();
+	query[ filterKey ] = filterValue;
+	pushQueryString( encode( query ) );
+}

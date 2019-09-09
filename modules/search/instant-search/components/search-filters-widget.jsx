@@ -17,18 +17,22 @@ import SearchFilterTaxonomies from './search-filter-taxonomies';
 import SearchFilterPostTypes from './search-filter-post-types';
 
 export default class SearchFiltersWidget extends Component {
-	renderFilterComponent = ( { filter, results } ) => {
-		switch ( filter.type ) {
+	renderFilterComponent = ( { configuration, results } ) => {
+		switch ( configuration.type ) {
 			case 'date_histogram':
-				return results && <SearchFilterDates aggregation={ results } filter={ filter } />;
+				return results && <SearchFilterDates aggregation={ results } filter={ configuration } />;
 			case 'taxonomy':
-				return results && <SearchFilterTaxonomies aggregation={ results } filter={ filter } />;
+				return (
+					results && <SearchFilterTaxonomies aggregation={ results } filter={ configuration } />
+				);
 			case 'post_type':
 				return (
 					results && (
 						<SearchFilterPostTypes
 							aggregation={ results }
-							filter={ filter }
+							configuration={ configuration }
+							initialValue={ this.props.initialValues.postTypes }
+							onChange={ this.props.onChange }
 							postTypes={ this.props.postTypes }
 						/>
 					)
@@ -41,8 +45,10 @@ export default class SearchFiltersWidget extends Component {
 		return (
 			<div className="jetpack-instant-search__filters-widget">
 				{ get( this.props.widget, 'filters' )
-					.map( filter =>
-						aggregations ? { filter, results: aggregations[ filter.filter_id ] } : null
+					.map( configuration =>
+						aggregations
+							? { configuration, results: aggregations[ configuration.filter_id ] }
+							: null
 					)
 					.filter( data => !! data )
 					.filter(

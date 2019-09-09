@@ -37,7 +37,21 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
-export function search( siteId, query, aggregations, filter, resultFormat ) {
+function buildFilterObject( filterQuery ) {
+	if ( ! filterQuery ) {
+		return {};
+	}
+
+	const filter = { bool: { must: [] } };
+	if ( Array.isArray( filterQuery.postTypes ) && filterQuery.postTypes.length > 0 ) {
+		filterQuery.postTypes.forEach( postType => {
+			filter.bool.must.push( { term: { post_type: postType } } );
+		} );
+	}
+	return filter;
+}
+
+export function search( { aggregations, filter, query, resultFormat, siteId } ) {
 	let fields = [];
 	let highlight_fields = [];
 	switch ( resultFormat ) {
@@ -62,7 +76,7 @@ export function search( siteId, query, aggregations, filter, resultFormat ) {
 			aggregations,
 			fields,
 			highlight_fields,
-			filter,
+			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
 		} )
 	);
