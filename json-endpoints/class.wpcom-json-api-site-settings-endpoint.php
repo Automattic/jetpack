@@ -103,6 +103,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'posts_per_page'               => '(int) Number of posts to show on blog pages',
 		'posts_per_rss'                => '(int) Number of posts to show in the RSS feed',
 		'rss_use_excerpt'              => '(bool) Whether the RSS feed will use post excerpts',
+		'climatestrike'                => '(bool) Whether to show the climate strike modal for a site',
 	),
 
 	'response_format' => array(
@@ -326,6 +327,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
+				$climatestrike_option = get_option( 'digital-climate-strike' );
+				$climatestrike = ( $climatestrike_option )
+					? true
+					: false;
+
 				$response[ $key ] = array(
 
 					// also exists as "options"
@@ -395,6 +401,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
 					'posts_per_rss'           => (int) get_option( 'posts_per_rss' ),
 					'rss_use_excerpt'         => (bool) get_option( 'rss_use_excerpt' ),
+					'climatestrike'           => $climatestrike,
 				);
 
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -788,6 +795,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'rss_use_excerpt':
 					update_option( 'rss_use_excerpt', (int)(bool) $value );
+					break;
+
+				case 'climatestrike':
+					$save = (bool) $value;
+					if ( update_option( 'digital-climate-strike', $save ) ) {
+						$updated[ $key ] = $save;
+					}
 					break;
 
 				default:

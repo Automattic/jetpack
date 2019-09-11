@@ -100,6 +100,7 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 		'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 		'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
+		'climatestrike'                        => '(bool) Whether to show the climate strike modal for a site',
 	),
 
 	'response_format' => array(
