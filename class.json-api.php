@@ -11,24 +11,24 @@ class WPCOM_JSON_API {
 
 	public $token_details = array();
 
-	public $method = '';
-	public $url = '';
-	public $path = '';
-	public $version = null;
-	public $query = array();
-	public $post_body = null;
-	public $files = null;
+	public $method       = '';
+	public $url          = '';
+	public $path         = '';
+	public $version      = null;
+	public $query        = array();
+	public $post_body    = null;
+	public $files        = null;
 	public $content_type = null;
-	public $accept = '';
+	public $accept       = '';
 
 	public $_server_https;
-	public $exit = true;
+	public $exit              = true;
 	public $public_api_scheme = 'https';
 
 	public $output_status_code = 200;
 
 	public $trapped_error = null;
-	public $did_output = false;
+	public $did_output    = false;
 
 	public $extra_headers = array();
 
@@ -36,31 +36,33 @@ class WPCOM_JSON_API {
 	 * @return WPCOM_JSON_API instance
 	 */
 	static function init( $method = null, $url = null, $post_body = null ) {
-		if ( !self::$self ) {
-			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.get_called_classFound
+		if ( ! self::$self ) {
+			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.get_called_classFound
 			self::$self = new $class( $method, $url, $post_body );
 		}
 		return self::$self;
 	}
 
 	function add( WPCOM_JSON_API_Endpoint $endpoint ) {
-		$path_versions = serialize( array (
-			$endpoint->path,
-			$endpoint->min_version,
-			$endpoint->max_version,
-		) );
-		if ( !isset( $this->endpoints[$path_versions] ) ) {
-			$this->endpoints[$path_versions] = array();
+		$path_versions = serialize(
+			array(
+				$endpoint->path,
+				$endpoint->min_version,
+				$endpoint->max_version,
+			)
+		);
+		if ( ! isset( $this->endpoints[ $path_versions ] ) ) {
+			$this->endpoints[ $path_versions ] = array();
 		}
-		$this->endpoints[$path_versions][$endpoint->method] = $endpoint;
+		$this->endpoints[ $path_versions ][ $endpoint->method ] = $endpoint;
 	}
 
 	static function is_truthy( $value ) {
 		switch ( strtolower( (string) $value ) ) {
-		case '1' :
-		case 't' :
-		case 'true' :
-			return true;
+			case '1':
+			case 't':
+			case 'true':
+				return true;
 		}
 
 		return false;
@@ -68,9 +70,9 @@ class WPCOM_JSON_API {
 
 	static function is_falsy( $value ) {
 		switch ( strtolower( (string) $value ) ) {
-			case '0' :
-			case 'f' :
-			case 'false' :
+			case '0':
+			case 'f':
+			case 'false':
 				return true;
 		}
 
@@ -99,7 +101,7 @@ class WPCOM_JSON_API {
 			$this->path = $parsed['path'];
 		}
 
-		if ( !empty( $parsed['query'] ) ) {
+		if ( ! empty( $parsed['query'] ) ) {
 			wp_parse_str( $parsed['query'], $this->query );
 		}
 
@@ -114,7 +116,7 @@ class WPCOM_JSON_API {
 				if ( isset( $_SERVER['HTTP_CONTENT_TYPE'] ) && $_SERVER['HTTP_CONTENT_TYPE'] ) {
 					$this->content_type = $_SERVER['HTTP_CONTENT_TYPE'];
 				} elseif ( isset( $_SERVER['CONTENT_TYPE'] ) && $_SERVER['CONTENT_TYPE'] ) {
-					$this->content_type = $_SERVER['CONTENT_TYPE'] ;
+					$this->content_type = $_SERVER['CONTENT_TYPE'];
 				} elseif ( '{' === $this->post_body[0] ) {
 					$this->content_type = 'application/json';
 				} else {
@@ -122,16 +124,16 @@ class WPCOM_JSON_API {
 				}
 
 				if ( 0 === strpos( strtolower( $this->content_type ), 'multipart/' ) ) {
-					$this->post_body = http_build_query( stripslashes_deep( $_POST ) );
-					$this->files = $_FILES;
+					$this->post_body    = http_build_query( stripslashes_deep( $_POST ) );
+					$this->files        = $_FILES;
 					$this->content_type = 'multipart/form-data';
 				}
 			} else {
-				$this->post_body = $post_body;
+				$this->post_body    = $post_body;
 				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
-			$this->post_body = null;
+			$this->post_body    = null;
 			$this->content_type = null;
 		}
 
@@ -180,25 +182,25 @@ class WPCOM_JSON_API {
 		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
 		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
-		$this->path = substr( $this->path, strlen( $matches[0] ) );
+		$this->path    = substr( $this->path, strlen( $matches[0] ) );
 		$this->version = $matches[1];
 
 		$allowed_methods = array( 'GET', 'POST' );
-		$four_oh_five = false;
+		$four_oh_five    = false;
 
-		$is_help = preg_match( '#/help/?$#i', $this->path );
+		$is_help            = preg_match( '#/help/?$#i', $this->path );
 		$matching_endpoints = array();
 
 		if ( $is_help ) {
 			$origin = get_http_origin();
 
-			if ( !empty( $origin ) && 'GET' == $this->method ) {
+			if ( ! empty( $origin ) && 'GET' == $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
 
 			$this->path = substr( rtrim( $this->path, '/' ), 0, -5 );
 			// Show help for all matching endpoints regardless of method
-			$methods = $allowed_methods;
+			$methods                     = $allowed_methods;
 			$find_all_matching_endpoints = true;
 			// How deep to truncate each endpoint's path to see if it matches this help request
 			$depth = substr_count( $this->path, '/' ) + 1;
@@ -210,13 +212,13 @@ class WPCOM_JSON_API {
 		} else {
 			if ( in_array( $this->method, $allowed_methods ) ) {
 				// Only serve requested method
-				$methods = array( $this->method );
+				$methods                     = array( $this->method );
 				$find_all_matching_endpoints = false;
 			} else {
 				// We don't allow this requested method - find matching endpoints and send 405
-				$methods = $allowed_methods;
+				$methods                     = $allowed_methods;
 				$find_all_matching_endpoints = true;
-				$four_oh_five = true;
+				$four_oh_five                = true;
 			}
 		}
 
@@ -224,9 +226,9 @@ class WPCOM_JSON_API {
 		$found = false;
 		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
 			$endpoint_path_versions = unserialize( $endpoint_path_versions );
-			$endpoint_path        = $endpoint_path_versions[0];
-			$endpoint_min_version = $endpoint_path_versions[1];
-			$endpoint_max_version = $endpoint_path_versions[2];
+			$endpoint_path          = $endpoint_path_versions[0];
+			$endpoint_min_version   = $endpoint_path_versions[1];
+			$endpoint_max_version   = $endpoint_path_versions[2];
 
 			// Make sure max_version is not less than min_version
 			if ( version_compare( $endpoint_max_version, $endpoint_min_version, '<' ) ) {
@@ -234,7 +236,7 @@ class WPCOM_JSON_API {
 			}
 
 			foreach ( $methods as $method ) {
-				if ( !isset( $endpoints_by_method[$method] ) ) {
+				if ( ! isset( $endpoints_by_method[ $method ] ) ) {
 					continue;
 				}
 
@@ -248,7 +250,7 @@ class WPCOM_JSON_API {
 				// Generate regular expression from sprintf()
 				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
 
-				if ( !preg_match( "#^$endpoint_path_regex\$#", $this->path, $path_pieces ) ) {
+				if ( ! preg_match( "#^$endpoint_path_regex\$#", $this->path, $path_pieces ) ) {
 					// This endpoint does not match the requested path.
 					continue;
 				}
@@ -261,16 +263,16 @@ class WPCOM_JSON_API {
 				$found = true;
 
 				if ( $find_all_matching_endpoints ) {
-					$matching_endpoints[] = array( $endpoints_by_method[$method], $path_pieces );
+					$matching_endpoints[] = array( $endpoints_by_method[ $method ], $path_pieces );
 				} else {
 					// The method parameters are now in $path_pieces
-					$endpoint = $endpoints_by_method[$method];
+					$endpoint = $endpoints_by_method[ $method ];
 					break 2;
 				}
 			}
 		}
 
-		if ( !$found ) {
+		if ( ! $found ) {
 			return $this->output( 404, '', 'text/plain' );
 		}
 
@@ -281,7 +283,13 @@ class WPCOM_JSON_API {
 			}
 
 			header( 'Allow: ' . strtoupper( join( ',', array_unique( $allowed_methods ) ) ) );
-			return $this->output( 405, array( 'error' => 'not_allowed', 'error_message' => 'Method not allowed' ) );
+			return $this->output(
+				405,
+				array(
+					'error'         => 'not_allowed',
+					'error_message' => 'Method not allowed',
+				)
+			);
 		}
 
 		if ( $is_help ) {
@@ -297,21 +305,23 @@ class WPCOM_JSON_API {
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( $matching_endpoint[0]->is_publicly_documentable() || $proxied || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || $proxied || WPCOM_JSON_API__DEBUG ) {
 						$docs[] = call_user_func( array( $matching_endpoint[0], 'generate_documentation' ) );
+					}
 				}
 				return $this->output( 200, $docs );
 			} else {
 				status_header( 200 );
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( $matching_endpoint[0]->is_publicly_documentable() || $proxied || WPCOM_JSON_API__DEBUG )
+					if ( $matching_endpoint[0]->is_publicly_documentable() || $proxied || WPCOM_JSON_API__DEBUG ) {
 						call_user_func( array( $matching_endpoint[0], 'document' ) );
+					}
 				}
 			}
 			exit;
 		}
 
-		if ( $endpoint->in_testing && !WPCOM_JSON_API__DEBUG ) {
+		if ( $endpoint->in_testing && ! WPCOM_JSON_API__DEBUG ) {
 			return $this->output( 404, '', 'text/plain' );
 		}
 
@@ -320,7 +330,7 @@ class WPCOM_JSON_API {
 
 		$response = $this->process_request( $endpoint, $path_pieces );
 
-		if ( !$response && !is_array( $response ) ) {
+		if ( ! $response && ! is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
 			return $this->output_error( $response );
@@ -338,12 +348,13 @@ class WPCOM_JSON_API {
 	}
 
 	function output_early( $status_code, $response = null, $content_type = 'application/json' ) {
-		$exit = $this->exit;
+		$exit       = $this->exit;
 		$this->exit = false;
-		if ( is_wp_error( $response ) )
+		if ( is_wp_error( $response ) ) {
 			$this->output_error( $response );
-		else
+		} else {
 			$this->output( $status_code, $response, $content_type );
+		}
 		$this->exit = $exit;
 		if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
 			$this->finish_request();
@@ -357,24 +368,26 @@ class WPCOM_JSON_API {
 	function output( $status_code, $response = null, $content_type = 'application/json', $extra = array() ) {
 		// In case output() was called before the callback returned
 		if ( $this->did_output ) {
-			if ( $this->exit )
+			if ( $this->exit ) {
 				exit;
+			}
 			return $content_type;
 		}
 		$this->did_output = true;
 
 		// 400s and 404s are allowed for all origins
-		if ( 404 == $status_code || 400 == $status_code )
+		if ( 404 == $status_code || 400 == $status_code ) {
 			header( 'Access-Control-Allow-Origin: *' );
+		}
 
 		if ( is_null( $response ) ) {
-			$response = new stdClass;
+			$response = new stdClass();
 		}
 
 		if ( 'text/plain' === $content_type ) {
 			status_header( (int) $status_code );
 			header( 'Content-Type: text/plain' );
-			foreach( $extra as $key => $value ) {
+			foreach ( $extra as $key => $value ) {
 				header( "$key: $value" );
 			}
 			echo $response;
@@ -390,21 +403,24 @@ class WPCOM_JSON_API {
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
 			$headers = array(
 				array(
-					'name' => 'Content-Type',
+					'name'  => 'Content-Type',
 					'value' => $content_type,
-				)
+				),
 			);
 
-			foreach( $extra as $key => $value ) {
-				$headers[] = array( 'name' => $key, 'value' => $value );
+			foreach ( $extra as $key => $value ) {
+				$headers[] = array(
+					'name'  => $key,
+					'value' => $value,
+				);
 			}
 
-			$response = array(
-				'code' => (int) $status_code,
+			$response     = array(
+				'code'    => (int) $status_code,
 				'headers' => $headers,
-				'body' => $response,
+				'body'    => $response,
 			);
-			$status_code = 200;
+			$status_code  = 200;
 			$content_type = 'application/json';
 		}
 
@@ -425,7 +441,7 @@ class WPCOM_JSON_API {
 		}
 		echo $this->json_encode( $response );
 		if ( $callback ) {
-			echo ");";
+			echo ');';
 		}
 
 		if ( $this->exit ) {
@@ -435,7 +451,7 @@ class WPCOM_JSON_API {
 		return $content_type;
 	}
 
-	public static function serializable_error ( $error ) {
+	public static function serializable_error( $error ) {
 
 		$status_code = $error->get_error_data();
 
@@ -443,7 +459,7 @@ class WPCOM_JSON_API {
 			$status_code = $status_code['status_code'];
 		}
 
-		if ( !$status_code ) {
+		if ( ! $status_code ) {
 			$status_code = 400;
 		}
 		$response = array(
@@ -457,19 +473,20 @@ class WPCOM_JSON_API {
 
 		return array(
 			'status_code' => $status_code,
-			'errors' => $response
+			'errors'      => $response,
 		);
 	}
 
 	function output_error( $error ) {
 		$error_response = $this->serializable_error( $error );
 
-		return $this->output( $error_response[ 'status_code'], $error_response['errors'] );
+		return $this->output( $error_response['status_code'], $error_response['errors'] );
 	}
 
 	function filter_fields( $response ) {
-		if ( empty( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) )
+		if ( empty( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) ) {
 			return $response;
+		}
 
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
 
@@ -499,8 +516,9 @@ class WPCOM_JSON_API {
 			);
 
 			foreach ( $keys_to_filter as $key_to_filter ) {
-				if ( ! isset( $response[ $key_to_filter ] ) || $has_filtered )
+				if ( ! isset( $response[ $key_to_filter ] ) || $has_filtered ) {
 					continue;
+				}
 
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
@@ -521,7 +539,7 @@ class WPCOM_JSON_API {
 		if ( ! $has_filtered ) {
 			if ( is_object( $response ) ) {
 				$response = (object) array_intersect_key( (array) $response, array_flip( $fields ) );
-			} else if ( is_array( $response ) ) {
+			} elseif ( is_array( $response ) ) {
 				$response = array_intersect_key( $response, array_flip( $fields ) );
 			}
 		}
@@ -564,7 +582,7 @@ class WPCOM_JSON_API {
 			return new WP_Error( 'unauthorized', 'User cannot access this restricted blog', 403 );
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read' ) ) {
+		if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot access this private blog.', 403 );
 		}
 
@@ -643,7 +661,8 @@ class WPCOM_JSON_API {
 		 *
 		 * @param array Array of comment types to exclude (default: 'order_note', 'webhook_delivery', 'review', 'action_log')
 		 */
-		$exclude = apply_filters( 'jetpack_api_exclude_comment_types_count',
+		$exclude = apply_filters(
+			'jetpack_api_exclude_comment_types_count',
 			array( 'order_note', 'webhook_delivery', 'review', 'action_log' )
 		);
 
@@ -738,9 +757,12 @@ class WPCOM_JSON_API {
 
 	function wp_die_handler( $message, $title = '', $args = array() ) {
 		// Allow wp_die calls to override HTTP status code...
-		$args = wp_parse_args( $args, array(
-			'response' => $this->trapped_error['status'],
-		) );
+		$args = wp_parse_args(
+			$args,
+			array(
+				'response' => $this->trapped_error['status'],
+			)
+		);
 
 		// ... unless it's 500
 		if ( (int) $args['response'] !== 500 ) {
@@ -754,10 +776,10 @@ class WPCOM_JSON_API {
 		$this->trapped_error['message'] = wp_kses( $message, array() );
 
 		switch ( $this->trapped_error['code'] ) {
-			case 'comment_failure' :
+			case 'comment_failure':
 				if ( did_action( 'comment_duplicate_trigger' ) ) {
 					$this->trapped_error['code'] = 'comment_duplicate';
-				} else if ( did_action( 'comment_flood_trigger' ) ) {
+				} elseif ( did_action( 'comment_flood_trigger' ) ) {
 					$this->trapped_error['code'] = 'comment_flood';
 				}
 				break;
@@ -771,14 +793,18 @@ class WPCOM_JSON_API {
 
 	function output_trapped_error() {
 		$this->exit = false; // We're already exiting once.  Don't do it twice.
-		$this->output( $this->trapped_error['status'], (object) array(
-			'error'   => $this->trapped_error['code'],
-			'message' => $this->trapped_error['message'],
-		) );
+		$this->output(
+			$this->trapped_error['status'],
+			(object) array(
+				'error'   => $this->trapped_error['code'],
+				'message' => $this->trapped_error['message'],
+			)
+		);
 	}
 
 	function finish_request() {
-		if ( function_exists( 'fastcgi_finish_request' ) )
+		if ( function_exists( 'fastcgi_finish_request' ) ) {
 			return fastcgi_finish_request();
+		}
 	}
 }

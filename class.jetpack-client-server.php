@@ -23,14 +23,17 @@ class Jetpack_Client_Server {
 		check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
 		$tracking = new Tracking();
-		$result = $this->authorize( $data );
+		$result   = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
 
-			$tracking->record_user_event( 'jpc_client_authorize_fail', array(
-				'error_code' => $result->get_error_code(),
-				'error_message' => $result->get_error_message()
-			) );
+			$tracking->record_user_event(
+				'jpc_client_authorize_fail',
+				array(
+					'error_code'    => $result->get_error_code(),
+					'error_message' => $result->get_error_message(),
+				)
+			);
 		} else {
 			/**
 			 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
@@ -63,14 +66,14 @@ class Jetpack_Client_Server {
 		if ( ! $jetpack_unique_connection ) {
 			// jetpack_unique_connection option has never been set
 			$jetpack_unique_connection = array(
-				'connected'     => 0,
-				'disconnected'  => 0,
-				'version'       => '3.6.1',
+				'connected'    => 0,
+				'disconnected' => 0,
+				'version'      => '3.6.1',
 			);
 
 			update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 
-			//track unique connection
+			// track unique connection
 			$jetpack = $this->get_jetpack();
 
 			$jetpack->stat( 'connections', 'unique-connection' );
@@ -161,7 +164,7 @@ class Jetpack_Client_Server {
 	}
 
 	public static function deactivate_plugin( $probable_file, $probable_title ) {
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( is_plugin_active( $probable_file ) ) {
 			deactivate_plugins( $probable_file );
 			return 1;
@@ -196,32 +199,35 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
 
-		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
+		$redirect     = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 		$redirect_uri = ( 'calypso' === $data['auth_type'] )
 			? $data['redirect_uri']
-			: add_query_arg( array(
-				'action' => 'authorize',
-				'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-				'redirect' => $redirect ? urlencode( $redirect ) : false,
-			), menu_page_url( 'jetpack', false ) );
+			: add_query_arg(
+				array(
+					'action'   => 'authorize',
+					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+					'redirect' => $redirect ? urlencode( $redirect ) : false,
+				),
+				menu_page_url( 'jetpack', false )
+			);
 
 		// inject identity for analytics
-		$tracks = new Automattic\Jetpack\Tracking();
+		$tracks          = new Automattic\Jetpack\Tracking();
 		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
 
 		$body = array(
-			'client_id' => Jetpack_Options::get_option( 'id' ),
+			'client_id'     => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
-			'grant_type' => 'authorization_code',
-			'code' => $data['code'],
-			'redirect_uri' => $redirect_uri,
-			'_ui' => $tracks_identity['_ui'],
-			'_ut' => $tracks_identity['_ut'],
+			'grant_type'    => 'authorization_code',
+			'code'          => $data['code'],
+			'redirect_uri'  => $redirect_uri,
+			'_ui'           => $tracks_identity['_ui'],
+			'_ut'           => $tracks_identity['_ut'],
 		);
 
-		$args = array(
-			'method' => 'POST',
-			'body' => $body,
+		$args     = array(
+			'method'  => 'POST',
+			'body'    => $body,
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
@@ -232,7 +238,7 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'token_http_request_failed', $response->get_error_message() );
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
+		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
 
 		if ( $entity ) {

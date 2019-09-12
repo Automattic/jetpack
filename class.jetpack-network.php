@@ -387,7 +387,7 @@ class Jetpack_Network {
 		if ( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) {
 			$notice    = __( 'Site successfully connected.', 'jetpack' );
 			$classname = 'updated';
-		} else if ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) {
+		} elseif ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) {
 			$notice    = __( 'Site connection failed!', 'jetpack' );
 			$classname = 'error';
 		}
