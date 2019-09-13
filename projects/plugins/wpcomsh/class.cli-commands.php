@@ -20,9 +20,9 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	/**
-	 * Disable all plugins except for important ones for Atomic.
+	 * Deactivate all plugins except for important ones for Atomic.
 	 */
-	function disable_user_installed_plugins() {
+	function deactivate_user_installed_plugins() {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
 
