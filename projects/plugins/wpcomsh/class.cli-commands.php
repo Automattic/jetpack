@@ -110,7 +110,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 
 		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false ) ) {
 			foreach ( $user_installed_plugins as $k => $plugin ) {
-				if ( $this->confirm( 'Dectivate plugin "' . $plugin . '"?' ) ) {
+				if ( $this->confirm( 'Deactivate plugin "' . $plugin . '"?' ) ) {
 					WP_CLI::run_command( array( 'plugin', 'deactivate', $plugin ) );
 				} else {
 					unset( $user_installed_plugins[ $k ] );
