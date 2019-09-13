@@ -8,7 +8,7 @@ if ( ! class_exists( 'WP_CLI' ) ) {
  *  Force WordPress to always output English at the command line.
  */
 WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
-    return 'de_DE';
+    return 'en_US';
 });
 
 /**
