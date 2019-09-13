@@ -39,13 +39,13 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		return 'y' === $answer || ! $answer;
 	}
 
-	private function get_active_user_installed_plugins( $deactivate_ecommerce = false ) {
+	private function get_active_user_installed_plugins( $include_ecommerce = false ) {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
 
 		$user_installed_plugins = array_filter(
 			$all_plugins,
-			function( $file ) use ( $deactivate_ecommerce ) {
+			function( $file ) use ( $include_ecommerce ) {
 				$name = WP_CLI\Utils\get_plugin_name( $file );
 
 				if (
@@ -61,7 +61,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 					return false;
 				}
 
-				if ( ! $deactivate_ecommerce && in_array( $name, self::ECOMMERCE_PLAN_PLUGINS ) ) {
+				if ( ! $include_ecommerce && in_array( $name, self::ECOMMERCE_PLAN_PLUGINS ) ) {
 					return false;
 				}
 
@@ -93,16 +93,16 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--force-ecommerce]
-	 * : Force deactivating plugins of the ecommerce plan
+	 * [--include-ecommerce]
+	 * : Include deactivating plugins of the ecommerce plan
 	 *
 	 * [--interactive]
 	 * : Ask for each active plugin whether to deactivate
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$deactivate_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'force_ecommerce', false );
+		$include_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'include-ecommerce', false );
 
-		$user_installed_plugins = $this->get_active_user_installed_plugins( $deactivate_ecommerce );
+		$user_installed_plugins = $this->get_active_user_installed_plugins( $include_ecommerce );
 		if ( empty( $user_installed_plugins ) ) {
 			WP_CLI::warning( 'No active user installed plugins found.' );
 			return;
@@ -139,6 +139,9 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * Otherwise it will disable the user installed plugins.
 	 *
 	 * ## OPTIONS
+	 *
+	 * [--include-ecommerce]
+	 * : Include deactivating plugins of the ecommerce plan
 	 *
 	 * [--interactive]
 	 * : Ask for each previously deactivated plugin whether to activate
