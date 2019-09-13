@@ -19,17 +19,25 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
  * Class WPCOMSH_CLI_Commands
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
-	/**
-	 * Deactivate all plugins except for important ones for Atomic.
-	 */
-	function deactivate_user_installed_plugins() {
+	const OPTION_DEACTIVATED_USER_PLUGINS = 'wpcomsh_deactivated_user_installed_plugins';
+
+	private function get_active_user_installed_plugins() {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
 
 		$user_installed_plugins = array_filter(
 			$all_plugins,
 			function( $file ) {
-				return ! in_array( Utils\get_plugin_name( $file ), [ 'jetpack', 'akismet', 'amp' ] );
+				$name = WP_CLI\Utils\get_plugin_name( $file );
+
+				return ! in_array(
+					$name,
+					[
+						'jetpack',
+						'akismet',
+						'amp',
+					]
+				);
 			}
 		);
 
@@ -39,16 +47,54 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 				return is_plugin_active_for_network( $file ) || is_plugin_active( $file );
 			}
 		);
+
 		$active_user_installed_plugin_names = array_map(
 			function( $file ) {
-					return Utils\get_plugin_name( $file );
+					return WP_CLI\Utils\get_plugin_name( $file );
 			},
 			$active_user_installed_plugins
 		);
 
-		array_unshift( $active_user_installed_plugin_names, 'plugin', 'deactivate' );
+		return $active_user_installed_plugin_names;
+	}
 
-		WP_CLI::run_command( $active_user_installed_plugin_names );
+	/**
+	 * Deactivate all plugins except for important ones for Atomic.
+	 */
+	function deactivate_user_installed_plugins() {
+		$user_installed_plugins = $this->get_active_user_installed_plugins();
+		if ( empty( $user_installed_plugins ) ) {
+			WP_CLI::warning( 'No active user installed plugins found.' );
+			return;
+		}
+
+		update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins );
+
+		// This prpeares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
+		array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
+
+		WP_CLI::run_command( $user_installed_plugins );
+	}
+
+	/**
+	 * Deactivate all plugins except for important ones for Atomic.
+	 */
+	function toggle_user_installed_plugins() {
+		$previously_deactivated_plugins = get_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+
+		if ( false === $previously_deactivated_plugins ) {
+			WP_CLI::log( 'Deactivating user installed plugins.' );
+
+			return $this->deactivate_user_installed_plugins();
+		}
+
+		WP_CLI::log( 'Activating previously deactivated user installed plugins.' );
+
+		// This prpeares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
+		array_unshift( $previously_deactivated_plugins, 'plugin', 'activate' );
+
+		WP_CLI::run_command( $previously_deactivated_plugins );
+		delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
 	}
 }
 /*
