@@ -59,7 +59,9 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	}
 
 	/**
-	 * Deactivate all plugins except for important ones for Atomic.
+	 * Bulk deactivate user installed plugins
+	 *
+	 * Deactivate all user installed plugins except for important ones for Atomic.
 	 */
 	function deactivate_user_installed_plugins() {
 		$user_installed_plugins = $this->get_active_user_installed_plugins();
@@ -77,7 +79,10 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	}
 
 	/**
-	 * Deactivate all plugins except for important ones for Atomic.
+	 * Bulk deactivate or re-activate user installed plugins
+	 *
+	 * If previously user installed plugins had been deactivated, this re-activates these plugins.
+	 * Otherwise it will disable the user installed plugins.
 	 */
 	function toggle_user_installed_plugins() {
 		$previously_deactivated_plugins = get_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
