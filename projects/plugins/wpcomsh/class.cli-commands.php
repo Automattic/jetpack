@@ -33,6 +33,12 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		'taxjar-simplified-taxes-for-woocommerce',
 	];
 
+	private function confirm( $question ) {
+		fwrite( STDOUT, $question . ' [Y/n] ' );
+		$answer = strtolower( trim( fgets( STDIN ) ) );
+		return 'y' === $answer || ! $answer;
+	}
+
 	private function get_active_user_installed_plugins( $deactivate_ecommerce = false ) {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
@@ -90,6 +96,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * [--force-ecommerce]
 	 * : Force deactivating plugins of the ecommerce plan
 	 *
+	 * [--interactive]
+	 * : Ask for each active plugin whether to deactivate
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 		$deactivate_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'force_ecommerce', false );
@@ -100,12 +108,28 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			return;
 		}
 
-		update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins );
+		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false ) ) {
+			foreach ( $user_installed_plugins as $k => $plugin ) {
+				if ( $this->confirm( 'Dectivate plugin "' . $plugin . '"?' ) ) {
+					WP_CLI::run_command( array( 'plugin', 'deactivate', $plugin ) );
+				} else {
+					unset( $user_installed_plugins[ $k ] );
+				}
+			}
 
-		// This prpeares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
-		array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
+			if ( empty( $user_installed_plugins ) ) {
+				delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+			} else {
+				update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins );
+			}
+		} else {
+			update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins );
 
-		WP_CLI::run_command( $user_installed_plugins );
+			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
+			array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
+
+			WP_CLI::run_command( $user_installed_plugins );
+		}
 	}
 
 	/**
@@ -121,7 +145,6 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 */
 	function toggle_user_installed_plugins( $args, $assoc_args = array() ) {
-		$interactive                    = WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false );
 		$previously_deactivated_plugins = get_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
 
 		if ( false === $previously_deactivated_plugins ) {
@@ -132,11 +155,27 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 
 		WP_CLI::log( 'Activating previously deactivated user installed plugins.' );
 
-		// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
-		array_unshift( $previously_deactivated_plugins, 'plugin', 'activate' );
+		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false ) ) {
+			foreach ( $previously_deactivated_plugins as $k => $plugin ) {
+				if ( $this->confirm( 'Activate plugin "' . $plugin . '"?' ) ) {
+					WP_CLI::run_command( array( 'plugin', 'activate', $plugin ) );
+					unset( $previously_deactivated_plugins[ $k ] );
+				}
+			}
 
-		WP_CLI::run_command( $previously_deactivated_plugins );
-		delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+			if ( empty( $previously_deactivated_plugins ) ) {
+				delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+			} else {
+				update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins );
+			}
+		} else {
+			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
+			array_unshift( $previously_deactivated_plugins, 'plugin', 'activate' );
+
+			WP_CLI::run_command( $previously_deactivated_plugins );
+			delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+		}
+
 	}
 }
 /*
