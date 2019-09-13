@@ -124,5 +124,31 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		return $rpc->query( 'jetpack.syncActions', $data ) ? $rpc->getResponse() : $rpc->get_jetpack_error();
 	}
 }
+/*
+ * Add that works just like plugin verify-checksums except it filtes language translation files.
+ * Language files are not part of WordPress.org's checksums so they are listed as added and 
+ * they obfuscate the output. This makes it hard to spot actual checksum verification errors.
+ */
+class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
+	protected function filter_file( $filepath ) {
+
+		// Filter languages files.
+		if( substr_compare( $filepath, ".po", -strlen( ".po" ) ) === 0 ) {
+			return false;
+		}
+		if( substr_compare( $filepath, ".mo", -strlen( ".mo" ) ) === 0 ) {
+			return false;
+		}
+
+		// If we are in languages folder also filter JSON language files.
+		if( ( substr_compare( $haystack, "languages", 0, strlen( "languages" ) ) === 0 ) &&
+			( substr_compare( $filepath, ".json", -strlen( ".json" ) ) === 0 ) 
+		) {
+			return false;
+		}
+		return true;
+	}
+}
 
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
+WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
