@@ -19,6 +19,37 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
  * Class WPCOMSH_CLI_Commands
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
+	/**
+	 * Disable all plugins except for important ones for Atomic.
+	 */
+	function disable_user_installed_plugins() {
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
+		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
+
+		$user_installed_plugins = array_filter(
+			$all_plugins,
+			function( $file ) {
+				return ! in_array( Utils\get_plugin_name( $file ), [ 'jetpack', 'akismet', 'amp' ] );
+			}
+		);
+
+		$active_user_installed_plugins = array_filter(
+			$user_installed_plugins,
+			function( $file ) {
+				return is_plugin_active_for_network( $file ) || is_plugin_active( $file );
+			}
+		);
+		$active_user_installed_plugin_names = array_map(
+			function( $file ) {
+					return Utils\get_plugin_name( $file );
+			},
+			$active_user_installed_plugins
+		);
+
+		array_unshift( $active_user_installed_plugin_names, 'plugin', 'deactivate' );
+
+		WP_CLI::run_command( $active_user_installed_plugin_names );
+	}
 }
 /*
  * This works just like plugin verify-checksums except it filters language translation files.
