@@ -21,23 +21,45 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	const OPTION_DEACTIVATED_USER_PLUGINS = 'wpcomsh_deactivated_user_installed_plugins';
 
-	private function get_active_user_installed_plugins() {
+	// Plugins used by the e-commerce plan.
+	// see https://wpcom.trac.automattic.com/browser/trunk/wp-content/lib/atomic/class-plan-manager.php#L96
+	const ECOMMERCE_PLAN_PLUGINS = [
+		'storefront-powerpack',
+		'woocommerce',
+		'facebook-for-woocommerce',
+		'mailchimp-for-woocommerce',
+		'woocommerce-services',
+		'woocommerce-product-addons',
+		'taxjar-simplified-taxes-for-woocommerce',
+	];
+
+	private function get_active_user_installed_plugins( $deactivate_ecommerce = false ) {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
 
 		$user_installed_plugins = array_filter(
 			$all_plugins,
-			function( $file ) {
+			function( $file ) use ( $deactivate_ecommerce ) {
 				$name = WP_CLI\Utils\get_plugin_name( $file );
 
-				return ! in_array(
-					$name,
-					[
-						'jetpack',
-						'akismet',
-						'amp',
-					]
-				);
+				if (
+					in_array(
+						$name,
+						[
+							'akismet',
+							'amp',
+							'jetpack',
+						]
+					)
+				) {
+					return false;
+				}
+
+				if ( ! $deactivate_ecommerce && in_array( $name, self::ECOMMERCE_PLAN_PLUGINS ) ) {
+					return false;
+				}
+
+				return true;
 			}
 		);
 
@@ -62,9 +84,17 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * Bulk deactivate user installed plugins
 	 *
 	 * Deactivate all user installed plugins except for important ones for Atomic.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force-ecommerce]
+	 * : Force deactivating plugins of the ecommerce plan
+	 *
 	 */
-	function deactivate_user_installed_plugins() {
-		$user_installed_plugins = $this->get_active_user_installed_plugins();
+	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
+		$deactivate_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'force_ecommerce', false );
+
+		$user_installed_plugins = $this->get_active_user_installed_plugins( $deactivate_ecommerce );
 		if ( empty( $user_installed_plugins ) ) {
 			WP_CLI::warning( 'No active user installed plugins found.' );
 			return;
@@ -83,19 +113,26 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 * If previously user installed plugins had been deactivated, this re-activates these plugins.
 	 * Otherwise it will disable the user installed plugins.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--interactive]
+	 * : Ask for each previously deactivated plugin whether to activate
+	 *
 	 */
-	function toggle_user_installed_plugins() {
+	function toggle_user_installed_plugins( $args, $assoc_args = array() ) {
+		$interactive                    = WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false );
 		$previously_deactivated_plugins = get_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
 
 		if ( false === $previously_deactivated_plugins ) {
 			WP_CLI::log( 'Deactivating user installed plugins.' );
 
-			return $this->deactivate_user_installed_plugins();
+			return $this->deactivate_user_installed_plugins( $args, $assoc_args );
 		}
 
 		WP_CLI::log( 'Activating previously deactivated user installed plugins.' );
 
-		// This prpeares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
+		// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 		array_unshift( $previously_deactivated_plugins, 'plugin', 'activate' );
 
 		WP_CLI::run_command( $previously_deactivated_plugins );
