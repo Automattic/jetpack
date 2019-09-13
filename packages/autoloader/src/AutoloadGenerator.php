@@ -179,6 +179,7 @@ class AutoloadGenerator extends BaseGenerator {
 					? $package['path']
 					: $basePath . '/' . $package['path']
 				);
+				$namespace = empty($namespace) ? NULL : $namespace;
 				$map = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, $namespace );
 
 				foreach ( $map as $class => $path ) {
