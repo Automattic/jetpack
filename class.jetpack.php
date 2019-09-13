@@ -1503,7 +1503,7 @@ class Jetpack {
 	 * array (
 	 *      'plugins'                       => (int) Number of plugin updates available.
 	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'WordPress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit
+	 *      'wordpress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 	 *      'translations'                  => (int) Number of translation updates available.
 	 *      'total'                         => (int) Total of all available updates.
 	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
