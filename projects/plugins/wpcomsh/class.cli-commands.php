@@ -126,27 +126,12 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 }
 /*
  * Add that works just like plugin verify-checksums except it filtes language translation files.
- * Language files are not part of WordPress.org's checksums so they are listed as added and 
+ * Language files are not part of WordPress.org's checksums so they are listed as added and
  * they obfuscate the output. This makes it hard to spot actual checksum verification errors.
  */
 class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
 	protected function filter_file( $filepath ) {
-
-		// Filter languages files.
-		if( substr_compare( $filepath, ".po", -strlen( ".po" ) ) === 0 ) {
-			return false;
-		}
-		if( substr_compare( $filepath, ".mo", -strlen( ".mo" ) ) === 0 ) {
-			return false;
-		}
-
-		// If we are in languages folder also filter JSON language files.
-		if( ( substr_compare( $haystack, "languages", 0, strlen( "languages" ) ) === 0 ) &&
-			( substr_compare( $filepath, ".json", -strlen( ".json" ) ) === 0 ) 
-		) {
-			return false;
-		}
-		return true;
+		return ! preg_match( '#^(languages/)?[a-z0-9-]+-[a-z]{2}_[A-Z]{2}(_[a-z]+)?([.](mo|po)|-[a-f0-9]{32}[.]json)$#', $filepath );
 	}
 }
 
