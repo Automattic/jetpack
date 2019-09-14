@@ -126,10 +126,10 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			if ( empty( $user_installed_plugins ) ) {
 				delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 			} else {
-				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, 86400 );
+				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, DAY_IN_SECONDS );
 			}
 		} else {
-			set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, 86400 );
+			set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, DAY_IN_SECONDS );
 
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 			array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
@@ -175,7 +175,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			if ( empty( $previously_deactivated_plugins ) ) {
 				delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 			} else {
-				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, 86400 );
+				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
 			}
 		} else {
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
