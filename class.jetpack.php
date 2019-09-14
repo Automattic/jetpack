@@ -6618,8 +6618,8 @@ endif;
 
 			// Check PHP version
 			if ( 'php-version' == $stat ) {
-				if ( version_compare( PHP_VERSION, '5.2.4', '<' ) ) {
-					$caution[ $stat ] = $value . ' - min supported is 5.2.4';
+				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_PHP_VERSION;
 					continue;
 				}
 			}
