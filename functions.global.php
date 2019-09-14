@@ -249,3 +249,58 @@ function jetpack_mime_content_type( $file ) {
 
 	return false;
 }
+
+/**
+ * Checks that the mime type of the specified file is among those in a filterable list of mime types.
+ *
+ * @since 7.8.0
+ *
+ * @param string $file Path to file to get its mime type.
+ *
+ * @return bool
+ */
+function jetpack_is_file_supported_for_sideloading( $file ) {
+	$type = jetpack_mime_content_type( $file );
+
+	if ( ! $type ) {
+		return false;
+	}
+
+	/**
+	 * Filter the list of supported mime types for media sideloading.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @module json-api
+	 *
+	 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
+	 */
+	$supported_mime_types = apply_filters(
+		'jetpack_supported_media_sideload_types',
+		array(
+			'image/png',
+			'image/jpeg',
+			'image/gif',
+			'image/bmp',
+			'video/quicktime',
+			'video/mp4',
+			'video/mpeg',
+			'video/ogg',
+			'video/3gpp',
+			'video/3gpp2',
+			'video/h261',
+			'video/h262',
+			'video/h264',
+			'video/x-msvideo',
+			'video/x-ms-wmv',
+			'video/x-ms-asf',
+		)
+	);
+
+	// If the type returned was not an array as expected, then we know we don't have a match.
+	if ( ! is_array( $supported_mime_types ) ) {
+		return false;
+	}
+
+	return in_array( $type, $supported_mime_types, true );
+}

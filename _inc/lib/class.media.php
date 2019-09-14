@@ -110,46 +110,7 @@ class Jetpack_Media {
 	 * @return bool
 	 */
 	protected static function is_file_supported_for_sideloading( $file ) {
-		if ( function_exists( 'mime_content_type' ) ) { // Default in PHP, but can be disabled.
-			$type = mime_content_type( $file );
-		} else {
-			return false;
-		}
-
-		/**
-		 * Filter the list of supported mime types for media sideloading.
-		 *
-		 * @since 4.0
-		 *
-		 * @module json-api
-		 *
-		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
-		 */
-		$supported_mime_types = apply_filters( 'jetpack_supported_media_sideload_types', array(
-			'image/png',
-			'image/jpeg',
-			'image/gif',
-			'image/bmp',
-			'video/quicktime',
-			'video/mp4',
-			'video/mpeg',
-			'video/ogg',
-			'video/3gpp',
-			'video/3gpp2',
-			'video/h261',
-			'video/h262',
-			'video/h264',
-			'video/x-msvideo',
-			'video/x-ms-wmv',
-			'video/x-ms-asf',
-		) );
-
-		// If the type returned was not an array as expected, then we know we don't have a match.
-		if ( ! is_array( $supported_mime_types ) ) {
-			return false;
-		}
-
-		return in_array( $type, $supported_mime_types );
+		return jetpack_is_file_supported_for_sideloading( $file );
 	}
 
 	/**

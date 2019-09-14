@@ -999,9 +999,7 @@ class lessc {
 			// IE8 can't handle data uris larger than 32KB
 			if($fsize/1024 < 32) {
 				if(is_null($mime)) {
-					if( function_exists('mime_content_type' ) ) { // Default in PHP, but can be disabled.
-						$mime = mime_content_type( $fullpath );
-					}
+					$mime = jetpack_mime_content_type( $fullpath );
 				}
 
 				if(!is_null($mime)) // fallback if the mime type is still unknown
