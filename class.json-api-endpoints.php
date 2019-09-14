@@ -1704,8 +1704,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new ReflectionMethod( $class, $method );
 		}
 
-		if ( version_compare( PHP_VERSION, '5.3.0', '>=' ) && method_exists( $callback, '__invoke' ) ) {
-			return new ReflectionMethod( $callback, '__invoke' );
+		if ( method_exists( $callback, "__invoke" ) ) {
+			return new ReflectionMethod( $callback, "__invoke" );
 		}
 
 		if ( is_string( $callback ) && strpos( $callback, '::' ) == false && function_exists( $callback ) ) {
