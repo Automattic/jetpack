@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "707c62d71e6006cd449ddc4718bcf25d",
+    "content-hash": "1effa5f5c64cfd12c9f8887f15d1006d",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
@@ -41,16 +41,16 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "4ad9631e68e9da8b8a764615766287becfb27f81"
+                "reference": "50f9a033e48e0512d14c9a6673ede1e2914bb906"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/4ad9631e68e9da8b8a764615766287becfb27f81",
-                "reference": "4ad9631e68e9da8b8a764615766287becfb27f81",
+                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/50f9a033e48e0512d14c9a6673ede1e2914bb906",
+                "reference": "50f9a033e48e0512d14c9a6673ede1e2914bb906",
                 "shasum": ""
             },
             "require": {
@@ -73,7 +73,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
-            "time": "2019-06-24T15:13:23+00:00"
+            "time": "2019-09-13T20:55:12+00:00"
         },
         {
             "name": "automattic/jetpack-standards",
@@ -439,12 +439,12 @@
             "version": "2.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git",
+                "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
                 "reference": "bd9c33152115e6741e3510ff7189605b35167908"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress-Coding-Standards/WordPress-Coding-Standards/zipball/bd9c33152115e6741e3510ff7189605b35167908",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/bd9c33152115e6741e3510ff7189605b35167908",
                 "reference": "bd9c33152115e6741e3510ff7189605b35167908",
                 "shasum": ""
             },
