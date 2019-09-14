@@ -324,60 +324,6 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_parse_url
-	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
-	 */
-	public function test_jetpack_photon_parse_url_with_scheme() {
-		$parsed = jetpack_photon_parse_url( 'https://i0.wp.com/example.com/img.jpg' );
-
-		$this->assertEquals( array(
-			'scheme' => 'https',
-			'host' => 'i0.wp.com',
-			'path' => '/example.com/img.jpg'
-		), $parsed );
-	}
-
-	/**
-	 * @author aduth
-	 * @covers jetpack_photon_parse_url
-	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
-	 */
-	public function test_jetpack_photon_parse_url_without_scheme() {
-		$parsed = jetpack_photon_parse_url( '//i0.wp.com/example.com/img.jpg' );
-
-		$this->assertArrayHasKey( 'scheme', $parsed );
-		$this->assertEquals( 'i0.wp.com', $parsed['host'] );
-		$this->assertEquals( '/example.com/img.jpg', $parsed['path'] );
-	}
-
-	/**
-	 * @author aduth
-	 * @covers jetpack_photon_parse_url
-	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
-	 */
-	public function test_jetpack_photon_parse_url_with_scheme_specifying_component() {
-		$host = jetpack_photon_parse_url( 'https://i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
-
-		$this->assertEquals( 'i0.wp.com', $host );
-	}
-
-	/**
-	 * @author aduth
-	 * @covers jetpack_photon_parse_url
-	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
-	 */
-	public function test_jetpack_photon_parse_url_without_scheme_specifying_component() {
-		$host = jetpack_photon_parse_url( '//i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
-
-		$this->assertEquals( 'i0.wp.com', $host );
-	}
-
-	/**
-	 * @author aduth
 	 * @covers jetpack_photon_banned_domains
 	 * @since  5.0.0
 	 * @group  jetpack_photon_banned_domains
