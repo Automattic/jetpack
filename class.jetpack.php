@@ -4749,7 +4749,7 @@ endif;
 				'site_lang'     => get_locale(),
 				'_ui'           => $tracks_identity['_ui'],
 				'_ut'           => $tracks_identity['_ut'],
-				'site_created'  => $connection->get_assumed_site_creation_date(),
+				'site_created'  => self::connection()->get_assumed_site_creation_date(),
 			)
 		);
 
@@ -4775,11 +4775,12 @@ endif;
 	 * - Earliest date of post of any post type.
 	 *
 	 * @since 7.2.0
+	 * @deprecated since 7.8.0
 	 *
 	 * @return string Assumed site creation date and time.
 	 */
 	public static function get_assumed_site_creation_date() {
-		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Connection\\Manager' );
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\Jetpack\Connection\Manager' );
 		return self::connection()->get_assumed_site_creation_date();
 	}
 
