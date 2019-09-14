@@ -15,7 +15,6 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
  * Public methods of this class which are not marked as "Not a WP CLI command"
  * are WP CLI commands which can be used to perform actions on an AT site.
  *
- *
  * Class WPCOMSH_CLI_Commands
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
@@ -91,6 +90,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 * Deactivate all user installed plugins except for important ones for Atomic.
 	 *
+	 * @subcommand deactivate-user-plugins
 	 * ## OPTIONS
 	 *
 	 * [--include-ecommerce]
@@ -101,6 +101,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 		$include_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'include-ecommerce', false );
+
+		$previously_deactivated_plugins = get_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 
 		$user_installed_plugins = $this->get_active_user_installed_plugins( $include_ecommerce );
 		if ( empty( $user_installed_plugins ) ) {
@@ -117,13 +119,17 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 				}
 			}
 
+			if ( ! empty( $previously_deactivated_plugins ) ) {
+				$user_installed_plugins = array_merge( $previously_deactivated_plugins, $user_installed_plugins );
+			}
+
 			if ( empty( $user_installed_plugins ) ) {
-				delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+				delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 			} else {
-				update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins );
+				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, 86400 );
 			}
 		} else {
-			update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins );
+			set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, 86400 );
 
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 			array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
@@ -138,6 +144,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * If previously user installed plugins had been deactivated, this re-activates these plugins.
 	 * Otherwise it will disable the user installed plugins.
 	 *
+	 * @subcommand toggle-user-plugins
 	 * ## OPTIONS
 	 *
 	 * [--include-ecommerce]
@@ -145,10 +152,9 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 * [--interactive]
 	 * : Ask for each previously deactivated plugin whether to activate
-	 *
 	 */
 	function toggle_user_installed_plugins( $args, $assoc_args = array() ) {
-		$previously_deactivated_plugins = get_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+		$previously_deactivated_plugins = get_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 
 		if ( false === $previously_deactivated_plugins ) {
 			WP_CLI::log( 'Deactivating user installed plugins.' );
@@ -167,16 +173,16 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			}
 
 			if ( empty( $previously_deactivated_plugins ) ) {
-				delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+				delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 			} else {
-				update_option( self::OPTION_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins );
+				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, 86400 );
 			}
 		} else {
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 			array_unshift( $previously_deactivated_plugins, 'plugin', 'activate' );
 
 			WP_CLI::run_command( $previously_deactivated_plugins );
-			delete_option( self::OPTION_DEACTIVATED_USER_PLUGINS );
+			delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
 		}
 
 	}
