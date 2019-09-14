@@ -4719,7 +4719,6 @@ endif;
 
 		$tracks          = new Tracking();
 		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
-		$connection      = new Connection_Manager();
 
 		$args = urlencode_deep(
 			array(
@@ -4780,7 +4779,7 @@ endif;
 	 * @return string Assumed site creation date and time.
 	 */
 	public static function get_assumed_site_creation_date() {
-		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\Jetpack\Connection\Manager' );
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Connection\\Manager' );
 		return self::connection()->get_assumed_site_creation_date();
 	}
 
