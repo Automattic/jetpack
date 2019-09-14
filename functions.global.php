@@ -228,3 +228,24 @@ function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 
 	return $any;
 }
+
+/**
+ * Checks if the mime_content_type function is available and return it if so.
+ *
+ * The function mime_content_type is enabled by default in PHP, but can be disabled. We attempt to
+ * enforce this via composer.json, but that won't be checked in majority of cases where
+ * this would be happening.
+ *
+ * @since 7.8.0
+ *
+ * @param string $file File location.
+ *
+ * @return string|false MIME type or false if functionality is not available.
+ */
+function jetpack_mime_content_type( $file ) {
+	if ( function_exists( 'mime_content_type' ) ) {
+		return mime_content_type( $file );
+	}
+
+	return false;
+}
