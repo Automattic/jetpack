@@ -91,6 +91,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * Deactivate all user installed plugins except for important ones for Atomic.
 	 *
 	 * @subcommand deactivate-user-plugins
+	 * @synopsis [--interactive] [--include-ecommerce]
 	 * ## OPTIONS
 	 *
 	 * [--include-ecommerce]
@@ -129,6 +130,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * If previously user installed plugins had been deactivated, this re-activates these plugins.
 	 *
 	 * @subcommand reactivate-user-plugins
+	 * @synopsis [--interactive] [--include-ecommerce]
 	 * ## OPTIONS
 	 *
 	 * [--include-ecommerce]
