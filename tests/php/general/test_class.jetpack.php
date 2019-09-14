@@ -801,7 +801,8 @@ EXPECTED;
 			'post_date' => '1995-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1990-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1990-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
@@ -820,7 +821,8 @@ EXPECTED;
 			'post_date' => '1991-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1991-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1991-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );

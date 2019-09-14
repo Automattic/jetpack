@@ -4719,6 +4719,7 @@ endif;
 
 		$tracks          = new Tracking();
 		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
+		$connection      = new Connection_Manager();
 
 		$args = urlencode_deep(
 			array(
@@ -4748,7 +4749,7 @@ endif;
 				'site_lang'     => get_locale(),
 				'_ui'           => $tracks_identity['_ui'],
 				'_ut'           => $tracks_identity['_ut'],
-				'site_created'  => self::get_assumed_site_creation_date(),
+				'site_created'  => $connection->get_assumed_site_creation_date(),
 			)
 		);
 
@@ -4778,35 +4779,8 @@ endif;
 	 * @return string Assumed site creation date and time.
 	 */
 	public static function get_assumed_site_creation_date() {
-		$earliest_registered_users  = get_users(
-			array(
-				'role'    => 'administrator',
-				'orderby' => 'user_registered',
-				'order'   => 'ASC',
-				'fields'  => array( 'user_registered' ),
-				'number'  => 1,
-			)
-		);
-		$earliest_registration_date = $earliest_registered_users[0]->user_registered;
-
-		$earliest_posts = get_posts(
-			array(
-				'posts_per_page' => 1,
-				'post_type'      => 'any',
-				'post_status'    => 'any',
-				'orderby'        => 'date',
-				'order'          => 'ASC',
-			)
-		);
-
-		// If there are no posts at all, we'll count only on user registration date.
-		if ( $earliest_posts ) {
-			$earliest_post_date = $earliest_posts[0]->post_date;
-		} else {
-			$earliest_post_date = PHP_INT_MAX;
-		}
-
-		return min( $earliest_registration_date, $earliest_post_date );
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Connection\\Manager' );
+		return self::connection()->get_assumed_site_creation_date();
 	}
 
 	public static function apply_activation_source_to_args( &$args ) {

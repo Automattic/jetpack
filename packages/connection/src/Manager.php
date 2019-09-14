@@ -1024,6 +1024,11 @@ class Manager implements Manager_Interface {
 	 * @return string Assumed site creation date and time.
 	 */
 	public function get_assumed_site_creation_date() {
+		$cached_date = get_transient( 'jetpack_assumed_site_creation_date' );
+		if ( ! empty( $cached_date ) ) {
+			return $cached_date;
+		}
+
 		$earliest_registered_users  = get_users(
 			array(
 				'role'    => 'administrator',
@@ -1052,7 +1057,10 @@ class Manager implements Manager_Interface {
 			$earliest_post_date = PHP_INT_MAX;
 		}
 
-		return min( $earliest_registration_date, $earliest_post_date );
+		$assumed_date = min( $earliest_registration_date, $earliest_post_date );
+		set_transient( 'jetpack_assumed_site_creation_date', $assumed_date );
+
+		return $assumed_date;
 	}
 
 	/**
