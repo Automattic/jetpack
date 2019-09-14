@@ -110,7 +110,7 @@ class Jetpack_Media {
 	 * @return bool
 	 */
 	protected static function is_file_supported_for_sideloading( $file ) {
-		if ( function_exists( 'mime_content_type' ) ) { // Default in PHP, but can be disabled.:wq
+		if ( function_exists( 'mime_content_type' ) ) { // Default in PHP, but can be disabled.
 			$type = mime_content_type( $file );
 		} else {
 			return false;
