@@ -11,12 +11,9 @@ use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Control your local Jetpack installation.
- *
- * Minimum PHP requirement for WP-CLI is PHP 5.3, so ignore PHP 5.2 compatibility issues.
- * @phpcs:disable PHPCompatibility.PHP.NewLanguageConstructs.t_ns_separatorFound
  */
 class Jetpack_CLI extends WP_CLI_Command {
-	// Aesthetics
+	// Aesthetics.
 	public $green_open  = "\033[32m";
 	public $red_open    = "\033[31m";
 	public $yellow_open = "\033[33m";
