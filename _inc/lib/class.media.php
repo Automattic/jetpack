@@ -196,7 +196,7 @@ class Jetpack_Media {
 			'file'             => (string) $file_paths['basename'],
 			'extension'        => (string) $file_paths['extension'],
 			'mime_type'        => (string) $media_item->post_mime_type,
-			'size'             => (int) filesize( $current_file )
+			'size'             => (int) filesize( $current_file ),
 		);
 
 		return (object) $snapshot;
