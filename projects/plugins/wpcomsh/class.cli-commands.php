@@ -18,7 +18,7 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
  * Class WPCOMSH_CLI_Commands
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
-	const OPTION_DEACTIVATED_USER_PLUGINS = 'wpcomsh_deactivated_user_installed_plugins';
+	const TRANSIENT_DEACTIVATED_USER_PLUGINS = 'wpcomsh_deactivated_user_installed_plugins';
 
 	// Plugins used by the e-commerce plan.
 	// see https://wpcom.trac.automattic.com/browser/trunk/wp-content/lib/atomic/class-plan-manager.php#L96
@@ -102,8 +102,6 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 		$include_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'include-ecommerce', false );
 
-		$previously_deactivated_plugins = get_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
-
 		$user_installed_plugins = $this->get_active_user_installed_plugins( $include_ecommerce );
 		if ( empty( $user_installed_plugins ) ) {
 			WP_CLI::warning( 'No active user installed plugins found.' );
@@ -114,23 +112,10 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			foreach ( $user_installed_plugins as $k => $plugin ) {
 				if ( $this->confirm( 'Deactivate plugin "' . $plugin . '"?' ) ) {
 					WP_CLI::run_command( array( 'plugin', 'deactivate', $plugin ) );
-				} else {
-					unset( $user_installed_plugins[ $k ] );
 				}
 			}
 
-			if ( ! empty( $previously_deactivated_plugins ) ) {
-				$user_installed_plugins = array_merge( $previously_deactivated_plugins, $user_installed_plugins );
-			}
-
-			if ( empty( $user_installed_plugins ) ) {
-				delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
-			} else {
-				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, DAY_IN_SECONDS );
-			}
 		} else {
-			set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $user_installed_plugins, DAY_IN_SECONDS );
-
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 			array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
 
@@ -139,12 +124,11 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	}
 
 	/**
-	 * Bulk deactivate or re-activate user installed plugins
+	 * Bulk re-activate user installed plugins
 	 *
 	 * If previously user installed plugins had been deactivated, this re-activates these plugins.
-	 * Otherwise it will disable the user installed plugins.
 	 *
-	 * @subcommand toggle-user-plugins
+	 * @subcommand reactivate-user-plugins
 	 * ## OPTIONS
 	 *
 	 * [--include-ecommerce]
@@ -153,13 +137,12 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * [--interactive]
 	 * : Ask for each previously deactivated plugin whether to activate
 	 */
-	function toggle_user_installed_plugins( $args, $assoc_args = array() ) {
-		$previously_deactivated_plugins = get_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
+	function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
+		$previously_deactivated_plugins = get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
 
 		if ( false === $previously_deactivated_plugins ) {
-			WP_CLI::log( 'Deactivating user installed plugins.' );
-
-			return $this->deactivate_user_installed_plugins( $args, $assoc_args );
+			WP_CLI::log( "Can't find any previously deactivated plugins." );
+			exit;
 		}
 
 		WP_CLI::log( 'Activating previously deactivated user installed plugins.' );
@@ -173,16 +156,25 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			}
 
 			if ( empty( $previously_deactivated_plugins ) ) {
-				delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
+				delete_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
 			} else {
-				set_transient( self::OPTION_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
+				set_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
 			}
 		} else {
+			WP_CLI::log( 'To be activated:' );
+			foreach( $previously_deactivated_plugins as $plugin ) {
+				WP_CLI::log( '- ' . $plugin );
+			}
+			if ( ! $this->confirm( 'Proceed with activating?' ) ) {
+				WP_CLI::error( 'Not proceeding with activation.' );
+				exit;
+			}
+
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 			array_unshift( $previously_deactivated_plugins, 'plugin', 'activate' );
 
 			WP_CLI::run_command( $previously_deactivated_plugins );
-			delete_transient( self::OPTION_DEACTIVATED_USER_PLUGINS );
+			delete_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
 		}
 
 	}
@@ -197,6 +189,13 @@ class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
 		return ! preg_match( '#^(languages/)?[a-z0-9-]+-[a-z]{2}_[A-Z]{2}(_[a-z]+)?([.](mo|po)|-[a-f0-9]{32}[.]json)$#', $filepath );
 	}
 }
+
+// Keep a record of deactivated plugins so that they can be reactivated.
+add_action( 'deactivate_plugin', function( $file ) {
+	$previously_deactivated_plugins = get_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS );
+	$previously_deactivated_plugins[] = WP_CLI\Utils\get_plugin_name( $file );
+	set_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS, array_values( array_unique( $previously_deactivated_plugins ) ), DAY_IN_SECONDS );
+} );
 
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
