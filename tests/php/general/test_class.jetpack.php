@@ -842,7 +842,8 @@ EXPECTED;
 			'user_registered' => '1992-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1994-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1994-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $admin_id );
 		wp_delete_user( $editor_id );
