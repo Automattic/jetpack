@@ -154,13 +154,13 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 				if ( $this->confirm( 'Activate plugin "' . $plugin . '"?' ) ) {
 					WP_CLI::run_command( array( 'plugin', 'activate', $plugin ) );
 					unset( $previously_deactivated_plugins[ $k ] );
+					// Update transient everytime to prevent using the original transient if loop breaks/terminated
+					set_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
 				}
 			}
 
 			if ( empty( $previously_deactivated_plugins ) ) {
 				delete_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
-			} else {
-				set_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
 			}
 		} else {
 			WP_CLI::log( 'The following will be activated:' );
