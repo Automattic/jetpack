@@ -250,8 +250,7 @@ class Jetpack_Signature {
 			return array_map( array( $this, 'encode_3986' ), $string_or_array );
 		}
 
-		$string_or_array = rawurlencode( $string_or_array );
-		return str_replace( '%7E', '~', $string_or_array ); // prior to PHP 5.3, rawurlencode was RFC 1738
+		return rawurlencode( $string_or_array );
 	}
 
 	function join_with_equal_sign( $name, $value ) {
