@@ -10,6 +10,7 @@
 	"require": {
 		"ext-openssl": "*",
 		"ext-fileinfo": "*",
+		"ext-json": "*",
 		"automattic/jetpack-abtest": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-options": "@dev",
