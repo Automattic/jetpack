@@ -8,6 +8,9 @@ import {
 	JETPACK_SITE_FEATURES_FETCH,
 	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
 	JETPACK_SITE_FEATURES_FETCH_FAIL,
+	JETPACK_SITE_BENEFITS_FETCH,
+	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
+	JETPACK_SITE_BENEFITS_FETCH_FAIL,
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
@@ -31,6 +34,28 @@ export const fetchSiteData = () => {
 			.catch( error => {
 				dispatch( {
 					type: JETPACK_SITE_DATA_FETCH_FAIL,
+					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchSiteBenefits = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_BENEFITS_FETCH,
+		} );
+		return restApi
+			.fetchSiteBenefits()
+			.then( siteBenefits => {
+				dispatch( {
+					type: JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
+					siteBenefits: siteBenefits,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_BENEFITS_FETCH_FAIL,
 					error: error,
 				} );
 			} );

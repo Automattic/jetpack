@@ -1,0 +1,107 @@
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/variables/_colors.scss';
+
+.jetpack-disconnect-dialog__features,
+.jetpack-disconnect-dialog__survey  {
+	.dops-card {
+		margin: 0;
+	}
+
+	// dops-card pasdding is enough
+	.multiple-choice-question__question {
+		margin-top: 0;
+	}
+
+}
+
+.jetpack-disconnect-dialog__header {
+	h1 {
+		margin: 0;
+		font-size: 28px;
+		line-height: 24px;
+	}
+	display: flex;
+	flex-direction: row;
+	align-content: center;
+	justify-content: space-between;
+
+}
+
+.jetpack-disconnect-dialog__info {
+	font-size: 16px;
+	line-height: 24px;
+	// dops-card padding is enough
+	margin-top: 0;
+}
+
+.jetpack-disconnect-dialog__features-list {
+	position: relative;
+	left: calc( -1em );
+	display: flex;
+	flex-wrap: wrap;
+	// margins of the items will "hang off the side" invisibly
+	width: calc( 100% + 2em );
+}
+
+.jetpack-disconnect-dialog__feature {
+	background: $white;
+	border: 1px solid rgba( 213, 213, 213, 0.5 );
+	box-sizing: border-box;
+	box-shadow: 0px 1px 2px $gray-light;
+	width: calc( 100% - 2em );
+	margin: 1em;
+	@include breakpoint( '>660px' ) {
+		width: calc( 50% - 2em );
+	}
+}
+
+.jetpack-disconnect-dialog__feature-header {
+	text-transform: uppercase;
+	font-size: 12px;
+	line-height: 12px;
+	background: $gray-light;
+
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 13px 0 13px;
+
+	.gridicon {
+		color: $green-primary;
+	}
+}
+
+.jetpack-disconnect-dialog__feature-body {
+	padding: 0 13px 0 13px;
+
+	.jetpack-disconnect-dialog__feature-body-amount {
+		font-weight: bold;
+		font-size: 24px;
+		line-height: 26px;
+		margin-top: 12px;
+		margin-bottom: 12px;
+	}
+}
+
+.jetpack-disconnect-dialog__get-help {
+	font-style: normal;
+	font-weight: normal;
+	font-size: 16px;
+	line-height: 24px;
+	text-align: center;
+}
+
+.jetpack-disconnect-dialog__button-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+
+	.dops-button {
+		margin-left: 18px;
+	}
+}
+
+.jetpack-disconnect-dialog__close-icon {
+	color: #C8C8C8;
+}
