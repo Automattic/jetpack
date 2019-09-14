@@ -163,12 +163,12 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 				set_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
 			}
 		} else {
-			WP_CLI::log( 'To be activated:' );
+			WP_CLI::log( 'The following will be activated:' );
 			foreach( $previously_deactivated_plugins as $plugin ) {
 				WP_CLI::log( '- ' . $plugin );
 			}
-			if ( ! $this->confirm( 'Proceed with activating?' ) ) {
-				WP_CLI::error( 'Not proceeding with activation.' );
+			if ( ! $this->confirm( 'Do you wish to proceed?' ) ) {
+				WP_CLI::error( 'Action cancelled.' );
 				exit;
 			}
 
