@@ -162,13 +162,15 @@ You will see the output here:
 
 But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming.
 
-### Cli commands
+### WP CLI Commands
 
-wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the `class.cli-commands.php` file. At the moment, they are:
+wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the `./class.cli-commands.php`.
 
-- `wp wpcomsh do_jetpack_sync`: enables Jetpack Sync (disabled by default after transferring a site), sets the sync variables to maximum (for faster sync) and loops while the sync is not finished (or 10 tries).
+- `wp wpcomsh deactivate-user-plugins`: Bulk deactivate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
+- `wp wpcomsh reactivate-user-plugins`: Bulk re-activate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
 
-To write a new WP CLI command, define a public method on the `WPCOMSH_CLI_Commands` class. If a method should not be used as a WP CLI command, add a doc block saying "Not a WP CLI command".
+To learn more about writing WP CLI commands consult the [Commands Cookbook](https://make.wordpress.org/cli/handbook/commands-cookbook/).
+
 
 ### Store support
 
