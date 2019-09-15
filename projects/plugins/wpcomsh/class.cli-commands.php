@@ -111,7 +111,6 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 					WP_CLI::run_command( array( 'plugin', 'deactivate', $plugin ) );
 				}
 			}
-
 		} else {
 			// This prepares to execute the CLI command: wp plugin deactivate plugin1 plugin2 ...
 			array_unshift( $user_installed_plugins, 'plugin', 'deactivate' );
@@ -150,8 +149,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 
 		$missing_plugins = array_diff( $previously_deactivated_plugins, $all_plugins );
 		if ( ! empty( $missing_plugins ) ) {
-			WP_CLI::warning( "Some of the previously enabled plugins are now missing. They will not be enabled." );
-			WP_CLI::warning( "Missing plugins: " . implode( ', ', $missing_plugins ) );
+			WP_CLI::warning( 'Some of the previously enabled plugins are now missing. They will not be enabled.' );
+			WP_CLI::warning( 'Missing plugins: ' . implode( ', ', $missing_plugins ) );
 			// Remove missing plugins from the list so we will not try to enable them.
 			$previously_deactivated_plugins = array_diff( $previously_deactivated_plugins, $missing_plugins );
 		}
@@ -173,7 +172,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			}
 		} else {
 			WP_CLI::log( 'The following will be activated:' );
-			foreach( $previously_deactivated_plugins as $plugin ) {
+			foreach ( $previously_deactivated_plugins as $plugin ) {
 				WP_CLI::log( '- ' . $plugin );
 			}
 			if ( ! $this->confirm( 'Do you wish to proceed?' ) ) {
@@ -202,11 +201,14 @@ class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
 }
 
 // Keep a record of deactivated plugins so that they can be reactivated.
-add_action( 'deactivate_plugin', function( $file ) {
-	$previously_deactivated_plugins = get_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS );
-	$previously_deactivated_plugins[] = WP_CLI\Utils\get_plugin_name( $file );
-	set_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS, array_values( array_unique( $previously_deactivated_plugins ) ), DAY_IN_SECONDS );
-} );
+add_action(
+	'deactivate_plugin',
+	function( $file ) {
+		$previously_deactivated_plugins = get_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS );
+		$previously_deactivated_plugins[] = WP_CLI\Utils\get_plugin_name( $file );
+		set_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS, array_values( array_unique( $previously_deactivated_plugins ) ), DAY_IN_SECONDS );
+	}
+);
 
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
