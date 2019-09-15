@@ -5,17 +5,7 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 }
 
 /**
- *  Force WordPress to always output English at the command line.
- */
-WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
-    return 'en_US';
-});
-
-/**
- * Public methods of this class which are not marked as "Not a WP CLI command"
- * are WP CLI commands which can be used to perform actions on an AT site.
- *
- * Class WPCOMSH_CLI_Commands
+ * Wordpress.com Site Helper (= Atomic) specific CLI commands
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	const TRANSIENT_DEACTIVATED_USER_PLUGINS = 'wpcomsh_deactivated_user_installed_plugins';
@@ -134,7 +124,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * Deactivate all user installed plugins except for important ones for Atomic.
 	 *
 	 * @subcommand deactivate-user-plugins
-	 * @synopsis [--interactive] [--include-ecommerce]
+	 * @synopsis [--interactive]
 	 * ## OPTIONS
 	 *
 	 * [--interactive]
@@ -167,7 +157,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * If previously user installed plugins had been deactivated, this re-activates these plugins.
 	 *
 	 * @subcommand reactivate-user-plugins
-	 * @synopsis [--interactive] [--include-ecommerce]
+	 * @synopsis [--interactive]
 	 * ## OPTIONS
 	 *
 	 * [--interactive]
@@ -228,6 +218,13 @@ class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
 		return ! preg_match( '#^(languages/)?[a-z0-9-]+-[a-z]{2}_[A-Z]{2}(_[a-z]+)?([.](mo|po)|-[a-f0-9]{32}[.]json)$#', $filepath );
 	}
 }
+
+/**
+ *  Force WordPress to always output English at the command line.
+ */
+WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
+    return 'en_US';
+});
 
 // Keep a record of deactivated plugins so that they can be reactivated.
 add_action(
