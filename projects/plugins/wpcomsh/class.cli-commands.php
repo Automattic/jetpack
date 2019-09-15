@@ -158,7 +158,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--interactive] Ask for each previously deactivated plugin whether to activate
+	 * [--interactive]
+	 * : Ask for each previously deactivated plugin whether to activate
 	 *
 	 * @subcommand reactivate-user-plugins
 	 */
