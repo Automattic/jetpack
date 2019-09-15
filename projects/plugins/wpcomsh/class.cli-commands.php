@@ -94,14 +94,11 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * @synopsis [--interactive] [--include-ecommerce]
 	 * ## OPTIONS
 	 *
-	 * [--include-ecommerce]
-	 * : Include deactivating plugins of the ecommerce plan
-	 *
 	 * [--interactive]
 	 * : Ask for each active plugin whether to deactivate
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$include_ecommerce = WP_CLI\Utils\get_flag_value( $assoc_args, 'include-ecommerce', false );
+		$include_ecommerce =  strcmp( Atomic_Plan_Manager::current_plan_slug(), Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG ) === 0;
 
 		$user_installed_plugins = $this->get_active_user_installed_plugins( $include_ecommerce );
 		if ( empty( $user_installed_plugins ) ) {
