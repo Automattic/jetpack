@@ -41,7 +41,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	private function get_active_user_installed_plugins() {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
 		$all_plugins       = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
-		$include_ecommerce = Atomic_Plan_Manager::current_plan_slug() === Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG;
+		$include_ecommerce = Atomic_Plan_Manager::current_plan_slug() !== Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG;
 
 		$user_installed_plugins = array_filter(
 			$all_plugins,
