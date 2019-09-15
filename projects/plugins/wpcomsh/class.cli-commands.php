@@ -219,9 +219,8 @@ class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
 	}
 }
 
-/**
- *  Force WordPress to always output English at the command line.
- */
+
+// Force WordPress to always output English at the command line.
 WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
     return 'en_US';
 });
