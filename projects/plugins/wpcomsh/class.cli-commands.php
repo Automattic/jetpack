@@ -38,9 +38,10 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		return 'y' === $answer || ! $answer;
 	}
 
-	private function get_active_user_installed_plugins( $include_ecommerce = false ) {
+	private function get_active_user_installed_plugins() {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
-		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
+		$all_plugins       = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
+		$include_ecommerce = Atomic_Plan_Manager::current_plan_slug() === Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG;
 
 		$user_installed_plugins = array_filter(
 			$all_plugins,
@@ -98,9 +99,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * : Ask for each active plugin whether to deactivate
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$include_ecommerce =  strcmp( Atomic_Plan_Manager::current_plan_slug(), Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG ) === 0;
-
-		$user_installed_plugins = $this->get_active_user_installed_plugins( $include_ecommerce );
+		$user_installed_plugins = $this->get_active_user_installed_plugins();
 		if ( empty( $user_installed_plugins ) ) {
 			WP_CLI::warning( 'No active user installed plugins found.' );
 			return;
@@ -129,9 +128,6 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * @subcommand reactivate-user-plugins
 	 * @synopsis [--interactive] [--include-ecommerce]
 	 * ## OPTIONS
-	 *
-	 * [--include-ecommerce]
-	 * : Include deactivating plugins of the ecommerce plan
 	 *
 	 * [--interactive]
 	 * : Ask for each previously deactivated plugin whether to activate
