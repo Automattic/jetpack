@@ -107,6 +107,10 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * @return array          A list that only includes plugins that are actually installed.
 	 */
 	private function array_filter_inexistant_plugins( $plugins ) {
+		if ( ! is_array( $plugins ) ) {
+			return $plugins;
+		}
+
 		$missing_plugins = array_diff( $plugins, $this->get_plugin_names() );
 		if ( ! empty( $missing_plugins ) ) {
 			WP_CLI::warning( 'Some of the previously enabled plugins have been deleted, so we cannot enable them.' );
