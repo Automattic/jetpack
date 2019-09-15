@@ -30,7 +30,7 @@ class Atomic_Plan_Manager {
 	 * @var string
 	 */
 	private static $instance;
-	
+
 	/**
 	 * Initialize the plan manager
 	 *
@@ -56,12 +56,13 @@ class Atomic_Plan_Manager {
 
 	/**
 	 * Return the local plan slug
-	 * If a local plan slug can't be found it will 
+	 * If a local plan slug can't be found it will
 	 * return BUSINESS_PLAN_SLUG by default
 	 *
 	 * @return string
-	 */ 
+	 */
 	public static function current_plan_slug() {
+		return self::ECOMMERCE_PLAN_SLUG;
 		$at_options = get_option( 'at_options', array() );
 		if ( ! is_array( $at_options ) ) {
 			$at_options = array( 'plan_slug' => self::BUSINESS_PLAN_SLUG );
@@ -77,7 +78,7 @@ class Atomic_Plan_Manager {
 	 * @return bool
 	 */
 	public function has_atomic_supported_plan() {
-		$supported_plans = [ 
+		$supported_plans = [
 			self::BUSINESS_PLAN_SLUG,
 			self::ECOMMERCE_PLAN_SLUG,
 		];

@@ -20,6 +20,12 @@ WP_CLI::add_wp_hook( 'pre_option_WPLANG', function() {
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	const TRANSIENT_DEACTIVATED_USER_PLUGINS = 'wpcomsh_deactivated_user_installed_plugins';
 
+	const DONT_DEACTIVATE_PLUGINS = [
+		'akismet',
+		'amp',
+		'jetpack',
+	];
+
 	// Plugins used by the e-commerce plan.
 	// see https://wpcom.trac.automattic.com/browser/trunk/wp-content/lib/atomic/class-plan-manager.php#L96
 	const ECOMMERCE_PLAN_PLUGINS = [
@@ -38,30 +44,60 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		return 'y' === $answer || ! $answer;
 	}
 
-	private function get_active_user_installed_plugins() {
+	/**
+	 * This generates a list of names of (active) plugins.
+	 *
+	 * @return Array List of plugin names.
+	 */
+
+	/**
+	 * This generates a list of names of (active) plugins.
+	 *
+	 * @param  boolean $only_active Whether to only include active plugins.
+	 * @return Array                List of plugin names.
+	 */
+	private function get_plugin_names( $only_active = false ) {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
-		$all_plugins       = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
-		$include_ecommerce = Atomic_Plan_Manager::current_plan_slug() !== Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG;
+		$all_plugins = array_keys( apply_filters( 'all_plugins', get_plugins() ) );
 
-		$user_installed_plugins = array_filter(
-			$all_plugins,
-			function( $file ) use ( $include_ecommerce ) {
-				$name = WP_CLI\Utils\get_plugin_name( $file );
-
-				if (
-					in_array(
-						$name,
-						[
-							'akismet',
-							'amp',
-							'jetpack',
-						]
-					)
-				) {
-					return false;
+		if ( $only_active ) {
+			$plugins = array_filter(
+				$all_plugins,
+				function( $file ) {
+					return is_plugin_active_for_network( $file ) || is_plugin_active( $file );
 				}
+			);
+		}
 
-				if ( ! $include_ecommerce && in_array( $name, self::ECOMMERCE_PLAN_PLUGINS ) ) {
+		$plugin_names = array_map(
+			function( $file ) {
+					return WP_CLI\Utils\get_plugin_name( $file );
+			},
+			$plugins
+		);
+
+		return $plugin_names;
+	}
+
+	/**
+	 * This generates a list of active plugins that can be deactivated.
+	 *
+	 * @return Array List of plugin names.
+	 */
+	private function get_deactivatable_plugin_names() {
+		$active_plugins = $this->get_plugin_names( true );
+
+		// If the site is on an e-commerce plan, we don't want to deactivate the e-commerce plugins.
+		$skip_ecommerce_plugins = Atomic_Plan_Manager::current_plan_slug() !== Atomic_Plan_Manager::ECOMMERCE_PLAN_SLUG;
+
+		$plugins = array_filter(
+			$active_plugins,
+			function( $name ) use ( $skip_ecommerce_plugins ) {
+				if (
+					in_array( $name, self::DONT_DEACTIVATE_PLUGINS )
+					|| ( ! $skip_ecommerce_plugins && in_array( $name, self::ECOMMERCE_PLAN_PLUGINS ) )
+				) {
+					WP_CLI::log( "Plugin '$name' skipped." );
 					return false;
 				}
 
@@ -69,21 +105,27 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			}
 		);
 
-		$active_user_installed_plugins = array_filter(
-			$user_installed_plugins,
-			function( $file ) {
-				return is_plugin_active_for_network( $file ) || is_plugin_active( $file );
-			}
-		);
+		return $plugins;
+	}
 
-		$active_user_installed_plugin_names = array_map(
-			function( $file ) {
-					return WP_CLI\Utils\get_plugin_name( $file );
-			},
-			$active_user_installed_plugins
-		);
+	/**
+	 * Remove plugins that no longer exist and warn the user about it.
+	 *
+	 * @param  Array $plugins A list of plugin names.
+	 * @return Array          A list that only includes plugins that are actually installed.
+	 */
+	private function remove_deleted_plugins( $plugins ) {
+		// Remove plugins that are no longer installed. If we try to deactivate them wp-cli would exit mid-way.
+		$missing_plugins = array_diff( $plugins, $this->get_plugin_names() );
+		if ( ! empty( $missing_plugins ) ) {
+			WP_CLI::warning( 'Some of the previously enabled plugins have been deleted, so we cannot enable them.' );
+			WP_CLI::warning( 'Missing plugins: ' . implode( ', ', $missing_plugins ) );
 
-		return $active_user_installed_plugin_names;
+			// Remove missing plugins from the list so we will not try to enable them.
+			$plugins = array_diff( $plugins, $missing_plugins );
+		}
+
+		return $plugins;
 	}
 
 	/**
@@ -99,7 +141,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * : Ask for each active plugin whether to deactivate
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$user_installed_plugins = $this->get_active_user_installed_plugins();
+		$user_installed_plugins = $this->get_deactivatable_plugin_names();
 		if ( empty( $user_installed_plugins ) ) {
 			WP_CLI::warning( 'No active user installed plugins found.' );
 			return;
@@ -132,27 +174,11 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * : Ask for each previously deactivated plugin whether to activate
 	 */
 	function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$previously_deactivated_plugins = get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
-
-		// Get all plugins for a crosscheck.
-		$all_plugins = array_map(
-			function( $file ) {
-				return WP_CLI\Utils\get_plugin_name( $file );
-			},
-			array_keys( apply_filters( 'all_plugins', get_plugins() ) )
-		);
+		$previously_deactivated_plugins = $this->remove_deleted_plugins( get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS ) );
 
 		if ( false === $previously_deactivated_plugins ) {
 			WP_CLI::log( "Can't find any previously deactivated plugins." );
 			exit;
-		}
-
-		$missing_plugins = array_diff( $previously_deactivated_plugins, $all_plugins );
-		if ( ! empty( $missing_plugins ) ) {
-			WP_CLI::warning( 'Some of the previously enabled plugins are now missing. They will not be enabled.' );
-			WP_CLI::warning( 'Missing plugins: ' . implode( ', ', $missing_plugins ) );
-			// Remove missing plugins from the list so we will not try to enable them.
-			$previously_deactivated_plugins = array_diff( $previously_deactivated_plugins, $missing_plugins );
 		}
 
 		WP_CLI::warning( 'Activating previously deactivated user installed plugins.' );
@@ -160,10 +186,11 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false ) ) {
 			foreach ( $previously_deactivated_plugins as $k => $plugin ) {
 				if ( $this->confirm( 'Activate plugin "' . $plugin . '"?' ) ) {
-					WP_CLI::run_command( array( 'plugin', 'activate', $plugin ) );
 					unset( $previously_deactivated_plugins[ $k ] );
 					// Update transient everytime to prevent using the original transient if loop breaks/terminated
 					set_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
+
+					WP_CLI::run_command( array( 'plugin', 'activate', $plugin ) );
 				}
 			}
 
@@ -175,6 +202,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			foreach ( $previously_deactivated_plugins as $plugin ) {
 				WP_CLI::log( '- ' . $plugin );
 			}
+
 			if ( ! $this->confirm( 'Do you wish to proceed?' ) ) {
 				WP_CLI::error( 'Action cancelled.' );
 				exit;
