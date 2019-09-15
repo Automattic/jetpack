@@ -115,13 +115,11 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * @return array          A list that only includes plugins that are actually installed.
 	 */
 	private function array_filter_inexistant_plugins( $plugins ) {
-		// Remove plugins that are no longer installed. If we try to deactivate them wp-cli would exit mid-way.
 		$missing_plugins = array_diff( $plugins, $this->get_plugin_names() );
 		if ( ! empty( $missing_plugins ) ) {
 			WP_CLI::warning( 'Some of the previously enabled plugins have been deleted, so we cannot enable them.' );
 			WP_CLI::warning( 'Missing plugins: ' . implode( ', ', $missing_plugins ) );
 
-			// Remove missing plugins from the list so we will not try to enable them.
 			$plugins = array_diff( $plugins, $missing_plugins );
 		}
 
@@ -174,20 +172,21 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * : Ask for each previously deactivated plugin whether to activate
 	 */
 	function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$previously_deactivated_plugins = $this->array_filter_inexistant_plugins( get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS ) );
+		$previously_deactivated_plugins = get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
 
-		if ( false === $previously_deactivated_plugins ) {
-			WP_CLI::log( "Can't find any previously deactivated plugins." );
+		// Remove plugins that are no longer installed. If we try to deactivate them wp-cli would exit mid-way.
+		$previously_deactivated_plugins = $this->array_filter_inexistant_plugins( $previously_deactivated_plugins );
+
+		if ( empty( $previously_deactivated_plugins ) ) {
+			WP_CLI::error( "Can't find any previously deactivated plugins." );
 			exit;
 		}
-
-		WP_CLI::warning( 'Activating previously deactivated user installed plugins.' );
 
 		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false ) ) {
 			foreach ( $previously_deactivated_plugins as $k => $plugin ) {
 				if ( $this->confirm( 'Activate plugin "' . $plugin . '"?' ) ) {
 					unset( $previously_deactivated_plugins[ $k ] );
-					// Update transient everytime to prevent using the original transient if loop breaks/terminated
+					// Update transient every time to prevent using the original transient if loop breaks/terminated
 					set_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS, $previously_deactivated_plugins, DAY_IN_SECONDS );
 
 					WP_CLI::run_command( array( 'plugin', 'activate', $plugin ) );
