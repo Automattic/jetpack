@@ -142,12 +142,28 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
 		$previously_deactivated_plugins = get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS );
 
+		// Get all plugins for a crosscheck.
+		$all_plugins = array_map(
+			function( $file ) {
+				return WP_CLI\Utils\get_plugin_name( $file );
+			},
+			array_keys( apply_filters( 'all_plugins', get_plugins() ) )
+		);
+
 		if ( false === $previously_deactivated_plugins ) {
 			WP_CLI::log( "Can't find any previously deactivated plugins." );
 			exit;
 		}
 
-		WP_CLI::log( 'Activating previously deactivated user installed plugins.' );
+		$missing_plugins = array_diff( $previously_deactivated_plugins, $all_plugins );
+		if( ! empty( $missing_plugins ) ) {
+			WP_CLI::warning( "Some of the previously enabled plugins are now missing. They will not be enabled." );
+			WP_CLI::warning( "Missing plugins: " . implode( ', ', $missing_plugins ) );
+			// Remove missing plugins from the list so we will not try to enable them.
+			$previously_deactivated_plugins = array_diff( $previously_deactivated_plugins, $missing_plugins );
+		}
+
+		WP_CLI::warning( 'Activating previously deactivated user installed plugins.' );
 
 		if ( WP_CLI\Utils\get_flag_value( $assoc_args, 'interactive', false ) ) {
 			foreach ( $previously_deactivated_plugins as $k => $plugin ) {
