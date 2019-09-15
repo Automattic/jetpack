@@ -156,7 +156,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		}
 
 		$missing_plugins = array_diff( $previously_deactivated_plugins, $all_plugins );
-		if( ! empty( $missing_plugins ) ) {
+		if ( ! empty( $missing_plugins ) ) {
 			WP_CLI::warning( "Some of the previously enabled plugins are now missing. They will not be enabled." );
 			WP_CLI::warning( "Missing plugins: " . implode( ', ', $missing_plugins ) );
 			// Remove missing plugins from the list so we will not try to enable them.
