@@ -76,7 +76,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 *
 	 * @return array List of plugin names.
 	 */
-	private function get_deactivatable_plugin_names() {
+	private function get_plugin_names_to_deactivate() {
 		$active_plugins = $this->get_plugin_names( true );
 
 		// If the site is on an e-commerce plan, we don't want to deactivate the e-commerce plugins.
@@ -131,7 +131,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * @subcommand deactivate-user-plugins
 	 */
 	function deactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$user_installed_plugins = $this->get_deactivatable_plugin_names();
+		$user_installed_plugins = $this->get_plugin_names_to_deactivate();
 		if ( empty( $user_installed_plugins ) ) {
 			WP_CLI::warning( 'No active user installed plugins found.' );
 			return;
