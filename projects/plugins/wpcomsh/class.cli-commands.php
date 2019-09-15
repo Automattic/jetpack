@@ -125,7 +125,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	}
 }
 /*
- * Add that works just like plugin verify-checksums except it filtes language translation files.
+ * This works just like plugin verify-checksums except it filters language translation files.
  * Language files are not part of WordPress.org's checksums so they are listed as added and
  * they obfuscate the output. This makes it hard to spot actual checksum verification errors.
  */
