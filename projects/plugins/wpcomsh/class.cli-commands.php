@@ -38,6 +38,12 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		'taxjar-simplified-taxes-for-woocommerce',
 	];
 
+	/**
+	 * Ask the user to confirm a yes/no question.
+	 *
+	 * @param  string $question The yes/no question to ask the user.
+	 * @return boolean          Whether the user confirmed or not.
+	 */
 	private function confirm( $question ) {
 		fwrite( STDOUT, $question . ' [Y/n] ' );
 		$answer = strtolower( trim( fgets( STDIN ) ) );
@@ -47,14 +53,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	/**
 	 * This generates a list of names of (active) plugins.
 	 *
-	 * @return Array List of plugin names.
-	 */
-
-	/**
-	 * This generates a list of names of (active) plugins.
-	 *
 	 * @param  boolean $only_active Whether to only include active plugins.
-	 * @return Array                List of plugin names.
+	 * @return array                List of plugin names.
 	 */
 	private function get_plugin_names( $only_active = false ) {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calling native WordPress hook.
@@ -82,7 +82,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	/**
 	 * This generates a list of active plugins that can be deactivated.
 	 *
-	 * @return Array List of plugin names.
+	 * @return array List of plugin names.
 	 */
 	private function get_deactivatable_plugin_names() {
 		$active_plugins = $this->get_plugin_names( true );
@@ -111,8 +111,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	/**
 	 * Remove plugins that no longer exist and warn the user about it.
 	 *
-	 * @param  Array $plugins A list of plugin names.
-	 * @return Array          A list that only includes plugins that are actually installed.
+	 * @param  array $plugins A list of plugin names.
+	 * @return array          A list that only includes plugins that are actually installed.
 	 */
 	private function remove_deleted_plugins( $plugins ) {
 		// Remove plugins that are no longer installed. If we try to deactivate them wp-cli would exit mid-way.
