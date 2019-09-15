@@ -68,3 +68,5 @@ exclude_paths:
 checks:
   method-lines:
     enabled: false
+  file-lines:
+    enabled: false
