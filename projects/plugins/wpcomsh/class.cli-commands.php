@@ -67,6 +67,8 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 					return is_plugin_active_for_network( $file ) || is_plugin_active( $file );
 				}
 			);
+		} else {
+			$plugins = $all_plugins;
 		}
 
 		$plugin_names = array_map(
