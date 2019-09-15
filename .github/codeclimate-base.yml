@@ -65,3 +65,6 @@ exclude_paths:
   - "**-min.css"
   - "**.dist"
   - "**.sh"
+checks:
+  method-lines:
+    enabled: false
