@@ -114,7 +114,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * @param  array $plugins A list of plugin names.
 	 * @return array          A list that only includes plugins that are actually installed.
 	 */
-	private function remove_deleted_plugins( $plugins ) {
+	private function array_filter_inexistant_plugins( $plugins ) {
 		// Remove plugins that are no longer installed. If we try to deactivate them wp-cli would exit mid-way.
 		$missing_plugins = array_diff( $plugins, $this->get_plugin_names() );
 		if ( ! empty( $missing_plugins ) ) {
@@ -174,7 +174,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	 * : Ask for each previously deactivated plugin whether to activate
 	 */
 	function reactivate_user_installed_plugins( $args, $assoc_args = array() ) {
-		$previously_deactivated_plugins = $this->remove_deleted_plugins( get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS ) );
+		$previously_deactivated_plugins = $this->array_filter_inexistant_plugins( get_transient( self::TRANSIENT_DEACTIVATED_USER_PLUGINS ) );
 
 		if ( false === $previously_deactivated_plugins ) {
 			WP_CLI::log( "Can't find any previously deactivated plugins." );
