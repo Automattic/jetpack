@@ -163,9 +163,4 @@ class Jetpack_Tiled_Gallery_Block {
 	}
 }
 
-if (
-	( defined( 'IS_WPCOM' ) && IS_WPCOM )
-	|| class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
-) {
-	Jetpack_Tiled_Gallery_Block::register();
-}
+Jetpack_Tiled_Gallery_Block::register();
