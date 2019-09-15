@@ -202,7 +202,7 @@ class Checksum_Plugin_Command_WPCOMSH extends Checksum_Plugin_Command {
 
 // Keep a record of deactivated plugins so that they can be reactivated.
 add_action(
-	'deactivate_plugin',
+	'deactivated_plugin',
 	function( $file ) {
 		$previously_deactivated_plugins = get_transient( WPCOMSH_CLI_Commands::TRANSIENT_DEACTIVATED_USER_PLUGINS );
 		$previously_deactivated_plugins[] = WP_CLI\Utils\get_plugin_name( $file );
