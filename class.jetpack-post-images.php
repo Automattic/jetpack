@@ -34,9 +34,9 @@ class Jetpack_PostImages {
 		$permalink = get_permalink( $post->ID );
 
 		// Mechanic: Somebody set us up the bomb
-		$old_post = $GLOBALS['post'];
-		$GLOBALS['post'] = $post;
-		$old_shortcodes = $GLOBALS['shortcode_tags'];
+		$old_post                  = $GLOBALS['post'];
+		$GLOBALS['post']           = $post;
+		$old_shortcodes            = $GLOBALS['shortcode_tags'];
 		$GLOBALS['shortcode_tags'] = array( 'slideshow' => $old_shortcodes['slideshow'] );
 
 		// Find all the slideshows
@@ -46,24 +46,28 @@ class Jetpack_PostImages {
 
 		foreach ( $slideshow_matches as $slideshow_match ) {
 			$slideshow = do_shortcode_tag( $slideshow_match );
-			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) // must be something wrong - or we changed the output format in which case none of the following will work
+			if ( false === $pos = stripos( $slideshow, 'jetpack-slideshow' ) ) { // must be something wrong - or we changed the output format in which case none of the following will work
 				continue;
-			$start = strpos( $slideshow, '[', $pos );
-			$end = strpos( $slideshow, ']', $start );
+			}
+			$start       = strpos( $slideshow, '[', $pos );
+			$end         = strpos( $slideshow, ']', $start );
 			$post_images = json_decode( wp_specialchars_decode( str_replace( "'", '"', substr( $slideshow, $start, $end - $start + 1 ) ), ENT_QUOTES ) ); // parse via JSON
 			// If the JSON didn't decode don't try and act on it.
 			if ( is_array( $post_images ) ) {
 				foreach ( $post_images as $post_image ) {
-					if ( !$post_image_id = absint( $post_image->id ) )
+					if ( ! $post_image_id = absint( $post_image->id ) ) {
 						continue;
+					}
 
 					$meta = wp_get_attachment_metadata( $post_image_id );
 
 					// Must be larger than 200x200 (or user-specified)
-					if ( !isset( $meta['width'] ) || $meta['width'] < $width )
+					if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
 						continue;
-					if ( !isset( $meta['height'] ) || $meta['height'] < $height )
+					}
+					if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
 						continue;
+					}
 
 					$url = wp_get_attachment_url( $post_image_id );
 
@@ -82,7 +86,7 @@ class Jetpack_PostImages {
 
 		// Operator: Main screen turn on
 		$GLOBALS['shortcode_tags'] = $old_shortcodes;
-		$GLOBALS['post'] = $old_post;
+		$GLOBALS['post']           = $old_post;
 
 		return $images;
 	}
@@ -113,44 +117,44 @@ class Jetpack_PostImages {
 		 *  https://core.trac.wordpress.org/ticket/39304
 		 */
 		if ( isset( $GLOBALS['post'] ) ) {
-			$juggle_post = $GLOBALS['post'];
+			$juggle_post     = $GLOBALS['post'];
 			$GLOBALS['post'] = $post;
-			$galleries = get_post_galleries( $post->ID, false );
+			$galleries       = get_post_galleries( $post->ID, false );
 			$GLOBALS['post'] = $juggle_post;
 		} else {
 			$GLOBALS['post'] = $post;
-			$galleries = get_post_galleries( $post->ID, false );
+			$galleries       = get_post_galleries( $post->ID, false );
 			unset( $GLOBALS['post'] );
 		}
 
 		foreach ( $galleries as $gallery ) {
 			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
-				$image_ids = explode( ',', $gallery['ids'] );
+				$image_ids  = explode( ',', $gallery['ids'] );
 				$image_size = isset( $gallery['size'] ) ? $gallery['size'] : 'thumbnail';
 				foreach ( $image_ids as $image_id ) {
 					$image = wp_get_attachment_image_src( $image_id, $image_size );
 					if ( ! empty( $image[0] ) ) {
 						list( $raw_src ) = explode( '?', $image[0] ); // pull off any Query string (?w=250)
-						$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
-						$raw_src = esc_url_raw( $raw_src ); // clean it
-						$images[] = array(
-							'type'  => 'image',
-							'from'  => 'gallery',
-							'src'   => $raw_src,
-							'href'  => $permalink,
+						$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it
+						$raw_src         = esc_url_raw( $raw_src ); // clean it
+						$images[]        = array(
+							'type' => 'image',
+							'from' => 'gallery',
+							'src'  => $raw_src,
+							'href' => $permalink,
 						);
 					}
 				}
 			} elseif ( ! empty( $gallery['src'] ) ) {
 				foreach ( $gallery['src'] as $src ) {
 					list( $raw_src ) = explode( '?', $src ); // pull off any Query string (?w=250)
-					$raw_src = wp_specialchars_decode( $raw_src ); // rawify it
-					$raw_src = esc_url_raw( $raw_src ); // clean it
-					$images[] = array(
-						'type'  => 'image',
-						'from'  => 'gallery',
-						'src'   => $raw_src,
-						'href'  => $permalink,
+					$raw_src         = wp_specialchars_decode( $raw_src ); // rawify it
+					$raw_src         = esc_url_raw( $raw_src ); // clean it
+					$images[]        = array(
+						'type' => 'image',
+						'from' => 'gallery',
+						'src'  => $raw_src,
+						'href' => $permalink,
 					);
 				}
 			}
@@ -172,13 +176,15 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		$post_images = get_posts( array(
-			'post_parent' => $post_id,   // Must be children of post
-			'numberposts' => 5,          // No more than 5
-			'post_type' => 'attachment', // Must be attachments
-			'post_mime_type' => 'image', // Must be images
-			'suppress_filters' => false,
-		) );
+		$post_images = get_posts(
+			array(
+				'post_parent'      => $post_id,   // Must be children of post
+				'numberposts'      => 5,          // No more than 5
+				'post_type'        => 'attachment', // Must be attachments
+				'post_mime_type'   => 'image', // Must be images
+				'suppress_filters' => false,
+			)
+		);
 
 		if ( ! $post_images ) {
 			return $images;
@@ -198,23 +204,24 @@ class Jetpack_PostImages {
 		* We can load up all the images found in the HTML source and then
 		* compare URLs to see if an image is attached AND inserted.
 		*/
-		$html_images = self::from_html( $post_id );
+		$html_images     = self::from_html( $post_id );
 		$inserted_images = array();
 
-		foreach( $html_images as $html_image ) {
+		foreach ( $html_images as $html_image ) {
 			$src = parse_url( $html_image['src'] );
 			// strip off any query strings from src
-			if( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
+			if ( ! empty( $src['scheme'] ) && ! empty( $src['host'] ) ) {
 				$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path'];
-			} elseif( ! empty( $src['host'] ) ) {
+			} elseif ( ! empty( $src['host'] ) ) {
 				$inserted_images[] = set_url_scheme( 'http://' . $src['host'] . $src['path'] );
 			} else {
 				$inserted_images[] = site_url( '/' ) . $src['path'];
 			}
 		}
-		foreach( $images as $i => $image ) {
-			if ( !in_array( $image['src'], $inserted_images ) )
-				unset( $images[$i] );
+		foreach ( $images as $i => $image ) {
+			if ( ! in_array( $image['src'], $inserted_images ) ) {
+				unset( $images[ $i ] );
+			}
 		}
 
 		return $images;
@@ -223,6 +230,7 @@ class Jetpack_PostImages {
 	/**
 	 * Check if a Featured Image is set for this post, and return it in a similar
 	 * format to the other images?_from_*() methods.
+	 *
 	 * @param  int $post_id The post ID to check
 	 * @return Array containing details of the Featured Image, or empty array if none.
 	 */
@@ -244,10 +252,12 @@ class Jetpack_PostImages {
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
 			// Must be larger than requested minimums
-			if ( !isset( $meta['width'] ) || $meta['width'] < $width )
+			if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
 				return $images;
-			if ( !isset( $meta['height'] ) || $meta['height'] < $height )
+			}
+			if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
 				return $images;
+			}
 
 			$too_big = ( ( ! empty( $meta['width'] ) && $meta['width'] > 1200 ) || ( ! empty( $meta['height'] ) && $meta['height'] > 1200 ) );
 
@@ -266,19 +276,21 @@ class Jetpack_PostImages {
 				// If wp_get_attachment_image_src returns false but we know that there should be an image that could be used.
 				// we try a bit harder and user the data that we have.
 				$thumb_post_data = get_post( $thumb );
-				$img_src = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
+				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
 			$url    = $img_src[0];
-			$images = array( array( // Other methods below all return an array of arrays
-				'type'       => 'image',
-				'from'       => 'thumbnail',
-				'src'        => $url,
-				'src_width'  => $img_src[1],
-				'src_height' => $img_src[2],
-				'href'       => get_permalink( $thumb ),
-				'alt_text'   => self::get_alt_text( $thumb ),
-			) );
+			$images = array(
+				array( // Other methods below all return an array of arrays
+					'type'       => 'image',
+					'from'       => 'thumbnail',
+					'src'        => $url,
+					'src_width'  => $img_src[1],
+					'src_height' => $img_src[2],
+					'href'       => get_permalink( $thumb ),
+					'alt_text'   => self::get_alt_text( $thumb ),
+				),
+			);
 
 		}
 
@@ -293,15 +305,17 @@ class Jetpack_PostImages {
 					return $images;
 				}
 
-				$images = array( array( // Other methods below all return an array of arrays
-					'type'       => 'image',
-					'from'       => 'thumbnail',
-					'src'        => $meta_thumbnail['URL'],
-					'src_width'  => $meta_thumbnail['width'],
-					'src_height' => $meta_thumbnail['height'],
-					'href'       => $meta_thumbnail['URL'],
-					'alt_text'   => self::get_alt_text( $thumb ),
-				) );
+				$images = array(
+					array( // Other methods below all return an array of arrays
+						'type'       => 'image',
+						'from'       => 'thumbnail',
+						'src'        => $meta_thumbnail['URL'],
+						'src_width'  => $meta_thumbnail['width'],
+						'src_height' => $meta_thumbnail['height'],
+						'href'       => $meta_thumbnail['URL'],
+						'alt_text'   => self::get_alt_text( $thumb ),
+					),
+				);
 			}
 		}
 
@@ -392,7 +406,7 @@ class Jetpack_PostImages {
 		}
 
 		// Let's grab all image tags from the HTML.
-		$dom_doc = new DOMDocument;
+		$dom_doc = new DOMDocument();
 
 		// The @ is not enough to suppress errors when dealing with libxml,
 		// we have to tell it directly how we want to handle errors.
@@ -483,15 +497,17 @@ class Jetpack_PostImages {
 			}
 		}
 
-		return array( array(
-			'type'       => 'image',
-			'from'       => 'blavatar',
-			'src'        => $url,
-			'src_width'  => $size,
-			'src_height' => $size,
-			'href'       => $permalink,
-			'alt_text'   => '',
-		) );
+		return array(
+			array(
+				'type'       => 'image',
+				'from'       => 'blavatar',
+				'src'        => $url,
+				'src_width'  => $size,
+				'src_height' => $size,
+				'href'       => $permalink,
+				'alt_text'   => '',
+			),
+		);
 	}
 
 	/**
@@ -503,7 +519,7 @@ class Jetpack_PostImages {
 	 * @return Array containing details of the image, or empty array if none.
 	 */
 	static function from_gravatar( $post_id, $size = 96, $default = false ) {
-		$post = get_post( $post_id );
+		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
@@ -512,10 +528,13 @@ class Jetpack_PostImages {
 				$url = $url[0];
 			}
 		} else {
-			$url = get_avatar_url( $post->post_author, array(
-				'size' => $size,
-				'default' => $default,
-			) );
+			$url = get_avatar_url(
+				$post->post_author,
+				array(
+					'size'    => $size,
+					'default' => $default,
+				)
+			);
 		}
 
 		return array(
@@ -534,7 +553,8 @@ class Jetpack_PostImages {
 	/**
 	 * Run through the different methods that we have available to try to find a single good
 	 * display image for this post.
-	 * @param  int $post_id
+	 *
+	 * @param  int   $post_id
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine)
 	 * @return Array containing details of the best image to be used
 	 */
@@ -550,7 +570,6 @@ class Jetpack_PostImages {
 		 */
 		do_action( 'jetpack_postimages_pre_get_image', $post_id );
 		$media = self::get_images( $post_id, $args );
-
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
@@ -576,8 +595,9 @@ class Jetpack_PostImages {
 	/**
 	 * Get an array containing a collection of possible images for this post, stopping once we hit a method
 	 * that returns something useful.
-	 * @param  int $post_id
-	 * @param  array  $args Optional args, see defaults list for details
+	 *
+	 * @param  int   $post_id
+	 * @param  array $args Optional args, see defaults list for details
 	 * @return Array containing images that would be good for representing this post
 	 */
 	static function get_images( $post_id, $args = array() ) {
@@ -595,8 +615,9 @@ class Jetpack_PostImages {
 		 * @param array $args Array of options to get images.
 		 */
 		$media = apply_filters( 'jetpack_images_pre_get_images', $media, $post_id, $args );
-		if ( $media )
+		if ( $media ) {
 			return $media;
+		}
 
 		$defaults = array(
 			'width'               => 200, // Required minimum width (if possible to determine)
@@ -613,36 +634,43 @@ class Jetpack_PostImages {
 			'from_blocks'         => true,
 			'from_html'           => true,
 
-			'html_content'        => '' // HTML string to pass to from_html()
+			'html_content'        => '', // HTML string to pass to from_html()
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		$media = false;
-		if ( $args['from_thumbnail'] )
+		if ( $args['from_thumbnail'] ) {
 			$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
-		if ( !$media && $args['from_slideshow'] )
-			$media = self::from_slideshow( $post_id, $args['width'], $args['height'] );
-		if ( !$media && $args['from_gallery'] )
-			$media = self::from_gallery( $post_id );
-		if ( !$media && $args['from_attachment'] )
-			$media = self::from_attachment( $post_id, $args['width'], $args['height'] );
-		if ( ! $media && $args['from_blocks'] ) {
-			if ( empty( $args['html_content'] ) )
-				$media = self::from_blocks( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
-			else
-				$media = self::from_blocks( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that
 		}
-		if ( !$media && $args['from_html'] ) {
-			if ( empty( $args['html_content'] ) )
+		if ( ! $media && $args['from_slideshow'] ) {
+			$media = self::from_slideshow( $post_id, $args['width'], $args['height'] );
+		}
+		if ( ! $media && $args['from_gallery'] ) {
+			$media = self::from_gallery( $post_id );
+		}
+		if ( ! $media && $args['from_attachment'] ) {
+			$media = self::from_attachment( $post_id, $args['width'], $args['height'] );
+		}
+		if ( ! $media && $args['from_blocks'] ) {
+			if ( empty( $args['html_content'] ) ) {
+				$media = self::from_blocks( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
+			} else {
+				$media = self::from_blocks( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that
+			}
+		}
+		if ( ! $media && $args['from_html'] ) {
+			if ( empty( $args['html_content'] ) ) {
 				$media = self::from_html( $post_id, $args['width'], $args['height'] ); // Use the post_id, which will load the content
-			else
+			} else {
 				$media = self::from_html( $args['html_content'], $args['width'], $args['height'] ); // If html_content is provided, use that
+			}
 		}
 
-		if ( !$media && $args['fallback_to_avatars'] ) {
+		if ( ! $media && $args['fallback_to_avatars'] ) {
 			$media = self::from_blavatar( $post_id, $args['avatar_size'] );
-			if ( !$media )
+			if ( ! $media ) {
 				$media = self::from_gravatar( $post_id, $args['avatar_size'], $args['gravatar_default'] );
+			}
 		}
 
 		/**
@@ -667,7 +695,7 @@ class Jetpack_PostImages {
 	 * @return string            Transformed image URL
 	 */
 	static function fit_image_url( $src, $width, $height ) {
-		$width = (int) $width;
+		$width  = (int) $width;
 		$height = (int) $height;
 
 		if ( $width < 1 || $height < 1 ) {
@@ -691,11 +719,18 @@ class Jetpack_PostImages {
 		// If WPCOM hosted image use native transformations
 		$img_host = parse_url( $src, PHP_URL_HOST );
 		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
-			return add_query_arg( array( 'w' => $width, 'h' => $height, 'crop' => 1 ), set_url_scheme( $src ) );
+			return add_query_arg(
+				array(
+					'w'    => $width,
+					'h'    => $height,
+					'crop' => 1,
+				),
+				set_url_scheme( $src )
+			);
 		}
 
 		// Use Photon magic
-		if( function_exists( 'jetpack_photon_url' ) ) {
+		if ( function_exists( 'jetpack_photon_url' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 
