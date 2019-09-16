@@ -369,7 +369,7 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
-	 * @var \Automattic\Jetpack\Connection\Manager
+	 * @var Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
