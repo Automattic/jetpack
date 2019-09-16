@@ -186,7 +186,7 @@ class Sender {
 	private function init() {
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
-		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_jetpack_xmlrpc_methods' ), 10, 3 );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_jetpack_xmlrpc_methods' ) );
 		foreach ( Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
@@ -537,12 +537,10 @@ class Sender {
 	 * @access public
 	 * @since 7.8
 	 *
-	 * @param array    $jetpack_methods XML-RPC methods available to the Jetpack Server.
-	 * @param array    $core_methods    Available core XML-RPC methods.
-	 * @param \WP_User $user            Information about a given WordPress user.
+	 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
 	 * @return array Filtered XML-RPC methods.
 	 */
-	public function register_jetpack_xmlrpc_methods( $jetpack_methods, $core_methods, $user ) {
+	public function register_jetpack_xmlrpc_methods( $jetpack_methods ) {
 		$jetpack_methods['jetpack.syncObject'] = array( $this, 'sync_object' );
 		return $jetpack_methods;
 	}
