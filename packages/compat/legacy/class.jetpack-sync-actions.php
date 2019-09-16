@@ -2,7 +2,7 @@
 /**
  * A compatibility shim for the sync actions class.
  *
- * @package jetpack-compat
+ * @package automattic/jetpack-compat
  */
 
 use Automattic\Jetpack\Sync\Actions;
