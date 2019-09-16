@@ -81,6 +81,26 @@ function modify_svnignore {
 	git commit .svnignore -m "Updated .svnignore"
 }
 
+# Get the latest version of all our packages
+# And use it in our composer.json files in the shipped version of the plugin.
+function update_package_versions {
+	echo "Updating package versions..."
+
+	# Prefer stable versions in release branches.
+	sed -i '' -e '/minimum-stability/ s/dev/stable/' composer.json
+
+	# Switch Automattic packages to a stable version.
+	for line in $( cat composer.json 2>/dev/null ); do
+		if [[ $line == *"automattic/jetpack-"* ]]; then
+			echo 'found one.'
+			PACKAGE=$( echo $line | cut -d'"' -f 2 )
+			composer require $PACKAGE
+		fi
+	done
+
+	echo "Packages updated."
+}
+
 # This function will create a new set of release branches.
 # The branch formats will be branch-x.x (unbuilt version) and branch-x-x-built (built)
 # These branches will be created off of master.
@@ -220,6 +240,10 @@ hash yarn 2>/dev/null || {
 
 # Start cleaning the cache.
 yarn cache clean
+
+# Update package versions
+update_package_versions
+
 COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
 echo "Done"
 
