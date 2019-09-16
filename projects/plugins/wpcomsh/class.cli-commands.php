@@ -89,7 +89,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 					in_array( $name, self::DONT_DEACTIVATE_PLUGINS )
 					|| ( ! $skip_ecommerce_plugins && in_array( $name, self::ECOMMERCE_PLAN_PLUGINS ) )
 				) {
-					WP_CLI::log( WP_CLI::colorize( "%bPlugin '$name' skipped." ) );
+					WP_CLI::log( WP_CLI::colorize( "%bPlugin '$name' skipped.%n" ) );
 					return false;
 				}
 
