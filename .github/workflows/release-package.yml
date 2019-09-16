@@ -1,0 +1,21 @@
+name: "Release a Package update"
+on:
+  pull_request:
+    types: closed
+    paths:
+      - 'packages/*'
+      - 'packages/*/*'
+      - 'packages/*/*/*'
+      - 'packages/*/*/*/*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Release a new package version"
+      uses: jeherve/action-jetpack-release-package@master
+      with:
+        package: 'sync'
+        version: '1.0.0'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
