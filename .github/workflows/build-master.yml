@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Jetpack
         uses: actions/checkout@master
       - name: Build production files
-        run: yarn build-production
+        run: COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
       - name: Purge dev files
         run: $GITHUB_WORKSPACE/bin/prepare-built-branch.sh
       - name: Push to built branch
