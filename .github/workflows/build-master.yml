@@ -17,7 +17,7 @@ jobs:
         run: $GITHUB_WORKSPACE/bin/prepare-built-branch.sh
       - name: Push to built branch
         id: commit-and-push
-        uses: automattic/action-commit-to-branch@add/change-for-gitignore
+        uses: automattic/action-commit-to-branch@master
         with:
           branch: 'master-built'
           commit_message: 'Automated production build from master'
