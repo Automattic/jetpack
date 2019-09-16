@@ -17,7 +17,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Initializes the class.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::init
+	 * @deprecated Automattic\Jetpack\Sync\Actions::init
 	 */
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -28,7 +28,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Adds a shutdown sender callback.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::add_sender_shutdown
+	 * @deprecated Automattic\Jetpack\Sync\Actions::add_sender_shutdown
 	 */
 	public static function add_sender_shutdown() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -40,7 +40,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 * Returns false or true based on whether this class should initialize the sender
 	 * in current circumstances.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::should_initialize_sender
+	 * @deprecated Automattic\Jetpack\Sync\Actions::should_initialize_sender
 	 *
 	 * @return Boolean should the object initialize sender?
 	 */
@@ -53,7 +53,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Returns false or true based on whether sync is allowed.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::sync_allowed
+	 * @deprecated Automattic\Jetpack\Sync\Actions::sync_allowed
 	 *
 	 * @return Boolean is sync allowed?
 	 */
@@ -66,7 +66,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Returns false or true based on whether sync via cron is allowed.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::sync_via_cron_allowed
+	 * @deprecated Automattic\Jetpack\Sync\Actions::sync_via_cron_allowed
 	 *
 	 * @return Boolean is sync via cron allowed?
 	 */
@@ -80,7 +80,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 * Filters a boolean value that determines whether blacklisted posts should be prevented
 	 * from being publicized.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::prevent_publicize_blacklisted_posts
+	 * @deprecated Automattic\Jetpack\Sync\Actions::prevent_publicize_blacklisted_posts
 	 *
 	 * @param Boolean $should_publicize initial setting value.
 	 * @param WP_Post $post the post object.
@@ -95,7 +95,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Set the importing flag to true.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::set_is_importing_true
+	 * @deprecated Automattic\Jetpack\Sync\Actions::set_is_importing_true
 	 */
 	public static function set_is_importing_true() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -106,7 +106,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Send the sync data.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::send_data
+	 * @deprecated Automattic\Jetpack\Sync\Actions::send_data
 	 *
 	 * @param Mixed   $data the sync data.
 	 * @param String  $codec_name the codec slug.
@@ -125,7 +125,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Commence initial sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::do_initial_sync
+	 * @deprecated Automattic\Jetpack\Sync\Actions::do_initial_sync
 	 */
 	public static function do_initial_sync() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -136,7 +136,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Commence full sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::do_full_sync
+	 * @deprecated Automattic\Jetpack\Sync\Actions::do_full_sync
 	 *
 	 * @param Array $modules the modules list.
 	 * @return Boolean whether the sync was initialized.
@@ -150,7 +150,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Schedule cron sessions.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::jetpack_cron_schedule
+	 * @deprecated Automattic\Jetpack\Sync\Actions::jetpack_cron_schedule
 	 *
 	 * @param Array $schedules the schedules to add.
 	 */
@@ -163,7 +163,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Commence cron sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::do_cron_sync
+	 * @deprecated Automattic\Jetpack\Sync\Actions::do_cron_sync
 	 */
 	public static function do_cron_sync() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -174,7 +174,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Commence cron full sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::do_cron_full_sync
+	 * @deprecated Automattic\Jetpack\Sync\Actions::do_cron_full_sync
 	 */
 	public static function do_cron_full_sync() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -185,7 +185,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Commence cron sync of a specific type of object.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::do_cron_sync_by_type
+	 * @deprecated Automattic\Jetpack\Sync\Actions::do_cron_sync_by_type
 	 *
 	 * @param Array $type the type of object to sync.
 	 */
@@ -198,7 +198,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Initalize the listener of the object.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::initialize_listener
+	 * @deprecated Automattic\Jetpack\Sync\Actions::initialize_listener
 	 */
 	public static function initialize_listener() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -209,7 +209,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Initalize the sender of the object.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::initialize_sender
+	 * @deprecated Automattic\Jetpack\Sync\Actions::initialize_sender
 	 */
 	public static function initialize_sender() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -220,7 +220,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Initalize the woocommerce listeners.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::initialize_woocommerce
+	 * @deprecated Automattic\Jetpack\Sync\Actions::initialize_woocommerce
 	 */
 	public static function initialize_woocommerce() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -231,7 +231,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Add the woocommerce sync module.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::add_woocommerce_sync_module
+	 * @deprecated Automattic\Jetpack\Sync\Actions::add_woocommerce_sync_module
 	 *
 	 * @param Array $sync_modules an array of modules.
 	 */
@@ -244,7 +244,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Initalize the WP Super Cache listener.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::initialize_wp_super_cache
+	 * @deprecated Automattic\Jetpack\Sync\Actions::initialize_wp_super_cache
 	 */
 	public static function initialize_wp_super_cache() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -255,7 +255,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Add the WP Super Cache sync module.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::add_wp_super_cache_sync_module
+	 * @deprecated Automattic\Jetpack\Sync\Actions::add_wp_super_cache_sync_module
 	 *
 	 * @param Array $sync_modules the list to be amended.
 	 */
@@ -268,7 +268,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Sanitizes the filtered sync cron schedule.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::sanitize_filtered_sync_cron_schedule
+	 * @deprecated Automattic\Jetpack\Sync\Actions::sanitize_filtered_sync_cron_schedule
 	 *
 	 * @param String $schedule the cron schedule to sanitize.
 	 * @return String sanitized cron schedule.
@@ -282,7 +282,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Returns the time offset for a the start schedule.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::get_start_time_offset
+	 * @deprecated Automattic\Jetpack\Sync\Actions::get_start_time_offset
 	 *
 	 * @param String $schedule the schedule string.
 	 * @param String $hook hook slug.
@@ -297,7 +297,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * If needed, schedule a cron sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::maybe_schedule_sync_cron
+	 * @deprecated Automattic\Jetpack\Sync\Actions::maybe_schedule_sync_cron
 	 *
 	 * @param String $schedule the schedule string.
 	 * @param String $hook hook slug.
@@ -311,7 +311,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Clears cron jobs scheduled for sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::clear_sync_cron_jobs
+	 * @deprecated Automattic\Jetpack\Sync\Actions::clear_sync_cron_jobs
 	 */
 	public static function clear_sync_cron_jobs() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -322,7 +322,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Initialize cron jobs for sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::init_sync_cron_jobs
+	 * @deprecated Automattic\Jetpack\Sync\Actions::init_sync_cron_jobs
 	 */
 	public static function init_sync_cron_jobs() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -333,7 +333,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Cleans up schedules on plugin upgrade.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::cleanup_on_upgrade
+	 * @deprecated Automattic\Jetpack\Sync\Actions::cleanup_on_upgrade
 	 *
 	 * @param String $new_version the new version.
 	 * @param String $old_version the old version.
@@ -347,7 +347,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	/**
 	 * Clears cron jobs scheduled for sync.
 	 *
-	 * @deprecated \Automattic\Jetpack\Sync\Actions::get_sync_status
+	 * @deprecated Automattic\Jetpack\Sync\Actions::get_sync_status
 	 *
 	 * @param Array $fields sync fields to get status of.
 	 */
