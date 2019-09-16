@@ -63,6 +63,8 @@ class Full_Sync extends Module {
 		add_action( 'jetpack_full_sync_start', $callable, 10, 3 );
 		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
 		add_action( 'jetpack_full_sync_cancelled', $callable );
+
+		echo 'a test';
 	}
 
 	/**
