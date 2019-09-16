@@ -3,7 +3,6 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Sync\Sender;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -34,8 +33,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		self::$admin_id = self::factory()->user->create( array(
 			'role' => 'administrator',
 		) );
-
-		Sender::get_instance();
 	}
 
 	public function tearDown() {
@@ -1042,8 +1039,9 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)
@@ -1081,11 +1079,12 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)

@@ -543,10 +543,7 @@ class Sender {
 	 * @return array Filtered XML-RPC methods.
 	 */
 	public function register_jetpack_xmlrpc_methods( $jetpack_methods, $core_methods, $user ) {
-		if ( $user ) {
-			$jetpack_methods['jetpack.syncObject'] = array( $this, 'sync_object' );
-		}
-
+		$jetpack_methods['jetpack.syncObject'] = array( $this, 'sync_object' );
 		return $jetpack_methods;
 	}
 
