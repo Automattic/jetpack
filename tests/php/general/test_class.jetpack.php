@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sync\Sender;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -33,6 +34,8 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		self::$admin_id = self::factory()->user->create( array(
 			'role' => 'administrator',
 		) );
+
+		Sender::get_instance();
 	}
 
 	public function tearDown() {
