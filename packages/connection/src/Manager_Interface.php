@@ -2,7 +2,7 @@
 /**
  * The Jetpack Connection Interface file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Connection;
 /**
  * The Connection interface class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 /**

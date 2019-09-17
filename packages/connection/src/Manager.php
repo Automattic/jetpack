@@ -2,7 +2,7 @@
 /**
  * The Jetpack Connection manager class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;

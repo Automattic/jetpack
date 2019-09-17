@@ -2,7 +2,7 @@
 /**
  * Autoloader Generator.
  *
- * @package Automattic\Jetpack\Autoloader
+ * @package automattic/jetpack-autoloader
  */
 
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
@@ -174,7 +174,7 @@ class AutoloadGenerator extends BaseGenerator {
 		// Scan the PSR-4 and classmap directories for class files, and add them to the class map.
 		foreach ( $autoloads['psr-4'] as $namespace => $packages_info ) {
 			foreach ( $packages_info as $package ) {
-				$dir = $filesystem->normalizePath(
+				$dir       = $filesystem->normalizePath(
 					$filesystem->isAbsolutePath( $package['path'] )
 					? $package['path']
 					: $basePath . '/' . $package['path']

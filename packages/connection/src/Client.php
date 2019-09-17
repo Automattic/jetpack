@@ -2,7 +2,7 @@
 /**
  * The Connection Client class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;

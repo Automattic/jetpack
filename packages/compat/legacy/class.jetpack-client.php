@@ -4,8 +4,8 @@
  *
  * Deprecated methods for Jetpack to act as client with wpcom, provided for back-compatibility.
  *
- * @category   Connection
- * @package    Client
+ * @category Connection
+ * @package  automattic/jetpack-compat
  */
 
 use Automattic\Jetpack\Connection\Client;
