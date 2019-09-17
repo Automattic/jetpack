@@ -16,6 +16,8 @@ dangerfile.js
 renovate.json
 bin/phpcs-whitelist.js
 bin/pre-commit-hook.js
+bin/prepare-built-branch.sh
+bin/prepare-commit-msg.js
 bin/release-package.php
 css/*.css.map
 docs
@@ -71,3 +73,4 @@ extensions/**/*.scss
 extensions/**/*.svg
 packages
 **/__snapshots__
+modules/search/instant-search

@@ -25,6 +25,8 @@ jetpack_register_block(
 function jetpack_repeat_visitor_block_render( $attributes, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'repeat-visitor' );
 
+	$classes = Jetpack_Gutenberg::block_classes( 'repeat-visitor', $attributes );
+
 	$count     = isset( $_COOKIE['jp-visit-counter'] ) ? intval( $_COOKIE['jp-visit-counter'] ) : 0;
 	$criteria  = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
 	$threshold = isset( $attributes['threshold'] ) ? intval( $attributes['threshold'] ) : 3;
@@ -37,5 +39,5 @@ function jetpack_repeat_visitor_block_render( $attributes, $content ) {
 	}
 
 	// return an empty div so that view script increments the visit counter in the cookie.
-	return '<div class="wp-block-jetpack-repeat-visitor"></div>';
+	return '<div class="' . esc_attr( $classes ) . '"></div>';
 }

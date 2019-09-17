@@ -612,6 +612,19 @@ body,
 	border-bottom: 2px solid $muriel-gray-700;
 }
 
+@media only screen and (max-width:480px) {
+	.filter-links,
+	.filter-links li,
+	.filter-links li a {
+		display: block;
+	}
+
+	.filter-links li > a {
+		font-size: 16px;
+	}
+}
+
+
 .count {
 	display: inline-block;
 	padding: 1px 6px;
@@ -789,6 +802,38 @@ div.mce-toolbar-grp,
 
 .wp-filter .search-form {
 	margin-right: 10px;
+
+	@media only screen and (max-width:1000px) {
+		margin-left: 10px;
+	}
+
+	@media only screen and (max-width: 782px) {
+		input[type="search"].wp-filter-search {
+			padding: 5px;
+		}
+	}
+
+	@media only screen and (max-width:480px) {
+		&.search-plugins {
+			align-items: center;
+			display: flex;
+
+			.wp-filter-search {
+				flex: 0 1 auto;
+				max-width: none;
+				width: 100%;
+			}
+		}
+
+		select {
+			flex-shrink: 0;
+		}
+
+		& > label {
+			flex: 1 1 auto;
+		}
+
+	}
 }
 
 // Shamelessly swiped from https://github.com/Automattic/wp-calypso/blob/59bdfeeb97eda4266ad39410cb0a074d2c88dbc8/client/components/forms/form-toggle

@@ -1,0 +1,25 @@
+name: Build production to master-built
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_master_job:
+    runs-on: ubuntu-latest
+    name: Build production version of master to master-built branch
+    steps:
+      - name: Checkout Jetpack
+        uses: actions/checkout@master
+      - name: Build production files
+        run: COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
+      - name: Purge dev files
+        run: $GITHUB_WORKSPACE/bin/prepare-built-branch.sh
+      - name: Push to built branch
+        id: commit-and-push
+        uses: automattic/action-commit-to-branch@master
+        with:
+          branch: 'master-built'
+          commit_message: 'Automated production build from master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

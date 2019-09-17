@@ -2,7 +2,7 @@
 /**
  * The Connection Client class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -45,7 +45,8 @@ class Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = \Jetpack_Data::get_access_token( $args['user_id'] );
+		$connection = new Manager();
+		$token      = $connection->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new \WP_Error( 'missing_token' );
 		}

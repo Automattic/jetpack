@@ -9,10 +9,12 @@
 	},
 	"require": {
 		"ext-openssl": "*",
+		"automattic/jetpack-abtest": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-roles": "@dev",

@@ -324,3 +324,36 @@ class Jetpack_JSON_API_Sync_Unlock_Endpoint extends Jetpack_JSON_API_Sync_Endpoi
 		);
 	}
 }
+
+class Jetpack_JSON_API_Sync_Object_Id_Range extends Jetpack_JSON_API_Sync_Endpoint {
+	protected function result() {
+		$args = $this->query_args();
+
+		$module_name = $args['sync_module'];
+		$batch_size  = $args['batch_size'];
+
+		if ( ! $this->is_valid_sync_module( $module_name ) ) {
+			return new WP_Error( 'invalid_module', 'This sync module cannot be used to calculate a range.', 400 );
+		}
+
+		$module = Modules::get_module( $module_name );
+
+		return array(
+			'ranges' => $module->get_min_max_object_ids_for_batches( $batch_size ),
+		);
+	}
+
+	protected function is_valid_sync_module( $module_name ) {
+		return in_array(
+			$module_name,
+			array(
+				'comments',
+				'posts',
+				'terms',
+				'term_relationships',
+				'users',
+			),
+			true
+		);
+	}
+}

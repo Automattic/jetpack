@@ -258,8 +258,6 @@ class Actions {
 	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
 	 */
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
-		\Jetpack::load_xml_rpc_client();
-
 		$query_args = array(
 			'sync'      => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
 			'codec'     => $codec_name,
@@ -292,6 +290,15 @@ class Actions {
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
 		$url = add_query_arg( $query_args, \Jetpack::xmlrpc_api_url() );
+
+		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
+		// because since 7.7 it's being autoloaded with Composer.
+		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
+			return new \WP_Error(
+				'ixr_client_missing',
+				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
+			);
+		}
 
 		$rpc = new \Jetpack_IXR_Client(
 			array(

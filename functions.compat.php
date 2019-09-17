@@ -1,6 +1,6 @@
 <?php
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
 * Required for class.media-extractor.php to match expected function naming convention.
@@ -56,7 +56,7 @@ function youtube_sanitize_url( $url ) {
 	$url = trim( $url );
 	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
-	// Replace any extra question marks with ampersands - the result of a URL like "http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
+	// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
 	$query_string_start = strpos( $url, "?" );
 
 	if ( false !== $query_string_start ) {

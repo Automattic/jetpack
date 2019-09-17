@@ -32,6 +32,7 @@ import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Plans from 'plans/index.jsx';
+import PlansPrompt from 'plans-prompt/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
 import AppsCard from 'components/apps-card';
@@ -45,13 +46,14 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
 const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+const plansPromptRoute = '#/plans-prompt';
 
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
-		this.initializeAnalyitics();
+		this.initializeAnalytics();
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		window.addEventListener( 'beforeunload', this.onBeforeUnload );
@@ -113,7 +115,7 @@ class Main extends React.Component {
 		}
 	};
 
-	initializeAnalyitics = () => {
+	initializeAnalytics = () => {
 		const tracksUser = this.props.tracksUserData;
 
 		if ( tracksUser ) {
@@ -211,6 +213,10 @@ class Main extends React.Component {
 					/>
 				);
 				break;
+			case '/plans-prompt':
+				navComponent = null;
+				pageComponent = <PlansPrompt siteAdminUrl={ this.props.siteAdminUrl } />;
+				break;
 			case '/settings':
 			case '/security':
 			case '/performance':
@@ -266,19 +272,37 @@ class Main extends React.Component {
 		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
 	}
 
+	shouldShowRewindStatus() {
+		// Do not show on plans prompt page
+		const hashRoute = '#' + this.props.route.path;
+		return this.props.isSiteConnected && hashRoute !== plansPromptRoute;
+	}
+
+	shouldShowMasthead() {
+		// Do not show on plans prompt page
+		const hashRoute = '#' + this.props.route.path;
+		return hashRoute !== plansPromptRoute;
+	}
+
+	shouldShowFooter() {
+		// Do not show on plans prompt page
+		const hashRoute = '#' + this.props.route.path;
+		return hashRoute !== plansPromptRoute;
+	}
+
 	render() {
 		return (
 			<div>
-				<Masthead route={ this.props.route } />
+				{ this.shouldShowMasthead() && <Masthead route={ this.props.route } /> }
 				<div className="jp-lower">
-					{ this.props.isSiteConnected && <QueryRewindStatus /> }
+					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.renderMainContent( this.props.route.path ) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
-				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+				{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }
 				<Tracker analytics={ analytics } />
 			</div>
 		);

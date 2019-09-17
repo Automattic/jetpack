@@ -78,7 +78,7 @@ class Jetpack_VideoPress {
 		}
 
 		// Connection owners are allowed to do all the things.
-		if ( $this->is_connection_owner( $user_id ) ) {
+		if ( Jetpack::connection()->is_connection_owner( $user_id ) ) {
 			return true;
 		}
 
@@ -100,15 +100,15 @@ class Jetpack_VideoPress {
 
 	/**
 	 * Returns true if the provided user is the Jetpack connection owner.
+	 *
+	 * @deprecated since 7.7
+	 *
+	 * @param Integer|Boolean $user_id the user identifier. False for current user.
+	 * @return bool Whether the current user is the connection owner.
 	 */
 	public function is_connection_owner( $user_id = false ) {
-		if ( ! $user_id ) {
-			$user_id = get_current_user_id();
-		}
-
-		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
-
-		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::is_connection_owner' );
+		return Jetpack::connection()->is_connection_owner( $user_id );
 	}
 
 	/**

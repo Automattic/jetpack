@@ -5,8 +5,8 @@
  * Add Open Graph tags so that Facebook (and any other service that supports them)
  * can crawl the site better and we provide a better sharing experience.
  *
- * @link http://ogp.me/
- * @link http://developers.facebook.com/docs/opengraph/
+ * @link https://ogp.me/
+ * @link https://developers.facebook.com/docs/opengraph/
  *
  * @package Jetpack
  */
@@ -93,6 +93,20 @@ function jetpack_og_tags() {
 			$tags['og:description']     = $author->description;
 			$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
 			$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
+		}
+	} elseif ( is_archive() ) {
+		$tags['og:type']  = 'website';
+		$tags['og:title'] = wp_get_document_title();
+
+		$archive = get_queried_object();
+		if ( ! empty( $archive ) ) {
+			if ( is_category() || is_tag() || is_tax() ) {
+				$tags['og:url']         = get_term_link( $archive->term_id, $archive->taxonomy );
+				$tags['og:description'] = $archive->description;
+			} elseif ( is_post_type_archive() ) {
+				$tags['og:url']         = get_post_type_archive_link( $archive->name );
+				$tags['og:description'] = $archive->description;
+			}
 		}
 	} elseif ( is_singular() ) {
 		global $post;

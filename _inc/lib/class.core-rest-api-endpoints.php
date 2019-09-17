@@ -1,7 +1,9 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -65,7 +67,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		self::$stats_roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-		Jetpack::load_xml_rpc_client();
 		$ixr_client = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
 		$core_api_endpoint = new Jetpack_Core_API_Data( $ixr_client );
 		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
@@ -137,6 +138,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Start the connection process by registering the site on WordPress.com servers.
+		register_rest_route( 'jetpack/v4', '/connection/register', array(
+			'methods'             => WP_REST_Server::EDITABLE,
+			'callback'            => __CLASS__ . '::register_site',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+			'args'                => array(
+				'registration_nonce' => array( 'type' => 'string' ),
+			),
+		) );
+
 		// Set the connection owner
 		register_rest_route( 'jetpack/v4', '/connection/owner', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -187,6 +198,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => array( $site_endpoint, 'get_features' ),
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
+		) );
+
+		// Get current site benefits
+		register_rest_route( 'jetpack/v4', '/site/benefits', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $site_endpoint, 'get_benefits' ),
+			'permission_callback' => array( $site_endpoint, 'can_request' ),
 		) );
 
 		// Get Activity Log data for this site.
@@ -364,6 +382,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/plugins', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_plugins',
+			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+		) );
+
+		register_rest_route( 'jetpack/v4', '/plugins/akismet/activate', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::activate_akismet',
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
 
@@ -555,7 +579,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'forbidden', __( 'Site is under construction and cannot be verified', 'jetpack' ) );
 		}
 
-		Jetpack::load_xml_rpc_client();
  		$xml = new Jetpack_IXR_Client( array(
  			'user_id' => get_current_user_id(),
 		) );
@@ -581,7 +604,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 
 	public static function verify_site( $request ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
@@ -620,7 +642,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	 public static function remote_authorize( $request ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		$result = $xmlrpc_server->remote_authorize( $request );
 
@@ -718,11 +739,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Check that user has permission to change the master user.
 	 *
 	 * @since 6.2.0
+	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
 	 *
 	 * @return bool|WP_Error True if user is able to change master user.
 	 */
 	public static function set_connection_owner_permission_callback() {
-		if ( get_current_user_id() === Jetpack_Options::get_option( 'master_user' ) ) {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
 
@@ -872,9 +894,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function jetpack_connection_status() {
 		return rest_ensure_response( array(
-				'isActive'  => Jetpack::is_active(),
-				'isStaging' => Jetpack::is_staging_site(),
-				'devMode'   => array(
+				'isActive'     => Jetpack::is_active(),
+				'isStaging'    => Jetpack::is_staging_site(),
+				'isRegistered' => Jetpack::connection()->is_registered(),
+				'devMode'      => array(
 					'isActive' => Jetpack::is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
@@ -1089,6 +1112,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Registers the Jetpack site
+	 *
+	 * @uses Jetpack::try_registration();
+	 * @since 7.7.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return bool|WP_Error True if Jetpack successfully registered
+	 */
+	public static function register_site( $request ) {
+		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
+			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
+		}
+
+		$response = Jetpack::try_registration();
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return rest_ensure_response(
+			array(
+				'authorizeUrl' => Jetpack::build_authorize_url( false, true )
+			) );
+	}
+
+	/**
 	 * Gets a new connect raw URL with fresh nonce.
 	 *
 	 * @uses Jetpack::disconnect();
@@ -1175,7 +1225,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated = Jetpack_Options::update_option( 'master_user', $new_owner_id );
 
 		// Notify WPCOM about the master user change
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
@@ -1184,6 +1233,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		if ( $updated && ! $xml->isError() ) {
+
+			// Track it
+			if ( class_exists( 'Automattic\Jetpack\Tracking' ) ) {
+				$tracking = new Tracking();
+				$tracking->record_user_event( 'set_connection_owner_success' );
+			}
+
 			return rest_ensure_response(
 				array(
 					'code' => 'success',
@@ -1201,7 +1257,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
-	 * @uses  Jetpack::unlink_user
+	 * @uses  Automattic\Jetpack\Connection\Manager::disconnect_user
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -1213,7 +1269,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( Jetpack::unlink_user() ) {
+		if ( Connection_Manager::disconnect_user() ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
@@ -1589,7 +1645,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'carousel',
 			),
 			'carousel_display_exif' => array(
-				'description'       => wp_kses( sprintf( __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) ) ),
+				'description'       => wp_kses( sprintf( __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) ) ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3040,6 +3096,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Ensures that Akismet is installed and activated.
+	 *
+	 * @since 7.7
+	 *
+	 * @return WP_REST_Response A response indicating whether or not the installation was successful.
+	 */
+	public static function activate_akismet() {
+		jetpack_require_lib( 'plugins' );
+		$result = Jetpack_Plugins::install_and_activate_plugin('akismet');
+
+		if ( is_wp_error( $result ) ) {
+			return rest_ensure_response( array(
+				'code'    => 'failure',
+				'message' => esc_html__( 'Unable to activate Akismet', 'jetpack' )
+			) );
+		} else {
+			return rest_ensure_response( array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Activated Akismet', 'jetpack' )
+			) );
+		}
+	}
+
+	/**
 	 * Get data about the queried plugin. Currently it only returns whether the plugin is active or not.
 	 *
 	 * @since 4.2.0
@@ -3085,7 +3165,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function send_mobile_magic_link( $request ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client(
 			array(
 				'user_id' => get_current_user_id(),

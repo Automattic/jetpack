@@ -108,9 +108,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 		}
 		$url = substr( $url, 0, -5 );
 
-		if ( is_ssl() ) {
-			$url = str_replace( 'http://', 'https://', $url );
-		}
+		$url = str_replace( 'http://', 'https://', $url );
 
 		$css_class = 'googlemaps';
 

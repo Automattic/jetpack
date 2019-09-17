@@ -325,6 +325,26 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * @author emilyatmobtown
+	 * @covers Jetpack_Photon::filter_image_downsize
+	 */
+	public function test_photon_return_medium_large_size_dimensions() {
+		global $content_width;
+		$content_width = 0;
+
+		$test_image = $this->_get_image();
+
+		// Using the default "Large" size with a soft crop.
+		$this->assertEquals(
+			'fit=768%2C576',
+			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'medium_large' ) )
+		);
+
+		wp_delete_attachment( $test_image );
+		$this->_remove_image_sizes();
+	}
+
+	/**
 	 * @author kraftbj
 	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
@@ -964,7 +984,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
 
 		$this->assertContains(
-			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1440&#038;ssl=1',
+			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1280&#038;ssl=1',
 			$filtered_content
 		);
 
@@ -985,10 +1005,13 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
-	}
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		}
 
 	/**
 	 * @group rest-api
@@ -1007,9 +1030,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
 		$this->assertNotContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertNotContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 
 
 		// Subsequent ?context=view requests should still be Photonized
@@ -1021,8 +1047,43 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'media_details', $data );
 		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
 		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
 		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
 
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+	}
+
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 */
+	public function test_photon_strip_image_dimensions_maybe_ignores_external_files() {
+		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
+
+		$this->assertEquals( $ext_domain, Jetpack_Photon::strip_image_dimensions_maybe( $ext_domain ) );
+	}
+
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 */
+	public function test_photon_strip_image_dimensions_maybe_strips_resized_string() {
+		$orig_filename = '2004-07-22-DSC_0007.jpg';
+		$filename = '2004-07-22-DSC_0007-150x150.jpg';
+		$filepath = DIR_TESTDATA . '/images/' . $orig_filename;
+		$contents = file_get_contents( $filepath );
+
+		$upload = wp_upload_bits( basename( $filepath ), null, $contents );
+
+		$upload_dir = wp_get_upload_dir();
+
+		$id  = $this->_make_attachment( $upload );
+		$url = $upload_dir['url'] . '/' . $filename;
+
+		$expected = wp_get_attachment_url( $id );
+
+		$this->assertEquals( $expected, Jetpack_Photon::strip_image_dimensions_maybe( $url ) );
+
+		wp_delete_attachment( $id );
 	}
 }

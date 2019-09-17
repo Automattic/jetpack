@@ -5,12 +5,12 @@ Plugin URI: https://wordpress.org/extend/plugins/random-redirect/
 Description: Allows you to create a link to yourblog.example.com/?random which will redirect someone to a random post on your blog, in a StumbleUpon-like fashion.
 Version: 1.2-wpcom
 Author: Matt Mullenweg
-Author URI: http://photomatt.net/
+Author URI: https://ma.tt/
 */
 
 function jetpack_matt_random_redirect() {
 	// Verify that the Random Redirect plugin this code is from is not active
-	// See http://plugins.trac.wordpress.org/ticket/1898
+	// See https://plugins.trac.wordpress.org/ticket/1898
 	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( is_plugin_active( 'random-redirect/random-redirect.php' ) ) {
@@ -49,7 +49,7 @@ function jetpack_matt_random_redirect() {
 
 	// Persistent AppEngine abuse.  ORDER BY RAND is expensive.
 	if ( strstr( $_SERVER['HTTP_USER_AGENT'], 'AppEngine-Google' ) ) {
-		wp_die( 'Please <a href="http://en.support.wordpress.com/contact/" rel="noopener noreferrer" target="_blank">contact support</a>' );
+		wp_die( 'Please <a href="https://en.support.wordpress.com/contact/" rel="noopener noreferrer" target="_blank">contact support</a>' );
 	}
 
 	// Set the category ID if the parameter is set.

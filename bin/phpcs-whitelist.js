@@ -10,6 +10,7 @@ module.exports = [
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/components.php',
+	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/plans.php',
@@ -23,6 +24,7 @@ module.exports = [
 	'modules/sitemaps/sitemaps.php',
 	'modules/theme-tools/social-menu/',
 	'modules/verification-tools.php',
+	'modules/widgets/social-icons.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'packages',
 ];

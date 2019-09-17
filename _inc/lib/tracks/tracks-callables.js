@@ -8,6 +8,9 @@
 // Load tracking scripts
 window._tkq = window._tkq || [];
 
+var _user;
+var debug = console.error; // eslint-disable-line no-console
+
 function buildQuerystring( group, name ) {
 	var uriComponent = '';
 

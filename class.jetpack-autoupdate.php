@@ -24,7 +24,7 @@ class Jetpack_Autoupdate {
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Autoupdate;
+			self::$instance = new Jetpack_Autoupdate();
 		}
 
 		return self::$instance;
@@ -64,8 +64,8 @@ class Jetpack_Autoupdate {
 		}
 		*/
 		if ( ( in_array( $item->slug, $autoupdate_themes_translations )
-		       || in_array( $item->slug, $autoupdate_theme_list ) )
-		     && 'theme' === $item->type
+			   || in_array( $item->slug, $autoupdate_theme_list ) )
+			 && 'theme' === $item->type
 		) {
 			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 
@@ -75,11 +75,11 @@ class Jetpack_Autoupdate {
 		// Plugins
 		$autoupdate_plugin_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
 		$autoupdate_plugin_list         = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		$plugin_files = array_unique( array_merge( $autoupdate_plugin_list, $autoupdate_plugin_translations ) );
-		$plugin_slugs = array_map( array( __CLASS__, 'get_plugin_slug' ), $plugin_files );
+		$plugin_files                   = array_unique( array_merge( $autoupdate_plugin_list, $autoupdate_plugin_translations ) );
+		$plugin_slugs                   = array_map( array( __CLASS__, 'get_plugin_slug' ), $plugin_files );
 
 		if ( in_array( $item->slug, $plugin_slugs )
-		     && 'plugin' === $item->type
+			 && 'plugin' === $item->type
 		) {
 			$this->expect( $item->type . ':' . $item->slug, 'translation' );
 			return true;
@@ -147,7 +147,7 @@ class Jetpack_Autoupdate {
 		return array(
 			'results' => $this->results,
 			'failed'  => $this->failed,
-			'success' => $this->success
+			'success' => $this->success,
 		);
 	}
 
@@ -193,10 +193,11 @@ class Jetpack_Autoupdate {
 
 		// Send a more detailed log to logstash
 		if ( ! empty( $log ) ) {
-			Jetpack::load_xml_rpc_client();
-			$xml            = new Jetpack_IXR_Client( array(
-				'user_id' => get_current_user_id()
-			) );
+			$xml            = new Jetpack_IXR_Client(
+				array(
+					'user_id' => get_current_user_id(),
+				)
+			);
 			$log['blog_id'] = Jetpack_Options::get_option( 'id' );
 			$xml->query( 'jetpack.debug_autoupdate', $log );
 		}
@@ -235,9 +236,9 @@ class Jetpack_Autoupdate {
 	static function get_possible_failures() {
 		$result = array();
 		// Lets check some reasons why it might not be working as expected
-		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
-		include_once( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
-		$upgrader = new WP_Automatic_Updater;
+		include_once ABSPATH . '/wp-admin/includes/admin.php';
+		include_once ABSPATH . '/wp-admin/includes/class-wp-upgrader.php';
+		$upgrader = new WP_Automatic_Updater();
 
 		if ( $upgrader->is_disabled() ) {
 			$result[] = 'autoupdates-disabled';
@@ -261,9 +262,9 @@ class Jetpack_Autoupdate {
 		if ( $lock > ( time() - HOUR_IN_SECONDS ) ) {
 			$result[] = 'lock-is-set';
 		}
-		$skin = new Automatic_Upgrader_Skin;
-		include_once( ABSPATH . 'wp-admin/includes/file.php' );
-		include_once( ABSPATH . 'wp-admin/includes/template.php' );
+		$skin = new Automatic_Upgrader_Skin();
+		include_once ABSPATH . 'wp-admin/includes/file.php';
+		include_once ABSPATH . 'wp-admin/includes/template.php';
 		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, false ) ) {
 			$result[] = 'no-system-write-access';
 		}
@@ -278,7 +279,7 @@ class Jetpack_Autoupdate {
 	}
 
 	static function get_plugin_slug( $plugin_file ) {
-		$update_plugins   = get_site_transient( 'update_plugins' );
+		$update_plugins = get_site_transient( 'update_plugins' );
 		if ( isset( $update_plugins->no_update ) ) {
 			if ( isset( $update_plugins->no_update[ $plugin_file ] ) ) {
 				$slug = $update_plugins->no_update[ $plugin_file ]->slug;
@@ -291,10 +292,10 @@ class Jetpack_Autoupdate {
 		}
 
 		// Try to infer from the plugin file if not cached
-		if ( empty( $slug) ) {
+		if ( empty( $slug ) ) {
 			$slug = dirname( $plugin_file );
 			if ( '.' === $slug ) {
-				$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+				$slug = preg_replace( '/(.+)\.php$/', '$1', $plugin_file );
 			}
 		}
 		return $slug;

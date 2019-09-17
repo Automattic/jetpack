@@ -302,7 +302,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		$params['sig']    = $signature;
-		$url_origin       = set_url_scheme( 'http://jetpack.wordpress.com' );
+		$url_origin       = 'https://jetpack.wordpress.com';
 		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
 		$url              = "{$url}#parent=" . urlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		$this->signed_url = $url;
@@ -364,7 +364,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
-		$url_origin = set_url_scheme( 'http://jetpack.wordpress.com' );
+		$url_origin = 'https://jetpack.wordpress.com';
 		?>
 
 		<!--[if IE]>

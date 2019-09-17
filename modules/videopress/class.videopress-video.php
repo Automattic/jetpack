@@ -336,10 +336,7 @@ class VideoPress_Video {
 			$request_params['maxwidth'] = $this->maxwidth;
 		}
 
-		$url = 'http://videopress.com/data/wordpress.json';
-		if ( is_ssl() ) {
-			$url = 'https://v.wordpress.com/data/wordpress.json';
-		}
+		$url = 'https://v.wordpress.com/data/wordpress.json';
 
 		$response = wp_remote_get(
 			add_query_arg( $request_params, $url ),

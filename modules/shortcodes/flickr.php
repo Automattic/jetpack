@@ -135,9 +135,7 @@ function flickr_shortcode_handler( $atts ) {
 		return '';
 	}
 
-	if ( is_ssl() ) {
-		$src = str_replace( 'http://', 'https://', $src );
-	}
+	$src = str_replace( 'http://', 'https://', $src );
 
 	if ( 'video' === $showing ) {
 
@@ -186,7 +184,6 @@ function flickr_shortcode_handler( $atts ) {
  */
 function flickr_shortcode_video_markup( $atts ) {
 	$atts = array_map( 'esc_attr', $atts );
-	$http = ( is_ssl() ) ? 'https://' : 'http://';
 
 	$photo_vars = "photo_id=$atts[photo_id]";
 	if ( isset( $atts['secret'] ) ) {
@@ -194,7 +191,7 @@ function flickr_shortcode_video_markup( $atts ) {
 	}
 
 	return <<<EOD
-<object type="application/x-shockwave-flash" width="$atts[w]" height="$atts[h]" data="{$http}www.flickr.com/apps/video/stewart.swf?v=1.161" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="$photo_vars&amp;flickr_show_info_box=$atts[show_info]"></param><param name="movie" value="{$http}www.flickr.com/apps/video/stewart.swf?v=1.161"></param><param name="bgcolor" value="#000000"></param><param name="allowFullScreen" value="true"></param><param name="wmode" value="opaque"></param><embed type="application/x-shockwave-flash" src="{$http}www.flickr.com/apps/video/stewart.swf?v=1.161" bgcolor="#000000" allowfullscreen="true" flashvars="$photo_vars&amp;flickr_show_info_box=$atts[show_info]" wmode="opaque" height="$atts[h]" width="$atts[w]"></embed></object>
+<object type="application/x-shockwave-flash" width="$atts[w]" height="$atts[h]" data="https://www.flickr.com/apps/video/stewart.swf?v=1.161" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="$photo_vars&amp;flickr_show_info_box=$atts[show_info]"></param><param name="movie" value="https://www.flickr.com/apps/video/stewart.swf?v=1.161"></param><param name="bgcolor" value="#000000"></param><param name="allowFullScreen" value="true"></param><param name="wmode" value="opaque"></param><embed type="application/x-shockwave-flash" src="https://www.flickr.com/apps/video/stewart.swf?v=1.161" bgcolor="#000000" allowfullscreen="true" flashvars="$photo_vars&amp;flickr_show_info_box=$atts[show_info]" wmode="opaque" height="$atts[h]" width="$atts[w]"></embed></object>
 EOD;
 }
 

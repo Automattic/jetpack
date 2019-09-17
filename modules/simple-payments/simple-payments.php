@@ -72,7 +72,7 @@ class Jetpack_Simple_Payments {
 				'missing_plan',
 				array(
 					'required_feature' => 'simple-payments',
-					'required_plan' => ( defined( 'JETPACK_SHOW_BLOCK_UPGRADE_NUDGE' ) && JETPACK_SHOW_BLOCK_UPGRADE_NUDGE ) ? self::$required_plan : false
+					'required_plan'    => self::$required_plan,
 				)
 			);
 		}
@@ -230,9 +230,9 @@ class Jetpack_Simple_Payments {
 			$image,
 			esc_attr( "${css_prefix}-details" ),
 			esc_attr( "${css_prefix}-title" ),
-			$data['title'],
+			esc_html( $data['title'] ),
 			esc_attr( "${css_prefix}-description" ),
-			$data['description'],
+			wp_kses( $data['description'], wp_kses_allowed_html( 'post' ) ),
 			esc_attr( "${css_prefix}-price" ),
 			esc_html( $data['price'] ),
 			esc_attr( "${css_prefix}-purchase-message" ),

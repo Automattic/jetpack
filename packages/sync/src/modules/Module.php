@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Replicastore;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions.
@@ -32,6 +33,28 @@ abstract class Module {
 	 * @return string
 	 */
 	abstract public function name();
+
+	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'ID';
+	}
+
+	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table_name() {
+		return false;
+	}
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
@@ -372,5 +395,64 @@ abstract class Module {
 		}
 
 		return $objects;
+	}
+
+	/**
+	 * Gets a list of minimum and maximum object ids for each batch based on the given batch size.
+	 *
+	 * @access public
+	 *
+	 * @param int         $batch_size The batch size for objects.
+	 * @param string|bool $where_sql  The sql where clause minus 'WHERE', or false if no where clause is needed.
+	 *
+	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
+	 */
+	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
+		global $wpdb;
+
+		if ( ! $this->table_name() ) {
+			return false;
+		}
+
+		$results      = array();
+		$table        = $wpdb->{$this->table_name()};
+		$current_max  = 0;
+		$current_min  = 1;
+		$id_field     = $this->id_field();
+		$replicastore = new Replicastore();
+
+		$total = $replicastore->get_min_max_object_id(
+			$id_field,
+			$table,
+			$where_sql,
+			false
+		);
+
+		while ( $total->max > $current_max ) {
+			$where  = $where_sql ?
+				$where_sql . " AND $id_field > $current_max" :
+				"$id_field > $current_max";
+			$result = $replicastore->get_min_max_object_id(
+				$id_field,
+				$table,
+				$where,
+				$batch_size
+			);
+			if ( empty( $result->min ) && empty( $result->max ) ) {
+				// Our query produced no min and max. We can assume the min from the previous query,
+				// and the total max we found in the initial query.
+				$current_max = (int) $total->max;
+				$result      = (object) array(
+					'min' => $current_min,
+					'max' => $current_max,
+				);
+			} else {
+				$current_min = (int) $result->min;
+				$current_max = (int) $result->max;
+			}
+			$results[] = $result;
+		}
+
+		return $results;
 	}
 }
