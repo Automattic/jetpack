@@ -111,7 +111,7 @@ function pre_update_option_blog_public( $new_value ) {
  * @return bool
  */
 function should_prevent_site_access() {
-	global $pagenow, $wp;
+	global $pagenow;
 
 	$doing_bloginfo_filter = doing_filter( 'bloginfo' );
 
@@ -144,14 +144,6 @@ function should_prevent_site_access() {
 		return false;
 	}
 
-	// Serve robots.txt for private blogs.
-	if ( is_object( $wp ) && ! empty( $wp->query_vars['robots'] ) ) {
-		if ( $use_cache ) {
-			$cached = false;
-		}
-		return false;
-	}
-
 	$to_return = ! is_private_blog_user();
 	if ( $use_cache ) {
 		$cached = $to_return;
@@ -161,6 +153,12 @@ function should_prevent_site_access() {
 
 function parse_request() {
 	global $wp;
+
+	if ( site_is_private() && strtok( $_SERVER['REQUEST_URI'], '?' ) === '/robots.txt' ) {
+		// Go ahead & serve our hard-coded robots.txt file & bail
+		do_action( 'do_robots' );
+		exit;
+	}
 
 	if ( ! should_prevent_site_access() ) {
 		return;
