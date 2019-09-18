@@ -50,6 +50,17 @@
   resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-1.0.0.tgz#17a14e3257bd90b40e960d624cca4353d4d20c34"
   integrity sha512-W7r4pgcBauLx65oTLbHKV84ScnfEKmW7T/sXkPfByHhuIE7+OpubmiiBsizWatk1I/puUTmj+SDqEOJMOyRdzA==
 
+"@automattic/components@1.0.0-alpha.0":
+  version "1.0.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@automattic/components/-/components-1.0.0-alpha.0.tgz#49147015bb4031a3d0df4ddf553805f6f1e95273"
+  integrity sha512-dJp5N//s40lO7fdpv+6PeXvfZO1b8fJZwyCB7Aw6Ej08RKHnLDxgP6WzvTkLEBX9kasq/uh6oHnNf/t1NUyw8g==
+  dependencies:
+    classnames "2.2.6"
+    enzyme "^3.10.0"
+    gridicons "^3.3.1"
+    prop-types "^15.7.2"
+    react "^16.8.3"
+
 "@automattic/custom-colors-loader@automattic/custom-colors-loader":
   version "1.0.0"
   resolved "https://codeload.github.com/automattic/custom-colors-loader/tar.gz/e102d3ae049662e77ba9ba9e9f9cf0627313b38c"
@@ -5038,7 +5049,7 @@ enzyme-to-json@3.4.3, enzyme-to-json@^3.3.0:
   dependencies:
     lodash "^4.17.15"
 
-enzyme@3.10.0:
+enzyme@3.10.0, enzyme@^3.10.0:
   version "3.10.0"
   resolved "https://registry.yarnpkg.com/enzyme/-/enzyme-3.10.0.tgz#7218e347c4a7746e133f8e964aada4a3523452f6"
   integrity sha512-p2yy9Y7t/PFbPoTvrWde7JIYB2ZyGC+NgTNbVEGvZ5/EyoYSr9aG/2rSbVvyNvMHEhw9/dmGUJHWtfQIEiX9pg==
@@ -6471,7 +6482,7 @@ grid-index@^1.1.0:
   resolved "https://registry.yarnpkg.com/grid-index/-/grid-index-1.1.0.tgz#97f8221edec1026c8377b86446a7c71e79522ea7"
   integrity sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==
 
-gridicons@3.3.1:
+gridicons@3.3.1, gridicons@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/gridicons/-/gridicons-3.3.1.tgz#12c098fac5f6b59aecd42082ed5ef5edc391dfd4"
   integrity sha512-eQsmujjLptLtyhGuu31US3mXkcptYHkgEE/s277HWv+j6c3Z2gYyjoHcBKwSFbQwxbfhToRd5uzYimR2ExWJdQ==
