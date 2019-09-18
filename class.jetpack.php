@@ -3380,22 +3380,22 @@ p {
 		// The user has agreed to the TOS at some point by now.
 		Jetpack_Options::update_option( 'tos_agreed', true );
 
-		// Let's get some testing in beta versions and such.
-		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
-			// Before attempting to connect, let's make sure that the domains are viable.
-			$domains_to_check = array_unique(
-				array(
-					'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
-					'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
-				)
-			);
-			foreach ( $domains_to_check as $domain ) {
-				$result = self::connection()->is_usable_domain( $domain );
-				if ( is_wp_error( $result ) ) {
-					return $result;
-				}
-			}
-		}
+		// // Let's get some testing in beta versions and such.
+		// if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
+		// 	// Before attempting to connect, let's make sure that the domains are viable.
+		// 	$domains_to_check = array_unique(
+		// 		array(
+		// 			'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
+		// 			'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
+		// 		)
+		// 	);
+		// 	foreach ( $domains_to_check as $domain ) {
+		// 		$result = self::connection()->is_usable_domain( $domain );
+		// 		if ( is_wp_error( $result ) ) {
+		// 			return $result;
+		// 		}
+		// 	}
+		// }
 
 		$result = self::register();
 
