@@ -340,7 +340,7 @@ class Jetpack_PostImages {
 		 * @to-do: instead of looping manually (that's a lot of if and loops), search recursively instead.
 		 */
 		foreach ( $blocks as $block ) {
-			if ( ! self::is_nested_block( $block ) ) {
+			if ( ! self::is_nested_block( $block ) || 'core/media-text' === $block['blockName'] ) {
 				$images = self::get_images_from_block( $images, $block, $html_info, $width, $height );
 			} else {
 				foreach ( $block['innerBlocks'] as $inner_block ) {
@@ -793,6 +793,8 @@ class Jetpack_PostImages {
 	 * @param array $html_info Info about the post where the block is found.
 	 * @param int   $width     Desired image width.
 	 * @param int   $height    Desired image height.
+	 *
+	 * @return array Array of images found.
 	 */
 	private static function get_images_from_block( $images, $block, $html_info, $width, $height ) {
 		/**
@@ -806,13 +808,16 @@ class Jetpack_PostImages {
 			&& ! empty( $block['attrs']['id'] )
 		) {
 			$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
-		}
-
-		/**
-		 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
-		 * Gallery blocks include the ID of each one of the images in the gallery.
-		 */
-		if (
+		} elseif (
+			'core/media-text' === $block['blockName']
+			&& ! empty( $block['attrs']['mediaId'] )
+		) {
+			$images[] = self::get_attachment_data( $block['attrs']['mediaId'], $html_info['post_url'], $width, $height );
+		} elseif (
+			/**
+			 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
+			 * Gallery blocks include the ID of each one of the images in the gallery.
+			 */
 			in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery', 'jetpack/slideshow' ), true )
 			&& ! empty( $block['attrs']['ids'] )
 		) {
