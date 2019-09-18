@@ -7,6 +7,19 @@
 
 namespace Private_Site;
 
+use function checked;
+use function current_action;
+use function doing_filter;
+use function esc_html_e;
+use function get_current_blog_id;
+use function get_option;
+use function remove_filter;
+use function status_header;
+use function update_option;
+use function wp_clone;
+use function wp_get_current_user;
+use function wp_send_json_error;
+
 function is_module_active() {
 	// This feature is currently in testing. It's only enabled for sites that have explicitly set the option
 	return 1 == get_option( 'wpcomsh_private_site_module_active' );
@@ -203,15 +216,15 @@ function xmlrpc_methods_limit_to_jetpack( $methods ) {
  * @return bool
  */
 function is_private_blog_user() {
-	$user = \wp_get_current_user();
+	$user = wp_get_current_user();
 	if ( ! $user->ID ) {
 		return false;
 	}
 
-	$blog_id = \get_current_blog_id();
+	$blog_id = get_current_blog_id();
 
 	// check if the user has read permissions
-	$the_user = \wp_clone( $user );
+	$the_user = wp_clone( $user );
 	$the_user->for_site( $blog_id );
 	return $the_user->has_cap( 'read'  );
 }
