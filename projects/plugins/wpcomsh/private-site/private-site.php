@@ -8,7 +8,6 @@
 namespace Private_Site;
 
 use function checked;
-use function current_action;
 use function doing_filter;
 use function esc_html_e;
 use function get_current_blog_id;
