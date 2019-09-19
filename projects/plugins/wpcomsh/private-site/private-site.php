@@ -125,8 +125,6 @@ function pre_update_option_blog_public( $new_value ) {
  * Determine if site access should be blocked for various types of requests.
  * This function is cached for subsequent calls so we can use it gratuitously.
  *
- * @param array $args
- *
  * @return bool
  */
 function should_prevent_site_access() {
