@@ -31,6 +31,11 @@ function admin_init() {
 
 	// Add the radio option to the wp-admin Site Privacy selector
 	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
+
+	// Many AJAX actions do not execute the `parse_request` action. Catch them here.
+	if ( should_prevent_site_access() ) {
+		send_access_denied_error_response();
+	}
 }
 add_action( 'admin_init', '\Private_Site\admin_init' );
 
@@ -163,18 +168,12 @@ function should_prevent_site_access() {
 	return $to_return;
 }
 
-function parse_request() {
+/**
+ * Tell the client that the site is private and they do not have access.
+ * This function always exits PHP (`wp_send_json_error` calls `wp_die` / `die`)
+ */
+function send_access_denied_error_response() {
 	global $wp;
-
-	if ( site_is_private() && strtok( $_SERVER['REQUEST_URI'], '?' ) === '/robots.txt' ) {
-		// Go ahead & serve our hard-coded robots.txt file & bail
-		do_action( 'do_robots' );
-		exit;
-	}
-
-	if ( ! should_prevent_site_access() ) {
-		return;
-	}
 
 	/**
 	 * Ideally this would be a 403, but when nginx sees that, ErrorDocument takes over the output.
@@ -191,6 +190,18 @@ function parse_request() {
 
 	require __DIR__ . '/private-site-template.php';
 	exit;
+}
+
+function parse_request() {
+	if ( site_is_private() && strtok( $_SERVER['REQUEST_URI'], '?' ) === '/robots.txt' ) {
+		// Go ahead & serve our hard-coded robots.txt file & bail
+		do_action( 'do_robots' );
+		exit;
+	}
+
+	if ( should_prevent_site_access() ) {
+		send_access_denied_error_response();
+	}
 }
 
 function rest_api_init() {
