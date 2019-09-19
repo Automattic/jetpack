@@ -22,7 +22,7 @@ class DashPhoton extends Component {
 	activatePhoton = () => this.props.updateOptions( { photon: true } );
 
 	getContent() {
-		const labelName = __( 'Image Performance' );
+		const labelName = __( 'Image Accelerator' );
 
 		const support = {
 			text: __(
@@ -35,7 +35,9 @@ class DashPhoton extends Component {
 			return (
 				<DashItem label={ labelName } module="photon" support={ support } status="is-working">
 					<p className="jp-dash-item__description">
-						{ __( 'Jetpack is improving and optimizing your image speed.' ) }
+						{ __(
+							"Jetpack is optimizing your image sizes and download speed using our fast global network of servers. This improves your site's performance on desktop and mobile devices."
+						) }
 					</p>
 				</DashItem>
 			);
@@ -51,11 +53,14 @@ class DashPhoton extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isDevMode
 						? __( 'Unavailable in Dev Mode' )
-						: __( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
-								components: {
-									a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
-								},
-						  } ) }
+						: __(
+								"{{a}}Activate{{/a}} to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
+								{
+									components: {
+										a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
+									},
+								}
+						  ) }
 				</p>
 			</DashItem>
 		);
