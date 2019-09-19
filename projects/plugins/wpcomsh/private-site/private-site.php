@@ -186,15 +186,37 @@ function send_access_denied_error_response() {
 }
 
 function parse_request() {
-	if ( site_is_private() && strtok( $_SERVER['REQUEST_URI'], '?' ) === '/robots.txt' ) {
-		// Go ahead & serve our hard-coded robots.txt file & bail
-		do_action( 'do_robots' );
+	if ( maybe_print_robots_txt() ) {
+		// If robots.txt was requested, go ahead & serve our hard-coded version & bail
 		exit;
 	}
 
 	if ( should_prevent_site_access() ) {
 		send_access_denied_error_response();
 	}
+}
+
+/**
+ * Requests for the "Robots" file are not blocked by the site being marked as private.
+ * If the client has requested the `/robots.txt` file, execute the `do_robots` action and return true.
+ * This function compares the request to the site_url() so it also supports subdomain installs.
+ *
+ * @see `private_robots_txt`
+ * @return bool
+ */
+function maybe_print_robots_txt() {
+	$origin = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'];
+
+	if ( ! empty( $_SERVER['SERVER_PORT'] ) && ! in_array( $_SERVER['SERVER_PORT'], [ 80, 443 ] ) ) {
+		$origin .= ':' . $_SERVER['SERVER_PORT'];
+	}
+
+	if ( $origin . strtok( $_SERVER['REQUEST_URI'], '?' ) === site_url( '/robots.txt' ) ) {
+		do_action( 'do_robots' );
+		return true;
+	}
+
+	return false;
 }
 
 /**
