@@ -1039,8 +1039,9 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)
@@ -1078,11 +1079,12 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)
