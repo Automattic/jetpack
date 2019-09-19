@@ -42,6 +42,17 @@ class Users extends Module {
 	}
 
 	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function table_name() {
+		return 'users';
+	}
+
+	/**
 	 * Retrieve a user by its ID.
 	 * This is here to support the backfill API.
 	 *
@@ -635,12 +646,12 @@ class Users extends Module {
 	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
-	 * @access private
+	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
-	private function get_where_sql( $config ) {
+	public function get_where_sql( $config ) {
 		global $wpdb;
 
 		$query = "meta_key = '{$wpdb->prefix}capabilities'";

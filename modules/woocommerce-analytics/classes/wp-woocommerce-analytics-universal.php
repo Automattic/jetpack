@@ -28,8 +28,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// add to carts from non-product pages or lists (search, store etc.)
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
-		// loading s.js
-		add_action( 'wp_head', array( $this, 'wp_head_bottom' ), 999999 );
+		// loading s.js.
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_tracking_script' ) );
 
 		// Capture cart events
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
@@ -64,12 +64,16 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 
 	/**
-	 * Place script to call s.js, Store Analytics
+	 * Place script to call s.js, Store Analytics.
 	 */
-	public function wp_head_bottom() {
-		$filename   = 's-' . gmdate( 'YW' ) . '.js';
-		$async_code = "<script async src='https://stats.wp.com/" . $filename . "'></script>";
-		echo "$async_code\r\n";
+	public function enqueue_tracking_script() {
+		$filename = sprintf(
+			'https://stats.wp.com/s-%d.js',
+			gmdate( 'YW' )
+		);
+
+		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+		wp_enqueue_script( 'woocommerce-analytics', esc_url( $filename ), array(), null, false );
 	}
 
 	/**

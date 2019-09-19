@@ -8,10 +8,26 @@
  */
 
 /**
+ * Number of seconds between sitemap and news sitemap updates in development code.
+ * In production, sitemaps are cached for 12 hours.
+ * In development, sitemaps are cache for 1 minute.
+ *
+ * @since 7.7.0
+ */
+if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+	if ( ! defined( 'JP_SITEMAP_INTERVAL') ) {
+		define( 'JP_SITEMAP_INTERVAL', 60 );
+	}
+	if ( ! defined( 'JP_NEWS_SITEMAP_INTERVAL') ) {
+		define( 'JP_NEWS_SITEMAP_INTERVAL', 60 );
+	}
+}
+
+/**
  * Maximum size (in bytes) of a sitemap xml file.
  * Max is 716800 = 700kb to avoid potential failures for default memcached limits (1MB)
  *
- * @link http://www.sitemaps.org/
+ * @link https://www.sitemaps.org/
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
@@ -22,7 +38,7 @@ if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
  * Maximum size (in url nodes) of a sitemap xml file.
  * Per the spec, max value is 50000.
  *
- * @link http://www.sitemaps.org/
+ * @link https://www.sitemaps.org/
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_ITEMS' ) ) {
@@ -77,7 +93,7 @@ if ( ! defined( 'JP_SITEMAP_LOCK_INTERVAL' ) ) {
 }
 
 /**
- * Cache lifetime of news sitemap (in seconds).
+ * Number of seconds between news sitemap updates.
  *
  * @since 4.8.0
  */

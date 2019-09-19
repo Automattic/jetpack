@@ -19,3 +19,6 @@
 
 # Temporary ignore until Jest is set up
 /extensions/**/test/
+
+# Temporary ignore until Instant Search is moved into modules
+/_inc/search

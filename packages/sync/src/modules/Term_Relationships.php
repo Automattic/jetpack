@@ -27,6 +27,28 @@ class Term_Relationships extends Module {
 	}
 
 	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'object_id';
+	}
+
+	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function table_name() {
+		return 'term_relationships';
+	}
+
+	/**
 	 * Initialize term relationships action listeners for full sync.
 	 *
 	 * @access public

@@ -4,11 +4,45 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56dc3d84ef0f2644bbee524c63ee1a4d",
+    "content-hash": "e107ddbf5e4b493a152a728ca84fe70b",
     "packages": [
         {
+            "name": "automattic/jetpack-abtest",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/abtest",
+                "reference": "b873be98786907a49ac5cd21836167f662212aa0",
+                "shasum": null
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-error": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Provides an interface to the WP.com A/B tests."
+        },
+        {
             "name": "automattic/jetpack-assets",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -41,7 +75,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -76,7 +110,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -109,11 +143,11 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "0a0e293d73c17d59376590d56e5667b169d26877",
+                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510",
                 "shasum": null
             },
             "require": {
@@ -129,6 +163,9 @@
                 "psr-4": {
                     "Automattic\\Jetpack\\Connection\\": "src"
                 },
+                "files": [
+                    "legacy/load-ixr.php"
+                ],
                 "classmap": [
                     "legacy"
                 ]
@@ -146,7 +183,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -174,8 +211,37 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
+            "name": "automattic/jetpack-error",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/error",
+                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4",
+                "shasum": null
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Error - a wrapper around WP_Error."
+        },
+        {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -214,7 +280,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -244,7 +310,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -271,7 +337,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -301,7 +367,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -331,7 +397,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -359,7 +425,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-update/sync-use-roles-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
@@ -766,10 +832,12 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-abtest": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-roles": 20,

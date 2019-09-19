@@ -2,7 +2,7 @@
 /**
  * Sets up the Connection XML-RPC methods.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -26,7 +26,8 @@ class XMLRPC_Connector {
 	public function __construct( Manager $connection ) {
 		$this->connection = $connection;
 
-		add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+		// Adding the filter late to avoid being overwritten by Jetpack's XMLRPC server.
+		add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ), 20 );
 	}
 
 	/**

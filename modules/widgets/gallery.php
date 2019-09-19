@@ -5,7 +5,7 @@ Plugin Name: Gallery
 Description: Gallery widget
 Author: Automattic Inc.
 Version: 1.0
-Author URI: http://automattic.com
+Author URI: https://automattic.com
 */
 
 use Automattic\Jetpack\Assets;

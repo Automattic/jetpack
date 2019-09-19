@@ -141,53 +141,77 @@ class Jetpack_Protect_Module {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
 
-			if ( ! ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) || is_plugin_active_for_network( 'jetpack-dev/jetpack.php' ) ) ) {
-				add_action( 'load-index.php', array ( $this, 'prepare_jetpack_protect_multisite_notice' ) );
+			if ( ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_FILE ) ) ) {
+				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
+				add_action( 'wp_ajax_jetpack-protect-dismiss-multisite-banner', array( $this, 'ajax_dismiss_handler' ) );
 			}
 		}
 	}
 
 	public function prepare_jetpack_protect_multisite_notice() {
-		add_action( 'admin_print_styles', array ( $this, 'admin_banner_styles' ) );
-		add_action( 'admin_notices', array ( $this, 'admin_jetpack_manage_notice' ) );
-	}
-
-	public function admin_banner_styles() {
-		global $wp_styles;
-
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		$wp_styles->add_data( 'jetpack', 'rtl', true );
-	}
-
-	public function admin_jetpack_manage_notice() {
-
 		$dismissed = get_site_option( 'jetpack_dismissed_protect_multisite_banner' );
-
 		if ( $dismissed ) {
 			return;
 		}
 
-		$referer     = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
-		$opt_out_url = wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-protect-multisite-opt-out' . $referer ), 'jetpack_protect_multisite_banner_opt_out' );
+		add_action( 'admin_notices', array ( $this, 'admin_jetpack_manage_notice' ) );
+	}
 
+	public function ajax_dismiss_handler() {
+		check_ajax_referer( 'jetpack_protect_multisite_banner_opt_out' );
+
+		if ( ! current_user_can( 'manage_network' ) ) {
+			wp_send_json_error( new WP_Error( 'insufficient_permissions' ) );
+		}
+
+		update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Displays a warning about Jetpack Protect's network activation requirement.
+	 * Attaches some custom JS to Core's `is-dismissible` UI to save the dismissed state.
+	 */
+	public function admin_jetpack_manage_notice() {
 		?>
-		<div id="message" class="updated jetpack-message jp-banner is-opt-in protect-error"
-		     style="display:block !important;">
-			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>"
-			   title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
+		<div class="jetpack-protect-warning notice notice-warning is-dismissible" data-dismiss-nonce="<?php echo esc_attr( wp_create_nonce( 'jetpack_protect_multisite_banner_opt_out' ) ); ?>">
+			<h2><?php esc_html_e( 'Jetpack Brute Force Attack Prevention cannot keep your site secure', 'jetpack' ); ?></h2>
 
-			<div class="jp-banner__content">
-				<h2><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h2>
+			<p><?php esc_html_e( "Thanks for activating Jetpack's brute force attack prevention feature! To start protecting your whole WordPress Multisite Network, please network activate the Jetpack plugin. Due to the way logins are handled on WordPress Multisite Networks, Jetpack must be network activated in order for the brute force attack prevention feature to work properly.", 'jetpack' ); ?></p>
 
-				<p><?php printf( __( 'Thanks for activating Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.com/support/multisite-protect' ); ?></p>
-			</div>
-			<div class="jp-banner__action-container is-opt-in">
-				<a href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>" class="jp-banner__button"
-				   id="wpcom-connect"><?php _e( 'View Network Admin', 'jetpack' ); ?></a>
-			</div>
+			<p>
+				<a class="button-primary" href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>">
+					<?php esc_html_e( 'View Network Admin', 'jetpack' ); ?>
+				</a>
+				<a class="button" href="<?php echo esc_url( __( 'https://jetpack.com/support/multisite-protect', 'jetpack' ) ); ?>" target="_blank">
+					<?php esc_html_e( 'Learn More' ); ?>
+				</a>
+			</p>
 		</div>
+		<script>
+			jQuery( function( $ ) {
+				$( '.jetpack-protect-warning' ).on( 'click', 'button.notice-dismiss', function( event ) {
+					event.preventDefault();
+
+					wp.ajax.post(
+						'jetpack-protect-dismiss-multisite-banner',
+						{
+							_wpnonce: $( event.delegateTarget ).data( 'dismiss-nonce' ),
+						}
+					).fail( function( error ) { <?php
+						// A failure here is really strange, and there's not really anything a site owner can do to fix one.
+						// Just log the error for now to help debugging. ?>
+
+						if ( 'function' === typeof error.done && '-1' === error.responseText ) {
+							console.error( 'Notice dismissal failed: check_ajax_referer' );
+						} else {
+							console.error( 'Notice dismissal failed: ' + JSON.stringify( error ) );
+						}
+					} )
+				} );
+			} );
+		</script>
 		<?php
 	}
 
@@ -224,7 +248,6 @@ class Jetpack_Protect_Module {
 		}
 
 		// Request the key
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array (
 			'user_id' => get_current_user_id()
 		) );

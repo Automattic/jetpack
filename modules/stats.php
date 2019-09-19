@@ -169,7 +169,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
  * @return void
  */
 function stats_template_redirect() {
-	global $current_user, $rendered_stats_footer;
+	global $current_user;
 
 	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
 		return;
@@ -184,9 +184,7 @@ function stats_template_redirect() {
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
-	add_action( 'wp_head', 'stats_add_shutdown_action' );
 
-	$rendered_stats_footer = false;
 }
 
 
@@ -225,16 +223,6 @@ function stats_build_view_data() {
 	return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
 }
 
-/**
- * Stats Add Shutdown Action.
- *
- * @access public
- * @return void
- */
-function stats_add_shutdown_action() {
-	// Just in case wp_footer isn't in your theme.
-	add_action( 'shutdown',  'stats_footer', 101 );
-}
 
 /**
  * Stats Footer.
@@ -243,17 +231,13 @@ function stats_add_shutdown_action() {
  * @return void
  */
 function stats_footer() {
-	global $rendered_stats_footer;
-
-	if ( ! $rendered_stats_footer ) {
-		$data = stats_build_view_data();
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			stats_render_amp_footer( $data );
-		} else {
-			stats_render_footer( $data );
-		}
-		$rendered_stats_footer = true;
+	$data = stats_build_view_data();
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		stats_render_amp_footer( $data );
+	} else {
+		stats_render_footer( $data );
 	}
+	
 }
 
 function stats_render_footer( $data ) {

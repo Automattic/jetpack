@@ -1,6 +1,12 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+/**
+ * Social Icons Widget.
+ */
 class Jetpack_Widget_Social_Icons extends WP_Widget {
 	/**
+	 * Default widget options.
+	 *
 	 * @var array Default widget options.
 	 */
 	protected $defaults;
@@ -52,8 +58,19 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * Script & styles for admin widget form.
 	 */
 	public function enqueue_admin_scripts() {
-		wp_enqueue_script( 'jetpack-widget-social-icons-script', plugins_url( 'social-icons/social-icons-admin.js', __FILE__ ), array( 'jquery-ui-sortable' ), '20170506' );
-		wp_enqueue_style( 'jetpack-widget-social-icons-admin', plugins_url( 'social-icons/social-icons-admin.css', __FILE__ ), array(), '20170506' );
+		wp_enqueue_script(
+			'jetpack-widget-social-icons-script',
+			plugins_url( 'social-icons/social-icons-admin.js', __FILE__ ),
+			array( 'jquery-ui-sortable' ),
+			'20170506',
+			true
+		);
+		wp_enqueue_style(
+			'jetpack-widget-social-icons-admin',
+			plugins_url( 'social-icons/social-icons-admin.css', __FILE__ ),
+			array(),
+			'20170506'
+		);
 	}
 
 	/**
@@ -67,28 +84,28 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * JavaScript for admin widget form.
 	 */
 	public function render_admin_js() {
-	?>
+		?>
 		<script type="text/html" id="tmpl-jetpack-widget-social-icons-template">
 			<?php self::render_icons_template(); ?>
 		</script>
-	<?php
+		<?php
 	}
 
 	/**
 	 * Add SVG definitions to the footer.
 	 */
 	public function include_svg_icons() {
-		// Define SVG sprite file in Jetpack
+		// Define SVG sprite file in Jetpack.
 		$svg_icons = dirname( dirname( __FILE__ ) ) . '/theme-tools/social-menu/social-menu.svg';
 
-		// Define SVG sprite file in WPCOM
+		// Define SVG sprite file in WPCOM.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$svg_icons = dirname( dirname( __FILE__ ) ) . '/social-menu/social-menu.svg';
 		}
 
 		// If it exists, include it.
 		if ( is_file( $svg_icons ) ) {
-			require_once( $svg_icons );
+			require_once $svg_icons;
 		}
 	}
 
@@ -106,10 +123,10 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'], $instance, $this->id_base );
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		if ( ! empty( $instance['icons'] ) ) :
@@ -118,13 +135,13 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			$social_icons = $this->get_supported_icons();
 			$default_icon = $this->get_svg_icon( array( 'icon' => 'chain' ) );
 
-			// Set target attribute for the link
+			// Set target attribute for the link.
 			if ( true === $instance['new-tab'] ) {
 				$target = '_blank';
 			} else {
 				$target = '_self';
 			}
-		?>
+			?>
 
 			<ul class="jetpack-social-widget-list size-<?php echo esc_attr( $instance['icon-size'] ); ?>">
 
@@ -132,21 +149,31 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 					<?php if ( ! empty( $icon['url'] ) ) : ?>
 						<li class="jetpack-social-widget-item">
-							<a href="<?php echo esc_url( $icon['url'], array( 'http', 'https', 'mailto', 'skype' ) ); ?>" target="<?php echo $target; ?>">
+							<a href="<?php echo esc_url( $icon['url'], array( 'http', 'https', 'mailto', 'skype' ) ); ?>" target="<?php echo esc_attr( $target ); ?>">
 								<?php
 									$found_icon = false;
 
 								foreach ( $social_icons as $social_icon ) {
-									if ( false !== stripos( $icon['url'], $social_icon['url'] ) ) {
-										echo '<span class="screen-reader-text">' . esc_attr( $social_icon['label'] ) . '</span>';
-										echo $this->get_svg_icon( array( 'icon' => esc_attr( $social_icon['icon'] ) ) );
-										$found_icon = true;
-										break;
+									foreach ( $social_icon['url'] as $url_fragment ) {
+										if ( false !== stripos( $icon['url'], $url_fragment ) ) {
+											printf(
+												'<span class="screen-reader-text">%1$s</span>%2$s',
+												esc_attr( $social_icon['label'] ),
+												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+												$this->get_svg_icon(
+													array(
+														'icon' => esc_attr( $social_icon['icon'] ),
+													)
+												)
+											);
+											$found_icon = true;
+											break;
+										}
 									}
 								}
 
 								if ( ! $found_icon ) {
-									echo $default_icon;
+									echo $default_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 								}
 								?>
 							</a>
@@ -157,10 +184,10 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 			</ul>
 
-		<?php
+			<?php
 		endif;
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'social_icons' );
@@ -177,15 +204,16 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+
 		$instance['title']     = sanitize_text_field( $new_instance['title'] );
 		$instance['icon-size'] = $this->defaults['icon-size'];
 
-		if ( in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ) ) ) {
+		if ( in_array( $new_instance['icon-size'], array( 'small', 'medium', 'large' ), true ) ) {
 			$instance['icon-size'] = $new_instance['icon-size'];
 		}
 
 		$instance['new-tab'] = isset( $new_instance['new-tab'] ) ? (bool) $new_instance['new-tab'] : false;
-		$icon_count          = count( $new_instance['url-icons'] );
 		$instance['icons']   = array();
 
 		foreach ( $new_instance['url-icons'] as $url ) {
@@ -222,13 +250,13 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		?>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'icon-size' ); ?>"><?php esc_html_e( 'Size:', 'jetpack' ); ?></label>
-			<select class="widefat" name="<?php echo $this->get_field_name( 'icon-size' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'icon-size' ) ); ?>"><?php esc_html_e( 'Size:', 'jetpack' ); ?></label>
+			<select class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'icon-size' ) ); ?>">
 				<?php foreach ( $sizes as $value => $label ) : ?>
 					<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['icon-size'] ); ?>><?php echo esc_attr( $label ); ?></option>
 				<?php endforeach; ?>
@@ -236,8 +264,8 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		</p>
 
 		<div class="jetpack-social-icons-widget-list"
-			data-url-icon-id="<?php echo $this->get_field_id( 'url-icons' ); ?>"
-			data-url-icon-name="<?php echo $this->get_field_name( 'url-icons' ); ?>"
+			data-url-icon-id="<?php echo esc_attr( $this->get_field_id( 'url-icons' ) ); ?>"
+			data-url-icon-name="<?php echo esc_attr( $this->get_field_name( 'url-icons' ) ); ?>"
 		>
 
 			<?php
@@ -282,19 +310,19 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		</p>
 
 		<p>
-			<input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'new-tab' ); ?>" name="<?php echo $this->get_field_name( 'new-tab' ); ?>" <?php checked( $new_tab ); ?> />
-			<label for="<?php echo $this->get_field_id( 'new-tab' ); ?>"><?php esc_html_e( 'Open link in a new tab', 'jetpack' ); ?></label>
+			<input type="checkbox" class="checkbox" id="<?php echo esc_attr( $this->get_field_id( 'new-tab' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'new-tab' ) ); ?>" <?php checked( $new_tab ); ?> />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'new-tab' ) ); ?>"><?php esc_html_e( 'Open link in a new tab', 'jetpack' ); ?></label>
 		</p>
 
-	<?php
+		<?php
 	}
 
 	/**
 	 * Generates template to add icons.
 	 *
-	 * @param array $args Template arguments
+	 * @param array $args Template arguments.
 	 */
-	static function render_icons_template( $args = array() ) {
+	private static function render_icons_template( $args = array() ) {
 		$defaults = array(
 			'url-icon-id'   => '',
 			'url-icon-name' => '',
@@ -388,277 +416,256 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	public function get_supported_icons() {
 		$social_links_icons = array(
 			array(
-				'url'   => '500px.com',
+				'url'   => array( '500px.com' ),
 				'icon'  => '500px',
 				'label' => '500px',
 			),
 			array(
-				'url'   => 'amazon.cn',
+				'url'   => array(
+					'amazon.cn',
+					'amazon.in',
+					'amazon.fr',
+					'amazon.de',
+					'amazon.it',
+					'amazon.nl',
+					'amazon.es',
+					'amazon.co',
+					'amazon.ca',
+					'amazon.com',
+				),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
 			),
 			array(
-				'url'   => 'amazon.in',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.fr',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.de',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.it',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.nl',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.es',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.co',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.ca',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'amazon.com',
-				'icon'  => 'amazon',
-				'label' => 'Amazon',
-			),
-			array(
-				'url'   => 'apple.com',
+				'url'   => array( 'apple.com' ),
 				'icon'  => 'apple',
 				'label' => 'Apple',
 			),
 			array(
-				'url'   => 'itunes.com',
+				'url'   => array( 'itunes.com' ),
 				'icon'  => 'apple',
 				'label' => 'iTunes',
 			),
 			array(
-				'url'   => 'bandcamp.com',
+				'url'   => array( 'bandcamp.com' ),
 				'icon'  => 'bandcamp',
 				'label' => 'Bandcamp',
 			),
 			array(
-				'url'   => 'behance.net',
+				'url'   => array( 'behance.net' ),
 				'icon'  => 'behance',
 				'label' => 'Behance',
 			),
 			array(
-				'url'   => 'codepen.io',
+				'url'   => array( 'codepen.io' ),
 				'icon'  => 'codepen',
 				'label' => 'CodePen',
 			),
 			array(
-				'url'   => 'deviantart.com',
+				'url'   => array( 'deviantart.com' ),
 				'icon'  => 'deviantart',
 				'label' => 'DeviantArt',
 			),
 			array(
-				'url'   => 'digg.com',
+				'url'   => array( 'digg.com' ),
 				'icon'  => 'digg',
 				'label' => 'Digg',
 			),
 			array(
-				'url'   => 'discord.gg',
+				'url'   => array( 'discord.gg', 'discordapp.com' ),
 				'icon'  => 'discord',
 				'label' => 'Discord',
 			),
 			array(
-				'url'   => 'discordapp.com',
-				'icon'  => 'discord',
-				'label' => 'Discord',
-			),
-			array(
-				'url'   => 'dribbble.com',
+				'url'   => array( 'dribbble.com' ),
 				'icon'  => 'dribbble',
 				'label' => 'Dribbble',
 			),
 			array(
-				'url'   => 'dropbox.com',
+				'url'   => array( 'dropbox.com' ),
 				'icon'  => 'dropbox',
 				'label' => 'Dropbox',
 			),
 			array(
-				'url'   => 'etsy.com',
+				'url'   => array( 'etsy.com' ),
 				'icon'  => 'etsy',
 				'label' => 'Etsy',
 			),
 			array(
-				'url'   => 'facebook.com',
+				'url'   => array( 'facebook.com' ),
 				'icon'  => 'facebook',
 				'label' => 'Facebook',
 			),
 			array(
-				'url'   => '/feed/',
+				'url'   => array(
+					'/feed/',         // WordPress default feed url.
+					'/feeds/',        // Blogspot and others.
+					'/blog/feed',     // No trailing slash WordPress feed, could use /feed but may match unexpectedly.
+					'format=RSS',     // Squarespace and others.
+					'/rss',           // Tumblr.
+					'/.rss',          // Reddit.
+					'/rss.xml',       // Moveable Type, Typepad.
+					'http://rss.',    // Old custom format.
+					'https://rss.',   // Old custom format.
+					'rss=1',
+					'/feed=rss',      // Catches feed=rss / feed=rss2.
+					'?feed=rss',      // WordPress non-permalink - Catches feed=rss / feed=rss2.
+					'?feed=rdf',      // WordPress non-permalink.
+					'?feed=atom',     // WordPress non-permalink.
+					'http://feeds.',  // FeedBurner.
+					'https://feeds.', // FeedBurner.
+					'/feed.xml',      // Feedburner Alias, and others.
+					'/index.xml',     // Moveable Type, and others.
+					'/atom.xml',      // Typepad, Squarespace.
+					'.atom',          // Shopify blog.
+					'/atom',          // Some non-WordPress feeds.
+					'index.rdf',      // Typepad.
+				),
 				'icon'  => 'feed',
 				'label' => __( 'RSS Feed', 'jetpack' ),
 			),
 			array(
-				'url'   => 'flickr.com',
+				'url'   => array( 'flickr.com' ),
 				'icon'  => 'flickr',
 				'label' => 'Flickr',
 			),
 			array(
-				'url'   => 'foursquare.com',
+				'url'   => array( 'foursquare.com' ),
 				'icon'  => 'foursquare',
 				'label' => 'Foursquare',
 			),
 			array(
-				'url'   => 'goodreads.com',
+				'url'   => array( 'goodreads.com' ),
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
 			),
 			array(
-				'url'   => 'google.com',
+				'url'   => array( 'google.com', 'google.co.uk', 'google.ca', 'google.cn', 'google.it' ),
 				'icon'  => 'google',
 				'label' => 'Google',
 			),
 			array(
-				'url'   => 'github.com',
+				'url'   => array( 'github.com' ),
 				'icon'  => 'github',
 				'label' => 'GitHub',
 			),
 			array(
-				'url'   => 'instagram.com',
+				'url'   => array( 'instagram.com' ),
 				'icon'  => 'instagram',
 				'label' => 'Instagram',
 			),
 			array(
-				'url'   => 'linkedin.com',
+				'url'   => array( 'linkedin.com' ),
 				'icon'  => 'linkedin',
 				'label' => 'LinkedIn',
 			),
 			array(
-				'url'   => 'mailto:',
+				'url'   => array( 'mailto:' ),
 				'icon'  => 'mail',
 				'label' => __( 'Email', 'jetpack' ),
 			),
 			array(
-				'url'   => 'meetup.com',
+				'url'   => array( 'meetup.com' ),
 				'icon'  => 'meetup',
 				'label' => 'Meetup',
 			),
 			array(
-				'url'   => 'medium.com',
+				'url'   => array( 'medium.com' ),
 				'icon'  => 'medium',
 				'label' => 'Medium',
 			),
 			array(
-				'url'   => 'pinterest.',
+				'url'   => array( 'pinterest.' ),
 				'icon'  => 'pinterest',
 				'label' => 'Pinterest',
 			),
 			array(
-				'url'   => 'getpocket.com',
+				'url'   => array( 'getpocket.com' ),
 				'icon'  => 'pocket',
 				'label' => 'Pocket',
 			),
 			array(
-				'url'   => 'reddit.com',
+				'url'   => array( 'reddit.com' ),
 				'icon'  => 'reddit',
 				'label' => 'Reddit',
 			),
 			array(
-				'url'   => 'skype.com',
+				'url'   => array( 'skype.com' ),
 				'icon'  => 'skype',
 				'label' => 'Skype',
 			),
 			array(
-				'url'   => 'skype:',
+				'url'   => array( 'skype:' ),
 				'icon'  => 'skype',
 				'label' => 'Skype',
 			),
 			array(
-				'url'   => 'slideshare.net',
+				'url'   => array( 'slideshare.net' ),
 				'icon'  => 'slideshare',
 				'label' => 'SlideShare',
 			),
 			array(
-				'url'   => 'snapchat.com',
+				'url'   => array( 'snapchat.com' ),
 				'icon'  => 'snapchat',
 				'label' => 'Snapchat',
 			),
 			array(
-				'url'   => 'soundcloud.com',
+				'url'   => array( 'soundcloud.com' ),
 				'icon'  => 'soundcloud',
 				'label' => 'SoundCloud',
 			),
 			array(
-				'url'   => 'spotify.com',
+				'url'   => array( 'spotify.com' ),
 				'icon'  => 'spotify',
 				'label' => 'Spotify',
 			),
 			array(
-				'url'   => 'stackoverflow.com',
+				'url'   => array( 'stackoverflow.com' ),
 				'icon'  => 'stackoverflow',
 				'label' => 'Stack Overflow',
 			),
 			array(
-				'url'   => 'stumbleupon.com',
+				'url'   => array( 'stumbleupon.com' ),
 				'icon'  => 'stumbleupon',
 				'label' => 'StumbleUpon',
 			),
 			array(
-				'url'   => 'tumblr.com',
+				'url'   => array( 'tumblr.com' ),
 				'icon'  => 'tumblr',
 				'label' => 'Tumblr',
 			),
 			array(
-				'url'   => 'twitch.tv',
+				'url'   => array( 'twitch.tv' ),
 				'icon'  => 'twitch',
 				'label' => 'Twitch',
 			),
 			array(
-				'url'   => 'twitter.com',
+				'url'   => array( 'twitter.com' ),
 				'icon'  => 'twitter',
 				'label' => 'Twitter',
 			),
 			array(
-				'url'   => 'vimeo.com',
+				'url'   => array( 'vimeo.com' ),
 				'icon'  => 'vimeo',
 				'label' => 'Vimeo',
 			),
 			array(
-				'url'   => 'vk.com',
+				'url'   => array( 'vk.com' ),
 				'icon'  => 'vk',
 				'label' => 'VK',
 			),
 			array(
-				'url'   => 'wordpress.com',
-				'icon'  => 'wordpress',
-				'label' => 'WordPress.com',
-			),
-			array(
-				'url'   => 'wordpress.org',
+				'url'   => array( 'wordpress.com', 'wordpress.org' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
 			),
 			array(
-				'url'   => 'yelp.com',
+				'url'   => array( 'yelp.com' ),
 				'icon'  => 'yelp',
 				'label' => 'Yelp',
 			),
 			array(
-				'url'   => 'youtube.com',
+				'url'   => array( 'youtube.com' ),
 				'icon'  => 'youtube',
 				'label' => 'YouTube',
 			),

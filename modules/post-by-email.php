@@ -99,7 +99,7 @@ class Jetpack_Post_By_Email {
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
 						<p id="jp-pbe-email-wrapper">
 							<input type="text" id="jp-pbe-email" value="<?php echo esc_attr( $email ); ?>" readonly="readonly" class="regular-text" />
-							<span class="description"><a target="_blank" href="http://jetpack.com/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
+							<span class="description"><a target="_blank" href="https://jetpack.com/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
 						</p>
 						<p>
 							<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php esc_attr_e( 'Regenerate Address', 'jetpack' ); ?> " />
@@ -129,7 +129,6 @@ class Jetpack_Post_By_Email {
 	}
 
 	function get_post_by_email_address() {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
@@ -179,7 +178,7 @@ class Jetpack_Post_By_Email {
 		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
 			wp_send_json_error( $error_message );
 		}
-		Jetpack::load_xml_rpc_client();
+
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );

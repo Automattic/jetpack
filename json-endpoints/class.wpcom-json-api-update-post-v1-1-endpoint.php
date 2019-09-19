@@ -559,7 +559,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$insert['ID'] = $post->ID;
 
 			// wp_update_post ignores date unless edit_date is set
-			// See: http://codex.wordpress.org/Function_Reference/wp_update_post#Scheduling_posts
+			// See: https://codex.wordpress.org/Function_Reference/wp_update_post#Scheduling_posts
 			// See: https://core.trac.wordpress.org/browser/tags/3.9.2/src/wp-includes/post.php#L3302
 			if ( isset( $input['date_gmt'] ) || isset( $input['date'] ) ) {
 				$insert['edit_date'] = true;

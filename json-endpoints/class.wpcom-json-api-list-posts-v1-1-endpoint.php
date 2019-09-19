@@ -85,6 +85,12 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
+		if ( isset( $args['type'] ) &&
+			   ! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ) ) &&
+			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		if ( isset( $args['type'] ) && ! $site->is_post_type_allowed( $args['type'] ) ) {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
@@ -124,12 +130,6 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$status = array();
 		}
 
-		if ( isset( $args['type'] ) &&
-			   ! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ) ) &&
-			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->load_theme_functions();
-		}
-
 		// let's be explicit about defaulting to 'post'
 		$args['type'] = isset( $args['type'] ) ? $args['type'] : 'post';
 
@@ -162,7 +162,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			'post_status'    => $status,
 			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
-			's'              => isset( $args['search'] ) ? $args['search'] : null,
+			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
 			'fields'         => 'ids',
 		);
 

@@ -1,0 +1,51 @@
+@import '_inc/client/scss/variables/colors';
+
+// =====================================================================
+// iFrame
+// ==========================================================================
+
+.jp-jetpack-connect__iframe {
+	height: 340px;
+	width: 380px;
+	max-width: 100%;
+	margin: 1rem auto 0;
+
+	@media (min-width: 491px) {
+		height: 390px;
+	}
+}
+
+.jp-connect-full__button-container-loading {
+	margin-top: 84px;
+	display: block;
+}
+
+// =====================================================================
+// Remove dops button override coming from jetpack-banner
+// ==========================================================================
+
+.jp-connect-full__button-container .dops-button.jp-connect-button.is-primary {
+	background: $blue-medium;
+	border-color: $blue-wordpress;
+	color: $white;
+
+	&:focus {
+		outline: 0;
+		border-color: $blue-medium;
+		box-shadow: 0 0 0 2px $blue-light;
+	}
+
+	&:hover,
+	&:focus {
+		background: $blue-medium;
+		border-color: $blue-dark;
+		color: $white;
+	}
+
+	&[disabled],
+	&:disabled {
+		background: tint( $blue-medium, 40% );
+		border-color: tint( $blue-dark, 40% );
+		color: $white;
+	}
+}

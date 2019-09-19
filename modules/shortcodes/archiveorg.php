@@ -90,7 +90,7 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$poster = '';
 	}
 
-	$url = esc_url( set_url_scheme( "https://archive.org/embed/{$id}{$autoplay}{$poster}" ) );
+	$url = esc_url( "https://archive.org/embed/{$id}{$autoplay}{$poster}" );
 
 	$title = esc_html__( 'Archive.org', 'jetpack' );
 

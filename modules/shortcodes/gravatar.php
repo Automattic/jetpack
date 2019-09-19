@@ -94,7 +94,7 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 	}
 
 	// Render the shortcode.
-	$gravatar_url = set_url_scheme( 'http://gravatar.com/' . $user->user_login );
+	$gravatar_url = 'https://gravatar.com/' . $user->user_login;
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$avatar_url    = wpcom_get_avatar_url( $user->ID, 96 );

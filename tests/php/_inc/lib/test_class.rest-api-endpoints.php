@@ -928,20 +928,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * Test changing the master user.
 	 *
 	 * @since 6.2.0
+	 * @since 7.7.0 No longer need to be master user to update.
 	 */
 	public function test_change_owner() {
 
 		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		$user->add_cap( 'jetpack_connect_user' );
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_disconnect' );
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
-
-		// Attempt change, fail because not master user
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
-		$this->assertResponseStatus( 403, $response );
 
 		// Set up user as master user
 		Jetpack_Options::update_option( 'master_user', $user->ID );

@@ -10,9 +10,6 @@ import Sidebar from '../pages/wp-admin/sidebar';
 import JetpackPage from '../pages/wp-admin/jetpack';
 import LoginPage from '../pages/wpcom/login';
 import AuthorizePage from '../pages/wpcom/authorize';
-import JetpackSiteTypePage from '../pages/jetpack-connect/site-type';
-import JetpackSiteTopicPage from '../pages/jetpack-connect/site-topic';
-import JetpackUserTypePage from '../pages/jetpack-connect/user-type';
 import PickAPlanPage from '../pages/wpcom/pick-a-plan';
 import HomePage from '../pages/wpcom/home';
 import WPLoginPage from '../pages/wp-admin/login';
@@ -58,9 +55,11 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
-	await ( await JetpackSiteTypePage.init( page ) ).selectSiteType( 'blog' );
-	await ( await JetpackSiteTopicPage.init( page ) ).selectSiteTopic( 'test site' );
-	await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
+
+	// These steps are disabled for now
+	// await ( await JetpackSiteTypePage.init( page ) ).selectSiteType( 'blog' );
+	// await ( await JetpackSiteTopicPage.init( page ) ).selectSiteTopic( 'test site' );
+	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
 
 	await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
 	await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );

@@ -45,4 +45,13 @@ export default class JetpackPage extends Page {
 				throw new Error( 'Invalid plan string: ' + plan );
 		}
 	}
+
+	async isConnectBannerVisible() {
+		const containerSelector = '.jp-connect-full__container-card';
+		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
+
+		const isCardVisible = await isEventuallyVisible( this.page, containerSelector );
+		const isConnectButtonVisible = await isEventuallyVisible( this.page, buttonSelector );
+		return isCardVisible && isConnectButtonVisible;
+	}
 }

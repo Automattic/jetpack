@@ -25,6 +25,28 @@ class Comments extends Module {
 	}
 
 	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'comment_ID';
+	}
+
+	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function table_name() {
+		return 'comments';
+	}
+
+	/**
 	 * Retrieve a comment by its ID.
 	 *
 	 * @access public
@@ -223,12 +245,12 @@ class Comments extends Module {
 	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
-	 * @access private
+	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
-	private function get_where_sql( $config ) {
+	public function get_where_sql( $config ) {
 		if ( is_array( $config ) ) {
 			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}

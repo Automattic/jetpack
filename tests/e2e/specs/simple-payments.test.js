@@ -10,7 +10,7 @@ import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 
-describe( 'First test suite', () => {
+describe( 'Simple Payment', () => {
 	it( 'Can publish a post with a Simple Payments block', async () => {
 		//Can login and connect Jetpack if needed
 		await connectThroughWPAdminIfNeeded();

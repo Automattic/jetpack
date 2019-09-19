@@ -188,6 +188,24 @@ class Jetpack_Gutenberg {
 	 * @param array  $details A free-form array containing more information on why the extension is unavailable.
 	 */
 	public static function set_extension_unavailable( $slug, $reason, $details = array() ) {
+		if (
+			// Extensions that require a plan may be eligible for upgrades.
+			'missing_plan' === $reason
+			/**
+			 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
+			 * to disable paid feature upgrade nudges in the block editor.
+			 *
+			 * @since 7.7.0
+			 *
+			 * @param boolean
+			 */
+			&& ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+		) {
+			// The block editor may apply an upgrade nudge if `missing_plan` is the reason.
+			// Add a descriptive suffix to disable behavior but provide informative reason.
+			$reason .= '__nudge_disabled';
+		}
+
 		self::$availability[ self::remove_extension_prefix( $slug ) ] = array(
 			'reason'  => $reason,
 			'details' => $details,
@@ -670,5 +688,47 @@ class Jetpack_Gutenberg {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get CSS classes for a block.
+	 *
+	 * @since 7.7.0
+	 *
+	 * @param string $slug  Block slug.
+	 * @param array  $attr  Block attributes.
+	 * @param array  $extra Potential extra classes you may want to provide.
+	 *
+	 * @return string $classes List of CSS classes for a block.
+	 */
+	public static function block_classes( $slug = '', $attr, $extra = array() ) {
+		if ( empty( $slug ) ) {
+			return '';
+		}
+
+		// Basic block name class.
+		$classes = array(
+			'wp-block-jetpack-' . $slug,
+		);
+
+		// Add alignment if provided.
+		if (
+			! empty( $attr['align'] )
+			&& in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true )
+		) {
+			array_push( $classes, 'align' . $attr['align'] );
+		}
+
+		// Add custom classes if provided in the block editor.
+		if ( ! empty( $attr['className'] ) ) {
+			array_push( $classes, $attr['className'] );
+		}
+
+		// Add any extra classes.
+		if ( is_array( $extra ) && ! empty( $extra ) ) {
+			$classes = array_merge( $classes, $extra );
+		}
+
+		return implode( $classes, ' ' );
 	}
 }

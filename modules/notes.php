@@ -38,8 +38,7 @@ class Jetpack_Notifications {
 
 	function wpcom_static_url($file) {
 		$i = hexdec( substr( md5( $file ), -1 ) ) % 2;
-		$url = 'http://s' . $i . '.wp.com' . $file;
-		return set_url_scheme( $url );
+		return 'https://s' . $i . '.wp.com' . $file;
 	}
 
 	// return the major version of Internet Explorer the viewer is using or false if it's not IE

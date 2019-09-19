@@ -9,23 +9,7 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-
-/**
- * Executes a shell command and return it as a Promise.
- * @param {string} cmd  shell command
- * @return {Promise<string>} output
- */
-function execShellCommand( cmd ) {
-	const exec = require( 'child_process' ).exec;
-	return new Promise( resolve => {
-		exec( cmd, ( error, stdout, stderr ) => {
-			if ( error ) {
-				console.warn( error );
-			}
-			resolve( stdout ? stdout : stderr );
-		} );
-	} );
-}
+import { execShellCommand } from '../lib/utils-helper';
 
 // Activate WordAds module if in CI
 async function activatePublicizeModule() {

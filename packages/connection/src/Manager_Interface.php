@@ -2,7 +2,7 @@
 /**
  * The Jetpack Connection Interface file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Connection;
 /**
  * The Connection interface class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 /**
@@ -18,20 +18,6 @@ namespace Automattic\Jetpack\Connection;
  * to WordPress.com
  */
 interface Manager_Interface {
-
-	/**
-	 * Initializes all needed hooks and request handlers. Handles API calls, upload
-	 * requests, authentication requests. Also XMLRPC options requests.
-	 * Fallback XMLRPC is also a bridge, but probably can be a class that inherits
-	 * this one. Among other things it should strip existing methods.
-	 *
-	 * @param Array $methods an array of API method names for the Connection to accept and
-	 *                       pass on to existing callables. It's possible to specify whether
-	 *                       each method should be available for unauthenticated calls or not.
-	 * @see Jetpack::__construct
-	 */
-	public function initialize( $methods );
-
 	/**
 	 * Returns true if the current site is connected to WordPress.com.
 	 *
@@ -65,29 +51,15 @@ interface Manager_Interface {
 	public function is_connection_owner( $user_id );
 
 	/**
-	 * Unlinks the current user from the linked WordPress.com user
+	 * Unlinks the current user from the linked WordPress.com user.
+	 *
+	 * @access public
+	 * @static
 	 *
 	 * @param Integer $user_id the user identifier.
+	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function disconnect_user( $user_id );
-
-	/**
-	 * Initializes a transport server, whatever it may be, saves into the object property.
-	 * Should be changed to be protected.
-	 */
-	public function initialize_server();
-
-	/**
-	 * Checks if the current request is properly authenticated, bails if not.
-	 * Should be changed to be protected.
-	 */
-	public function require_authentication();
-
-	/**
-	 * Verifies the correctness of the request signature.
-	 * Should be changed to be protected.
-	 */
-	public function verify_signature();
 
 	/**
 	 * Attempts Jetpack registration which sets up the site for connection. Should

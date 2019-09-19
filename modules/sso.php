@@ -596,7 +596,7 @@ class Jetpack_SSO {
 		if ( ! $wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true ) ) {
 			return;
 		}
-		Jetpack::load_xml_rpc_client();
+
 		$xml = new Jetpack_IXR_Client( array(
 			'wpcom_user_id' => $user_id,
 		) );
@@ -620,7 +620,6 @@ class Jetpack_SSO {
 			: false;
 
 		if ( ! $nonce ) {
-			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client( array(
 				'user_id' => get_current_user_id(),
 			) );
@@ -652,7 +651,6 @@ class Jetpack_SSO {
 		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
 		$wpcom_user_id = (int) $_GET['user_id'];
 
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );

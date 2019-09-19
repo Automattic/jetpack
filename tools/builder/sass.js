@@ -52,6 +52,24 @@ gulp.task( 'sass:calypsoify', function( done ) {
 		} );
 } );
 
+gulp.task( 'sass:instant-search', function( done ) {
+	log( 'Building Instant Search CSS bundle...' );
+
+	return gulp
+		.src( './modules/search/instant-search/*.scss' )
+		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
+		.pipe(
+			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
+		)
+		.pipe( autoprefixer() )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( gulp.dest( './_inc/build/instant-search' ) )
+		.on( 'end', function() {
+			log( 'Instant Search CSS finished.' );
+			done();
+		} );
+} );
+
 function doRTL( files, done ) {
 	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
@@ -213,14 +231,21 @@ gulp.task(
 );
 
 export const build = gulp.parallel(
-	gulp.series( 'sass:dashboard', 'sass:calypsoify' ),
+	gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:instant-search' ),
 	'sass:old',
-	'sass:packages:rtl'
+	'sass:packages'
 );
 
 export const watch = function() {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.parallel( 'sass:dashboard', 'sass:calypsoify', 'sass:old', 'sass:packages:rtl' )
+		gulp.series( 'sass:dashboard', 'sass:instant-search', 'sass:calypsoify', 'sass:old' )
+	);
+};
+
+export const watchPackages = function() {
+	return gulp.watch(
+		[ './packages/jitm/assets/*.scss', ...alwaysIgnoredPaths ],
+		gulp.parallel( 'sass:packages:rtl' )
 	);
 };

@@ -164,7 +164,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			switch ( $_GET['blogsub'] ) {
 				case 'confirming':
 					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'Thanks for subscribing! You&rsquo;ll get an email with a link to confirm your subscription. If you don&rsquo;t get it, please <a href="http://en.support.wordpress.com/contact/">contact us</a>.' );
+					_e( 'Thanks for subscribing! You&rsquo;ll get an email with a link to confirm your subscription. If you don&rsquo;t get it, please <a href="https://en.support.wordpress.com/contact/">contact us</a>.' );
 					echo "</div>";
 					break;
 				case 'blocked':
@@ -189,7 +189,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					break;
 				case 'pending':
 					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'You have a pending subscription already; we just sent you another email. Click the link or <a href="http://en.support.wordpress.com/contact/">contact us</a> if you don&rsquo;t receive it.' );
+					_e( 'You have a pending subscription already; we just sent you another email. Click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don&rsquo;t receive it.' );
 					echo "</div>";
 					break;
 				case 'confirmed':
@@ -446,8 +446,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_jetpack() ) {
 			$subs_count = get_transient( 'wpcom_subscribers_total' );
 			if ( false === $subs_count || 'failed' == $subs_count['status'] ) {
-				Jetpack::load_xml_rpc_client();
-
 				$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
 
 				$xml->query( 'jetpack.fetchSubscriberCount' );

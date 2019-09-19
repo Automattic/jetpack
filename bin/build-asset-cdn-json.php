@@ -19,6 +19,7 @@ $ignore_paths = array(
 	'tests/',
 	'tools/',
 	'vendor/',
+	'packages/',
 );
 
 $manifest = array();
