@@ -49,7 +49,6 @@ export class Composing extends React.Component {
 			latex = this.props.module( 'latex' ),
 			copyPost = this.props.module( 'copy-post' ),
 			shortcodes = this.props.module( 'shortcodes' ),
-
 			copyPostSettings = (
 				<SettingsGroup
 					module={ copyPost }
@@ -102,6 +101,13 @@ export class Composing extends React.Component {
 						>
 							<span className="jp-form-toggle-explanation">{ markdown.description }</span>
 						</ModuleToggle>
+					</FormFieldset>
+					<FormFieldset>
+						<p className="jp-form-setting-explanation">
+							{ __(
+								'This only applies to the Classic Editor because there is a Markdown block available in new editor.'
+							) }
+						</p>
 					</FormFieldset>
 				</SettingsGroup>
 			),
