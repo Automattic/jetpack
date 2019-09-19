@@ -7,6 +7,8 @@
 
 namespace Private_Site;
 
+use WP_Error;
+use WP_REST_Request;
 use function checked;
 use function doing_filter;
 use function esc_html_e;
@@ -54,7 +56,7 @@ function init() {
 	add_action( 'parse_request', '\Private_Site\parse_request', 100 );
 
 	// Scrutinize REST API requests
-	add_action( 'rest_api_init', '\Private_Site\rest_api_init' );
+	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 4 );
 
 	// Prevent Pinterest pinning
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
@@ -204,10 +206,43 @@ function parse_request() {
 	}
 }
 
-function rest_api_init() {
-	if ( should_prevent_site_access() ) {
-		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.' ) ] );
+/**
+ * Scrutinize REST API Requests _after_ the permissions checks have been applied
+ * This enforces nonce & token checking on content endpoints to prevent CSRF-style attacks
+ * If using cookie auth, clients must send a valid nonce in order to access content endpoints
+ *
+ * @see rest_dispatch_request https://core.trac.wordpress.org/browser/tags/5.2.3/src/wp-includes/rest-api/class-wp-rest-server.php#L940
+ *
+ * @param mixed           $dispatch_result Dispatch result, will be used if not empty.
+ * @param WP_REST_Request $request         Request used to generate the response.
+ * @param string          $route           Route matched for the request.
+ * @param array           $handler         Route handler used for the request.
+ *
+ * @return WP_Error|null  WP_Error on disallowed, null on ok
+ */
+function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
+	// Don't clobber other plugins
+	if ( $dispatch_result !== null ) {
+		return $dispatch_result;
 	}
+
+	// Allow certain endpoints for plugin-based authentication methods
+	// These are "anchored" on the left side with `^/`, but not the right, so include the trailing `/`
+	$allowed_routes = apply_filters( 'wpcomsh_allowed_routes', [
+		'2fa/', // https://wordpress.org/plugins/application-passwords/
+		'jwt-auth/', // https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
+		'oauth1/', // https://wordpress.org/plugins/rest-api-oauth1/
+	] );
+
+	if ( preg_match( '#^/(' . implode( '|', $allowed_routes ) . ')#', $route ) ) {
+		return null;
+	}
+
+	if ( should_prevent_site_access() ) {
+		return new WP_Error( 'private_site', __( 'This site is private.' ), [ 'status' => 403 ] );
+	}
+
+	return null;
 }
 
 function xmlrpc_methods_limit_to_jetpack( $methods ) {
