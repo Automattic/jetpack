@@ -48,8 +48,9 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	 */
 	public function test_shortcode_book() {
 		$id = 'goodytwoshoes00newyiala';
+		$title = 'Archive.org Book';
 		$content = "[archiveorg-book id='$id' width='600' height='300']";
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( "iframe src='https://archive.org/stream/$id?ui=embed#mode/1up' width='600' height='300'", $shortcode_content );
+		$this->assertContains( "iframe title='$title' src='https://archive.org/stream/$id?ui=embed#mode/1up' width='600' height='300'", $shortcode_content );
 	}
 }
