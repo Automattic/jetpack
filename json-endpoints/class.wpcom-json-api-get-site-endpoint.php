@@ -51,6 +51,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta'              => '(object) Meta data',
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
 		'launch_status'     => '(string) A string describing the launch status of a site',
+		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
 	);
 
 	protected static $no_member_fields = array(
@@ -70,6 +71,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following',
 		'meta',
 		'launch_status',
+		'is_fse_active',
 	);
 
 	protected static $site_options_format = array(
@@ -372,6 +374,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'launch_status' :
 				$response[ $key ] = $this->site->get_launch_status();
+				break;
+			case 'is_fse_active':
+				$response[ $key ] = $this->site->is_fse_active();
 				break;
 		}
 

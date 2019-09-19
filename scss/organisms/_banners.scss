@@ -184,21 +184,6 @@
 	}
 }
 
-.jp-connect-full__button-container {
-	margin: 0;
-	.dops-button.is-primary {
-		background: $green-primary;
-		border-color: $green-secondary;
-		padding-left: rem( 24px );
-		padding-right: rem( 24px );
-
-		&:hover, &:focus {
-			background: $green-secondary;
-			border-color: $green-dark;
-		}
-	}
-}
-
 .jp-connect-full__tos-blurb {
 	font-size: rem( 11px );
 	margin: 0 auto rem( 16px );

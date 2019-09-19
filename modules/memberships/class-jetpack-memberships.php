@@ -208,17 +208,18 @@ class Jetpack_Memberships {
 			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
 
-		$classes = array(
-			'wp-block-button__link',
-			'components-button',
-			'is-primary',
-			'is-button',
-			'wp-block-jetpack-' . self::$button_block_name,
-			self::$css_classname_prefix . '-' . $data['id'],
+		$classes = Jetpack_Gutenberg::block_classes(
+			self::$button_block_name,
+			$attrs,
+			array(
+				'wp-block-button__link',
+				'components-button',
+				'is-primary',
+				'is-button',
+				self::$css_classname_prefix . '-' . $data['id'],
+			)
 		);
-		if ( isset( $attrs['className'] ) ) {
-			array_push( $classes, $attrs['className'] );
-		}
+
 		if ( isset( $attrs['submitButtonText'] ) ) {
 			$data['button_label'] = $attrs['submitButtonText'];
 		}
@@ -249,7 +250,7 @@ class Jetpack_Memberships {
 			esc_attr( $data['powered_text'] ),
 			esc_attr( $data['id'] ),
 			esc_attr( get_locale() ),
-			esc_attr( implode( $classes, ' ' ) ),
+			esc_attr( $classes ),
 			esc_attr( $button_styles ),
 			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button )
 		);

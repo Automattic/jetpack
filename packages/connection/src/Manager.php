@@ -2,7 +2,7 @@
 /**
  * The Jetpack Connection manager class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -483,6 +483,20 @@ class Manager implements Manager_Interface {
 	}
 
 	/**
+	 * Checks to see if the connection owner of the site is missing.
+	 *
+	 * @return bool
+	 */
+	public function is_missing_connection_owner() {
+		$connection_owner = $this->get_connection_owner_id();
+		if ( ! get_user_by( 'id', $connection_owner ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
@@ -496,6 +510,46 @@ class Manager implements Manager_Interface {
 		}
 
 		return (bool) $this->get_access_token( $user_id );
+	}
+
+	/**
+	 * Returns the local user ID of the connection owner.
+	 *
+	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
+	 */
+	public function get_connection_owner_id() {
+		$user_token       = $this->get_access_token( JETPACK_MASTER_USER );
+		$connection_owner = false;
+		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
+			$connection_owner = $user_token->external_user_id;
+		}
+
+		return $connection_owner;
+	}
+
+	/**
+	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Able to select by specific capability.
+	 *
+	 * @param string The capability of the user
+	 * @return array Array of WP_User objects if found.
+	 */
+	public function get_connected_users( $capability = 'any' ) {
+		$connected_users    = array();
+		$connected_user_ids = array_keys( \Jetpack_Options::get_option( 'user_tokens' ) );
+
+		if ( ! empty( $connected_user_ids ) ) {
+			foreach ( $connected_user_ids as $id ) {
+				// Check for capability
+				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
+					continue;
+				}
+
+				$connected_users[] = get_userdata( $id );
+			}
+		}
+
+		return $connected_users;
 	}
 
 	/**
@@ -531,6 +585,22 @@ class Manager implements Manager_Interface {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns a user object of the connection owner.
+	 *
+	 * @return object|false False if no connection owner found.
+	 */
+	public function get_connection_owner() {
+		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+
+		$connection_owner = false;
+		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
+			$connection_owner = get_userdata( $user_token->external_user_id );
+		}
+
+		return $connection_owner;
 	}
 
 	/**
@@ -954,6 +1024,11 @@ class Manager implements Manager_Interface {
 	 * @return string Assumed site creation date and time.
 	 */
 	public function get_assumed_site_creation_date() {
+		$cached_date = get_transient( 'jetpack_assumed_site_creation_date' );
+		if ( ! empty( $cached_date ) ) {
+			return $cached_date;
+		}
+
 		$earliest_registered_users  = get_users(
 			array(
 				'role'    => 'administrator',
@@ -982,7 +1057,10 @@ class Manager implements Manager_Interface {
 			$earliest_post_date = PHP_INT_MAX;
 		}
 
-		return min( $earliest_registration_date, $earliest_post_date );
+		$assumed_date = min( $earliest_registration_date, $earliest_post_date );
+		set_transient( 'jetpack_assumed_site_creation_date', $assumed_date );
+
+		return $assumed_date;
 	}
 
 	/**

@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -80,6 +81,9 @@ class JITM {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+
+			// Not really a JITM. Don't know where else to put this :)
+			add_action( 'admin_notices', array( $this, 'delete_user_update_connection_owner_notice' ) );
 		}
 	}
 
@@ -147,6 +151,158 @@ class JITM {
 			),
 			'wc-services-install'
 		);
+	}
+
+	/**
+	 * This is an entire admin notice dedicated to messaging and handling of the case where a user is trying to delete
+	 * the connection owner.
+	 */
+	function delete_user_update_connection_owner_notice() {
+		global $current_screen;
+
+		if ( ! isset( $current_screen->base ) || 'users' !== $current_screen->base ) {
+			return;
+		}
+
+		if ( ! isset( $_REQUEST['action'] ) || 'delete' !== $_REQUEST['action'] ) {
+			return;
+		}
+
+		// Get connection owner or bail
+		$connection_manager  = new Manager();
+		$connection_owner_id = $connection_manager->get_connection_owner_id();
+		if ( ! $connection_owner_id ) {
+			return;
+		}
+		$connection_owner_userdata = get_userdata( $connection_owner_id );
+
+		// Bail if we're not trying to delete connection owner.
+		$user_ids_to_delete = array();
+		if ( isset( $_REQUEST['users'] ) ) {
+			$user_ids_to_delete = $_REQUEST['users'];
+		} elseif ( isset( $_REQUEST['user'] ) ) {
+			$user_ids_to_delete[] = $_REQUEST['user'];
+		}
+		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete );
+		if ( ! $deleting_connection_owner ) {
+			return;
+		}
+
+		// Bail if they're trying to delete themselves to avoid confusion.
+		if ( $connection_owner_id == get_current_user_id() ) {
+			return;
+		}
+
+		// Track it!
+		if ( method_exists( $this->tracking, 'record_user_event' ) ) {
+			$this->tracking->record_user_event( 'delete_connection_owner_notice_view' );
+		}
+
+		$connection_manager = new Manager();
+		$connected_admins   = $connection_manager->get_connected_users( 'jetpack_disconnect' );
+
+		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
+		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
+		echo '<p>' . sprintf(
+			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack' ),
+			is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : ''
+		) . '</p>';
+
+		if ( ! empty( $connected_admins ) && count( $connected_admins ) > 1 ) {
+			echo '<form id="jp-switch-connection-owner" action="" method="post">';
+			echo "<label for='owner'>" . esc_html__( 'You can choose to transfer connection ownership to one of these already-connected admins:', 'jetpack' ) . ' </label>';
+
+			$connected_admin_ids = array_map(
+				function( $connected_admin ) {
+						return $connected_admin->ID;
+				},
+				$connected_admins
+			);
+
+			wp_dropdown_users(
+				array(
+					'name'    => 'owner',
+					'include' => array_diff( $connected_admin_ids, array( $connection_owner_id ) ),
+					'show'    => 'display_name_with_login',
+				)
+			);
+
+			echo '<p>';
+			submit_button( esc_html__( 'Set new connection owner', 'jetpack' ), 'primary', 'jp-switch-connection-owner-submit', false );
+			echo '</p>';
+
+			echo "<div id='jp-switch-user-results'></div>";
+			echo '</form>';
+			?>
+			<script type="text/javascript">
+				jQuery( document ).ready( function( $ ) {
+					$( '#jp-switch-connection-owner' ).on( 'submit', function( e ) {
+						var formData = $( this ).serialize();
+						var submitBtn = document.getElementById( 'jp-switch-connection-owner-submit' );
+						var results = document.getElementById( 'jp-switch-user-results' );
+
+						submitBtn.disabled = true;
+
+						$.ajax( {
+							type        : "POST",
+							url         : "<?php echo get_rest_url() . 'jetpack/v4/connection/owner'; ?>",
+							data        : formData,
+							headers     : {
+								'X-WP-Nonce': "<?php echo wp_create_nonce( 'wp_rest' ); ?>",
+							},
+							success: function() {
+								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack' ); ?>";
+								setTimeout( function() {
+									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
+								}, 1000 );
+							}
+						} ).done( function() {
+							submitBtn.disabled = false;
+						} );
+
+						e.preventDefault();
+						return false;
+					} );
+				} );
+			</script>
+			<?php
+		} else {
+			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . '</p>';
+			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'delete_connection_owner_notice' );
+			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . '</a>';
+		}
+
+		echo '<p>';
+		printf(
+			wp_kses(
+				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+						'rel'    => true,
+					),
+				)
+			),
+			'https://jetpack.com/support/primary-user/'
+		);
+		echo '</p>';
+		echo '<p>';
+		printf(
+			wp_kses(
+				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => true,
+						'target' => true,
+						'rel'    => true,
+					),
+				)
+			),
+			'https://jetpack.com/contact-support'
+		);
+		echo '</p>';
+		echo '</div>';
 	}
 
 	/**

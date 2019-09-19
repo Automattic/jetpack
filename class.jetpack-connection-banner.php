@@ -1,8 +1,7 @@
 <?php
 
-use Automattic\Jetpack\Abtest;
-use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
 
 class Jetpack_Connection_Banner {
@@ -27,14 +26,6 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
-
-		$abtest = new Abtest();
-		if (
-			'in_place' === $abtest->get_variation( 'jetpack_connect_in_place' ) ||
-			Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' )
-		) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
-		}
 	}
 
 	/**
@@ -46,7 +37,7 @@ class Jetpack_Connection_Banner {
 	 *              The param $slide_num was removed since we removed all slides but the first one.
 	 * @since 4.4.0
 	 *
-	 * @param string     $jp_version_banner_added A short version of when the banner was added. Ex. 44
+	 * @param string $jp_version_banner_added A short version of when the banner was added. Ex. 44
 	 *
 	 * @return string
 	 */
@@ -130,17 +121,22 @@ class Jetpack_Connection_Banner {
 			'jetpack-connection-banner-js',
 			'jp_banner',
 			array(
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'ajax_url'              => admin_url( 'admin-ajax.php' ),
 				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
 			)
 		);
 	}
 
+	/**
+	 * Enqueues JavaScript and CSS for new connect-in-place flow.
+	 *
+	 * @since 7.7
+	 */
 	public static function enqueue_connect_button_scripts() {
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
-				'_inc/connect-button.js', // TODO: minify
+				'_inc/build/connect-button.min.js',
 				'_inc/connect-button.js'
 			),
 			array( 'jquery' ),
@@ -157,15 +153,28 @@ class Jetpack_Connection_Banner {
 		);
 
 		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
+
+		if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			$force_variation = 'in_place';
+		} elseif ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			$force_variation = 'original';
+		} else {
+			$force_variation = null;
+		}
+
 		wp_localize_script(
 			'jetpack-connect-button',
 			'jpConnect',
 			array(
-				'apiBaseUrl'            => site_url( '/wp-json/jetpack/v4' ),
+				'apiBaseUrl'            => esc_url_raw( rest_url( 'jetpack/v4' ) ),
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'buttonTextRegistering' => __( 'Loading', 'jetpack' ),
+				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
+				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
+				'forceVariation'        => $force_variation,
+				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
+				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
 			)
 		);
 	}
@@ -183,7 +192,7 @@ class Jetpack_Connection_Banner {
 		// If it doesn't exist yet, generate it for later use and save it, so we always show the same to this user
 		if ( ! $ab_test ) {
 			$ab_test = 1 === rand( 1, 2 ) ? 'a' : 'b';
-			Jetpack_Options::update_option( 'ab_connect_banner_green_bar', $ab_test);
+			Jetpack_Options::update_option( 'ab_connect_banner_green_bar', $ab_test );
 		}
 		if ( 'a' === $ab_test ) {
 			?>
@@ -203,7 +212,8 @@ class Jetpack_Connection_Banner {
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
 	 * @since 4.4.0
 	 */
-	function render_banner() { ?>
+	function render_banner() {
+		?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<?php $this->get_ab_banner_top_bar(); ?>
 			<div class="jp-wpcom-connect__inner-container">
@@ -225,18 +235,22 @@ class Jetpack_Connection_Banner {
 							<img
 								src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>"
 								class="jp-wpcom-connect__hide-phone-and-smaller"
-								alt="<?php esc_attr_e(
+								alt="
+								<?php
+								esc_attr_e(
 									'Jetpack premium services offer even more powerful performance, security, ' .
 									'and revenue tools to help you keep your site safe, fast, and help generate income.',
 									'jetpack'
-								); ?>"
+								);
+								?>
+								"
 								height="auto"
 								width="225"
 								/>
 						</div>
 
 						<div class="jp-wpcom-connect__slide-text">
-							<h2><?php esc_html_e( 'Simplify your site security and performance with Jetpack', 'jetpack' ) ?></h2>
+							<h2><?php esc_html_e( 'Simplify your site security and performance with Jetpack', 'jetpack' ); ?></h2>
 
 							<p>
 								<?php
@@ -302,7 +316,7 @@ class Jetpack_Connection_Banner {
 				<?php endif; ?>
 
 				<div class="jp-connect-full__step-header">
-					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ) ?></h2>
+					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
 				</div>
 
 				<p class="jp-connect-full__tos-blurb">
@@ -316,7 +330,7 @@ class Jetpack_Connection_Banner {
 					</a>
 				</p>
 
-				<div class="jp-connect-full__row">
+				<div class="jp-connect-full__row" id="jetpack-connection-cards">
 					<div class="jp-connect-full__slide">
 						<div class="jp-connect-full__slide-card illustration">
 							<img
@@ -325,14 +339,16 @@ class Jetpack_Connection_Banner {
 							/>
 						</div>
 						<div class="jp-connect-full__slide-card">
-							<p><?php
+							<p>
+							<?php
 								esc_html_e(
 									'Jetpack protects you against brute force attacks and unauthorized logins. ' .
 									'Basic protection is always free, while premium plans add unlimited backups of your whole site, ' .
 									'spam protection, malware scanning, and automated fixes.',
 									'jetpack'
 								);
-								?></p>
+							?>
+								</p>
 						</div>
 					</div>
 					<div class="jp-connect-full__slide">
@@ -343,14 +359,16 @@ class Jetpack_Connection_Banner {
 							/>
 						</div>
 						<div class="jp-connect-full__slide-card">
-							<p><?php
+							<p>
+							<?php
 								esc_html_e(
-									"Activate site accelerator tools and watch your page load times decrease—" .
+									'Activate site accelerator tools and watch your page load times decrease—' .
 									"we'll optimize your images and serve them from our own powerful global network of servers, " .
-									"and speed up your mobile site to reduce bandwidth usage.",
+									'and speed up your mobile site to reduce bandwidth usage.',
 									'jetpack'
 								);
-								?></p>
+							?>
+								</p>
 						</div>
 					</div>
 				</div>
@@ -358,9 +376,13 @@ class Jetpack_Connection_Banner {
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<p class="jp-connect-full__dismiss-paragraph">
 						<a>
-							<?php echo esc_html_x(
-								'Not now, thank you.', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack'
-							); ?>
+							<?php
+							echo esc_html_x(
+								'Not now, thank you.',
+								'a link that closes the modal window that offers to connect Jetpack',
+								'jetpack'
+							);
+							?>
 						</a>
 					</p>
 				<?php endif; ?>

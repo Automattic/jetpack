@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -78,6 +79,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => __CLASS__ . '::get_plans',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+
+		) );
+
+		register_rest_route( 'jetpack/v4', 'marketing/survey', array(
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => __CLASS__ . '::submit_survey',
+			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 
 		) );
 
@@ -197,6 +205,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => array( $site_endpoint, 'get_features' ),
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
+		) );
+
+		// Get current site benefits
+		register_rest_route( 'jetpack/v4', '/site/benefits', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $site_endpoint, 'get_benefits' ),
+			'permission_callback' => array( $site_endpoint, 'can_request' ),
 		) );
 
 		// Get Activity Log data for this site.
@@ -488,6 +503,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return $data;
 	}
 
+	public static function submit_survey( $request ) {
+
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/marketing/survey',
+			'v2',
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			),
+			$request->get_json_params()
+		);
+
+		$wpcom_request_body = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		if ( 200 === wp_remote_retrieve_response_code( $wpcom_request ) ) {
+			$data = $wpcom_request_body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $wpcom_request_body;
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Asks for a jitm, unless they've been disabled, in which case it returns an empty array
 	 *
@@ -731,11 +772,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Check that user has permission to change the master user.
 	 *
 	 * @since 6.2.0
+	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
 	 *
 	 * @return bool|WP_Error True if user is able to change master user.
 	 */
 	public static function set_connection_owner_permission_callback() {
-		if ( get_current_user_id() === Jetpack_Options::get_option( 'master_user' ) ) {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
 
@@ -1224,6 +1266,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		if ( $updated && ! $xml->isError() ) {
+
+			// Track it
+			if ( class_exists( 'Automattic\Jetpack\Tracking' ) ) {
+				$tracking = new Tracking();
+				$tracking->record_user_event( 'set_connection_owner_success' );
+			}
+
 			return rest_ensure_response(
 				array(
 					'code' => 'success',

@@ -5,14 +5,19 @@
 // ==========================================================================
 
 .jp-jetpack-connect__iframe {
-	height: 240px;
+	height: 340px;
 	width: 380px;
 	max-width: 100%;
 	margin: 1rem auto 0;
 
 	@media (min-width: 491px) {
-		height: 290px;
+		height: 390px;
 	}
+}
+
+.jp-connect-full__button-container-loading {
+	margin-top: 84px;
+	display: block;
 }
 
 // =====================================================================
@@ -39,8 +44,8 @@
 
 	&[disabled],
 	&:disabled {
-		background: tint( $blue-light, 50% );
-		border-color: tint( $blue-wordpress, 55% );
+		background: tint( $blue-medium, 40% );
+		border-color: tint( $blue-dark, 40% );
 		color: $white;
 	}
 }

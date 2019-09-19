@@ -291,6 +291,15 @@ class Actions {
 
 		$url = add_query_arg( $query_args, \Jetpack::xmlrpc_api_url() );
 
+		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
+		// because since 7.7 it's being autoloaded with Composer.
+		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
+			return new \WP_Error(
+				'ixr_client_missing',
+				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
+			);
+		}
+
 		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,

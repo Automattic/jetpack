@@ -2,7 +2,7 @@
 /**
  * This class hooks the main sync actions.
  *
- * @package jetpack-sync
+ * @package automattic/jetpack-sync
  */
 
 namespace Automattic\Jetpack\Sync;

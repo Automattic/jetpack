@@ -35,7 +35,7 @@ class Jetpack_Affiliate {
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new Jetpack_Affiliate;
+			self::$instance = new Jetpack_Affiliate();
 		}
 		return self::$instance;
 	}

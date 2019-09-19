@@ -47,17 +47,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 
 	$values['submitButtonText'] = empty( $values['submitButtonText'] ) ? $defaults['submitButtonText'] : $values['submitButtonText'];
 
-	/* TODO: replace with centralized block_class function */
-	$align   = isset( $attr['align'] ) ? $attr['align'] : 'center';
-	$type    = 'mailchimp';
-	$classes = array(
-		'wp-block-jetpack-' . $type,
-		'align' . $align,
-	);
-	if ( isset( $attr['className'] ) ) {
-		array_push( $classes, $attr['className'] );
-	}
-	$classes = implode( $classes, ' ' );
+	$classes = Jetpack_Gutenberg::block_classes( 'mailchimp', $attr );
 
 	$button_styles = array();
 	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
