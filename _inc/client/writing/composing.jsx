@@ -78,7 +78,10 @@ export class Composing extends React.Component {
 					module={ markdown }
 					support={ {
 						text: __(
-							'Allows you to compose content with links, lists, and other styles using the Markdown syntax.'
+							'Allows you to compose content with links, lists, ' +
+								'and other styles using the Markdown syntax. ' +
+								'This setting will allow you to write with the help of Markdown ' +
+								'in the Classic Editor or within a Classic Editor block.'
 						),
 						link: 'https://jetpack.com/support/markdown/',
 					} }
@@ -101,13 +104,6 @@ export class Composing extends React.Component {
 						>
 							<span className="jp-form-toggle-explanation">{ markdown.description }</span>
 						</ModuleToggle>
-					</FormFieldset>
-					<FormFieldset>
-						<p className="jp-form-setting-explanation">
-							{ __(
-								'This only applies to the Classic Editor because there is a Markdown block available in new editor.'
-							) }
-						</p>
 					</FormFieldset>
 				</SettingsGroup>
 			),
