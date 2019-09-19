@@ -21,19 +21,14 @@ class Jetpack_Provision { //phpcs:ignore
 		);
 
 		foreach ( $url_args as $url_arg => $constant_name ) {
-			// Anonymous functions were introduced in 5.3.0. So, if we're running on
-			// >= 5.3.0, use an anonymous function to set the home/siteurl value%s.
-			//
-			// Otherwise, fallback to setting the home/siteurl value via the WP_HOME and
-			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
-				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
+				add_filter(
+					$url_arg,
+					function() use ( $url_arg, $named_args ) {
 						return $named_args[ $url_arg ];
-					}, 11 );
-				} elseif ( ! defined( $constant_name ) ) {
-					define( $constant_name, $named_args[ $url_arg ] );
-				}
+					},
+					11
+				);
 			}
 		}
 

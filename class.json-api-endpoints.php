@@ -1704,8 +1704,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new ReflectionMethod( $class, $method );
 		}
 
-		if ( version_compare( PHP_VERSION, '5.3.0', '>=' ) && method_exists( $callback, '__invoke' ) ) {
-			return new ReflectionMethod( $callback, '__invoke' );
+		if ( method_exists( $callback, "__invoke" ) ) {
+			return new ReflectionMethod( $callback, "__invoke" );
 		}
 
 		if ( is_string( $callback ) && strpos( $callback, '::' ) == false && function_exists( $callback ) ) {
@@ -1970,56 +1970,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return bool
 	 */
 	protected function is_file_supported_for_sideloading( $file ) {
-		if ( class_exists( 'finfo' ) ) { // php 5.3+
-			// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
-			$finfo = new finfo( FILEINFO_MIME );
-			$mime  = explode( '; ', $finfo->file( $file ) );
-			$type  = $mime[0];
-
-		} elseif ( function_exists( 'mime_content_type' ) ) { // PHP 5.2
-			$type = mime_content_type( $file );
-
-		} else {
-			return false;
-		}
-
-		/**
-		 * Filter the list of supported mime types for media sideloading.
-		 *
-		 * @since 4.0.0
-		 *
-		 * @module json-api
-		 *
-		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
-		 */
-		$supported_mime_types = apply_filters(
-			'jetpack_supported_media_sideload_types',
-			array(
-				'image/png',
-				'image/jpeg',
-				'image/gif',
-				'image/bmp',
-				'video/quicktime',
-				'video/mp4',
-				'video/mpeg',
-				'video/ogg',
-				'video/3gpp',
-				'video/3gpp2',
-				'video/h261',
-				'video/h262',
-				'video/h264',
-				'video/x-msvideo',
-				'video/x-ms-wmv',
-				'video/x-ms-asf',
-			)
-		);
-
-		// If the type returned was not an array as expected, then we know we don't have a match.
-		if ( ! is_array( $supported_mime_types ) ) {
-			return false;
-		}
-
-		return in_array( $type, $supported_mime_types );
+		return jetpack_is_file_supported_for_sideloading( $file );
 	}
 
 	function allow_video_uploads( $mimes ) {

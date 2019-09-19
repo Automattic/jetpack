@@ -377,9 +377,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @covers Jetpack_Media_Meta_Extractor::extract
-	 * @todo This test is failing in 5.3 for unknown reasons. Figure it out.
 	 * @since 3.2
-	 * @requires PHP 5.4.0
 	 */
 	function test_extract_mentions() {
 		$post_id = $this->add_test_post();
