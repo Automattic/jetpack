@@ -46,7 +46,8 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation = isWpcomFilesUrl( url ) ? photonWpcomImage : photon;
+	const photonImplementation =
+		isWpcomFilesUrl( url ) || true === isVIP() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -105,7 +106,12 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 
 	return Object.assign( { src }, srcSet && { srcSet } );
 }
-
+function isVIP() {
+	/*global jetpack_plan*/
+	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
+		return true;
+	}
+}
 function isWpcomFilesUrl( url ) {
 	const { host } = parseUrl( url );
 	return /\.files\.wordpress\.com$/.test( host );
