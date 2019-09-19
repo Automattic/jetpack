@@ -36,7 +36,7 @@ class DashPhoton extends Component {
 				<DashItem label={ labelName } module="photon" support={ support } status="is-working">
 					<p className="jp-dash-item__description">
 						{ __(
-							"Jetpack is optimizing your image sizes and download speed using our fast, global CDN. This improves your site's performance on desktop and mobile devices."
+							"Jetpack is optimizing your image sizes and download speed using our fast global network of servers. This improves your site's performance on desktop and mobile devices."
 						) }
 					</p>
 				</DashItem>
@@ -54,7 +54,7 @@ class DashPhoton extends Component {
 					{ this.props.isDevMode
 						? __( 'Unavailable in Dev Mode' )
 						: __(
-								"{{a}}Activate{{/a}} to optimize image sizes and load images from Jetpack's fast, global CDN. This improves your site's performance on desktop and mobile devices.",
+								"{{a}}Activate{{/a}} to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
 								{
 									components: {
 										a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
