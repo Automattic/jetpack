@@ -24,7 +24,7 @@ export default class ConnectionsPage extends Page {
 
 		// Trying to reload page, maybe it will help?
 		await this.page.reload();
-		await this.page.waitForPage();
+		await this.waitForPage();
 
 		await waitAndClick( this.page, mailchimpExpandSelector );
 
