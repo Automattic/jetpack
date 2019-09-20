@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connection flow: remove some of the text from the connection prompt.
 * Dashboard: remove custom About menu page ordering.
+* Dashboard: review and remove unnecessary queries.
 * General: remove files that were deprecated in Jetpack 7.5.
 * Image CDN: check for local file upload before processing post images.
 * Markdown Block: display in the block picker even if the classic Markdown feature is disabled.
