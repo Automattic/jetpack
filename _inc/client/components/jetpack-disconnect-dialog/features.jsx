@@ -20,11 +20,12 @@ import SingleFeature from './single-feature';
 import './style.scss';
 
 const JetpackDisconnectDialogFeatures = ( {
-	siteBenefits,
 	onCloseButtonClick,
 	onContinueButtonClick,
-	siteName,
 	showModalClose,
+	siteAdminUrl,
+	siteBenefits,
+	siteName,
 } ) => {
 	siteBenefits = siteBenefits || [];
 
@@ -44,14 +45,23 @@ const JetpackDisconnectDialogFeatures = ( {
 			</Card>
 			<Card>
 				<p className="jetpack-disconnect-dialog__info">
-					{ __(
-						'Jetpack is currently powering several features of %(siteName)s. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way. We’ve highlighted some of the features you rely on below.',
-						{
-							args: {
-								siteName,
-							},
-						}
-					) }
+					{ siteBenefits.length > 0
+						? __(
+								'Jetpack is currently powering several features of %(siteName)s. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way. We’ve highlighted some of the features you rely on below.',
+								{
+									args: {
+										siteName,
+									},
+								}
+						  )
+						: __(
+								"You may have modified Jetpack settings. Once you disable Jetpack, any settings will be lost. Visit {{a}}Jetpack Settings{{/a}} to check if you aren't sure.",
+								{
+									components: {
+										a: <a href={ siteAdminUrl + 'admin.php?page=jetpack#/settings' } />,
+									},
+								}
+						  ) }
 				</p>
 				<div className="jetpack-disconnect-dialog__features-list">
 					{ siteBenefits.map( ( { title, description, amount, gridIcon } ) => (
@@ -91,6 +101,7 @@ const JetpackDisconnectDialogFeatures = ( {
 JetpackDisconnectDialogFeatures.propTypes = {
 	featureHighlights: PropTypes.array,
 	siteName: PropTypes.string,
+	siteAdminUrl: PropTypes.string,
 };
 
 export default JetpackDisconnectDialogFeatures;
