@@ -10,10 +10,6 @@
 	width: calc( 100% - 24px );
 }
 
-.multiple-choice-question__answer-item-text-input {
-	margin-left: 14px;
-}
-
 .form-text-input.multiple-choice-question__answer-item-text-input::placeholder {
 	color: $white;
 	@include breakpoint( '>480px' ) {
