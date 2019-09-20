@@ -31,7 +31,7 @@ export default class SearchFiltersWidget extends Component {
 						<SearchFilterPostTypes
 							aggregation={ results }
 							configuration={ configuration }
-							initialValue={ this.props.initialValues.postTypes }
+							initialValue={ this.props.initialValues.post_types }
 							onChange={ this.props.onChange }
 							postTypes={ this.props.postTypes }
 						/>
