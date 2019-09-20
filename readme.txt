@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Connection flow: remove some of the text from the connection prompt.
+* General: remove files that were deprecated in Jetpack 7.5.
 * Image CDN: check for local file upload before processing post images.
 * Recurring Payments: add an alignment option to the button.
 
