@@ -22,6 +22,10 @@ export default class ConnectionsPage extends Page {
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
+		// Trying to reload page, maybe it will help?
+		await this.page.reload();
+		await this.page.waitForPage();
+
 		await waitAndClick( this.page, mailchimpExpandSelector );
 
 		// If user account is already connected to Mailchimp, we don't really need to connect it once again
