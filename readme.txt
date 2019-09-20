@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: remove custom About menu page ordering.
 * Dashboard: review and remove unnecessary queries.
 * General: remove files that were deprecated in Jetpack 7.5.
+* General: remove outdated pre-PHP 5.6 era code.
 * Image CDN: check for local file upload before processing post images.
 * Markdown Block: display in the block picker even if the classic Markdown feature is disabled.
 * Recurring Payments: add an alignment option to the button.
