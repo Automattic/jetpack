@@ -20,6 +20,10 @@ class Jetpack_Admin {
 
 			// suppress wpadmin stuffs when rendering iframes
 			if( isset( $_GET['iframe_request'] ) && $_GET['iframe_request'] && ! defined( 'IFRAME_REQUEST') ) {
+				function hide_admin_notices() {
+					echo '<style>.notice { display: none; }</style>';
+				};
+				add_action( 'admin_enqueue_scripts', 'hide_admin_notices' );
 				define( 'IFRAME_REQUEST', true );
 			}
 
