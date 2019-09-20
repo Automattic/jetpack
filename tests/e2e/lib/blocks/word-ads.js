@@ -16,7 +16,7 @@ export default class WordAdsBlock {
 	}
 
 	static name() {
-		return 'Ads';
+		return 'Ad';
 	}
 
 	async switchFormat( buttonNumber ) {
