@@ -8,7 +8,7 @@ import { wrap } from 'lodash';
 import { sendFailedTestScreenshotToSlack, sendFailedTestMessageToSlack } from './reporters/slack';
 import { takeScreenshot } from './reporters/screenshot';
 import { readFileSync } from 'fs';
-import { logger } from 'handlebars';
+import { execShellCommand } from './utils-helper';
 
 /**
  * Override the test case method so we can take screenshots of assertion failures.
@@ -38,6 +38,9 @@ global.it = async ( name, func ) => {
 				const filePath = await takeScreenshot( currentBlock, name );
 				await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 				await sendFailedTestScreenshotToSlack( filePath );
+				execShellCommand( 'ls' );
+				execShellCommand( 'ls ~/' );
+				execShellCommand( 'ls ~/wordpress/wp-content' );
 				const fileContents = readFileSync( '~/wordpress/wp-content/debug.log' );
 				console.log( fileContents.toString() );
 			}
