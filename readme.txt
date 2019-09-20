@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Activity Log: avoid displaying events from the Action Scheduler.
 * Ads Block: avoid PHP errors when loading posts via the WordPress.com interface.
+* Shortcodes: add title attribute to Archive.org embeds.
 * Sync: avoid issues when using deprecated Sync functions.
 * WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
 
