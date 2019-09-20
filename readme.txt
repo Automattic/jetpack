@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Recurring Payments: add an alignment option to the button.
 
 **Improved compatibility**
 
