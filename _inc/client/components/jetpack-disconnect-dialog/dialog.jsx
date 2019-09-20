@@ -46,8 +46,8 @@ class JetpackDisconnectDialog extends Component {
 		const { siteId, sitePlan, location } = this.props;
 		const { surveyAnswerId, surveyAnswerText } = this.state;
 		this.props.submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText, location );
-		// this.props.disconnectJetpack();
-		// this.props.closeDialog();
+		this.props.disconnectJetpack();
+		this.props.closeDialog();
 	}
 
 	handleFeaturesContinueClick() {
