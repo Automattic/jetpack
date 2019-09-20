@@ -1,6 +1,6 @@
 <?php
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
 * Required for class.media-extractor.php to match expected function naming convention.

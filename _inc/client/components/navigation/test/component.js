@@ -66,12 +66,12 @@ describe( 'Navigation', () => {
 
 		const wrapperManage = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 3 NavItem components', () => {
-			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 3 );
+		it( 'renders 1 NavItem component', () => {
+			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 1 );
 		} );
 
-		it( 'renders tabs with At a Glance, My Plan, Plans', () => {
-			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,My Plan,Plans' );
+		it( 'renders At a Glance tab', () => {
+			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance' );
 		} );
 
 	} );

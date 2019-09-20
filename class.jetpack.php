@@ -369,7 +369,7 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
-	 * @var \Automattic\Jetpack\Connection\Manager
+	 * @var Automattic\Jetpack\Connection\Manager
 	 */
 	protected $connection_manager;
 
@@ -666,6 +666,7 @@ class Jetpack {
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'amp_story_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
@@ -4748,7 +4749,7 @@ endif;
 				'site_lang'     => get_locale(),
 				'_ui'           => $tracks_identity['_ui'],
 				'_ut'           => $tracks_identity['_ut'],
-				'site_created'  => self::get_assumed_site_creation_date(),
+				'site_created'  => self::connection()->get_assumed_site_creation_date(),
 			)
 		);
 
@@ -4774,39 +4775,13 @@ endif;
 	 * - Earliest date of post of any post type.
 	 *
 	 * @since 7.2.0
+	 * @deprecated since 7.8.0
 	 *
 	 * @return string Assumed site creation date and time.
 	 */
 	public static function get_assumed_site_creation_date() {
-		$earliest_registered_users  = get_users(
-			array(
-				'role'    => 'administrator',
-				'orderby' => 'user_registered',
-				'order'   => 'ASC',
-				'fields'  => array( 'user_registered' ),
-				'number'  => 1,
-			)
-		);
-		$earliest_registration_date = $earliest_registered_users[0]->user_registered;
-
-		$earliest_posts = get_posts(
-			array(
-				'posts_per_page' => 1,
-				'post_type'      => 'any',
-				'post_status'    => 'any',
-				'orderby'        => 'date',
-				'order'          => 'ASC',
-			)
-		);
-
-		// If there are no posts at all, we'll count only on user registration date.
-		if ( $earliest_posts ) {
-			$earliest_post_date = $earliest_posts[0]->post_date;
-		} else {
-			$earliest_post_date = PHP_INT_MAX;
-		}
-
-		return min( $earliest_registration_date, $earliest_post_date );
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Connection\\Manager' );
+		return self::connection()->get_assumed_site_creation_date();
 	}
 
 	public static function apply_activation_source_to_args( &$args ) {
@@ -6618,8 +6593,8 @@ endif;
 
 			// Check PHP version
 			if ( 'php-version' == $stat ) {
-				if ( version_compare( PHP_VERSION, '5.2.4', '<' ) ) {
-					$caution[ $stat ] = $value . ' - min supported is 5.2.4';
+				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
+					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_PHP_VERSION;
 					continue;
 				}
 			}

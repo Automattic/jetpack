@@ -83,7 +83,6 @@ class Jetpack_XMLRPC_Server {
 					'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
 					'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 					'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
-					'jetpack.syncObject'        => array( $this, 'sync_object' ),
 					'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
 				)
 			);
@@ -814,16 +813,15 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns any object that is able to be synced.
 	 *
+	 * @deprecated since 7.8.0
+	 * @see Automattic\Jetpack\Sync\Sender::sync_object()
+	 *
 	 * @param array $args the synchronized object parameters.
+	 * @return string Encoded sync object.
 	 */
 	public function sync_object( $args ) {
-		// For example: posts, post, 5.
-		list( $module_name, $object_type, $id ) = $args;
-
-		$sync_module = Modules::get_module( $module_name );
-		$codec       = Sender::get_instance()->get_codec();
-
-		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Sync\\Sender::sync_object' );
+		return Sender::get_instance()->sync_object( $args );
 	}
 
 	/**

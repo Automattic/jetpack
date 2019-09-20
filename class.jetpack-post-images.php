@@ -346,29 +346,25 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
+		/*
+		 * Let's loop through our blocks.
+		 * Some blocks may include some other blocks. Let's go 2 levels deep to look for blocks
+		 * that we support and that may include images (see get_images_from_block)
+		 *
+		 * @to-do: instead of looping manually (that's a lot of if and loops), search recursively instead.
+		 */
 		foreach ( $blocks as $block ) {
-			/**
-			 * Parse content from Core Image blocks.
-			 * If it is an image block for an image hosted on our site, it will have an ID.
-			 * If it does not have an ID, let `from_html` parse that content later,
-			 * and extract an image if it has size parameters.
-			 */
-			if (
-				'core/image' === $block['blockName']
-				&& ! empty( $block['attrs']['id'] )
-			) {
-				$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
-			}
-
-			/**
-			 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
-			 * Gallery blocks include the ID of each one of the images in the gallery.
-			 */
-			if ( in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery', 'jetpack/slideshow' ) )
-				&& ! empty( $block['attrs']['ids'] )
-			) {
-				foreach ( $block['attrs']['ids'] as $img_id ) {
-					$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
+			if ( ! self::is_nested_block( $block ) || 'core/media-text' === $block['blockName'] ) {
+				$images = self::get_images_from_block( $images, $block, $html_info, $width, $height );
+			} else {
+				foreach ( $block['innerBlocks'] as $inner_block ) {
+					if ( ! self::is_nested_block( $inner_block ) ) {
+						$images = self::get_images_from_block( $images, $inner_block, $html_info, $width, $height );
+					} else {
+						foreach ( $inner_block['innerBlocks'] as $inner_inner_block ) {
+							$images = self::get_images_from_block( $images, $inner_inner_block, $html_info, $width, $height );
+						}
+					}
 				}
 			}
 		}
@@ -820,5 +816,68 @@ class Jetpack_PostImages {
 	 */
 	public static function get_alt_text( $attachment_id ) {
 		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+	}
+
+	/**
+	 * Get an image from a block.
+	 *
+	 * @since 7.8.0
+	 *
+	 * @param array $images    Images found.
+	 * @param array $block     Block and its attributes.
+	 * @param array $html_info Info about the post where the block is found.
+	 * @param int   $width     Desired image width.
+	 * @param int   $height    Desired image height.
+	 *
+	 * @return array Array of images found.
+	 */
+	private static function get_images_from_block( $images, $block, $html_info, $width, $height ) {
+		/**
+		 * Parse content from Core Image blocks.
+		 * If it is an image block for an image hosted on our site, it will have an ID.
+		 * If it does not have an ID, let `from_html` parse that content later,
+		 * and extract an image if it has size parameters.
+		 */
+		if (
+			'core/image' === $block['blockName']
+			&& ! empty( $block['attrs']['id'] )
+		) {
+			$images[] = self::get_attachment_data( $block['attrs']['id'], $html_info['post_url'], $width, $height );
+		} elseif (
+			'core/media-text' === $block['blockName']
+			&& ! empty( $block['attrs']['mediaId'] )
+		) {
+			$images[] = self::get_attachment_data( $block['attrs']['mediaId'], $html_info['post_url'], $width, $height );
+		} elseif (
+			/**
+			 * Parse content from Core Gallery blocks as well from Jetpack's Tiled Gallery and Slideshow blocks.
+			 * Gallery blocks include the ID of each one of the images in the gallery.
+			 */
+			in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery', 'jetpack/slideshow' ), true )
+			&& ! empty( $block['attrs']['ids'] )
+		) {
+			foreach ( $block['attrs']['ids'] as $img_id ) {
+				$images[] = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
+			}
+		}
+
+		return $images;
+	}
+
+	/**
+	 * Check if a block has inner blocks.
+	 *
+	 * @since 7.8.0
+	 *
+	 * @param array $block Block and its attributes.
+	 *
+	 * @return bool
+	 */
+	private static function is_nested_block( $block ) {
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -973,13 +973,7 @@ class Jetpack_Photon {
 				);
 			} // foreach ( $multipliers as $multiplier )
 			if ( is_array( $newsources ) ) {
-				if ( function_exists( 'array_replace' ) ) { // PHP 5.3+, preferred
-					// phpcs:disable
-					$sources = array_replace( $sources, $newsources );
-					// phpcs:enable
-				} else { // For PHP 5.2 using WP shim function
-					$sources = array_replace_recursive( $sources, $newsources );
-				}
+				$sources = array_replace( $sources, $newsources );
 			}
 		} // if ( isset( $image_meta['width'] ) && isset( $image_meta['file'] ) )
 

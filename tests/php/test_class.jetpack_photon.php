@@ -857,19 +857,17 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	public function photon_attributes_when_filtered_data_provider() {
-		$that = $this; // For sake of PHP 5.3.
-
-		$assert_details = function ( $details ) use ( $that ) {
-			$that->assertInternalType( 'array', $details );
-			$that->assertArrayHasKey( 'tag', $details );
-			$that->assertArrayHasKey( 'src', $details );
-			$that->assertArrayHasKey( 'src_orig', $details );
-			$that->assertArrayHasKey( 'width', $details );
-			$that->assertArrayHasKey( 'width_orig', $details );
-			$that->assertArrayHasKey( 'height', $details );
-			$that->assertArrayHasKey( 'height_orig', $details );
-			$that->assertArrayHasKey( 'transform', $details );
-			$that->assertArrayHasKey( 'transform_orig', $details );
+		$assert_details = function ( $details ) {
+			$this->assertInternalType( 'array', $details );
+			$this->assertArrayHasKey( 'tag', $details );
+			$this->assertArrayHasKey( 'src', $details );
+			$this->assertArrayHasKey( 'src_orig', $details );
+			$this->assertArrayHasKey( 'width', $details );
+			$this->assertArrayHasKey( 'width_orig', $details );
+			$this->assertArrayHasKey( 'height', $details );
+			$this->assertArrayHasKey( 'height_orig', $details );
+			$this->assertArrayHasKey( 'transform', $details );
+			$this->assertArrayHasKey( 'transform_orig', $details );
 		};
 
 		return array(

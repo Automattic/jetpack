@@ -49,9 +49,6 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' )    || define(
 defined( 'JETPACK_SIGNATURE__HTTP_PORT' )  || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
-// TODO: delete before next release
-defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) || define( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME', true );
-
 /**
  * Check if the version of WordPress in use on the site is supported by Jetpack.
  */

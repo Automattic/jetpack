@@ -801,7 +801,8 @@ EXPECTED;
 			'post_date' => '1995-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1990-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1990-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
@@ -820,7 +821,8 @@ EXPECTED;
 			'post_date' => '1991-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1991-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1991-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
@@ -840,7 +842,8 @@ EXPECTED;
 			'user_registered' => '1992-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1994-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1994-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $admin_id );
 		wp_delete_user( $editor_id );
@@ -1039,8 +1042,9 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)
@@ -1078,11 +1082,12 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)

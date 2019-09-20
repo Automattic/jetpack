@@ -62,7 +62,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
-\Automattic\Jetpack\Sync\Main::init();
+Automattic\Jetpack\Sync\Main::init();
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';

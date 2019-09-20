@@ -443,12 +443,14 @@ class JITM {
 			return array();
 		}
 
-		$site_id = \Jetpack_Options::get_option( 'id' );
+		$user_roles = implode( ',', $user->roles );
+		$site_id    = \Jetpack_Options::get_option( 'id' );
 
 		// build our jitm request
 		$path = add_query_arg(
 			array(
 				'external_user_id' => urlencode_deep( $user->ID ),
+				'user_roles'       => urlencode_deep( $user_roles ),
 				'query_string'     => urlencode_deep( $query ),
 				'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
 				'_locale'          => get_user_locale(),

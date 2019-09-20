@@ -2,7 +2,7 @@
 /**
  * Nosara Tracks for Jetpack
  *
- * @package jetpack-tracking
+ * @package automattic/jetpack-tracking
  */
 
 namespace Automattic\Jetpack;
