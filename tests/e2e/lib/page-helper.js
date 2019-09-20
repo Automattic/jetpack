@@ -166,5 +166,6 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
  * @param {string} selector CSS selector of the element
  */
 export async function scrollIntoView( page, selector ) {
+	await waitForSelector( page, selector );
 	return await page.evaluate( () => document.querySelector( selector ).scrollIntoView() );
 }
