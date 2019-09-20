@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Markdown Block: display in the block picker even if the classic Markdown feature is disabled.
 * Recurring Payments: add an alignment option to the button.
 * Recurring Payments: improve the display of connection notifications.
+* Tiled Galleries: the block is now available even if you've disable the "Image Accelerator" feature.
 * WordPress.com REST API: improve detection of the Full Site Editing feature.
 
 **Improved compatibility**
