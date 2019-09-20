@@ -158,3 +158,13 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 	const target = await Promise.race( [ newTabTarget, timeoutPromise ] );
 	return await target.page();
 }
+
+/**
+ * Scroll the element into view
+ *
+ * @param {Puppeteer.Page} page Puppeteer representation of the page.
+ * @param {string} selector CSS selector of the element
+ */
+export async function scrollIntoView( page, selector ) {
+	return await page.evaluate( () => document.querySelector( selector ).scrollIntoView() );
+}
