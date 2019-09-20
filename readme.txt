@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Ads Block: avoid PHP errors when loading posts via the WordPress.com interface.
 * Sync: avoid issues when using deprecated Sync functions.
 * WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
 
