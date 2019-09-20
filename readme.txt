@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: remove files that were deprecated in Jetpack 7.5.
 * Image CDN: check for local file upload before processing post images.
 * Recurring Payments: add an alignment option to the button.
+* WordPress.com REST API: improve detection of the Full Site Editing feature.
 
 **Improved compatibility**
 
