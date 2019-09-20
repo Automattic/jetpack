@@ -263,8 +263,11 @@ function enqueue_packages_$suffix() {
 	foreach ( \$class_map as \$class_name => \$class_info ) {
 		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
 	}
-	
-	\$includeFiles = require __DIR__ . '/composer/autoload_files.php';
+
+	\$autoload_file = __DIR__ . '/composer/autoload_files.php';
+	\$includeFiles = file_exists( \$autoload_file )
+	    ? require \$autoload_file
+	    : [];
 
 	foreach ( \$includeFiles as \$fileIdentifier => \$file ) {
 		if ( empty( \$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] ) ) {
