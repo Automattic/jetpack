@@ -38,9 +38,6 @@ global.it = async ( name, func ) => {
 				const filePath = await takeScreenshot( currentBlock, name );
 				await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 				await sendFailedTestScreenshotToSlack( filePath );
-				execShellCommand( 'ls' );
-				execShellCommand( 'ls ~/' );
-				execShellCommand( 'ls ~/wordpress/wp-content' );
 				const fileContents = readFileSync( '~/wordpress/wp-content/debug.log' );
 				console.log( fileContents.toString() );
 			}
