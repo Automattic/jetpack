@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* General: avoid conflicts when using Jetpack alongside other plugins or services that rely on an Autoloader.
 
 **Bug fixes**
 
