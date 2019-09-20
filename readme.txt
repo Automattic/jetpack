@@ -119,7 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
 
 --------
 
