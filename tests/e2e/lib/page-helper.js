@@ -167,5 +167,5 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
  */
 export async function scrollIntoView( page, selector ) {
 	await waitForSelector( page, selector );
-	return await page.evaluate( () => document.querySelector( selector ).scrollIntoView() );
+	return await page.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
 }
