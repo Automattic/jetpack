@@ -147,6 +147,9 @@ PHP
 
 	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 
+	cat $WP_CORE_DIR/wp-config.php
+	ls $WP_CORE_DIR/wp-content
+
 	# create a debug.log file
 	touch $WP_CORE_DIR/wp-content/debug.log
 }
@@ -168,6 +171,12 @@ if [ "${1}" == "reset_wp" ]; then
 	wp --path=$WP_CORE_DIR db reset --yes
 	wp --path=$WP_CORE_DIR core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com
 	wp --path=$WP_CORE_DIR plugin activate jetpack
+
+	cat $WP_CORE_DIR/wp-config.php
+	ls $WP_CORE_DIR/wp-content
+
+	# create a debug.log file
+	touch $WP_CORE_DIR/wp-content/debug.log
 else
 	install_ngrok
 	start_ngrok
