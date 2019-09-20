@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* AMP / Sharing: include Open Graph metadata to AMP Story posts.
 * General: avoid conflicts when using Jetpack alongside other plugins or services that rely on an Autoloader.
 
 **Bug fixes**
