@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Image CDN: check for local file upload before processing post images.
 * Recurring Payments: add an alignment option to the button.
 
 **Improved compatibility**
