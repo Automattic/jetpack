@@ -39,7 +39,7 @@ global.it = async ( name, func ) => {
 				await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 				await sendFailedTestScreenshotToSlack( filePath );
 				console.log( execSyncShellCommand( 'ls /home/travis/wordpress/wp-content/' ) );
-				console.log( execSyncShellCommand( 'cat /home/travis/wordpress/wp-content/' ) );
+				console.log( execSyncShellCommand( 'cat /home/travis/wordpress/wp-content/debug.log' ) );
 
 				const fileContents = readFileSync( '/home/travis/wordpress/wp-content/debug.log' );
 				console.log( fileContents.toString() );
