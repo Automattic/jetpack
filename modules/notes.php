@@ -104,8 +104,6 @@ class Jetpack_Notifications {
 
 	function styles_and_scripts() {
 		$is_rtl = is_rtl();
-		$style_handles  = array();
-		$script_handles = array();
 
 		if ( Jetpack::is_module_active( 'masterbar' ) ) {
 			/**
@@ -121,18 +119,17 @@ class Jetpack_Notifications {
 		}
 
 		if ( ! $is_rtl ) {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 		} else {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
-		$style_handles[] = 'wpcom-notes-admin-bar';
 
-		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
-		$style_handles[] = 'noticons';
+		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array( 'wpcom-notes-admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 
 		$this->print_js();
 
 		// attempt to use core or plugin libraries if registered
+		$script_handles = array();
 		if ( !wp_script_is( 'mustache', 'registered' ) ) {
 			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
@@ -160,18 +157,6 @@ class Jetpack_Notifications {
 				function ( $tag, $handle ) use ( $script_handles ) {
 					if ( in_array( $handle, $script_handles, true ) ) {
 						$tag = preg_replace( '/(?<=<script)(?=\s|>)/i', ' data-ampdevmode', $tag );
-					}
-					return $tag;
-				},
-				10,
-				2
-			);
-
-			add_filter(
-				'style_loader_tag',
-				function ( $tag, $handle ) use ( $style_handles ) {
-					if ( in_array( $handle, $style_handles, true ) ) {
-						$tag = preg_replace( '/(?<=<link)(?=\s|>)/i', ' data-ampdevmode', $tag );
 					}
 					return $tag;
 				},
