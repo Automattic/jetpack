@@ -21,11 +21,6 @@ class ManagerTest extends TestCase {
 		Mock::disableAll();
 	}
 
-	function test_class_implements_interface() {
-		$manager = new Manager();
-		$this->assertInstanceOf( 'Automattic\Jetpack\Connection\Manager_Interface', $manager );
-	}
-
 	/**
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
