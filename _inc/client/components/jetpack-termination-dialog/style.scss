@@ -32,6 +32,14 @@
 	margin-top: 0;
 }
 
+.jetpack-termination-dialog__generic-info {
+	ul {
+		list-style: inside;
+		font-size: 16px;
+		line-height: 24px;
+	}
+}
+
 .jetpack-termination-dialog__features-list {
 	position: relative;
 	left: calc( -1em );
