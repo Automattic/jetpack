@@ -56,8 +56,16 @@ jQuery( document ).ready( function( $ ) {
 			loadingText.text( jpConnect.buttonTextRegistering );
 			loadingText.appendTo( '.jp-connect-full__button-container' );
 
+			var registerUrl = jpConnect.apiBaseUrl + '/connection/register';
+
+			// detect Calypso Env and add to API URL
+			if ( window.Initial_State && window.Initial_State.calypsoEnv ) {
+				registerUrl =
+					registerUrl + '?' + $.param( { calypso_env: window.Initial_State.calypsoEnv } );
+			}
+
 			$.ajax( {
-				url: jpConnect.apiBaseUrl + '/connection/register',
+				url: registerUrl,
 				type: 'POST',
 				data: {
 					registration_nonce: jpConnect.registrationNonce,
