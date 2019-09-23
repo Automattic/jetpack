@@ -3,18 +3,33 @@
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import { h, createRef, Component } from 'preact';
 import strip from 'strip';
+import { getCheckedInputNames } from '../lib/dom';
 
 export default class SearchFilterPostTypes extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = { selected: this.props.initialValue };
+		this.filtersList = createRef();
+	}
+
+	toggleFilter = () => {
+		const selected = getCheckedInputNames( this.filtersList.current );
+		this.setState( { selected }, () => {
+			this.props.onChange( 'post_types', selected );
+		} );
+	};
+
 	renderPostType = ( { key, doc_count: count } ) => {
-		const name = this.props.postTypes[ key ];
+		const name = key in this.props.postTypes ? this.props.postTypes[ key ] : key;
 		return (
 			<div>
 				<input
-					disabled
+					checked={ this.state.selected.includes( key ) }
 					id={ `jp-instant-search-filter-post-types-${ key }` }
 					name={ key }
+					onChange={ this.toggleFilter }
 					type="checkbox"
 				/>
 				<label htmlFor={ `jp-instant-search-filter-post-types-${ key }` }>
@@ -26,8 +41,10 @@ export default class SearchFilterPostTypes extends Component {
 	render() {
 		return (
 			<div>
-				<h4 className="jetpack-search-filters-widget__sub-heading">{ this.props.filter.name }</h4>
-				<ul className="jetpack-search-filters-widget__filter-list">
+				<h4 className="jetpack-search-filters-widget__sub-heading">
+					{ this.props.configuration.name }
+				</h4>
+				<ul className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
 					{ this.props.aggregation &&
 						'buckets' in this.props.aggregation &&
 						this.props.aggregation.buckets.map( this.renderPostType ) }

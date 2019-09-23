@@ -37,7 +37,26 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
-export function search( siteId, query, aggregations, filter, resultFormat, sort ) {
+function buildFilterObject( filterQuery ) {
+	if ( ! filterQuery ) {
+		return {};
+	}
+
+	const filter = { bool: { must: [] } };
+	if ( Array.isArray( filterQuery.post_types ) && filterQuery.post_types.length > 0 ) {
+		filterQuery.post_types.forEach( postType => {
+			filter.bool.must.push( { term: { post_type: postType } } );
+		} );
+	}
+	if ( Array.isArray( filterQuery.post_tag ) && filterQuery.post_tag.length > 0 ) {
+		filterQuery.post_tag.forEach( tag => {
+			filter.bool.must.push( { term: { 'tag.slug': tag } } );
+		} );
+	}
+	return filter;
+}
+
+export function search( { aggregations, filter, query, resultFormat, siteId, sort } ) {
 	let fields = [];
 	let highlight_fields = [];
 	switch ( resultFormat ) {
@@ -46,7 +65,15 @@ export function search( siteId, query, aggregations, filter, resultFormat, sort 
 		case 'minimal':
 		default:
 			highlight_fields = [ 'title', 'content', 'comments' ];
-			fields = [ 'date', 'permalink.url.raw', 'tag.name.default', 'category.name.default' ];
+			fields = [
+				'date',
+				'permalink.url.raw',
+				'tag.name.default',
+				'category.name.default',
+				'post_type',
+				'has.image',
+				'shortcode_types',
+			];
 	}
 
 	const queryString = encode(
@@ -54,7 +81,7 @@ export function search( siteId, query, aggregations, filter, resultFormat, sort 
 			aggregations,
 			fields,
 			highlight_fields,
-			filter,
+			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
 			sort: sort,
 		} )

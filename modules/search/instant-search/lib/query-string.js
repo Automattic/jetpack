@@ -71,3 +71,32 @@ export function getSearchSort() {
 	}
 	return sort;
 }
+
+function getFilterQueryByKey( filterKey ) {
+	const query = getQuery();
+	if ( ! ( filterKey in query ) ) {
+		return [];
+	}
+	if ( typeof query[ filterKey ] === 'string' ) {
+		return [ query[ filterKey ] ];
+	}
+	return query[ filterKey ];
+}
+
+export function getFilterQuery( filterKey ) {
+	if ( filterKey ) {
+		return getFilterQueryByKey( filterKey );
+	}
+
+	return {
+		category: getFilterQueryByKey( 'category' ),
+		post_tag: getFilterQueryByKey( 'post_tag' ),
+		post_types: getFilterQueryByKey( 'post_types' ),
+	};
+}
+
+export function setFilterQuery( filterKey, filterValue ) {
+	const query = getQuery();
+	query[ filterKey ] = filterValue;
+	pushQueryString( encode( query ) );
+}

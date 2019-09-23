@@ -16,7 +16,7 @@ import debounce from 'lodash/debounce';
 import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
 import { search, buildFilterAggregations } from '../lib/api';
-import { setSearchQuery } from '../lib/query-string';
+import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
 import { removeChildren, hideSearchHeader } from '../lib/dom';
 
 class SearchApp extends Component {
@@ -29,11 +29,11 @@ class SearchApp extends Component {
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
 		this.state = {
 			query: this.props.initialValue,
-			results: {},
 			sort: this.props.initialSort,
+			results: {},
 		};
 		this.getResults = debounce( this.getResults, 500 );
-		this.getResults( this.props.initialValue, this.props.initialSort );
+		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
 	}
 
 	componentDidMount() {
@@ -55,19 +55,24 @@ class SearchApp extends Component {
 		this.getResults( query, this.state.sort );
 	};
 
-	getResults = ( query, sort ) => {
+	onChangeFilter = ( filterName, filterValue ) => {
+		setFilterQuery( filterName, filterValue );
+		this.getResults( this.state.query, getFilterQuery() );
+	};
+
+	getResults = ( query, filter, sort ) => {
 		if ( query ) {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			search(
-				this.props.options.siteId,
+			search( {
+				aggregations: this.props.aggregations,
+				filter,
 				query,
-				this.props.aggregations,
-				{},
-				this.props.options.resultFormat,
-				sort
-			)
+				resultFormat: this.props.options.resultFormat,
+				siteId: this.props.options.siteId,
+				sort,
+			} )
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
@@ -104,6 +109,8 @@ class SearchApp extends Component {
 							</div>
 							<div className="jetpack-search-sort-wrapper" />
 							<SearchFiltersWidget
+								initialValues={ this.props.initialFilters }
+								onChange={ this.onChangeFilter }
 								postTypes={ this.props.options.postTypes }
 								results={ this.state.results }
 								widget={ widget }
