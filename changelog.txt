@@ -2,6 +2,14 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.7.2 =
+
+* Release date: September 23, 2019
+
+**Bug fixes**
+
+* General: fix connection issues when attempting to install and connect Jetpack from a mobile app.
+
 = 7.7.1 =
 
 * Release date: September 6, 2019
