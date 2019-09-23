@@ -1,12 +1,17 @@
 <?php
+/**
+ * Functions used for Jetpack Sync.
+ *
+ * @package Jetpack
+ */
 
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
-/*
+
+/**
  * Utility functions to generate data synced to wpcom
  */
-
 class Functions {
 	const HTTPS_CHECK_OPTION_PREFIX = 'jetpack_sync_https_history_';
 	const HTTPS_CHECK_HISTORY       = 5;
@@ -368,6 +373,10 @@ class Functions {
 	 * @return string
 	 */
 	public static function get_timezone() {
+		// @todo: Only return wp_timezone_string once WP 5.3 is the minimum version.
+		if ( function_exists( 'wp_timezone_string' ) ) {
+			return wp_timezone_string();
+		}
 		$timezone_string = get_option( 'timezone_string' );
 
 		if ( ! empty( $timezone_string ) ) {

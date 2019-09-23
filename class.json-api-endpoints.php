@@ -1557,27 +1557,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$dt_local = clone $dt_utc = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
 		}
 
-		// First try to use timezone as it's daylight savings aware.
-		$timezone_string = get_option( 'timezone_string' );
-		if ( $timezone_string ) {
-			$tz = timezone_open( $timezone_string );
-			if ( $tz ) {
-				$dt_local->setTimezone( $tz );
-				return array(
-					(string) $dt_local->format( 'Y-m-d H:i:s' ),
-					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
-				);
-			}
-		}
+		$dt_local->setTimezone( wp_timezone() );
 
-		// Fallback to GMT offset (in hours)
-		// NOTE: TZ of $dt_local is still UTC, we simply modified the timestamp with an offset.
-		$gmt_offset_seconds = intval( get_option( 'gmt_offset' ) * 3600 );
-		$dt_local->modify( "+{$gmt_offset_seconds} seconds" );
 		return array(
 			(string) $dt_local->format( 'Y-m-d H:i:s' ),
 			(string) $dt_utc->format( 'Y-m-d H:i:s' ),
-		);
+			);
 	}
 
 	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
