@@ -10,10 +10,10 @@ import React, { Component } from 'react';
  * Internal dependencies
  */
 import { disconnectSite } from 'state/connection';
-import JetpackDisconnectDialog from './dialog';
+import JetpackTerminationDialog from './dialog';
 import Modal from 'components/modal';
 
-class JetpackDisconnectDialogModal extends Component {
+class JetpackDisconnectModal extends Component {
 	static propTypes = {
 		show: PropTypes.bool,
 		toggleModal: PropTypes.func,
@@ -40,10 +40,11 @@ class JetpackDisconnectDialogModal extends Component {
 		return (
 			show && (
 				<Modal className="jp-connection-settings__modal" onRequestClose={ this.props.toggleModal }>
-					<JetpackDisconnectDialog
+					<JetpackTerminationDialog
 						closeDialog={ this.props.toggleModal }
 						disconnectJetpack={ this.disconnectJetpack }
 						location={ 'dashboard' }
+						purpose={ 'disconnect' }
 					/>
 				</Modal>
 			)
@@ -60,4 +61,4 @@ export default connect(
 			},
 		};
 	}
-)( JetpackDisconnectDialogModal );
+)( JetpackDisconnectModal );

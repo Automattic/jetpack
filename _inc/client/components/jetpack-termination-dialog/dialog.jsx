@@ -62,9 +62,8 @@ class JetpackTerminationDialog extends Component {
 	static propTypes = {
 		closeDialog: PropTypes.func.isRequired,
 		disconnectJetpack: PropTypes.func.isRequired,
-		invocationLocation: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
+		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'uninstall' ] ).isRequired,
-		showModalClose: PropTypes.bool,
 		siteBenefits: PropTypes.object,
 	};
 
@@ -77,14 +76,14 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	renderFeatures() {
-		const { closeDialog, from, siteBenefits, siteName } = this.props;
+		const { closeDialog, location, siteBenefits, siteName } = this.props;
 
 		return (
 			<JetpackDisconnectFeatures
 				onCloseButtonClick={ closeDialog }
 				// to be an actual continue in follow-up
 				onContinueButtonClick={ this.handleJetpackTermination }
-				showModalClose={ 'dashboard' === from }
+				showModalClose={ 'dashboard' === location }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
 				siteName={ siteName }
 			/>

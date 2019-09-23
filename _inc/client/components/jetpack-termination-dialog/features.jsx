@@ -20,11 +20,11 @@ import SingleFeature from './single-feature';
 import './style.scss';
 
 const JetpackDisconnectDialogFeatures = ( {
-	siteBenefits,
 	onCloseButtonClick,
 	onContinueButtonClick,
-	siteName,
 	showModalClose,
+	siteBenefits,
+	siteName,
 } ) => {
 	// TODO: remove test data before merging
 	siteBenefits = siteBenefits.concat( [
@@ -53,8 +53,6 @@ const JetpackDisconnectDialogFeatures = ( {
 			gridIcon: 'user',
 		},
 	] );
-
-	console.log( `hello 2` );
 
 	return (
 		<div className="jetpack-termination-dialog__features">
