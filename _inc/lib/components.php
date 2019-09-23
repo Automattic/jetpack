@@ -87,21 +87,12 @@ class Jetpack_Components {
 		}
 
 		// Post-checkout: redirect back to the editor.
-		$redirect_to = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			? add_query_arg(
-				array(
-					'plan_upgraded' => 1,
-				),
-				'/' . implode( '/', array_filter( array( $post_type_editor_route_prefix, $post_type, $site_slug, $post_id ) ) )
-			)
-			: add_query_arg(
-				array(
-					'action'        => 'edit',
-					'post'          => $post_id,
-					'plan_upgraded' => 1,
-				),
-				admin_url( 'post.php' )
-			);
+		$redirect_to = add_query_arg(
+			array(
+				'plan_upgraded' => 1,
+			),
+			get_edit_post_link( $post_id )
+		);
 
 		$upgrade_url =
 			$plan_path_slug
