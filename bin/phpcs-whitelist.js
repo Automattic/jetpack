@@ -24,6 +24,7 @@ module.exports = [
 	'modules/sharedaddy.php',
 	'modules/shortcodes/',
 	'modules/sitemaps/sitemaps.php',
+	'modules/theme-tools/compat/twentytwenty.php',
 	'modules/theme-tools/social-menu/',
 	'modules/verification-tools.php',
 	'modules/widgets/contact-info.php',
