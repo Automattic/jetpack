@@ -77,6 +77,8 @@ class Manager implements Manager_Interface {
 		$is_signed,
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
+		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
+
 		if (
 			! isset( $request_params['for'] )
 			|| 'jetpack' !== $request_params['for']
@@ -137,8 +139,6 @@ class Manager implements Manager_Interface {
 			}
 		}
 
-		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
-
 		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
@@ -146,7 +146,6 @@ class Manager implements Manager_Interface {
 
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 		add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
-
 		return true;
 	}
 
