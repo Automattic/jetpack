@@ -23,7 +23,7 @@ import {
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import JetpackDisconnectDialogModal from 'components/jetpack-disconnect-dialog/modal';
+import JetpackDisconnectDialogModal from 'components/jetpack-termination-dialog/modal';
 
 import './style.scss';
 

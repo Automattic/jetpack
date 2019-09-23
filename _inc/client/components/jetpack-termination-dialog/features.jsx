@@ -54,22 +54,24 @@ const JetpackDisconnectDialogFeatures = ( {
 		},
 	] );
 
+	console.log( `hello 2` );
+
 	return (
-		<div className="jetpack-disconnect-dialog__features">
+		<div className="jetpack-termination-dialog__features">
 			<Card>
-				<div className="jetpack-disconnect-dialog__header">
+				<div className="jetpack-termination-dialog__header">
 					<h1>{ __( 'Disable Jetpack' ) }</h1>
 					{ showModalClose && (
 						<Gridicon
 							icon="cross"
-							className="jetpack-disconnect-dialog__close-icon"
+							className="jetpack-termination-dialog__close-icon"
 							onClick={ onCloseButtonClick }
 						/>
 					) }
 				</div>
 			</Card>
 			<Card>
-				<p className="jetpack-disconnect-dialog__info">
+				<p className="jetpack-termination-dialog__info">
 					{ __(
 						'Jetpack is currently powering several features of %(siteName)s. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way. We’ve highlighted some of the features you rely on below.',
 						{
@@ -79,7 +81,7 @@ const JetpackDisconnectDialogFeatures = ( {
 						}
 					) }
 				</p>
-				<div className="jetpack-disconnect-dialog__features-list">
+				<div className="jetpack-termination-dialog__features-list">
 					{ siteBenefits.map( ( { title, description, amount, gridIcon } ) => (
 						<SingleFeature
 							amount={ amount }
@@ -90,7 +92,7 @@ const JetpackDisconnectDialogFeatures = ( {
 					) ) }
 				</div>
 
-				<div className="jetpack-disconnect-dialog__get-help">
+				<div className="jetpack-termination-dialog__get-help">
 					<p>
 						{ __( 'Have a question? We’d love to help!' ) }{' '}
 						<a href="https://jetpack.com/contact-support/">
@@ -100,7 +102,7 @@ const JetpackDisconnectDialogFeatures = ( {
 				</div>
 			</Card>
 			<Card>
-				<div className="jetpack-disconnect-dialog__button-row">
+				<div className="jetpack-termination-dialog__button-row">
 					<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
 					<div>
 						<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
