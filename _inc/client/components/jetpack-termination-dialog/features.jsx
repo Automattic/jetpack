@@ -19,9 +19,10 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-const JetpackDisconnectDialogFeatures = ( {
+const JetpackTerminationDialogFeatures = ( {
 	onCloseButtonClick,
-	onContinueButtonClick,
+	onTerminateButtonClick,
+	purpose,
 	showModalClose,
 	siteBenefits,
 	siteName,
@@ -155,20 +156,34 @@ const JetpackDisconnectDialogFeatures = ( {
 				) }
 				<div className="jetpack-termination-dialog__get-help">
 					<p>
-						{ __( 'Have a question? We’d love to help!' ) }{' '}
-						<a href="https://jetpack.com/contact-support/">
-							{ __( 'Chat now with the Jetpack support team.' ) }
-						</a>
+						{ __(
+							'Have a question? We’d love to help! {{a}}Chat now with the Jetpack support team.{{/a}}',
+							{
+								components: {
+									a: (
+										<a
+											href="https://jetpack.com/contact-support/"
+											target="_blank"
+											rel="noopener noreferrer"
+										/>
+									),
+								},
+							}
+						) }
 					</p>
 				</div>
 			</Card>
 			<Card>
 				<div className="jetpack-termination-dialog__button-row">
-					<p>{ __( 'Are you sure you want to log out (and deactivate)?' ) }</p>
+					<p>
+						{ purpose === 'disconnect'
+							? __( 'Are you sure you want to log out?' )
+							: __( 'Are you sure you want to log out (and deactivate)?' ) }
+					</p>
 					<div className="jetpack-termination-dialog__button-row-buttons">
 						<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
-						<Button primary onClick={ onContinueButtonClick }>
-							{ __( 'Continue' ) }
+						<Button scary primary onClick={ onTerminateButtonClick }>
+							{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Deactivate' ) }
 						</Button>
 					</div>
 				</div>
@@ -177,9 +192,13 @@ const JetpackDisconnectDialogFeatures = ( {
 	);
 };
 
-JetpackDisconnectDialogFeatures.propTypes = {
-	featureHighlights: PropTypes.array,
+JetpackTerminationDialogFeatures.propTypes = {
+	onCloseButtonClick: PropTypes.func.isRequired,
+	onTerminateButtonClick: PropTypes.func.isRequired,
+	purpose: PropTypes.oneOf( [ 'disconnect', 'uninstall' ] ).isRequired,
+	showModalClose: PropTypes.bool.isRequired,
+	siteBenefits: PropTypes.array,
 	siteName: PropTypes.string,
 };
 
-export default JetpackDisconnectDialogFeatures;
+export default JetpackTerminationDialogFeatures;

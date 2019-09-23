@@ -10,7 +10,7 @@ import React, { Component } from 'react';
  */
 import { getSiteBenefits } from 'state/site';
 import { getSiteRawUrl } from 'state/initial-state';
-import JetpackDisconnectFeatures from 'components/jetpack-termination-dialog/features';
+import JetpackTerminationDialogFeatures from 'components/jetpack-termination-dialog/features';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
 
@@ -76,16 +76,16 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	renderFeatures() {
-		const { closeDialog, location, siteBenefits, siteName } = this.props;
+		const { closeDialog, location, siteBenefits, purpose, siteName } = this.props;
 
 		return (
-			<JetpackDisconnectFeatures
+			<JetpackTerminationDialogFeatures
 				onCloseButtonClick={ closeDialog }
-				// to be an actual continue in follow-up
-				onContinueButtonClick={ this.handleJetpackTermination }
+				onTerminateButtonClick={ this.handleJetpackTermination }
 				showModalClose={ 'dashboard' === location }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
 				siteName={ siteName }
+				purpose={ purpose }
 			/>
 		);
 	}
