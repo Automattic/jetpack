@@ -43,9 +43,14 @@ function buildFilterObject( filterQuery ) {
 	}
 
 	const filter = { bool: { must: [] } };
-	if ( Array.isArray( filterQuery.postTypes ) && filterQuery.postTypes.length > 0 ) {
-		filterQuery.postTypes.forEach( postType => {
+	if ( Array.isArray( filterQuery.post_types ) && filterQuery.post_types.length > 0 ) {
+		filterQuery.post_types.forEach( postType => {
 			filter.bool.must.push( { term: { post_type: postType } } );
+		} );
+	}
+	if ( Array.isArray( filterQuery.post_tag ) && filterQuery.post_tag.length > 0 ) {
+		filterQuery.post_tag.forEach( tag => {
+			filter.bool.must.push( { term: { 'tag.slug': tag } } );
 		} );
 	}
 	return filter;

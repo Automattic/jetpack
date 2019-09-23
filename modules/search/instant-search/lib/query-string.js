@@ -44,7 +44,9 @@ export function getFilterQuery( filterKey ) {
 	}
 
 	return {
-		postTypes: getFilterQueryByKey( 'postTypes' ),
+		category: getFilterQueryByKey( 'category' ),
+		post_tag: getFilterQueryByKey( 'post_tag' ),
+		post_types: getFilterQueryByKey( 'post_types' ),
 	};
 }
 

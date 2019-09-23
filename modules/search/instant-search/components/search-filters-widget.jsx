@@ -23,7 +23,14 @@ export default class SearchFiltersWidget extends Component {
 				return results && <SearchFilterDates aggregation={ results } filter={ configuration } />;
 			case 'taxonomy':
 				return (
-					results && <SearchFilterTaxonomies aggregation={ results } filter={ configuration } />
+					results && (
+						<SearchFilterTaxonomies
+							aggregation={ results }
+							configuration={ configuration }
+							initialValue={ this.props.initialValues[ configuration.taxonomy ] }
+							onChange={ this.props.onChange }
+						/>
+					)
 				);
 			case 'post_type':
 				return (
@@ -31,7 +38,7 @@ export default class SearchFiltersWidget extends Component {
 						<SearchFilterPostTypes
 							aggregation={ results }
 							configuration={ configuration }
-							initialValue={ this.props.initialValues.postTypes }
+							initialValue={ this.props.initialValues.post_types }
 							onChange={ this.props.onChange }
 							postTypes={ this.props.postTypes }
 						/>

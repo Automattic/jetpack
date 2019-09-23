@@ -17,7 +17,7 @@ export default class SearchFilterPostTypes extends Component {
 	toggleFilter = () => {
 		const selected = getCheckedInputNames( this.filtersList.current );
 		this.setState( { selected }, () => {
-			this.props.onChange( 'postTypes', selected );
+			this.props.onChange( 'post_types', selected );
 		} );
 	};
 
