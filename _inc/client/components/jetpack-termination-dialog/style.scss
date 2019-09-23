@@ -2,7 +2,7 @@
 @import '../../scss/variables/_colors.scss';
 
 .jetpack-termination-dialog__features,
-.jetpack-termination-dialog__survey  {
+.jetpack-termination-dialog__survey {
 	.dops-card {
 		margin: 0;
 	}
@@ -11,7 +11,6 @@
 	.multiple-choice-question__question {
 		margin-top: 0;
 	}
-
 }
 
 .jetpack-termination-dialog__header {
@@ -24,7 +23,6 @@
 	flex-direction: row;
 	align-content: center;
 	justify-content: space-between;
-
 }
 
 .jetpack-termination-dialog__info {
@@ -41,6 +39,26 @@
 	flex-wrap: wrap;
 	// margins of the items will "hang off the side" invisibly
 	width: calc( 100% + 2em );
+
+	.jetpack-termination-dialog__feature {
+		width: calc( 100% - 2em );
+		@include breakpoint( '>660px' ) {
+			width: calc( 50% - 2em );
+		}
+	}
+}
+
+.jetpack-termination-dialog__features-list-single-column {
+	position: relative;
+	left: calc( -1em );
+	display: flex;
+	flex-wrap: wrap;
+	// margins of the items will "hang off the side" invisibly
+	width: calc( 100% + 2em );
+
+	.jetpack-termination-dialog__feature {
+		width: calc( 100% - 2em );
+	}
 }
 
 .jetpack-termination-dialog__feature {
@@ -48,11 +66,7 @@
 	border: 1px solid rgba( 213, 213, 213, 0.5 );
 	box-sizing: border-box;
 	box-shadow: 0px 1px 2px $gray-light;
-	width: calc( 100% - 2em );
 	margin: 1em;
-	@include breakpoint( '>660px' ) {
-		width: calc( 50% - 2em );
-	}
 }
 
 .jetpack-termination-dialog__feature-header {
@@ -103,5 +117,5 @@
 }
 
 .jetpack-termination-dialog__close-icon {
-	color: #C8C8C8;
+	color: #c8c8c8;
 }

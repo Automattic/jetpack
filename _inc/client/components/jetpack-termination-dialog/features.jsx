@@ -34,25 +34,27 @@ const JetpackDisconnectDialogFeatures = ( {
 			amount: 32030,
 			gridIcon: 'lock',
 		},
-		{
-			title: 'Contact Forms',
-			description: 'The number of live Jetpack forms on your site right now.',
-			amount: 31,
-			gridIcon: 'align-image-center',
-		},
-		{
-			title: 'Publicize',
-			description: 'The number of live social media connections, powered by Jetpack.',
-			amount: 3,
-			gridIcon: 'share',
-		},
-		{
-			title: 'Subscribers',
-			description: 'The number of people subscribed to your updates through Jetpack.',
-			amount: 4200,
-			gridIcon: 'user',
-		},
+		// {
+		// 	title: 'Contact Forms',
+		// 	description: 'The number of live Jetpack forms on your site right now.',
+		// 	amount: 31,
+		// 	gridIcon: 'align-image-center',
+		// },
+		// {
+		// 	title: 'Publicize',
+		// 	description: 'The number of live social media connections, powered by Jetpack.',
+		// 	amount: 3,
+		// 	gridIcon: 'share',
+		// },
+		// {
+		// 	title: 'Subscribers',
+		// 	description: 'The number of people subscribed to your updates through Jetpack.',
+		// 	amount: 4200,
+		// 	gridIcon: 'user',
+		// },
 	] );
+
+	const siteBenefitCount = siteBenefits.length;
 
 	return (
 		<div className="jetpack-termination-dialog__features">
@@ -79,15 +81,25 @@ const JetpackDisconnectDialogFeatures = ( {
 						}
 					) }
 				</p>
-				<div className="jetpack-termination-dialog__features-list">
-					{ siteBenefits.map( ( { title, description, amount, gridIcon } ) => (
-						<SingleFeature
-							amount={ amount }
-							description={ description }
-							gridIcon={ gridIcon }
-							title={ title }
-						/>
-					) ) }
+				<div
+					className={
+						siteBenefitCount === 1
+							? 'jetpack-termination-dialog__features-list-single-column'
+							: 'jetpack-termination-dialog__features-list'
+					}
+				>
+					{ siteBenefitCount ? (
+						siteBenefits.map( ( { title, description, amount, gridIcon } ) => (
+							<SingleFeature
+								amount={ amount }
+								description={ description }
+								gridIcon={ gridIcon }
+								title={ title }
+							/>
+						) )
+					) : (
+						<div />
+					) }
 				</div>
 
 				<div className="jetpack-termination-dialog__get-help">
