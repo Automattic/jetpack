@@ -14,7 +14,7 @@ use Automattic\Jetpack\Tracking;
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
  * and Jetpack.
  */
-class Manager implements Manager_Interface {
+class Manager {
 
 	const SECRETS_MISSING        = 'secrets_missing';
 	const SECRETS_EXPIRED        = 'secrets_expired';
