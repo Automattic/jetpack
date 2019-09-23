@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! function_exists( wp_timezone ) ) {
+if ( ! function_exists( 'wp_timezone' ) ) {
 	/**
 	 * Shim for WordPress 5.3's wp_timezone() function.
 	 *
