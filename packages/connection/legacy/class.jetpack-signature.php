@@ -323,7 +323,7 @@ class Jetpack_Signature {
 		if ( is_array( $string_or_array ) ) {
 			return array_map( array( $this, 'encode_3986' ), $string_or_array );
 		}
-    
+
 		return rawurlencode( $string_or_array );
 	}
 

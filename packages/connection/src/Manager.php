@@ -309,8 +309,10 @@ class Manager implements Manager_Interface {
 	 * use the memoized version `->verify_xml_rpc_signature()`.
 	 *
 	 * @internal
+	 * @todo Refactor to use proper nonce verification.
 	 */
 	private function internal_verify_xml_rpc_signature() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// It's not for us.
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
@@ -326,7 +328,10 @@ class Manager implements Manager_Interface {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
 		if (
 			empty( $token_key )
 		||
@@ -415,8 +420,10 @@ class Manager implements Manager_Interface {
 			return $signature;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
@@ -432,6 +439,7 @@ class Manager implements Manager_Interface {
 		// bad things might be possible.
 		$signature_details['expected'] = $signature;
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return new \WP_Error(
 				'signature_mismatch',
@@ -531,7 +539,7 @@ class Manager implements Manager_Interface {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @param string The capability of the user
+	 * @param string $capability The capability of the user.
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any' ) {
@@ -540,7 +548,7 @@ class Manager implements Manager_Interface {
 
 		if ( ! empty( $connected_user_ids ) ) {
 			foreach ( $connected_user_ids as $id ) {
-				// Check for capability
+				// Check for capability.
 				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
 					continue;
 				}
@@ -1066,6 +1074,8 @@ class Manager implements Manager_Interface {
 	/**
 	 * Adds the activation source string as a parameter to passed arguments.
 	 *
+	 * @todo Refactor to use rawurlencode() instead of urlencode().
+	 *
 	 * @param Array $args arguments that need to have the source added.
 	 * @return Array $amended arguments.
 	 */
@@ -1073,10 +1083,12 @@ class Manager implements Manager_Interface {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
 
 		if ( $activation_source_name ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
 			$args['_as'] = urlencode( $activation_source_name );
 		}
 
 		if ( $activation_source_keyword ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
 			$args['_ak'] = urlencode( $activation_source_keyword );
 		}
 
