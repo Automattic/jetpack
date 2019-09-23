@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible, waitAndClick } from '../../page-helper';
 
 export default class DashboardPage extends Page {
 	constructor( page ) {
@@ -12,6 +12,11 @@ export default class DashboardPage extends Page {
 
 	async isConnectBannerVisible() {
 		const selector = ".jp-wpcom-connect__container a[href*='register']";
-		return isEventuallyVisible( this.page, selector );
+		return await isEventuallyVisible( this.page, selector );
+	}
+
+	async connect() {
+		const selector = ".jp-wpcom-connect__container a[href*='register']";
+		return await waitAndClick( this.page, selector );
 	}
 }

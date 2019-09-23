@@ -38,10 +38,8 @@ global.it = async ( name, func ) => {
 				const filePath = await takeScreenshot( currentBlock, name );
 				await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 				await sendFailedTestScreenshotToSlack( filePath );
-				console.log( execSyncShellCommand( 'ls /home/travis/wordpress/wp-content/' ) );
-				console.log( execSyncShellCommand( 'cat /home/travis/wordpress/wp-content/debug.log' ) );
-
 				const fileContents = readFileSync( '/home/travis/wordpress/wp-content/debug.log' );
+				console.log( '##### WP DEBUG.LOG' );
 				console.log( fileContents.toString() );
 			}
 

@@ -42,6 +42,6 @@ export default class LoginPage extends Page {
 
 	async isLoggedIn() {
 		const publishSelector = '#header .masterbar__publish';
-		return isEventuallyVisible( this.page, publishSelector, 4000 );
+		return await isEventuallyVisible( this.page, publishSelector, 4000 );
 	}
 }
