@@ -39,20 +39,9 @@ if ( undefined !== typeof window && window.location ) {
 				);
 			} )
 			.catch( () => {
-				const viewSitePlanlink = `https://wordpress.com/plans/my-plan/${ window.location.host }`;
-
 				dispatch( 'core/notices' ).createNotice(
 					'success',
-					__( `Congratulations! Your site is now on a paid plan.`, 'jetpack' ),
-					{
-						isDismissible: true,
-						actions: [
-							{
-								url: viewSitePlanlink,
-								label: __( '[View my plan]', 'jetpack' ),
-							},
-						],
-					}
+					__( `Congratulations! Your site is now on a paid plan.`, 'jetpack' )
 				);
 			} );
 	}
