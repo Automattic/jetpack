@@ -7,7 +7,7 @@
 		margin: 0;
 	}
 
-	// dops-card pasdding is enough
+	// dops-card padding is enough
 	.multiple-choice-question__question {
 		margin-top: 0;
 	}
@@ -116,11 +116,32 @@
 
 .jetpack-termination-dialog__button-row {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
+	justify-content: space-between;
+
+	@include breakpoint( '>660px' ) {
+		flex-direction: row;
+	}
+}
+
+.jetpack-termination-dialog__button-row-buttons {
+	display: flex;
+	flex-direction: column;
 	justify-content: space-between;
 
 	.dops-button {
-		margin-left: 18px;
+		margin-bottom: 18px;
+		margin-left: 0px;
+		width: 100%;
+	}
+	@include breakpoint( '>660px' ) {
+		flex-direction: row;
+
+		.dops-button {
+			margin-bottom: 0px;
+			margin-left: 18px;
+			width: auto;
+		}
 	}
 }
 
