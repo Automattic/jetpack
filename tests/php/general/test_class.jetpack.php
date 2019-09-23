@@ -1155,4 +1155,15 @@ EXPECTED;
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}
 
+	/**
+	 * https://github.com/Automattic/jetpack/pull/13514
+	 *
+	 * @group xmlrpc
+	 */
+	public function test_wp_getOptions_hook_in_place() {
+		$options = apply_filters( 'xmlrpc_blog_options', array() );
+
+		$this->assertArrayHasKey( 'jetpack_version', $options );
+	}
+
 } // end class
