@@ -81,6 +81,7 @@
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/wordpress-external-dependencies-plugin": "1.0.0",
 		"@babel/core": "7.4.0",
+		"@babel/preset-env": "7.6.0",
 		"@babel/register": "7.4.4",
 		"@wordpress/browserslist-config": "2.5.0",
 		"@wordpress/compose": "3.5.0",
