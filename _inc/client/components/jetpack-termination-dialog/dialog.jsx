@@ -134,7 +134,9 @@ class JetpackTerminationDialog extends Component {
 				<QuerySiteBenefits />
 				<Card>
 					<div className="jetpack-termination-dialog__header">
-						<h1>{ __( 'Disable Jetpack' ) }</h1>
+						<h1>
+							{ purpose === 'disconnect' ? __( 'Disconnect Jetpack' ) : __( 'Disable Jetpack' ) }
+						</h1>
 						{ location === 'dashboard' && (
 							<Gridicon
 								icon="cross"
