@@ -226,11 +226,11 @@ function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
 
 	// Allow certain endpoints for plugin-based authentication methods
 	// These are "anchored" on the left side with `^/`, but not the right, so include the trailing `/`
-	$allowed_routes = apply_filters( 'wpcomsh_allowed_routes', [
+	$allowed_routes = [
 		'2fa/', // https://wordpress.org/plugins/application-passwords/
 		'jwt-auth/', // https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
 		'oauth1/', // https://wordpress.org/plugins/rest-api-oauth1/
-	] );
+	];
 
 	if ( preg_match( '#^/(' . implode( '|', $allowed_routes ) . ')#', $route ) ) {
 		return null;
