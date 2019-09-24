@@ -84,6 +84,15 @@ class JetpackTerminationDialog extends Component {
 		this.handleDialogCloseClick = this.handleDialogCloseClick.bind( this );
 	}
 
+	componentDidMount() {
+		const { location, purpose, siteName } = this.props;
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_view', {
+			location,
+			purpose,
+			siteName,
+		} );
+	}
+
 	handleTerminationClick() {
 		const { location, purpose, siteName } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', {
