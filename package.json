@@ -121,7 +121,7 @@
 		"gulp-sass": "4.0.2",
 		"gulp-sourcemaps": "2.6.5",
 		"gulp-tap": "0.4.2",
-		"history": "4.10.1",
+		"history": "3.3.0",
 		"i18n-calypso": "3.0.0",
 		"jsdom": "14.0.0",
 		"jsdom-global": "3.0.2",
