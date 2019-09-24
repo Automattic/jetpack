@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Activity Log: avoid displaying events from the Action Scheduler.
 * Ads Block: avoid PHP errors when loading posts via the WordPress.com interface.
 * Blocks: ensure that all blocks are properly translated when a translation is available.
+* Carousel: improve detection of containers where we should add the Carousel modal.
 * Dashboard: do not display Plans page to non-connected admins.
 * Post Images: look for representative images in inner blocks as well.
 * Shortcodes: add title attribute to Archive.org and Archive.org Book embeds.
