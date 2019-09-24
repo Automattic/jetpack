@@ -1,15 +1,10 @@
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/variables/_colors.scss';
 
-.jetpack-termination-dialog__features,
-.jetpack-termination-dialog__survey {
+.jetpack-termination-dialog__wrapper {
+	// dops-card padding is enough
 	.dops-card {
 		margin: 0;
-	}
-
-	// dops-card padding is enough
-	.multiple-choice-question__question {
-		margin-top: 0;
 	}
 }
 

@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
+import Gridicon from 'components/gridicon';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
@@ -10,6 +12,8 @@ import React, { Component } from 'react';
  */
 import { getSiteBenefits } from 'state/site';
 import { getSiteRawUrl } from 'state/initial-state';
+import Button from 'components/button';
+import Card from 'components/card';
 import JetpackTerminationDialogFeatures from 'components/jetpack-termination-dialog/features';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
@@ -76,26 +80,53 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	renderFeatures() {
-		const { closeDialog, location, siteBenefits, purpose, siteName } = this.props;
+		const { siteBenefits, siteName } = this.props;
 
 		return (
 			<JetpackTerminationDialogFeatures
-				onCloseButtonClick={ closeDialog }
-				onTerminateButtonClick={ this.handleJetpackTermination }
-				showModalClose={ 'dashboard' === location }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
 				siteName={ siteName }
-				purpose={ purpose }
 			/>
 		);
 	}
 
 	render() {
+		const { closeDialog, purpose, location } = this.props;
+
+		const showModalClose = location === 'dashboard';
+
 		return (
 			<>
 				<QuerySite />
 				<QuerySiteBenefits />
-				{ this.renderFeatures() }
+				<Card>
+					<div className="jetpack-termination-dialog__header">
+						<h1>{ __( 'Disable Jetpack' ) }</h1>
+						{ showModalClose && (
+							<Gridicon
+								icon="cross"
+								className="jetpack-termination-dialog__close-icon"
+								onClick={ closeDialog }
+							/>
+						) }
+					</div>
+				</Card>
+				<div className="jetpack-termination-dialog__wrapper">{ this.renderFeatures() }</div>
+				<Card>
+					<div className="jetpack-termination-dialog__button-row">
+						<p>
+							{ purpose === 'disconnect'
+								? __( 'Are you sure you want to log out?' )
+								: __( 'Are you sure you want to log out (and deactivate)?' ) }
+						</p>
+						<div className="jetpack-termination-dialog__button-row-buttons">
+							<Button onClick={ closeDialog }>{ __( 'Close' ) }</Button>
+							<Button scary primary onClick={ this.handleJetpackTermination }>
+								{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Deactivate' ) }
+							</Button>
+						</div>
+					</div>
+				</Card>
 			</>
 		);
 	}

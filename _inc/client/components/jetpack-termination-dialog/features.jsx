@@ -1,12 +1,10 @@
 /**
  * External dependencies
  */
-import Button from 'components/button';
-import Card from 'components/card';
-import Gridicon from 'components/gridicon';
-import React from 'react';
-import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 /**
  * Internal dependencies
@@ -19,14 +17,7 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-const JetpackTerminationDialogFeatures = ( {
-	onCloseButtonClick,
-	onTerminateButtonClick,
-	purpose,
-	showModalClose,
-	siteBenefits,
-	siteName,
-} ) => {
+const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 	// TODO: remove test data before merging
 	siteBenefits = siteBenefits.concat( [
 		{
@@ -59,18 +50,6 @@ const JetpackTerminationDialogFeatures = ( {
 
 	return (
 		<div className="jetpack-termination-dialog__features">
-			<Card>
-				<div className="jetpack-termination-dialog__header">
-					<h1>{ __( 'Disable Jetpack' ) }</h1>
-					{ showModalClose && (
-						<Gridicon
-							icon="cross"
-							className="jetpack-termination-dialog__close-icon"
-							onClick={ onCloseButtonClick }
-						/>
-					) }
-				</div>
-			</Card>
 			<Card>
 				<p className="jetpack-termination-dialog__info">
 					{ __(
@@ -173,32 +152,17 @@ const JetpackTerminationDialogFeatures = ( {
 					</p>
 				</div>
 			</Card>
-			<Card>
-				<div className="jetpack-termination-dialog__button-row">
-					<p>
-						{ purpose === 'disconnect'
-							? __( 'Are you sure you want to log out?' )
-							: __( 'Are you sure you want to log out (and deactivate)?' ) }
-					</p>
-					<div className="jetpack-termination-dialog__button-row-buttons">
-						<Button onClick={ onCloseButtonClick }>{ __( 'Close' ) }</Button>
-						<Button scary primary onClick={ onTerminateButtonClick }>
-							{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Deactivate' ) }
-						</Button>
-					</div>
-				</div>
-			</Card>
 		</div>
 	);
 };
 
 JetpackTerminationDialogFeatures.propTypes = {
-	onCloseButtonClick: PropTypes.func.isRequired,
-	onTerminateButtonClick: PropTypes.func.isRequired,
-	purpose: PropTypes.oneOf( [ 'disconnect', 'uninstall' ] ).isRequired,
-	showModalClose: PropTypes.bool.isRequired,
 	siteBenefits: PropTypes.array,
 	siteName: PropTypes.string,
+};
+
+JetpackTerminationDialogFeatures.defaultProps = {
+	siteBenefits: [],
 };
 
 export default JetpackTerminationDialogFeatures;
