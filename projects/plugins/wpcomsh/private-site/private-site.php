@@ -129,47 +129,25 @@ function pre_update_option_blog_public( $new_value ) {
  * Determine if site access should be blocked for various types of requests.
  * This function is cached for subsequent calls so we can use it gratuitously.
  *
+ * IMPORTANT: This function assumes a site is set to private.
+ * This module is structured such that `site_is_private` is consulted prior to calling `should_prevent_site_access`
+ * You should likely do the same if you are building on to this.
+ *
  * @return bool
  */
 function should_prevent_site_access() {
-	global $pagenow;
-
-	$doing_bloginfo_filter = doing_filter( 'bloginfo' );
-
-	$use_cache = ! $doing_bloginfo_filter;
-
 	static $cached;
 
-	if ( $use_cache && isset( $cached ) ) {
+	if ( isset( $cached ) ) {
 		return $cached;
 	}
 
-	if ( ! site_is_private() ) {
-		if ( $use_cache ) {
-			$cached = false;
-		}
-		return false;
-	}
-
-	if ( 'wp-login.php' === $pagenow && ! $doing_bloginfo_filter ) {
-		if ( $use_cache ) {
-			$cached = false;
-		}
-		return false;
-	}
-
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		if ( $use_cache ) {
-			$cached = false;
-		}
-		return false;
+		// WP-CLI is always allowed
+		return $cached = false;
 	}
 
-	$to_return = ! is_private_blog_user();
-	if ( $use_cache ) {
-		$cached = $to_return;
-	}
-	return $to_return;
+	return $cached = ! is_private_blog_user();
 }
 
 /**
