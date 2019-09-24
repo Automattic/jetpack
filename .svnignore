@@ -72,6 +72,7 @@ extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
+extensions/**/*.snap
 extensions/.eslintrc.js
 packages
 **/__snapshots__
