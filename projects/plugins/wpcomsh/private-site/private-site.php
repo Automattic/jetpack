@@ -356,11 +356,8 @@ function privatize_blog_priv_selector() {
  * @return string the Robots.txt information
  */
 function private_robots_txt( $output ) {
-	if ( site_is_private() ) {
-		// Purposefully overriding current output; we only want these rules.
-		return "User-agent: *\nDisallow: /\n";
-	}
-	return $output;
+	// Purposefully overriding current output; we only want these rules.
+	return "User-agent: *\nDisallow: /\n";
 }
 
 /**
