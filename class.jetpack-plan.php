@@ -130,6 +130,7 @@ class Jetpack_Plan {
 		if ( in_array( $plan['product_slug'], $personal_plans, true ) ) {
 			// special support value, not a module but a separate plugin.
 			$supports[]    = 'akismet';
+			$supports[]    = 'recurring-payments';
 			$plan['class'] = 'personal';
 		}
 
@@ -144,6 +145,7 @@ class Jetpack_Plan {
 
 		if ( in_array( $plan['product_slug'], $premium_plans, true ) ) {
 			$supports[]    = 'akismet';
+			$supports[]    = 'recurring-payments';
 			$supports[]    = 'simple-payments';
 			$supports[]    = 'vaultpress';
 			$supports[]    = 'videopress';
@@ -165,6 +167,7 @@ class Jetpack_Plan {
 
 		if ( in_array( $plan['product_slug'], $business_plans, true ) ) {
 			$supports[]    = 'akismet';
+			$supports[]    = 'recurring-payments';
 			$supports[]    = 'simple-payments';
 			$supports[]    = 'vaultpress';
 			$supports[]    = 'videopress';

@@ -42,6 +42,14 @@ class Jetpack_Memberships {
 	 * @var array
 	 */
 	private static $tags_allowed_in_the_button = array( 'br' => array() );
+
+	/**
+	 * The minimum required plan for this Gutenberg block.
+	 *
+	 * @var Jetpack_Memberships
+	 */
+	private static $required_plan;
+
 	/**
 	 * Classic singleton pattern
 	 *
@@ -63,6 +71,8 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
+			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -91,6 +101,7 @@ class Jetpack_Memberships {
 	 */
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
 	}
 
 	/**
@@ -276,6 +287,56 @@ class Jetpack_Memberships {
 	 */
 	public static function get_connected_account_id() {
 		return get_option( self::$connected_account_id_option_name );
+	}
+
+	/**
+	 * Whether Recurring Payments are enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled_jetpack_recurring_payments() {
+		// For WPCOM sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+			$site_id = get_current_blog_id();
+			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		}
+
+		// For Jetpack sites.
+
+		// FIXME: We enable Recurring Payments on all Jetpack sites, including those on a Free plan.
+		// The reason is that in Jetpack, we cannot yet support the 'new', Upgrade and Stripe Nudge-based
+		// flow, since the post-checkout redirect skips the Jetpack Onboarding Checklist in Calypso,
+		// where Akismet and VaultPress installation is triggered.
+		// Instead, we continue to show the legacy, in-block prompts to upgrade the site's plan, and to
+		// connect Stripe. This however means that we have to display the block also if the site's on a Free plan.
+		//
+		// Check p7rd6c-23C-p2 for details and progress. If ready, uncomment the right-hand side of the line with the
+		// return statement below.
+		// phpcs:ignore
+		return Jetpack::is_active(); // && Jetpack_Plan::supports( 'recurring-payments' ); // phpcs:ignore
+	}
+
+	/**
+	 * Register the Recurring Payments Gutenberg block
+	 */
+	public function register_gutenberg_block() {
+		if ( self::is_enabled_jetpack_recurring_payments() ) {
+			jetpack_register_block(
+				'jetpack/recurring-payments',
+				array(
+					'render_callback' => array( $this, 'render_button' ),
+				)
+			);
+		} else {
+			Jetpack_Gutenberg::set_extension_unavailable(
+				'jetpack/recurring-payments',
+				'missing_plan',
+				array(
+					'required_feature' => 'memberships',
+					'required_plan'    => self::$required_plan,
+				)
+			);
+		}
 	}
 }
 Jetpack_Memberships::get_instance();

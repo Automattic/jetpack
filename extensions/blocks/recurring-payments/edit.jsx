@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { trimEnd } from 'lodash';
+import { get, trimEnd } from 'lodash';
 import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
@@ -28,6 +28,7 @@ import { Fragment, Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { icon, SUPPORTED_CURRENCY_LIST } from '.';
+import StripeNudge from '../../shared/components/stripe-nudge';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -56,6 +57,16 @@ class MembershipsButtonEdit extends Component {
 			editedProductRenewInterval: '1 month',
 		};
 		this.timeout = null;
+
+		// FIXME: In Jetpack, we cannot yet support the 'new', Upgrade and Stripe Nudge-based
+		// flow, since the post-checkout redirect skips the Jetpack Onboarding Checklist in Calypso,
+		// where Akismet and VaultPress installation is triggered.
+		// Instead, we continue to show the legacy, in-block prompts to upgrade the site's plan, and to
+		// connect Stripe. This however means that we have to display the block also if the site's on a Free plan.
+		//
+		// Check p7rd6c-23C-p2 for details and progress. If ready, remove the line below, and replace all
+		// checks for `this.isJetpack` with `false`.
+		this.isJetpack = get( window, [ '_currentSiteType' ] ) !== 'simple';
 	}
 
 	componentDidMount = () => {
@@ -393,7 +404,12 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ this.state.shouldUpgrade && (
+				{ ! this.isJetpack &&
+					! this.state.shouldUpgrade &&
+					connected === API_STATE_NOTCONNECTED && (
+						<StripeNudge blockName="recurring-payments" stripeConnectUrl={ stripeConnectUrl } />
+					) }
+				{ this.isJetpack && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
@@ -422,7 +438,8 @@ class MembershipsButtonEdit extends Component {
 							<Spinner />
 						</Placeholder>
 					) }
-				{ ! this.state.shouldUpgrade &&
+				{ this.isJetpack &&
+					! this.state.shouldUpgrade &&
 					! this.props.attributes.planId &&
 					connected === API_STATE_NOTCONNECTED && (
 						<div className="wp-block-jetpack-recurring-payments">
@@ -458,7 +475,8 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ ! this.state.shouldUpgrade &&
+				{ this.isJetpack &&
+					! this.state.shouldUpgrade &&
 					! this.props.attributes.planId &&
 					connected === API_STATE_CONNECTED &&
 					products.length === 0 && (
@@ -476,7 +494,8 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ ! this.state.shouldUpgrade &&
+				{ this.isJetpack &&
+					! this.state.shouldUpgrade &&
 					! this.props.attributes.planId &&
 					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
 					connected === API_STATE_CONNECTED &&
@@ -498,7 +517,14 @@ class MembershipsButtonEdit extends Component {
 						</div>
 					) }
 				{ this.state.products && inspectorControls }
-				{ this.props.attributes.planId && blockContent }
+				{ ( ( ! this.isJetpack && connected !== API_STATE_LOADING ) ||
+					this.props.attributes.planId ) &&
+					blockContent }
+				{ ! this.isJetpack && connected === API_STATE_NOTCONNECTED && (
+					<div className="wp-block-jetpack-recurring-payments disclaimer-only">
+						{ this.renderDisclaimer() }
+					</div>
+				) }
 			</Fragment>
 		);
 	};
