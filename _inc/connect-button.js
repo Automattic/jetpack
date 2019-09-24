@@ -44,12 +44,6 @@ jQuery( document ).ready( function( $ ) {
 	connectButton.click( function( event ) {
 		event.preventDefault();
 
-		loginPopUpRef = openLoginPopup();
-
-		if ( ! externalWindowCheck ) {
-			externalWindowCheck = setInterval( pollExternalWindow, 100 );
-		}
-
 		$( '#jetpack-connection-cards' ).fadeOut( 600 );
 		if ( ! jetpackConnectButton.isRegistering ) {
 			if ( 'original' === jpConnect.forceVariation ) {
@@ -90,6 +84,8 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleOriginalFlow: function() {
 			window.location = connectButton.attr( 'href' );
+
+			loginPopUpRef && loginPopUpRef.close(); // Close the popup if we go though the original flow.
 		},
 		handleConnectInPlaceFlow: function() {
 			jetpackConnectButton.isRegistering = true;
@@ -107,6 +103,12 @@ jQuery( document ).ready( function( $ ) {
 			if ( window.Initial_State && window.Initial_State.calypsoEnv ) {
 				registerUrl =
 					registerUrl + '?' + $.param( { calypso_env: window.Initial_State.calypsoEnv } );
+			}
+
+			loginPopUpRef = openLoginPopup();
+
+			if ( ! externalWindowCheck ) {
+				externalWindowCheck = setInterval( pollExternalWindow, 100 );
 			}
 
 			$.ajax( {
