@@ -27,8 +27,9 @@ import { Fragment, Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { icon, SUPPORTED_CURRENCY_LIST } from '.';
+import analytics from '../../../_inc/client/lib/analytics';
 import StripeNudge from '../../shared/components/stripe-nudge';
+import { icon, SUPPORTED_CURRENCY_LIST } from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -539,6 +540,9 @@ export default compose( [
 			// Special handling if we're opening in _this_ window. Otherwise, just let the navigation happen.
 			if ( href && target !== '_blank' ) {
 				event.preventDefault();
+				analytics.tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
+					block: 'recurring-payments',
+				} );
 				await dispatch( 'core/editor' ).autosave();
 				// Using window.top to escape from the editor iframe on WordPress.com
 				window.top.location.href = href;
