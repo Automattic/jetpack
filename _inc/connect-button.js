@@ -3,8 +3,53 @@
 jQuery( document ).ready( function( $ ) {
 	var connectButton = $( '.jp-connect-button' );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
+	var loginPopUpRef = null;
+	var externalWindowCheck = null;
+
+	function pollExternalWindow() {
+		if ( ! loginPopUpRef || loginPopUpRef.closed ) {
+			// Login window is closed, don't keep trying
+			loginPopUpRef = null;
+			clearInterval( externalWindowCheck );
+			// reload the iframe...
+			var iframe = $( '.jp-jetpack-connect__iframe' );
+			iframe.attr( 'src', iframe.attr( 'src' ) );
+		}
+	}
+
+	function openLoginPopup() {
+		var popUpHeight = 800;
+		var popUpWidth = 500;
+		var left = screen.width / 2 - popUpWidth / 2;
+		var top = screen.height / 2 - popUpHeight / 2;
+		var url = 'https://wordpress.com/log-in/jetpack/?close_window_after_login=true';
+		var target = 'wpcom-login';
+		var features =
+			'status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=1,width=' +
+			popUpWidth +
+			',height=' +
+			popUpHeight +
+			',top=' +
+			top +
+			',left=' +
+			left;
+
+		if ( loginPopUpRef === null || loginPopUpRef.closed ) {
+			loginPopUpRef = window.open( url, target, features );
+		} else {
+			loginPopUpRef.focus();
+		}
+		return loginPopUpRef;
+	}
 	connectButton.click( function( event ) {
 		event.preventDefault();
+
+		loginPopUpRef = openLoginPopup();
+
+		if ( ! externalWindowCheck ) {
+			externalWindowCheck = setInterval( pollExternalWindow, 100 );
+		}
+
 		$( '#jetpack-connection-cards' ).fadeOut( 600 );
 		if ( ! jetpackConnectButton.isRegistering ) {
 			if ( 'original' === jpConnect.forceVariation ) {
