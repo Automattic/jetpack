@@ -74,7 +74,7 @@ function init() {
 	// Block incoming comments for non-users
 	add_filter( 'preprocess_comment', '\Private_Site\preprocess_comment', 0 );
 
-	// Robots requests are allowed via `should_prevent_site_access`
+	// Robots requests are allowed via parse_request / maybe_print_robots_txt
 	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 
 	// @TODO pre_trackback_post maybe..?
