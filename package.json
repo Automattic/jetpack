@@ -123,7 +123,7 @@
 		"gulp-tap": "0.4.2",
 		"history": "3.3.0",
 		"i18n-calypso": "3.0.0",
-		"jsdom": "14.0.0",
+		"jsdom": "14.1.0",
 		"jsdom-global": "3.0.2",
 		"json-loader": "0.5.7",
 		"mapbox-gl": "0.53.1",
