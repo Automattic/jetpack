@@ -34,6 +34,10 @@ function admin_init() {
 	// Add the radio option to the wp-admin Site Privacy selector
 	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
 
+	if ( ! site_is_private() ) {
+		return;
+	}
+
 	// Many AJAX actions do not execute the `parse_request` action. Catch them here.
 	if ( should_prevent_site_access() ) {
 		send_access_denied_error_response();
