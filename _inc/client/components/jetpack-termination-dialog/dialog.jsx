@@ -3,22 +3,22 @@
  */
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Gridicon from 'components/gridicon';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
 /**
  * Internal dependencies
  */
-
 import { getSiteBenefits } from 'state/site';
 import { getSiteRawUrl } from 'state/initial-state';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
+import Gridicon from 'components/gridicon';
 import JetpackTerminationDialogFeatures from 'components/jetpack-termination-dialog/features';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
+import Spinner from 'components/spinner';
 
 function mapBenefitNameToGridicon( benefitName ) {
 	switch ( benefitName ) {
@@ -70,12 +70,8 @@ class JetpackTerminationDialog extends Component {
 		disconnectJetpack: PropTypes.func.isRequired,
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'uninstall' ] ).isRequired,
-		siteBenefits: PropTypes.object,
+		siteBenefits: PropTypes.array,
 		siteName: PropTypes.string,
-	};
-
-	static defaultProps = {
-		siteBenefits: [],
 	};
 
 	constructor( props ) {
@@ -117,11 +113,15 @@ class JetpackTerminationDialog extends Component {
 	renderFeatures() {
 		const { siteBenefits, siteName } = this.props;
 
-		return (
+		return siteBenefits ? (
 			<JetpackTerminationDialogFeatures
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
 				siteName={ siteName }
 			/>
+		) : (
+			<Card className="jetpack-termination-dialog__spinner">
+				<Spinner size={ 50 } />
+			</Card>
 		);
 	}
 

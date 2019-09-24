@@ -124,7 +124,7 @@ export function getSitePlan( state ) {
  * @return {Object}  Benefits
  */
 export function getSiteBenefits( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ] );
+	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ], null );
 }
 
 /**

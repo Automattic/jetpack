@@ -129,12 +129,8 @@ const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 };
 
 JetpackTerminationDialogFeatures.propTypes = {
-	siteBenefits: PropTypes.array,
-	siteName: PropTypes.string,
-};
-
-JetpackTerminationDialogFeatures.defaultProps = {
-	siteBenefits: [],
+	siteBenefits: PropTypes.array.isRequired,
+	siteName: PropTypes.string.isRequired,
 };
 
 export default JetpackTerminationDialogFeatures;

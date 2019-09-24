@@ -8,6 +8,12 @@
 	}
 }
 
+.jetpack-termination-dialog__spinner {
+	display: flex;
+	justify-content: center;
+	padding: 25px;
+}
+
 .jetpack-termination-dialog__header {
 	h1 {
 		margin: 0;
