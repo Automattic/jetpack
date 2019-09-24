@@ -18,34 +18,6 @@ import SingleFeature from './single-feature';
 import './style.scss';
 
 const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
-	// TODO: remove test data before merging
-	siteBenefits = siteBenefits.concat( [
-		{
-			title: 'Brute Force Protection',
-			description: 'The number of malicious login attempts blocked by Jetpack.',
-			amount: 32030,
-			gridIcon: 'lock',
-		},
-		{
-			title: 'Contact Forms',
-			description: 'The number of live Jetpack forms on your site right now.',
-			amount: 31,
-			gridIcon: 'align-image-center',
-		},
-		// {
-		// 	title: 'Publicize',
-		// 	description: 'The number of live social media connections, powered by Jetpack.',
-		// 	amount: 3,
-		// 	gridIcon: 'share',
-		// },
-		// {
-		// 	title: 'Subscribers',
-		// 	description: 'The number of people subscribed to your updates through Jetpack.',
-		// 	amount: 4200,
-		// 	gridIcon: 'user',
-		// },
-	] );
-
 	const siteBenefitCount = siteBenefits.length;
 
 	return (
