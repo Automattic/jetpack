@@ -19,8 +19,7 @@ async function activatePublicizeModule() {
 		cmd = 'wp jetpack module activate publicize --path="/home/travis/wordpress"';
 	}
 
-	const out = await execShellCommand( cmd );
-	console.log( out );
+	await execShellCommand( cmd );
 }
 
 describe( 'Mailchimp Block', () => {
