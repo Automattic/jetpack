@@ -78,6 +78,7 @@ class Manager {
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
+		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
 
 		if (
 			! isset( $request_params['for'] )
@@ -139,7 +140,6 @@ class Manager {
 			}
 		}
 
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
@@ -1643,7 +1643,7 @@ class Manager {
 	 */
 	public function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
-			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
+			$methods['wp.getOptions'] = array( $this, 'jetpack_get_options' );
 		}
 		return $methods;
 	}
@@ -1654,7 +1654,7 @@ class Manager {
 	 * @param Array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
-	public function jetpack_getOptions( $args ) {
+	public function jetpack_get_options( $args ) {
 		global $wp_xmlrpc_server;
 
 		$wp_xmlrpc_server->escape( $args );
