@@ -194,7 +194,7 @@
 		"mockery": "2.1.0",
 		"nock": "10.0.6",
 		"node-wp-i18n": "1.2.3",
-		"prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.17.0/wp-prettier-1.17.0.tgz",
+		"prettier": "https://github.com/Automattic/wp-prettier/releases/download/wp-1.18.2/wp-prettier-1.18.2.tgz",
 		"puppeteer": "1.19.0",
 		"react-test-renderer": "16.8.6",
 		"sass-loader": "7.1.0",
