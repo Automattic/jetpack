@@ -142,8 +142,11 @@ function should_prevent_site_access() {
 		return $cached;
 	}
 
-	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		// WP-CLI is always allowed
+	if (
+		( defined( 'WP_CLI' ) && WP_CLI ) ||
+		( defined( 'WP_IMPORTING' ) && WP_IMPORTING )
+	) {
+		// WP-CLI & Importers are always allowed
 		return $cached = false;
 	}
 
