@@ -20,7 +20,16 @@ export default class SearchFiltersWidget extends Component {
 	renderFilterComponent = ( { configuration, results } ) => {
 		switch ( configuration.type ) {
 			case 'date_histogram':
-				return results && <SearchFilterDates aggregation={ results } filter={ configuration } />;
+				return (
+					results && (
+						<SearchFilterDates
+							aggregation={ results }
+							configuration={ configuration }
+							initialValue={ this.props.initialValues[ configuration.interval ] }
+							onChange={ this.props.onChange }
+						/>
+					)
+				);
 			case 'taxonomy':
 				return (
 					results && (

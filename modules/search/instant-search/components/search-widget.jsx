@@ -72,13 +72,11 @@ class SearchApp extends Component {
 				resultFormat: this.props.options.resultFormat,
 				siteId: this.props.options.siteId,
 				sort,
-			} )
-				.then( response => response.json() )
-				.then( json => {
-					if ( this.requestId === requestId ) {
-						this.setState( { results: json } );
-					}
-				} );
+			} ).then( results => {
+				if ( this.requestId === requestId ) {
+					this.setState( { results } );
+				}
+			} );
 		} else {
 			this.setState( { results: [] } );
 		}

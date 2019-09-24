@@ -89,9 +89,15 @@ export function getFilterQuery( filterKey ) {
 	}
 
 	return {
+		// Taxonomies
 		category: getFilterQueryByKey( 'category' ),
 		post_tag: getFilterQueryByKey( 'post_tag' ),
+		// Post types
 		post_types: getFilterQueryByKey( 'post_types' ),
+		// Date filters
+		day: getFilterQueryByKey( 'day' ),
+		monthnum: getFilterQueryByKey( 'monthnum' ),
+		year: getFilterQueryByKey( 'year' ),
 	};
 }
 

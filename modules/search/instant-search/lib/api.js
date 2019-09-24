@@ -5,6 +5,8 @@ import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 
+const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
+
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
 	widgets.forEach( ( { filters: widgetFilters } ) =>
@@ -37,21 +39,85 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
+const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
+function generateDateRange( yearQuery, monthQuery, dayQuery ) {
+	// NOTE: This only supports a single date query at this time
+	const yearInput = Array.isArray( yearQuery ) && yearQuery[ 0 ];
+	const monthInput = Array.isArray( monthQuery ) && monthQuery[ 0 ];
+	const dayInput = Array.isArray( dayQuery ) && dayQuery[ 0 ];
+
+	let year, month, day;
+	if ( yearInput ) {
+		[ , year, , ] = yearInput.match( DATE_REGEX );
+	}
+
+	if ( monthInput ) {
+		if ( ! year ) {
+			[ , year, month ] = monthInput.match( DATE_REGEX );
+		} else {
+			[ , , month ] = monthInput.match( DATE_REGEX );
+		}
+	}
+
+	if ( dayInput ) {
+		if ( ! year && ! month ) {
+			[ , year, month, day ] = dayInput.match( DATE_REGEX );
+		} else if ( ! year ) {
+			[ , year, , day ] = dayInput.match( DATE_REGEX );
+		} else if ( ! month ) {
+			[ , , month, day ] = dayInput.match( DATE_REGEX );
+		} else {
+			[ , , , day ] = dayInput.match( DATE_REGEX );
+		}
+	}
+
+	if ( day ) {
+		return {
+			startDate: `${ year }-${ month }-${ day }`,
+			endDate: `${ year }-${ month }-${ +day + 1 }`,
+		};
+	}
+	if ( month ) {
+		return { startDate: `${ year }-${ month }-01`, endDate: `${ year }-${ +month + 1 }-01` };
+	}
+	if ( year ) {
+		return { startDate: `${ year }-01-01`, endDate: `${ +year + 1 }-01-01` };
+	}
+	return { startDate: '', endDate: '' };
+}
+
 function buildFilterObject( filterQuery ) {
 	if ( ! filterQuery ) {
 		return {};
 	}
 
 	const filter = { bool: { must: [] } };
-	if ( Array.isArray( filterQuery.post_types ) && filterQuery.post_types.length > 0 ) {
+	if ( isLengthyArray( filterQuery.post_types ) ) {
 		filterQuery.post_types.forEach( postType => {
 			filter.bool.must.push( { term: { post_type: postType } } );
 		} );
 	}
-	if ( Array.isArray( filterQuery.post_tag ) && filterQuery.post_tag.length > 0 ) {
+	if ( isLengthyArray( filterQuery.post_tag ) ) {
 		filterQuery.post_tag.forEach( tag => {
 			filter.bool.must.push( { term: { 'tag.slug': tag } } );
 		} );
+	}
+	if ( isLengthyArray( filterQuery.post_tag ) ) {
+		filterQuery.post_tag.forEach( tag => {
+			filter.bool.must.push( { term: { 'tag.slug': tag } } );
+		} );
+	}
+	if (
+		isLengthyArray( filterQuery.year ) ||
+		isLengthyArray( filterQuery.monthnum ) ||
+		isLengthyArray( filterQuery.day )
+	) {
+		const { startDate, endDate } = generateDateRange(
+			filterQuery.year,
+			filterQuery.monthnum,
+			filterQuery.day
+		);
+		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
 	}
 	return filter;
 }
@@ -89,5 +155,5 @@ export function search( { aggregations, filter, query, resultFormat, siteId, sor
 
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	);
+	).then( response => response.json() );
 }
