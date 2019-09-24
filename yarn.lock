@@ -4837,10 +4837,10 @@ eslint-config-wpcalypso@4.0.1:
   resolved "https://registry.yarnpkg.com/eslint-config-wpcalypso/-/eslint-config-wpcalypso-4.0.1.tgz#f0f8a8b999e5236e628045b3402d3c4433363507"
   integrity sha512-/MdCPOQusYRJI57/GFNi523CW75CUIoqKEY+8XhDtkz0iSeFXl12c2hW2l4ezE0cDbhMUwSslI07YpSPW7nRgA==
 
-eslint-loader@2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/eslint-loader/-/eslint-loader-2.1.2.tgz#453542a1230d6ffac90e4e7cb9cadba9d851be68"
-  integrity sha512-rA9XiXEOilLYPOIInvVH5S/hYfyTPyxag6DZhoQOduM+3TkghAEQ3VcFO8VnX4J4qg/UIBzp72aOf/xvYmpmsg==
+eslint-loader@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/eslint-loader/-/eslint-loader-2.2.1.tgz#28b9c12da54057af0845e2a6112701a2f6bf8337"
+  integrity sha512-RLgV9hoCVsMLvOxCuNjdqOrUqIj9oJg8hF44vzJaYqsAHuY9G2YAeN3joQ9nxP0p5Th9iFSIpKo+SD8KISxXRg==
   dependencies:
     loader-fs-cache "^1.0.0"
     loader-utils "^1.0.2"
