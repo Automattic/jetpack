@@ -172,7 +172,7 @@
 		"config": "3.2.2",
 		"css-loader": "2.1.1",
 		"danger": "7.1.4",
-		"enzyme": "3.10.0",
+		"enzyme": "3.9.0",
 		"enzyme-adapter-react-16": "1.11.2",
 		"enzyme-to-json": "3.4.0",
 		"eslint": "5.16.0",
