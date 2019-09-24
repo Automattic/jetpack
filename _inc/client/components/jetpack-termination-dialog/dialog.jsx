@@ -96,7 +96,7 @@ class JetpackTerminationDialog extends Component {
 		const showModalClose = location === 'dashboard';
 
 		return (
-			<>
+			<div className="jetpack-termination-dialog">
 				<QuerySite />
 				<QuerySiteBenefits />
 				<Card>
@@ -111,7 +111,7 @@ class JetpackTerminationDialog extends Component {
 						) }
 					</div>
 				</Card>
-				<div className="jetpack-termination-dialog__wrapper">{ this.renderFeatures() }</div>
+				{ this.renderFeatures() }
 				<Card>
 					<div className="jetpack-termination-dialog__button-row">
 						<p>
@@ -127,7 +127,7 @@ class JetpackTerminationDialog extends Component {
 						</div>
 					</div>
 				</Card>
-			</>
+			</div>
 		);
 	}
 }
