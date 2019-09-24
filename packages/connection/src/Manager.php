@@ -79,6 +79,9 @@ class Manager {
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
 		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
 
 		if (
 			! isset( $request_params['for'] )
@@ -138,10 +141,6 @@ class Manager {
 			} else {
 				new XMLRPC_Connector( $this );
 			}
-		}
-
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
 
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
