@@ -42,7 +42,7 @@ $ yarn distclean
 2. Clone this repository inside your Plugins directory.
 
 	```sh
-	$ git clone https://github.com/Automattic/jetpack.git
+	$ git clone git@github.com:Automattic/jetpack.git
 	$ cd jetpack
 	```
 
