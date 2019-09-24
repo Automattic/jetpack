@@ -49,7 +49,6 @@ export class Composing extends React.Component {
 			latex = this.props.module( 'latex' ),
 			copyPost = this.props.module( 'copy-post' ),
 			shortcodes = this.props.module( 'shortcodes' ),
-
 			copyPostSettings = (
 				<SettingsGroup
 					module={ copyPost }
@@ -79,7 +78,10 @@ export class Composing extends React.Component {
 					module={ markdown }
 					support={ {
 						text: __(
-							'Allows you to compose content with links, lists, and other styles using the Markdown syntax.'
+							'Allows you to compose content with links, lists, ' +
+								'and other styles using the Markdown syntax. ' +
+								'This setting will allow you to write with the help of Markdown ' +
+								'in the Classic Editor or within a Classic Editor block.'
 						),
 						link: 'https://jetpack.com/support/markdown/',
 					} }
