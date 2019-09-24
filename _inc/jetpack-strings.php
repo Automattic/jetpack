@@ -465,11 +465,11 @@ __( "Note that {{b}}verifying your site with these services is not necessary{{/b
 __( "Bing", "jetpack" ), // _inc/client/traffic/verification-services.jsx:157
 __( "Pinterest", "jetpack" ), // _inc/client/traffic/verification-services.jsx:168
 __( "Yandex", "jetpack" ), // _inc/client/traffic/verification-services.jsx:179
-__( "Duplicate existing posts, pages, Testimonials, and Portfolios. All the content will be copied including text, featured images, sharing settings, and more.", "jetpack" ), // _inc/client/writing/composing.jsx:57
-__( "Allows you to compose content with links, lists, and other styles using the Markdown syntax.", "jetpack" ), // _inc/client/writing/composing.jsx:81
-__( "LaTeX is a powerful markup language for writing complex mathematical equations and formulas.", "jetpack" ), // _inc/client/writing/composing.jsx:112
-__( "Compose using shortcodes to embed media from popular sites", "jetpack" ), // _inc/client/writing/composing.jsx:148
-_x( "Composing", "Settings header", "jetpack" ), // _inc/client/writing/composing.jsx:158
+__( "Duplicate existing posts, pages, Testimonials, and Portfolios. All the content will be copied including text, featured images, sharing settings, and more.", "jetpack" ), // _inc/client/writing/composing.jsx:56
+__( "Allows you to compose content with links, lists, and other styles using the Markdown syntax. This setting will allow you to write with the help of Markdown in the Classic Editor or within a Classic Editor block.", "jetpack" ), // _inc/client/writing/composing.jsx:80
+__( "LaTeX is a powerful markup language for writing complex mathematical equations and formulas.", "jetpack" ), // _inc/client/writing/composing.jsx:114
+__( "Compose using shortcodes to embed media from popular sites", "jetpack" ), // _inc/client/writing/composing.jsx:150
+_x( "Composing", "Settings header", "jetpack" ), // _inc/client/writing/composing.jsx:160
 __( "This feature has been disabled by a site administrator.", "jetpack" ), // _inc/client/writing/custom-content-types.jsx:67
 __( "Add {{testimonialLink}}testimonials{{/testimonialLink}} to your website to attract new customers. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.", "jetpack" ), // _inc/client/writing/custom-content-types.jsx:78
 __( "Testimonials", "jetpack" ), // _inc/client/writing/custom-content-types.jsx:96
@@ -554,6 +554,11 @@ __( "Site Stats", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:322
 __( "Get WordPress Apps for every device", "jetpack" ), // _inc/client/components/apps-card/index.jsx:67
 __( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:71
 __( "Download the free apps", "jetpack" ), // _inc/client/components/apps-card/index.jsx:81
+__( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:77
+__( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:94
+__( "Manage site connection", "jetpack" ), // _inc/client/components/connect-button/index.jsx:117
+__( "Set up Jetpack", "jetpack" ), // _inc/client/components/connect-button/index.jsx:132
+__( "By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.", "jetpack" ), // _inc/client/components/connect-button/index.jsx:146
 _x( "Updates needed", "Short warning message", "jetpack" ), // _inc/client/components/dash-item/index.jsx:104
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:110
 _x( "Paid", "Short label appearing near a paid feature configuration block.", "jetpack" ), // _inc/client/components/dash-item/index.jsx:122
@@ -577,6 +582,26 @@ __( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:148
 __( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:148
 __( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:52
 __( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:59
+__( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:41
+__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:45
+__( "Spam filtering", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:49
+__( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:57
+__( "Daily, automated malware scanning", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:61
+__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:65
+__( "Unlimited, high-speed video hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:69
+__( "Real-time, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:77
+__( "Daily, automated malware scanning with automated resolution", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:81
+__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:85
+__( "Unlimited, high-speed video hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:89
+__( "SEO preview tools", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:93
+__( "Site stats, related content, and sharing tools", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:100
+__( "Brute force attack protection and downtime monitoring", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:104
+__( "Unlimited, high-speed image hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:108
+__( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:138
+__( "By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:140
+_x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:159
+_x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:164
+__( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:169
 __( "What would you like to see on your Jetpack Dashboard?", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:38
 __( "Let us know!", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:40
 __( "You are currently running a development version of Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:37
@@ -608,26 +633,6 @@ __( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // 
 __( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:213
 __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:217
 __( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:223
-__( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:41
-__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:45
-__( "Spam filtering", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:49
-__( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:57
-__( "Daily, automated malware scanning", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:61
-__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:65
-__( "Unlimited, high-speed video hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:69
-__( "Real-time, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:77
-__( "Daily, automated malware scanning with automated resolution", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:81
-__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:85
-__( "Unlimited, high-speed video hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:89
-__( "SEO preview tools", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:93
-__( "Site stats, related content, and sharing tools", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:100
-__( "Brute force attack protection and downtime monitoring", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:104
-__( "Unlimited, high-speed image hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:108
-__( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:138
-__( "By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:140
-_x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:159
-_x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:164
-__( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:169
 __( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:95
 __( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:103
 __( "Email me a link to log in to the app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:52
@@ -636,11 +641,6 @@ _x( "Cancel", "A caption for a button to cancel an action.", "jetpack" ), // _in
 _x( "Send link", "A caption for a button to log in to the WordPress mobile app.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:68
 __( "Log in to the WordPress mobile app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:89
 __( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:52
-__( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:77
-__( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:94
-__( "Manage site connection", "jetpack" ), // _inc/client/components/connect-button/index.jsx:117
-__( "Set up Jetpack", "jetpack" ), // _inc/client/components/connect-button/index.jsx:132
-__( "By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.", "jetpack" ), // _inc/client/components/connect-button/index.jsx:146
 __( "Updating Post by Email address…", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:63
 __( "Regenerated Post by Email address.", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:64
 __( "Error regenerating Post by Email address. %(error)s", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:66
