@@ -45,6 +45,8 @@ $ yarn distclean
 	$ git clone git@github.com:Automattic/jetpack.git
 	$ cd jetpack
 	```
+ You'll need to have a public SSH key setup with Github, which is more secure than saving your password in yor keychain.
+ There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
 
 3. [Install Composer](#installing-composer).
 4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
