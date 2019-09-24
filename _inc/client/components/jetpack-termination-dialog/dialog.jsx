@@ -10,8 +10,10 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
+
 import { getSiteBenefits } from 'state/site';
 import { getSiteRawUrl } from 'state/initial-state';
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
 import JetpackTerminationDialogFeatures from 'components/jetpack-termination-dialog/features';
@@ -69,14 +71,38 @@ class JetpackTerminationDialog extends Component {
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'uninstall' ] ).isRequired,
 		siteBenefits: PropTypes.object,
+		siteName: PropTypes.string,
 	};
 
 	static defaultProps = {
 		siteBenefits: [],
 	};
 
-	handleJetpackTermination() {
-		this.props.terminateJetpack();
+	constructor( props ) {
+		super( props );
+		this.handleTerminationClick = this.handleTerminationClick.bind( this );
+		this.handleDialogCloseClick = this.handleDialogCloseClick.bind( this );
+	}
+
+	handleTerminationClick() {
+		const { location, purpose, siteName } = this.props;
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', {
+			location,
+			purpose,
+			siteName,
+		} );
+		// TODO: re-enable before shipping
+		// this.props.terminateJetpack();
+	}
+
+	handleDialogCloseClick() {
+		const { location, purpose, siteName } = this.props;
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', {
+			location,
+			purpose,
+			siteName,
+		} );
+		this.props.closeDialog();
 	}
 
 	renderFeatures() {
@@ -91,9 +117,7 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	render() {
-		const { closeDialog, purpose, location } = this.props;
-
-		const showModalClose = location === 'dashboard';
+		const { purpose, location } = this.props;
 
 		return (
 			<div className="jetpack-termination-dialog">
@@ -102,11 +126,11 @@ class JetpackTerminationDialog extends Component {
 				<Card>
 					<div className="jetpack-termination-dialog__header">
 						<h1>{ __( 'Disable Jetpack' ) }</h1>
-						{ showModalClose && (
+						{ location === 'dashboard' && (
 							<Gridicon
 								icon="cross"
 								className="jetpack-termination-dialog__close-icon"
-								onClick={ closeDialog }
+								onClick={ this.handleDialogCloseClick }
 							/>
 						) }
 					</div>
@@ -120,8 +144,8 @@ class JetpackTerminationDialog extends Component {
 								: __( 'Are you sure you want to log out (and deactivate)?' ) }
 						</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
-							<Button onClick={ closeDialog }>{ __( 'Close' ) }</Button>
-							<Button scary primary onClick={ this.handleJetpackTermination }>
+							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Close' ) }</Button>
+							<Button scary primary onClick={ this.handleTerminationClick }>
 								{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Deactivate' ) }
 							</Button>
 						</div>
