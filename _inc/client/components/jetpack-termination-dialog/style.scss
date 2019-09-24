@@ -114,8 +114,16 @@
 	flex-direction: column;
 	justify-content: space-between;
 
+	p {
+		text-align: center;
+	}
+
 	@include breakpoint( '>660px' ) {
 		flex-direction: row;
+
+		p {
+			text-align: auto;
+		}
 	}
 }
 
