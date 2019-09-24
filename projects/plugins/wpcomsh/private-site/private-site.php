@@ -288,7 +288,7 @@ function is_private_blog_user() {
 	// check if the user has read permissions
 	$the_user = wp_clone( $user );
 	$the_user->for_site( $blog_id );
-	return $the_user->has_cap( 'read'  );
+	return $the_user->has_cap( 'read' );
 }
 
 /**
