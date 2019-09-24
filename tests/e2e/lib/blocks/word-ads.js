@@ -23,7 +23,7 @@ export default class WordAdsBlock {
 		await clickBlockToolbarButton( 'Pick an ad format' );
 
 		const formatButtonsSelector = '.wp-block-jetpack-wordads__format-picker button';
-		waitForSelector( this.page, formatButtonsSelector );
+		await waitForSelector( this.page, formatButtonsSelector );
 		const allButtons = await this.page.$$( formatButtonsSelector );
 		await allButtons[ buttonNumber ].click();
 	}
