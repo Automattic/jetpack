@@ -1,5 +1,13 @@
 ## 7.8
 
+### Admin Page
+
+We've made some changes to simplify the Jetpack Dashboard interface when your user is not connected to WordPress.com yet. You can check this by adding a new admin (or any other role) user to your site, logging in with that user, and going to Jetpack > Dashboard. You should only see things that you can act on, depending on your role.
+
+### Blocks
+
+We've made some changes to ensure that blocks are properly translated in the block editor. If you switch to a language that offers language packs, like French or Spanish, you should see that Jetpack Blocks will now be translated in the editor.
+
 ### Carousel
 
 In this release, we've made some changes to how the Carousel metadata was added to each gallery. To test this:
