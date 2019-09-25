@@ -78,11 +78,6 @@ function buildFilterObject( filterQuery ) {
 			filter.bool.must.push( { term: { 'tag.slug': tag } } );
 		} );
 	}
-	if ( isLengthyArray( filterQuery.post_tag ) ) {
-		filterQuery.post_tag.forEach( tag => {
-			filter.bool.must.push( { term: { 'tag.slug': tag } } );
-		} );
-	}
 	if ( isLengthyArray( filterQuery.month_post_date ) ) {
 		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date, 'month' );
 		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
