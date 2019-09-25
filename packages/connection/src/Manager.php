@@ -61,6 +61,11 @@ class Manager {
 		} else {
 			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
 		}
+
+		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
 	}
 
 	/**
@@ -78,10 +83,6 @@ class Manager {
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
-		}
 
 		if (
 			! isset( $request_params['for'] )
