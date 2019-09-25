@@ -30,9 +30,9 @@ export default ( { stripeConnectUrl } ) => (
 				block: blockName,
 			} )
 		}
-		title={ __( 'To use this block, connect to Stripe.', 'jetpack' ) }
+		title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
 		subtitle={ __(
-			'Check if Stripe is available in your country, and sign up for an account.',
+			'This block will be hidden from your visitors until you connect to Stripe.',
 			'jetpack'
 		) }
 	/>
