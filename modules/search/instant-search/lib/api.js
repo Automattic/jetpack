@@ -83,7 +83,7 @@ export function search( { aggregations, filter, query, resultFormat, siteId, sor
 			highlight_fields,
 			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
-			sort: sort,
+			sort,
 		} )
 	);
 
