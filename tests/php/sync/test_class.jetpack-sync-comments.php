@@ -76,6 +76,46 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->modify_comment_helper( $comment, $expected_variable );
 	}
 
+	public function test_do_not_sync_comment_with_unknown_comment_type() {
+		$this->server_event_storage->reset();
+		$comment_data = array(
+			'comment_post_ID' => $this->post_id,
+			'comment_date' => date('Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
+			'comment_author' => 'ActionScheduler',
+			'comment_content' => 'fun!',
+			'comment_agent' => 'ActionScheduler',
+			'comment_type' => 'action_log',
+		);
+		wp_insert_comment( $comment_data );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$this->assertFalse( $event );
+	}
+
+	public function test_do_sync_comments_with_known_comment_types() {
+		$this->server_event_storage->reset();
+		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+
+		$comment_data = array(
+			'comment_post_ID' => $this->post_id,
+			'comment_date' => date('Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
+			'comment_author' => 'fun author',
+			'comment_content' => 'fun!',
+			'comment_agent' => 'fun things!',
+			'comment_type' => 'product_feedback', // This should be whitelisted in the filter.
+		);
+		wp_insert_comment( $comment_data );
+		$this->sender->do_sync();
+		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$this->assertNotFalse( $event ); // This should be something other then false.
+		$this->assertEquals( $event->args[1]->comment_type, 'product_feedback' );
+	}
+
 	public function test_modify_comment_author() {
 		global $wp_version;
 		if ( version_compare( $wp_version, 4.7, '<' ) ) {
