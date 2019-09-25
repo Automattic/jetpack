@@ -178,6 +178,13 @@ class Comments extends Module {
 		);
 	}
 
+	/**
+	 * Prevents any comment types that are not in the white list from being enqued and send to WordPress.com.
+	 *
+	 * @param array $args Arguments passed to wp_insert_comment
+	 *
+	 * @return bool or array $args Arguments passed to wp_insert_comment
+	 */
 	public function only_allow_white_listed_comment_types( $args ) {
 		$comment = $args[1];
 
