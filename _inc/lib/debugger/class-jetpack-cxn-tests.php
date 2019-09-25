@@ -340,7 +340,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( $name );
 		} else {
-			return self::failing_test( $name, __( 'Jetpack.com detected an error.', 'jetpack' ), __( '<a href="https://jetpack.com/support/debug/">Visit the Jetpack.com debugging page</a> for more information or <a href="https://jetpack.com/contact-support/">contact support</a>.', 'jetpack' ) ); // @todo direct links.
+			return self::failing_test( $name, __( 'Jetpack.com detected an error.', 'jetpack' ), __( '<a href="https://jetpack.com/support/debug/?url=`%1$s`">Visit the Jetpack.com debugging page</a> for more information or <a href="https://jetpack.com/contact-support/">contact support</a>.', 'jetpack' ),
+			site_url()
+			);
 		}
 	}
 }
