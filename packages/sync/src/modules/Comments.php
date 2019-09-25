@@ -185,7 +185,7 @@ class Comments extends Module {
 			return false;
 		}
 
-			return $args;
+		return $args;
 	}
 
 	/**
