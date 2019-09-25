@@ -179,7 +179,7 @@ class Comments extends Module {
 	}
 
 	public function only_allow_white_listed_comment_types( $args ) {
-			$comment = $args[1];
+		$comment = $args[1];
 
 		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
 			return false;
