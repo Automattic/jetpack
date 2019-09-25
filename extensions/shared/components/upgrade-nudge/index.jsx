@@ -14,7 +14,7 @@ import { withSelect } from '@wordpress/data';
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
 import getSiteFragment from '../../get-site-fragment';
-import isWpcomSite from '../../is-wpcom-site';
+import { isSimpleSite } from '../../site-type-utils';
 import './store';
 
 import './style.scss';
@@ -63,10 +63,8 @@ export default compose( [
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-		const isWpcom = isWpcomSite();
-
 		// Post-checkout: redirect back here
-		const redirect_to = isWpcom
+		const redirect_to = isSimpleSite()
 			? addQueryArgs(
 					'/' +
 						compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
