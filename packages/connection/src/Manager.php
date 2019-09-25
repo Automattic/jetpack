@@ -139,7 +139,10 @@ class Manager implements Manager_Interface {
 
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( ! Jetpack::is_development_mode() ) {
+		    add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		}
+
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
