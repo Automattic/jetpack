@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $event );
 	}
 
-	public function test_do_sync_comments_with_knows_comment_types() {
+	public function test_do_sync_comments_with_known_comment_types() {
 		$this->server_event_storage->reset();
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 			'comment_author' => 'fun author',
 			'comment_content' => 'fun!',
 			'comment_agent' => 'fun things!',
-			'comment_type' => 'product_feedback', // This should be whiteliasted in the filter.
+			'comment_type' => 'product_feedback', // This should be whitelisted in the filter.
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
