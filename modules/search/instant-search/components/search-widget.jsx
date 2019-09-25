@@ -17,7 +17,7 @@ import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
 import { search, buildFilterAggregations } from '../lib/api';
 import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
-import { removeChildren, hideSearchHeader } from '../lib/dom';
+import { removeChildren, hideElements } from '../lib/dom';
 
 class SearchApp extends Component {
 	constructor() {
@@ -40,8 +40,8 @@ class SearchApp extends Component {
 			this.input.current.focus();
 		}
 
-		hideSearchHeader();
-		removeChildren( document.querySelector( 'main' ) );
+		hideElements( this.props.themeOptions.elem_selectors );
+		removeChildren( document.querySelector( this.props.themeOptions.results_selector ) );
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
 		} );
@@ -117,7 +117,7 @@ class SearchApp extends Component {
 					</Portal>
 				) ) }
 
-				<Portal into="main">
+				<Portal into={ this.props.themeOptions.results_selector }>
 					<SearchResults
 						query={ query }
 						{ ...results }

@@ -10,6 +10,7 @@ import { h, render } from 'preact';
  */
 import SearchWidget from './components/search-widget';
 import { getSearchQuery, getFilterQuery } from './lib/query-string';
+import { getThemeOptions } from './lib/dom';
 
 const injectSearchWidget = grabFocus => {
 	render(
@@ -18,6 +19,7 @@ const injectSearchWidget = grabFocus => {
 			initialFilters={ getFilterQuery() }
 			initialValue={ getSearchQuery() }
 			options={ window.JetpackInstantSearchOptions }
+			themeOptions={ getThemeOptions( window.JetpackInstantSearchOptions ) }
 		/>,
 		document.body
 	);
