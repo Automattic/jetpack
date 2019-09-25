@@ -76,7 +76,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->modify_comment_helper( $comment, $expected_variable );
 	}
 
-	public function test_do_not_sync_comment_with_unknow_comment_type() {
+	public function test_do_not_sync_comment_with_unknown_comment_type() {
 		$this->server_event_storage->reset();
 		$comment_data = array(
 			'comment_post_ID' => $this->post_id,
