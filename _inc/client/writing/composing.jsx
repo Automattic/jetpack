@@ -78,10 +78,9 @@ export class Composing extends React.Component {
 					module={ markdown }
 					support={ {
 						text: __(
-							'Allows you to compose content with links, lists, ' +
-								'and other styles using the Markdown syntax. ' +
-								'This setting will allow you to write with the help of Markdown ' +
-								'in the Classic Editor or within a Classic Editor block.'
+							'Use Markdown syntax to compose content with links, lists, and other styles. ' +
+								'This setting enables Markdown in the Classic Editor ' +
+								'as well as within a Classic Editor block.'
 						),
 						link: 'https://jetpack.com/support/markdown/',
 					} }
