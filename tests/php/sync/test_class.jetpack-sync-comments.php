@@ -92,7 +92,28 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
 		$this->assertFalse( $event );
+	}
 
+	public function test_do_sync_comments_with_knows_comment_types() {
+		$this->server_event_storage->reset();
+		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+
+		$comment_data = array(
+			'comment_post_ID' => $this->post_id,
+			'comment_date' => date('Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
+			'comment_author' => 'fun author',
+			'comment_content' => 'fun!',
+			'comment_agent' => 'fun things!',
+			'comment_type' => 'product_feedback', // This should be whiteliasted in the filter.
+		);
+		wp_insert_comment( $comment_data );
+		$this->sender->do_sync();
+		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$this->assertNotFalse( $event ); // This should be something other then false.
+		$this->assertEquals( $event->args[1]->comment_type, 'product_feedback' );
 	}
 
 	public function test_modify_comment_author() {
