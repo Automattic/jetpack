@@ -195,6 +195,9 @@ class Jetpack_Gutenberg {
 			 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
 			 * to disable paid feature upgrade nudges in the block editor.
 			 *
+			 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
+			 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
+			 *
 			 * @since 7.7.0
 			 *
 			 * @param boolean
