@@ -40,43 +40,19 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
-function generateDateRange( yearQuery, monthQuery, dayQuery ) {
+function generateDateRange( query, type ) {
 	// NOTE: This only supports a single date query at this time
-	const yearInput = Array.isArray( yearQuery ) && yearQuery[ 0 ];
-	const monthInput = Array.isArray( monthQuery ) && monthQuery[ 0 ];
-	const dayInput = Array.isArray( dayQuery ) && dayQuery[ 0 ];
+	const input = Array.isArray( query ) && query[ 0 ];
 
-	let year, month, day;
-	if ( yearInput ) {
-		[ , year, , ] = yearInput.match( DATE_REGEX );
+	let year, month;
+	if ( type === 'year' ) {
+		[ , year, , ] = input.match( DATE_REGEX );
 	}
 
-	if ( monthInput ) {
-		if ( ! year ) {
-			[ , year, month ] = monthInput.match( DATE_REGEX );
-		} else {
-			[ , , month ] = monthInput.match( DATE_REGEX );
-		}
+	if ( type === 'month' ) {
+		[ , year, month ] = input.match( DATE_REGEX );
 	}
 
-	if ( dayInput ) {
-		if ( ! year && ! month ) {
-			[ , year, month, day ] = dayInput.match( DATE_REGEX );
-		} else if ( ! year ) {
-			[ , year, , day ] = dayInput.match( DATE_REGEX );
-		} else if ( ! month ) {
-			[ , , month, day ] = dayInput.match( DATE_REGEX );
-		} else {
-			[ , , , day ] = dayInput.match( DATE_REGEX );
-		}
-	}
-
-	if ( day ) {
-		return {
-			startDate: `${ year }-${ month }-${ day }`,
-			endDate: `${ year }-${ month }-${ +day + 1 }`,
-		};
-	}
 	if ( month ) {
 		return { startDate: `${ year }-${ month }-01`, endDate: `${ year }-${ +month + 1 }-01` };
 	}
@@ -107,17 +83,40 @@ function buildFilterObject( filterQuery ) {
 			filter.bool.must.push( { term: { 'tag.slug': tag } } );
 		} );
 	}
-	if (
-		isLengthyArray( filterQuery.year ) ||
-		isLengthyArray( filterQuery.monthnum ) ||
-		isLengthyArray( filterQuery.day )
-	) {
-		const { startDate, endDate } = generateDateRange(
-			filterQuery.year,
-			filterQuery.monthnum,
-			filterQuery.day
-		);
+	if ( isLengthyArray( filterQuery.month_post_date ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date, 'month' );
 		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.month_post_date_gmt ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date_gmt, 'month' );
+		filter.bool.must.push( { range: { date_gmt: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.month_post_modified ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.month_post_modified, 'month' );
+		filter.bool.must.push( { range: { modified: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.month_post_modified_gmt ) ) {
+		const { startDate, endDate } = generateDateRange(
+			filterQuery.month_post_modified_gmt,
+			'month'
+		);
+		filter.bool.must.push( { range: { modified_gmt: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_date ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_date, 'year' );
+		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_date_gmt ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_date_gmt, 'year' );
+		filter.bool.must.push( { range: { date_gmt: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_modified ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_modified, 'year' );
+		filter.bool.must.push( { range: { modified: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_modified_gmt ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_modified_gmt, 'year' );
+		filter.bool.must.push( { range: { modified_gmt: { gte: startDate, lt: endDate } } } );
 	}
 	return filter;
 }
@@ -133,6 +132,7 @@ export function search( { aggregations, filter, query, resultFormat, siteId, sor
 			highlight_fields = [ 'title', 'content', 'comments' ];
 			fields = [
 				'date',
+				'modified',
 				'permalink.url.raw',
 				'tag.name.default',
 				'category.name.default',

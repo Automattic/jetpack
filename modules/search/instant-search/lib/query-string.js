@@ -95,9 +95,14 @@ export function getFilterQuery( filterKey ) {
 		// Post types
 		post_types: getFilterQueryByKey( 'post_types' ),
 		// Date filters
-		day: getFilterQueryByKey( 'day' ),
-		monthnum: getFilterQueryByKey( 'monthnum' ),
-		year: getFilterQueryByKey( 'year' ),
+		month_post_date: getFilterQueryByKey( 'month_post_date' ),
+		month_post_date_gmt: getFilterQueryByKey( 'month_post_date_gmt' ),
+		month_post_modified: getFilterQueryByKey( 'month_post_modified' ),
+		month_post_modified_gmt: getFilterQueryByKey( 'month_post_modified_gmt' ),
+		year_post_date: getFilterQueryByKey( 'year_post_date' ),
+		year_post_date_gmt: getFilterQueryByKey( 'year_post_date_gmt' ),
+		year_post_modified: getFilterQueryByKey( 'year_post_modified' ),
+		year_post_modified_gmt: getFilterQueryByKey( 'year_post_modified_gmt' ),
 	};
 }
 

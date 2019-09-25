@@ -14,10 +14,16 @@ export default class SearchFilterDates extends Component {
 		this.filtersList = createRef();
 	}
 
+	getIdentifier() {
+		// (month || year)_(post_date || post_date_gmt || post_modified || post_modified_gmt )
+		// Ex: month_post_date_gmt
+		return `${ this.props.configuration.interval }_${ this.props.configuration.field }`;
+	}
+
 	toggleFilter = () => {
 		const selected = getCheckedInputNames( this.filtersList.current );
 		this.setState( { selected }, () => {
-			this.props.onChange( this.props.configuration.interval, selected );
+			this.props.onChange( this.getIdentifier(), selected );
 		} );
 	};
 
@@ -26,12 +32,12 @@ export default class SearchFilterDates extends Component {
 			<div>
 				<input
 					checked={ this.state.selected && this.state.selected.includes( key ) }
-					id={ `jp-instant-search-filter-dates-${ key }` }
+					id={ `jp-instant-search-filter-dates-${ this.getIdentifier() }-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
 				/>
-				<label htmlFor={ `jp-instant-search-filter-dates-${ key }` }>
+				<label htmlFor={ `jp-instant-search-filter-dates-${ this.getIdentifier() }-${ key }` }>
 					{ strip( key ) } ({ count })
 				</label>
 			</div>
