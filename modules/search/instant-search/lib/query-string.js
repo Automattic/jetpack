@@ -27,6 +27,51 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
+export function getSearchSort() {
+	const query = getQuery();
+	const order = 'order' in query ? query.order : 'DESC';
+	const orderby = 'orderby' in query ? query.orderby : 'relevance';
+	let sort;
+	switch ( orderby ) {
+		case 'date':
+			if ( order === 'ASC' ) {
+				sort = 'date_asc';
+			} else {
+				sort = 'date_desc';
+			}
+			break;
+		case 'price':
+			if ( order === 'ASC' ) {
+				sort = 'price_asc';
+			} else {
+				sort = 'price_desc';
+			}
+			break;
+		case 'rating':
+			if ( order === 'ASC' ) {
+				sort = 'rating_asc';
+			} else {
+				sort = 'rating_desc';
+			}
+			break;
+		case 'recency':
+			sort = 'score_recency';
+			break;
+		case 'keyword':
+			sort = 'score_keyword';
+			break;
+		case 'popularity':
+			sort = 'score_popularity';
+			break;
+		case 'relevance':
+		case 'score_default':
+		default:
+			sort = 'score_default';
+			break;
+	}
+	return sort;
+}
+
 function getFilterQueryByKey( filterKey ) {
 	const query = getQuery();
 	if ( ! ( filterKey in query ) ) {

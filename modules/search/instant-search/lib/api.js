@@ -56,7 +56,7 @@ function buildFilterObject( filterQuery ) {
 	return filter;
 }
 
-export function search( { aggregations, filter, query, resultFormat, siteId } ) {
+export function search( { aggregations, filter, query, resultFormat, siteId, sort } ) {
 	let fields = [];
 	let highlight_fields = [];
 	switch ( resultFormat ) {
@@ -83,6 +83,7 @@ export function search( { aggregations, filter, query, resultFormat, siteId } ) 
 			highlight_fields,
 			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
+			sort,
 		} )
 	);
 

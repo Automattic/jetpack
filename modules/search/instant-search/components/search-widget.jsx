@@ -29,10 +29,11 @@ class SearchApp extends Component {
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
 		this.state = {
 			query: this.props.initialValue,
+			sort: this.props.initialSort,
 			results: {},
 		};
 		this.getResults = debounce( this.getResults, 500 );
-		this.getResults( this.state.query, getFilterQuery() );
+		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
 	}
 
 	componentDidMount() {
@@ -51,7 +52,7 @@ class SearchApp extends Component {
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
-		this.getResults( query );
+		this.getResults( query, this.state.sort );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
@@ -59,7 +60,7 @@ class SearchApp extends Component {
 		this.getResults( this.state.query, getFilterQuery() );
 	};
 
-	getResults = ( query, filter ) => {
+	getResults = ( query, filter, sort ) => {
 		if ( query ) {
 			this.requestId++;
 			const requestId = this.requestId;
@@ -70,6 +71,7 @@ class SearchApp extends Component {
 				query,
 				resultFormat: this.props.options.resultFormat,
 				siteId: this.props.options.siteId,
+				sort,
 			} )
 				.then( response => response.json() )
 				.then( json => {
