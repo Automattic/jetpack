@@ -53,11 +53,10 @@ export const SettingsCard = props => {
 		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
 		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
 
-	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
-	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
+	// Non admin users only get Publicize and Post by Email settings.
 	if (
 		! props.userCanManageModules &&
-		! includes( [ 'composing', 'post-by-email', 'publicize' ], props.module )
+		! includes( [ 'post-by-email', 'publicize' ], props.module )
 	) {
 		return <span />;
 	}
