@@ -312,9 +312,10 @@ class Jetpack_Memberships {
 		//
 		// Check p7rd6c-23C-p2 for details and progress. If ready, uncomment the right-hand side of the line with the
 		// return statement below.
-		// phpcs:ignore
+
+		/** This filter is documented in class.jetpack-gutenberg.php */
 		return Jetpack::is_active() && (
-			! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) || // Remove when the default becomes `true`
+			! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) || // Remove when the default becomes `true`.
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}
