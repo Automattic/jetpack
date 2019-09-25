@@ -43,7 +43,10 @@ export default class extends React.Component {
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
-					active={ '/security' === this.props.route.path || '/settings' === this.props.route.path }
+					active={
+						'/security' === this.props.route.path ||
+						( '/settings' === this.props.route.path && this.props.userCanManageModules )
+					}
 					{ ...commonProps }
 				/>
 				<Discussion
@@ -60,7 +63,10 @@ export default class extends React.Component {
 				/>
 				<Writing
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/writing' === this.props.route.path }
+					active={
+						'/writing' === this.props.route.path ||
+						( '/settings' === this.props.route.path && ! this.props.userCanManageModules )
+					}
 					{ ...commonProps }
 				/>
 				<Sharing
