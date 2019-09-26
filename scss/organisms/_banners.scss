@@ -206,6 +206,7 @@
 
 .jp-connect-full__row {
 	display: flex;
+	justify-content: space-around; // Fallback for IE and Edge as they don't support the `space-evenly` value.
 	justify-content: space-evenly;
 	text-align: left;
 	align-items: baseline;
