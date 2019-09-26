@@ -57,6 +57,15 @@ jQuery( document ).ready( function( $ ) {
 			loadingText.text( jpConnect.buttonTextRegistering );
 			loadingText.appendTo( '.jp-connect-full__button-container' );
 
+			var spinner = $( '<div>' ).addClass( 'jp-spinner' );
+			var spinnerOuter = $( '<div>' )
+				.addClass( 'jp-spinner__outer' )
+				.appendTo( spinner );
+			$( '<div>' )
+				.addClass( 'jp-spinner__inner' )
+				.appendTo( spinnerOuter );
+			loadingText.after( spinner );
+
 			var registerUrl = jpConnect.apiBaseUrl + '/connection/register';
 
 			// detect Calypso Env and add to API URL
