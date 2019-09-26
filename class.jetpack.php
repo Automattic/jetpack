@@ -649,9 +649,6 @@ class Jetpack {
 		// returns HTTPS support status
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
-		// JITM AJAX callback function
-		add_action( 'wp_ajax_jitm_ajax', array( $this, 'jetpack_jitm_ajax_callback' ) );
-
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
@@ -900,63 +897,11 @@ class Jetpack {
 
 	/**
 	 * The callback for the JITM ajax requests.
+	 *
+	 * @deprecated since 7.9.0
 	 */
 	function jetpack_jitm_ajax_callback() {
-		// Check for nonce
-		if ( ! isset( $_REQUEST['jitmNonce'] ) || ! wp_verify_nonce( $_REQUEST['jitmNonce'], 'jetpack-jitm-nonce' ) ) {
-			wp_die( 'Module activation failed due to lack of appropriate permissions' );
-		}
-		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'activate' == $_REQUEST['jitmActionToTake'] ) {
-			$module_slug = $_REQUEST['jitmModule'];
-			self::log( 'activate', $module_slug );
-			self::activate_module( $module_slug, false, false );
-			self::state( 'message', 'no_message' );
-
-			// A Jetpack module is being activated through a JITM, track it
-			$this->stat( 'jitm', $module_slug . '-activated-' . JETPACK__VERSION );
-			$this->do_stats( 'server_side' );
-
-			wp_send_json_success();
-		}
-		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'dismiss' == $_REQUEST['jitmActionToTake'] ) {
-			// get the hide_jitm options array
-			$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
-			$module_slug       = $_REQUEST['jitmModule'];
-
-			if ( ! $jetpack_hide_jitm ) {
-				$jetpack_hide_jitm = array(
-					$module_slug => 'hide',
-				);
-			} else {
-				$jetpack_hide_jitm[ $module_slug ] = 'hide';
-			}
-
-			Jetpack_Options::update_option( 'hide_jitm', $jetpack_hide_jitm );
-
-			// jitm is being dismissed forever, track it
-			$this->stat( 'jitm', $module_slug . '-dismissed-' . JETPACK__VERSION );
-			$this->do_stats( 'server_side' );
-
-			wp_send_json_success();
-		}
-		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'launch' == $_REQUEST['jitmActionToTake'] ) {
-			$module_slug = $_REQUEST['jitmModule'];
-
-			// User went to WordPress.com, track this
-			$this->stat( 'jitm', $module_slug . '-wordpress-tools-' . JETPACK__VERSION );
-			$this->do_stats( 'server_side' );
-
-			wp_send_json_success();
-		}
-		if ( isset( $_REQUEST['jitmActionToTake'] ) && 'viewed' == $_REQUEST['jitmActionToTake'] ) {
-			$track = $_REQUEST['jitmModule'];
-
-			// User is viewing JITM, track it.
-			$this->stat( 'jitm', $track . '-viewed-' . JETPACK__VERSION );
-			$this->do_stats( 'server_side' );
-
-			wp_send_json_success();
-		}
+		_deprecated_function( __METHOD__, 'jetpack-7.9' );
 	}
 
 	/**
