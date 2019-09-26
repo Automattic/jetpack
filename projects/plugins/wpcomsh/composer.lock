@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "babb700b006445e2293fb7eaef4b6b38",
+    "content-hash": "426111ac7d59c8136d48fbf9fb4f3037",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -102,16 +102,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.0.17",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "d47034d1cbb41cdb37c0493be08fbc8ddef89c52"
+                "reference": "ca122ead8b824af1938e36379f65302773eae1df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/d47034d1cbb41cdb37c0493be08fbc8ddef89c52",
-                "reference": "d47034d1cbb41cdb37c0493be08fbc8ddef89c52",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ca122ead8b824af1938e36379f65302773eae1df",
+                "reference": "ca122ead8b824af1938e36379f65302773eae1df",
                 "shasum": ""
             },
             "require": {
@@ -139,20 +139,20 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2019-06-27T16:28:05+00:00"
+            "time": "2019-09-03T03:24:37+00:00"
         },
         {
             "name": "composer/installers",
-            "version": "v1.6.0",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b"
+                "reference": "141b272484481432cda342727a427dc1e206bfa0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/cfcca6b1b60bc4974324efb5783c13dca6932b5b",
-                "reference": "cfcca6b1b60bc4974324efb5783c13dca6932b5b",
+                "url": "https://api.github.com/repos/composer/installers/zipball/141b272484481432cda342727a427dc1e206bfa0",
+                "reference": "141b272484481432cda342727a427dc1e206bfa0",
                 "shasum": ""
             },
             "require": {
@@ -208,6 +208,7 @@
                 "RadPHP",
                 "SMF",
                 "Thelia",
+                "Whmcs",
                 "WolfCMS",
                 "agl",
                 "aimeos",
@@ -230,6 +231,7 @@
                 "installer",
                 "itop",
                 "joomla",
+                "known",
                 "kohana",
                 "laravel",
                 "lavalite",
@@ -259,7 +261,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2018-08-27T06:10:37+00:00"
+            "time": "2019-08-12T15:00:31+00:00"
         }
     ],
     "packages-dev": [],
