@@ -33,11 +33,16 @@ export function getThemeOptions( searchOptions ) {
 		'.content',
 	];
 
-	const potential_removals = [ '#content .page-title', 'section.ast-archive-description' ];
+	const potential_removals = [
+		'#content .page-title',
+		'section.ast-archive-description',
+		//'input.search-submit', ???
+	];
 
 	let options = {
 		results_selector: null,
 		elem_selectors: [],
+		search_form_selector: 'form.search-form',
 	};
 
 	//sample the dom to try and find a location to mount results

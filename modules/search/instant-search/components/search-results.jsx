@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { h, Component } from 'preact';
 
 /**
@@ -23,7 +23,7 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const { results = [], query, total = 0, corrected_query = false } = this.props;
+		const { results = [], query, total = 0, corrected_query = false, loading = false } = this.props;
 		if ( query === '' ) {
 			return <div className="jetpack-instant-search__search-results" />;
 		}
@@ -36,16 +36,19 @@ class SearchResults extends Component {
 				</div>
 			);
 		}
+		const num = new Intl.NumberFormat().format( total );
+		const style = loading ? { opacity: 0.2 } : { opacity: 1 };
 
 		return (
-			<div className="jetpack-instant-search__search-results">
-				<span className="jetpack-instant-search__search-results-count">
-					{ sprintf( __( '%d Results' ), total ) }
-				</span>
+			<div className="jetpack-instant-search__search-results" style={ style }>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ corrected_query !== false
-						? sprintf( __( 'Showing results for "%s"' ), corrected_query )
-						: sprintf( __( 'Results for "%s"' ), query ) }
+						? sprintf(
+								_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
+								num,
+								corrected_query
+						  )
+						: sprintf( _n( '%s results for "%s"', '%s results for "%s"', total ), num, query ) }
 				</p>
 				{ corrected_query !== false && (
 					<p className="jetpack-instant-search__search-results-unused-query">

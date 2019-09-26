@@ -1,13 +1,8 @@
 .jetpack-instant-search__search-results {
-	padding: 0.125em 0;
-	margin: 1em 0;
+	padding: 0.125em 2em;
+	margin: 1em auto;
 	position: relative;
-}
-
-.jetpack-instant-search__search-results-count {
-	float: right;
-	margin-left: 0.5em;
-	display: block;
+	max-width: 1080px;
 }
 
 .jetpack-instant-search__search-results-real-query {

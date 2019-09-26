@@ -15,6 +15,7 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
+import SearchBox from './search-box';
 import { search, buildFilterAggregations } from '../lib/api';
 import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
 import { removeChildren, hideElements } from '../lib/dom';
@@ -30,8 +31,9 @@ class SearchApp extends Component {
 		this.state = {
 			query: this.props.initialValue,
 			results: {},
+			loading: false,
 		};
-		this.getResults = debounce( this.getResults, 500 );
+		this.getResults = debounce( this.getResults, 200 );
 		this.getResults( this.state.query, getFilterQuery() );
 	}
 
@@ -44,6 +46,10 @@ class SearchApp extends Component {
 		removeChildren( document.querySelector( this.props.themeOptions.results_selector ) );
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
+		} );
+		const searchForms = document.querySelectorAll( this.props.themeOptions.search_form_selector );
+		searchForms.forEach( function( elem ) {
+			removeChildren( elem );
 		} );
 	}
 
@@ -64,6 +70,9 @@ class SearchApp extends Component {
 			this.requestId++;
 			const requestId = this.requestId;
 
+			this.setState( {
+				loading: true,
+			} );
 			search( {
 				aggregations: this.props.aggregations,
 				filter,
@@ -74,41 +83,43 @@ class SearchApp extends Component {
 				.then( response => response.json() )
 				.then( json => {
 					if ( this.requestId === requestId ) {
-						this.setState( { results: json } );
+						this.setState( {
+							results: json,
+							loading: false,
+						} );
 					}
 				} );
 		} else {
-			this.setState( { results: [] } );
+			this.setState( {
+				results: [],
+				loading: false,
+			} );
 		}
 	};
 
 	render() {
 		const { query, results } = this.state;
+		const searchForms = Array.from(
+			document.querySelectorAll( this.props.themeOptions.search_form_selector )
+		);
 		return (
 			<Preact.Fragment>
-				{ this.props.widgets.map( ( widget, index ) => (
+				{ this.props.widgets.map( widget => (
 					<Portal into={ `#${ widget.widget_id }` }>
 						<div id={ `${ widget.widget_id }-wrapper` }>
 							<div className="search-form">
-								{ /* TODO: Add support for preserving label text */ }
-								<input
-									className="search-field"
-									onInput={ this.onChangeQuery }
-									ref={ index === 0 ? this.input : null }
-									type="search"
-									value={ query }
+								<SearchBox
+									onChangeQuery={ this.onChangeQuery }
+									appRef={ this.input }
+									query={ query }
+									showIcon={ true }
 								/>
-								<button type="submit" className="search-submit">
-									<svg className="icon icon-search" aria-hidden="true" role="img">
-										<use href="#icon-search" />
-									</svg>
-									<span className="screen-reader-text">Search</span>
-								</button>
 							</div>
 							<div className="jetpack-search-sort-wrapper" />
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }
 								onChange={ this.onChangeFilter }
+								loading={ this.state.loading }
 								postTypes={ this.props.options.postTypes }
 								results={ this.state.results }
 								widget={ widget }
@@ -117,9 +128,21 @@ class SearchApp extends Component {
 					</Portal>
 				) ) }
 
+				{ searchForms &&
+					searchForms.map( elem => (
+						<Portal into={ elem }>
+							<SearchBox
+								onChangeQuery={ this.onChangeQuery }
+								appRef={ this.input }
+								query={ query }
+							/>
+						</Portal>
+					) ) }
+
 				<Portal into={ this.props.themeOptions.results_selector }>
 					<SearchResults
 						query={ query }
+						loading={ this.state.loading }
 						{ ...results }
 						result_format={ this.props.options.resultFormat }
 					/>
