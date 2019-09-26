@@ -8,7 +8,8 @@ jQuery( document ).ready( function( $ ) {
 		$( '#jetpack-connection-cards' ).fadeOut( 600 );
 		if ( ! jetpackConnectButton.isRegistering ) {
 			if ( 'original' === jpConnect.forceVariation ) {
-				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`.
+				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`
+				// or we're dealing with Safari which has issues with handling 3rd party cookies.
 				jetpackConnectButton.handleOriginalFlow();
 			} else if ( 'in_place' === jpConnect.forceVariation ) {
 				// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
