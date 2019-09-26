@@ -10,7 +10,6 @@ import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-
 import {
 	Button,
 	ExternalLink,
@@ -59,14 +58,6 @@ class MembershipsButtonEdit extends Component {
 		};
 		this.timeout = null;
 
-		// FIXME: In Jetpack, we cannot yet support the 'new', Upgrade Nudge-based
-		// flow, since the post-checkout redirect skips the Jetpack Onboarding Checklist in Calypso,
-		// where Akismet and VaultPress installation is triggered.
-		// Instead, we continue to show the legacy, in-block prompt to upgrade the site's plan.
-		// This however means that we have to display the block also if the site's on a Free plan.
-		//
-		// Check p7rd6c-23C-p2 for details and progress. If ready, remove the line below, and replace all
-		// checks for `this.hasUpgradeNudge` with `false`.
 		const recurringPaymentsAvailability = getJetpackExtensionAvailability( 'recurring-payments' );
 		this.hasUpgradeNudge =
 			! recurringPaymentsAvailability.available &&
