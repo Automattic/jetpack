@@ -127,7 +127,6 @@ export function search( { aggregations, filter, query, resultFormat, siteId, sor
 			highlight_fields = [ 'title', 'content', 'comments' ];
 			fields = [
 				'date',
-				'modified',
 				'permalink.url.raw',
 				'tag.name.default',
 				'category.name.default',
