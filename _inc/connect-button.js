@@ -51,20 +51,7 @@ jQuery( document ).ready( function( $ ) {
 			jetpackConnectButton.isRegistering = true;
 			tosText.hide();
 			connectButton.hide();
-
-			var loadingText = $( '<span>' );
-			loadingText.addClass( 'jp-connect-full__button-container-loading' );
-			loadingText.text( jpConnect.buttonTextRegistering );
-			loadingText.appendTo( '.jp-connect-full__button-container' );
-
-			var spinner = $( '<div>' ).addClass( 'jp-spinner' );
-			var spinnerOuter = $( '<div>' )
-				.addClass( 'jp-spinner__outer' )
-				.appendTo( spinner );
-			$( '<div>' )
-				.addClass( 'jp-spinner__inner' )
-				.appendTo( spinnerOuter );
-			loadingText.after( spinner );
+			jetpackConnectButton.triggerLoadingState();
 
 			var registerUrl = jpConnect.apiBaseUrl + '/connection/register';
 
@@ -84,6 +71,21 @@ jQuery( document ).ready( function( $ ) {
 				error: jetpackConnectButton.handleConnectionError,
 				success: jetpackConnectButton.handleConnectionSuccess,
 			} );
+		},
+		triggerLoadingState: function() {
+			var loadingText = $( '<span>' )
+				.addClass( 'jp-connect-full__button-container-loading' )
+				.text( jpConnect.buttonTextRegistering )
+				.appendTo( '.jp-connect-full__button-container' );
+
+			var spinner = $( '<div>' ).addClass( 'jp-spinner' );
+			var spinnerOuter = $( '<div>' )
+				.addClass( 'jp-spinner__outer' )
+				.appendTo( spinner );
+			$( '<div>' )
+				.addClass( 'jp-spinner__inner' )
+				.appendTo( spinnerOuter );
+			loadingText.after( spinner );
 		},
 		handleConnectionSuccess: function( data ) {
 			jetpackConnectButton.fetchPlanType();
