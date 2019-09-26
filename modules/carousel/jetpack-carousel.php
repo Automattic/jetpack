@@ -220,7 +220,7 @@ class Jetpack_Carousel {
 
 		if ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) ) {
 			$this->enqueue_assets();
-			$content = $this->add_data_to_container( $content );
+			$content = $this->add_data_to_html( $content );
 		}
 		return $content;
 	}
@@ -511,7 +511,12 @@ class Jetpack_Carousel {
 		return $attr;
 	}
 
-	function add_data_to_container( $html ) {
+	function add_data_to_container( $gallery_style ) {
+		$gallery_style = $this->add_data_to_html( $gallery_style );
+		return preg_replace( '#</div>\s*+$#', '', $gallery_style );
+	}
+
+	function add_data_to_html( $html ) {
 		global $post;
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
@@ -547,8 +552,12 @@ class Jetpack_Carousel {
 					return $html;
 				}
 
+				$fake_root_tag = 'jetpack' . mt_rand( 10000, 99999 );
+				$charset = get_option( 'blog_charset', 'utf-8' );
+
 				// Let's grab all containers from the HTML.
 				$dom_doc = new DOMDocument();
+				$dom_doc->encoding = $charset;
 
 				/*
 				 * The @ is not enough to suppress errors when dealing with libxml,
@@ -556,7 +565,15 @@ class Jetpack_Carousel {
 				 */
 				$old_libxml_disable_entity_loader = libxml_disable_entity_loader( true );
 				$old_libxml_use_internal_errors   = libxml_use_internal_errors( true );
-				@$dom_doc->loadHTML( $html ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				@$dom_doc->loadHTML( // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					$a = sprintf(
+						'<head><meta http-equiv="Content-Type" content="text/html; charset=%1$s"/></head><%2$s>%3$s</%2$s>',
+						esc_attr( $charset ),
+						tag_escape( $fake_root_tag ),
+						$html
+					)
+				);
+
 				libxml_use_internal_errors( $old_libxml_use_internal_errors );
 				libxml_disable_entity_loader( $old_libxml_disable_entity_loader );
 
@@ -592,7 +609,12 @@ class Jetpack_Carousel {
 				}
 
 				// Save our updated HTML.
-				$html = $dom_doc->saveHTML();
+				$fake_root_tag_length = strlen( $fake_root_tag ) + 2;
+				$html = substr(
+					$dom_doc->saveHTML( $dom_doc->getElementsByTagName( $fake_root_tag )->item( 0 ) ),
+					$fake_root_tag_length,
+					-1 * ( $fake_root_tag_length + 1 )
+				);
 			}
 		}
 
