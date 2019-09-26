@@ -89,9 +89,20 @@ export function getFilterQuery( filterKey ) {
 	}
 
 	return {
+		// Taxonomies
 		category: getFilterQueryByKey( 'category' ),
 		post_tag: getFilterQueryByKey( 'post_tag' ),
+		// Post types
 		post_types: getFilterQueryByKey( 'post_types' ),
+		// Date filters
+		month_post_date: getFilterQueryByKey( 'month_post_date' ),
+		month_post_date_gmt: getFilterQueryByKey( 'month_post_date_gmt' ),
+		month_post_modified: getFilterQueryByKey( 'month_post_modified' ),
+		month_post_modified_gmt: getFilterQueryByKey( 'month_post_modified_gmt' ),
+		year_post_date: getFilterQueryByKey( 'year_post_date' ),
+		year_post_date_gmt: getFilterQueryByKey( 'year_post_date_gmt' ),
+		year_post_modified: getFilterQueryByKey( 'year_post_modified' ),
+		year_post_modified_gmt: getFilterQueryByKey( 'year_post_modified_gmt' ),
 	};
 }
 

@@ -5,6 +5,8 @@ import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 
+const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
+
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
 	widgets.forEach( ( { filters: widgetFilters } ) =>
@@ -37,21 +39,79 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
+const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
+function generateDateRange( query, type ) {
+	// NOTE: This only supports a single date query at this time
+	const input = Array.isArray( query ) && query[ 0 ];
+
+	let year, month;
+	if ( type === 'year' ) {
+		[ , year, , ] = input.match( DATE_REGEX );
+	}
+
+	if ( type === 'month' ) {
+		[ , year, month ] = input.match( DATE_REGEX );
+	}
+
+	if ( month ) {
+		return { startDate: `${ year }-${ month }-01`, endDate: `${ year }-${ +month + 1 }-01` };
+	}
+	if ( year ) {
+		return { startDate: `${ year }-01-01`, endDate: `${ +year + 1 }-01-01` };
+	}
+	return { startDate: '', endDate: '' };
+}
+
 function buildFilterObject( filterQuery ) {
 	if ( ! filterQuery ) {
 		return {};
 	}
 
 	const filter = { bool: { must: [] } };
-	if ( Array.isArray( filterQuery.post_types ) && filterQuery.post_types.length > 0 ) {
+	if ( isLengthyArray( filterQuery.post_types ) ) {
 		filterQuery.post_types.forEach( postType => {
 			filter.bool.must.push( { term: { post_type: postType } } );
 		} );
 	}
-	if ( Array.isArray( filterQuery.post_tag ) && filterQuery.post_tag.length > 0 ) {
+	if ( isLengthyArray( filterQuery.post_tag ) ) {
 		filterQuery.post_tag.forEach( tag => {
 			filter.bool.must.push( { term: { 'tag.slug': tag } } );
 		} );
+	}
+	if ( isLengthyArray( filterQuery.month_post_date ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date, 'month' );
+		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.month_post_date_gmt ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date_gmt, 'month' );
+		filter.bool.must.push( { range: { date_gmt: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.month_post_modified ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.month_post_modified, 'month' );
+		filter.bool.must.push( { range: { modified: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.month_post_modified_gmt ) ) {
+		const { startDate, endDate } = generateDateRange(
+			filterQuery.month_post_modified_gmt,
+			'month'
+		);
+		filter.bool.must.push( { range: { modified_gmt: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_date ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_date, 'year' );
+		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_date_gmt ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_date_gmt, 'year' );
+		filter.bool.must.push( { range: { date_gmt: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_modified ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_modified, 'year' );
+		filter.bool.must.push( { range: { modified: { gte: startDate, lt: endDate } } } );
+	}
+	if ( isLengthyArray( filterQuery.year_post_modified_gmt ) ) {
+		const { startDate, endDate } = generateDateRange( filterQuery.year_post_modified_gmt, 'year' );
+		filter.bool.must.push( { range: { modified_gmt: { gte: startDate, lt: endDate } } } );
 	}
 	return filter;
 }
@@ -89,5 +149,5 @@ export function search( { aggregations, filter, query, resultFormat, siteId, sor
 
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	);
+	).then( response => response.json() );
 }
