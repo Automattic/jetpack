@@ -21,17 +21,14 @@ if ( undefined !== typeof window && window.location ) {
 	const { query } = parseUrl( window.location.href, true );
 
 	if ( query.plan_upgraded ) {
-		const path = isSimpleSite() ? `sites/${ window.location.host }` : '/jetpack/v4/site';
+		const path = isSimpleSite() ? `/rest/v1.2/sites/${ window.location.host }` : '/jetpack/v4/site';
 
-		if ( isSimpleSite() ) {
-			apiFetch.use(
-				apiFetch.createRootURLMiddleware( 'https://public-api.wordpress.com/rest/v1.2/' )
-			);
-		}
+		// apiFetch.use( apiFetch.createRootURLMiddleware( 'https://public-api.wordpress.com/rest/v1.2' ) );
 
-		apiFetch( { path, parse: true } )
+		apiFetch( { path } )
 			.then( response => {
-				const planName = response.data.plan.product_name;
+				const data = JSON.parse( response.data );
+				const planName = data.plan.product_name;
 				const planUrl = `https://wordpress.com/plans/my-plan/${ window.location.host }`;
 
 				dispatch( 'core/notices' ).createNotice(
