@@ -25,7 +25,7 @@ jQuery( document ).ready( function( $ ) {
 		isRegistering: false,
 		isPaidPlan: false,
 		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place';
+			var abTestName = 'jetpack_connect_in_place_v2';
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
 				type: 'GET',
