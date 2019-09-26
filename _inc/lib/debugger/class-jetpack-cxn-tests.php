@@ -337,12 +337,23 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
 
+		$error_msg = wp_kses(
+			sprintf(
+				/* translators: 1st placeholder is a link to Jetpack debug page, 2nd one fetches current site URL. */
+				__(
+					'<a href="%1$s%2$s">Visit the Jetpack.com debug page</a> for more information or <a href="https://jetpack.com/contact-support/">contact support</a>.',
+					'jetpack'
+				),
+				'https://jetpack.com/support/debug/?url=',
+				site_url()
+			),
+			array( 'a' => array( 'href' => array() ) )
+		);
+
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( $name );
 		} else {
-			return self::failing_test( $name, __( 'Jetpack.com detected an error.', 'jetpack' ), __( '<a href="https://jetpack.com/support/debug/?url=`%1$s`">Visit the Jetpack.com debugging page</a> for more information or <a href="https://jetpack.com/contact-support/">contact support</a>.', 'jetpack' ),
-			site_url()
-			);
+			return self::failing_test( $name, __( 'Jetpack.com detected an error.', 'jetpack' ), $error_msg );
 		}
 	}
 }
