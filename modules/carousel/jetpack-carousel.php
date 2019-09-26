@@ -566,7 +566,7 @@ class Jetpack_Carousel {
 				$old_libxml_disable_entity_loader = libxml_disable_entity_loader( true );
 				$old_libxml_use_internal_errors   = libxml_use_internal_errors( true );
 				@$dom_doc->loadHTML( // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-					$a = sprintf(
+					sprintf(
 						'<head><meta http-equiv="Content-Type" content="text/html; charset=%1$s"/></head><%2$s>%3$s</%2$s>',
 						esc_attr( $charset ),
 						tag_escape( $fake_root_tag ),
