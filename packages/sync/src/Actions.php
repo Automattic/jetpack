@@ -358,7 +358,7 @@ class Actions {
 
 		// Don't start new sync if a full sync is in process.
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		if ( $full_sync_module && ( $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) ) {
+		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
 
