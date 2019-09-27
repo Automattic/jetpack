@@ -42,7 +42,8 @@ export function getThemeOptions( searchOptions ) {
 	let options = {
 		results_selector: null,
 		elem_selectors: [],
-		search_form_selector: 'form.search-form',
+		search_form_icon: 'form#searchform',
+		search_form_no_icon: 'form.search-form',
 	};
 
 	//sample the dom to try and find a location to mount results

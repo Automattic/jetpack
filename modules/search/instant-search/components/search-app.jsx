@@ -47,7 +47,10 @@ class SearchApp extends Component {
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
 		} );
-		const searchForms = document.querySelectorAll( this.props.themeOptions.search_form_selector );
+		const searchForms = [
+			...document.querySelectorAll( this.props.themeOptions.search_form_icon ),
+			...document.querySelectorAll( this.props.themeOptions.search_form_no_icon ),
+		];
 		searchForms.forEach( function( elem ) {
 			removeChildren( elem );
 		} );
@@ -99,8 +102,11 @@ class SearchApp extends Component {
 
 	render() {
 		const { query, results } = this.state;
-		const searchForms = Array.from(
-			document.querySelectorAll( this.props.themeOptions.search_form_selector )
+		const searchFormsIcon = Array.from(
+			document.querySelectorAll( this.props.themeOptions.search_form_icon )
+		);
+		const searchFormsNoIcon = Array.from(
+			document.querySelectorAll( this.props.themeOptions.search_form_no_icon )
 		);
 		return (
 			<Preact.Fragment>
@@ -128,13 +134,25 @@ class SearchApp extends Component {
 					</Portal>
 				) ) }
 
-				{ searchForms &&
-					searchForms.map( elem => (
+				{ searchFormsIcon &&
+					searchFormsIcon.map( elem => (
 						<Portal into={ elem }>
 							<SearchBox
 								onChangeQuery={ this.onChangeQuery }
 								appRef={ this.input }
 								query={ query }
+								showIcon={ true }
+							/>
+						</Portal>
+					) ) }
+				{ searchFormsNoIcon &&
+					searchFormsNoIcon.map( elem => (
+						<Portal into={ elem }>
+							<SearchBox
+								onChangeQuery={ this.onChangeQuery }
+								appRef={ this.input }
+								query={ query }
+								showIcon={ false }
 							/>
 						</Portal>
 					) ) }

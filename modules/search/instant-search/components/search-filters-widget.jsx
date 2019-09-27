@@ -49,8 +49,10 @@ export default class SearchFiltersWidget extends Component {
 
 	render() {
 		const aggregations = get( this.props.results, 'aggregations' );
+		const style = this.props.loading === true ? { opacity: 0.2 } : { opacity: 1 };
+
 		return (
-			<div className="jetpack-instant-search__filters-widget">
+			<div className="jetpack-instant-search__filters-widget" style={ style }>
 				{ get( this.props.widget, 'filters' )
 					.map( configuration =>
 						aggregations

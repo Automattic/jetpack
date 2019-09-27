@@ -6,20 +6,15 @@
 import { h, Component } from 'preact';
 import { __ } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
-import Gridicon from './gridicon';
-
 class SearchBox extends Component {
 	render() {
-		const { query, onChangeQuery, appRef, showIcon = false } = this.props;
+		const { query, onChangeQuery, appRef, showIcon } = this.props;
 
+		const cls = showIcon ? 'jp-instant-search__box-svg' : 'jp-instant-search__box';
 		return (
-			<label className="jp-instant-search__box">
+			<label className={ cls }>
 				{ /* TODO: Add support for preserving label text */ }
-				<span className="screen-reader-text">__( 'Search' )</span>
-				{ showIcon && <Gridicon icon="jetpack-search" size={ 32 } /> }
+				<span className="screen-reader-text">{ __( 'Search' ) }</span>
 				<input
 					className="search-field jp-instant-search__box-input"
 					onInput={ onChangeQuery }
