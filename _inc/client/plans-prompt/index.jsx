@@ -67,5 +67,4 @@ export default connect(
 	state => ( {
 		plans: getAvailablePlans( state ),
 	} )
-	null
 )( PlansPrompt );
