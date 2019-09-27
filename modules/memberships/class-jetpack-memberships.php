@@ -303,13 +303,7 @@ class Jetpack_Memberships {
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
 		// For WPCOM sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// In some contexts (wp-cli), this function may not be defined. That should not make us
-			// fall into the Jetpack case, but instead fails the check.
-			if ( ! function_exists( 'has_any_blog_stickers' ) ) {
-				return false;
-			}
-
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
 			$site_id = get_current_blog_id();
 			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
