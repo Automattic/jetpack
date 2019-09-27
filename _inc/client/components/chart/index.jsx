@@ -4,6 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { noop, throttle } from 'lodash';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -119,10 +120,7 @@ export default class ModuleChart extends React.Component {
 		if ( values.length && this.isEmptyChart( values ) ) {
 			emptyChart = (
 				<div className="dops-chart__empty">
-					<span className="dops-chart__empty_notice">
-						{ /* Translate this. */ }
-						No activity this period
-					</span>
+					<span className="dops-chart__empty_notice">{ __( 'No activity this period' ) }</span>
 				</div>
 			);
 		}
