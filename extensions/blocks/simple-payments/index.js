@@ -120,6 +120,15 @@ export const settings = {
 
 	save,
 
+	example: {
+		attributes: {
+			featuredMediaUrl: 'imageURL/will/go/here',
+			featuredMediaTitle: 'Media title',
+			price: 9.99,
+			title: 'Title',
+		},
+	},
+
 	supports: {
 		className: false,
 		customClassName: false,
