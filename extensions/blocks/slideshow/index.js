@@ -70,6 +70,28 @@ const attributes = {
 	},
 };
 
+const exampleAttributes = {
+	align: 'center',
+	autoplay: false,
+	delay: 3,
+	ids: [ 22, 23 ],
+	images: [
+		{
+			alt: '',
+			caption: '',
+			id: 22,
+			url: 'http://goldsounds.local/wp-content/uploads/2019/09/preview-BH-frontend.png',
+		},
+		{
+			alt: '',
+			caption: '',
+			id: 23,
+			url: 'http://goldsounds.local/wp-content/uploads/2019/09/preview-BH-frontend-1.png',
+		},
+	],
+	effect: 'slide',
+};
+
 export const name = 'slideshow';
 
 export const settings = {
@@ -90,4 +112,7 @@ export const settings = {
 	edit,
 	save,
 	transforms,
+	example: {
+		attributes: exampleAttributes,
+	},
 };
