@@ -63,7 +63,7 @@ export const settings = {
 			align: 'center',
 			giphyUrl: 'https://giphy.com/embed/fxKWgoOG9hzPPkE1oc',
 			paddingTop: '100%',
-			searchText: 'wordpress',
+			searchText: __( 'WordPress', 'jetpack' ),
 		},
 	},
 };

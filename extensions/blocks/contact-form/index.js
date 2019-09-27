@@ -74,10 +74,10 @@ export const settings = {
 		attributes: {
 			hasFormSettingsSet: 'yes',
 			has_form_settings_set: null,
-			subject: 'My New Site',
-			submitButtonText: 'Submit',
-			submit_button_text: 'Submit',
-			to: 'email@example.com',
+			subject: __( 'My New Site', 'jetpack' ),
+			submitButtonText: __( 'Submit', 'jetpack' ),
+			submit_button_text: __( 'Submit', 'jetpack' ),
+			to: __( 'email@example.com', 'jetpack' ),
 		},
 	},
 	deprecated: [
