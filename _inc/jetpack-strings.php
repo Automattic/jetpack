@@ -374,6 +374,8 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:36
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:41
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
 __( "Share your content to social media, reaching new audiences and increasing engagement.", "jetpack" ), // _inc/client/sharing/index.jsx:60
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
@@ -393,8 +395,6 @@ _x( "Sharing buttons", "Settings header", "jetpack" ), // _inc/client/sharing/sh
 __( "You can customize the sharing buttons and choose which services to display.", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:86
 __( "Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:93
 __( "Add sharing buttons to your posts and pages", "jetpack" ), // _inc/client/sharing/share-buttons.jsx:103
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:36
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:41
 _x( "Ads", "Ads header", "jetpack" ), // _inc/client/traffic/ads.jsx:67
 __( "Displays high-quality ads on your site that allow you to earn income.", "jetpack" ), // _inc/client/traffic/ads.jsx:76
 __( "Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.", "jetpack" ), // _inc/client/traffic/ads.jsx:81
