@@ -223,6 +223,11 @@ $plan-features-sidebar-width: 272px;
 }
 .plan-grind-skeletons {
 	display:flex;
+	margin: 0 -10px;
+
+	@include breakpoint( "<1040px" ) {
+		margin: 0 -1px;
+	}
 }
 .plan-grind-skeletons__plan {
 	flex: 1;
