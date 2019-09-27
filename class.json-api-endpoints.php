@@ -1543,7 +1543,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
 			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
 				$dt_utc   = new DateTime( $date_string );
-				$dt_local = $dt_utc;
+				$dt_local = clone $dt_utc;
 				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
 				return array(
 					(string) $dt_local->format( 'Y-m-d H:i:s' ),
@@ -1553,11 +1553,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			// It's parseable but no TZ info so assume UTC.
 			$dt_utc   = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
-			$dt_local = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+			$dt_local = clone $dt_utc;
 		} else {
 			// Could not parse time, use now in UTC.
 			$dt_utc   = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
-			$dt_local = $dt_utc;
+			$dt_local = clone $dt_utc;
 		}
 
 		$dt_local->setTimezone( wp_timezone() );
