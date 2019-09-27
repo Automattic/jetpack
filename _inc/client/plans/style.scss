@@ -222,7 +222,7 @@ $plan-features-sidebar-width: 272px;
 	margin-top: 0;
 }
 .plan-grid-skeletons {
-	display:flex;
+	display: flex;
 	margin: 0 -10px;
 
 	@include breakpoint( "<1040px" ) {
