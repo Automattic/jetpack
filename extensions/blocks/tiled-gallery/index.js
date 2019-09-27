@@ -119,6 +119,39 @@ const blockAttributes = {
 	},
 };
 
+const exampleAttributes = {
+	align: 'center',
+	className: 'is-style-rectangular',
+	ids: [ 25, 26, 27 ],
+	images: [
+		{
+			alt: '',
+			id: 25,
+			link: 'http://goldsounds.local/?attachment_id=25',
+			url: 'http://goldsounds.local/wp-content/uploads/2019/09/Screenshot_20190923-094645.png',
+			height: 2960,
+			width: 1440,
+		},
+		{
+			alt: '',
+			id: 26,
+			link: 'http://goldsounds.local/?attachment_id=26',
+			url: 'http://goldsounds.local/wp-content/uploads/2019/09/preview-BH-backend.png',
+			height: 2100,
+			width: 3360,
+		},
+		{
+			alt: '',
+			id: 27,
+			link: 'http://goldsounds.local/?attachment_id=27',
+			url: 'http://goldsounds.local/wp-content/uploads/2019/09/preview-BH-frontend-2.png',
+			height: 2278,
+			width: 3584,
+		},
+	],
+	linkTo: 'none',
+};
+
 export const name = 'tiled-gallery';
 
 export const icon = (
@@ -212,4 +245,7 @@ export const settings = {
 	edit,
 	save,
 	deprecated: [ deprecatedV1 ],
+	example: {
+		attributes: exampleAttributes,
+	},
 };
