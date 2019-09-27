@@ -230,7 +230,7 @@ $plan-features-sidebar-width: 272px;
 	}
 
 	@include breakpoint( "<660px" ) {
-		 display:none;
+		 display: none;
 	}
 }
 
