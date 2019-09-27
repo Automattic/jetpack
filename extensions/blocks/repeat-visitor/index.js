@@ -43,4 +43,10 @@ export const settings = {
 	title: __( 'Repeat Visitor', 'jetpack' ),
 	edit,
 	save,
+	example: {
+		attributes: {
+			criteria: CRITERIA_AFTER,
+			threshold: DEFAULT_THRESHOLD,
+		},
+	},
 };
