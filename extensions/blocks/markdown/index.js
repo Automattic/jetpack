@@ -67,4 +67,10 @@ export const settings = {
 	edit,
 
 	save,
+
+	example: {
+		attributes: {
+			source: '**This** is a [Markdown](https://daringfireball.net/projects/markdown/) _block_',
+		},
+	},
 };
