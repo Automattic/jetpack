@@ -11,9 +11,11 @@
 		placeholder = $( '.jp-loading-placeholder' ),
 		connectionBannerDismiss = $( '.connection-banner-dismiss' );
 
-	fullScreenContainer.show();
-	var shell = $( '<div class="jp-lower"></div>' ).html( fullScreenContainer );
-	placeholder.hide().after( shell );
+	if ( placeholder && placeholder.length ) {
+		fullScreenContainer.show();
+		var shell = $( '<div class="jp-lower"></div>' ).html( fullScreenContainer );
+		placeholder.hide().after( shell );
+	}
 
 	// Move the banner below the WP Welcome notice on the dashboard
 	$( window ).on( 'load', function() {
