@@ -2,6 +2,15 @@
  * External dependencies
  */
 import { decode, encode } from 'qss';
+// NOTE: We only import the debounce package here for to reduced bundle size.
+//       Do not import the entire lodash library!
+// eslint-disable-next-line lodash/import-scope
+import get from 'lodash/get';
+
+/**
+ * Internal dependencies
+ */
+import { SERVER_OBJECT_NAME } from './constants';
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
@@ -83,27 +92,45 @@ function getFilterQueryByKey( filterKey ) {
 	return query[ filterKey ];
 }
 
+export function getFilterKeys() {
+	const keys = [
+		// Post types
+		'post_types',
+		// Date filters
+		'month_post_date',
+		'month_post_date_gmt',
+		'month_post_modified',
+		'month_post_modified_gmt',
+		'year_post_date',
+		'year_post_date_gmt',
+		'year_post_modified',
+		'year_post_modified_gmt',
+	];
+
+	// Extract taxonomy names from server widget data
+	const widgetFilters = get( window[ SERVER_OBJECT_NAME ], 'widgets[0].filters' );
+	if ( widgetFilters ) {
+		return [
+			...keys,
+			...widgetFilters
+				.filter( filter => filter.type === 'taxonomy' )
+				.map( filter => filter.taxonomy ),
+		];
+	}
+	return [ ...keys, 'category', 'post_tag' ];
+}
+
 export function getFilterQuery( filterKey ) {
 	if ( filterKey ) {
 		return getFilterQueryByKey( filterKey );
 	}
 
-	return {
-		// Taxonomies
-		category: getFilterQueryByKey( 'category' ),
-		post_tag: getFilterQueryByKey( 'post_tag' ),
-		// Post types
-		post_types: getFilterQueryByKey( 'post_types' ),
-		// Date filters
-		month_post_date: getFilterQueryByKey( 'month_post_date' ),
-		month_post_date_gmt: getFilterQueryByKey( 'month_post_date_gmt' ),
-		month_post_modified: getFilterQueryByKey( 'month_post_modified' ),
-		month_post_modified_gmt: getFilterQueryByKey( 'month_post_modified_gmt' ),
-		year_post_date: getFilterQueryByKey( 'year_post_date' ),
-		year_post_date_gmt: getFilterQueryByKey( 'year_post_date_gmt' ),
-		year_post_modified: getFilterQueryByKey( 'year_post_modified' ),
-		year_post_modified_gmt: getFilterQueryByKey( 'year_post_modified_gmt' ),
-	};
+	return Object.assign(
+		{},
+		...getFilterKeys().map( key => ( {
+			[ key ]: getFilterQueryByKey( key ),
+		} ) )
+	);
 }
 
 export function setFilterQuery( filterKey, filterValue ) {

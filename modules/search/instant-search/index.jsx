@@ -10,6 +10,7 @@ import { h, render } from 'preact';
  */
 import SearchWidget from './components/search-widget';
 import { getSearchQuery, getFilterQuery, getSearchSort } from './lib/query-string';
+import { SERVER_OBJECT_NAME } from './lib/constants';
 
 const injectSearchWidget = grabFocus => {
 	render(
@@ -18,7 +19,7 @@ const injectSearchWidget = grabFocus => {
 			initialFilters={ getFilterQuery() }
 			initialSort={ getSearchSort() }
 			initialValue={ getSearchQuery() }
-			options={ window.JetpackInstantSearchOptions }
+			options={ window[ SERVER_OBJECT_NAME ] }
 		/>,
 		document.body
 	);
@@ -26,8 +27,8 @@ const injectSearchWidget = grabFocus => {
 
 document.addEventListener( 'DOMContentLoaded', function() {
 	if (
-		!! window.JetpackInstantSearchOptions &&
-		'siteId' in window.JetpackInstantSearchOptions &&
+		!! window[ SERVER_OBJECT_NAME ] &&
+		'siteId' in window[ SERVER_OBJECT_NAME ] &&
 		document.body.classList.contains( 'search' )
 	) {
 		injectSearchWidget();
