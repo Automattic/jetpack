@@ -17,7 +17,7 @@
 		"url": "https://github.com/Automattic/jetpack/issues"
 	},
 	"scripts": {
-		"watch": "yarn install-if-deps-outdated && yarn gulp watch",
+		"watch": "yarn build && yarn gulp watch",
 		"clean": "yarn clean-client && yarn clean-extensions && yarn clean-composer",
 		"clean-client": "rm -rf _inc/build/ css/",
 		"clean-composer": "rm -rf vendor/",
