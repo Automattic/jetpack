@@ -8,7 +8,7 @@ import { h, render } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchApp from './components/search-widget';
+import SearchApp from './components/search-app';
 import { getSearchQuery, getFilterQuery } from './lib/query-string';
 import { getThemeOptions } from './lib/dom';
 
