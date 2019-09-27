@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import Plans from '../plans';
 import { translate as __ } from 'i18n-calypso';
 import Gridicon from '../components/gridicon';
 import JetpackLogo from '../components/jetpack-logo';
+import { getAvailablePlans } from 'state/site/reducer';
 
 export class PlansPrompt extends React.Component {
 	trackStartWithFreeClick() {
@@ -34,6 +36,9 @@ export class PlansPrompt extends React.Component {
 	}
 
 	renderFooter() {
+		if ( ! this.props.plans ) {
+			return null;
+		}
 		return (
 			<div className="plans-prompt__footer">
 				<Button
@@ -58,4 +63,8 @@ export class PlansPrompt extends React.Component {
 	}
 }
 
-export default PlansPrompt;
+export default connect(
+	state => ( {
+		plans: getAvailablePlans( state ),
+	} )
+)( PlansPrompt );

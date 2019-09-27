@@ -28,8 +28,13 @@ class PlanGrid extends React.Component {
 	}
 
 	render() {
-		if ( typeof this.props.plans === 'undefined' ) {
-			return null;
+		if ( ! this.props.plans ) {
+			return (
+				<div className="plan-features">
+					{ this.renderMobileCard() }
+					{ this.renderSkeletonGrid() }
+				</div>
+			);
 		}
 
 		const length = Object.values( this.getPlans() ).length;
@@ -68,6 +73,16 @@ class PlanGrid extends React.Component {
 				<Button href={ plansUrl } primary>
 					{ __( 'View all Jetpack plans' ) }
 				</Button>
+			</div>
+		);
+	}
+
+	renderSkeletonGrid() {
+		return (
+			<div className="plan-grid-skeletons">
+				<div className="plan-grid-skeletons__plan is-placeholder"></div>
+				<div className="plan-grid-skeletons__plan is-placeholder"></div>
+				<div className="plan-grid-skeletons__plan is-placeholder"></div>
 			</div>
 		);
 	}
