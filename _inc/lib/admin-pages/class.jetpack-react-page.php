@@ -149,14 +149,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? json_decode( file_get_contents( $script_deps_path ) )
 			: array();
 		$script_dependencies[] = 'wp-polyfill';
+		if ( Jetpack::is_active() ) {
+			wp_enqueue_script(
+				'react-plugin',
+				plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
+				$script_dependencies,
+				JETPACK__VERSION,
+				true
+			);
+		}
 
-		wp_enqueue_script(
-			'react-plugin',
-			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-			$script_dependencies,
-			JETPACK__VERSION,
-			true
-		);
 
 		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
 			// Required for Analytics.
