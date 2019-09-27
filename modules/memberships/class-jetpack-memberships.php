@@ -51,6 +51,13 @@ class Jetpack_Memberships {
 	private static $required_plan;
 
 	/**
+	 * Track recurring payments block registration.
+	 *
+	 * @var boolean True if block registration has been executed.
+	 */
+	private static $has_registered_block = false;
+
+	/**
 	 * Classic singleton pattern
 	 *
 	 * @var Jetpack_Memberships
@@ -61,13 +68,6 @@ class Jetpack_Memberships {
 	 * Jetpack_Memberships constructor.
 	 */
 	private function __construct() {}
-
-	/**
-	 * Track recurring payments block registration.
-	 *
-	 * @var boolean True if block registration has been executed.
-	 */
-	private static $has_registered_block = false;
 
 	/**
 	 * The actual constructor initializing the object.
