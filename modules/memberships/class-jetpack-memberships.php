@@ -46,7 +46,7 @@ class Jetpack_Memberships {
 	/**
 	 * The minimum required plan for this Gutenberg block.
 	 *
-	 * @var Jetpack_Memberships
+	 * @var string Plan slug
 	 */
 	private static $required_plan;
 
@@ -61,6 +61,13 @@ class Jetpack_Memberships {
 	 * Jetpack_Memberships constructor.
 	 */
 	private function __construct() {}
+
+	/**
+	 * Track recurring payments block registration.
+	 *
+	 * @var boolean True if block registration has been executed.
+	 */
+	private static $has_registered_block = false;
 
 	/**
 	 * The actual constructor initializing the object.
@@ -313,6 +320,13 @@ class Jetpack_Memberships {
 	 * Register the Recurring Payments Gutenberg block
 	 */
 	public function register_gutenberg_block() {
+		// This gate was introduced to prevent duplicate registration. A race condition exists where
+		// the registration that happens via extensions/blocks/recurring-payments/recurring-payments.php
+		// was adding the registration action after the action had been run in some contexts.
+		if ( self::$has_registered_block ) {
+			return;
+		}
+
 		if ( self::is_enabled_jetpack_recurring_payments() ) {
 			jetpack_register_block(
 				'jetpack/recurring-payments',
@@ -330,6 +344,8 @@ class Jetpack_Memberships {
 				)
 			);
 		}
+
+		self::$has_registered_block = true;
 	}
 }
 Jetpack_Memberships::get_instance();
