@@ -6,7 +6,7 @@ import Page from '../page';
  * WordPress dependencies
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
@@ -16,8 +16,10 @@ export default class BlockEditorPage extends Page {
 
 	async insertBlock( blockName ) {
 		await searchForBlock( blockName );
-		const insertButton = `.editor-inserter__menu button[aria-label*='${ blockName }']`;
-		await waitAndClick( this.page, insertButton );
+		const blockIconSelector = `.editor-inserter__menu button[aria-label*='${ blockName }']`;
+		const jetpackPanelSelector = '.components-panel__body .jetpack-logo';
+		await scrollIntoView( this.page, jetpackPanelSelector );
+		await waitAndClick( this.page, blockIconSelector );
 		const blockInfo = await this.getInsertedBlock();
 		return blockInfo;
 	}

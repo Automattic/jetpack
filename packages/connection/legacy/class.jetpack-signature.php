@@ -75,6 +75,7 @@ class Jetpack_Signature {
 		}
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
+		$host_port = intval( $host_port );
 
 		/**
 		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
@@ -323,7 +324,7 @@ class Jetpack_Signature {
 		if ( is_array( $string_or_array ) ) {
 			return array_map( array( $this, 'encode_3986' ), $string_or_array );
 		}
-    
+
 		return rawurlencode( $string_or_array );
 	}
 

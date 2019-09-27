@@ -19,8 +19,7 @@ async function activateWordAdsModule() {
 		cmd = 'wp jetpack module activate wordads --path="/home/travis/wordpress"';
 	}
 
-	const out = await execShellCommand( cmd );
-	console.log( out );
+	await execShellCommand( cmd );
 }
 
 describe( 'WordAds block', () => {

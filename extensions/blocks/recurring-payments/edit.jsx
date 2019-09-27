@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-
 import classnames from 'classnames';
 import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { trimEnd } from 'lodash';
 import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
+import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 import {
 	Button,
@@ -313,10 +315,45 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
+	getConnectUrl() {
+		const { postId } = this.props;
+		const { connectURL } = this.state;
+
+		if ( ! isURL( connectURL ) ) {
+			return null;
+		}
+
+		if ( ! postId ) {
+			return connectURL;
+		}
+
+		let decodedState;
+		try {
+			const state = getQueryArg( connectURL, 'state' );
+			decodedState = JSON.parse( atob( state ) );
+		} catch ( err ) {
+			if ( process.env.NODE_ENV !== 'production' ) {
+				console.error( err ); // eslint-disable-line no-console
+			}
+			return connectURL;
+		}
+
+		decodedState.from_editor_post_id = postId;
+
+		return addQueryArgs( connectURL, { state: btoa( JSON.stringify( decodedState ) ) } );
+	}
+
 	render = () => {
-		const { className, notices, attributes } = this.props;
-		const { connected, connectURL, products } = this.state;
+		const { attributes, className, notices, postId } = this.props;
+		const { connected, products } = this.state;
 		const { align } = attributes;
+
+		const stripeConnectUrl = this.getConnectUrl();
+
+		// If we know the postId, assume we'll return to the editor. Navigate the top window.
+		// Otherwise, open a new window.
+		const stripeConnectTarget = postId ? '_top' : '_blank';
+
 		const inspectorControls = (
 			<InspectorControls>
 				<PanelBody title={ __( 'Product', 'jetpack' ) }>
@@ -401,7 +438,15 @@ class MembershipsButtonEdit extends Component {
 											'jetpack'
 										) }
 									</p>
-									<Button isDefault isLarge href={ connectURL } target="_blank">
+									<Button
+										isDefault
+										isLarge
+										disabled={ ! stripeConnectUrl }
+										href={ stripeConnectUrl }
+										target={ stripeConnectTarget }
+										rel={ stripeConnectTarget === '_blank' ? 'noopener noreferrer' : undefined }
+										onClick={ this.props.autosaveAndNavigateToConnection }
+									>
 										{ __( 'Connect to Stripe or set up an account', 'jetpack' ) }
 									</Button>
 									<br />
@@ -459,4 +504,20 @@ class MembershipsButtonEdit extends Component {
 	};
 }
 
-export default withNotices( MembershipsButtonEdit );
+export default compose( [
+	withSelect( select => ( { postId: select( 'core/editor' ).getCurrentPostId() } ) ),
+	withDispatch( dispatch => ( {
+		autosaveAndNavigateToConnection: async event => {
+			const { href, target } = event.target;
+
+			// Special handling if we're opening in _this_ window. Otherwise, just let the navigation happen.
+			if ( href && target !== '_blank' ) {
+				event.preventDefault();
+				await dispatch( 'core/editor' ).autosave();
+				// Using window.top to escape from the editor iframe on WordPress.com
+				window.top.location.href = href;
+			}
+		},
+	} ) ),
+	withNotices,
+] )( MembershipsButtonEdit );
