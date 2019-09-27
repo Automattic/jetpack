@@ -133,6 +133,8 @@ class Jetpack_Connection_Banner {
 	 * @since 7.7
 	 */
 	public static function enqueue_connect_button_scripts() {
+		global $is_safari;
+
 		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
@@ -154,7 +156,11 @@ class Jetpack_Connection_Banner {
 
 		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
 
-		if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		// Due to the limitation in how 3rd party cookies are handled in Safari,
+		// we're falling back to the original flow on Safari desktop and mobile.
+		if ( $is_safari ) {
+			$force_variation = 'original';
+		} elseif ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'in_place';
 		} elseif ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';

@@ -61,6 +61,11 @@ class Manager {
 		} else {
 			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
 		}
+
+		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
 	}
 
 	/**
@@ -137,11 +142,6 @@ class Manager {
 			} else {
 				new XMLRPC_Connector( $this );
 			}
-		}
-
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
 
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
@@ -1643,7 +1643,7 @@ class Manager {
 	 */
 	public function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
-			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
+			$methods['wp.getOptions'] = array( $this, 'jetpack_get_options' );
 		}
 		return $methods;
 	}
@@ -1654,7 +1654,7 @@ class Manager {
 	 * @param Array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
-	public function jetpack_getOptions( $args ) {
+	public function jetpack_get_options( $args ) {
 		global $wp_xmlrpc_server;
 
 		$wp_xmlrpc_server->escape( $args );

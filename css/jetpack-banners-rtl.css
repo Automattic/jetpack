@@ -235,6 +235,7 @@ https://github.com/thoughtbot/bourbon
 
 .jp-connect-full__row {
   display: flex;
+  justify-content: space-around;
   justify-content: space-evenly;
   text-align: right;
   align-items: baseline;
@@ -285,6 +286,15 @@ https://github.com/thoughtbot/bourbon
   font-size: 1rem;
   font-weight: normal;
   margin: 0.625rem 0 1.5rem;
+}
+
+.jp-connect-full__button-container-loading {
+  font-size: 14px;
+  animation: loading-fade 1.6s ease-in-out infinite;
+}
+
+.jp-connect-full__button-container .jp-spinner {
+  width: 100%;
 }
 
 @media screen and (max-width: 480px) {
