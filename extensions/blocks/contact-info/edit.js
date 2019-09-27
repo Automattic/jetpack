@@ -35,7 +35,6 @@ const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address'
 
 const ContactInfoEdit = props => {
 	const { isSelected } = props;
-
 	return (
 		<div
 			className={ classnames( {

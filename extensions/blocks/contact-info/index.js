@@ -48,6 +48,9 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	example: {
+		attributes: {},
+	},
 };
 
 export const childBlocks = [
