@@ -36,7 +36,7 @@ export class PlansPrompt extends React.Component {
 	}
 
 	renderFooter() {
-		if ( typeof this.props.plans === 'undefined' ) {
+		if ( ! this.props.plans ) {
 			return null;
 		}
 		return (
