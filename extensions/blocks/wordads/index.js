@@ -63,4 +63,5 @@ export const settings = {
 	},
 	edit,
 	save: () => null,
+	example: { attributes: {} },
 };
