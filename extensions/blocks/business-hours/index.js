@@ -18,11 +18,11 @@ import renderMaterialIcon from '../../shared/render-material-icon';
 
 const defaultDays = [
 	{
-		name: __( 'Sun', 'jetpack' ),
+		name: 'Sun',
 		hours: [], // Closed by default
 	},
 	{
-		name: __( 'Mon', 'jetpack' ),
+		name: 'Mon',
 		hours: [
 			{
 				opening: '09:00',
@@ -31,7 +31,7 @@ const defaultDays = [
 		],
 	},
 	{
-		name: __( 'Tue', 'jetpack' ),
+		name: 'Tue',
 		hours: [
 			{
 				opening: '09:00',
@@ -40,7 +40,7 @@ const defaultDays = [
 		],
 	},
 	{
-		name: __( 'Wed', 'jetpack' ),
+		name: 'Wed',
 		hours: [
 			{
 				opening: '09:00',
@@ -49,7 +49,7 @@ const defaultDays = [
 		],
 	},
 	{
-		name: __( 'Thu', 'jetpack' ),
+		name: 'Thu',
 		hours: [
 			{
 				opening: '09:00',
@@ -58,7 +58,7 @@ const defaultDays = [
 		],
 	},
 	{
-		name: __( 'Fri', 'jetpack' ),
+		name: 'Fri',
 		hours: [
 			{
 				opening: '09:00',
@@ -67,7 +67,7 @@ const defaultDays = [
 		],
 	},
 	{
-		name: __( 'Sat', 'jetpack' ),
+		name: 'Sat',
 		hours: [], // Closed by default
 	},
 ];
