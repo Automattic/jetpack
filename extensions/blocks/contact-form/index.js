@@ -70,6 +70,16 @@ export const settings = {
 
 	edit: JetpackContactForm,
 	save: () => <InnerBlocks.Content />,
+	example: {
+		attributes: {
+			hasFormSettingsSet: 'yes',
+			has_form_settings_set: null,
+			subject: 'My New Site',
+			submitButtonText: 'Submit',
+			submit_button_text: 'Submit',
+			to: 'email@example.com',
+		},
+	},
 	deprecated: [
 		{
 			attributes: {
