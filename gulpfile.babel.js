@@ -31,6 +31,10 @@ gulp.task( 'old-styles:watch', function() {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
 } );
 
+gulp.task( 'blocks:watch', function() {
+	spawn( 'yarn', [ 'build-extensions', '--watch' ] );
+} );
+
 /*
 	I18n land
 */
@@ -222,7 +226,7 @@ gulp.task(
 );
 gulp.task(
 	'watch',
-	gulp.parallel( react_watch, sass_watch, sass_watch_packages, 'old-styles:watch' )
+	gulp.parallel( react_watch, sass_watch, sass_watch_packages, 'old-styles:watch', 'blocks:watch' )
 );
 
 // Keeping explicit task names to allow for individual runs
