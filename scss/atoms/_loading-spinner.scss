@@ -15,7 +15,7 @@
 	border-radius: 50%;
 	border-top-color: #00aadc;
 	animation: 3s linear infinite;
-	animation-name: jp-spinner-rotate;
+	animation-name: jetpack-rotate;
 }
 
 .jp-spinner__outer {
@@ -30,10 +30,3 @@
 	border-right-color: #00aadc;
 	opacity: .4;
 }
-
-@keyframes jp-spinner-rotate {
-	to {
-		transform: rotate(1turn);
-	}
-}
-
