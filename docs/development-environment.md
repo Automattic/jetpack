@@ -69,10 +69,10 @@ The development build will create a build without minifying or deduping code. It
 $ yarn build
 ```
 
-## Development build with changes monitoring (watch)
+## Watching changes
 
 You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-Instead of `yarn build` you'd use `yarn watch`.
+After an initial run of `yarn build` you'd use `yarn watch` for monitoring changes.
 
 ```
 $ yarn watch
