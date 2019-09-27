@@ -72,4 +72,14 @@ export const settings = {
 	edit,
 
 	save: () => null,
+
+	example: {
+		attributes: {
+			postLayout: 'grid',
+			displayDate: true,
+			displayThumbnails: false,
+			displayContext: false,
+			postsToShow: 3,
+		},
+	},
 };
