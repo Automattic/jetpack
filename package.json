@@ -158,7 +158,7 @@
 		"react-dom": "16.8.6"
 	},
 	"devDependencies": {
-		"@slack/web-api": "5.1.0",
+		"@slack/web-api": "5.2.0",
 		"@wordpress/components": "8.0.0",
 		"@wordpress/core-data": "2.4.0",
 		"@wordpress/e2e-test-utils": "2.2.0",
