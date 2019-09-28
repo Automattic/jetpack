@@ -626,6 +626,7 @@ class csstidy_optimise {
 	 * @todo full CSS 3 compliance
 	 */
 	static function dissolve_short_bg($str_value) {
+		$have = array();
 		// don't try to explose background gradient !
 		if (stripos($str_value, "gradient(")!==FALSE)
 			return array('background'=>$str_value);
@@ -784,6 +785,7 @@ class csstidy_optimise {
 	 * @see merge_font()
 	 */
 	static function dissolve_short_font($str_value) {
+		$have = array();
 		$font_prop_default = & $GLOBALS['csstidy']['font_prop_default'];
 		$font_weight = array('normal', 'bold', 'bolder', 'lighter', 100, 200, 300, 400, 500, 600, 700, 800, 900);
 		$font_variant = array('normal', 'small-caps');
