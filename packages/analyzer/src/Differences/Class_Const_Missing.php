@@ -29,7 +29,7 @@ class Class_Const_Missing extends PersistentListItem implements Invocation_Warne
 	public function find_invocation_warnings( $invocation, $warnings ) {
 		if ( $invocation instanceof Static_Const ) {
 			if ( $invocation->class_name === $this->declaration->class_name
-				&& $invocation->const_name === $this->declaration->const_name) {
+				&& $invocation->const_name === $this->declaration->const_name ) {
 				$warnings->add( new Warning( $this->type(), $invocation->path, $invocation->line, 'Class constant ' . $this->declaration->display_name() . ' is missing', $this->declaration ) );
 			}
 		}

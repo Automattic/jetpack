@@ -242,7 +242,7 @@ class Jetpack_Memberships {
 				)
 			);
 		}
-		$button_styles = implode( $button_styles, ';' );
+		$button_styles = implode( ';', $button_styles );
 		add_thickbox();
 		return sprintf(
 			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" data-lang="%s" class="%s" style="%s">%s</button>',

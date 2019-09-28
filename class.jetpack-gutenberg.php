@@ -708,6 +708,6 @@ class Jetpack_Gutenberg {
 			$classes = array_merge( $classes, $extra );
 		}
 
-		return implode( $classes, ' ' );
+		return implode( ' ', $classes );
 	}
 }
