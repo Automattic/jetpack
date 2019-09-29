@@ -95,7 +95,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		$response = wp_remote_head(
 			$url, array(
 				'httpversion' => '1.1',
-				'timeout'     => 3,
+				'timeout'     => 10,
 				'redirection' => 2,
 			)
 		);
