@@ -40,20 +40,30 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
 function jetpack_slideshow_block_render_amp( $attr ) {
 	global $wp_block_jetpack_slideshow_id;
 	$wp_block_jetpack_slideshow_id = ( $wp_block_jetpack_slideshow_id || 0 ) + 1;
-	$amp_carousel_id               = sprintf(
+
+	$block_id = sprintf(
 		'wp-block-jetpack-slideshow__%s',
 		intval( $wp_block_jetpack_slideshow_id )
 	);
 
-	$ids        = empty( $attr['ids'] ) ? array() : $attr['ids'];
-	$autoplay   = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
-	$delay      = empty( $attr['delay'] ) ? 3 : intval( $attr['delay'] );
-	$align      = isset( $attr['align'] ) ? $attr['align'] : 'center';
-	$classes    = array(
+	$amp_carousel_id = sprintf(
+		'wp-block-jetpack-slideshow__amp_carousel_%s',
+		intval( $wp_block_jetpack_slideshow_id )
+	);
+
+	$ids      = empty( $attr['ids'] ) ? array() : $attr['ids'];
+	$autoplay = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
+	$delay    = empty( $attr['delay'] ) ? 3 : intval( $attr['delay'] );
+	$align    = isset( $attr['align'] ) ? $attr['align'] : 'center';
+	$classes  = array(
 		'wp-block-jetpack-slideshow',
 		'wp-amp-block',
 		'align' . $align,
 	);
+	if ( $autoplay ) {
+		$classes[] = 'wp-block-jetpack-slideshow__autoplay';
+		$classes[] = 'wp-block-jetpack-slideshow__autoplay-playing';
+	}
 	$slides     = array_map(
 		function( $id ) {
 			$caption    = wp_get_attachment_caption( $id );
@@ -94,10 +104,25 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 		implode( '', $slides )
 	);
 
+	$autoplay_pause = sprintf(
+		'<a aria-label="%s" class="wp-block-jetpack-slideshow_button-pause" role="button" on="tap:%s.toggleAutoplay(toggleOn=false),%s.toggleClass(class=wp-block-jetpack-slideshow__autoplay-playing,force=false)"></a>',
+		esc_attr__( 'Pause Slideshow', 'jetpack' ),
+		esc_attr( $amp_carousel_id ),
+		esc_attr( $block_id )
+	);
+	$autoplay_play  = sprintf(
+		'<a aria-label="%s" class="wp-block-jetpack-slideshow_button-play" role="button" on="tap:%s.toggleAutoplay(toggleOn=true),%s.toggleClass(class=wp-block-jetpack-slideshow__autoplay-playing,force=true)"></a>',
+		esc_attr__( 'Play Slideshow', 'jetpack' ),
+		esc_attr( $amp_carousel_id ),
+		esc_attr( $block_id )
+	);
+
 	return sprintf(
-		'<div class="%s"><div class="wp-block-jetpack-slideshow_container swiper-container">%s%s</div></div>',
+		'<div class="%s" id="%s"><div class="wp-block-jetpack-slideshow_container swiper-container">%s%s%s</div></div>',
 		esc_attr( implode( $classes, ' ' ) ),
+		esc_attr( $block_id ),
 		$carousel,
+		$autoplay ? $autoplay_pause . $autoplay_play : '',
 		$pagination
 	);
 }
