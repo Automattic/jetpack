@@ -38,8 +38,8 @@ function jetpack_slideshow_block_load_assets( $attr, $content ) {
  * @return string
  */
 function jetpack_slideshow_block_render_amp( $attr ) {
-	global $wp_block_jetpack_slideshow_id;
-	$wp_block_jetpack_slideshow_id = ( $wp_block_jetpack_slideshow_id || 0 ) + 1;
+	static $wp_block_jetpack_slideshow_id = 0;
+	$wp_block_jetpack_slideshow_id++;
 
 	$block_id = sprintf(
 		'wp-block-jetpack-slideshow__%s',
