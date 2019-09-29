@@ -64,16 +64,30 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 		$classes[] = 'wp-block-jetpack-slideshow__autoplay';
 		$classes[] = 'wp-block-jetpack-slideshow__autoplay-playing';
 	}
+	$first_image = wp_get_attachment_metadata( $ids[0] );
+	$width       = $first_image['width'];
+	$height      = $first_image['height'];
+
 	$slides     = array_map(
-		function( $id ) {
+		function( $id ) use ( $width, $height ) {
 			$caption    = wp_get_attachment_caption( $id );
 			$figcaption = $caption ? sprintf(
 				'<figcaption class="wp-block-jetpack-slideshow_caption gallery-caption">%s</figcaption>',
 				wp_kses_post( $caption )
 			) : '';
-			$image      = wp_get_attachment_image( $id, 'large', false, array( 'class' => 'wp-block-jetpack-slideshow_image' ) );
+			$image      = wp_get_attachment_image(
+				$id,
+				[ $width, $height ],
+				false,
+				[
+					'class'      => 'wp-block-jetpack-slideshow_image',
+					'object-fit' => 'contain',
+				]
+			);
 			return sprintf(
-				'<div class="wp-block-jetpack-slideshow_slide"><figure>%s%s</figure></div>',
+				'<div class="wp-block-jetpack-slideshow_slide" width="%s" height="%s"><figure>%s%s</figure></div>',
+				esc_attr( $width ),
+				esc_attr( $height ),
 				$image,
 				$figcaption
 			);
@@ -96,7 +110,9 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 		implode( '', $bullets )
 	);
 	$carousel   = sprintf(
-		'<amp-carousel height="300" width="400" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s id="%s">%s</amp-carousel>',
+		'<amp-carousel height="%s" width="%s" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s id="%s">%s</amp-carousel>',
+		esc_attr( $height ),
+		esc_attr( $width ),
 		esc_attr__( 'Next Slide', 'jetpack' ),
 		esc_attr__( 'Previous Slide', 'jetpack' ),
 		$autoplay ? 'autoplay delay=' . esc_attr( $delay * 1000 ) : '',
