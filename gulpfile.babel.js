@@ -32,7 +32,11 @@ gulp.task( 'old-styles:watch', function() {
 } );
 
 gulp.task( 'blocks:watch', function() {
-	spawn( 'yarn', [ 'build-extensions', '--watch' ] );
+	const child = require( 'child_process' ).execFile( 'yarn', [ 'build-extensions', '--watch' ] );
+
+	child.stdout.on( 'data', function( data ) {
+		log( data.toString() );
+	} );
 } );
 
 /*
