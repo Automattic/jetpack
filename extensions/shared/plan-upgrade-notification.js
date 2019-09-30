@@ -17,7 +17,7 @@ import { isSimpleSite } from './site-type-utils';
  * Returns a URL where the current site's plan can be viewed from.
  * [Relative to current domain for JP sites]
  *
- * @return {string} A URL where the current site plan is viewable.
+ * @return {string|null} A URL where the current site plan is viewable - null if not retrievable.
  */
 function getPlanUrl() {
 	if ( undefined !== typeof window && window.location ) {
@@ -31,6 +31,7 @@ function getPlanUrl() {
 			'/'
 		) }/wp-admin/admin.php?page=jetpack#/my-plan`;
 	}
+	return null;
 }
 
 /**
