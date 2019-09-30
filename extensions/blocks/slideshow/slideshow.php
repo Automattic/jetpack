@@ -96,7 +96,7 @@ function jetpack_slideshow_block_amp_carousel( $attr, $block_ordinal ) {
  *
  * @return array Array of slides markup.
  */
-function jetpack_slideshow_block_slides( $ids = [], $width = 400, $height = 300 ) {
+function jetpack_slideshow_block_slides( $ids = array(), $width = 400, $height = 300 ) {
 	return array_map(
 		function( $id ) use ( $width, $height ) {
 			$caption    = wp_get_attachment_caption( $id );
@@ -106,12 +106,12 @@ function jetpack_slideshow_block_slides( $ids = [], $width = 400, $height = 300 
 			) : '';
 			$image      = wp_get_attachment_image(
 				$id,
-				[ $width, $height ],
+				array( $width, $height ),
 				false,
-				[
+				array(
 					'class'      => 'wp-block-jetpack-slideshow_image',
 					'object-fit' => 'contain',
-				]
+				)
 			);
 			return sprintf(
 				'<div class="wp-block-jetpack-slideshow_slide"><figure>%s%s</figure></div>',
@@ -131,7 +131,7 @@ function jetpack_slideshow_block_slides( $ids = [], $width = 400, $height = 300 
  *
  * @return array Array of bullets markup.
  */
-function jetpack_slideshow_block_bullets( $ids = [], $block_ordinal = 0 ) {
+function jetpack_slideshow_block_bullets( $ids = array(), $block_ordinal = 0 ) {
 	$buttons = array_map(
 		function( $index ) {
 			return sprintf(
