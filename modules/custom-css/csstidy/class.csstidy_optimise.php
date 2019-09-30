@@ -797,7 +797,7 @@ class csstidy_optimise {
 			$important = '!important';
 			$str_value = csstidy::gvw_important($str_value);
 		}
-		$have = array();
+
 		$have['style'] = false;
 		$have['variant'] = false;
 		$have['weight'] = false;
