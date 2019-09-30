@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import '@wordpress/notices';
 import { parse as parseUrl } from 'url';
 
@@ -57,9 +57,13 @@ function getPlanUrl() {
 			} finally {
 				dispatch( 'core/notices' ).createNotice(
 					'success',
+					/* translators: %s is the plan name, such as Jetpack Premium. */
 					planName
-						? __( `Congratulations! Your site is now on the ${ planName } plan.`, 'jetpack' )
-						: __( `Congratulations! Your site is now on a paid plan.`, 'jetpack' ),
+						? sprintf(
+								__( 'Congratulations! Your site is now on the %s plan.', 'jetpack' ),
+								planName
+						  )
+						: __( 'Congratulations! Your site is now on a paid plan.', 'jetpack' ),
 					{
 						isDismissible: true,
 						actions: [
