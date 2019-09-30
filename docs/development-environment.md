@@ -69,10 +69,10 @@ The development build will create a build without minifying or deduping code. It
 $ yarn build
 ```
 
-## Watching changes
+## Development build with changes monitoring (watch)
 
 You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-After an initial run of `yarn build` you'd use `yarn watch` for monitoring changes.
+Instead of `yarn build` you'd use `yarn watch`. `yarn watch` will fully build Jetpack and update the React-powered admin and CSS/Saas.
 
 ```
 $ yarn watch
