@@ -50,7 +50,8 @@ $plan-features-sidebar-width: 272px;
 
 	@include breakpoint( "<1040px" ) {
 		border-spacing: 0;
-		margin: 0 15px;
+		margin-left: 15px;
+		margin-right: 15px;
 		width: calc( 100% - 30px );
 	}
 }
@@ -218,15 +219,25 @@ $plan-features-sidebar-width: 272px;
 	}
 }
 
+.plan-grid-period {
+	margin-bottom: 12px;
+	text-align: center;
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+
 .plans-mobile-notice.dops-card h2 {
 	margin-top: 0;
 }
 .plan-grid-skeletons {
 	display: flex;
-	margin: 0 -10px;
+	margin: 60px -10px 0;
 
 	@include breakpoint( "<1040px" ) {
-		margin: 0 -1px;
+		margin-left: -1px;
+		margin-right: -1px;
 	}
 
 	@include breakpoint( "<660px" ) {
