@@ -20,13 +20,9 @@ import { isSimpleSite } from './site-type-utils';
  * @return {string|null} A URL where the current site plan is viewable - null if not retrievable.
  */
 function getPlanUrl() {
-	if ( undefined !== typeof window && window.location ) {
-		const siteFragment = getSiteFragment();
+	const siteFragment = getSiteFragment();
 
-		if ( ! siteFragment ) {
-			return null;
-		}
-
+	if ( undefined !== typeof window && window.location && siteFragment ) {
 		if ( isSimpleSite() ) {
 			return `https://wordpress.com/plans/my-plan/${ siteFragment }`;
 		}
