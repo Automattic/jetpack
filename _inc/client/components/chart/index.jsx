@@ -120,7 +120,7 @@ export default class ModuleChart extends React.Component {
 		if ( values.length && this.isEmptyChart( values ) ) {
 			emptyChart = (
 				<div className="dops-chart__empty">
-					<span className="dops-chart__empty_notice">{ __( 'No activity this period' ) }</span>
+					<span className="dops-chart__empty_notice">{ _x( 'No activity this period', 'Notice in the empty statistics chart' ) }</span>
 				</div>
 			);
 		}
