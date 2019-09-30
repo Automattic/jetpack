@@ -45,9 +45,10 @@ function getPlanUrl() {
 ( async () => {
 	if ( undefined !== typeof window && window.location ) {
 		const { query } = parseUrl( window.location.href, true );
-		let planName = null;
 
 		if ( query.plan_upgraded ) {
+			let planName = null;
+
 			getPlanNameFromApi: try {
 				// not updating if simple site
 				if ( isSimpleSite() ) {
