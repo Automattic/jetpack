@@ -134,9 +134,10 @@ function jetpack_slideshow_block_bullets( $ids = array(), $block_ordinal = 0 ) {
 	$buttons = array_map(
 		function( $index ) {
 			return sprintf(
-				'<button option="%s" class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide %s" %s></button>',
-				esc_attr( $index ),
-				( $index + 1 ),
+				'<button option="%d" class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="%s %d" %s></button>',
+				absint( $index ),
+				esc_attr__( 'Go to slide', 'jetpack' ),
+				absint( $index + 1 ),
 				0 === $index ? 'selected' : ''
 			);
 		},
