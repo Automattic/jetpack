@@ -53,7 +53,7 @@ function getPlanUrl() {
 				const jetpackSiteInfo = await apiFetch( { path: '/jetpack/v4/site' } );
 				const data = JSON.parse( jetpackSiteInfo.data );
 
-				planName = `the ${ data.plan.product_name } plan.`;
+				planName = `the ${ data.plan.product_name } plan`;
 			} finally {
 				dispatch( 'core/notices' ).createNotice(
 					'success',
