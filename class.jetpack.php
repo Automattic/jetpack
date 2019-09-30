@@ -640,7 +640,7 @@ class Jetpack {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
-		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ), 20 );
 
 		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 		// Filter the dashboard meta box order to swap the new one in in place of the old one.
