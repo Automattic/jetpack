@@ -52,9 +52,9 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 	);
 
 	return sprintf(
-		'<div class="%s" id="wp-block-jetpack-slideshow__%s"><div class="wp-block-jetpack-slideshow_container swiper-container">%s%s%s</div></div>',
+		'<div class="%1$s" id="wp-block-jetpack-slideshow__%2$d"><div class="wp-block-jetpack-slideshow_container swiper-container">%3$s%4$s%5$s</div></div>',
 		esc_attr( implode( $classes, ' ' ) ),
-		esc_attr( $wp_block_jetpack_slideshow_id ),
+		absint( $wp_block_jetpack_slideshow_id ),
 		jetpack_slideshow_block_amp_carousel( $attr, $wp_block_jetpack_slideshow_id ),
 		$autoplay ? jetpack_slideshow_block_autoplay_ui( $wp_block_jetpack_slideshow_id ) : '',
 		jetpack_slideshow_block_bullets( $ids, $wp_block_jetpack_slideshow_id )
@@ -72,17 +72,16 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 function jetpack_slideshow_block_amp_carousel( $attr, $block_ordinal ) {
 	$ids         = empty( $attr['ids'] ) ? array() : $attr['ids'];
 	$first_image = wp_get_attachment_metadata( $ids[0] );
-	$delay       = empty( $attr['delay'] ) ? 3 : intval( $attr['delay'] );
+	$delay       = empty( $attr['delay'] ) ? 3 : absint( $attr['delay'] );
 	$autoplay    = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
 	return sprintf(
-		'<amp-carousel width="%s" height="%s" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s id="wp-block-jetpack-slideshow__amp-carousel__%s" on="slideChange:wp-block-jetpack-slideshow__amp-pagination__%s.toggle(index=event.index, value=true)">%s</amp-carousel>',
+		'<amp-carousel width="%1$d" height="%2$d" layout="responsive" type="slides" data-next-button-aria-label="%3$s" data-prev-button-aria-label="%4$s" controls loop %5$s id="wp-block-jetpack-slideshow__amp-carousel__%6$s" on="slideChange:wp-block-jetpack-slideshow__amp-pagination__%6$s.toggle(index=event.index, value=true)">%7$s</amp-carousel>',
 		esc_attr( $first_image['width'] ),
 		esc_attr( $first_image['height'] ),
 		esc_attr__( 'Next Slide', 'jetpack' ),
 		esc_attr__( 'Previous Slide', 'jetpack' ),
 		$autoplay ? 'autoplay delay=' . esc_attr( $delay * 1000 ) : '',
-		esc_attr( $block_ordinal ),
-		esc_attr( $block_ordinal ),
+		absint( $block_ordinal ),
 		implode( '', jetpack_slideshow_block_slides( $ids, $first_image['width'], $first_image['height'] ) )
 	);
 }
@@ -145,9 +144,8 @@ function jetpack_slideshow_block_bullets( $ids = array(), $block_ordinal = 0 ) {
 	);
 
 	return sprintf(
-		'<amp-selector id="wp-block-jetpack-slideshow__amp-pagination__%s" class="wp-block-jetpack-slideshow_pagination swiper-pagination swiper-pagination-bullets amp-pagination" on="select:wp-block-jetpack-slideshow__amp-carousel__%s.goToSlide(index=event.targetOption)" layout="container">%s</amp-selector>',
-		esc_attr( $block_ordinal ),
-		esc_attr( $block_ordinal ),
+		'<amp-selector id="wp-block-jetpack-slideshow__amp-pagination__%1$d" class="wp-block-jetpack-slideshow_pagination swiper-pagination swiper-pagination-bullets amp-pagination" on="select:wp-block-jetpack-slideshow__amp-carousel__%1$d.goToSlide(index=event.targetOption)" layout="container">%2$s</amp-selector>',
+		absint( $block_ordinal ),
 		implode( '', $buttons )
 	);
 }
@@ -161,12 +159,12 @@ function jetpack_slideshow_block_bullets( $ids = array(), $block_ordinal = 0 ) {
  */
 function jetpack_slideshow_block_autoplay_ui( $block_ordinal = 0 ) {
 	$block_id        = sprintf(
-		'wp-block-jetpack-slideshow__%s',
-		intval( $block_ordinal )
+		'wp-block-jetpack-slideshow__%d',
+		absint( $block_ordinal )
 	);
 	$amp_carousel_id = sprintf(
-		'wp-block-jetpack-slideshow__amp-carousel__%s',
-		intval( $block_ordinal )
+		'wp-block-jetpack-slideshow__amp-carousel__%d',
+		absint( $block_ordinal )
 	);
 	$autoplay_pause  = sprintf(
 		'<a aria-label="%s" class="wp-block-jetpack-slideshow_button-pause" role="button" on="tap:%s.toggleAutoplay(toggleOn=false),%s.toggleClass(class=wp-block-jetpack-slideshow__autoplay-playing,force=false)"></a>',
