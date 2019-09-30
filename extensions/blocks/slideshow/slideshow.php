@@ -43,17 +43,17 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 
 	$ids      = empty( $attr['ids'] ) ? array() : $attr['ids'];
 	$autoplay = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
-	$classes  = array(
-		'wp-block-jetpack-slideshow',
+
+	$extras  = array(
 		'wp-amp-block',
-		'align' . isset( $attr['align'] ) ? $attr['align'] : 'center',
 		$autoplay ? 'wp-block-jetpack-slideshow__autoplay' : null,
 		$autoplay ? 'wp-block-jetpack-slideshow__autoplay-playing' : null,
 	);
+	$classes = Jetpack_Gutenberg::block_classes( 'slideshow', $attr, $extras );
 
 	return sprintf(
 		'<div class="%1$s" id="wp-block-jetpack-slideshow__%2$d"><div class="wp-block-jetpack-slideshow_container swiper-container">%3$s%4$s%5$s</div></div>',
-		esc_attr( implode( $classes, ' ' ) ),
+		esc_attr( $classes ),
 		absint( $wp_block_jetpack_slideshow_id ),
 		jetpack_slideshow_block_amp_carousel( $attr, $wp_block_jetpack_slideshow_id ),
 		$autoplay ? jetpack_slideshow_block_autoplay_ui( $wp_block_jetpack_slideshow_id ) : '',
