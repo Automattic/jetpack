@@ -33,7 +33,7 @@ class Visitor extends NodeVisitorAbstract {
 		}
 
 		if ( $node instanceof Node\Stmt\ClassConst && $node->isPublic() ) {
-			foreach( $node->consts as $const ) {
+			foreach ( $node->consts as $const ) {
 				$this->declarations->add( new Class_Const( $this->current_relative_path, $node->getLine(), $this->current_class, $const->name->name ) );
 			}
 			return;

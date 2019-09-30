@@ -295,9 +295,6 @@ class Jetpack_Signature {
 	 */
 	public function normalized_query_parameters( $query_string ) {
 		parse_str( $query_string, $array );
-		if ( get_magic_quotes_gpc() ) {
-			$array = stripslashes_deep( $array );
-		}
 
 		unset( $array['signature'] );
 

@@ -20,15 +20,15 @@ class Differences extends PersistentList {
 		} else {
 			echo "Warning: calling find() without \$new_root means we can't detect if files are stubbed in the new release\n";
 		}
-		$total = 0;
-		$missing_total = 0;
-		$moved_total = 0;
+		$total                       = 0;
+		$missing_total               = 0;
+		$moved_total                 = 0;
 		$moved_with_empty_file_total = 0;
 		// for each declaration, see if it exists in the current analyzer's declarations
 		// if not, add it to the list of differences - either as missing or different
 		foreach ( $prev_declarations->get() as $prev_declaration ) {
-			$matched = false;
-			$moved = false;
+			$matched               = false;
+			$moved                 = false;
 			$moved_with_empty_file = false;
 			foreach ( $new_declarations->get() as $new_declaration ) {
 				if ( $prev_declaration->match( $new_declaration ) ) {
@@ -39,7 +39,7 @@ class Differences extends PersistentList {
 						// do not warn.
 						// TODO: since functions are not autoloaded, we should probably still warn for them?
 						if ( $new_root && file_exists( $new_root . $prev_declaration->path ) ) {
-							$moved_with_empty_file = true;
+							$moved_with_empty_file        = true;
 							$moved_with_empty_file_total += 1;
 						} else {
 							$moved = true;

@@ -17,9 +17,9 @@ class Static_Call extends PersistentListItem implements Depends_On {
 	public $method_name;
 
 	public function __construct( $path, $line, $class_name, $method_name ) {
-		$this->path = $path;
-		$this->line = $line;
-		$this->class_name = $class_name;
+		$this->path        = $path;
+		$this->line        = $line;
+		$this->class_name  = $class_name;
 		$this->method_name = $method_name;
 	}
 
@@ -29,7 +29,7 @@ class Static_Call extends PersistentListItem implements Depends_On {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			$this->method_name
+			$this->method_name,
 		);
 	}
 

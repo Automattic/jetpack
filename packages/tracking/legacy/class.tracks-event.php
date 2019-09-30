@@ -38,7 +38,7 @@
 
 class Jetpack_Tracks_Event {
 	const EVENT_NAME_REGEX = '/^(([a-z0-9]+)_){2}([a-z0-9_]+)$/';
-	const PROP_NAME_REGEX = '/^[a-z_][a-z0-9_]*$/';
+	const PROP_NAME_REGEX  = '/^[a-z_][a-z0-9_]*$/';
 	public $error;
 
 	function __construct( $event ) {
@@ -48,7 +48,7 @@ class Jetpack_Tracks_Event {
 			return;
 		}
 
-		foreach( $_event as $key => $value ) {
+		foreach ( $_event as $key => $value ) {
 			$this->{$key} = $value;
 		}
 	}
@@ -59,7 +59,8 @@ class Jetpack_Tracks_Event {
 
 	/**
 	 * Annotate the event with all relevant info.
-	 * @param  mixed		$event Object or (flat) array
+	 *
+	 * @param  mixed $event Object or (flat) array
 	 * @return mixed        The transformed event array or WP_Error on failure.
 	 */
 	static function validate_and_sanitize( $event ) {
@@ -72,12 +73,12 @@ class Jetpack_Tracks_Event {
 
 		// delete non-routable addresses otherwise geoip will discard the record entirely
 		if ( property_exists( $event, '_via_ip' ) && preg_match( '/^192\.168|^10\./', $event->_via_ip ) ) {
-			unset($event->_via_ip);
+			unset( $event->_via_ip );
 		}
 
 		$validated = array(
-			'browser_type'      => Jetpack_Tracks_Client::BROWSER_TYPE,
-			'_aua'              => Jetpack_Tracks_Client::get_user_agent(),
+			'browser_type' => Jetpack_Tracks_Client::BROWSER_TYPE,
+			'_aua'         => Jetpack_Tracks_Client::get_user_agent(),
 		);
 
 		$_event = (object) array_merge( (array) $event, $validated );
@@ -111,22 +112,23 @@ class Jetpack_Tracks_Event {
 
 		$validated = self::validate_and_sanitize( $args );
 
-		if ( is_wp_error( $validated ) )
+		if ( is_wp_error( $validated ) ) {
 			return '';
+		}
 
 		return Jetpack_Tracks_Client::PIXEL . '?' . http_build_query( $validated );
 	}
 
 	static function event_name_is_valid( $name ) {
-		return preg_match( Jetpack_Tracks_Event::EVENT_NAME_REGEX, $name );
+		return preg_match( self::EVENT_NAME_REGEX, $name );
 	}
 
 	static function prop_name_is_valid( $name ) {
-		return preg_match( Jetpack_Tracks_Event::PROP_NAME_REGEX, $name );
+		return preg_match( self::PROP_NAME_REGEX, $name );
 	}
 
 	static function scrutinize_event_names( $event ) {
-		if ( ! Jetpack_Tracks_Event::event_name_is_valid( $event->_en ) ) {
+		if ( ! self::event_name_is_valid( $event->_en ) ) {
 			return;
 		}
 
@@ -139,7 +141,7 @@ class Jetpack_Tracks_Event {
 			if ( in_array( $key, $whitelisted_key_names ) ) {
 				continue;
 			}
-			if ( ! Jetpack_Tracks_Event::prop_name_is_valid( $key ) ) {
+			if ( ! self::prop_name_is_valid( $key ) ) {
 				return;
 			}
 		}

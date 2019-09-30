@@ -17,10 +17,10 @@ class Static_Property extends PersistentListItem implements Depends_On {
 	public $prop_name;
 
 	public function __construct( $path, $line, $class_name, $prop_name ) {
-		$this->path = $path;
-		$this->line = $line;
+		$this->path       = $path;
+		$this->line       = $line;
 		$this->class_name = $class_name;
-		$this->prop_name = $prop_name;
+		$this->prop_name  = $prop_name;
 	}
 
 	public function to_csv_array() {
@@ -29,7 +29,7 @@ class Static_Property extends PersistentListItem implements Depends_On {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			$this->prop_name
+			$this->prop_name,
 		);
 	}
 

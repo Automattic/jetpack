@@ -68,7 +68,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 			)
 		);
 	}
-	$button_styles = implode( $button_styles, ';' );
+	$button_styles = implode( ';', $button_styles );
 
 	ob_start();
 	?>

@@ -74,11 +74,7 @@ class Jetpack_Components {
 			? substr( $plan_slug, strlen( 'jetpack_' ) )
 			: $plan->path_slug;
 
-		$post_id   = get_the_ID();
-		$post_type = get_post_type();
-
-		// The editor for CPTs has an `edit/` route fragment prefixed.
-		$post_type_editor_route_prefix = in_array( $post_type, array( 'page', 'post' ), true ) ? '' : 'edit';
+		$post_id = get_the_ID();
 
 		if ( method_exists( 'Jetpack', 'build_raw_urls' ) ) {
 			$site_slug = Jetpack::build_raw_urls( home_url() );
