@@ -165,7 +165,7 @@ function jetpack_slideshow_block_autoplay_ui( $block_ordinal = 0 ) {
 		intval( $block_ordinal )
 	);
 	$amp_carousel_id = sprintf(
-		'wp-block-jetpack-slideshow__amp_carousel_%s',
+		'wp-block-jetpack-slideshow__amp-carousel__%s',
 		intval( $block_ordinal )
 	);
 	$autoplay_pause  = sprintf(
