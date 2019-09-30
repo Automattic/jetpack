@@ -73,7 +73,6 @@ describe( 'SettingsCard', () => {
 			'photon'
 		],
 		allCardsForNonAdmin = [
-			'composing',
 			'post-by-email'
 		];
 
@@ -172,13 +171,13 @@ describe( 'SettingsCard', () => {
 			userCanManageModules: false
 		} );
 
-		it( 'does not render cards that are not Composing or Post by Email', () => {
+		it( 'does not render cards that are not Post by Email', () => {
 			allCardsNonAdminCantAccess.forEach( item => {
 				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 0 );
 			} );
 		} );
 
-		it( 'renders Composing and Post by Email cards', () => {
+		it( 'renders Post by Email cards', () => {
 			allCardsForNonAdmin.forEach( item => {
 				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 1 );
 			} );
