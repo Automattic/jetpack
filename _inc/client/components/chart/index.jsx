@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { noop, throttle } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
+import { translate as _x } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -120,7 +120,9 @@ export default class ModuleChart extends React.Component {
 		if ( values.length && this.isEmptyChart( values ) ) {
 			emptyChart = (
 				<div className="dops-chart__empty">
-					<span className="dops-chart__empty_notice">{ _x( 'No activity this period', 'Notice in the empty statistics chart' ) }</span>
+					<span className="dops-chart__empty_notice">
+						{ _x( 'No activity this period', 'Notice in the empty statistics chart' ) }
+					</span>
 				</div>
 			);
 		}
