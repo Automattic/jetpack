@@ -17,9 +17,9 @@ function twentytwenty_jetpack_setup() {
 		'infinite-scroll',
 		array(
 			'type'      => 'click',
-			'container' => 'main',
+			'container' => 'site-content',
 			'render'    => 'twentytwenty_infinite_scroll_render',
-			'footer'    => 'page',
+			'footer'    => 'site-content',
 		)
 	);
 
