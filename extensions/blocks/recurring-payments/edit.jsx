@@ -395,9 +395,11 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
-				{ ! this.state.shouldUpgrade && connected === API_STATE_NOTCONNECTED && (
-					<StripeNudge blockName="recurring-payments" stripeConnectUrl={ stripeConnectUrl } />
-				) }
+				{ ! this.hasUpgradeNudge &&
+					! this.state.shouldUpgrade &&
+					connected === API_STATE_NOTCONNECTED && (
+						<StripeNudge blockName="recurring-payments" stripeConnectUrl={ stripeConnectUrl } />
+					) }
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
