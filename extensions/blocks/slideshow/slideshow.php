@@ -52,12 +52,12 @@ function jetpack_slideshow_block_render_amp( $attr ) {
 	);
 
 	return sprintf(
-		'<div class="%s" id="wp-block-jetpack-slideshow__%s"><div class="wp-block-jetpack-slideshow_container swiper-container">%s%s<div class="wp-block-jetpack-slideshow_pagination swiper-pagination swiper-pagination-bullets amp-pagination">%s</div></div></div>',
+		'<div class="%s" id="wp-block-jetpack-slideshow__%s"><div class="wp-block-jetpack-slideshow_container swiper-container">%s%s%s</div></div>',
 		esc_attr( implode( $classes, ' ' ) ),
 		esc_attr( $wp_block_jetpack_slideshow_id ),
 		jetpack_slideshow_block_amp_carousel( $attr, $wp_block_jetpack_slideshow_id ),
 		$autoplay ? jetpack_slideshow_block_autoplay_ui( $wp_block_jetpack_slideshow_id ) : '',
-		implode( '', jetpack_slideshow_block_bullets( $ids, $wp_block_jetpack_slideshow_id ) )
+		jetpack_slideshow_block_bullets( $ids, $wp_block_jetpack_slideshow_id )
 	);
 }
 
@@ -75,12 +75,13 @@ function jetpack_slideshow_block_amp_carousel( $attr, $block_ordinal ) {
 	$delay       = empty( $attr['delay'] ) ? 3 : intval( $attr['delay'] );
 	$autoplay    = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
 	return sprintf(
-		'<amp-carousel width="%s" height="%s" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s id="wp-block-jetpack-slideshow__amp_carousel_%s">%s</amp-carousel>',
+		'<amp-carousel width="%s" height="%s" layout="responsive" type="slides" data-next-button-aria-label="%s" data-prev-button-aria-label="%s" controls loop %s id="wp-block-jetpack-slideshow__amp-carousel__%s" on="slideChange:wp-block-jetpack-slideshow__amp-pagination__%s.toggle(index=event.index, value=true)">%s</amp-carousel>',
 		esc_attr( $first_image['width'] ),
 		esc_attr( $first_image['height'] ),
 		esc_attr__( 'Next Slide', 'jetpack' ),
 		esc_attr__( 'Previous Slide', 'jetpack' ),
 		$autoplay ? 'autoplay delay=' . esc_attr( $delay * 1000 ) : '',
+		esc_attr( $block_ordinal ),
 		esc_attr( $block_ordinal ),
 		implode( '', jetpack_slideshow_block_slides( $ids, $first_image['width'], $first_image['height'] ) )
 	);
@@ -131,20 +132,23 @@ function jetpack_slideshow_block_slides( $ids = [], $width = 400, $height = 300 
  * @return array Array of bullets markup.
  */
 function jetpack_slideshow_block_bullets( $ids = [], $block_ordinal = 0 ) {
-	$amp_carousel_id = sprintf(
-		'wp-block-jetpack-slideshow__amp_carousel_%s',
-		intval( $block_ordinal )
-	);
-	return array_map(
-		function( $index ) use ( $amp_carousel_id ) {
+	$buttons = array_map(
+		function( $index ) {
 			return sprintf(
-				'<button class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide %s" on="tap:%s.goToSlide(index=%s)"></button>',
+				'<button option="%s" class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="Go to slide %s" %s></button>',
+				esc_attr( $index ),
 				( $index + 1 ),
-				esc_attr( $amp_carousel_id ),
-				$index
+				0 === $index ? 'selected' : ''
 			);
 		},
 		array_keys( $ids )
+	);
+
+	return sprintf(
+		'<amp-selector id="wp-block-jetpack-slideshow__amp-pagination__%s" class="wp-block-jetpack-slideshow_pagination swiper-pagination swiper-pagination-bullets amp-pagination" on="select:wp-block-jetpack-slideshow__amp-carousel__%s.goToSlide(index=event.targetOption)" layout="container">%s</amp-selector>',
+		esc_attr( $block_ordinal ),
+		esc_attr( $block_ordinal ),
+		implode( '', $buttons )
 	);
 }
 
