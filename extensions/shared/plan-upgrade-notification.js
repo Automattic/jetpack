@@ -21,16 +21,24 @@ import { isSimpleSite } from './site-type-utils';
  */
 function getPlanUrl() {
 	if ( undefined !== typeof window && window.location ) {
-		if ( isSimpleSite() ) {
-			return `https://wordpress.com/plans/my-plan/${ getSiteFragment() }`;
+		const siteFragment = getSiteFragment();
+
+		if ( ! siteFragment ) {
+			return null;
 		}
+
+		if ( isSimpleSite() ) {
+			return `https://wordpress.com/plans/my-plan/${ siteFragment }`;
+		}
+
 		// Potentially a JP site may have a wordpress root: https//foo.com/custom/wp/root
 		// Unlikely, but technically also possible: https//foo.com/custom/wp/wp-admin/root
-		return `${ window.location.protocol }//${ getSiteFragment().replace(
+		return `${ window.location.protocol }//${ siteFragment.replace(
 			'::',
 			'/'
 		) }/wp-admin/admin.php?page=jetpack#/my-plan`;
 	}
+
 	return null;
 }
 
