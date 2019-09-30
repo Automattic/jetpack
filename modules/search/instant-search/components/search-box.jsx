@@ -8,11 +8,10 @@ import { __ } from '@wordpress/i18n';
 
 class SearchBox extends Component {
 	render() {
-		const { query, onChangeQuery, appRef, showIcon } = this.props;
+		const { query, onChangeQuery, appRef } = this.props;
 
-		const cls = showIcon ? 'jp-instant-search__box-svg' : 'jp-instant-search__box';
 		return (
-			<label className={ cls }>
+			<div className={ 'jp-instant-search__box' }>
 				{ /* TODO: Add support for preserving label text */ }
 				<span className="screen-reader-text">{ __( 'Search' ) }</span>
 				<input
@@ -23,7 +22,7 @@ class SearchBox extends Component {
 					type="search"
 					value={ query }
 				/>
-			</label>
+			</div>
 		);
 	}
 }

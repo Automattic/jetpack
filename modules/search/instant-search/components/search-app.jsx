@@ -47,10 +47,7 @@ class SearchApp extends Component {
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
 		} );
-		const searchForms = [
-			...document.querySelectorAll( this.props.themeOptions.search_form_icon ),
-			...document.querySelectorAll( this.props.themeOptions.search_form_no_icon ),
-		];
+		const searchForms = document.querySelectorAll( this.props.themeOptions.search_form_selector );
 		searchForms.forEach( function( elem ) {
 			removeChildren( elem );
 		} );
@@ -102,11 +99,8 @@ class SearchApp extends Component {
 
 	render() {
 		const { query, results } = this.state;
-		const searchFormsIcon = Array.from(
-			document.querySelectorAll( this.props.themeOptions.search_form_icon )
-		);
-		const searchFormsNoIcon = Array.from(
-			document.querySelectorAll( this.props.themeOptions.search_form_no_icon )
+		const searchForms = Array.from(
+			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
 		return (
 			<Preact.Fragment>
@@ -118,7 +112,6 @@ class SearchApp extends Component {
 									onChangeQuery={ this.onChangeQuery }
 									appRef={ this.input }
 									query={ query }
-									showIcon={ true }
 								/>
 							</div>
 							<div className="jetpack-search-sort-wrapper" />
@@ -134,25 +127,13 @@ class SearchApp extends Component {
 					</Portal>
 				) ) }
 
-				{ searchFormsIcon &&
-					searchFormsIcon.map( elem => (
+				{ searchForms &&
+					searchForms.map( elem => (
 						<Portal into={ elem }>
 							<SearchBox
 								onChangeQuery={ this.onChangeQuery }
 								appRef={ this.input }
 								query={ query }
-								showIcon={ true }
-							/>
-						</Portal>
-					) ) }
-				{ searchFormsNoIcon &&
-					searchFormsNoIcon.map( elem => (
-						<Portal into={ elem }>
-							<SearchBox
-								onChangeQuery={ this.onChangeQuery }
-								appRef={ this.input }
-								query={ query }
-								showIcon={ false }
 							/>
 						</Portal>
 					) ) }
