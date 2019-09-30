@@ -69,7 +69,7 @@ class JetpackTerminationDialog extends Component {
 		closeDialog: PropTypes.func.isRequired,
 		disconnectJetpack: PropTypes.func.isRequired,
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
-		purpose: PropTypes.oneOf( [ 'disconnect', 'uninstall' ] ).isRequired,
+		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array,
 		siteName: PropTypes.string,
 	};
@@ -157,7 +157,7 @@ class JetpackTerminationDialog extends Component {
 						<div className="jetpack-termination-dialog__button-row-buttons">
 							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Close' ) }</Button>
 							<Button scary primary onClick={ this.handleTerminationClick }>
-								{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Deactivate' ) }
+								{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
 							</Button>
 						</div>
 					</div>

@@ -17,21 +17,30 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
+const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } ) => {
 	const siteBenefitCount = siteBenefits.length;
 
 	return (
 		<div className="jetpack-termination-dialog__features">
 			<Card>
 				<p className="jetpack-termination-dialog__info">
-					{ __(
-						'Jetpack is currently powering several features of %(siteName)s. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.',
-						{
-							args: {
-								siteName,
-							},
-						}
-					) }
+					{ purpose === 'disconnect'
+						? __(
+								'Jetpack is currently powering several features of %(siteName)s. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
+								{
+									args: {
+										siteName,
+									},
+								}
+						  )
+						: __(
+								'Jetpack is currently powering several features of %(siteName)s. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.',
+								{
+									args: {
+										siteName,
+									},
+								}
+						  ) }
 					{ siteBenefitCount > 0 &&
 						__( ' We’ve highlighted some of the features you rely on below.' ) }
 				</p>
@@ -64,9 +73,10 @@ const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 										components: {
 											a: (
 												<a
+													className="jetpack-termination-dialog__link"
 													href="https://jetpack.com/support/site-accelerator/"
-													target="_blank"
 													rel="noopener noreferrer"
+													target="_blank"
 												/>
 											),
 										},
@@ -80,9 +90,10 @@ const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 										components: {
 											a: (
 												<a
+													className="jetpack-termination-dialog__link"
 													href="https://jetpack.com/support/protect/"
-													target="_blank"
 													rel="noopener noreferrer"
+													target="_blank"
 												/>
 											),
 										},
@@ -94,9 +105,10 @@ const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 									components: {
 										a: (
 											<a
+												className="jetpack-termination-dialog__link"
 												href="https://jetpack.com/support/social/"
-												target="_blank"
 												rel="noopener noreferrer"
+												target="_blank"
 											/>
 										),
 									},
@@ -113,9 +125,10 @@ const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 								components: {
 									a: (
 										<a
+											className="jetpack-termination-dialog__link"
 											href="https://jetpack.com/contact-support/"
-											target="_blank"
 											rel="noopener noreferrer"
+											target="_blank"
 										/>
 									),
 								},
@@ -129,6 +142,7 @@ const JetpackTerminationDialogFeatures = ( { siteBenefits, siteName } ) => {
 };
 
 JetpackTerminationDialogFeatures.propTypes = {
+	purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 	siteBenefits: PropTypes.array.isRequired,
 	siteName: PropTypes.string.isRequired,
 };

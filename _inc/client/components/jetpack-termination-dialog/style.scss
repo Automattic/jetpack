@@ -108,11 +108,17 @@
 }
 
 .jetpack-termination-dialog__get-help {
+	font-size: 16px;
 	font-style: normal;
 	font-weight: normal;
-	font-size: 16px;
 	line-height: 24px;
+	margin-top: 29px;
 	text-align: center;
+
+	// replicates behavior from .dops-card and keeps this centered
+	@include breakpoint( '>480px' ) {
+		margin-top: 37px;
+	}
 }
 
 .jetpack-termination-dialog__button-row {
@@ -122,6 +128,7 @@
 
 	p {
 		text-align: center;
+		margin-top: 0;
 	}
 
 	@include breakpoint( '>660px' ) {
@@ -129,6 +136,7 @@
 
 		p {
 			text-align: auto;
+			margin-top: auto;
 		}
 	}
 }
@@ -157,4 +165,10 @@
 .jetpack-termination-dialog__close-icon {
 	color: #c8c8c8;
 	cursor: pointer;
+}
+
+// important here because the default no-underline, italics rule is very specific
+a.jetpack-termination-dialog__link {
+	font-style: normal !important;
+	text-decoration: underline !important;
 }
