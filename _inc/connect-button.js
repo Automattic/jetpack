@@ -157,6 +157,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 	};
 
+	// When we visit /wp-admin/admin.php?page=jetpack#/setup, immediately start the connection flow.
 	var hash = location.hash.replace( /#\//, '' );
 	if ( 'setup' === hash ) {
 		if ( connectionCards.length ) {
