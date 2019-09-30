@@ -26,10 +26,9 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		global $wp, $map_block_counter;
-		if ( ! $map_block_counter ) {
-			$map_block_counter = array();
-		}
+		global $wp;
+		static $map_block_counter = [];
+
 		$id = get_the_ID();
 		if ( ! $map_block_counter[ $id ] ) {
 			$map_block_counter[ $id ] = 0;
