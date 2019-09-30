@@ -59,6 +59,8 @@ function getPlanUrl() {
 
 				planName = data.plan.product_name;
 			} finally {
+				const planUrl = getPlanUrl();
+
 				dispatch( 'core/notices' ).createNotice(
 					'success',
 					/* translators: %s is the plan name, such as Jetpack Premium. */
@@ -70,12 +72,14 @@ function getPlanUrl() {
 						: __( 'Congratulations! Your site is now on a paid plan.', 'jetpack' ),
 					{
 						isDismissible: true,
-						actions: [
-							{
-								url: getPlanUrl(),
-								label: __( 'View my plan', 'jetpack' ),
-							},
-						],
+						...( planUrl && {
+							actions: [
+								{
+									url: getPlanUrl(),
+									label: __( 'View my plan', 'jetpack' ),
+								},
+							],
+						} ),
 					}
 				);
 			}
