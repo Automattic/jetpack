@@ -4,13 +4,15 @@ jQuery( document ).ready( function( $ ) {
 	var connectButton = $( '.jp-connect-button, .jp-banner__alt-connect-button' ).eq( 0 );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
-	var connectionCards = $( '#jetpack-connection-cards' );
+	var connectionHelpSections = $(
+		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph'
+	);
 
 	connectButton.on( 'click', function( event ) {
 		event.preventDefault();
 
-		if ( connectionCards.length ) {
-			connectionCards.fadeOut( 600 );
+		if ( connectionHelpSections.length ) {
+			connectionHelpSections.fadeOut( 600 );
 		}
 
 		jetpackConnectButton.selectAndStartConnectionFlow();
@@ -20,9 +22,9 @@ jQuery( document ).ready( function( $ ) {
 		isRegistering: false,
 		isPaidPlan: false,
 		selectAndStartConnectionFlow: function() {
-			var connectionCards = $( '#jetpack-connection-cards' );
-			if ( connectionCards.length ) {
-				connectionCards.fadeOut( 600 );
+			var connectionHelpSections = $( '#jetpack-connection-cards' );
+			if ( connectionHelpSections.length ) {
+				connectionHelpSections.fadeOut( 600 );
 			}
 
 			if ( ! jetpackConnectButton.isRegistering ) {
@@ -160,8 +162,8 @@ jQuery( document ).ready( function( $ ) {
 	// When we visit /wp-admin/admin.php?page=jetpack#/setup, immediately start the connection flow.
 	var hash = location.hash.replace( /#\//, '' );
 	if ( 'setup' === hash ) {
-		if ( connectionCards.length ) {
-			connectionCards.hide();
+		if ( connectionHelpSections.length ) {
+			connectionHelpSections.hide();
 		}
 
 		jetpackConnectButton.selectAndStartConnectionFlow();
