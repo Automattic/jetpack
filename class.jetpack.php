@@ -3978,7 +3978,7 @@ p {
 		$error = false;
 
 		// Make sure we have the right body class to hook stylings for subpages off of.
-		add_filter( 'admin_body_class', array( __CLASS__, 'add_jetpack_pagestyles' ) );
+		add_filter( 'admin_body_class', array( __CLASS__, 'add_jetpack_pagestyles' ), 20 );
 
 		if ( ! empty( $_GET['jetpack_restate'] ) ) {
 			// Should only be used in intermediate redirects to preserve state across redirects
