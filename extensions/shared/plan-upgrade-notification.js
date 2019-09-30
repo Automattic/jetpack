@@ -22,7 +22,7 @@ import { isSimpleSite } from './site-type-utils';
 function getPlanUrl() {
 	if ( undefined !== typeof window && window.location ) {
 		if ( isSimpleSite() ) {
-			return `https://wordpress.com/plans/my-plan/${ getSiteFragment().replace( '::', '/' ) }`;
+			return `https://wordpress.com/plans/my-plan/${ getSiteFragment() }`;
 		}
 		// Potentially a JP site may have a wordpress root: https//foo.com/custom/wp/root
 		// Unlikely, but technically also possible: https//foo.com/custom/wp/wp-admin/root
