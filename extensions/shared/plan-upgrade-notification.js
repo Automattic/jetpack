@@ -40,24 +40,25 @@ function getPlanUrl() {
 ( async () => {
 	if ( undefined !== typeof window && window.location ) {
 		const { query } = parseUrl( window.location.href, true );
+		let planName = null;
 
 		if ( query.plan_upgraded ) {
-			let planName = 'a paid plan';
-
-			updatePlanNameFromApi: try {
+			getPlanNameFromApi: try {
 				// not updating if simple site
 				if ( isSimpleSite() ) {
-					break updatePlanNameFromApi;
+					break getPlanNameFromApi;
 				}
 
 				const jetpackSiteInfo = await apiFetch( { path: '/jetpack/v4/site' } );
 				const data = JSON.parse( jetpackSiteInfo.data );
 
-				planName = `the ${ data.plan.product_name } plan`;
+				planName = data.plan.product_name;
 			} finally {
 				dispatch( 'core/notices' ).createNotice(
 					'success',
-					__( `Congratulations! Your site is now on ${ planName }.`, 'jetpack' ),
+					planName
+						? __( `Congratulations! Your site is now on the ${ planName } plan.`, 'jetpack' )
+						: __( `Congratulations! Your site is now on a paid plan.`, 'jetpack' ),
 					{
 						isDismissible: true,
 						actions: [
