@@ -74,15 +74,17 @@ function jetpack_slideshow_block_amp_carousel( $attr, $block_ordinal ) {
 	$first_image = wp_get_attachment_metadata( $ids[0] );
 	$delay       = empty( $attr['delay'] ) ? 3 : absint( $attr['delay'] );
 	$autoplay    = empty( $attr['autoplay'] ) ? false : $attr['autoplay'];
+	$width       = empty( $first_image['width'] ) ? 800 : $first_image['width'];
+	$height      = empty( $first_image['height'] ) ? 600 : $first_image['height'];
 	return sprintf(
 		'<amp-carousel width="%1$d" height="%2$d" layout="responsive" type="slides" data-next-button-aria-label="%3$s" data-prev-button-aria-label="%4$s" controls loop %5$s id="wp-block-jetpack-slideshow__amp-carousel__%6$s" on="slideChange:wp-block-jetpack-slideshow__amp-pagination__%6$s.toggle(index=event.index, value=true)">%7$s</amp-carousel>',
-		esc_attr( $first_image['width'] ),
-		esc_attr( $first_image['height'] ),
+		esc_attr( $width ),
+		esc_attr( $height ),
 		esc_attr__( 'Next Slide', 'jetpack' ),
 		esc_attr__( 'Previous Slide', 'jetpack' ),
 		$autoplay ? 'autoplay delay=' . esc_attr( $delay * 1000 ) : '',
 		absint( $block_ordinal ),
-		implode( '', jetpack_slideshow_block_slides( $ids, $first_image['width'], $first_image['height'] ) )
+		implode( '', jetpack_slideshow_block_slides( $ids, $width, $height ) )
 	);
 }
 
