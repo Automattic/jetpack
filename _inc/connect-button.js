@@ -1,30 +1,44 @@
 /* global jpConnect */
 
 jQuery( document ).ready( function( $ ) {
-	var connectButton = $( '.jp-connect-button' );
+	var connectButton = $( '.jp-connect-button, .jp-banner__alt-connect-button' ).eq( 0 );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
-	connectButton.click( function( event ) {
-		event.preventDefault();
-		$( '#jetpack-connection-cards' ).fadeOut( 600 );
-		if ( ! jetpackConnectButton.isRegistering ) {
-			if ( 'original' === jpConnect.forceVariation ) {
-				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`
-				// or we're dealing with Safari which has issues with handling 3rd party cookies.
-				jetpackConnectButton.handleOriginalFlow();
-			} else if ( 'in_place' === jpConnect.forceVariation ) {
-				// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
-				jetpackConnectButton.handleConnectInPlaceFlow();
-			} else {
-				// Forcing A/B test driven connection flow variation, `JETPACK_SHOULD_USE_CONNECTION_IFRAME` not defined.
-				jetpackConnectButton.startConnectionFlow();
-			}
-		}
-	} );
 	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
+	var connectionCards = $( '#jetpack-connection-cards' );
+
+	connectButton.on( 'click', function( event ) {
+		event.preventDefault();
+
+		if ( connectionCards.length ) {
+			connectionCards.fadeOut( 600 );
+		}
+
+		jetpackConnectButton.selectAndStartConnectionFlow();
+	} );
 
 	var jetpackConnectButton = {
 		isRegistering: false,
 		isPaidPlan: false,
+		selectAndStartConnectionFlow: function() {
+			var connectionCards = $( '#jetpack-connection-cards' );
+			if ( connectionCards.length ) {
+				connectionCards.fadeOut( 600 );
+			}
+
+			if ( ! jetpackConnectButton.isRegistering ) {
+				if ( 'original' === jpConnect.forceVariation ) {
+					// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`
+					// or we're dealing with Safari which has issues with handling 3rd party cookies.
+					jetpackConnectButton.handleOriginalFlow();
+				} else if ( 'in_place' === jpConnect.forceVariation ) {
+					// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
+					jetpackConnectButton.handleConnectInPlaceFlow();
+				} else {
+					// Forcing A/B test driven connection flow variation, `JETPACK_SHOULD_USE_CONNECTION_IFRAME` not defined.
+					jetpackConnectButton.startConnectionFlow();
+				}
+			}
+		},
 		startConnectionFlow: function() {
 			var abTestName = 'jetpack_connect_in_place_v2';
 			$.ajax( {
@@ -48,6 +62,12 @@ jQuery( document ).ready( function( $ ) {
 			window.location = connectButton.attr( 'href' );
 		},
 		handleConnectInPlaceFlow: function() {
+			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
+			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
+				window.location = jpConnect.connectInPlaceUrl;
+				return;
+			}
+
 			jetpackConnectButton.isRegistering = true;
 			tosText.hide();
 			connectButton.hide();
@@ -136,4 +156,13 @@ jQuery( document ).ready( function( $ ) {
 			jetpackConnectButton.handleOriginalFlow();
 		},
 	};
+
+	var hash = location.hash.replace( /#\//, '' );
+	if ( 'setup' === hash ) {
+		if ( connectionCards.length ) {
+			connectionCards.hide();
+		}
+
+		jetpackConnectButton.selectAndStartConnectionFlow();
+	}
 } );
