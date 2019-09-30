@@ -75,6 +75,16 @@ abstract class Jetpack_Admin_Page {
 			delete_transient( 'activated_jetpack' );
 		}
 
+		// If Jetpack not yet connected, but user is viewing one of the pages with a Jetpack connection banner.
+		if (
+			( 'index.php' === $pagenow || 'plugins.php' === $pagenow )
+			&& ! Jetpack::is_active()
+			&& current_user_can( 'jetpack_connect' )
+			&& ! Jetpack::is_development_mode()
+		) {
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
+		}
+
 		// Check if the site plan changed and deactivate modules accordingly.
 		add_action( 'current_screen', array( $this, 'check_plan_deactivate_modules' ) );
 
