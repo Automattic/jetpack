@@ -319,6 +319,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 *
 	 * Intentionally added last as it will be skipped if any local failed conditions exist.
 	 *
+	 * @since 7.1.0
+	 * @since 7.9.0 Timeout waiting for a WP.com response no longer fails the test. Test is marked skipped instead.
+	 *
 	 * @return array Test results.
 	 */
 	protected function last__wpcom_self_test() {
@@ -339,8 +342,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( $name );
+		} elseif ( is_wp_error( $response ) && false !== strpos( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
+			return self::skipped_test( $name, __( 'The test timed out which may sometimes indicate a failure or may be a false failure.', 'jetpack' ) );
 		} else {
-			return self::failing_test( $name, __( 'Jetpack.com detected an error.', 'jetpack' ), __( 'Visit the Jetpack.com debugging page for more information or contact support.', 'jetpack' ) ); // @todo direct links.
+			return self::failing_test( $name, __( 'Jetpack.com detected an error on the WPcom Self Test.', 'jetpack' ), __( 'Visit the Jetpack.com debugging page for more information or contact support.', 'jetpack' ) ); // @todo direct links.
 		}
 	}
 }

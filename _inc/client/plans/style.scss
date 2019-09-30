@@ -221,3 +221,25 @@ $plan-features-sidebar-width: 272px;
 .plans-mobile-notice.dops-card h2 {
 	margin-top: 0;
 }
+.plan-grid-skeletons {
+	display: flex;
+	margin: 0 -10px;
+
+	@include breakpoint( "<1040px" ) {
+		margin: 0 -1px;
+	}
+
+	@include breakpoint( "<660px" ) {
+		 display: none;
+	}
+}
+
+.plan-grid-skeletons__plan {
+	flex: 1;
+	height: 545px;
+	margin: 0 10px;
+
+	@include breakpoint( "<1040px" ) {
+		margin: 0 1px;
+	}
+}

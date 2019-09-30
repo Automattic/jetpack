@@ -201,27 +201,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
 		}
-		if (
-			/**
-			 * Allow disabling Full Site Editing, even when the FSE plugin is active.
-			 *
-			 * @module json-api
-			 *
-			 * @since 7.7.0
-			 *
-			 * @param bool $disable_fse Disable Full Site Editing. Defaults to false.
-			 */
-			apply_filters( 'a8c_disable_full_site_editing', false )
-		) {
-			return false;
-		}
-		$has_is_supported_theme_method = method_exists( '\A8C\FSE\Full_Site_Editing', 'is_supported_theme' );
-		$has_normalize_theme_slug      = method_exists( '\A8C\FSE\Full_Site_Editing', 'normalize_theme_slug' );
-		if ( $has_is_supported_theme_method && $has_normalize_theme_slug ) {
-			$slug = \A8C\FSE\Full_Site_Editing::get_instance()->normalize_theme_slug( get_option( 'stylesheet' ) );
-			return \A8C\FSE\Full_Site_Editing::get_instance()->is_supported_theme( $slug );
-		}
-		return false;
+		return function_exists( '\A8C\FSE\is_full_site_editing_active' ) && \A8C\FSE\is_full_site_editing_active();
 	}
 
 	/**

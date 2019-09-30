@@ -4,41 +4,25 @@
 import GridiconStar from 'gridicons/dist/star';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { Button } from '@wordpress/components';
 import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
-import { Warning } from '@wordpress/editor';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import analytics from '../../../../_inc/client/lib/analytics';
+import BlockNudge from '../block-nudge';
 import getSiteFragment from '../../get-site-fragment';
+import { isSimpleSite } from '../../site-type-utils';
 import './store';
 
 import './style.scss';
 
-export const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName, upgradeUrl } ) => (
-	<Warning
-		actions={
-			// Use upgradeUrl to determine whether or not to display the Upgrade button.
-			// We tried setting autosaveAndRedirectToUpgrade to falsey in `withDispatch`,
-			// but it doesn't seem to be reliably updated after a `withSelect` update.
-			upgradeUrl && [
-				<Button
-					href={ upgradeUrl } // Only for server-side rendering, since onClick doesn't work there.
-					onClick={ autosaveAndRedirectToUpgrade }
-					target="_top"
-					isDefault
-				>
-					{ __( 'Upgrade', 'jetpack' ) }
-				</Button>,
-			]
-		}
-		className="jetpack-upgrade-nudge"
-	>
-		<span className="jetpack-upgrade-nudge__info">
+export const UpgradeNudge = ( { planName, trackEvent, upgradeUrl } ) => (
+	<BlockNudge
+		buttonLabel={ __( 'Upgrade', 'jetpack' ) }
+		icon={
 			<GridiconStar
 				className="jetpack-upgrade-nudge__icon"
 				size={ 18 }
@@ -46,23 +30,21 @@ export const UpgradeNudge = ( { autosaveAndRedirectToUpgrade, planName, upgradeU
 				role="img"
 				focusable="false"
 			/>
-			<span className="jetpack-upgrade-nudge__text-container">
-				<span className="jetpack-upgrade-nudge__title">
-					{ planName
-						? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
-								planName,
-						  } )
-						: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' ) }
-				</span>
-				<span className="jetpack-upgrade-nudge__message">
-					{ __(
-						'You can try it out before upgrading, but only you will see it. It will be hidden from visitors until you upgrade.',
-						'jetpack'
-					) }
-				</span>
-			</span>
-		</span>
-	</Warning>
+		}
+		href={ upgradeUrl }
+		onClick={ trackEvent }
+		title={
+			planName
+				? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
+						planName,
+				  } )
+				: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
+		}
+		subtitle={ __(
+			'You can try it out before upgrading, but only you will see it. It will be hidden from visitors until you upgrade.',
+			'jetpack'
+		) }
+	/>
 );
 
 export default compose( [
@@ -81,10 +63,8 @@ export default compose( [
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-		const isWpcom = get( window, [ '_currentSiteType' ] ) === 'simple';
-
 		// Post-checkout: redirect back here
-		const redirect_to = isWpcom
+		const redirect_to = isSimpleSite()
 			? addQueryArgs(
 					'/' +
 						compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(
@@ -111,20 +91,13 @@ export default compose( [
 			} );
 
 		return {
+			trackEvent: blockName =>
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
+					plan,
+					block: blockName,
+				} ),
 			planName: get( plan, [ 'product_name' ] ),
 			upgradeUrl,
 		};
 	} ),
-	withDispatch( ( dispatch, { blockName, plan, upgradeUrl } ) => ( {
-		autosaveAndRedirectToUpgrade: async event => {
-			event.preventDefault(); // Don't follow the href before autosaving
-			analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-				plan,
-				block: blockName,
-			} );
-			await dispatch( 'core/editor' ).autosave();
-			// Using window.top to escape from the editor iframe on WordPress.com
-			window.top.location.href = upgradeUrl;
-		},
-	} ) ),
 ] )( UpgradeNudge );

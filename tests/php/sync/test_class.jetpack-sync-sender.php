@@ -432,6 +432,39 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $sync_queue->has_any_items() ,"We didn't empty the queue" );
 	}
 
+	function test_sender_get_sync_object_for_post() {
+		$post_id = $this->factory->post->create();
+
+		$response = $this->sender->sync_object( array( 'posts', 'post', $post_id ) );
+
+		$codec = $this->sender->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertEquals( $post_id, $decoded_object->ID );
+	}
+
+	function test_sender_sync_object_returns_false_if_missing() {
+		$response = $this->sender->sync_object( array( 'posts', 'post', 1000 ) );
+
+		$codec = $this->sender->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertFalse( $decoded_object );
+	}
+
+	function test_sender_get_sync_object_for_user() {
+		$user_id = $this->factory->user->create();
+
+		$response = $this->sender->sync_object( array( 'users', 'user', $user_id ) );
+
+		$codec = $this->sender->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertFalse( isset( $decoded_object->user_pass ) );
+
+		$this->assertEquals( $user_id, $decoded_object->ID );
+	}
+
 	function run_filter( $data ) {
 		$this->filter_ran = true;
 		return $data;

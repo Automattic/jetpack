@@ -88,6 +88,7 @@ class Comments extends Module {
 		add_action( 'untrashed_comment', $callable, 10, 2 );
 		add_action( 'unspammed_comment', $callable, 10, 2 );
 		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
+		add_filter( 'jetpack_sync_before_enqueue_wp_insert_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
 
 		/**
 		 * Even though it's messy, we implement these hooks because
@@ -175,6 +176,23 @@ class Comments extends Module {
 			'jetpack_sync_whitelisted_comment_types',
 			array( '', 'trackback', 'pingback' )
 		);
+	}
+
+	/**
+	 * Prevents any comment types that are not in the whitelist from being enqueued and sent to WordPress.com.
+	 *
+	 * @param array $args Arguments passed to wp_insert_comment
+	 *
+	 * @return bool or array $args Arguments passed to wp_insert_comment
+	 */
+	public function only_allow_white_listed_comment_types( $args ) {
+		$comment = $args[1];
+
+		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+			return false;
+		}
+
+		return $args;
 	}
 
 	/**

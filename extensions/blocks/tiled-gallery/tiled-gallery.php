@@ -44,6 +44,10 @@ class Jetpack_Tiled_Gallery_Block {
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
 
+		$jetpack_plan = Jetpack_Plan::get();
+
+		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
+
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**
 			 * This block processes all of the images that are found and builds $find and $replace.
@@ -163,9 +167,4 @@ class Jetpack_Tiled_Gallery_Block {
 	}
 }
 
-if (
-	( defined( 'IS_WPCOM' ) && IS_WPCOM )
-	|| class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' )
-) {
-	Jetpack_Tiled_Gallery_Block::register();
-}
+Jetpack_Tiled_Gallery_Block::register();

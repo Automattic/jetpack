@@ -1,15 +1,49 @@
 <?php
+/**
+ * The Jetpack Connection signature class file.
+ *
+ * @package automattic/jetpack-connection
+ */
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
+/**
+ * The Jetpack Connection signature class that is used to sign requests.
+ */
 class Jetpack_Signature {
+	/**
+	 * Token part of the access token.
+	 *
+	 * @access public
+	 * @var string
+	 */
 	public $token;
+
+	/**
+	 * Access token secret.
+	 *
+	 * @access public
+	 * @var string
+	 */
 	public $secret;
+
+	/**
+	 * The current request URL.
+	 *
+	 * @access public
+	 * @var string
+	 */
 	public $current_request_url;
 
-	function __construct( $access_token, $time_diff = 0 ) {
+	/**
+	 * Constructor.
+	 *
+	 * @param array $access_token Access token.
+	 * @param int   $time_diff    Timezone difference (in seconds).
+	 */
+	public function __construct( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
-		if ( 2 != count( $secret ) ) {
+		if ( 2 !== count( $secret ) ) {
 			return;
 		}
 
@@ -18,10 +52,18 @@ class Jetpack_Signature {
 		$this->time_diff = $time_diff;
 	}
 
-	function sign_current_request( $override = array() ) {
+	/**
+	 * Sign the current request.
+	 *
+	 * @todo Implement a proper nonce verification.
+	 *
+	 * @param array $override Optional arguments to override the ones from the current request.
+	 * @return string|WP_Error Request signature, or a WP_Error on failure.
+	 */
+	public function sign_current_request( $override = array() ) {
 		if ( isset( $override['scheme'] ) ) {
 			$scheme = $override['scheme'];
-			if ( ! in_array( $scheme, array( 'http', 'https' ) ) ) {
+			if ( ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
 				return new WP_Error( 'invalid_scheme', 'Invalid URL scheme' );
 			}
 		} else {
@@ -33,8 +75,8 @@ class Jetpack_Signature {
 		}
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
+		$host_port = intval( $host_port );
 
-		$connection = new Connection_Manager();
 		/**
 		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
 		 * Please update the test if any changes are made in this logic.
@@ -50,7 +92,7 @@ class Jetpack_Signature {
 			// X-Forwarded-Port and the back end's port is *not* 80. It's better,
 			// though, to configure the proxy to send X-Forwarded-Port.
 			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? JETPACK_SIGNATURE__HTTPS_PORT : 443;
-			$port       = in_array( $host_port, array( 443, 80, $https_port ) ) ? '' : $host_port;
+			$port       = in_array( $host_port, array( 443, 80, $https_port ), true ) ? '' : $host_port;
 		} else {
 			// 80: Standard Port
 			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
@@ -58,25 +100,26 @@ class Jetpack_Signature {
 			// X-Forwarded-Port. It's better, though, to configure the proxy to
 			// send X-Forwarded-Port.
 			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? JETPACK_SIGNATURE__HTTP_PORT : 80;
-			$port      = in_array( $host_port, array( 80, $http_port ) ) ? '' : $host_port;
+			$port      = in_array( $host_port, array( 80, $http_port ), true ) ? '' : $host_port;
 		}
 
 		$this->current_request_url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
 		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
-		} elseif ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+		} elseif ( 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
 
 			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
 			// and encoded on the Jetpack side.
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( empty( $body ) && is_array( $_POST ) && count( $_POST ) > 0 ) {
-					$body = $_POST;
+					$body = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				}
 			}
-		} elseif ( 'PUT' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
-			// This is a little strange-looking, but there doesn't seem to be another way to get the PUT body
+		} elseif ( 'PUT' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+			// This is a little strange-looking, but there doesn't seem to be another way to get the PUT body.
 			$raw_put_data = file_get_contents( 'php://input' );
 			parse_str( $raw_put_data, $body );
 
@@ -99,6 +142,7 @@ class Jetpack_Signature {
 			if ( isset( $override[ $parameter ] ) ) {
 				$a[ $parameter ] = $override[ $parameter ];
 			} else {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$a[ $parameter ] = isset( $_GET[ $parameter ] ) ? stripslashes( $_GET[ $parameter ] ) : '';
 			}
 		}
@@ -107,8 +151,24 @@ class Jetpack_Signature {
 		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $this->current_request_url, $body, true );
 	}
 
-	// body_hash v. body-hash is annoying.  Refactor to accept an array?
-	function sign_request( $token = '', $timestamp = 0, $nonce = '', $body_hash = '', $method = '', $url = '', $body = null, $verify_body_hash = true ) {
+	/**
+	 * Sign a specified request.
+	 *
+	 * @todo Having body_hash v. body-hash is annoying. Refactor to accept an array?
+	 * @todo Use wp_json_encode() instead of json_encode()?
+	 * @todo Use wp_parse_url() instead of parse_url()?
+	 *
+	 * @param string $token            Request token.
+	 * @param int    $timestamp        Timestamp of the request.
+	 * @param string $nonce            Request nonce.
+	 * @param string $body_hash        Request body hash.
+	 * @param string $method           Request method.
+	 * @param string $url              Request URL.
+	 * @param mixed  $body             Request body.
+	 * @param bool   $verify_body_hash Whether to verify the body hash against the body.
+	 * @return string|WP_Error Request signature, or a WP_Error on failure.
+	 */
+	public function sign_request( $token = '', $timestamp = 0, $nonce = '', $body_hash = '', $method = '', $url = '', $body = null, $verify_body_hash = true ) {
 		if ( ! $this->secret ) {
 			return new WP_Error( 'invalid_secret', 'Invalid secret' );
 		}
@@ -128,6 +188,7 @@ class Jetpack_Signature {
 		// If we got an array at this point, let's encode it, so we can see what it looks like as a string.
 		if ( is_array( $body ) ) {
 			if ( count( $body ) > 0 ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 				$body = json_encode( $body );
 
 			} else {
@@ -164,6 +225,7 @@ class Jetpack_Signature {
 			}
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		$parsed = parse_url( $url );
 		if ( ! isset( $parsed['host'] ) ) {
 			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ), compact( 'signature_details' ) );
@@ -172,9 +234,9 @@ class Jetpack_Signature {
 		if ( ! empty( $parsed['port'] ) ) {
 			$port = $parsed['port'];
 		} else {
-			if ( 'http' == $parsed['scheme'] ) {
+			if ( 'http' === $parsed['scheme'] ) {
 				$port = 80;
-			} elseif ( 'https' == $parsed['scheme'] ) {
+			} elseif ( 'https' === $parsed['scheme'] ) {
 				$port = 443;
 			} else {
 				return new WP_Error( 'unknown_scheme_port', "The scheme's port is unknown", compact( 'signature_details' ) );
@@ -203,7 +265,7 @@ class Jetpack_Signature {
 			strtolower( $parsed['host'] ),
 			$port,
 			$parsed['path'],
-			// Normalized Query String
+			// Normalized Query String.
 		);
 
 		$normalized_request_pieces      = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
@@ -221,10 +283,17 @@ class Jetpack_Signature {
 
 		$normalized_request_string = join( "\n", $normalized_request_pieces ) . "\n";
 
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		return base64_encode( hash_hmac( 'sha1', $normalized_request_string, $this->secret, true ) );
 	}
 
-	function normalized_query_parameters( $query_string ) {
+	/**
+	 * Retrieve and normalize the parameters from a query string.
+	 *
+	 * @param string $query_string Query string.
+	 * @return array Normalized query string parameters.
+	 */
+	public function normalized_query_parameters( $query_string ) {
 		parse_str( $query_string, $array );
 		if ( get_magic_quotes_gpc() ) {
 			$array = stripslashes_deep( $array );
@@ -245,20 +314,33 @@ class Jetpack_Signature {
 		return $pairs;
 	}
 
-	function encode_3986( $string_or_array ) {
+	/**
+	 * Encodes a string or array of strings according to RFC 3986.
+	 *
+	 * @param string|array $string_or_array String or array to encode.
+	 * @return string|array URL-encoded string or array.
+	 */
+	public function encode_3986( $string_or_array ) {
 		if ( is_array( $string_or_array ) ) {
 			return array_map( array( $this, 'encode_3986' ), $string_or_array );
 		}
 
-		$string_or_array = rawurlencode( $string_or_array );
-		return str_replace( '%7E', '~', $string_or_array ); // prior to PHP 5.3, rawurlencode was RFC 1738
+		return rawurlencode( $string_or_array );
 	}
 
-	function join_with_equal_sign( $name, $value ) {
+	/**
+	 * Concatenates a parameter name and a parameter value with an equals sign between them.
+	 * Supports one-dimensional arrays as `$value`.
+	 *
+	 * @param string $name  Parameter name.
+	 * @param mixed  $value Parameter value.
+	 * @return string A pair with parameter name and value (e.g. `name=value`).
+	 */
+	public function join_with_equal_sign( $name, $value ) {
 		if ( is_array( $value ) ) {
 			$result = array();
 			foreach ( $value as $array_key => $array_value ) {
-				$result[] = $name . '[' . $array_key . ']' . '=' . $array_value;
+				$result[] = $name . '[' . $array_key . ']=' . $array_value;
 			}
 			return $result;
 		}

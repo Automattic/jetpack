@@ -2,7 +2,7 @@
 /**
  * A constants manager for Jetpack.
  *
- * @package jetpack-constants
+ * @package automattic/jetpack-constants
  */
 
 namespace Automattic\Jetpack;

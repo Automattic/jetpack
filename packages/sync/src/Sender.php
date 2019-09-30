@@ -186,6 +186,7 @@ class Sender {
 	private function init() {
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_jetpack_xmlrpc_methods' ) );
 		foreach ( Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
@@ -510,6 +511,38 @@ class Sender {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Returns any object that is able to be synced.
+	 *
+	 * @access public
+	 *
+	 * @param array $args the synchronized object parameters.
+	 * @return string Encoded sync object.
+	 */
+	public function sync_object( $args ) {
+		// For example: posts, post, 5.
+		list( $module_name, $object_type, $id ) = $args;
+
+		$sync_module = Modules::get_module( $module_name );
+		$codec       = $this->get_codec();
+
+		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
+	}
+
+	/**
+	 * Register additional sync XML-RPC methods available to Jetpack for authenticated users.
+	 *
+	 * @access public
+	 * @since 7.8
+	 *
+	 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
+	 * @return array Filtered XML-RPC methods.
+	 */
+	public function register_jetpack_xmlrpc_methods( $jetpack_methods ) {
+		$jetpack_methods['jetpack.syncObject'] = array( $this, 'sync_object' );
+		return $jetpack_methods;
 	}
 
 	/**
