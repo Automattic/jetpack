@@ -36,7 +36,11 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	}
 
 	// Do not Photonize images that are still uploading or from localhost
-	if ( isBlobURL( img.url ) || /^https?:\/\/localhost/.test( img.url ) ) {
+	if (
+		isBlobURL( img.url ) ||
+		/^https?:\/\/localhost/.test( img.url ) ||
+		/^https?:\/\/.*\.local\//.test( img.url )
+	) {
 		return { src: img.url };
 	}
 
