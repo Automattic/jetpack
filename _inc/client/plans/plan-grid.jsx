@@ -9,6 +9,7 @@ import { includes, map, reduce } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
@@ -38,6 +39,11 @@ class PlanGrid extends React.Component {
 		}
 
 		return () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'change-period-' + newPeriod,
+				feature: 'plans-grid',
+			} );
+
 			this.setState( {
 				period: newPeriod,
 			} );
