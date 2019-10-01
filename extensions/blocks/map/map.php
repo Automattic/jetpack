@@ -64,6 +64,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 function jetpack_map_block_render_single_block_page() {
 	$map_block_counter = (int) filter_input( INPUT_GET, 'map-block-counter', FILTER_SANITIZE_NUMBER_INT );
 	$map_block_post_id = (int) filter_input( INPUT_GET, 'map-block-post-id', FILTER_SANITIZE_NUMBER_INT );
+
 	if ( ! $map_block_counter || ! $map_block_post_id ) {
 		return;
 	}
@@ -73,11 +74,11 @@ function jetpack_map_block_render_single_block_page() {
 
 	$post_html = new DOMDocument();
 	$post_html->loadHTML( $post->post_content );
-	$xpath          = new DOMXPath( $post_html );
-	$map_block_divs = $xpath->query( '//div[ contains( @class, "wp-block-jetpack-map" ) ]' );
+	$xpath     = new DOMXPath( $post_html );
+	$container = $xpath->query( '//div[ contains( @class, "wp-block-jetpack-map" ) ]' )->item( $map_block_counter - 1 );
 
 	/* Check that we have a block matching the counter position */
-	if ( ! isset( $map_block_divs[ $map_block_counter - 1 ] ) ) {
+	if ( ! $container ) {
 		return;
 	}
 
@@ -95,7 +96,7 @@ function jetpack_map_block_render_single_block_page() {
 	$head_content = ob_get_clean();
 
 	/* Put together a new complete document containing only the requested block markup and the scripts/styles needed to render it */
-	$block_markup = $post_html->saveHTML( $map_block_divs[ $map_block_counter - 1 ] );
+	$block_markup = $post_html->saveHTML( $container );
 	$api_key      = Jetpack_Options::get_option( 'mapbox_api_key' );
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
