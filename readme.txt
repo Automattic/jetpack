@@ -96,7 +96,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.8 =
+= 7.9 =
 
 * Release date: November 5, 2019
 * Release post: https://wp.me/p1moTy-lzt
