@@ -26,6 +26,11 @@ import './editor.scss';
 
 import * as deprecatedV1 from './deprecated/v1';
 
+/**
+ * Example Images
+ */
+import tiledGalleryExample1 from './tiled-gallery_example-1.jpg';
+
 // Style names are translated. Avoid introducing an i18n dependency elsewhere (view)
 // by only including the labels here, the only place they're needed.
 //
@@ -128,7 +133,7 @@ const exampleAttributes = {
 			alt: '',
 			id: 25,
 			link: '',
-			url: './tiled-gallery_example-1.jpg',
+			url: tiledGalleryExample1,
 			width: 1920,
 			height: 1135,
 		},
