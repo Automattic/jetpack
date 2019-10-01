@@ -61,7 +61,7 @@ export const settings = {
 	example: {
 		attributes: {
 			align: 'center',
-			giphyUrl: 'https://giphy.com/embed/fxKWgoOG9hzPPkE1o',
+			giphyUrl: 'https://giphy.com/embed/fxKWgoOG9hzPPkE1oc',
 			paddingTop: '100%',
 			searchText: __( 'WordPress', 'jetpack' ),
 		},
