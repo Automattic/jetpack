@@ -127,11 +127,9 @@ const blockAttributes = {
 const exampleAttributes = {
 	align: 'center',
 	className: 'is-style-rectangular',
-	ids: [ 25, 26, 27, 28, 29, 30 ],
 	images: [
 		{
 			alt: '',
-			id: 25,
 			link: '',
 			url: tiledGalleryExample1,
 			width: 1920,
@@ -139,7 +137,6 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
-			id: 26,
 			link: '',
 			url: './tiled-gallery_example-2.jpg',
 			width: 5992,
@@ -147,7 +144,6 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
-			id: 27,
 			link: '',
 			url: './tiled-gallery_example-3.jpg',
 			width: 3254,
@@ -155,7 +151,6 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
-			id: 28,
 			link: '',
 			url: './tiled-gallery_example-4.jpg',
 			width: 4928,
@@ -163,7 +158,6 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
-			id: 29,
 			link: '',
 			url: './tiled-gallery_example-5.jpg',
 			width: 6000,
@@ -171,7 +165,6 @@ const exampleAttributes = {
 		},
 		{
 			alt: '',
-			id: 30,
 			link: '',
 			url: './tiled-gallery_example-6.jpg',
 			width: 4561,
