@@ -67,4 +67,14 @@ export const settings = {
 	edit,
 
 	save,
+
+	example: {
+		attributes: {
+			source:
+				'## ## Try Markdown\n\n' +
+				'Markdown is a text formatting syntax that is converted into HTML. ' +
+				'You can _emphasize_ text or **make it strong** with just a few characters.\n\n' +
+				'Search up ["Markdown"](https://daringfireball.net/projects/markdown/) to learn more.',
+		},
+	},
 };
