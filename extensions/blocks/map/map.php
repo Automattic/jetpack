@@ -72,6 +72,10 @@ function jetpack_map_block_render_single_block_page() {
 	/* Create an array of all root-level DIVs that are Map Blocks */
 	$post = get_post( $map_block_post_id );
 
+	if ( ! class_exists( 'DOMDocument' ) ) {
+		return;
+	}
+
 	$post_html = new DOMDocument();
 	$content   = apply_filters( 'the_content', $post->post_content );
 
