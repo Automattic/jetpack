@@ -38,7 +38,7 @@ abstract class Jetpack_Admin_Page {
 	function add_actions() {
 		global $pagenow;
 
-		// If user is not an admin and site is in Dev Mode or not connected yet then don't do anything
+		// If user is not an admin and site is in Dev Mode or not connected yet then don't do anything.
 		if ( ! current_user_can( 'manage_options' ) && ( Jetpack::is_development_mode() || ! Jetpack::is_active() ) ) {
 			return;
 		}
