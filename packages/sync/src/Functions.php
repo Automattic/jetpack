@@ -57,7 +57,7 @@ class Functions {
 	/**
 	 * Removes any callback data since we will not be able to process it on our side anyways.
 	 *
-	 * @param object $taxonomy WP_Taxonomy item.
+	 * @param \WP_Taxonomy $taxonomy \WP_Taxonomy item.
 	 *
 	 * @return mixed|null
 	 */
@@ -109,7 +109,7 @@ class Functions {
 	/**
 	 * Sanitizes by cloning post type object.
 	 *
-	 * @param object $post_type WP_Post_Type.
+	 * @param object $post_type \WP_Post_Type.
 	 *
 	 * @return object
 	 */
@@ -130,7 +130,7 @@ class Functions {
 	 * @param array  $sanitized_post_type Array of args used in constructing \WP_Post_Type.
 	 * @param string $post_type Post type name.
 	 *
-	 * @return object WP_Post_Type
+	 * @return object \WP_Post_Type
 	 */
 	public static function expand_synced_post_type( $sanitized_post_type, $post_type ) {
 		$post_type        = sanitize_key( $post_type );
