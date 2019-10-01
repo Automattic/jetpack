@@ -6306,6 +6306,9 @@ endif;
 			'atd_http_post_error'                          => null,
 			'atd_service_domain'                           => null,
 			'jetpack_widget_authors_exclude'               => 'jetpack_widget_authors_params',
+			// Removed in Jetpack 7.9.0
+			'jetpack_pwa_manifest'                         => null,
+			'jetpack_pwa_background_color'                 => null,
 		);
 
 		// This is a silly loop depth. Better way?
