@@ -273,7 +273,7 @@ class Functions {
 	}
 
 	/**
-	 * Return the home_url.
+	 * Return the escaped home_url.
 	 *
 	 * @return string
 	 */
@@ -291,7 +291,7 @@ class Functions {
 	}
 
 	/**
-	 * Return the siteurl.
+	 * Return the escaped siteurl.
 	 *
 	 * @return string
 	 */
