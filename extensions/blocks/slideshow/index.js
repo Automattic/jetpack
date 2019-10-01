@@ -15,6 +15,8 @@ import transforms from './transforms';
  * Example Images
  */
 import slideshowExample1 from './slideshow_example-1.jpg';
+import slideshowExample2 from './slideshow_example-2.jpg';
+import slideshowExample3 from './slideshow_example-3.jpg';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -77,8 +79,7 @@ const attributes = {
 
 const exampleAttributes = {
 	align: 'center',
-	autoplay: false,
-	delay: 3,
+	autoplay: true,
 	ids: [ 22, 23 ],
 	images: [
 		{
@@ -91,13 +92,13 @@ const exampleAttributes = {
 			alt: '',
 			caption: '',
 			id: 23,
-			url: slideshowExample1,
+			url: slideshowExample2,
 		},
 		{
 			alt: '',
 			caption: '',
 			id: 23,
-			url: slideshowExample1,
+			url: slideshowExample3,
 		},
 	],
 	effect: 'slide',
