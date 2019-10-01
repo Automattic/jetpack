@@ -26,7 +26,6 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		global $wp;
 		static $map_block_counter = [];
 
 		$id = get_the_ID();
@@ -35,7 +34,13 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		}
 		$map_block_counter[ $id ]++;
 
-		$iframe_url = home_url( $wp->request ) . '?map-block-counter=' . $map_block_counter[ $id ] . '&map-block-post-id=' . get_the_ID();
+		$iframe_url = add_query_arg(
+			array(
+				'map-block-counter' => $map_block_counter[ get_the_ID() ],
+				'map-block-post-id' => get_the_ID(),
+			),
+			get_permalink()
+		);
 
 		$placeholder = preg_replace( '/(?<=<div\s)/', 'placeholder ', $content );
 
