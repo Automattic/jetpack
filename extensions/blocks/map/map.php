@@ -74,7 +74,12 @@ function jetpack_map_block_render_single_block_page() {
 
 	$post_html = new DOMDocument();
 	$content   = apply_filters( 'the_content', $post->post_content );
+
+	/* Suppress warnings */
+	libxml_use_internal_errors( true );
 	$post_html->loadHTML( $content );
+	libxml_use_internal_errors( false );
+
 	$xpath     = new DOMXPath( $post_html );
 	$container = $xpath->query( '//div[ contains( @class, "wp-block-jetpack-map" ) ]' )->item( $map_block_counter - 1 );
 
