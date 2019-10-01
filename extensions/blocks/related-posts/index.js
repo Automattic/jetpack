@@ -79,7 +79,7 @@ export const settings = {
 			displayDate: true,
 			displayThumbnails: true,
 			displayContext: false,
-			postsToShow: 3,
+			postsToShow: 2,
 		},
 	},
 };
