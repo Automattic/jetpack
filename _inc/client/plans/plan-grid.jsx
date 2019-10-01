@@ -32,7 +32,7 @@ class PlanGrid extends React.Component {
 		this.featuredPlans = false;
 	}
 
-	changePeriodSwitch( newPeriod ) {
+	handlePeriodChange( newPeriod ) {
 		if ( newPeriod === this.state.period ) {
 			return false;
 		}
@@ -104,14 +104,14 @@ class PlanGrid extends React.Component {
 				<ButtonGroup>
 					<Button
 						primary={ 'monthly' === period }
-						onClick={ this.changePeriodSwitch( 'monthly' ) }
+						onClick={ this.handlePeriodChange( 'monthly' ) }
 						compact
 					>
 						{ __( 'Monthly' ) }
 					</Button>
 					<Button
 						primary={ 'yearly' === period }
-						onClick={ this.changePeriodSwitch( 'yearly' ) }
+						onClick={ this.handlePeriodChange( 'yearly' ) }
 						compact
 					>
 						{ __( 'Yearly' ) }
