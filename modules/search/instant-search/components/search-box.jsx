@@ -13,12 +13,12 @@ class SearchBox extends Component {
 		return (
 			<div className={ 'jp-instant-search__box' }>
 				{ /* TODO: Add support for preserving label text */ }
-				<span className="screen-reader-text">{ __( 'Search' ) }</span>
+				<span className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</span>
 				<input
 					className="search-field jp-instant-search__box-input"
 					onInput={ onChangeQuery }
 					ref={ appRef }
-					placeholder={ __( 'Search…' ) }
+					placeholder={ __( 'Search…', 'jetpack' ) }
 					type="search"
 					value={ query }
 				/>

@@ -31,16 +31,19 @@ class SearchResults extends Component {
 			return (
 				<div className="jetpack-instant-search__search-results">
 					<div>
-						<h3>{ sprintf( __( 'No Results.' ), query ) }</h3>
+						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), query ) }</h3>
 					</div>
 				</div>
 			);
 		}
 		const num = new Intl.NumberFormat().format( total );
-		const style = loading ? { opacity: 0.2 } : { opacity: 1 };
+		const cls =
+			loading === true
+				? 'jetpack-instant-search__search-results jetpack-instant-search__is-loading'
+				: 'jetpack-instant-search__search-results';
 
 		return (
-			<div className="jetpack-instant-search__search-results" style={ style }>
+			<div className={ cls }>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ corrected_query !== false
 						? sprintf(
@@ -52,7 +55,7 @@ class SearchResults extends Component {
 				</p>
 				{ corrected_query !== false && (
 					<p className="jetpack-instant-search__search-results-unused-query">
-						{ sprintf( __( 'No results for "%s"' ), query ) }
+						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
 				{ results.map( result => this.render_result( result ) ) }
