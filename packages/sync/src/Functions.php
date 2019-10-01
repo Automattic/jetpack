@@ -471,7 +471,7 @@ class Functions {
 	/**
 	 * Return roles registered on the site.
 	 *
-	 * @return array[]
+	 * @return array
 	 */
 	public static function roles() {
 		$wp_roles = wp_roles();
