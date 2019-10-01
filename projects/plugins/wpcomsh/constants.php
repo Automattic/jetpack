@@ -21,5 +21,9 @@ define( 'WPCOMSH_PREMIUM_THEME_TYPE', 'wpcom_premium_theme_type' );
 define( 'WPCOMSH_NON_WPCOM_THEME', 'non_wpcom_theme' );
 
 // Needed as Pressable has different path for wpcomsh than normally.
-define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
+if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+	define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
+} else {
+	define( 'WPCOMSH__PLUGIN_DIR_PATH', __DIR__ );
+}
 define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
