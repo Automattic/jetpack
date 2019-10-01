@@ -30,6 +30,11 @@ import * as deprecatedV1 from './deprecated/v1';
  * Example Images
  */
 import tiledGalleryExample1 from './tiled-gallery_example-1.jpg';
+import tiledGalleryExample2 from './tiled-gallery_example-2.jpg';
+import tiledGalleryExample3 from './tiled-gallery_example-3.jpg';
+import tiledGalleryExample4 from './tiled-gallery_example-4.jpg';
+import tiledGalleryExample5 from './tiled-gallery_example-5.jpg';
+import tiledGalleryExample6 from './tiled-gallery_example-6.jpg';
 
 // Style names are translated. Avoid introducing an i18n dependency elsewhere (view)
 // by only including the labels here, the only place they're needed.
@@ -132,43 +137,43 @@ const exampleAttributes = {
 			alt: '',
 			link: '',
 			url: tiledGalleryExample1,
-			width: 1920,
-			height: 1135,
+			width: 160,
+			height: 95,
 		},
 		{
 			alt: '',
 			link: '',
-			url: './tiled-gallery_example-2.jpg',
-			width: 5992,
-			height: 3993,
+			url: tiledGalleryExample2,
+			width: 160,
+			height: 107,
 		},
 		{
 			alt: '',
 			link: '',
-			url: './tiled-gallery_example-3.jpg',
-			width: 3254,
-			height: 2172,
+			url: tiledGalleryExample3,
+			width: 304,
+			height: 203,
 		},
 		{
 			alt: '',
 			link: '',
-			url: './tiled-gallery_example-4.jpg',
-			width: 4928,
-			height: 3264,
+			url: tiledGalleryExample4,
+			width: 312,
+			height: 207,
 		},
 		{
 			alt: '',
 			link: '',
-			url: './tiled-gallery_example-5.jpg',
-			width: 6000,
-			height: 4000,
+			url: tiledGalleryExample5,
+			width: 152,
+			height: 101,
 		},
 		{
 			alt: '',
 			link: '',
-			url: './tiled-gallery_example-6.jpg',
-			width: 4561,
-			height: 3148,
+			url: tiledGalleryExample6,
+			width: 152,
+			height: 105,
 		},
 	],
 	linkTo: 'none',
