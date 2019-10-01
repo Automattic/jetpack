@@ -15,6 +15,7 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
+import SearchSortWidget from './search-sort-widget';
 import { search, buildFilterAggregations } from '../lib/api';
 import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
 import { removeChildren, hideSearchHeader } from '../lib/dom';
@@ -105,7 +106,9 @@ class SearchApp extends Component {
 									<span className="screen-reader-text">Search</span>
 								</button>
 							</div>
-							<div className="jetpack-search-sort-wrapper" />
+							<div className="jetpack-search-sort-wrapper">
+								<SearchSortWidget />
+							</div>
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }
 								onChange={ this.onChangeFilter }
