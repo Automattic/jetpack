@@ -39,12 +39,11 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 
 		$placeholder = preg_replace( '/(?<=<div\s)/', 'placeholder ', $content );
 
-		// @todo Is intrinsic size right? Is content_width the right dimensions?
 		return sprintf(
-			'<amp-iframe src="%s" width="%d" height="%d" layout="intrinsic" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
+			'<amp-iframe src="%s" width="%d" height="%d" layout="responsive" allowfullscreen sandbox="allow-scripts">%s</amp-iframe>',
 			esc_url( $iframe_url ),
-			Jetpack::get_content_width(),
-			Jetpack::get_content_width(),
+			absint( Jetpack::get_content_width() ),
+			absint( Jetpack::get_content_width() * 0.75 ),
 			$placeholder
 		);
 	}
