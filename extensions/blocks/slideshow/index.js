@@ -11,6 +11,11 @@ import edit from './edit';
 import save from './save';
 import transforms from './transforms';
 
+/**
+ * Example Images
+ */
+import slideshowExample1 from './slideshow_example-1.jpg';
+
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
 		<Path d="M0 0h24v24H0z" fill="none" />
@@ -80,13 +85,19 @@ const exampleAttributes = {
 			alt: '',
 			caption: '',
 			id: 22,
-			url: 'http://goldsounds.local/wp-content/uploads/2019/09/preview-BH-frontend.png',
+			url: slideshowExample1,
 		},
 		{
 			alt: '',
 			caption: '',
 			id: 23,
-			url: 'http://goldsounds.local/wp-content/uploads/2019/09/preview-BH-frontend-1.png',
+			url: slideshowExample1,
+		},
+		{
+			alt: '',
+			caption: '',
+			id: 23,
+			url: slideshowExample1,
 		},
 	],
 	effect: 'slide',
