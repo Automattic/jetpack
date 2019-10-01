@@ -145,7 +145,7 @@ class Functions {
 	/**
 	 * Returns site's post_type_features.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public static function get_post_type_features() {
 		global $_wp_post_type_features;
