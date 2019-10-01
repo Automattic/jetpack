@@ -135,11 +135,15 @@ function jetpack_slideshow_block_slides( $ids = array(), $width = 400, $height =
 function jetpack_slideshow_block_bullets( $ids = array(), $block_ordinal = 0 ) {
 	$buttons = array_map(
 		function( $index ) {
+			$aria_label = sprintf(
+				/* translators: %d: Slide number. */
+				__( 'Go to slide %d', 'jetpack' ),
+				absint( $index + 1 )
+			);
 			return sprintf(
-				'<button option="%d" class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="%s %d" %s></button>',
+				'<button option="%d" class="swiper-pagination-bullet" tabindex="0" role="button" aria-label="%s" %s></button>',
 				absint( $index ),
-				esc_attr__( 'Go to slide', 'jetpack' ),
-				absint( $index + 1 ),
+				esc_attr( $aria_label ),
 				0 === $index ? 'selected' : ''
 			);
 		},
