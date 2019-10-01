@@ -98,38 +98,20 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 7.8 =
 
-* Release date: October 1, 2019
-* Release post: https://wp.me/p1moTy-lvE
+* Release date: November 5, 2019
+* Release post: https://wp.me/p1moTy-lzt
 
 **Enhancements**
 
-* Connection flow: remove some of the text from the connection prompt.
-* Dashboard: remove custom About menu page ordering.
-* Dashboard: review and remove unnecessary queries.
-* General: remove files that were deprecated in Jetpack 7.5.
-* General: remove outdated pre-PHP 5.6 era code.
-* Image CDN: check for local file upload before processing post images.
-* Markdown Block: display in the block picker even if the classic Markdown feature is disabled.
-* Recurring Payments: add an alignment option to the button.
-* Recurring Payments: improve the display of connection notifications.
-* Tiled Galleries: the block is now available even if you've disable the "Image Accelerator" feature.
-* WordPress.com REST API: improve detection of the Full Site Editing feature.
+*
 
 **Improved compatibility**
 
-* AMP / Sharing: include Open Graph metadata to AMP Story posts.
-* General: avoid conflicts when using Jetpack alongside other plugins or services that rely on an Autoloader.
+*
 
 **Bug fixes**
 
-* Activity Log: avoid displaying events from the Action Scheduler.
-* Ads Block: avoid PHP errors when loading posts via the WordPress.com interface.
-* Blocks: ensure that all blocks are properly translated when a translation is available.
-* Dashboard: do not display Plans page to non-connected admins.
-* Post Images: look for representative images in inner blocks as well.
-* Shortcodes: add title attribute to Archive.org and Archive.org Book embeds.
-* Sync: avoid issues when using deprecated Sync functions.
-* WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
+*
 
 --------
 
