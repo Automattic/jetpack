@@ -62,8 +62,10 @@ function jetpack_map_block_load_assets( $attr, $content ) {
  * Render a page containing only a single Map block.
  */
 function jetpack_map_block_render_single_block_page() {
-	$map_block_counter = (int) filter_input( INPUT_GET, 'map-block-counter', FILTER_SANITIZE_NUMBER_INT );
-	$map_block_post_id = (int) filter_input( INPUT_GET, 'map-block-post-id', FILTER_SANITIZE_NUMBER_INT );
+	// phpcs:ignore WordPress.Security.NonceVerification
+	$map_block_counter = isset( $_GET, $_GET['map-block-counter'] ) ? absint( $_GET['map-block-counter'] ) : null;
+	// phpcs:ignore WordPress.Security.NonceVerification
+	$map_block_post_id = isset( $_GET, $_GET['map-block-post-id'] ) ? absint( $_GET['map-block-post-id'] ) : null;
 
 	if ( ! $map_block_counter || ! $map_block_post_id ) {
 		return;
