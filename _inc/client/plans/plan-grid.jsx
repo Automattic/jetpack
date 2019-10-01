@@ -104,24 +104,23 @@ class PlanGrid extends React.Component {
 
 	renderPlanPeriodToggle() {
 		const { period } = this.state;
+		const periods = {
+			monthly: __( 'Monthly' ),
+			yearly: __( 'Yearly' ),
+		};
 
 		return (
 			<div className="plan-grid-period">
 				<ButtonGroup>
-					<Button
-						primary={ 'monthly' === period }
-						onClick={ this.handlePeriodChange( 'monthly' ) }
-						compact
-					>
-						{ __( 'Monthly' ) }
-					</Button>
-					<Button
-						primary={ 'yearly' === period }
-						onClick={ this.handlePeriodChange( 'yearly' ) }
-						compact
-					>
-						{ __( 'Yearly' ) }
-					</Button>
+					{ map( periods, ( periodLabel, periodName ) => (
+						<Button
+							primary={ periodName === period }
+							onClick={ this.handlePeriodChange( periodName ) }
+							compact
+						>
+							{ periodLabel }
+						</Button>
+					) ) }
 				</ButtonGroup>
 			</div>
 		);
