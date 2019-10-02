@@ -1,3 +1,5 @@
+@import 'styles/gutenberg-colors.scss';
+
 .edit-post-pinned-plugins,
 .edit-post-more-menu__content {
 	.components-icon-button {
@@ -33,7 +35,7 @@
 			}
 
 			.jetpack-logo__icon-triangle {
-				fill: var( --color-white ) !important;
+				fill: $white !important;
 			}
 		}
 	}

@@ -114,12 +114,6 @@ module.exports = [
 	},
 	{
 		...componentsWebpackConfig,
-		output: {
-			...componentsWebpackConfig.output,
-			// The next line is required to work around https://github.com/Automattic/wp-calypso/pull/34860.
-			// Remove once Jetpack is using a version of `@automattic/calypso-build` that contains the fix.
-			libraryTarget: 'commonjs2',
-		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(
