@@ -4,22 +4,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import TextInput from 'components/text-input';
-import FoldableCard from 'components/foldable-card';
 import FormInputValidation from 'components/form-input-validation';
 import Gridicon from 'components/gridicon';
 import { assign, debounce, isEmpty, trim } from 'lodash';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
-import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import analytics from 'lib/analytics';
+import { Button, TextControl, Panel, PanelBody, PanelRow } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
 
 export const Antispam = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -77,6 +72,14 @@ export const Antispam = withModuleSettingsFormHelpers(
 			} );
 		};
 
+		updateTextWithKey = apiKey => {
+			const event = {
+				currentTarget: { value: apiKey },
+				target: { name: 'wordpress_api_key', value: apiKey },
+			};
+			this.updateText( event );
+		};
+
 		render() {
 			const textProps = {
 				name: 'wordpress_api_key',
@@ -84,17 +87,13 @@ export const Antispam = withModuleSettingsFormHelpers(
 				disabled: this.props.isSavingAnyOption( 'wordpress_api_key' ),
 				onChange: this.updateText,
 			};
-			let akismetStatus = '',
-				foldableHeader = __( 'Checking your spam protection…' ),
-				explanation = true;
+			let akismetStatus = '';
 
 			if ( null === this.props.isAkismetKeyValid ) {
 				textProps.value = __( 'Fetching key…' );
 				textProps.disabled = true;
-				explanation = false;
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
-				foldableHeader = __( 'Your site needs an Antispam key.' );
 			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey ) {
 				if ( false === this.props.isAkismetKeyValid ) {
 					akismetStatus = (
@@ -108,12 +107,9 @@ export const Antispam = withModuleSettingsFormHelpers(
 						/>
 					);
 					textProps.isError = true;
-					foldableHeader = __( 'Your site is not protected from spam.' );
 				} else {
 					akismetStatus = <FormInputValidation text={ __( 'Your Antispam key is valid.' ) } />;
 					textProps.isValid = true;
-					foldableHeader = __( 'Your site is protected from spam.' );
-					explanation = false;
 				}
 			} else if ( this.props.isCheckingAkismetKey ) {
 				akismetStatus = (
@@ -124,45 +120,44 @@ export const Antispam = withModuleSettingsFormHelpers(
 						</span>
 					</div>
 				);
-				explanation = false;
 			}
 
+			let fieldStyle;
+			if ( textProps.isValid ) {
+				fieldStyle = 'is-valid';
+			} else if ( textProps.isError ) {
+				fieldStyle = 'is-error';
+			}
+			const isSaving = this.props.isSavingAnyOption( 'wordpress_api_key' );
+
 			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Jetpack Anti-spam', { context: 'Settings header' } ) }
-					saveDisabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
-					feature={ FEATURE_SPAM_AKISMET_PLUS }
-				>
-					<FoldableCard onOpen={ this.trackOpenCard } header={ foldableHeader }>
-						<SettingsGroup
-							support={ {
-								text: __( 'Removes spam from comments and contact forms.' ),
-								link: 'https://akismet.com/jetpack/',
-							} }
-						>
-							<FormFieldset>
-								<FormLabel>
-									<span className="jp-form-label-wide">{ __( 'Your API key' ) }</span>
-									<TextInput { ...textProps } />
-									{ akismetStatus }
-								</FormLabel>
-								{ explanation && (
-									<p className="jp-form-setting-explanation">
-										{ __(
-											"If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.",
-											{
-												components: {
-													a: <a href={ 'https://akismet.com/wordpress/' } />,
-												},
-											}
-										) }
-									</p>
-								) }
-							</FormFieldset>
-						</SettingsGroup>
-					</FoldableCard>
-				</SettingsCard>
+				<Panel header={ __( 'Jetpack Anti-spam' ) }>
+					<PanelBody
+						title={ __( 'Your site is protected from spam' ) }
+						icon="yes"
+						initialOpen={ true }
+					>
+						<PanelRow className="form-security__text-field-panel-row">
+							<div style={ { display: 'flex', flexDirection: 'column' } }>
+								<TextControl
+									className={ fieldStyle }
+									disabled={ textProps.disabled }
+									label={ __( 'Your API Key' ) }
+									onChange={ this.updateTextWithKey }
+									value={ this.state.apiKey }
+								/>
+								{ akismetStatus }
+							</div>
+							<Button
+								isPrimary
+								disabled={ isSaving || ! this.props.isDirty() }
+								onClick={ this.props.onSubmit }
+							>
+								{ isSaving ? __( 'Saving…' ) : __( 'Save Settings' ) }
+							</Button>
+						</PanelRow>
+					</PanelBody>
+				</Panel>
 			);
 		}
 	}

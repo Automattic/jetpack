@@ -24,6 +24,8 @@ import { Monitor } from './monitor';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
+import './style.scss';
+
 export class Security extends Component {
 	static displayName = 'SecuritySettings';
 

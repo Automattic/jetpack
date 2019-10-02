@@ -1,0 +1,6 @@
+.components-base-control.is-valid .components-base-control__field .components-text-control__input {
+	border-color: var( --color-success );
+}
+.components-base-control.is-error .components-base-control__field .components-text-control__input {
+	border-color: var( --color-error );
+}
