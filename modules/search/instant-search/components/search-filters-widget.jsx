@@ -4,7 +4,7 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
-// NOTE: We only import the debounce package here for to reduced bundle size.
+// NOTE: We only import the get package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import get from 'lodash/get';

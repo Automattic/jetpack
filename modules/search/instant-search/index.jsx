@@ -11,6 +11,7 @@ import { h, render } from 'preact';
 import SearchApp from './components/search-app';
 import { getSearchQuery, getFilterQuery, getSearchSort } from './lib/query-string';
 import { getThemeOptions } from './lib/dom';
+import { SERVER_OBJECT_NAME } from './lib/constants';
 
 const injectSearchApp = grabFocus => {
 	render(
@@ -19,8 +20,8 @@ const injectSearchApp = grabFocus => {
 			initialFilters={ getFilterQuery() }
 			initialSort={ getSearchSort() }
 			initialValue={ getSearchQuery() }
-			options={ window.JetpackInstantSearchOptions }
-			themeOptions={ getThemeOptions( window.JetpackInstantSearchOptions ) }
+			options={ window[ SERVER_OBJECT_NAME ] }
+			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
 		/>,
 		document.body
 	);
@@ -28,8 +29,8 @@ const injectSearchApp = grabFocus => {
 
 document.addEventListener( 'DOMContentLoaded', function() {
 	if (
-		!! window.JetpackInstantSearchOptions &&
-		'siteId' in window.JetpackInstantSearchOptions &&
+		!! window[ SERVER_OBJECT_NAME ] &&
+		'siteId' in window[ SERVER_OBJECT_NAME ] &&
 		document.body.classList.contains( 'search' )
 	) {
 		injectSearchApp();
