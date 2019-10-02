@@ -12,6 +12,7 @@ php:
 - "7.0"
 - "7.2"
 - "7.3"
+- "7.4"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -27,6 +28,7 @@ env:
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 matrix:
+  fast_finish: true
   include:
   - if: branch !~ /(^branch-.*-built)/
     name: "JavaScript & CSS lint"
@@ -40,6 +42,8 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
+  - php: "nightly"
+    name: "PHP Nightly"
   - php: "7.0"
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
@@ -60,8 +64,10 @@ matrix:
           # This is required to run new chrome on old trusty
           - libnss3
 
+
   allow_failures:
     - name: "E2E tests"
+    - name: "PHP Nightly"
 
 cache:
   directories:
