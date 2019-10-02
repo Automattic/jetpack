@@ -190,13 +190,15 @@ function parse_request() {
  * @return bool
  */
 function maybe_print_robots_txt() {
-	$origin = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'];
+	$origin = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['SERVER_NAME'];
 
 	if ( ! empty( $_SERVER['SERVER_PORT'] ) && ! in_array( $_SERVER['SERVER_PORT'], [ 80, 443 ] ) ) {
 		$origin .= ':' . $_SERVER['SERVER_PORT'];
 	}
 
-	if ( $origin . strtok( $_SERVER['REQUEST_URI'], '?' ) === site_url( '/robots.txt' ) ) {
+	$request_url = untrailingslashit( $origin . strtok( $_SERVER['REQUEST_URI'], '?' ) );
+
+	if ( $request_url === site_url( '/robots.txt' ) ) {
 		do_action( 'do_robots' );
 		return true;
 	}
