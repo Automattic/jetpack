@@ -492,7 +492,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		$body = wp_remote_retrieve_body( $request );
+		$body = json_decode( wp_remote_retrieve_body( $request ) );
 		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
 			$data = $body;
 		} else {
