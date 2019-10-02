@@ -107,7 +107,7 @@ class SearchApp extends Component {
 								</button>
 							</div>
 							<div className="jetpack-search-sort-wrapper">
-								<SearchSortWidget widget={ widget } />
+								<SearchSortWidget initialValue={ this.props.initialSort } />
 							</div>
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }

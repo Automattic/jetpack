@@ -36,6 +36,7 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
+// @todo separate sort field and sort direction?
 export function getSearchSort() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';

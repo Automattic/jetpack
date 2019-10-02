@@ -9,9 +9,9 @@ export function getSortOptions() {
 		{ name: 'price', label: __( 'Price' ) },
 		{ name: 'rating', label: __( 'Rating' ) },
 		{ name: 'recency', label: __( 'Recency' ) },
-		{ name: 'keyword', label: __( 'Keyword' ) },
-		{ name: 'popularity', label: __( 'Popularity' ) },
-		{ name: 'relevance', label: __( 'Relevance' ) },
-		{ name: 'score', label: __( 'Score' ) },
+		{ name: 'score_keyword', label: __( 'Keyword' ) },
+		{ name: 'score_popularity', label: __( 'Popularity' ) },
+		{ name: 'score_relevance', label: __( 'Relevance' ) },
+		{ name: 'score_default', label: __( 'Score' ) },
 	];
 }
