@@ -17,8 +17,8 @@
 		}
 
 		&.wp-block-jetpack-mailchimp_error {
-			background-color: var( --muriel-hot-red-500 );
-			color: var( --muriel-white );
+			background-color: var( --color-error );
+			color: $white;
 		}
 
 		&.wp-block-jetpack-mailchimp_processing {
@@ -26,8 +26,8 @@
 		}
 
 		&.wp-block-jetpack-mailchimp_success {
-			background-color: var( --muriel-hot-green-500 );
-			color: var( --muriel-white );
+			background-color: var( --color-success );
+			color: $white;
 		}
 	}
 

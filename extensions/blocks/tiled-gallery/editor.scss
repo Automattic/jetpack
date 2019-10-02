@@ -104,10 +104,10 @@
 		top: 0;
 
 		.components-button {
-			color: var( --color-white );
+			color: $white;
 			&:hover,
 			&:focus {
-				color: var( --color-white );
+				color: $white;
 			}
 		}
 	}
