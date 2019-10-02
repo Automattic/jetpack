@@ -12,7 +12,8 @@ php:
 - "7.0"
 - "7.2"
 - "7.3"
-- "7.4"
+- "7.4snapshot"
+# Remove "snapshot" when PHP 7.4 hits GA.
 
 env:
   # Global variable is re-defined in matrix-include -list
