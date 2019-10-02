@@ -83,61 +83,13 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 /**
  * This is where the loading of Jetpack begins.
  *
- * First, we check for our supported version of PHP and load our composer autoloader. If either of these fail,
- * we "pause" Jetpack by ending the loading process and displaying an admin_notice to inform the site owner.
+ * First, we try to load our composer autoloader.
  *
- * After both those things happen successfully, we require load-jetpack.php,
- * where all legacy files are required,
- * and where we add on to various hooks that we expect to always run.
- * Lastly, we fire Jetpack::init() to fire up the engines.
- */
-if ( version_compare( phpversion(), JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			sprintf(
-				/* translators: Placeholders are numbers, versions of PHP in use on the site, and required by Jetpack. */
-				esc_html__( 'Your version of PHP (%1$s) is lower than the version required by Jetpack (%2$s). Please update PHP to continue enjoying Jetpack.', 'jetpack' ),
-				esc_html( phpversion() ),
-				JETPACK__MINIMUM_PHP_VERSION
-			)
-		);
-	}
-
-	/**
-	 * Outputs an admin notice for folks running an outdated version of PHP.
-	 *
-	 * @todo: Remove once WP 5.2 is the minimum version.
-	 *
-	 * @since 7.4.0
-	 */
-	function jetpack_admin_unsupported_php_notice() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php esc_html_e( 'Jetpack requires a more recent version of PHP and has been paused. Please update PHP to continue enjoying Jetpack.', 'jetpack' ); ?></p>
-			<p class="button-container">
-				<?php
-				printf(
-					'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
-					esc_url( wp_get_update_php_url() ),
-					esc_html__( 'Learn more about updating PHP' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
-					/* translators: accessibility text */
-					esc_html__( '(opens in a new tab)' ) // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
-				);
-				?>
-			</p>
-		</div>
-		<?php
-	}
-
-	add_action( 'admin_notices', 'jetpack_admin_unsupported_php_notice' );
-	return;
-}
-
-/**
- * Load all the packages.
- *
- * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
- * If the autoloader is not present, let's log the failure, pause Jetpack, and display a nice admin notice.
+ * - If it fails, we "pause" Jetpack by ending the loading process
+ *   and displaying an admin_notice to inform the site owner.
+ *   (We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.)
+ * - If it succeeds, we require load-jetpack.php, where all legacy files are required,
+ *   and where we add on to various hooks that we expect to always run.
  */
 $jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
