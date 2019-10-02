@@ -61,7 +61,6 @@ $(BUILD_DST)/$(BUILD_FILE): $(BUILD_DST)/$(NAME)
 	@ echo "creating zip file..."
 	@ cd $(BUILD_DST) && zip -q -r $(BUILD_FILE) $(NAME)/ -x "._*"
 
-	@ echo "rsync'ing to build dir..."
 	@ echo "DONE!"
 
 $(BUILD_DST)/$(NAME): $(BUILD_DST)
