@@ -49,5 +49,6 @@ describe( 'Private Site Access', () => {
 		const res = await fetchPath( '/robots.txt' );
 		const bodyString = await res.text();
 		expect( bodyString ).toBe( 'User-agent: *\nDisallow: /\n' );
+		expect( true ).toBe( false );
 	} );
 } );
