@@ -5,6 +5,10 @@
  */
 import { h, createRef, Component } from 'preact';
 import strip from 'strip';
+
+/**
+ * Internal dependencies
+ */
 import { getCheckedInputNames } from '../lib/dom';
 
 export default class SearchFilterTaxonomies extends Component {
