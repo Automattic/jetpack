@@ -27,11 +27,7 @@ const injectSearchApp = grabFocus => {
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	if (
-		!! window.JetpackInstantSearchOptions &&
-		'siteId' in window.JetpackInstantSearchOptions &&
-		document.body.classList.contains( 'search' )
-	) {
+	if ( !! window.JetpackInstantSearchOptions && 'siteId' in window.JetpackInstantSearchOptions ) {
 		injectSearchApp();
 	}
 } );

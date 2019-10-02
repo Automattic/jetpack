@@ -14,6 +14,20 @@ export function hideElements( elem_selectors ) {
 	}
 }
 
+export function hideChildren( elem_selector ) {
+	const elem = document.querySelector( elem_selector );
+	for ( let i = 0; i < elem.children.length; i++ ) {
+		elem.children[ i ].style.display = 'none';
+	}
+}
+
+export function showChildren( elem_selector ) {
+	const elem = document.querySelector( elem_selector );
+	for ( let i = 0; i < elem.children.length; i++ ) {
+		elem.children[ i ].style.display = 'initial';
+	}
+}
+
 export function getCheckedInputNames( parentDom ) {
 	return [ ...parentDom.querySelectorAll( 'input[type="checkbox"]' ).values() ]
 		.filter( input => input.checked )

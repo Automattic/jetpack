@@ -17,8 +17,8 @@ import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
 import SearchBox from './search-box';
 import { search, buildFilterAggregations } from '../lib/api';
-import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
-import { removeChildren, hideElements } from '../lib/dom';
+import { setSearchQuery, setFilterQuery, getFilterQuery, hasFilter } from '../lib/query-string';
+import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
 class SearchApp extends Component {
 	constructor() {
@@ -28,23 +28,29 @@ class SearchApp extends Component {
 		this.props.resultFormat = 'minimal';
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
+		this.resultsWillBeActive = this.props.initialValue || hasFilter();
 		this.state = {
 			query: this.props.initialValue,
 			sort: this.props.initialSort,
 			results: {},
 			loading: false,
+			resultsActive: false,
 		};
 		this.getResults = debounce( this.getResults, 200 );
-		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
+		if ( this.resultsWillBeActive || this.props.widgets.length > 0 ) {
+			this.getResults( this.state.query, getFilterQuery(), this.state.sort );
+		}
 	}
 
 	componentDidMount() {
-		if ( this.props.grabFocus ) {
-			this.input.current.focus();
+		if ( this.resultsWillBeActive ) {
+			if ( this.props.grabFocus ) {
+				this.input.current.focus();
+			}
+			this.activateResults();
 		}
 
 		hideElements( this.props.themeOptions.elem_selectors );
-		removeChildren( document.querySelector( this.props.themeOptions.results_selector ) );
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
 		} );
@@ -54,7 +60,32 @@ class SearchApp extends Component {
 		} );
 	}
 
+	activateResults() {
+		if ( ! this.state.resultsActive ) {
+			this.setState( { resultsActive: true } );
+			hideChildren( this.props.themeOptions.results_selector );
+		}
+	}
+
+	deactivateResults() {
+		if ( this.state.resultsActive ) {
+			this.setState( { resultsActive: false } );
+			showChildren( this.props.themeOptions.results_selector );
+		}
+	}
+
+	onSearchFocus() {
+		this.activateResults();
+	}
+
+	onSearchBlur() {
+		if ( this.state.query === '' && ! hasFilter() ) {
+			this.deactivateResults();
+		}
+	}
+
 	onChangeQuery = event => {
+		this.activateResults();
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
@@ -63,11 +94,17 @@ class SearchApp extends Component {
 
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
+		if ( hasFilter() ) {
+			this.activateResults();
+		}
+		if ( this.state.query === '' && ! hasFilter() ) {
+			this.deactivateResults();
+		}
 		this.getResults( this.state.query, getFilterQuery() );
 	};
 
 	getResults = ( query, filter, sort ) => {
-		if ( query ) {
+		if ( query || this.props.widgets.length > 0 ) {
 			this.requestId++;
 			const requestId = this.requestId;
 
@@ -132,20 +169,24 @@ class SearchApp extends Component {
 						<Portal into={ elem }>
 							<SearchBox
 								onChangeQuery={ this.onChangeQuery }
+								onFocus={ this.onSearchFocus }
+								onBlur={ this.onSearchBlur }
 								appRef={ this.input }
 								query={ query }
 							/>
 						</Portal>
 					) ) }
 
-				<Portal into={ this.props.themeOptions.results_selector }>
-					<SearchResults
-						query={ query }
-						loading={ this.state.loading }
-						{ ...results }
-						result_format={ this.props.options.resultFormat }
-					/>
-				</Portal>
+				{ this.state.resultsActive && (
+					<Portal into={ this.props.themeOptions.results_selector }>
+						<SearchResults
+							query={ query }
+							loading={ this.state.loading }
+							{ ...results }
+							result_format={ this.props.options.resultFormat }
+						/>
+					</Portal>
+				) }
 			</Preact.Fragment>
 		);
 	}
