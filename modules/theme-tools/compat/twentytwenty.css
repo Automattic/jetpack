@@ -1,4 +1,6 @@
-/* Infinite scroll */
+/**
+ * Infinite scroll
+ */
 
 /* Globally hidden elements when Infinite Scroll is supported and in use. */
 .infinite-scroll .pagination-wrapper,
@@ -67,3 +69,28 @@
 #site-content .infinite-wrap .hentry:first-of-type {
 	padding: 4rem 0 0;
 }
+
+/**
+ * Sharing
+ */
+
+.entry-content div.sharedaddy h3.sd-title,
+.entry-content h3.sd-title {
+	color: #6d6d6d;
+	font-size: 1.6rem;
+	font-weight: 500;
+	letter-spacing: -0.016875em;
+	line-height: 1.5;
+}
+
+.entry-content div.sharedaddy h3.sd-title:before,
+.entry-content h3.sd-title:before {
+	border: 0 none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font: normal 18px/1 'social-logos';
+	content:"\f415";
+	display: inline;
+	margin-right: 1rem;
+}
+
