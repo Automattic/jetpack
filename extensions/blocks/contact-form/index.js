@@ -77,7 +77,7 @@ export const settings = {
 			submitButtonText: __( 'Submit', 'jetpack' ),
 			to: __( 'email@example.com', 'jetpack' ),
 		},
-		InnerBlocks: [
+		innerBlocks: [
 			{
 				name: 'jetpack/field-name',
 				attributes: {
