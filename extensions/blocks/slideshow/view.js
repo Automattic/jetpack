@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { forEach } from 'lodash';
-import domReady from '@wordpress/dom-ready';
 import ResizeObserver from 'resize-observer-polyfill';
 
 /**
@@ -16,8 +15,8 @@ import {
 	swiperResize,
 } from './swiper-callbacks';
 
-if ( typeof window !== 'undefined' ) {
-	domReady( function() {
+typeof window !== 'undefined' &&
+	window.addEventListener( 'load', function() {
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
 		forEach( slideshowBlocks, slideshowBlock => {
 			const { autoplay, delay, effect } = slideshowBlock.dataset;
@@ -69,4 +68,3 @@ if ( typeof window !== 'undefined' ) {
 				} );
 		} );
 	} );
-}

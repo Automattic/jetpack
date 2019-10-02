@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import domReady from '@wordpress/dom-ready';
-
-/**
  * Internal dependencies
  */
 import './view.scss';
@@ -59,6 +54,11 @@ const observeGalleries = () => {
 	galleries.forEach( gallery => observer.observe( gallery ) );
 };
 
-if ( typeof window !== 'undefined' ) {
-	domReady( observeGalleries );
+if ( typeof window !== 'undefined' && typeof document !== 'undefined' ) {
+	// `DOMContentLoaded` may fire before the script has a chance to run
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', observeGalleries );
+	} else {
+		observeGalleries();
+	}
 }
