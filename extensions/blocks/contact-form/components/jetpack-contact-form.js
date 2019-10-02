@@ -7,7 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Button, PanelBody, Path, Placeholder, TextControl } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { InnerBlocks, InspectorControls } from '@wordpress/editor';
+import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies

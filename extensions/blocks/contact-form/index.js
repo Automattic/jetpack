@@ -5,7 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InnerBlocks } from '@wordpress/editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -72,18 +72,24 @@ export const settings = {
 	save: () => <InnerBlocks.Content />,
 	example: {
 		attributes: {
-			hasFormSettingsSet: 'yes',
-			has_form_settings_set: null,
+			hasFormSettingsSet: true,
 			subject: __( 'My New Site', 'jetpack' ),
 			submitButtonText: __( 'Submit', 'jetpack' ),
-			submit_button_text: __( 'Submit', 'jetpack' ),
 			to: __( 'email@example.com', 'jetpack' ),
 		},
-		innerBlocks: [
+		InnerBlocks: [
 			{
 				name: 'jetpack/field-name',
 				attributes: {
-					label: __( 'Name', 'jetpack' ),
+					label: __( 'NameNAMENAMADSFMADFM', 'jetpack' ),
+					required: true,
+					value: 'Michael',
+				},
+			},
+			{
+				name: 'core/paragraph',
+				attributes: {
+					content: 'This is some paragraph',
 				},
 			},
 		],

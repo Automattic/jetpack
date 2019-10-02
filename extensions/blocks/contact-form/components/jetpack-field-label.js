@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PlainText } from '@wordpress/editor';
+import { PlainText } from '@wordpress/block-editor';
 import { ToggleControl } from '@wordpress/components';
 
 const JetpackFieldLabel = ( { setAttributes, label, resetFocus, isSelected, required } ) => {
