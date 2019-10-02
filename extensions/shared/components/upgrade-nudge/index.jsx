@@ -41,7 +41,7 @@ export const UpgradeNudge = ( { planName, trackEvent, upgradeUrl } ) => (
 				: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
 		}
 		subtitle={ __(
-			'You can try it out before upgrading, but only you will see it. It will be hidden from visitors until you upgrade.',
+			'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
 			'jetpack'
 		) }
 	/>
