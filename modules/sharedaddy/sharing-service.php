@@ -709,9 +709,13 @@ function sharing_display( $text = '', $echo = false ) {
 		}
 	}
 
-	// check whether we are viewing the front page and whether the front page option is checked
+	// check whether we are viewing the front page and whether the front page option is checked.
 	$options         = get_option( 'sharing-options' );
-	$display_options = $options['global']['show'];
+	$display_options = null;
+
+	if ( is_array( $options ) ) {
+		$display_options = $options['global']['show'];
+	}
 
 	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options, true ) ) ) {
 		return $text;
