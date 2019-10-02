@@ -1,0 +1,69 @@
+/* Infinite scroll */
+
+/* Globally hidden elements when Infinite Scroll is supported and in use. */
+.infinite-scroll .pagination-wrapper,
+.infinite-scroll.neverending .footer-nav-widgets-wrapper,
+.infinite-scroll.neverending #site-footer {
+	/* Theme Footer (when set to scrolling) */
+	display: none;
+}
+
+ /* When Infinite Scroll has reached its end we need to re-display elements that were hidden (via .neverending) before. */
+.infinite-end.neverending .footer-nav-widgets-wrapper,
+.infinity-end.neverending #site-footer {
+	display: block;
+}
+
+.infinite-loader {
+	margin: calc(3 * 1rem) auto;
+}
+
+.infinite-loader .spinner {
+	margin: 0 auto;
+	left: inherit !important;
+}
+
+#site-content #infinite-handle {
+	margin: 0 auto;
+	max-width: 58rem;
+	width: calc(100% - 8rem);
+}
+
+#site-content #infinite-handle span {
+	background: transparent;
+	display: block;
+	font-size: 1.7rem;
+	text-align: center;
+}
+
+#site-content #infinite-handle span button,
+#site-content #infinite-handle span button:hover,
+#site-content #infinite-handle span button:focus {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background: #cd2653;
+	border: none;
+	border-radius: 0;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 1.5rem;
+	font-weight: 600;
+	letter-spacing: 0.0333em;
+	line-height: 1.25;
+	margin: 0;
+	opacity: 1;
+	padding: 1.1em 1.44em;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: opacity 0.15s linear;
+}
+
+#site-content #infinite-handle span button:hover {
+	text-decoration: underline;
+}
+
+#site-content .infinite-wrap .hentry:first-of-type {
+	padding: 4rem 0 0;
+}

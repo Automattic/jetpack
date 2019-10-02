@@ -40,8 +40,9 @@ add_action( 'after_setup_theme', 'twentytwenty_jetpack_setup' );
  */
 function twentytwenty_infinite_scroll_render() {
 	while ( have_posts() ) {
+		echo '<hr class="post-separator styled-separator is-style-wide section-inner" aria-hidden="true" />';
 		the_post();
-		get_template_part( 'template-parts/content' );
+		get_template_part( 'template-parts/content', get_post_type() );
 	}
 }
 
