@@ -86,11 +86,4 @@
 .entry-content div.sharedaddy h3.sd-title:before,
 .entry-content h3.sd-title:before {
 	border: 0 none;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	font: normal 18px/1 'social-logos';
-	content:"\f415";
-	display: inline;
-	margin-right: 1rem;
 }
-

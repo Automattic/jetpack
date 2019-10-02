@@ -63,6 +63,22 @@ function twentytwenty_no_sharing_on_excerpts() {
 add_action( 'loop_start', 'twentytwenty_no_sharing_on_excerpts' );
 
 /**
+ * We do not need to display the Likes Heading here.
+ *
+ * @param string $heading Headline structure.
+ * @param string $title   Title.
+ * @param string $module  Module name.
+ */
+function twentytwenty_no_likes_heading( $heading, $title, $module ) {
+	if ( 'likes' === $module ) {
+		return '';
+	}
+
+	return $heading;
+}
+add_filter( 'jetpack_sharing_headline_html', 'twentytwenty_no_likes_heading', 10, 3 );
+
+/**
  * Disable Ads in post excerpts, that are used as intro on single post views.
  */
 add_filter( 'wordads_excerpt_disable', '__return_true' );
