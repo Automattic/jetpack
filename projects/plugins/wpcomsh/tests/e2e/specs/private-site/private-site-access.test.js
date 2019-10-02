@@ -2,7 +2,6 @@
  * External dependencies
  */
 const fetch = require( 'node-fetch' );
-const { get, head, isArray, isEmpty } = require( 'lodash' );
 
 /**
  * Internal dependencies
@@ -10,7 +9,7 @@ const { get, head, isArray, isEmpty } = require( 'lodash' );
 const siteBaseUrl = 'http://nginx:8989';
 const fetchPath = ( path = '' ) => fetch( `${ siteBaseUrl }${ path }` );
 
-describe( 'Public Site Access', () => {
+describe( 'Private Site Access', () => {
 	it( 'Should show access denied on home page for logged out user', async () => {
 		const res = await fetchPath();
 		const bodyString = await res.text();
@@ -49,8 +48,6 @@ describe( 'Public Site Access', () => {
 	it( 'Should show restrictive robots.txt for logged out user', async () => {
 		const res = await fetchPath( '/robots.txt' );
 		const bodyString = await res.text();
-		expect( bodyString ).toBe( `User-agent: *
-Disallow: /
-` );
+		expect( bodyString ).toBe( 'User-agent: *\nDisallow: /\n' );
 	} );
 } );

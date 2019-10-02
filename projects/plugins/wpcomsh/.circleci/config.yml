@@ -8,22 +8,22 @@ jobs:
 
   public-access:
     docker:
-      - image: docker:19.03.2
+      - image: circleci/buildpack-deps:stretch
     steps:
-      - setup_remote_docker
-      - run: apk update && apk add bash composer docker-compose git make openssh-client rsync zip
+      - run: sudo su -c "apt-get update && apt-get -y upgrade && apt-get -y install composer rsync"
       - add_ssh_keys
       - checkout
+      - setup_remote_docker
       - run: make test-public-access
 
   private-access:
     docker:
-      - image: docker:19.03.2
+      - image: circleci/buildpack-deps:stretch
     steps:
-      - setup_remote_docker
-      - run: apk update && apk add bash composer docker-compose git make openssh-client rsync zip
+      - run: sudo su -c "apt-get update && apt-get -y upgrade && apt-get -y install composer rsync"
       - add_ssh_keys
       - checkout
+      - setup_remote_docker
       - run: make test-private-access
 
 workflows:

@@ -15,4 +15,3 @@ Makefile
 composer.json
 composer.lock
 error_log
-phpunit.xml.dist

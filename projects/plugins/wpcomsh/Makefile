@@ -74,21 +74,11 @@ $(BUILD_DST):
 build: check $(BUILD_DST)/$(BUILD_FILE)
 
 ## CI & other testing
-runtest:
-	docker-compose -f docker-compose-phpunit.yml up --abort-on-container-exit --exit-code-from phpunit --build
-testclean:
-	docker-compose -f docker-compose-phpunit.yml down --rmi local -v
-
-test: build runtest
-test-rebuild: clean testclean test
-
 test-public-access: clean build
-	docker-compose -p public-access -f docker-compose-e2e-public.yml down --rmi local -v
-	docker-compose -p public-access -f docker-compose-e2e-public.yml up --abort-on-container-exit --exit-code-from jest --build
+	/bin/sh ./bin/ci-init-access-tests.sh
 
 test-private-access: clean build
-	docker-compose -p private-access -f docker-compose-e2e-private.yml down --rmi local -v
-	docker-compose -p private-access -f docker-compose-e2e-private.yml up --abort-on-container-exit --exit-code-from jest --build
+	/bin/sh ./bin/ci-init-access-tests.sh private
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
