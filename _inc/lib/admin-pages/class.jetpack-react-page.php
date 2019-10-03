@@ -113,6 +113,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 			// We got the static.html so let's display it
 			echo $static_html;
+			self::render_footer();
+
 		}
 	}
 
