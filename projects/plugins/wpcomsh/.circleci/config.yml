@@ -1,11 +1,5 @@
 version: 2
 jobs:
-  test:
-    docker:
-      - image: circleci/php:cli
-    steps:
-      - run: php -r 'echo "¡Hola mundo!" . PHP_EOL;'
-
   public-access:
     docker:
       - image: circleci/buildpack-deps:stretch
@@ -30,6 +24,5 @@ workflows:
   version: 2
   main:
     jobs:
-      - test
       - public-access
       - private-access
