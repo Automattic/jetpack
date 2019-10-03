@@ -78,20 +78,28 @@ export const settings = {
 		innerBlocks: [
 			{
 				name: 'jetpack/field-name',
-				example: {
-					attributes: {
-						label: __( 'NameNAMENAMADSFMADFM', 'jetpack' ),
-						required: true,
-						value: 'Michael',
-					},
+				attributes: {
+					label: __( 'Name', 'jetpack' ),
+					required: true,
 				},
 			},
 			{
-				name: 'core/paragraph',
-				example: {
-					attributes: {
-						content: 'This is some paragraph',
-					},
+				name: 'jetpack/field-email',
+				attributes: {
+					label: __( 'Email', 'jetpack' ),
+					required: true,
+				},
+			},
+			{
+				name: 'jetpack/field-url',
+				attributes: {
+					label: __( 'Website', 'jetpack' ),
+				},
+			},
+			{
+				name: 'jetpack/field-textarea',
+				attributes: {
+					label: __( 'Message', 'jetpack' ),
 				},
 			},
 		],
