@@ -115,6 +115,8 @@ echo starting NGINX
 docker start $NGINX
 
 SUBSCRIBER_USER_ID=`docker exec -it $WPCLI wp user create alice alice@example.com --role=subscriber --porcelain`;
+echo "Got SUBSCRIBER_USER_ID from wpcli: ${SUBSCRIBER_USER_ID}";
+
 # For some reason, the value returned has a `\r` a the end and it breaks the next call unless we trim it :-/
 SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID= | sed -E 's/^([0-9]+).*/\1/'`;
 echo "Trimmed SUBSCRIBER_USER_ID: ${SUBSCRIBER_USER_ID}";
@@ -125,9 +127,9 @@ if [ -z `echo $SUBSCRIBER_USER_ID | grep -E "^[0-9]+$"` ]; then
 fi
 echo SUBSCRIBER_USER_ID is ${SUBSCRIBER_USER_ID};
 
-SUBSCRIBER_RESTAPI_NONCE=`docker exec -it $WPCLI wp eval "echo wp_create_nonce( 'rest_api' );" --user=${SUBSCRIBER_USER_ID}`;
+SUBSCRIBER_RESTAPI_NONCE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER_ID}" "echo wp_create_nonce( 'rest_api' );"`;
 echo SUBSCRIBER_RESTAPI_NONCE is ${SUBSCRIBER_RESTAPI_NONCE};
-SUBSCRIBER_AUTH_COOKIE=`docker exec -it $WPCLI wp eval "echo wp_generate_auth_cookie( get_current_user_id(), strtotime( '+1 hour' ) );" --user=alice`
+SUBSCRIBER_AUTH_COOKIE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER_ID}" "echo wp_generate_auth_cookie( get_current_user_id(), strtotime( '+1 hour' ) );"`
 echo SUBSCRIBER_AUTH_COOKIE is ${SUBSCRIBER_AUTH_COOKIE};
 
 JEST=`docker create \
