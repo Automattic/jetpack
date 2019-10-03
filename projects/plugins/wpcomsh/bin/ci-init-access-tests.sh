@@ -12,10 +12,12 @@ NETWORK=$PROJECT
 WPDATA="$PROJECT"_wpdata
 ALLCONTAINERS='db jest nginx wp wpcli'
 
+# TODO: trap exit signals and run this instead of calling it at the end of the script
 tidyupdocker () {
   echo Tidying up any stray containers
   for C in $ALLCONTAINERS; do
-    docker rm -f "$PROJECT"_"$C" >/dev/null 2>/dev/null
+    docker rm -f wpcomsh_public_access_$C >/dev/null 2>/dev/null
+    docker rm -f wpcomsh_private_access_$C >/dev/null 2>/dev/null
   done
 
   echo Tidying up network
