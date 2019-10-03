@@ -37,12 +37,48 @@ When working on wpcomsh, follow the [WP.org coding standards](https://codex.word
 
 ## Testing
 
-There are two stages of testing wpcomsh:
+There are two stages of manually testing wpcomsh:
 
 The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)).
 However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
 Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwarding so you have all your local ssh keys on the wpsandbox and can clone the wpcomsh GitHub repo. Either run ssh as `ssh -A` or add `ForwardAgent yes` into your `.ssh/config` file. p1490809471078673-slack-C2PDURDSL.
+
+### Automated Testing
+
+#### Private Site Module
+
+There is an integration suite built on docker that makes testing what clients to "private" (and non-private) sites should and shouldn't be able to see.
+
+The tests can be run like so:
+
+- `make test-public-access`
+- `make test-private-access`
+
+Each of the above:
+
+- Cleans your build directory, etc.
+- Builds the plugin from source (as would happen for the regular deployment process )
+- Spins up containers for:
+  - mysql database
+  - WordPress (php-fpm)
+  - nginx web server
+  - WP-CLI
+  - node / jest (for the actual testing)
+- Coordinates communication and set up for the above
+- Sets a site to be public or private according to the script invocation
+- Kicks off test specs to validate that appropriate resources are accessible and, in the case of a site being set to private, inappropriate resources are not
+
+##### Development of Test Specs
+
+You can enter a "development" mode by setting the `DEVSPECS` variable to `1` [here](bin/ci-init-access-tests.sh) & then running one of the `make test-*-access` commands again
+
+This will set jest to "watch" for changes to the spec files inside the running container and to watch for changes to the spec files on your local machine and copy them to the container on changes.
+
+Another bonus is, this will leave the services running, so you can access the running WordPress site to do manual testing:
+
+- Add the following to your hosts file: `127.0.0.1 nginx`
+- Browse to http://nginx:8989 in your favorite web client / browser
 
 ## Deployment
 
