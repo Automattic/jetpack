@@ -26,22 +26,24 @@ export default class SearchSortWidget extends Component {
 
 	render() {
 		const sortOptions = getSortOptions();
-		/* eslint-disable jsx-a11y/no-onchange */
 		return (
 			<label>
 				{ __( 'Sort by' ) }
 				<select
 					className="jetpack-instant-search__sort-widget-select"
+					onBlur={ this.handleChange }
 					onChange={ this.handleChange }
 				>
-					{ Object.keys( sortOptions ).map( key => (
-						<option value={ key } selected={ this.state.selected && this.state.selected === key }>
-							{ sortOptions[ key ].label }
+					{ Object.keys( sortOptions ).map( sortKey => (
+						<option
+							value={ sortKey }
+							selected={ this.state.selected && this.state.selected === sortKey }
+						>
+							{ sortOptions[ sortKey ].label }
 						</option>
 					) ) }
 				</select>
 			</label>
 		);
-		/* eslint-enable jsx-a11y/no-onchange */
 	}
 }

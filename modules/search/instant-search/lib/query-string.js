@@ -10,8 +10,8 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME } from './constants';
-import { getSortOptions } from './sort';
+import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC } from './constants';
+import { getSortOption } from './sort';
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
@@ -37,7 +37,6 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
-// @todo separate sort field and sort direction?
 export function getSortQuery() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';
@@ -45,21 +44,21 @@ export function getSortQuery() {
 	let sort;
 	switch ( orderby ) {
 		case 'date':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'date_asc';
 			} else {
 				sort = 'date_desc';
 			}
 			break;
 		case 'price':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'price_asc';
 			} else {
 				sort = 'price_desc';
 			}
 			break;
 		case 'rating':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'rating_asc';
 			} else {
 				sort = 'rating_desc';
@@ -81,6 +80,19 @@ export function getSortQuery() {
 			break;
 	}
 	return sort;
+}
+
+export function setSortQuery( sortKey ) {
+	const query = getQuery();
+	const sortOption = getSortOption( sortKey );
+
+	if ( ! sortOption ) {
+		return false;
+	}
+
+	query.orderby = sortOption.field;
+	query.order = sortOption.direction;
+	pushQueryString( encode( query ) );
 }
 
 function getFilterQueryByKey( filterKey ) {
@@ -138,21 +150,5 @@ export function getFilterQuery( filterKey ) {
 export function setFilterQuery( filterKey, filterValue ) {
 	const query = getQuery();
 	query[ filterKey ] = filterValue;
-	pushQueryString( encode( query ) );
-}
-
-export function setSortQuery( sort ) {
-	//console.log( 'new sort: ' + sort );
-
-	const query = getQuery();
-	const sortOptions = getSortOptions();
-	const sortOption = sortOptions[ sort ];
-
-	if ( ! sortOption ) {
-		return false;
-	}
-
-	query.orderby = sortOption.field;
-	query.order = sortOption.direction;
 	pushQueryString( encode( query ) );
 }

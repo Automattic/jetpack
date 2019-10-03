@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
 import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from './constants';
 
 export function getSortOptions() {
@@ -18,4 +22,9 @@ export function getSortOptions() {
 		},
 		score_default: { label: __( 'Relevance' ), field: 'relevance', direction: SORT_DIRECTION_DESC },
 	};
+}
+
+export function getSortOption( sortKey ) {
+	const sortOptions = getSortOptions();
+	return sortOptions[ sortKey ];
 }
