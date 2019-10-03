@@ -35,7 +35,7 @@ class PlanGrid extends React.Component {
 
 	handlePeriodChange( newPeriod ) {
 		if ( newPeriod === this.state.period ) {
-			return false;
+			return null;
 		}
 
 		return () => {
@@ -114,6 +114,7 @@ class PlanGrid extends React.Component {
 				<ButtonGroup>
 					{ map( periods, ( periodLabel, periodName ) => (
 						<Button
+							key={ periodLabel }
 							primary={ periodName === period }
 							onClick={ this.handlePeriodChange( periodName ) }
 							compact
