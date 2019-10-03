@@ -80,16 +80,20 @@ export const settings = {
 		innerBlocks: [
 			{
 				name: 'jetpack/field-name',
-				attributes: {
-					label: __( 'NameNAMENAMADSFMADFM', 'jetpack' ),
-					required: true,
-					value: 'Michael',
+				example: {
+					attributes: {
+						label: __( 'NameNAMENAMADSFMADFM', 'jetpack' ),
+						required: true,
+						value: 'Michael',
+					},
 				},
 			},
 			{
 				name: 'core/paragraph',
-				attributes: {
-					content: 'This is some paragraph',
+				example: {
+					attributes: {
+						content: 'This is some paragraph',
+					},
 				},
 			},
 		],
