@@ -1222,11 +1222,12 @@ EOT;
 			 * @module related-posts
 			 *
 			 * @since 3.7.0
+			 * @since 7.9.0 - Change Default value to empty.
 			 *
-			 * @param string nofollow Link rel attribute for Related Posts' link. Default is nofollow.
-			 * @param int $post->ID Post ID.
+			 * @param string $link_rel Link rel attribute for Related Posts' link. Default is empty.
+			 * @param int    $post->ID Post ID.
 			 */
-			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', 'nofollow', $post->ID ),
+			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
 			/**
 			 * Filter the context displayed below each Related Post.
 			 *
