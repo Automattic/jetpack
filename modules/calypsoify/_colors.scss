@@ -1,13 +1,13 @@
 @import 'studio-wpcom';
 // Colors that aren't pulled from Calypso or Core:
 
-$_0099d8: #0095d6; // Pacific Blue
-$_0096c3: #0094c1; // Pacific Blue
-$_008ab3: #0088b2; // Bondi Blue
-$_004967: #004966; // Prussian Blue
+$_0095d6: #0095d6; // Pacific Blue
+$_0094c1: #0094c1; // Pacific Blue
+$_0088b2: #0088b2; // Bondi Blue
+$_004966: #004966; // Prussian Blue
 
-// These colors are used several times in Calypso, but never actually stored in a variable.
-$_d9e3ea: #d7e1e9; // Pattens Blue
+// These colors are used several times in Calypso, but are never actually stored in a variable.
+$_d7e1e9: #d7e1e9; // Pattens Blue
 $rgba-grey: rgba(200,215,225,0.5);
 
 $color-primary: $studio-blue-50;
@@ -26,7 +26,7 @@ $color-error-light: $studio-red-30;
 $color-error-dark: $studio-red-70;
 
 // Jetpack Green
-$green-jetpack:          #00be28;
+$green-jetpack: $studio-jetpack-green;
 
 // Grays
 $gray: $studio-gray-30;
@@ -34,7 +34,7 @@ $gray-light: $studio-gray-0;
 $gray-dark: $studio-gray-70;
 
 // $gray-text: ideal for standard, non placeholder text
-// $gray-text-min: minimum contrast needed for WCAG 2.0 AA on white background
+// $gray-text-min: minimum contrast needed for WCAG 4.5 AAA on white background
 $gray-text: $studio-gray-80;
 $gray-text-min: $studio-gray-50;
 
@@ -62,7 +62,8 @@ $transparent:            rgba(255,255,255,0);
 // Uncommon
 $border-ultra-light-gray: $studio-gray-0;
 // $green-text-min: minimum contrast needed for WCAG 2.0 AA on white background
-$green-text-min:          darken( $alert-green, 14% ); // #358649
+// Use $studio-green for WCAG 4.5 AAA contrast compliance
+$green-text-min:          $studio-green-20;
 
 // Layout
 $sidebar-bg-color:         $gray-lighten-30;

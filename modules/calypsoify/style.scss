@@ -457,7 +457,7 @@ body,
 		}
 
 		> ul > li.current > a {
-			background: $_004967;
+			background: $_004966;
 		}
 	}
 
@@ -468,7 +468,7 @@ body,
 	}
 
 	&:not(.mobile) .ab-top-menu > li:hover > .ab-item {
-		background: $studio-blue-30 !important;
+		background: $studio-wordpress-blue-60 !important;
 		color: #fff;
 	}
 
@@ -797,7 +797,7 @@ div.mce-toolbar-grp,
 .quicktags-toolbar,
 #major-publishing-actions {
 	background-color: $studio-white;
-	border-color: $_d9e3ea;
+	border-color: $_d7e1e9;
 }
 
 .wp-filter .search-form {
