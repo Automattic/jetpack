@@ -28,7 +28,7 @@ export default class SearchSortWidget extends Component {
 		const sortOptions = getSortOptions();
 		return (
 			<label>
-				{ __( 'Sort by' ) }
+				{ __( 'Sort by', 'jetpack' ) }
 				<select
 					className="jetpack-instant-search__sort-widget-select"
 					onBlur={ this.handleChange }
