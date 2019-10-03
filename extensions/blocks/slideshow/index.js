@@ -11,6 +11,13 @@ import edit from './edit';
 import save from './save';
 import transforms from './transforms';
 
+/**
+ * Example Images
+ */
+import slideshowExample1 from './slideshow_example-1.jpg';
+import slideshowExample2 from './slideshow_example-2.jpg';
+import slideshowExample3 from './slideshow_example-3.jpg';
+
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
 		<Path d="M0 0h24v24H0z" fill="none" />
@@ -70,6 +77,33 @@ const attributes = {
 	},
 };
 
+const exampleAttributes = {
+	align: 'center',
+	autoplay: true,
+	ids: [ 22, 23 ],
+	images: [
+		{
+			alt: '',
+			caption: '',
+			id: 22,
+			url: slideshowExample1,
+		},
+		{
+			alt: '',
+			caption: '',
+			id: 23,
+			url: slideshowExample2,
+		},
+		{
+			alt: '',
+			caption: '',
+			id: 23,
+			url: slideshowExample3,
+		},
+	],
+	effect: 'slide',
+};
+
 export const name = 'slideshow';
 
 export const settings = {
@@ -90,4 +124,7 @@ export const settings = {
 	edit,
 	save,
 	transforms,
+	example: {
+		attributes: exampleAttributes,
+	},
 };
