@@ -73,9 +73,7 @@ export const settings = {
 	example: {
 		attributes: {
 			hasFormSettingsSet: true,
-			subject: __( 'My New Site', 'jetpack' ),
 			submitButtonText: __( 'Submit', 'jetpack' ),
-			to: __( 'email@example.com', 'jetpack' ),
 		},
 		innerBlocks: [
 			{
