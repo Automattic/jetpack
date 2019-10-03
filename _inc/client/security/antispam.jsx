@@ -135,7 +135,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 					<PanelBody
 						title={ __( 'Your site is protected from spam' ) }
 						icon="yes"
-						initialOpen={ true }
+						initialOpen={ false }
 					>
 						<PanelRow className="form-security__text-field-panel-row">
 							<div style={ { display: 'flex', flexDirection: 'column' } }>
