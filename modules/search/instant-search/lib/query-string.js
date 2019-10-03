@@ -38,7 +38,7 @@ export function setSearchQuery( searchValue ) {
 }
 
 // @todo separate sort field and sort direction?
-export function getSearchSort() {
+export function getSortQuery() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';
 	const orderby = 'orderby' in query ? query.orderby : 'relevance';
