@@ -15,8 +15,9 @@ sh /usr/local/bin/wait-for nginx:8989 -t 30 || exit 1;
 echo "Waiting on WP php-fpm to be ready...";
 sh /usr/local/bin/wait-for wp:9000 -t 30 || exit 1;
 
-# Uncomment this line to develop tests (see also the chokidar line in ci-init-access-tests.sh)
-#su -l node -c "npm --prefix /e2e run test:watch";
-
 echo "Running e2e tests";
-su -l node -c "npm --prefix /e2e run test";
+if [ "$DEVSPECS" = "1" ]; then
+  su -l node -c "npm --prefix /e2e run test:watch"
+else
+  su -l node -c "npm --prefix /e2e run test";
+fi

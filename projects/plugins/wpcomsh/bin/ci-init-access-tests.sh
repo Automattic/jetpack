@@ -1,4 +1,6 @@
 #!/bin/sh
+DEVSPECS=0; # Set this to 1 to enable "hot-reloading" spec development
+
 if [ "$1" = "private" ]; then
   echo Running Private Site Tests!
   PROJECT=wpcomsh_private_access
@@ -77,6 +79,7 @@ JEST=`docker create \
   --name "$PROJECT"_jest \
   --network-alias jest \
   --network $NETWORK \
+  --env DEVSPECS=$DEVSPECS \
   --entrypoint tail \
   node:10.16.3-stretch-slim \
   -f /dev/null` # arguments for entrypoint go after the image
@@ -136,8 +139,9 @@ fi
 echo starting NGINX
 docker start $NGINX
 
-# Uncomment this line to develop tests (see also the run test:watch line in ci-init-e2e.sh)
-#npx chokidar-cli "$SPECDIR/*.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" &
+[ "$DEVSPECS" = "1" ] && \
+  echo HELLO SPEC DEVELOPER!; \
+  npx chokidar-cli "$SPECDIR/*.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 &
 
 echo starting JEST
 docker start $JEST
