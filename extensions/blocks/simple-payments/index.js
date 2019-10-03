@@ -122,10 +122,11 @@ export const settings = {
 
 	example: {
 		attributes: {
-			featuredMediaUrl: 'imageURL/will/go/here',
-			featuredMediaTitle: 'Media title',
-			price: 9.99,
-			title: 'Title',
+			price: 25.0,
+			title: 'Jetpack t-shirt',
+			content:
+				'Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo.',
+			email: 'jetpack@jetpack.com',
 		},
 	},
 
