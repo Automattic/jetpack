@@ -15,8 +15,15 @@ import debounce from 'lodash/debounce';
  */
 import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
+import SearchSortWidget from './search-sort-widget';
 import { search, buildFilterAggregations } from '../lib/api';
-import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
+import {
+	setSearchQuery,
+	setFilterQuery,
+	getFilterQuery,
+	setSortQuery,
+	getSortQuery,
+} from '../lib/query-string';
 import { removeChildren, hideSearchHeader } from '../lib/dom';
 
 class SearchApp extends Component {
@@ -52,12 +59,17 @@ class SearchApp extends Component {
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
-		this.getResults( query, this.state.sort );
+		this.getResults( query, getFilterQuery(), getSortQuery() );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
-		this.getResults( this.state.query, getFilterQuery() );
+		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+	};
+
+	onChangeSort = sort => {
+		setSortQuery( sort );
+		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
 	};
 
 	getResults = ( query, filter, sort ) => {
@@ -105,7 +117,12 @@ class SearchApp extends Component {
 									<span className="screen-reader-text">Search</span>
 								</button>
 							</div>
-							<div className="jetpack-search-sort-wrapper" />
+							<div className="jetpack-search-sort-wrapper">
+								<SearchSortWidget
+									initialValue={ this.props.initialSort }
+									onChange={ this.onChangeSort }
+								/>
+							</div>
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }
 								onChange={ this.onChangeFilter }
