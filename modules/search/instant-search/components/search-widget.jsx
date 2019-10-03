@@ -17,7 +17,7 @@ import SearchResults from './search-results';
 import SearchFiltersWidget from './search-filters-widget';
 import SearchSortWidget from './search-sort-widget';
 import { search, buildFilterAggregations } from '../lib/api';
-import { setSearchQuery, setFilterQuery, getFilterQuery } from '../lib/query-string';
+import { setSearchQuery, setFilterQuery, getFilterQuery, setSortQuery } from '../lib/query-string';
 import { removeChildren, hideSearchHeader } from '../lib/dom';
 
 class SearchApp extends Component {
@@ -59,6 +59,11 @@ class SearchApp extends Component {
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
 		this.getResults( this.state.query, getFilterQuery() );
+	};
+
+	onChangeSort = sort => {
+		setSortQuery( sort );
+		this.getResults( this.state.query, sort );
 	};
 
 	getResults = ( query, filter, sort ) => {
@@ -107,7 +112,10 @@ class SearchApp extends Component {
 								</button>
 							</div>
 							<div className="jetpack-search-sort-wrapper">
-								<SearchSortWidget initialValue={ this.props.initialSort } />
+								<SearchSortWidget
+									initialValue={ this.props.initialSort }
+									onChange={ this.onChangeSort }
+								/>
 							</div>
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }

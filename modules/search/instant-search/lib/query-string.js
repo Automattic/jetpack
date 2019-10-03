@@ -11,6 +11,7 @@ import get from 'lodash/get';
  * Internal dependencies
  */
 import { SERVER_OBJECT_NAME } from './constants';
+import { getSortOptions } from './sort';
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
@@ -137,5 +138,21 @@ export function getFilterQuery( filterKey ) {
 export function setFilterQuery( filterKey, filterValue ) {
 	const query = getQuery();
 	query[ filterKey ] = filterValue;
+	pushQueryString( encode( query ) );
+}
+
+export function setSortQuery( sort ) {
+	//console.log( 'new sort: ' + sort );
+
+	const query = getQuery();
+	const sortOptions = getSortOptions();
+	const sortOption = sortOptions[ sort ];
+
+	if ( ! sortOption ) {
+		return false;
+	}
+
+	query.orderby = sortOption.field;
+	query.order = sortOption.direction;
 	pushQueryString( encode( query ) );
 }
