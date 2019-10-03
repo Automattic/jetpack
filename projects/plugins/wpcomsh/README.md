@@ -50,7 +50,7 @@ Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwardin
 
 There is an integration suite built on docker that makes testing what clients to "private" (and non-private) sites should and shouldn't be able to see.
 
-The tests can be run like so:
+If you have `docker` installed on your system, the tests can be run like so:
 
 - `make test-public-access`
 - `make test-private-access`
