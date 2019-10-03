@@ -115,13 +115,16 @@ echo starting NGINX
 docker start $NGINX
 
 SUBSCRIBER_USER_ID=`docker exec -it $WPCLI wp user create alice alice@example.com --role=subscriber --porcelain`;
-echo "Got SUBSCRIBER_USER_ID from wpcli: ${SUBSCRIBER_USER_ID}";
+echo "Got SUBSCRIBER_USER_ID from wpcli: ${SUBSCRIBER_USER_ID}" | cat -v;
 
 # For some reason, the value returned has a `\r` a the end and it breaks the next call unless we trim it :-/
-SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID= | sed -E 's/^([0-9]+).*/\1/'`;
+SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID | sed -E 's/^([0-9]+).*/\1/'`;
 echo "Trimmed SUBSCRIBER_USER_ID: ${SUBSCRIBER_USER_ID}";
 
-if [ -z `echo $SUBSCRIBER_USER_ID | grep -E "^[0-9]+$"` ]; then
+SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID | grep -E "^[0-9]+$"`;
+echo "Scrubbed SUBSCRIBER_USER_ID: ${SUBSCRIBER_USER_ID}";
+
+if [ -z "$SUBSCRIBER_USER_ID" ]; then
   echo "Could not create subscriber user. Result: ${SUBSCRIBER_USER_ID}";
   exit 1;
 fi
