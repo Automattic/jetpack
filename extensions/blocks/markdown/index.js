@@ -14,6 +14,12 @@ import save from './save';
 
 export const name = 'markdown';
 
+const exampleTitle = __( 'Try Markdown', 'jetpack' );
+const exampleDescription = __(
+	'Markdown is a text formatting syntax that is converted into HTML. You can _emphasize_ text or **make it strong** with just a few characters.',
+	'jetpack'
+);
+
 export const settings = {
 	title: __( 'Markdown', 'jetpack' ),
 
@@ -67,4 +73,10 @@ export const settings = {
 	edit,
 
 	save,
+
+	example: {
+		attributes: {
+			source: `## ## ${ exampleTitle }\n\n${ exampleDescription }`,
+		},
+	},
 };
