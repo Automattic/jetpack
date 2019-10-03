@@ -31,25 +31,62 @@ docker network create $NETWORK
 echo Creating wp data shared volume
 docker volume create $WPDATA >/dev/null
 
-DB=`docker create --name "$PROJECT"_db --network-alias db --network $NETWORK --restart always --env MYSQL_ROOT_PASSWORD=jfdsaf9wjfaospfopdsafjsda --env MYSQL_DATABASE=wordpress --env MYSQL_USER=wp --env MYSQL_PASSWORD=iojdgoisajsoife83489398f8ds9a mysql:5.7`
-echo DB container: $DB
+DB=`docker create \
+  --name "$PROJECT"_db \
+  --network-alias db \
+  --network $NETWORK \
+  --restart always \
+  --env MYSQL_ROOT_PASSWORD=jfdsaf9wjfaospfopdsafjsda \
+  --env MYSQL_DATABASE=wordpress --env MYSQL_USER=wp \
+  --env MYSQL_PASSWORD=iojdgoisajsoife83489398f8ds9a \
+  mysql:5.7`
 
-WP=`docker create --name "$PROJECT"_wp --network-alias wp --network $NETWORK --mount source=$WPDATA,target=/var/www/html --restart always --env WORDPRESS_DB_HOST=db --env WORDPRESS_DB_USER=wp --env WORDPRESS_DB_NAME=wordpress --env WORDPRESS_DB_PASSWORD=iojdgoisajsoife83489398f8ds9a --env WORDPRESS_TABLE_PREFIX=wp_ --env WORDPRESS_DEBUG=1 wordpress:5.2-php7.3-fpm`
-echo WP container: $WP
+WP=`docker create \
+  --name "$PROJECT"_wp \
+  --network-alias wp \
+  --network $NETWORK \
+  --mount source=$WPDATA,target=/var/www/html \
+  --restart always \
+  --env WORDPRESS_DB_HOST=db \
+  --env WORDPRESS_DB_USER=wp \
+  --env WORDPRESS_DB_NAME=wordpress \
+  --env WORDPRESS_DB_PASSWORD=iojdgoisajsoife83489398f8ds9a \
+  --env WORDPRESS_TABLE_PREFIX=wp_ \
+  --env WORDPRESS_DEBUG=1 \
+  wordpress:5.2-php7.3-fpm`
 
-WPCLI=`docker create --name "$PROJECT"_wpcli --network-alias wpcli --network $NETWORK --mount source=$WPDATA,target=/var/www/html --entrypoint tail wordpress:cli-2.3-php7.3 -f /dev/null`
+WPCLI=`docker create \
+  --name "$PROJECT"_wpcli \
+  --network-alias wpcli \
+  --network $NETWORK \
+  --mount source=$WPDATA,target=/var/www/html \
+  --entrypoint tail \
+  wordpress:cli-2.3-php7.3 \
+  -f /dev/null` # arguments for entrypoint go after the image
+
+NGINX=`docker create \
+  --name "$PROJECT"_nginx \
+  --network-alias nginx \
+  --network $NETWORK \
+  --restart always \
+  --publish 8989:8989/tcp \
+  --mount source=$WPDATA,target=/var/www/html \
+  nginx:1.16.1`
+
+JEST=`docker create \
+  --name "$PROJECT"_jest \
+  --network-alias jest \
+  --network $NETWORK \
+  --entrypoint tail \
+  node:10.16.3-stretch-slim \
+  -f /dev/null` # arguments for entrypoint go after the image
+
+echo Copying wpcli utils
 docker cp ./bin/wait-for $WPCLI:/usr/local/bin/wait-for
 docker cp ./bin/ci-init-cli.sh $WPCLI:/usr/local/bin/ci-init-cli.sh
-echo WPCLI container: $WPCLI
 
-NGINX=`docker create --name "$PROJECT"_nginx --network-alias nginx --network $NETWORK --restart always --publish 8989:8989/tcp --mount source=$WPDATA,target=/var/www/html nginx:1.16.1`
-echo NGINX container: $NGINX
-
-echo copying nginx config
+echo Copying nginx config
 docker cp ./tests/e2e/config/nginx.conf $NGINX:/etc/nginx/conf.d/site.conf
-
-JEST=`docker create --name "$PROJECT"_jest --network-alias jest --network $NETWORK --entrypoint tail node:10.16.3-stretch-slim -f /dev/null`
-echo JEST container: $JEST
 
 echo Copying jest utils
 docker cp ./bin/wait-for $JEST:/usr/local/bin/wait-for
