@@ -77,39 +77,12 @@ NGINX=`docker create \
   --mount source=$WPDATA,target=/var/www/html \
   nginx:1.16.1`
 
-JEST=`docker create \
-  --name "$PROJECT"_jest \
-  --network-alias jest \
-  --network $NETWORK \
-  --env DEVSPECS=$DEVSPECS \
-  --entrypoint tail \
-  node:10.16.3-stretch-slim \
-  -f /dev/null` # arguments for entrypoint go after the image
-
 echo Copying wpcli utils
 docker cp ./bin/wait-for $WPCLI:/usr/local/bin/wait-for
 docker cp ./bin/ci-init-cli.sh $WPCLI:/usr/local/bin/ci-init-cli.sh
 
 echo Copying nginx config
 docker cp ./tests/e2e/config/nginx.conf $NGINX:/etc/nginx/conf.d/site.conf
-
-echo Copying jest utils
-docker cp ./bin/wait-for $JEST:/usr/local/bin/wait-for
-docker cp ./bin/ci-init-e2e.sh $JEST:/usr/local/bin/ci-init-e2e.sh
-TEMPDIR=`mktemp -d`
-chmod 755 $TEMPDIR
-cp ./package*.json $TEMPDIR/
-cp ./tests/e2e/jest.config.js $TEMPDIR/
-if [ "$1" = "private" ]; then
-  echo Copying Private Site test specs
-  SPECDIR=./tests/e2e/specs/private-site
-else
-  echo Copying Public Site test specs
-  SPECDIR=./tests/e2e/specs/public-site
-fi
-cp -a $SPECDIR $TEMPDIR/specs
-docker cp $TEMPDIR $JEST:/e2e
-rm -rf $TEMPDIR
 
 echo starting DB
 docker start $DB
@@ -140,6 +113,50 @@ fi
 
 echo starting NGINX
 docker start $NGINX
+
+SUBSCRIBER_USER_ID=`docker exec -it $WPCLI wp user create alice alice@example.com --role=subscriber --porcelain`;
+# For some reason, the value returned has a `\r` a the end and it breaks the next call unless we trim it :-/
+SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID= | sed -E 's/^([0-9]+).*/\1/'`;
+if [ -z `echo $SUBSCRIBER_USER_ID | grep -E "^\d+$"` ]; then
+  echo "Could not create subscriber user. Result: ${SUBSCRIBER_USER_ID}";
+  exit 1;
+fi
+echo SUBSCRIBER_USER_ID is ${SUBSCRIBER_USER_ID};
+
+SUBSCRIBER_RESTAPI_NONCE=`docker exec -it $WPCLI wp eval "echo wp_create_nonce( 'rest_api' );" --user=${SUBSCRIBER_USER_ID}`;
+echo SUBSCRIBER_RESTAPI_NONCE is ${SUBSCRIBER_RESTAPI_NONCE};
+SUBSCRIBER_AUTH_COOKIE=`docker exec -it $WPCLI wp eval "echo wp_generate_auth_cookie( get_current_user_id(), strtotime( '+1 hour' ) );" --user=alice`
+echo SUBSCRIBER_AUTH_COOKIE is ${SUBSCRIBER_AUTH_COOKIE};
+
+JEST=`docker create \
+  --name ${PROJECT}_jest \
+  --network-alias jest \
+  --network $NETWORK \
+  --env DEVSPECS=$DEVSPECS \
+  --env SUBSCRIBER_RESTAPI_NONCE=$SUBSCRIBER_RESTAPI_NONCE \
+  --env SUBSCRIBER_AUTH_COOKIE=$SUBSCRIBER_AUTH_COOKIE \
+  --env SUBSCRIBER_USER_ID=$SUBSCRIBER_USER_ID \
+  --entrypoint tail \
+  node:10.16.3-stretch-slim \
+  -f /dev/null` # arguments for entrypoint go after the image
+
+echo Copying jest utils
+docker cp ./bin/wait-for $JEST:/usr/local/bin/wait-for
+docker cp ./bin/ci-init-e2e.sh $JEST:/usr/local/bin/ci-init-e2e.sh
+TEMPDIR=`mktemp -d`
+chmod 755 $TEMPDIR
+cp ./package*.json $TEMPDIR/
+cp ./tests/e2e/jest.config.js $TEMPDIR/
+if [ "$1" = "private" ]; then
+  echo Copying Private Site test specs
+  SPECDIR=./tests/e2e/specs/private-site
+else
+  echo Copying Public Site test specs
+  SPECDIR=./tests/e2e/specs/public-site
+fi
+cp -a $SPECDIR $TEMPDIR/specs
+docker cp $TEMPDIR $JEST:/e2e
+rm -rf $TEMPDIR
 
 [ "$DEVSPECS" = "1" ] && \
   echo HELLO SPEC DEVELOPER!; \

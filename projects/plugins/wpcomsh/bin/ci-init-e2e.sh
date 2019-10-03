@@ -15,9 +15,16 @@ sh /usr/local/bin/wait-for nginx:8989 -t 30 || exit 1;
 echo "Waiting on WP php-fpm to be ready...";
 sh /usr/local/bin/wait-for wp:9000 -t 30 || exit 1;
 
+echo SUBSCRIBER_USER_ID is ${SUBSCRIBER_USER_ID};
+echo SUBSCRIBER_RESTAPI_NONCE is ${SUBSCRIBER_RESTAPI_NONCE};
+echo SUBSCRIBER_AUTH_COOKIE is ${SUBSCRIBER_AUTH_COOKIE};
+
+NODE_ENV="SUBSCRIBER_USER_ID=${SUBSCRIBER_USER_ID} SUBSCRIBER_RESTAPI_NONCE=${SUBSCRIBER_RESTAPI_NONCE} SUBSCRIBER_AUTH_COOKIE='${SUBSCRIBER_AUTH_COOKIE}'"
+echo NODE_ENV is ${NODE_ENV};
+
 echo "Running e2e tests";
 if [ "$DEVSPECS" = "1" ]; then
-  su -l node -c "npm --prefix /e2e run test:watch"
+  su -l node -c "${NODE_ENV} npm --prefix /e2e run test:watch"
 else
-  su -l node -c "npm --prefix /e2e run test";
+  su -l node -c "${NODE_ENV} npm --prefix /e2e run test";
 fi

@@ -2,12 +2,28 @@
  * External dependencies
  */
 const fetch = require( 'node-fetch' );
+const { get } = require( 'lodash' );
 
-/**
- * Internal dependencies
- */
 const siteBaseUrl = 'http://nginx:8989';
 const fetchPath = ( path = '' ) => fetch( `${ siteBaseUrl }${ path }` );
+
+const { SUBSCRIBER_USER_ID, SUBSCRIBER_RESTAPI_NONCE, SUBSCRIBER_AUTH_COOKIE } = get(
+	global,
+	'process.env',
+	{}
+);
+
+describe( 'Environment', () => {
+	it( 'Should have a user id for a Subscriber user', async () => {
+		expect( !! SUBSCRIBER_USER_ID ).toBe( true );
+	} );
+	it( 'Should have a rest api nonce for a Subscriber user', async () => {
+		expect( !! SUBSCRIBER_RESTAPI_NONCE ).toBe( true );
+	} );
+	it( 'Should have an auth cookie for a Subscriber user', async () => {
+		expect( !! SUBSCRIBER_AUTH_COOKIE ).toBe( true );
+	} );
+} );
 
 describe( 'Private Site Access', () => {
 	it( 'Should show access denied on home page for logged out user', async () => {
