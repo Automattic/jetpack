@@ -97,11 +97,12 @@ cp ./package*.json $TEMPDIR/
 cp ./tests/e2e/jest.config.js $TEMPDIR/
 if [ "$1" = "private" ]; then
   echo Copying Private Site test specs
-  cp -a ./tests/e2e/specs/private-site $TEMPDIR/specs
+  SPECDIR=./tests/e2e/specs/private-site
 else
   echo Copying Public Site test specs
-  cp -a ./tests/e2e/specs/public-site $TEMPDIR/specs
+  SPECDIR=./tests/e2e/specs/public-site
 fi
+cp -a $SPECDIR $TEMPDIR/specs
 docker cp $TEMPDIR $JEST:/e2e
 rm -rf $TEMPDIR
 
@@ -135,9 +136,13 @@ fi
 echo starting NGINX
 docker start $NGINX
 
+# Uncomment this line to develop tests (see also the run test:watch line in ci-init-e2e.sh)
+#npx chokidar-cli "$SPECDIR/*.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" &
+
 echo starting JEST
 docker start $JEST
 docker exec $JEST /bin/sh /usr/local/bin/ci-init-e2e.sh
+
 STATUS=$?
 
 # Comment out the following line if you'd like to leave the containers running to test, etc.
