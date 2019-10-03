@@ -16,6 +16,7 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
+import { getNgrokSiteUrl } from '../utils-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -37,7 +38,9 @@ export async function connectThroughWPAdminIfNeeded( {
 		await login.login( wpcomUser );
 	}
 
-	await ( await WPLoginPage.visit( page ) ).login();
+	const url = getNgrokSiteUrl();
+
+	await ( await WPLoginPage.visit( page, url + '/wp-login.php' ) ).login();
 	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 

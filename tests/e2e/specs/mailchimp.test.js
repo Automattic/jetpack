@@ -9,7 +9,8 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { execShellCommand, resetWordpressInstall } from '../lib/utils-helper';
+import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import Sidebar from '../lib/pages/wp-admin/sidebar';
 
 // Activate WordAds module if in CI
 async function activatePublicizeModule() {
@@ -25,13 +26,15 @@ async function activatePublicizeModule() {
 describe( 'Mailchimp Block', () => {
 	beforeAll( async () => {
 		await resetWordpressInstall();
+		const url = getNgrokSiteUrl();
+		console.log( 'NEW SITE URL: ' + url );
 	} );
 
 	it( 'Can publish a post with a Mailchimp Block', async () => {
 		await connectThroughWPAdminIfNeeded();
 
 		await activatePublicizeModule();
-		await createNewPost();
+		await ( await Sidebar.init( page ) ).selectNewPost();
 
 		const blockEditor = await BlockEditorPage.init( page );
 		const blockInfo = await blockEditor.insertBlock( MailchimpBlock.name() );
