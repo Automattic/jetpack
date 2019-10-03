@@ -3,6 +3,7 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -43,4 +44,19 @@ export const settings = {
 	title: __( 'Repeat Visitor', 'jetpack' ),
 	edit,
 	save,
+	example: {
+		attributes: {
+			criteria: CRITERIA_AFTER,
+			threshold: DEFAULT_THRESHOLD,
+		},
+		innerBlocks: [
+			{
+				name: 'core/paragraph',
+				attributes: {
+					content:
+						__( 'This block will only appear to a visitor who visited the page three or more times.', 'jetpack' ),
+				},
+			},
+		],
+	},
 };
