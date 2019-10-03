@@ -9,7 +9,7 @@ else
   PROJECT=wpcomsh_public_access
 fi
 NETWORK=$PROJECT
-WPDATA="$PROJECT"_wpdata
+WPDATA=${PROJECT}_wpdata
 ALLCONTAINERS='db jest nginx wp wpcli'
 
 # TODO: trap exit signals and run this instead of calling it at the end of the script
@@ -36,7 +36,7 @@ echo Creating wp data shared volume
 docker volume create $WPDATA >/dev/null
 
 DB=`docker create \
-  --name "$PROJECT"_db \
+  --name ${PROJECT}_db \
   --network-alias db \
   --network $NETWORK \
   --restart always \
@@ -46,7 +46,7 @@ DB=`docker create \
   mysql:5.7`
 
 WP=`docker create \
-  --name "$PROJECT"_wp \
+  --name ${PROJECT}_wp \
   --network-alias wp \
   --network $NETWORK \
   --mount source=$WPDATA,target=/var/www/html \
@@ -60,7 +60,7 @@ WP=`docker create \
   wordpress:5.2-php7.3-fpm`
 
 WPCLI=`docker create \
-  --name "$PROJECT"_wpcli \
+  --name ${PROJECT}_wpcli \
   --network-alias wpcli \
   --network $NETWORK \
   --mount source=$WPDATA,target=/var/www/html \
@@ -69,7 +69,7 @@ WPCLI=`docker create \
   -f /dev/null` # arguments for entrypoint go after the image
 
 NGINX=`docker create \
-  --name "$PROJECT"_nginx \
+  --name ${PROJECT}_nginx \
   --network-alias nginx \
   --network $NETWORK \
   --restart always \
