@@ -118,7 +118,7 @@ SUBSCRIBER_USER_ID=`docker exec -it $WPCLI wp user create alice alice@example.co
 echo "Got SUBSCRIBER_USER_ID from wpcli: ${SUBSCRIBER_USER_ID}" | cat -v;
 
 # For some reason, the value returned has a `\r` a the end and it breaks the next call unless we trim it :-/
-SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID | sed -E 's/^([0-9]+).*/\1/'`;
+SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID | sed -E 's/^\s*([0-9]+)\s*/\1/'`;
 echo "Trimmed SUBSCRIBER_USER_ID: ${SUBSCRIBER_USER_ID}";
 
 SUBSCRIBER_USER_ID=`echo $SUBSCRIBER_USER_ID | grep -E "^[0-9]+$"`;
