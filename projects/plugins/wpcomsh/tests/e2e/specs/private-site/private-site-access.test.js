@@ -30,6 +30,15 @@ describe( 'Private Site Access', () => {
 		expect( bodyString ).toMatch( '<title>Log In &lsaquo; Private Site &#8212; WordPress</title>' );
 	} );
 
+	it( 'Should show login page when browsed directly for logged out user', async () => {
+		const res = await fetchPath( '/wp-login.php' );
+		const bodyString = await res.text();
+
+		expect( bodyString ).not.toMatch( /<body\s+.*\bclass="[^\"]*wp-admin[\s\"].*>/ );
+		expect( bodyString ).not.toMatch( /wpcomsh test/ );
+		expect( bodyString ).toMatch( '<title>Log In &lsaquo; Private Site &#8212; WordPress</title>' );
+	} );
+
 	it( 'Should show access denied nopriv AJAX endpoints for logged out user', async () => {
 		const res = await fetchPath( '/wp-admin/admin-ajax.php?action=heartbeat' );
 		const heartbeat = await res.json();
@@ -67,5 +76,18 @@ describe( 'Private Site Access', () => {
 		const res = await fetchPath( '/robots.txt' );
 		const bodyString = await res.text();
 		expect( bodyString ).toBe( 'User-agent: *\nDisallow: /\n' );
+	} );
+
+	it( 'Should show access denied for OPML resource', async () => {
+		const res = await fetchPath( '/wp-links-opml.php' );
+		const bodyString = await res.text();
+
+		expect( bodyString ).toMatch( /<title>\s*Links for Private Site\s*<\/title>/ );
+		expect( bodyString ).toMatch( '<error>This site is private.</error>' );
+
+		expect( bodyString ).not.toMatch( /wpcomsh test/ );
+		expect( bodyString ).not.toMatch( /this is a test post/ );
+
+		expect( true ).toBe( true );
 	} );
 } );
