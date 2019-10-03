@@ -1,0 +1,17 @@
+/* custom-logo module in Core */
+#customize-control-site_logo button.new {
+	float: right;
+}
+
+#customize-control-custom_logo .create-logo-button {
+	float: left;
+	height: auto;
+}
+
+/* site-logo module in Jetpack */
+#customize-control-site_logo .create-logo-button {
+	float: left;
+	height: auto;
+	text-align: center;
+	width: 48%;
+}

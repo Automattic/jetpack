@@ -12,48 +12,49 @@
  */
 
 /**
+ * IMPORTANT: All changes in this plugin should be synced between wpcom (Simple Sites) and wpcomsh (Atomic Sites).
+ *
+ * https://wpcom.trac.automattic.com/browser/trunk/wp-content/mu-plugins/logo-tool
+ * https://github.com/Automattic/wpcomsh/tree/master/logo-tool
+ */
+
+/**
  * Activate the Site Logo plugin.
  *
  * @uses current_theme_supports()
- * @since 3.2
  */
-
 function add_logotool_button( $wp_customize ) {
-	if ( ! is_admin() ) {
+	if ( ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) || ! is_admin() ) {
 		return;
 	}
 
-	// WP Core logo integration
-	if ( current_theme_supports( 'custom-logo' ) ){
+	// WP Core logo integration.
+	if ( current_theme_supports( 'custom-logo' ) ) {
 		$logo_control = $wp_customize->get_control( 'custom_logo' );
-
-		if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
-			return;
-		}
-
-	// Jetpack logo integration
-	} else if ( current_theme_supports( 'site-logo' ) ){
+	// Jetpack logo integration.
+	} else if ( current_theme_supports( 'site-logo' ) ) {
 		$logo_control = $wp_customize->get_control( 'site_logo' );
-
-		if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
-			return;
-		}
 	} else {
 		return;
 	}
 
-	// using the 'jetpack' namespace because that's what Site Logo uses
-	$logo_control->description = __( 'Add a logo once and it will automatically display in every theme that supports logos. No 
-logo? Buy a pro one from Looka — Click “Create logo” to start.', 'jetpack' );
-	// adding it back just overwrites the previous control instance
+	if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
+		return;
+	}
+
+	$logo_control->description = __( 'Add a logo once and it will automatically display in every theme that supports logos. No
+logo? Buy a pro one from Looka — Click “Create logo” to start.' );
+	// Adding it back just overwrites the previous control instance.
 	$wp_customize->add_control( $logo_control );
 
 	add_action( 'customize_controls_enqueue_scripts', function() {
-		wp_enqueue_script( 'logotool-button', plugins_url( 'js/logotool-button.js', __FILE__ ), [ 'customize-controls' ], 
-'20190430', true );
-		wp_localize_script( 'logotool-button', '_Logotool_l10n', [
-			// using the 'jetpack' namespace because that's what Site Logo uses
-			'create' => __( 'Create logo', 'jetpack' ),
+		wp_enqueue_style( 'wpcom-logo-tool', plugins_url( 'css/customizer.css', __FILE__ ), [], '20190928' );
+		wp_style_add_data( 'wpcom-logo-tool', 'rtl', 'replace' );
+
+		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ],
+'20190928', true );
+		wp_localize_script( 'wpcom-logo-tool', '_LogoTool_l10n', [
+			'create' => __( 'Create logo' ),
 		] );
 	});
 
