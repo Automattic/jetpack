@@ -9,7 +9,7 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { execShellCommand } from '../lib/utils-helper';
+import { execShellCommand, resetWordpressInstall } from '../lib/utils-helper';
 
 // Activate WordAds module if in CI
 async function activatePublicizeModule() {
@@ -23,6 +23,10 @@ async function activatePublicizeModule() {
 }
 
 describe( 'Mailchimp Block', () => {
+	beforeAll( async () => {
+		await resetWordpressInstall();
+	} );
+
 	it( 'Can publish a post with a Mailchimp Block', async () => {
 		await connectThroughWPAdminIfNeeded();
 

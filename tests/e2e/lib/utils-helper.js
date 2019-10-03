@@ -29,3 +29,7 @@ export function getNgrokSiteUrl() {
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	return execSyncShellCommand( cmd );
 }
+
+export async function resetWordpressInstall() {
+	await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+}

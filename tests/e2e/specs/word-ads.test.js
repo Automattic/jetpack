@@ -9,7 +9,7 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { execShellCommand } from '../lib/utils-helper';
+import { execShellCommand, resetWordpressInstall } from '../lib/utils-helper';
 
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
@@ -23,6 +23,9 @@ async function activateWordAdsModule() {
 }
 
 describe( 'WordAds block', () => {
+	beforeAll( async () => {
+		await resetWordpressInstall();
+	} );
 	it( 'Can publish a post with a WordAds block', async () => {
 		// Can login and connect Jetpack if needed
 		await connectThroughWPAdminIfNeeded();

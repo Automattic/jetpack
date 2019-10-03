@@ -9,8 +9,13 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import { resetWordpressInstall } from '../lib/utils-helper';
 
 describe( 'Simple Payment', () => {
+	beforeAll( async () => {
+		await resetWordpressInstall();
+	} );
+
 	it( 'Can publish a post with a Simple Payments block', async () => {
 		//Can login and connect Jetpack if needed
 		await connectThroughWPAdminIfNeeded();
