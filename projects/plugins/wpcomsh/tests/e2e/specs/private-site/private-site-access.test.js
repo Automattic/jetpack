@@ -21,6 +21,25 @@ describe( 'Private Site Access', () => {
 		expect( bodyString ).not.toMatch( /this is a test post/ );
 	} );
 
+	it( 'Should show login page on /wp-admin for logged out user', async () => {
+		const res = await fetchPath( '/wp-admin' );
+		const bodyString = await res.text();
+
+		expect( bodyString ).not.toMatch( /<body\s+.*\bclass="[^\"]*wp-admin[\s\"].*>/ );
+		expect( bodyString ).not.toMatch( /wpcomsh test/ );
+		expect( bodyString ).toMatch( '<title>Log In &lsaquo; Private Site &#8212; WordPress</title>' );
+	} );
+
+	it( 'Should show access denied nopriv AJAX endpoints for logged out user', async () => {
+		const res = await fetchPath( '/wp-admin/admin-ajax.php?action=heartbeat' );
+		const heartbeat = await res.json();
+
+		expect( heartbeat ).toStrictEqual( {
+			success: false,
+			data: { code: 'private_site', message: 'This site is private.' },
+		} );
+	} );
+
 	it( 'Should not show REST API posts for logged out user', async () => {
 		const res = await fetchPath( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
@@ -44,7 +63,6 @@ describe( 'Private Site Access', () => {
 		expect( bodyString ).not.toMatch( /<title>this is a test post<\/title>/ );
 	} );
 
-	// This is failing even though browsers are behaving correctly. Commenting out until I figure out why
 	it( 'Should show restrictive robots.txt for logged out user', async () => {
 		const res = await fetchPath( '/robots.txt' );
 		const bodyString = await res.text();
