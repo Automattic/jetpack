@@ -10,7 +10,8 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME } from './constants';
+import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC } from './constants';
+import { getSortOption } from './sort';
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
@@ -36,28 +37,28 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
-export function getSearchSort() {
+export function getSortQuery() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';
 	const orderby = 'orderby' in query ? query.orderby : 'relevance';
 	let sort;
 	switch ( orderby ) {
 		case 'date':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'date_asc';
 			} else {
 				sort = 'date_desc';
 			}
 			break;
 		case 'price':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'price_asc';
 			} else {
 				sort = 'price_desc';
 			}
 			break;
 		case 'rating':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'rating_asc';
 			} else {
 				sort = 'rating_desc';
@@ -79,6 +80,19 @@ export function getSearchSort() {
 			break;
 	}
 	return sort;
+}
+
+export function setSortQuery( sortKey ) {
+	const query = getQuery();
+	const sortOption = getSortOption( sortKey );
+
+	if ( ! sortOption ) {
+		return false;
+	}
+
+	query.orderby = sortOption.field;
+	query.order = sortOption.direction;
+	pushQueryString( encode( query ) );
 }
 
 function getFilterQueryByKey( filterKey ) {
