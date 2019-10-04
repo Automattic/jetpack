@@ -344,12 +344,18 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			sprintf(
 				/* translators: Placeholder is a link to site's Jetpack debug page. */
 				__(
-					'<a target="_blank" href="%s">Visit the Jetpack.com debug page</a> for more information or <a target="_blank" href="https://jetpack.com/contact-support/">contact support</a>.',
+					'<a target="_blank" rel="noopener noreferrer" href="%s">Visit the Jetpack.com debug page</a> for more information or <a target="_blank" rel="noopener noreferrer" href="https://jetpack.com/contact-support/">contact support</a>.',
 					'jetpack'
 				),
 				esc_url( add_query_arg( 'url', urlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
 			),
-			array( 'a' => array( 'href' => array() ) )
+			array(
+				'a' => array(
+					'href'   => array(),
+					'target' => array(),
+					'rel'    => array(),
+				),
+			)
 		);
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
