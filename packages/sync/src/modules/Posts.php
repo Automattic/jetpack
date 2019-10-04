@@ -317,6 +317,11 @@ class Posts extends Module {
 	 */
 	public function is_post_type_allowed( $post_id ) {
 		$post = get_post( intval( $post_id ) );
+
+		if ( ! $post || ! is_a( $post, '/WP_Post' ) ) {
+			return false;
+		}
+
 		if ( $post->post_type ) {
 			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true );
 		}
