@@ -11,13 +11,6 @@ const {
 	SUBSCRIBER_AUTH_COOKIE,
 } = get( global, 'process.env', {} );
 
-/*
-	In ase we need moar cookies in our jar
-	const YEAR_IN_SECONDS = 31536000;
-	const wpSettingsTime = Math.floor( +new Date() / 1000 ) + YEAR_IN_SECONDS;
-	const subscriberCookies = `wordpress_test_cookie=WP+Cookie+check; ${ AUTH_COOKIE_NAME }=${ SUBSCRIBER_AUTH_COOKIE }; wp-settings-time-${ SUBSCRIBER_USER_ID }=${ wpSettingsTime }`;
-*/
-
 const subscriberCookies = `${ AUTH_COOKIE_NAME }=${ SUBSCRIBER_AUTH_COOKIE }`;
 
 const siteBaseUrl = 'http://nginx:8989';
