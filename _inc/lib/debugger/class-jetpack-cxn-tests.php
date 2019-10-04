@@ -340,12 +340,30 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
 
+		$error_msg = wp_kses(
+			sprintf(
+				/* translators: Placeholder is a link to site's Jetpack debug page. */
+				__(
+					'<a target="_blank" rel="noopener noreferrer" href="%s">Visit the Jetpack.com debug page</a> for more information or <a target="_blank" rel="noopener noreferrer" href="https://jetpack.com/contact-support/">contact support</a>.',
+					'jetpack'
+				),
+				esc_url( add_query_arg( 'url', urlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
+			),
+			array(
+				'a' => array(
+					'href'   => array(),
+					'target' => array(),
+					'rel'    => array(),
+				),
+			)
+		);
+
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( $name );
 		} elseif ( is_wp_error( $response ) && false !== strpos( $response->get_error_message(), 'cURL error 28' ) ) { // Timeout.
 			return self::skipped_test( $name, __( 'The test timed out which may sometimes indicate a failure or may be a false failure.', 'jetpack' ) );
 		} else {
-			return self::failing_test( $name, __( 'Jetpack.com detected an error on the WPcom Self Test.', 'jetpack' ), __( 'Visit the Jetpack.com debugging page for more information or contact support.', 'jetpack' ) ); // @todo direct links.
+			return self::failing_test( $name, __( 'Jetpack.com detected an error on the WPcom Self Test.', 'jetpack' ), $error_msg );
 		}
 	}
 }
