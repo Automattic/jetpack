@@ -3,7 +3,6 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -53,8 +52,10 @@ export const settings = {
 			{
 				name: 'core/paragraph',
 				attributes: {
-					content:
-						__( 'This block will only appear to a visitor who visited the page three or more times.', 'jetpack' ),
+					content: __(
+						'This block will only appear to a visitor who visited the page three or more times.',
+						'jetpack'
+					),
 				},
 			},
 		],
