@@ -105,7 +105,7 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 			return array(
 				'ID'          => $auto_ID,
 				'post_ID'     => $post->ID,
-				'modified'    => $this->format_date( $updated_post->post_modified ),
+				'modified'    => $this->format_date( $updated_post->post_modified_gmt, $updated_post->post_modified ),
 				'preview_URL' => $preview_url
 			);
 		} else {
