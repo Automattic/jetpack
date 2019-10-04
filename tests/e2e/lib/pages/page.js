@@ -65,6 +65,15 @@ export default class Page {
 			value: sandboxCookieValue,
 			domain,
 		} );
-		return await this.page.reload();
+
+		return await this.reload();
+	}
+
+	/**
+	 * Reloads the page and waits for the expected locator
+	 */
+	async reload() {
+		await this.page.reload();
+		return await this.waitForPage();
 	}
 }

@@ -44,7 +44,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
-	const jetpackPage = await JetpackPage.init( page );
+	let jetpackPage = await JetpackPage.init( page );
 	if ( await jetpackPage.isConnected() ) {
 		await jetpackPage.openMyPlan();
 		if ( await jetpackPage.isPlan( plan ) ) {
@@ -71,9 +71,15 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
-	await ( await JetpackPage.init( page ) ).waitForPage();
-	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
+	jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.setSandboxModeForPayments( cookie, siteUrl );
 
-	// Reload the page to hidrate plans cache
-	await page.reload();
+	// Reload the page to hydrate plans cache
+	await jetpackPage.reload();
+
+	if ( ! ( await jetpackPage.isConnected() ) || ! ( await jetpackPage.isPlan( plan ) ) ) {
+		throw new Error( `Site is not connected OR it does not have ${ plan } plan` );
+	}
+
+	return true;
 }
