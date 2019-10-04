@@ -188,4 +188,14 @@ describe( 'Private Site -- Logged in Access', () => {
 
 		expect( loggedIn ).toBe( 1 );
 	} );
+
+	it( 'Should not show REST API posts for logged in user without nonce', async () => {
+		const res = await fetchPathLoggedIn( '/wp-json/wp/v2/posts' );
+		const posts = await res.json();
+		expect( posts ).toStrictEqual( {
+			code: 'private_site',
+			message: 'This site is private.',
+			data: { status: 403 },
+		} );
+	} );
 } );
