@@ -130,19 +130,22 @@ if [ -z "$SUBSCRIBER_USER_ID" ]; then
 fi
 echo SUBSCRIBER_USER_ID is ${SUBSCRIBER_USER_ID};
 
+AUTH_COOKIE_NAME=`docker exec -it $WPCLI wp eval 'echo AUTH_COOKIE;'`
+echo AUTH_COOKIE_NAME is ${AUTH_COOKIE_NAME};
+SUBSCRIBER_AUTH_COOKIE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER_ID}" "echo wp_generate_auth_cookie( get_current_user_id(), strtotime( '+99 day' ) );"`
+echo SUBSCRIBER_AUTH_COOKIE is ${SUBSCRIBER_AUTH_COOKIE};
 SUBSCRIBER_RESTAPI_NONCE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER_ID}" "echo wp_create_nonce( 'rest_api' );"`;
 echo SUBSCRIBER_RESTAPI_NONCE is ${SUBSCRIBER_RESTAPI_NONCE};
-SUBSCRIBER_AUTH_COOKIE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER_ID}" "echo wp_generate_auth_cookie( get_current_user_id(), strtotime( '+1 hour' ) );"`
-echo SUBSCRIBER_AUTH_COOKIE is ${SUBSCRIBER_AUTH_COOKIE};
 
 JEST=`docker create \
   --name ${PROJECT}_jest \
   --network-alias jest \
-  --network $NETWORK \
-  --env DEVSPECS=$DEVSPECS \
-  --env SUBSCRIBER_RESTAPI_NONCE=$SUBSCRIBER_RESTAPI_NONCE \
-  --env SUBSCRIBER_AUTH_COOKIE=$SUBSCRIBER_AUTH_COOKIE \
-  --env SUBSCRIBER_USER_ID=$SUBSCRIBER_USER_ID \
+  --network ${NETWORK} \
+  --env AUTH_COOKIE_NAME=${AUTH_COOKIE_NAME} \
+  --env DEVSPECS=${DEVSPECS} \
+  --env SUBSCRIBER_RESTAPI_NONCE=${SUBSCRIBER_RESTAPI_NONCE} \
+  --env SUBSCRIBER_AUTH_COOKIE=${SUBSCRIBER_AUTH_COOKIE} \
+  --env SUBSCRIBER_USER_ID=${SUBSCRIBER_USER_ID} \
   --entrypoint tail \
   node:10.16.3-stretch-slim \
   -f /dev/null` # arguments for entrypoint go after the image
