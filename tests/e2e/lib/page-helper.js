@@ -40,6 +40,7 @@ export async function waitForSelector( page, selector, options = {} ) {
 		console.log(
 			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec`
 		);
+		console.log( `URL: ${ page.url() }` );
 		throw e;
 	}
 }
