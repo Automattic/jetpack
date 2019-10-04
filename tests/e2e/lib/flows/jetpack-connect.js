@@ -20,7 +20,6 @@ import { getNgrokSiteUrl } from '../utils-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
-const siteUrl = new URL( process.env.WP_BASE_URL ).host;
 
 /**
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
@@ -38,9 +37,9 @@ export async function connectThroughWPAdminIfNeeded( {
 		await login.login( wpcomUser );
 	}
 
-	const url = getNgrokSiteUrl();
+	const siteUrl = getNgrokSiteUrl();
 
-	await ( await WPLoginPage.visit( page, url + '/wp-login.php' ) ).login();
+	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
 	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
@@ -77,8 +76,8 @@ export async function connectThroughWPAdminIfNeeded( {
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload();
 
-	if ( ! ( await jetpackPage.isConnected() ) || ! ( await jetpackPage.isPlan( plan ) ) ) {
-		throw new Error( `Site is not connected OR it does not have ${ plan } plan` );
+	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
+		throw new Error( `Site does not have ${ plan } plan` );
 	}
 
 	return true;
