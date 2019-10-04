@@ -114,7 +114,7 @@ class PlanGrid extends React.Component {
 				<ButtonGroup>
 					{ map( periods, ( periodLabel, periodName ) => (
 						<Button
-							key={ periodLabel }
+							key={ 'plan-period-button-' + periodName }
 							primary={ periodName === period }
 							onClick={ this.handlePeriodChange( periodName ) }
 							compact
