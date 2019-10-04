@@ -19,9 +19,11 @@ describe( 'Simple Payment', () => {
 		//Can login and connect Jetpack if needed
 		await connectThroughWPAdminIfNeeded();
 
-		await ( await Sidebar.init( page ) ).selectNewPost();
+		// await ( await Sidebar.init( page ) ).selectNewPost();
 
-		const blockEditor = await BlockEditorPage.init( page );
+		// const blockEditor = await BlockEditorPage.init( page );
+		const blockEditor = await BlockEditorPage.visit( page );
+
 		const blockInfo = await blockEditor.insertBlock( SimplePaymentBlock.name() );
 
 		const spBlock = new SimplePaymentBlock( blockInfo, page );

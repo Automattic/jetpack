@@ -7,11 +7,13 @@ import Page from '../page';
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
+import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.block-editor';
-		super( page, { expectedSelector } );
+		const url = getNgrokSiteUrl() + '/post-new.php';
+		super( page, { expectedSelector, url } );
 	}
 
 	async insertBlock( blockName ) {

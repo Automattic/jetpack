@@ -73,4 +73,7 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await ( await JetpackPage.init( page ) ).waitForPage();
 	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
+
+	// Reload the page to hidrate plans cache
+	await page.reload();
 }

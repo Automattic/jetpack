@@ -32,9 +32,10 @@ describe( 'WordAds block', () => {
 		// Can activate WordAds module
 		await activateWordAdsModule();
 
-		await ( await Sidebar.init( page ) ).selectNewPost();
+		// await ( await Sidebar.init( page ) ).selectNewPost();
+		const blockEditor = await BlockEditorPage.visit( page );
 
-		const blockEditor = await BlockEditorPage.init( page );
+		// const blockEditor = await BlockEditorPage.init( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
 		const adBlock = new WordAdsBlock( blockInfo, page );

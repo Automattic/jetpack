@@ -30,9 +30,10 @@ describe( 'Mailchimp Block', () => {
 		await connectThroughWPAdminIfNeeded();
 
 		await activatePublicizeModule();
-		await ( await Sidebar.init( page ) ).selectNewPost();
+		// await ( await Sidebar.init( page ) ).selectNewPost();
 
-		const blockEditor = await BlockEditorPage.init( page );
+		const blockEditor = await BlockEditorPage.visit( page );
+		// const blockEditor = await BlockEditorPage.init( page );
 		const blockInfo = await blockEditor.insertBlock( MailchimpBlock.name() );
 
 		const mcBlock = new MailchimpBlock( blockInfo, page );
