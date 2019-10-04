@@ -2,7 +2,7 @@
  * External dependencies
  */
 const fetch = require( 'node-fetch' );
-const { get } = require( 'lodash' );
+const { get, head, isArray, isEmpty, merge } = require( 'lodash' );
 
 const {
 	AUTH_COOKIE_NAME,
@@ -10,10 +10,10 @@ const {
 	SUBSCRIBER_RESTAPI_NONCE,
 	SUBSCRIBER_AUTH_COOKIE,
 } = get( global, 'process.env', {} );
-const YEAR_IN_SECONDS = 31536000;
 
 /*
 	In ase we need moar cookies in our jar
+	const YEAR_IN_SECONDS = 31536000;
 	const wpSettingsTime = Math.floor( +new Date() / 1000 ) + YEAR_IN_SECONDS;
 	const subscriberCookies = `wordpress_test_cookie=WP+Cookie+check; ${ AUTH_COOKIE_NAME }=${ SUBSCRIBER_AUTH_COOKIE }; wp-settings-time-${ SUBSCRIBER_USER_ID }=${ wpSettingsTime }`;
 */
@@ -24,15 +24,24 @@ const siteBaseUrl = 'http://nginx:8989';
 
 const fetchPath = ( path = '', options = {} ) => fetch( `${ siteBaseUrl }${ path }`, options );
 
-const fetchPathLoggedIn = ( path = '', options = {} ) =>
-	fetchPath( path, {
-		credentials: 'include',
-		headers: {
-			Cookie: subscriberCookies,
-			'X-WP-Nonce': SUBSCRIBER_RESTAPI_NONCE,
-		},
-		...options,
-	} );
+const fetchPathLoggedIn = ( path = '', options = {} ) => {
+	return fetchPath(
+		path,
+		merge(
+			{
+				credentials: 'include',
+				headers: {
+					Cookie: subscriberCookies,
+				},
+			},
+			options
+		)
+	);
+};
+
+const apiNonceHeader = { 'X-WP-Nonce': SUBSCRIBER_RESTAPI_NONCE };
+const fetchPathLoggedInWithRestApiNonce = ( path = '', options = {} ) =>
+	fetchPathLoggedIn( path, merge( options, { headers: apiNonceHeader } ) );
 
 describe( 'Environment', () => {
 	it( 'Should have a AUTH_COOKIE_NAME', async () => {
@@ -105,9 +114,7 @@ describe( 'Private Site -- Logged out Access', () => {
 
 	it( 'Should not show REST API posts for logged out user with nonce', async () => {
 		const res = await fetchPath( '/wp-json/wp/v2/posts', {
-			headers: {
-				'X-WP-Nonce': SUBSCRIBER_RESTAPI_NONCE,
-			},
+			headers: apiNonceHeader,
 		} );
 		const posts = await res.json();
 
@@ -188,7 +195,7 @@ describe( 'Private Site -- Logged in Access', () => {
 
 		expect( loggedIn ).toBe( 1 );
 	} );
-
+	/*
 	it( 'Should not show REST API posts for logged in user without nonce', async () => {
 		const res = await fetchPathLoggedIn( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
@@ -197,5 +204,15 @@ describe( 'Private Site -- Logged in Access', () => {
 			message: 'This site is private.',
 			data: { status: 403 },
 		} );
+	} );*/
+
+	it( 'Should show REST API posts for logged in user with nonce', async () => {
+		const res = await fetchPathLoggedInWithRestApiNonce( '/wp-json/wp/v2/posts' );
+		const posts = await res.json();
+
+		expect( isArray( posts ) ).toBe( true );
+		expect( isEmpty( posts ) ).toBe( false );
+		const slug = get( head( posts ), 'slug' );
+		expect( slug ).toBe( 'this-is-a-test-post' );
 	} );
 } );
