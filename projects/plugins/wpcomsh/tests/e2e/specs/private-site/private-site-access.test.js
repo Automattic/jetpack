@@ -152,8 +152,6 @@ describe( 'Private Site -- Logged out Access', () => {
 
 		expect( opml ).not.toMatch( /wpcomsh test/ );
 		expect( opml ).not.toMatch( /this is a test post/ );
-
-		expect( true ).toBe( true );
 	} );
 } );
 
@@ -206,6 +204,20 @@ describe( 'Private Site -- Logged in Access', () => {
 		} );
 	} );
 
+	it( 'Should not show REST API posts for logged in user with invalid nonce', async () => {
+		const res = await fetchPathLoggedIn( '/wp-json/wp/v2/posts', {
+			headers: {
+				'X-WP-Nonce': 'bunchagibberish',
+			},
+		} );
+		const posts = await res.json();
+		expect( posts ).toStrictEqual( {
+			code: 'rest_cookie_invalid_nonce',
+			message: 'Cookie nonce is invalid',
+			data: { status: 403 },
+		} );
+	} );
+
 	it( 'Should show REST API posts for logged in user with nonce', async () => {
 		const res = await fetchPathLoggedInWithRestApiNonce( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
@@ -214,5 +226,29 @@ describe( 'Private Site -- Logged in Access', () => {
 		expect( isEmpty( posts ) ).toBe( false );
 		const slug = get( head( posts ), 'slug' );
 		expect( slug ).toBe( 'this-is-a-test-post' );
+	} );
+
+	it( 'Should show feed for logged in user', async () => {
+		const res = await fetchPathLoggedIn( '/feed' );
+		const bodyString = await res.text();
+		expect( bodyString ).toMatch( /<title>wpcomsh test<\/title>/ );
+		expect( bodyString ).toMatch( /<title>this is a test post<\/title>/ );
+	} );
+
+	it( 'Should show restrictive robots.txt for logged in user', async () => {
+		const res = await fetchPathLoggedIn( '/robots.txt' );
+		const robotsTxt = await res.text();
+		expect( robotsTxt ).toBe( 'User-agent: *\nDisallow: /\n' );
+	} );
+
+	it( 'Should show OPML resource', async () => {
+		const res = await fetchPathLoggedIn( '/wp-links-opml.php' );
+		const opml = await res.text();
+
+		expect( opml ).not.toMatch( /<title>\s*Links for Private Site\s*<\/title>/ );
+		expect( opml ).not.toMatch( '<error>This site is private.</error>' );
+
+		expect( opml ).toMatch( /wpcomsh test/ );
+		// @TODO Add a "link" and make sure it shows up here and not in the logged-out tests
 	} );
 } );
