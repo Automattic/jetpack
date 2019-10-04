@@ -12,7 +12,7 @@ import { getNgrokSiteUrl } from '../../utils-helper';
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.block-editor';
-		const url = getNgrokSiteUrl() + '/post-new.php';
+		const url = getNgrokSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelector, url } );
 	}
 
