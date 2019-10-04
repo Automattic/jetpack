@@ -93,15 +93,12 @@ docker start $WP
 echo starting WPCLI
 docker start $WPCLI
 
-echo Copying the built plugin to a temp directory
-TEMPDIR=`mktemp -d`
-chmod 755 $TEMPDIR
-cp -a ./build/wpcomsh/* $TEMPDIR/
-echo Removing the mu-plugin "loader" file from the copy of the built plugin
-rm $TEMPDIR/wpcomsh-loader.php
 echo Copying the built plugin to the shared volume
-docker cp $TEMPDIR $WPCLI:/var/www/html/wp-content/plugins/wpcomsh/
-rm -rf $TEMPDIR
+docker exec --user root $WPCLI mkdir -p /var/www/html/wp-content/mu-plugins
+docker cp ./build/wpcomsh $WPCLI:/var/www/html/wp-content/mu-plugins/wpcomsh/
+
+echo \"Fixing\" Permissions
+docker exec --user root $WPCLI chown -R www-data:www-data /var/www/html
 
 if [ "$1" = "private" ]; then
   echo Kicking off Private Site tests

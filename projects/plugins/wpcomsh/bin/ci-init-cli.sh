@@ -29,7 +29,15 @@ else
   wp option update blog_public 1;
 fi
 
-echo "Activating wpcomsh plugin";
-wp plugin activate wpcomsh;
+echo "Linking the wpcomsh-loader.php file into mu-plugins";
+ln -s /var/www/html/wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php /var/www/html/wp-content/mu-plugins/wpcomsh-loader.php
+
+echo "Defining the IS_ATOMIC constant in a mini-plugin";
+echo "<?php
+
+if ( ! defined( 'IS_ATOMIC' ) ) {
+  define( 'IS_ATOMIC', 1 );
+}
+" > wp-content/mu-plugins/0-wpcomsh-early-constant.php
 
 echo "Initialized!";
