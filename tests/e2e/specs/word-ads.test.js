@@ -6,7 +6,6 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
-import Sidebar from '../lib/pages/wp-admin/sidebar';
 
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
@@ -32,10 +31,7 @@ describe( 'WordAds block', () => {
 		// Can activate WordAds module
 		await activateWordAdsModule();
 
-		// await ( await Sidebar.init( page ) ).selectNewPost();
 		const blockEditor = await BlockEditorPage.visit( page );
-
-		// const blockEditor = await BlockEditorPage.init( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
 		const adBlock = new WordAdsBlock( blockInfo, page );

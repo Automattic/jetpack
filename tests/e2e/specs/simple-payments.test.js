@@ -6,7 +6,6 @@ import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
-import Sidebar from '../lib/pages/wp-admin/sidebar';
 
 describe( 'Simple Payment', () => {
 	beforeAll( async () => {
@@ -19,9 +18,6 @@ describe( 'Simple Payment', () => {
 		//Can login and connect Jetpack if needed
 		await connectThroughWPAdminIfNeeded();
 
-		// await ( await Sidebar.init( page ) ).selectNewPost();
-
-		// const blockEditor = await BlockEditorPage.init( page );
 		const blockEditor = await BlockEditorPage.visit( page );
 
 		const blockInfo = await blockEditor.insertBlock( SimplePaymentBlock.name() );
