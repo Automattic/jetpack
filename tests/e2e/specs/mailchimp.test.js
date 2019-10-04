@@ -1,8 +1,4 @@
 /**
- * WordPress dependencies
- */
-import { createNewPost } from '@wordpress/e2e-test-utils/build/create-new-post';
-/**
  * Internal dependencies
  */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
