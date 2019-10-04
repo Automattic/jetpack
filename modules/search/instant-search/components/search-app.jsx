@@ -36,7 +36,7 @@ class SearchApp extends Component {
 			loading: false,
 			resultsActive: false,
 		};
-		this.getResults = debounce( this.getResults, 200 );
+		this.getDebouncedResults = debounce( this.getResults, 200 );
 		if ( this.resultsWillBeActive || this.props.widgets.length > 0 ) {
 			this.getResults( this.state.query, getFilterQuery(), this.state.sort );
 		}
@@ -89,7 +89,7 @@ class SearchApp extends Component {
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
-		this.getResults( query, this.state.sort );
+		this.getDebouncedResults( query, this.state.sort );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
