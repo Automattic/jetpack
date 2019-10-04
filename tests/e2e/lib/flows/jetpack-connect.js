@@ -38,9 +38,10 @@ export async function connectThroughWPAdminIfNeeded( {
 	}
 
 	const siteUrl = getNgrokSiteUrl();
+	const host = new URL( siteUrl ).host;
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
+	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	let jetpackPage = await JetpackPage.init( page );
@@ -71,7 +72,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.setSandboxModeForPayments( cookie, siteUrl );
+	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload();
