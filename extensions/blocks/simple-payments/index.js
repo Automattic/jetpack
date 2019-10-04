@@ -13,6 +13,11 @@ import save from './save';
 import { DEFAULT_CURRENCY } from './constants';
 
 /**
+ * Example image
+ */
+import simplePaymentsExample1 from './simple-payments__example-1.jpg';
+
+/**
  * Styles
  */
 import './editor.scss';
@@ -123,10 +128,13 @@ export const settings = {
 	example: {
 		attributes: {
 			price: 25.0,
-			title: 'Jetpack t-shirt',
-			content:
+			title: __( 'Jetpack t-shirt', 'jetpack' ),
+			content: __(
 				'Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo.',
+				'jetpack'
+			),
 			email: 'jetpack@jetpack.com',
+			featuredMediaUrl: simplePaymentsExample1,
 		},
 	},
 
