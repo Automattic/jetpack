@@ -414,7 +414,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					),
 					'https://www.google.com/maps/embed/v1/place'
 				);
-				$response = wp_remote_get( esc_url_raw( $path ) );
+				$wp_remote_get_args = array(
+		                'headers' => array( 'Referer' => site_url() )
+		        );
+		        $response = wp_remote_get( esc_url_raw( $path ), $wp_remote_get_args );
 
 				if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 					return true;
