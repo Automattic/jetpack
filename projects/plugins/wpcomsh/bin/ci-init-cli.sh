@@ -4,7 +4,7 @@ echo "Waiting on db to be ready...";
 sh /usr/local/bin/wait-for db:3306 -t 30 || exit 1;
 
 echo "***** Making sure WordPress is installed";
-wp core install --url="http://nginx:8989" --title="wpcomsh test" --admin_user="admin" --admin_password="9f0jiajfsjf930jfs" --admin_email="nobody@example.com";
+wp core install --url="http://nginx:8989" --title="wpcomsh test" --admin_user="admin" --admin_password="password" --admin_email="nobody@example.com";
 
 echo "Emptying site";
 wp site empty --yes;
