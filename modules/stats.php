@@ -832,7 +832,7 @@ function stats_admin_bar_head() {
 	add_action( 'admin_bar_menu', 'stats_admin_bar_menu', 100 );
 ?>
 
-<style type='text/css'>
+<style data-ampdevmode type='text/css'>
 #wpadminbar .quicklinks li#wp-admin-bar-stats {
 	height: 32px;
 }
@@ -878,14 +878,10 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
 	$menu = array(
-		'id'   => 'stats',
-		'href' => $url,
+		'id'    => 'stats',
+		'href'  => $url,
+		'title' => "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
 	);
-	if ( Jetpack_AMP_Support::is_amp_request() ) {
-		$menu['title'] = "<amp-img src='$img_src_2x' width=112 height=24 layout=fixed alt='$alt' title='$title'></amp-img>";
-	} else {
-		$menu['title'] = "<div><img src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>";
-	}
 
 	$wp_admin_bar->add_menu( $menu );
 }
