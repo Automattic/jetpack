@@ -22,7 +22,7 @@ finish () {
 trap "finish" HUP INT TERM QUIT
 
 tidyupdocker () {
-  echo Tidying up any stray containers
+  echo Tidying up containers
   for C in $ALLCONTAINERS; do
     docker rm -f wpcomsh_public_access_$C >/dev/null 2>/dev/null
     docker rm -f wpcomsh_private_access_$C >/dev/null 2>/dev/null

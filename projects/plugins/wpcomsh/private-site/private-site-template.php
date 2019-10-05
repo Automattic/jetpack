@@ -8,8 +8,6 @@ namespace Private_Site;
 nocache_headers();
 header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_bloginfo( 'charset' ) );
 
-$url         = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-$redirect_to = set_url_scheme( $url );
 ?><!DOCTYPE html>
 <!--[if IE 8]>
 <html xmlns="http://www.w3.org/1999/xhtml" class="ie8" <?php language_attributes(); ?>>
@@ -33,7 +31,7 @@ $redirect_to = set_url_scheme( $url );
 	}
 	$classes[] = ' locale-' . sanitize_html_class( strtolower( str_replace( '_', '-', get_locale() ) ) );
 
-	$login_link = site_url() . '/wp-login.php?redirect_to=' . $redirect_to;
+	$login_link = site_url() . '/wp-login.php?redirect_to=' . set_url_scheme( original_request_url() );
 	?>
 
 </head>
