@@ -99,7 +99,7 @@
 		"cookie": "0.4.0",
 		"copy-webpack-plugin": "5.0.4",
 		"create-react-class": "15.6.3",
-		"cross-env": "5.2.1",
+		"cross-env": "6.0.3",
 		"debug": "3.2.6",
 		"del": "4.1.1",
 		"email-validator": "2.0.4",
