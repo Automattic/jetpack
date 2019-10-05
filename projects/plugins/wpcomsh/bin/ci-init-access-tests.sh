@@ -1,5 +1,7 @@
 #!/bin/sh
-DEVSPECS=0; # Set this to 1 to enable "hot-reloading" spec development
+
+# Set DEVSPECS to 1 to enable "hot-reloading" spec development & leave containers running until you exit (`cmd+c`, etc.)
+DEVSPECS=0;
 
 if [ "$1" = "private" ]; then
   echo Running Private Site Tests!
