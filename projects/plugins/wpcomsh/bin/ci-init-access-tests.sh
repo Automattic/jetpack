@@ -14,7 +14,13 @@ NETWORK=$PROJECT
 WPDATA=${PROJECT}_wpdata
 ALLCONTAINERS='db jest nginx wp wpcli'
 
-# TODO: trap exit signals and run this instead of calling it at the end of the script
+finish () {
+  STATUS=$?;
+  tidyupdocker;
+  exit $STATUS;
+}
+trap "finish" HUP INT TERM QUIT
+
 tidyupdocker () {
   echo Tidying up any stray containers
   for C in $ALLCONTAINERS; do
@@ -174,10 +180,4 @@ rm -rf $TEMPDIR
 echo starting JEST
 docker start $JEST
 docker exec $JEST /bin/sh /usr/local/bin/ci-init-e2e.sh
-
-STATUS=$?
-
-# Comment out the following line if you'd like to leave the containers running to test, etc.
-tidyupdocker
-
-exit $STATUS
+finish
