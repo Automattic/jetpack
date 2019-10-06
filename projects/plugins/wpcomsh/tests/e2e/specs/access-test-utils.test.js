@@ -1,7 +1,7 @@
 const envVars = require( './access-test-utils' );
 
 describe( 'Environment', () => {
-	it( 'Should have a AUTH_COOKIE_NAME', async () => {
+	it( 'Should have an auth cookie Name', async () => {
 		expect( !! envVars.AUTH_COOKIE_NAME ).toBe( true );
 	} );
 	it( 'Should have a user id for a Subscriber user', async () => {
