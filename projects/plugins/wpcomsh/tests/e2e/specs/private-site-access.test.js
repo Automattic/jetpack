@@ -1,55 +1,16 @@
 /**
  * External dependencies
  */
-const fetch = require( 'node-fetch' );
-const { get, head, isArray, isEmpty, merge } = require( 'lodash' );
+const { get, head, isArray, isEmpty } = require( 'lodash' );
 
+/**
+ * Internal dependencies
+ */
 const {
-	AUTH_COOKIE_NAME,
-	SUBSCRIBER_USER_ID,
-	SUBSCRIBER_RESTAPI_NONCE,
-	SUBSCRIBER_AUTH_COOKIE,
-} = get( global, 'process.env', {} );
-
-const subscriberCookies = `${ AUTH_COOKIE_NAME }=${ SUBSCRIBER_AUTH_COOKIE }`;
-
-const siteBaseUrl = 'http://nginx:8989';
-
-const fetchPath = ( path = '', options = {} ) => fetch( `${ siteBaseUrl }${ path }`, options );
-
-const fetchPathLoggedIn = ( path = '', options = {} ) => {
-	return fetchPath(
-		path,
-		merge(
-			{
-				credentials: 'include',
-				headers: {
-					Cookie: subscriberCookies,
-				},
-			},
-			options
-		)
-	);
-};
-
-const apiNonceHeader = { 'X-WP-Nonce': SUBSCRIBER_RESTAPI_NONCE };
-const fetchPathLoggedInWithRestApiNonce = ( path = '', options = {} ) =>
-	fetchPathLoggedIn( path, merge( options, { headers: apiNonceHeader } ) );
-
-describe( 'Environment', () => {
-	it( 'Should have a AUTH_COOKIE_NAME', async () => {
-		expect( !! AUTH_COOKIE_NAME ).toBe( true );
-	} );
-	it( 'Should have a user id for a Subscriber user', async () => {
-		expect( !! SUBSCRIBER_USER_ID ).toBe( true );
-	} );
-	it( 'Should have a rest api nonce for a Subscriber user', async () => {
-		expect( !! SUBSCRIBER_RESTAPI_NONCE ).toBe( true );
-	} );
-	it( 'Should have an auth cookie for a Subscriber user', async () => {
-		expect( !! SUBSCRIBER_AUTH_COOKIE ).toBe( true );
-	} );
-} );
+	fetchPath,
+	fetchPathLoggedIn,
+	fetchPathLoggedInWithRestApiNonce,
+} = require( './access-test-utils' );
 
 describe( 'Private Site -- Logged out Access', () => {
 	it( 'Should show access denied on home page for logged out user', async () => {

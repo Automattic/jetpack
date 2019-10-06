@@ -1,41 +1,16 @@
 /**
  * External dependencies
  */
-const fetch = require( 'node-fetch' );
-const { get, head, isArray, isEmpty, merge } = require( 'lodash' );
+const { get, head, isArray, isEmpty } = require( 'lodash' );
 
-// @TODO move the utils to a shared util file & require here & in the private spec
+/**
+ * Internal dependencies
+ */
 const {
-	AUTH_COOKIE_NAME,
-	SUBSCRIBER_USER_ID,
-	SUBSCRIBER_RESTAPI_NONCE,
-	SUBSCRIBER_AUTH_COOKIE,
-} = get( global, 'process.env', {} );
-
-const subscriberCookies = `${ AUTH_COOKIE_NAME }=${ SUBSCRIBER_AUTH_COOKIE }`;
-
-const siteBaseUrl = 'http://nginx:8989';
-
-const fetchPath = ( path = '', options = {} ) => fetch( `${ siteBaseUrl }${ path }`, options );
-
-const fetchPathLoggedIn = ( path = '', options = {} ) => {
-	return fetchPath(
-		path,
-		merge(
-			{
-				credentials: 'include',
-				headers: {
-					Cookie: subscriberCookies,
-				},
-			},
-			options
-		)
-	);
-};
-
-const apiNonceHeader = { 'X-WP-Nonce': SUBSCRIBER_RESTAPI_NONCE };
-const fetchPathLoggedInWithRestApiNonce = ( path = '', options = {} ) =>
-	fetchPathLoggedIn( path, merge( options, { headers: apiNonceHeader } ) );
+	fetchPath,
+	fetchPathLoggedIn,
+	fetchPathLoggedInWithRestApiNonce,
+} = require( './access-test-utils' );
 
 describe( 'Public Site -- Logged out Access', () => {
 	it( 'Should show home page for logged out user', async () => {
@@ -93,6 +68,7 @@ describe( 'Public Site -- Logged in Access', () => {
 	} );
 
 	it( 'Should show /wp-admin for logged in user', async () => {
+		//const res = await fetchPathLoggedIn( '/wp-admin/options-reading.php' );
 		const res = await fetchPathLoggedIn( '/wp-admin' );
 		const wpAdmin = await res.text();
 

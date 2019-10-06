@@ -165,22 +165,24 @@ docker cp ./bin/wait-for $JEST:/usr/local/bin/wait-for
 docker cp ./bin/ci-init-e2e.sh $JEST:/usr/local/bin/ci-init-e2e.sh
 TEMPDIR=`mktemp -d`
 chmod 755 $TEMPDIR
+mkdir -p $TEMPDIR/specs
 cp ./package*.json $TEMPDIR/
 cp ./tests/e2e/jest.config.js $TEMPDIR/
 if [ "$1" = "private" ]; then
-  echo Copying Private Site test specs
-  SPECDIR=./tests/e2e/specs/private-site
+  echo Copying Private Site test suite
+  SPEC=./tests/e2e/specs/private-site-access.test.js
 else
-  echo Copying Public Site test specs
-  SPECDIR=./tests/e2e/specs/public-site
+  echo Copying Public Site test suite
+  SPEC=./tests/e2e/specs/public-site-access.test.js
 fi
-cp -a $SPECDIR $TEMPDIR/specs
+cp $SPEC $TEMPDIR/specs/
+cp ./tests/e2e/specs/access-test-utils.js $TEMPDIR/specs/
 docker cp $TEMPDIR $JEST:/e2e
 rm -rf $TEMPDIR
 
 [ "$DEVSPECS" = "1" ] && \
   echo HELLO SPEC DEVELOPER!; \
-  npx chokidar-cli "$SPECDIR/*.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 & \
+  npx chokidar-cli "$SPEC" "./tests/e2e/specs/access-test-utils.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 & \
   CHOKIDAR_PID=$!
 
 echo starting JEST
