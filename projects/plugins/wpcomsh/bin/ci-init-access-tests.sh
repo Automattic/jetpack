@@ -13,10 +13,15 @@ fi
 NETWORK=$PROJECT
 WPDATA=${PROJECT}_wpdata
 ALLCONTAINERS='db jest nginx wp wpcli'
+CHOKIDAR_PID=''
 
 finish () {
   STATUS=$?;
   tidyupdocker;
+  if [ "${CHOKIDAR_PID}" ]; then
+    echo Stopping file watcher
+    kill -9 "${CHOKIDAR_PID}" 2>/dev/null
+  fi
   exit $STATUS;
 }
 trap "finish" HUP INT TERM QUIT
@@ -175,7 +180,8 @@ rm -rf $TEMPDIR
 
 [ "$DEVSPECS" = "1" ] && \
   echo HELLO SPEC DEVELOPER!; \
-  npx chokidar-cli "$SPECDIR/*.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 &
+  npx chokidar-cli "$SPECDIR/*.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 & \
+  CHOKIDAR_PID=$!
 
 echo starting JEST
 docker start $JEST
