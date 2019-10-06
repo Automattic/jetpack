@@ -177,12 +177,17 @@ else
 fi
 cp $SPEC $TEMPDIR/specs/
 cp ./tests/e2e/specs/access-test-utils.js $TEMPDIR/specs/
+cp ./tests/e2e/specs/access-test-utils.test.js $TEMPDIR/specs/
 docker cp $TEMPDIR $JEST:/e2e
 rm -rf $TEMPDIR
 
 [ "$DEVSPECS" = "1" ] && \
   echo HELLO SPEC DEVELOPER!; \
-  npx chokidar-cli "$SPEC" "./tests/e2e/specs/access-test-utils.js" -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 & \
+  npx chokidar-cli \
+    "$SPEC" \
+    "./tests/e2e/specs/access-test-utils.js" \
+    "./tests/e2e/specs/access-test-utils.test.js" \
+    -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 & \
   CHOKIDAR_PID=$!
 
 echo starting JEST
