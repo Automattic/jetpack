@@ -10,6 +10,7 @@ const {
 	fetchPath,
 	fetchPathLoggedIn,
 	fetchPathLoggedInWithRestApiNonce,
+	fetchPathLoggedOutWithRestApiNonce,
 } = require( './access-test-utils' );
 
 describe( 'Private Site -- Logged out Access', () => {
@@ -67,9 +68,7 @@ describe( 'Private Site -- Logged out Access', () => {
 	} );
 
 	it( 'Should not show REST API posts for logged out user with nonce', async () => {
-		const res = await fetchPath( '/wp-json/wp/v2/posts', {
-			headers: apiNonceHeader,
-		} );
+		const res = await fetchPathLoggedOutWithRestApiNonce( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
 
 		expect( posts ).toStrictEqual( {

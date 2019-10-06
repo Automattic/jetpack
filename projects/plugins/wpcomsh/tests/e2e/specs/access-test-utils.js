@@ -36,6 +36,8 @@ const fetchPathLoggedIn = ( path = '', options = {} ) => {
 const apiNonceHeader = { 'X-WP-Nonce': SUBSCRIBER_RESTAPI_NONCE };
 const fetchPathLoggedInWithRestApiNonce = ( path = '', options = {} ) =>
 	fetchPathLoggedIn( path, merge( options, { headers: apiNonceHeader } ) );
+const fetchPathLoggedOutWithRestApiNonce = ( path = '', options = {} ) =>
+	fetchPath( path, merge( options, { headers: apiNonceHeader } ) );
 
 module.exports = {
 	AUTH_COOKIE_NAME,
@@ -45,4 +47,5 @@ module.exports = {
 	fetchPath,
 	fetchPathLoggedIn,
 	fetchPathLoggedInWithRestApiNonce,
+	fetchPathLoggedOutWithRestApiNonce,
 };
