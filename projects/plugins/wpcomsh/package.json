@@ -20,6 +20,6 @@
 	},
 	"scripts": {
 		"test": "jest --bail --ci --verbose",
-		"test:watch": "jest --watchAll"
+		"test:watch": "jest --verbose --watchAll"
 	}
 }
