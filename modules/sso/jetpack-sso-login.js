@@ -2,6 +2,7 @@ jQuery( document ).ready( function( $ ) {
 	var body = $( 'body' ),
 		toggleSSO = $( '.jetpack-sso-toggle' ),
 		userLogin = $( '#user_login' ),
+		userPassword = $( '#user_pass' ),
 		ssoWrap = $( '#jetpack-sso-wrap' ),
 		loginForm = $( '#loginform' ),
 		overflow = $( '<div class="jetpack-sso-clear"></div>' );
@@ -27,6 +28,7 @@ jQuery( document ).ready( function( $ ) {
 		body.toggleClass( 'jetpack-sso-form-display' );
 		if ( ! body.hasClass( 'jetpack-sso-form-display' ) ) {
 			userLogin.focus();
+			userPassword.prop( 'disabled', false );
 		}
 	} );
 } );
