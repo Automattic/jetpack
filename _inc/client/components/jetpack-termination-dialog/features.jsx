@@ -9,7 +9,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-
+import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import SingleFeature from './single-feature';
 
 /**
@@ -17,8 +17,16 @@ import SingleFeature from './single-feature';
  */
 import './style.scss';
 
-const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } ) => {
+const JetpackTerminationDialogFeatures = ( {
+	isAtomicSite,
+	isDevVersion,
+	purpose,
+	siteBenefits,
+	siteName,
+} ) => {
 	const siteBenefitCount = siteBenefits.length;
+
+	const jetpackSupportURl = isDevVersion ? JETPACK_CONTACT_BETA_SUPPORT : JETPACK_CONTACT_SUPPORT;
 
 	return (
 		<div className="jetpack-termination-dialog__features">
@@ -126,7 +134,9 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 									a: (
 										<a
 											className="jetpack-termination-dialog__link"
-											href="https://jetpack.com/contact-support/"
+											href={
+												isAtomicSite ? 'https://wordpress.com/help/contact/' : jetpackSupportURl
+											}
 											rel="noopener noreferrer"
 											target="_blank"
 										/>
@@ -142,6 +152,8 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 };
 
 JetpackTerminationDialogFeatures.propTypes = {
+	isAtomicSite: PropTypes.bool,
+	isDevVersion: PropTypes.bool,
 	purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 	siteBenefits: PropTypes.array.isRequired,
 	siteName: PropTypes.string.isRequired,

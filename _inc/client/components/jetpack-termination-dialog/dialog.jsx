@@ -10,7 +10,7 @@ import React, { Component } from 'react';
  * Internal dependencies
  */
 import { getSiteBenefits } from 'state/site';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, isAtomicSite, isDevVersion } from 'state/initial-state';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -105,10 +105,19 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	renderFeatures() {
-		const { siteBenefits, siteName } = this.props;
+		const {
+			isAtomicSite: siteIsAtomic,
+			isDevSite: siteIsDev,
+			purpose,
+			siteBenefits,
+			siteName,
+		} = this.props;
 
 		return siteBenefits ? (
 			<JetpackTerminationDialogFeatures
+				isAtomicSite={ siteIsAtomic }
+				isDevSite={ siteIsDev }
+				purpose={ purpose }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
 				siteName={ siteName }
 			/>
@@ -162,6 +171,8 @@ class JetpackTerminationDialog extends Component {
 }
 
 export default connect( state => ( {
+	isAtomicSite: isAtomicSite( state ),
+	isDevVersion: isDevVersion( state ),
 	siteName: getSiteRawUrl( state ).replace( /:: /g, '/' ),
 	siteBenefits: getSiteBenefits( state ),
 } ) )( JetpackTerminationDialog );
