@@ -121,6 +121,9 @@ fi
 echo starting NGINX
 docker start $NGINX
 
+# Getting credentials so the test client can make logged-in requests
+# @TODO Get an admin credential and check for the specific option on wp-admin/options-reading.php & other varied access
+
 SUBSCRIBER_USER_ID=`docker exec -it $WPCLI wp user create alice alice@example.com --role=subscriber --porcelain`;
 echo "Got SUBSCRIBER_USER_ID from wpcli: ${SUBSCRIBER_USER_ID}" | cat -v;
 

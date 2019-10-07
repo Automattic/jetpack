@@ -68,7 +68,6 @@ describe( 'Public Site -- Logged in Access', () => {
 	} );
 
 	it( 'Should show /wp-admin for logged in user', async () => {
-		//const res = await fetchPathLoggedIn( '/wp-admin/options-reading.php' );
 		const res = await fetchPathLoggedIn( '/wp-admin' );
 		const wpAdmin = await res.text();
 
