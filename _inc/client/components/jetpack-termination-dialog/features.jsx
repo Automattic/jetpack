@@ -66,7 +66,7 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 							{ __( 'Jetpack has many powerful tools that can help you achieve your goals  ' ) }
 						</h2>
 						<ul>
-							<li key="reason-1">
+							<li key="reason-cdn">
 								{ __(
 									'Speed up your site and provide mobile-ready images with {{a}}our CDN{{/a}}',
 									{
@@ -74,7 +74,7 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 											a: (
 												<a
 													className="jetpack-termination-dialog__link"
-													href="https://jetpack.com/support/site-accelerator/"
+													href="https://jetpack.com/features/design/content-delivery-network/"
 													rel="noopener noreferrer"
 													target="_blank"
 												/>
@@ -83,7 +83,7 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 									}
 								) }
 							</li>
-							<li key="reason-2">
+							<li key="reason-brute-force">
 								{ __(
 									'Block {{a}}brute force attacks{{/a}} and get immediate notifications if your site is down',
 									{
@@ -91,7 +91,7 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 											a: (
 												<a
 													className="jetpack-termination-dialog__link"
-													href="https://jetpack.com/support/protect/"
+													href="https://jetpack.com/features/security/"
 													rel="noopener noreferrer"
 													target="_blank"
 												/>
@@ -100,7 +100,7 @@ const JetpackTerminationDialogFeatures = ( { purpose, siteBenefits, siteName } )
 									}
 								) }
 							</li>
-							<li key="reason-3">
+							<li key="reason-social">
 								{ __( 'Grow your traffic with automated social {{a}}publishing and sharing{{/a}}', {
 									components: {
 										a: (
