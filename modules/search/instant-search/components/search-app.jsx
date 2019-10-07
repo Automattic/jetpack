@@ -32,15 +32,17 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = Preact.createRef();
 		this.requestId = 0;
-		this.newResults = true;
+
+		// TODO: Rework these lines. We shouldn't reassign properties.
 		this.props.resultFormat = 'minimal';
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
+
 		this.state = {
+			isLoading: false,
 			query: this.props.initialValue,
+			response: {},
 			sort: this.props.initialSort,
-			results: {},
-			loading: false,
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
@@ -64,7 +66,6 @@ class SearchApp extends Component {
 
 	onChangeQuery = event => {
 		const query = event.target.value;
-		this.newResults = true;
 		this.setState( { query } );
 		setSearchQuery( query );
 		this.getResults( query, getFilterQuery(), getSortQuery() );
@@ -80,77 +81,54 @@ class SearchApp extends Component {
 		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
 	};
 
-	getResults = ( query, filter, sort, pageHandle = false ) => {
+	getResults = ( query, filter, sort, pageHandle ) => {
 		if ( query ) {
 			this.requestId++;
 			const requestId = this.requestId;
 
-			this.setState( {
-				loading: true,
-			} );
-			search( {
-				aggregations: this.props.aggregations,
-				filter,
-				query,
-				resultFormat: this.props.options.resultFormat,
-				siteId: this.props.options.siteId,
-				sort,
-			} ).then( results => {
-				if ( this.requestId === requestId ) {
-					this.setState( {
-						results,
-						loading: false,
-					} );
-				}
-			} );
-
-			//don't need to query aggs when paging
-			const aggs = pageHandle === false ? this.props.aggregations : {};
-
-			this.setState( { loading: true } );
-			search(
-				this.props.options.siteId,
-				query,
-				aggs,
-				{},
-				this.props.options.resultFormat,
-				pageHandle
-			)
-				.then( response => response.json() )
-				.then( json => {
+			this.setState( { isLoading: true }, () => {
+				search( {
+					// Skip aggregations when requesting for paged results
+					aggregations: !! pageHandle ? this.props.aggregations : {},
+					filter,
+					pageHandle,
+					query,
+					resultFormat: this.props.options.resultFormat,
+					siteId: this.props.options.siteId,
+					sort,
+				} ).then( newResponse => {
 					if ( this.requestId === requestId ) {
-						if ( this.newResults ) {
-							this.setState( {
-								results: json,
-								loading: false,
-							} );
-						} else {
-							this.setState( {
-								results: json,
-								loading: false,
-							} );
+						const response = { ...newResponse };
+						if ( !! pageHandle ) {
+							response.results = [
+								...( 'results' in this.state.response ? this.state.response.results : [] ),
+								...newResponse.results,
+							];
 						}
+						this.setState( { response } );
 					}
+					this.setState( { isLoading: false } );
 				} );
-		} else {
-			this.setState( {
-				results: [],
-				loading: false,
 			} );
+		} else {
+			this.setState( { response: {}, isLoading: false } );
 		}
 	};
 
-	loadMore = () => {
-		this.newResults = false;
-		this.getResults( this.state.query, this.state.results.page_handle );
+	loadNextPage = () => {
+		this.getResults(
+			this.state.query,
+			getFilterQuery(),
+			getSortQuery(),
+			this.state.response.page_handle
+		);
 	};
 
 	render() {
-		const { query, results, loading } = this.state;
+		const { query, response } = this.state;
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
-		const moreToLoad = !! results.page_handle;
 		return (
 			<Preact.Fragment>
 				{ this.props.widgets.map( widget => (
@@ -174,7 +152,7 @@ class SearchApp extends Component {
 								onChange={ this.onChangeFilter }
 								loading={ this.state.loading }
 								postTypes={ this.props.options.postTypes }
-								results={ this.state.results }
+								results={ this.state.response }
 								widget={ widget }
 							/>
 						</div>
@@ -194,13 +172,14 @@ class SearchApp extends Component {
 
 				<Portal into={ this.props.themeOptions.results_selector }>
 					<SearchResults
-						query={ query }
-						loading={ this.state.loading }
-						{ ...results }
-						result_format={ this.props.options.resultFormat }
-						moreToLoad={ moreToLoad }
-						loading={ loading }
+						hasNextPage={ !! response.page_handle }
+						isLoading={ this.state.isLoading }
 						loadMoreAction={ this.loadMore }
+						onLoadNextPage={ this.loadNextPage }
+						query={ query }
+						result_format={ this.props.options.resultFormat }
+						resultFormat={ this.props.options.resultFormat }
+						{ ...response }
 					/>
 				</Portal>
 			</Preact.Fragment>
