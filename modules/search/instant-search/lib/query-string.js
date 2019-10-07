@@ -114,7 +114,7 @@ export function getFilterQuery( filterKey ) {
 
 export function hasFilter() {
 	for ( let i = 0; i < FILTERS.length; i++ ) {
-		if ( getFilterQueryByKey( FILTERS[ i ] ) ) {
+		if ( getFilterQueryByKey( FILTERS[ i ] ).length > 0 ) {
 			return true;
 		}
 	}
