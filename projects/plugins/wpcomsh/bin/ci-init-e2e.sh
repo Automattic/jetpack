@@ -27,7 +27,7 @@ NODE_ENV="AUTH_COOKIE_NAME=${AUTH_COOKIE_NAME} \
 echo NODE_ENV is ${NODE_ENV};
 
 echo "Running e2e tests";
-if [ "$DEVSPECS" = "1" ]; then
+if [ "${WPCOMSH_DEVMODE}" = "1" ]; then
   su -l node -c "${NODE_ENV} npm --prefix /e2e run test:watch"
 else
   su -l node -c "${NODE_ENV} npm --prefix /e2e run test";

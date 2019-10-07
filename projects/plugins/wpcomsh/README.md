@@ -71,11 +71,12 @@ Each of the above:
 
 ##### Development of Test Specs
 
-You can enter a "development" mode by setting the `DEVSPECS` variable to `1` [here](bin/ci-init-access-tests.sh) & then running one of the `make test-*-access` commands again
+You can enter a "development" mode by declaring you are doing so on the command line like so:
+`WPCOMSH_DEVMODE=1 make test-private access`
 
 This will set jest to "watch" for changes to the spec files inside the running container and to watch for changes to the spec files on your local machine and copy them to the container on changes.
 
-Another bonus is, this will leave the services running, so you can access the running WordPress site to do manual testing:
+Another bonus is, this will leave the services running (until you exit with `cmd+c`, etc.), so you can access the running WordPress site to do manual testing:
 
 - Add the following to your hosts file: `127.0.0.1 nginx`
 - Browse to http://nginx:8989 in your favorite web client / browser

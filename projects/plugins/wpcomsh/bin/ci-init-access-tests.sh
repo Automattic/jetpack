@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Set DEVSPECS to 1 to enable "hot-reloading" spec development & leave containers running until you exit (`cmd+c`, etc.)
-DEVSPECS=0;
-
 if [ "$1" = "private" ]; then
   echo Running Private Site Tests!
   PROJECT=wpcomsh_private_access
@@ -152,7 +149,7 @@ JEST=`docker create \
   --network-alias jest \
   --network ${NETWORK} \
   --env AUTH_COOKIE_NAME=${AUTH_COOKIE_NAME} \
-  --env DEVSPECS=${DEVSPECS} \
+  --env WPCOMSH_DEVMODE=${WPCOMSH_DEVMODE} \
   --env SUBSCRIBER_RESTAPI_NONCE=${SUBSCRIBER_RESTAPI_NONCE} \
   --env SUBSCRIBER_AUTH_COOKIE=${SUBSCRIBER_AUTH_COOKIE} \
   --env SUBSCRIBER_USER_ID=${SUBSCRIBER_USER_ID} \
@@ -181,7 +178,7 @@ cp ./tests/e2e/specs/access-test-utils.test.js $TEMPDIR/specs/
 docker cp $TEMPDIR $JEST:/e2e
 rm -rf $TEMPDIR
 
-[ "$DEVSPECS" = "1" ] && \
+[ "${WPCOMSH_DEVMODE}" = "1" ] && \
   echo HELLO SPEC DEVELOPER!; \
   npx chokidar-cli \
     "$SPEC" \
