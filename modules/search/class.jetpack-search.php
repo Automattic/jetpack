@@ -156,6 +156,7 @@ class Jetpack_Search {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
+			 * @module search
 			 * @since 7.9.0
 			 *
 			 * @param string $reason Reason for Search fallback.
