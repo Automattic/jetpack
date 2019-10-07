@@ -169,7 +169,7 @@ class Jetpack_Search {
 		$this->jetpack_blog_id = Jetpack::get_option( 'id' );
 
 		if ( ! $this->jetpack_blog_id ) {
-			/** This action is documented in modules/search/class.jetpack-search.php
+			/** This action is documented in modules/search/class.jetpack-search.php */
 			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
 		}
