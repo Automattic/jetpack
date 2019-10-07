@@ -74,12 +74,6 @@ class JetpackTerminationDialog extends Component {
 		siteName: PropTypes.string,
 	};
 
-	constructor( props ) {
-		super( props );
-		this.handleTerminationClick = this.handleTerminationClick.bind( this );
-		this.handleDialogCloseClick = this.handleDialogCloseClick.bind( this );
-	}
-
 	componentDidMount() {
 		const { location, purpose, siteName } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_view', {
@@ -89,7 +83,7 @@ class JetpackTerminationDialog extends Component {
 		} );
 	}
 
-	handleTerminationClick() {
+	handleTerminationClick = () => {
 		const { location, purpose, siteName } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', {
 			location,
@@ -98,9 +92,9 @@ class JetpackTerminationDialog extends Component {
 		} );
 		// TODO: re-enable before shipping
 		// this.props.terminateJetpack();
-	}
+	};
 
-	handleDialogCloseClick() {
+	handleDialogCloseClick = () => {
 		const { location, purpose, siteName } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', {
 			location,
@@ -108,7 +102,7 @@ class JetpackTerminationDialog extends Component {
 			siteName,
 		} );
 		this.props.closeDialog();
-	}
+	};
 
 	renderFeatures() {
 		const { siteBenefits, siteName } = this.props;

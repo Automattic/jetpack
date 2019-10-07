@@ -24,15 +24,9 @@ class JetpackDisconnectModal extends Component {
 		toggleModal: noop,
 	};
 
-	constructor( props ) {
-		super( props );
-
-		this.disconnectJetpack = this.disconnectJetpack.bind( this );
-	}
-
-	disconnectJetpack() {
+	disconnectJetpack = () => {
 		this.props.disconnectSite( true );
-	}
+	};
 
 	render() {
 		const { show } = this.props;
