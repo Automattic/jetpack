@@ -184,7 +184,7 @@ rm -rf $TEMPDIR
     "$SPEC" \
     "./tests/e2e/specs/access-test-utils.js" \
     "./tests/e2e/specs/access-test-utils.test.js" \
-    -c "echo detected change at {path}; docker cp {path} $JEST:/e2e/specs/" -d 800 & \
+    -c "docker cp {path} $JEST:/e2e/specs/" -d 800 & \
   CHOKIDAR_PID=$!
 
 echo starting JEST
