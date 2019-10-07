@@ -317,7 +317,8 @@ class Posts extends Module {
 	 */
 	public function is_post_type_allowed( $post_id ) {
 		$post = get_post( intval( $post_id ) );
-		if ( $post->post_type ) {
+
+		if ( isset( $post->post_type ) ) {
 			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true );
 		}
 		return false;
@@ -665,6 +666,6 @@ class Posts extends Module {
 	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
-		return parent::get_min_max_object_ids_for_batches( $batch_size, $this->get_where_sql( false ) );
+		return parent::get_min_max_object_ids_for_batches( $batch_size, $this->get_where_sql( $where_sql ) );
 	}
 }
