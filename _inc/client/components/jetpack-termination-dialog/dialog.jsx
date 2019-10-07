@@ -151,8 +151,8 @@ class JetpackTerminationDialog extends Component {
 					<div className="jetpack-termination-dialog__button-row">
 						<p>
 							{ purpose === 'disconnect'
-								? __( 'Are you sure you want to log out?' )
-								: __( 'Are you sure you want to log out (and deactivate)?' ) }
+								? __( 'Are you sure you want to disconnect?' )
+								: __( 'Are you sure you want to log out and deactivate?' ) }
 						</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
 							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Close' ) }</Button>
