@@ -8,16 +8,14 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { fetchSiteBenefits, isFetchingSiteBenefits } from 'state/site';
-import { isDevMode } from 'state/connection';
 
 class QuerySiteBenefits extends Component {
 	static defaultProps = {
 		isFetchingSiteBenefitsData: false,
-		isDevMode: false,
 	};
 
 	UNSAFE_componentWillMount() {
-		if ( ! this.props.isFetchingSiteBenefits && ! this.props.isDevMode ) {
+		if ( ! this.props.isFetchingSiteBenefits ) {
 			this.props.fetchSiteBenefits();
 		}
 	}
@@ -28,15 +26,10 @@ class QuerySiteBenefits extends Component {
 }
 
 export default connect(
-	state => {
-		return {
-			isFetchingSiteBenefits: isFetchingSiteBenefits( state ),
-			isDevMode: isDevMode( state ),
-		};
-	},
-	dispatch => {
-		return {
-			fetchSiteBenefits: () => dispatch( fetchSiteBenefits() ),
-		};
-	}
+	state => ( {
+		isFetchingSiteBenefits: isFetchingSiteBenefits( state ),
+	} ),
+	dispatch => ( {
+		fetchSiteBenefits: () => dispatch( fetchSiteBenefits() ),
+	} )
 )( QuerySiteBenefits );
