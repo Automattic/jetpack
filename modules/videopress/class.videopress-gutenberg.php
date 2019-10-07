@@ -31,6 +31,7 @@ class VideoPress_Gutenberg {
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_video_block_with_videopress' ) );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
 	}
 
 	/**
@@ -163,6 +164,28 @@ class VideoPress_Gutenberg {
 			$content,
 			1
 		);
+	}
+
+	/**
+	 * Replaces the video uploaded in the block editor.
+	 *
+	 * Enqueues a script that registers an API fetch middleware replacing the video uploads in Gutenberg so they are
+	 * uploaded against the WP.com API media endpoint and thus transcoded by VideoPress.
+	 */
+	public function override_video_upload() {
+		if (
+			method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active()
+			&& method_exists( 'Jetpack', 'is_module_active' )
+			&& Jetpack::is_module_active( 'videopress' )
+		) {
+			wp_enqueue_script(
+				'jetpack-videopress-gutenberg-override-video-upload',
+				plugin_dir_url( __FILE__ ) . 'js/gutenberg-video-upload.js',
+				array( 'wp-api-fetch' ),
+				JETPACK__VERSION,
+				false
+			);
+		}
 	}
 }
 
