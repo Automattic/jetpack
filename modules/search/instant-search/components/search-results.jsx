@@ -62,7 +62,11 @@ class SearchResults extends Component {
 				) }
 				{ results.map( result => this.render_result( result ) ) }
 				{ this.props.hasNextPage && (
-					<ScrollButton onClick={ this.props.onLoadNextPage } isLoading={ this.props.isLoading } />
+					<ScrollButton
+						enableAutoScrolling
+						isLoading={ this.props.isLoading }
+						onClick={ this.props.onLoadNextPage }
+					/>
 				) }
 			</div>
 		);
