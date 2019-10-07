@@ -69,14 +69,22 @@ Each of the above:
 - Sets a site to be public or private according to the script invocation
 - Kicks off test specs to validate that appropriate resources are accessible and, in the case of a site being set to private, inappropriate resources are not
 
-##### Development of Test Specs
+#### Development Mode
 
-You can enter a "development" mode by declaring you are doing so on the command line like so:
+You can enter "development mode" by declaring you are doing so via the `WPCOMSH_DEVMODE` environment variable.
+
+For example:
+
 `WPCOMSH_DEVMODE=1 make test-private access`
 
-This will set jest to "watch" for changes to the spec files inside the running container and to watch for changes to the spec files on your local machine and copy them to the container on changes.
+This will:
 
-Another bonus is, this will leave the services running (until you exit with `cmd+c`, etc.), so you can access the running WordPress site to do manual testing:
+- Instruct `make` to bypass the `check` directive (allowing for rules like `build` to run without a clean working directory)
+- Set jest to "watch" for changes to the spec files inside the running container.
+- Watch for changes to specific files on your local machine and copy them to the container on changes.
+- Leave the services running (until you exit with `cmd+c`, etc.), so you can access the running WordPress site to do manual testing (see below)
+
+In order for WordPress to load the test site correctly, you'll need to access the site with the appropriate site name:
 
 - Add the following to your hosts file: `127.0.0.1 nginx`
 - Browse to http://nginx:8989 in your favorite web client / browser
