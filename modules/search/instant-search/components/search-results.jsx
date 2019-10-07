@@ -24,15 +24,7 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const {
-			results = [],
-			query,
-			total = 0,
-			corrected_query = false,
-			moreToLoad = false,
-			loading = false,
-			loadMoreAction,
-		} = this.props;
+		const { results = [], query, total = 0, corrected_query = false } = this.props;
 
 		if ( query === '' ) {
 			return <div className="jetpack-instant-search__search-results" />;
@@ -63,7 +55,9 @@ class SearchResults extends Component {
 					</p>
 				) }
 				{ results.map( result => this.render_result( result ) ) }
-				{ moreToLoad && <ScrollButton onClick={ loadMoreAction } loading={ loading } /> }
+				{ this.props.hasNextPage && (
+					<ScrollButton onClick={ this.props.onLoadNextPage } isLoading={ this.props.isLoading } />
+				) }
 			</div>
 		);
 	}
