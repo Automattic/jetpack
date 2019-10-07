@@ -5981,9 +5981,13 @@ endif;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			$local_options = self::get_sync_error_idc_option();
-			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
-				$is_valid = true;
+			// Ensure all values are set.
+			if ( isset( $sync_error['home'] ) && isset ( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
+				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+					$is_valid = true;
+				}
 			}
+
 		}
 
 		/**

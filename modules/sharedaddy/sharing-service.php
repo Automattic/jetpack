@@ -384,7 +384,7 @@ class Sharing_Service {
 			if ( is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ) {
 				$this->global = $options['global'];
 			} else {
-				$this->global = $this->set_global_options( $options['global'] );
+				$this->global = $this->set_global_options( $options );
 			}
 		}
 
