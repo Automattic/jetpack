@@ -33,6 +33,9 @@ wp.apiFetch.use( function( options, next ) {
 			// Replace upload URL.
 			delete options.path;
 			options.url = response.upload_action_url;
+
+			// Handle CORS.
+			options.credentials = 'omit';
 		} );
 
 	return next( options );
