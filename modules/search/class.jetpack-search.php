@@ -153,12 +153,24 @@ class Jetpack_Search {
 	 */
 	public function setup() {
 		if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
+			/**
+			 * Fires when the Jetpack Search fails and would fallback to MySQL.
+			 *
+			 * @since 7.9.0
+			 *
+			 * @param string $reason Reason for Search fallback.
+			 * @param mixed  $data   Data associated with the request, such as attempted search parameters.
+			 */
+			do_action( 'jetpack_search_abort', 'inactive', null );
 			return;
 		}
 
 		$this->jetpack_blog_id = Jetpack::get_option( 'id' );
 
 		if ( ! $this->jetpack_blog_id ) {
+			/** This action is documented in modules/search/class.jetpack-search.php
+			 */
+			do_action( 'jetpack_search_abort', 'no_blog_id', null );
 			return;
 		}
 
@@ -507,12 +519,16 @@ class Jetpack_Search {
 	 */
 	public function filter__posts_pre_query( $posts, $query ) {
 		if ( ! $this->should_handle_query( $query ) ) {
+			// Intentionally not adding the 'jetpack_search_abort' action since this should fire for every request except for search.
 			return $posts;
 		}
 
 		$this->do_search( $query );
 
 		if ( ! is_array( $this->search_result ) ) {
+			/** This action is documented in modules/search/class.jetpack-search.php
+			 */
+			do_action( 'jetpack_search_abort', 'no_search_results_array', $this->search_result );
 			return $posts;
 		}
 
@@ -555,6 +571,8 @@ class Jetpack_Search {
 	 */
 	public function do_search( WP_Query $query ) {
 		if ( ! $this->should_handle_query( $query ) ) {
+			// If we make it here, either 'filter__posts_pre_query' somehow allowed it or a different entry to do_search.
+			do_action( 'jetpack_search_abort', 'search_attempted_non_search_query', $query );
 			return;
 		}
 
