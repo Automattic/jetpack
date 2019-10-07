@@ -90,8 +90,7 @@ class JetpackTerminationDialog extends Component {
 			purpose,
 			siteName,
 		} );
-		// TODO: re-enable before shipping
-		// this.props.terminateJetpack();
+		this.props.terminateJetpack();
 	};
 
 	handleDialogCloseClick = () => {
