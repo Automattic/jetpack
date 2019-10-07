@@ -71,7 +71,7 @@ const JetpackTerminationDialogFeatures = ( {
 				{ siteBenefitCount <= 2 && (
 					<div className="jetpack-termination-dialog__generic-info">
 						<h2>
-							{ __( 'Jetpack has many powerful tools that can help you achieve your goals  ' ) }
+							{ __( 'Jetpack has many powerful tools that can help you achieve your goals' ) }
 						</h2>
 						<ul>
 							<li key="reason-cdn">
