@@ -25,7 +25,7 @@ You will also need to install [Composer](https://getcomposer.org/)
 
 1. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site.
 2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
-It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
+   It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
 3. Run `git submodule update --init --recursive` to clone and initialize the submodules (you'll need to run this again to pull in later updates to the submodules).
 4. From the project root run `composer install` to install composer based dependencies.
 
@@ -127,11 +127,11 @@ We show a similar message to the update one under Akismet, Jetpack and VaultPres
 ### Denoting Plugins to enable WP.com features
 
 Plugins that bridge the gap between WP.com and Atomic, enabling WP.com-only features that are part of users' plans, receive a green banner with that information.
-This allows users to make an informed decision when enabling/disabling these plugins. 
+This allows users to make an informed decision when enabling/disabling these plugins.
 
 ### Symlinking WP.com pub (free) and premium themes
 
-We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into  Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
+We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
 
 When a user tries to delete a WP.com theme (only available from Calypso), wpcomsh hooks into Jetpack themes API and unsymlinks the WP.com theme.
 
@@ -165,6 +165,7 @@ Setting `plan_slug` to `free`, in turn, adds the `do_not_allow` capability to th
 ### Removal of Pressable wp-admin Dashboard widget
 
 Pressable adds a custom widget to wp-admin’s Dashboard. However, as AT users are still WP.com ones, we need to hide any mention of Pressable from them so wpcomsh removes this custom widget from wp-admin’s Dashboard.
+
 ### Points attachment URLs to WP.com
 
 TODO: needs Jennifer’s clarification.
