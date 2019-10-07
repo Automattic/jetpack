@@ -172,7 +172,7 @@
 		"commander": "2.20.0",
 		"config": "3.2.2",
 		"css-loader": "2.1.1",
-		"danger": "7.1.4",
+		"danger": "9.2.1",
 		"eslint": "5.16.0",
 		"eslint-config-prettier": "4.3.0",
 		"eslint-config-wpcalypso": "4.0.1",
