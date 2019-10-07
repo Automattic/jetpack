@@ -28,7 +28,14 @@ GIT_STATUS = $(shell git status -sb | wc -l | awk '{ if($$1 == 1){ print "clean"
 git.fetch:
 	@git fetch $(GIT_REMOTE_NAME)
 
-check: git.fetch
+check:
+ifeq ($(WPCOMSH_DEVMODE), 1)
+	@ echo Checks skipped: Make is running in development mode.
+else
+	@ $(MAKE) checkandblockonfail
+endif
+
+checkandblockonfail: git.fetch
 ifneq ($(GIT_STATUS), clean)
 	$(error un-committed changes detected in working tree)
 endif
