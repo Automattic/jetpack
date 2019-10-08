@@ -18,7 +18,7 @@ import { readFileSync } from 'fs';
  */
 export async function waitForSelector( page, selector, options = {} ) {
 	const startTime = new Date();
-	const { E2E_LOG_HTML, PUPPETEER_HEADLESS } = process.env;
+	const { PUPPETEER_HEADLESS } = process.env;
 
 	// set up default options
 	const defaultOptions = { timeout: 30000, logHTML: false };
