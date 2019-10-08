@@ -6,9 +6,7 @@ import config from 'config';
  * WordPress dependencies
  */
 import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
-/**
- * Internal dependencies
- */
+import { readFileSync } from 'fs';
 
 /**
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
@@ -19,22 +17,21 @@ import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
  * @param {Object} options Custom options to modify function behavior.
  */
 export async function waitForSelector( page, selector, options = {} ) {
+	const startTime = new Date();
+	const { E2E_LOG_HTML, PUPPETEER_HEADLESS } = process.env;
+
 	// set up default options
 	const defaultOptions = { timeout: 30000, logHTML: false };
 	options = Object.assign( defaultOptions, options );
 
-	let el;
-	const startTime = new Date();
 	try {
-		el = await page.waitForSelector( selector, options );
+		const element = await page.waitForSelector( selector, options );
 		const secondsPassed = ( new Date() - startTime ) / 1000;
 		console.log( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
-		return el;
+		return element;
 	} catch ( e ) {
-		if ( options.logHTML && process.env.PUPPETEER_HEADLESS !== 'false' ) {
-			const bodyHTML = await page.evaluate( () => document.body.innerHTML );
-			console.log( page.url() );
-			console.log( bodyHTML );
+		if ( options.logHTML && PUPPETEER_HEADLESS !== 'false' ) {
+			await logHTML();
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
 		console.log(
@@ -169,4 +166,20 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 export async function scrollIntoView( page, selector ) {
 	await waitForSelector( page, selector );
 	return await page.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
+}
+
+export async function logHTML() {
+	const bodyHTML = await page.evaluate( () => document.body.innerHTML );
+	console.log( '#### PAGE HTML ####' );
+	console.log( page.url() );
+	console.log( bodyHTML );
+	return bodyHTML;
+}
+
+export function logDebugLog() {
+	const log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+	if ( log.length > 1 ) {
+		console.log( '#### WP DEBUG.LOG ####' );
+		console.log( log );
+	}
 }
