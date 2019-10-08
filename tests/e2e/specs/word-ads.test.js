@@ -32,6 +32,8 @@ describe( 'WordAds block', () => {
 
 		await page.waitFor( 5000 );
 
+		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
+
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
