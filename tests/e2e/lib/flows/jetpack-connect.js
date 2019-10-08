@@ -104,6 +104,9 @@ export async function connectThroughJetpackStart( {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
+	// Reload the page to hydrate plans cache
+	await jetpackPage.reload();
+
 	await jetpackPage.openMyPlan();
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
