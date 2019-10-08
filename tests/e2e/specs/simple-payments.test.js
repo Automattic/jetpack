@@ -5,7 +5,7 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
-import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import { resetWordpressInstall, getNgrokSiteUrl, execShellCommand } from '../lib/utils-helper';
 
 describe( 'Simple Payment', () => {
 	beforeAll( async () => {
@@ -17,6 +17,7 @@ describe( 'Simple Payment', () => {
 	it( 'Can publish a post with a Simple Payments block', async () => {
 		await connectThroughJetpackStart();
 
+		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 		const blockEditor = await BlockEditorPage.visit( page );
 
 		const blockInfo = await blockEditor.insertBlock( SimplePaymentBlock.name() );
