@@ -3,7 +3,8 @@
 wp.apiFetch.use( function( options, next ) {
 	var path = options.path;
 	var method = options.method;
-	var file = options.body ? options.body.get( 'file' ) : null;
+	var body = options.body;
+	var file = body ? body.get( 'file' ) : null;
 
 	// Override only requests to the WP REST API media endpoint uploading new videos.
 	if ( ! path || path.indexOf( '/wp/v2/media' ) === -1 ) {
@@ -36,6 +37,11 @@ wp.apiFetch.use( function( options, next ) {
 
 			// Handle CORS.
 			options.credentials = 'omit';
+
+			// Set data in expected param by WP.com media endpoint.
+			body.set( 'media[]', file );
+			body.delete( 'file' );
+			options.body = body;
 		} );
 
 	return next( options );
