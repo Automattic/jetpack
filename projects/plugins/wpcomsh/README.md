@@ -25,7 +25,7 @@ You will also need to install [Composer](https://getcomposer.org/)
 
 1. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site.
 2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
-It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
+   It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
 3. Run `git submodule update --init --recursive` to clone and initialize the submodules (you'll need to run this again to pull in later updates to the submodules).
 4. From the project root run `composer install` to install composer based dependencies.
 
@@ -37,12 +37,57 @@ When working on wpcomsh, follow the [WP.org coding standards](https://codex.word
 
 ## Testing
 
-There are two stages of testing wpcomsh:
+There are two stages of manually testing wpcomsh:
 
 The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)).
 However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
 Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwarding so you have all your local ssh keys on the wpsandbox and can clone the wpcomsh GitHub repo. Either run ssh as `ssh -A` or add `ForwardAgent yes` into your `.ssh/config` file. p1490809471078673-slack-C2PDURDSL.
+
+### Automated Testing
+
+#### Private Site Module
+
+There is an integration suite built on docker that makes testing what clients to "private" (and non-private) sites should and shouldn't be able to see.
+
+If you have `docker` installed on your system, the tests can be run like so:
+
+- `make test-public-access`
+- `make test-private-access`
+
+Each of the above:
+
+- Cleans your build directory, etc.
+- Builds the plugin from source (as would happen for the regular deployment process )
+- Spins up containers for:
+  - mysql database
+  - WordPress (php-fpm)
+  - nginx web server
+  - WP-CLI
+  - node / jest (for the actual testing)
+- Coordinates communication and set up for the above
+- Sets a site to be public or private according to the script invocation
+- Kicks off test specs to validate that appropriate resources are accessible and, in the case of a site being set to private, inappropriate resources are not
+
+#### Development Mode
+
+You can enter "development mode" by declaring you are doing so via the `WPCOMSH_DEVMODE` environment variable.
+
+For example:
+
+`WPCOMSH_DEVMODE=1 make test-private-access`
+
+This will:
+
+- Instruct `make` to bypass the `check` directive (allowing for rules like `build` to run without a clean working directory)
+- Set jest to "watch" for changes to the spec files inside the running container.
+- Watch for changes to specific files on your local machine and copy them to the container on changes.
+- Leave the services running (until you exit with `cmd+c`, etc.), so you can access the running WordPress site to do manual testing (see below)
+
+In order for WordPress to load the test site correctly, you'll need to access the site with the appropriate site name:
+
+- Add the following to your hosts file: `127.0.0.1 nginx`
+- Browse to http://nginx:8989 in your favorite web client / browser
 
 ## Deployment
 
@@ -82,11 +127,11 @@ We show a similar message to the update one under Akismet, Jetpack and VaultPres
 ### Denoting Plugins to enable WP.com features
 
 Plugins that bridge the gap between WP.com and Atomic, enabling WP.com-only features that are part of users' plans, receive a green banner with that information.
-This allows users to make an informed decision when enabling/disabling these plugins. 
+This allows users to make an informed decision when enabling/disabling these plugins.
 
 ### Symlinking WP.com pub (free) and premium themes
 
-We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into  Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
+We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
 
 When a user tries to delete a WP.com theme (only available from Calypso), wpcomsh hooks into Jetpack themes API and unsymlinks the WP.com theme.
 
@@ -120,6 +165,7 @@ Setting `plan_slug` to `free`, in turn, adds the `do_not_allow` capability to th
 ### Removal of Pressable wp-admin Dashboard widget
 
 Pressable adds a custom widget to wp-admin’s Dashboard. However, as AT users are still WP.com ones, we need to hide any mention of Pressable from them so wpcomsh removes this custom widget from wp-admin’s Dashboard.
+
 ### Points attachment URLs to WP.com
 
 TODO: needs Jennifer’s clarification.
@@ -175,3 +221,9 @@ To learn more about writing WP CLI commands consult the [Commands Cookbook](http
 ### Store support
 
 wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin to support Store on WordPress.com
+
+### Private Site support
+
+Enables setting a site to "private." Doing so prevents viewing or interacting with site content to unauthenticated clients (and anyone without `read` capabilities).
+
+As this module is currently being developed & evaluated, it is only enabled when the `wpcomsh_private_site_module_active` site option is set to `1` (such that `\Private_Site\is_module_active()` returns `true`).

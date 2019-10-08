@@ -1,13 +1,28 @@
 version: 2
 jobs:
-  test:
+  public-access:
     docker:
-      - image: circleci/php:cli
+      - image: circleci/buildpack-deps:stretch
     steps:
-      - run: php -r 'echo "¡Hola mundo!" . PHP_EOL;'
+      - run: sudo su -c "apt-get update && apt-get -y upgrade && apt-get -y install composer rsync"
+      - add_ssh_keys
+      - checkout
+      - setup_remote_docker
+      - run: make test-public-access
+
+  private-access:
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - run: sudo su -c "apt-get update && apt-get -y upgrade && apt-get -y install composer rsync"
+      - add_ssh_keys
+      - checkout
+      - setup_remote_docker
+      - run: make test-private-access
 
 workflows:
   version: 2
   main:
     jobs:
-      - test
+      - public-access
+      - private-access

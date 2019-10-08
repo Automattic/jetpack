@@ -1,5 +1,8 @@
+/bin
 /build
 /build-exclude.txt
+/node_modules
+/tests
 .circleci
 .idea
 .env
