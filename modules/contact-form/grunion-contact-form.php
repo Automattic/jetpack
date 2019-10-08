@@ -2081,6 +2081,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
+
+			if ( $attributes['hasFormSettingsSet'] ) {
+				$r .= "\t\t<input type='hidden' name='is_block' value='1' />\n";
+			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
@@ -2543,6 +2547,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			$extra_values[ $label ] = $value;
 			$i++; // Increment prefix counter for the next extra field
+		}
+
+		if ( $_REQUEST['is_block'] ) {
+			$extra_values['is_block'] = true;
 		}
 
 		$contact_form_subject = trim( $contact_form_subject );
