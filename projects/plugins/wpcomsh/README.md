@@ -75,7 +75,7 @@ You can enter "development mode" by declaring you are doing so via the `WPCOMSH_
 
 For example:
 
-`WPCOMSH_DEVMODE=1 make test-private access`
+`WPCOMSH_DEVMODE=1 make test-private-access`
 
 This will:
 
