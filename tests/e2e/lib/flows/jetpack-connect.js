@@ -108,6 +108,8 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.reload();
 
 	await jetpackPage.openMyPlan();
+	await jetpackPage.reload();
+
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
