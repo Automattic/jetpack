@@ -177,7 +177,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
 
 		if ( ! $instance['token_id'] ) {
-			echo '<p>This widget is currently unable to make new connections to Instagram. We are working on a fix.</p>';
+			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
 			echo '<p><em>This notice is only shown to you.</em></p>';
 		} else {
 			$images = $this->get_images( $instance );
@@ -211,7 +211,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		// No connection.
 		if ( ! $instance['token_id'] ) {
-			echo '<p>This widget is currently unable to make new connections to Instagram. We are working on a fix.</p>';
+			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
 			return;
 		}
 
