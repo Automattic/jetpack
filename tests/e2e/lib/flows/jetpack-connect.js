@@ -98,7 +98,7 @@ export async function connectThroughJetpackStart( {
 	const nextUrl = provisionJetpackStartConnection();
 
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
-	await ( await PlansPage.init( page ) ).isCurrentPlan( 'isCurrentPlan' );
+	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
