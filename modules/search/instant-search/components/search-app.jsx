@@ -176,7 +176,6 @@ class SearchApp extends Component {
 						loadMoreAction={ this.loadMore }
 						onLoadNextPage={ this.loadNextPage }
 						query={ this.state.query }
-						result_format={ this.props.options.resultFormat }
 						resultFormat={ this.props.options.resultFormat }
 						{ ...this.state.response }
 					/>
