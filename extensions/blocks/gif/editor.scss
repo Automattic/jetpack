@@ -32,9 +32,8 @@
 		width: 100%;
 		z-index: 1;
 		.components-base-control__label {
-			height: 0;
-			margin: 0;
-			text-indent: -9999px;
+			position: absolute;
+			top: -1000em;
 		}
 	}
 	.wp-block-jetpack-gif_input {
