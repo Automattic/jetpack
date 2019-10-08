@@ -39,13 +39,13 @@ class SearchResults extends Component {
 			);
 		}
 		const num = new Intl.NumberFormat().format( total );
-		const cls =
-			loading === true
-				? 'jetpack-instant-search__search-results jetpack-instant-search__is-loading'
-				: 'jetpack-instant-search__search-results';
 
 		return (
-			<div className={ cls }>
+			<div
+				className={ `jetpack-instant-search__search-results ${
+					this.state.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+				}` }
+			>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ corrected_query !== false
 						? sprintf(

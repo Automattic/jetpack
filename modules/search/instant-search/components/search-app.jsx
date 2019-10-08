@@ -125,7 +125,6 @@ class SearchApp extends Component {
 	};
 
 	render() {
-		const { query, response } = this.state;
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
@@ -138,7 +137,7 @@ class SearchApp extends Component {
 								<SearchBox
 									onChangeQuery={ this.onChangeQuery }
 									appRef={ this.input }
-									query={ query }
+									query={ this.state.query }
 								/>
 							</div>
 							<div className="jetpack-search-sort-wrapper">
@@ -150,7 +149,7 @@ class SearchApp extends Component {
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }
 								onChange={ this.onChangeFilter }
-								loading={ this.state.loading }
+								loading={ this.state.isLoading }
 								postTypes={ this.props.options.postTypes }
 								results={ this.state.response }
 								widget={ widget }
@@ -165,21 +164,21 @@ class SearchApp extends Component {
 							<SearchBox
 								onChangeQuery={ this.onChangeQuery }
 								appRef={ this.input }
-								query={ query }
+								query={ this.state.query }
 							/>
 						</Portal>
 					) ) }
 
 				<Portal into={ this.props.themeOptions.results_selector }>
 					<SearchResults
-						hasNextPage={ !! response.page_handle }
+						hasNextPage={ !! this.state.response.page_handle }
 						isLoading={ this.state.isLoading }
 						loadMoreAction={ this.loadMore }
 						onLoadNextPage={ this.loadNextPage }
-						query={ query }
+						query={ this.state.query }
 						result_format={ this.props.options.resultFormat }
 						resultFormat={ this.props.options.resultFormat }
-						{ ...response }
+						{ ...this.state.response }
 					/>
 				</Portal>
 			</Preact.Fragment>
