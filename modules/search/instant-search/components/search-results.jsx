@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { h, Component } from 'preact';
 
 /**
@@ -23,7 +23,7 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const { results = [], query, total = 0, corrected_query = false } = this.props;
+		const { results = [], query, total = 0, corrected_query = false, loading = false } = this.props;
 		if ( query === '' ) {
 			return <div className="jetpack-instant-search__search-results" />;
 		}
@@ -31,25 +31,31 @@ class SearchResults extends Component {
 			return (
 				<div className="jetpack-instant-search__search-results">
 					<div>
-						<h3>{ sprintf( __( 'No Results.' ), query ) }</h3>
+						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), query ) }</h3>
 					</div>
 				</div>
 			);
 		}
+		const num = new Intl.NumberFormat().format( total );
+		const cls =
+			loading === true
+				? 'jetpack-instant-search__search-results jetpack-instant-search__is-loading'
+				: 'jetpack-instant-search__search-results';
 
 		return (
-			<div className="jetpack-instant-search__search-results">
-				<span className="jetpack-instant-search__search-results-count">
-					{ sprintf( __( '%d Results' ), total ) }
-				</span>
+			<div className={ cls }>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ corrected_query !== false
-						? sprintf( __( 'Showing results for "%s"' ), corrected_query )
-						: sprintf( __( 'Results for "%s"' ), query ) }
+						? sprintf(
+								_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
+								num,
+								corrected_query
+						  )
+						: sprintf( _n( '%s results for "%s"', '%s results for "%s"', total ), num, query ) }
 				</p>
 				{ corrected_query !== false && (
 					<p className="jetpack-instant-search__search-results-unused-query">
-						{ sprintf( __( 'No results for "%s"' ), query ) }
+						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
 				{ results.map( result => this.render_result( result ) ) }

@@ -143,6 +143,7 @@ class Gridicon extends Component {
 				return <title>{ __( 'Has multiple images' ) }</title>;
 			case 'gridicons-image':
 				return <title>{ __( 'Has an image' ) }</title>;
+			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
 				return <title>{ __( 'Search' ) }</title>;
 			case 'gridicons-tag':
@@ -322,6 +323,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z" />
+					</g>
+				);
+			case 'gridicons-jetpack-search':
+				return (
+					<g>
+						<path d="M12.85 10.85a7 7 0 1 0-2 2L16 18l2-2zm-2-5l-3.49 6.76V5.83zM6.64 1.39v6.78H3.15z" />
 					</g>
 				);
 			case 'gridicons-star-outline':

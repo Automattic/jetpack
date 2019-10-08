@@ -2,5 +2,10 @@
 @import './components/search-filters-widget.scss';
 @import './components/search-sort-widget.scss';
 @import './components/search-result-minimal.scss';
+@import './components/search-box.scss';
 //@import './components/search-result-engagement.scss';
 //@import './components/search-result-product.scss';
+
+.jetpack-instant-search__is-loading {
+	opacity: 0.2;
+}

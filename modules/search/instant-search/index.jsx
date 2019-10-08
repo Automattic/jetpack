@@ -8,18 +8,20 @@ import { h, render } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchWidget from './components/search-widget';
+import SearchApp from './components/search-app';
 import { getSearchQuery, getFilterQuery, getSortQuery } from './lib/query-string';
+import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 
-const injectSearchWidget = grabFocus => {
+const injectSearchApp = grabFocus => {
 	render(
-		<SearchWidget
+		<SearchApp
 			grabFocus={ grabFocus }
 			initialFilters={ getFilterQuery() }
 			initialSort={ getSortQuery() }
 			initialValue={ getSearchQuery() }
 			options={ window[ SERVER_OBJECT_NAME ] }
+			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
 		/>,
 		document.body
 	);
@@ -31,6 +33,6 @@ document.addEventListener( 'DOMContentLoaded', function() {
 		'siteId' in window[ SERVER_OBJECT_NAME ] &&
 		document.body.classList.contains( 'search' )
 	) {
-		injectSearchWidget();
+		injectSearchApp();
 	}
 } );
