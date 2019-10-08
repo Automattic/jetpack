@@ -33,3 +33,26 @@ export function getNgrokSiteUrl() {
 export async function resetWordpressInstall() {
 	await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
 }
+
+/**
+ * Provisions Jetpack plan through Jetpack Start flow
+ *
+ * @param {string} plan One of free, personal, premium, or professional.
+ * @param {string} user Local user name, id, or e-mail
+ * @return {string} authentication URL
+ */
+export function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
+	const url = getNgrokSiteUrl();
+
+	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
+
+	const response = execSyncShellCommand( cmd );
+	console.log( cmd, response );
+
+	const json = JSON.parse( response );
+	if ( json.success !== true ) {
+		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
+	}
+
+	return json.next_url;
+}

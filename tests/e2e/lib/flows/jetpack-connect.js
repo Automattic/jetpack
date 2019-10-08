@@ -16,7 +16,7 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
-import { getNgrokSiteUrl } from '../utils-helper';
+import { getNgrokSiteUrl, provisionJetpackStartConnection } from '../utils-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -77,6 +77,34 @@ export async function connectThroughWPAdminIfNeeded( {
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload();
 
+	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
+		throw new Error( `Site does not have ${ plan } plan` );
+	}
+
+	return true;
+}
+
+export async function connectThroughJetpackStart( {
+	wpcomUser = 'defaultUser',
+	plan = 'pro',
+} = {} ) {
+	// Logs in to WPCOM
+	const login = await LoginPage.visit( page );
+	if ( ! ( await login.isLoggedIn() ) ) {
+		await login.login( wpcomUser );
+	}
+
+	const nextUrl = provisionJetpackStartConnection();
+
+	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
+
+	const siteUrl = getNgrokSiteUrl();
+
+	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
+	await ( await Sidebar.init( page ) ).selectJetpack();
+
+	const jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.openMyPlan();
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}

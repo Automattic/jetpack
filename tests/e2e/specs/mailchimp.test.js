@@ -4,7 +4,7 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 
 // Activate WordAds module if in CI
@@ -26,7 +26,7 @@ describe( 'Mailchimp Block', () => {
 	} );
 
 	it( 'Can publish a post with a Mailchimp Block', async () => {
-		await connectThroughWPAdminIfNeeded();
+		await connectThroughJetpackStart();
 
 		await activatePublicizeModule();
 
@@ -38,8 +38,6 @@ describe( 'Mailchimp Block', () => {
 
 		await blockEditor.focus();
 		await blockEditor.publishPost();
-
-		// jestPuppeteer.debug();
 
 		await blockEditor.viewPost();
 		const frontend = await PostFrontendPage.init( page );
