@@ -17,6 +17,7 @@ import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
 import { getNgrokSiteUrl, provisionJetpackStartConnection } from '../utils-helper';
+import PlansPage from '../pages/wpcom/plans';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -97,7 +98,7 @@ export async function connectThroughJetpackStart( {
 	const nextUrl = provisionJetpackStartConnection();
 
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
-
+	await ( await PlansPage.init( page ) ).isCurrentPlan( 'isCurrentPlan' );
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
