@@ -9,8 +9,7 @@ import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib
 
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
-	let cmd =
-		'docker-compose -f ./tests/e2e/bin/docker-compose.yml run --rm -u 33 cli_e2e_tests wp jetpack module activate wordads';
+	let cmd = './tests/e2e/docker/whatever.sh cli "wp jetpack module activate wordads"';
 	if ( process.env.CI ) {
 		cmd = 'wp jetpack module activate wordads --path="/home/travis/wordpress"';
 	}
@@ -29,6 +28,9 @@ describe( 'WordAds block', () => {
 		await connectThroughJetpackStart();
 		// Can activate WordAds module
 		await activateWordAdsModule();
+		await activateWordAdsModule();
+
+		await page.waitFor( 5000 );
 
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
