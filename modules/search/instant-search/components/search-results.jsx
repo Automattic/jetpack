@@ -65,7 +65,7 @@ class SearchResults extends Component {
 					<ScrollButton
 						enableAutoScrolling
 						isLoading={ this.props.isLoading }
-						onClick={ this.props.onLoadNextPage }
+						onLoadNextPage={ this.props.onLoadNextPage }
 					/>
 				) }
 			</div>

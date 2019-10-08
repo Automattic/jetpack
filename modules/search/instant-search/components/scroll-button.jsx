@@ -23,7 +23,7 @@ class ScrollButton extends Component {
 			this.props.enableAutoScrolling &&
 			window.innerHeight + window.scrollY === document.body.offsetHeight
 		) {
-			this.props.onClick();
+			this.props.onLoadNextPage();
 		}
 	}, 100 );
 
@@ -32,7 +32,7 @@ class ScrollButton extends Component {
 			<button
 				className="jetpack-instant-search__scroll-button"
 				disabled={ this.props.isLoading }
-				onclick={ this.props.onClick }
+				onClick={ this.props.onLoadNextPage }
 			>
 				{ this.props.isLoading ? (
 					<span>{ __( 'Loading…', 'jetpack' ) }</span>
