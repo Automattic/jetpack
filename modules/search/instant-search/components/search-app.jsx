@@ -173,7 +173,6 @@ class SearchApp extends Component {
 					<SearchResults
 						hasNextPage={ !! this.state.response.page_handle }
 						isLoading={ this.state.isLoading }
-						loadMoreAction={ this.loadMore }
 						onLoadNextPage={ this.loadNextPage }
 						query={ this.state.query }
 						response={ this.state.response }
