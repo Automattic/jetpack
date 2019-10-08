@@ -49,7 +49,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
 
 	const response = execSyncShellCommand( cmd );
-	console.log( cmd, response );
+	console.log( response );
 
 	const json = JSON.parse( response );
 	if ( json.success !== true ) {
