@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { execSync, exec } from 'child_process';
+import config from 'config';
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -42,6 +43,7 @@ export async function resetWordpressInstall() {
  * @return {string} authentication URL
  */
 export function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
+	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const url = getNgrokSiteUrl();
 
 	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
