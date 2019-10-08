@@ -30,14 +30,14 @@ class ScrollButton extends Component {
 	render() {
 		return (
 			<button
-				className="jetpack-instant-search__more-button"
+				className="jetpack-instant-search__scroll-button"
 				disabled={ this.props.isLoading }
 				onclick={ this.props.onClick }
 			>
 				{ this.props.isLoading ? (
-					<span>{ __( 'Loading results…', 'jetpack' ) }</span>
+					<span>{ __( 'Loading…', 'jetpack' ) }</span>
 				) : (
-					<span>{ __( 'Load more results', 'jetpack' ) }</span>
+					<span>{ __( 'Load more', 'jetpack' ) }</span>
 				) }
 			</button>
 		);
