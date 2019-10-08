@@ -12,7 +12,7 @@ import debounce from 'lodash/debounce';
 
 class ScrollButton extends Component {
 	componentDidMount() {
-		this.props.enableAutoScrolling && document.addEventListener( 'scroll', this.checkScroll );
+		this.props.enableLoadOnScroll && document.addEventListener( 'scroll', this.checkScroll );
 	}
 	componentDidUnmount() {
 		document.removeEventListener( 'scroll', this.checkScroll );
@@ -20,7 +20,7 @@ class ScrollButton extends Component {
 
 	checkScroll = debounce( () => {
 		if (
-			this.props.enableAutoScrolling &&
+			this.props.enableLoadOnScroll &&
 			window.innerHeight + window.scrollY === document.body.offsetHeight
 		) {
 			this.props.onLoadNextPage();
