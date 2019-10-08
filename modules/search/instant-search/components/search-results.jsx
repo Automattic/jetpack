@@ -24,7 +24,8 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const { results = [], query, total = 0, corrected_query = false } = this.props;
+		const { query } = this.props;
+		const { results = [], total = 0, corrected_query = false } = this.props.response;
 
 		if ( query === '' ) {
 			return <div className="jetpack-instant-search__search-results" />;

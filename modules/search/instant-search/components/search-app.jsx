@@ -176,8 +176,8 @@ class SearchApp extends Component {
 						loadMoreAction={ this.loadMore }
 						onLoadNextPage={ this.loadNextPage }
 						query={ this.state.query }
+						response={ this.state.response }
 						resultFormat={ this.props.options.resultFormat }
-						{ ...this.state.response }
 					/>
 				</Portal>
 			</Preact.Fragment>
