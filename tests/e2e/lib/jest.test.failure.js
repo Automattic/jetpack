@@ -50,3 +50,14 @@ global.it = async ( name, func ) => {
 		}
 	} );
 };
+
+jasmine.getEnv().addReporter( {
+	specStarted( result ) {
+		console.log( `Spec name: ${ result.fullName }, description: ${ result.description }` );
+	},
+} );
+
+jasmine.getEnv().addReporter( {
+	specStarted: result => ( jasmine.currentTest = result ),
+	specDone: result => ( jasmine.currentTest = result ),
+} );
