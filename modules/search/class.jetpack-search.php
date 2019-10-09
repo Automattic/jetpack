@@ -874,19 +874,23 @@ class Jetpack_Search {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		/**
-		 * Filter the languages used by Jetpack Search's Query Parser.
-		 * @module search
-		 *
-		 * @since  7.9.0
-		 *
-		 * @param array $languages The array of languages. Default is value of get_locale().
-		 */
-		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], apply_filters( 'jetpack_search_query_languages', array( get_locale() ) ) );
+		$parser = new Jetpack_WPES_Search_Query_Parser(
+			$args['query'],
+			/**
+			 * Filter the languages used by Jetpack Search's Query Parser.
+			 *
+			 * @module search
+			 *
+			 * @since  7.9.0
+			 *
+			 * @param array $languages The array of languages. Default is value of get_locale().
+			 */
+			apply_filters( 'jetpack_search_query_languages', array( get_locale() ) )
+		);
 
 		if ( empty( $args['query_fields'] ) ) {
 			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
-				// VIP indices do not have per language fields
+				// VIP indices do not have per language fields.
 				$match_fields = $this->_get_caret_boosted_fields(
 					array(
 						'title'         => 0.1,
