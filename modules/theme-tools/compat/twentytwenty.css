@@ -96,3 +96,21 @@
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline em {
 	font-weight: 500;
 }
+
+/* EU cookie law */
+.widget_eu_cookie_law_widget #eu-cookie-law,
+.widget_eu_cookie_law_widget #eu-cookie-law .accept {
+	font-size: 1.8rem;
+    font-weight: 500;
+}
+
+.widget_eu_cookie_law_widget #eu-cookie-law .accept {
+	font-size: 1.5rem;
+	font-weight: 600;
+	letter-spacing: 0.0333em;
+	line-height: 1.25;
+	padding: 1.1em 1.44em;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: opacity 0.15s linear;
+}
