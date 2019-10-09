@@ -8,6 +8,7 @@ import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, execShellCommand } from '../lib/utils-helper';
 import { sendFailedTestScreenshotToSlack } from '../lib/reporters/slack';
 import { takeScreenshot } from '../lib/reporters/screenshot';
+import { logHTML } from '../lib/page-helper';
 
 describe( 'Simple Payment', () => {
 	beforeAll( async () => {
@@ -26,10 +27,16 @@ describe( 'Simple Payment', () => {
 		const spBlock = new SimplePaymentBlock( blockInfo, page );
 		await spBlock.fillDetails();
 
+		await blockEditor.focus();
+
 		const filePath = await takeScreenshot( 'test', 'simple-payment' );
 		await sendFailedTestScreenshotToSlack( filePath );
+		await logHTML();
 
-		await blockEditor.focus();
+		const availability = await page.evaluate(
+			() => window.Jetpack_Editor_Initial_State.available_blocks
+		);
+		console.log( availability );
 
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();

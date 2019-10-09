@@ -37,6 +37,11 @@ describe( 'WordAds block', () => {
 
 		await blockEditor.focus();
 
+		const availability = await page.evaluate(
+			() => window.Jetpack_Editor_Initial_State.available_blocks
+		);
+		console.log( availability );
+
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
 
