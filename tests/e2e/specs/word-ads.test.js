@@ -8,8 +8,6 @@ import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import { sendMessageToSlack } from '../lib/reporters/slack';
 
-jest.setTimeout( 2147483647 ); // max 32-bit signed integer
-
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
 	let cmd = './tests/e2e/docker/whatever.sh cli "wp jetpack module activate wordads"';
@@ -50,11 +48,12 @@ describe( 'WordAds block', () => {
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
 
-		const frontend = await PostFrontendPage.init( page );
+		let frontend = await PostFrontendPage.init( page );
+		await frontend.logout();
 
-		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 		await page.reload( { waitFor: 'networkidle0' } );
-		await PostFrontendPage.init( page );
+
+		frontend = await PostFrontendPage.init( page );
 		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
