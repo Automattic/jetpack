@@ -2,23 +2,16 @@
  * External dependencies
  */
 import { decode, encode } from 'qss';
+// NOTE: We only import the get package here for to reduced bundle size.
+//       Do not import the entire lodash library!
+// eslint-disable-next-line lodash/import-scope
+import get from 'lodash/get';
 
-const FILTERS = [
-	// Taxonomies
-	'category',
-	'post_tag',
-	// Post types
-	'post_types',
-	// Date filters
-	'month_post_date',
-	'month_post_date_gmt',
-	'month_post_modified',
-	'month_post_modified_gmt',
-	'year_post_date',
-	'year_post_date_gmt',
-	'year_post_modified',
-	'year_post_modified_gmt',
-];
+/**
+ * Internal dependencies
+ */
+import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC } from './constants';
+import { getSortOption } from './sort';
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
@@ -44,28 +37,28 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
-export function getSearchSort() {
+export function getSortQuery() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';
 	const orderby = 'orderby' in query ? query.orderby : 'relevance';
 	let sort;
 	switch ( orderby ) {
 		case 'date':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'date_asc';
 			} else {
 				sort = 'date_desc';
 			}
 			break;
 		case 'price':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'price_asc';
 			} else {
 				sort = 'price_desc';
 			}
 			break;
 		case 'rating':
-			if ( order === 'ASC' ) {
+			if ( order === SORT_DIRECTION_ASC ) {
 				sort = 'rating_asc';
 			} else {
 				sort = 'rating_desc';
@@ -89,6 +82,19 @@ export function getSearchSort() {
 	return sort;
 }
 
+export function setSortQuery( sortKey ) {
+	const query = getQuery();
+	const sortOption = getSortOption( sortKey );
+
+	if ( ! sortOption ) {
+		return false;
+	}
+
+	query.orderby = sortOption.field;
+	query.order = sortOption.direction;
+	pushQueryString( encode( query ) );
+}
+
 function getFilterQueryByKey( filterKey ) {
 	const query = getQuery();
 	if ( ! ( filterKey in query ) ) {
@@ -100,21 +106,51 @@ function getFilterQueryByKey( filterKey ) {
 	return query[ filterKey ];
 }
 
+export function getFilterKeys() {
+	const keys = [
+		// Post types
+		'post_types',
+		// Date filters
+		'month_post_date',
+		'month_post_date_gmt',
+		'month_post_modified',
+		'month_post_modified_gmt',
+		'year_post_date',
+		'year_post_date_gmt',
+		'year_post_modified',
+		'year_post_modified_gmt',
+	];
+
+	// Extract taxonomy names from server widget data
+	const widgetFilters = get( window[ SERVER_OBJECT_NAME ], 'widgets[0].filters' );
+	if ( widgetFilters ) {
+		return [
+			...keys,
+			...widgetFilters
+				.filter( filter => filter.type === 'taxonomy' )
+				.map( filter => filter.taxonomy ),
+		];
+	}
+	return [ ...keys, 'category', 'post_tag' ];
+}
+
 export function getFilterQuery( filterKey ) {
 	if ( filterKey ) {
 		return getFilterQueryByKey( filterKey );
 	}
-	const filter_query = {};
 
-	for ( let i = 0; i < FILTERS.length; i++ ) {
-		filter_query[ FILTERS[ i ] ] = getFilterQueryByKey( FILTERS[ i ] );
-	}
-	return filter_query;
+	return Object.assign(
+		{},
+		...getFilterKeys().map( key => ( {
+			[ key ]: getFilterQueryByKey( key ),
+		} ) )
+	);
 }
 
 export function hasFilter() {
-	for ( let i = 0; i < FILTERS.length; i++ ) {
-		if ( getFilterQueryByKey( FILTERS[ i ] ).length > 0 ) {
+	const filter_keys = getFilterKeys();
+	for ( let i = 0; i < filter_keys.length; i++ ) {
+		if ( getFilterQueryByKey( filter_keys[ i ] ).length > 0 ) {
 			return true;
 		}
 	}

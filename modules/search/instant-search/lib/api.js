@@ -5,6 +5,11 @@ import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 
+/**
+ * Internal dependencies
+ */
+import { getFilterKeys } from './query-string';
+
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 
 export function buildFilterAggregations( widgets = [] ) {
@@ -40,10 +45,7 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
-function generateDateRange( query, type ) {
-	// NOTE: This only supports a single date query at this time
-	const input = Array.isArray( query ) && query[ 0 ];
-
+function generateDateRangeFilter( fieldName, input, type ) {
 	let year, month;
 	if ( type === 'year' ) {
 		[ , year, , ] = input.match( DATE_REGEX );
@@ -52,15 +54,47 @@ function generateDateRange( query, type ) {
 	if ( type === 'month' ) {
 		[ , year, month ] = input.match( DATE_REGEX );
 	}
-
+	let startDate = '';
+	let endDate = '';
 	if ( month ) {
-		return { startDate: `${ year }-${ month }-01`, endDate: `${ year }-${ +month + 1 }-01` };
+		startDate = `${ year }-${ month }-01`;
+		endDate = `${ year }-${ +month + 1 }-01`;
 	}
 	if ( year ) {
-		return { startDate: `${ year }-01-01`, endDate: `${ +year + 1 }-01-01` };
+		startDate = `${ year }-01-01`;
+		endDate = `${ +year + 1 }-01-01`;
 	}
-	return { startDate: '', endDate: '' };
+
+	return { range: { [ fieldName ]: { gte: startDate, lt: endDate } } };
 }
+
+const filterKeyToEsFilter = new Map( [
+	// Post type
+	[ 'post_types', postType => ( { term: { post_type: postType } } ) ],
+
+	// Built-in taxonomies
+	[ 'category', category => ( { term: { 'category.slug': category } } ) ],
+	[ 'post_tag', tag => ( { term: { 'tag.slug': tag } } ) ],
+
+	// Dates
+	[ 'month_post_date', datestring => generateDateRangeFilter( 'date', datestring, 'month' ) ],
+	[
+		'month_post_date_gmt',
+		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'month' ),
+	],
+	[ 'month_post_modified', datestring => generateDateRangeFilter( 'date', datestring, 'month' ) ],
+	[
+		'month_post_modified_gmt',
+		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'month' ),
+	],
+	[ 'year_post_date', datestring => generateDateRangeFilter( 'date', datestring, 'year' ) ],
+	[ 'year_post_date_gmt', datestring => generateDateRangeFilter( 'date_gmt', datestring, 'year' ) ],
+	[ 'year_post_modified', datestring => generateDateRangeFilter( 'date', datestring, 'year' ) ],
+	[
+		'year_post_modified_gmt',
+		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'year' ),
+	],
+] );
 
 function buildFilterObject( filterQuery ) {
 	if ( ! filterQuery ) {
@@ -68,51 +102,18 @@ function buildFilterObject( filterQuery ) {
 	}
 
 	const filter = { bool: { must: [] } };
-	if ( isLengthyArray( filterQuery.post_types ) ) {
-		filterQuery.post_types.forEach( postType => {
-			filter.bool.must.push( { term: { post_type: postType } } );
+	getFilterKeys()
+		.filter( key => isLengthyArray( filterQuery[ key ] ) )
+		.forEach( key => {
+			filterQuery[ key ].forEach( item => {
+				if ( filterKeyToEsFilter.has( key ) ) {
+					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
+				} else {
+					// If key is not in the standard map, assume to be a custom taxonomy
+					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
+				}
+			} );
 		} );
-	}
-	if ( isLengthyArray( filterQuery.post_tag ) ) {
-		filterQuery.post_tag.forEach( tag => {
-			filter.bool.must.push( { term: { 'tag.slug': tag } } );
-		} );
-	}
-	if ( isLengthyArray( filterQuery.month_post_date ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date, 'month' );
-		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.month_post_date_gmt ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.month_post_date_gmt, 'month' );
-		filter.bool.must.push( { range: { date_gmt: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.month_post_modified ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.month_post_modified, 'month' );
-		filter.bool.must.push( { range: { modified: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.month_post_modified_gmt ) ) {
-		const { startDate, endDate } = generateDateRange(
-			filterQuery.month_post_modified_gmt,
-			'month'
-		);
-		filter.bool.must.push( { range: { modified_gmt: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.year_post_date ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.year_post_date, 'year' );
-		filter.bool.must.push( { range: { date: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.year_post_date_gmt ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.year_post_date_gmt, 'year' );
-		filter.bool.must.push( { range: { date_gmt: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.year_post_modified ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.year_post_modified, 'year' );
-		filter.bool.must.push( { range: { modified: { gte: startDate, lt: endDate } } } );
-	}
-	if ( isLengthyArray( filterQuery.year_post_modified_gmt ) ) {
-		const { startDate, endDate } = generateDateRange( filterQuery.year_post_modified_gmt, 'year' );
-		filter.bool.must.push( { range: { modified_gmt: { gte: startDate, lt: endDate } } } );
-	}
 	return filter;
 }
 
