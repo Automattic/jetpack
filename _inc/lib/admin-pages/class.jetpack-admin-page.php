@@ -336,7 +336,7 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Render the footer of the jetpack dashboard. For admin pages.
 	 */
-	function render_footer() {
+	static function render_footer() {
 		$admin_url = admin_url( 'admin.php?page=jetpack' );
 
 		$is_dev_mode_or_connected = Jetpack::is_active() || Jetpack::is_development_mode();
