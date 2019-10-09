@@ -2549,7 +2549,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$i++; // Increment prefix counter for the next extra field
 		}
 
-		if ( $_REQUEST['is_block'] ) {
+		if ( isset( $_REQUEST['is_block'] ) && $_REQUEST['is_block'] ) {
 			$extra_values['is_block'] = true;
 		}
 
