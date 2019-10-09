@@ -28,14 +28,6 @@ describe( 'WordAds block', () => {
 		await connectThroughJetpackStart();
 		// Can activate WordAds module
 		await activateWordAdsModule();
-		await activateWordAdsModule();
-
-		await page.waitFor( 5000 );
-
-		const r = await execShellCommand(
-			'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
-		);
-		console.log( r );
 
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );

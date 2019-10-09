@@ -17,7 +17,6 @@ describe( 'Simple Payment', () => {
 	it( 'Can publish a post with a Simple Payments block', async () => {
 		await connectThroughJetpackStart();
 
-		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 		const blockEditor = await BlockEditorPage.visit( page );
 
 		const blockInfo = await blockEditor.insertBlock( SimplePaymentBlock.name() );

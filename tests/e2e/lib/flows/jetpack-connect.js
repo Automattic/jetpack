@@ -16,7 +16,11 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
-import { getNgrokSiteUrl, provisionJetpackStartConnection } from '../utils-helper';
+import {
+	getNgrokSiteUrl,
+	provisionJetpackStartConnection,
+	execShellCommand,
+} from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
@@ -109,11 +113,17 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.reload();
 
 	await jetpackPage.openMyPlan();
+	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
+		throw new Error( `Site does not have ${ plan } plan` );
+	}
+
 	await jetpackPage.reload();
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
+
+	await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 	return true;
 }
