@@ -106,13 +106,11 @@ class Listener {
 			   ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
-	function full_sync_action_handler() {
-		$args = func_get_args();
+	function full_sync_action_handler( ...$args ) {
 		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
 	}
 
-	function action_handler() {
-		$args = func_get_args();
+	function action_handler( ...$args ) {
 		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
 	}
 
