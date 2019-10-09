@@ -181,7 +181,7 @@ class VideoPress_Gutenberg {
 			wp_enqueue_script(
 				'jetpack-videopress-gutenberg-override-video-upload',
 				plugin_dir_url( __FILE__ ) . 'js/gutenberg-video-upload.js',
-				array( 'wp-api-fetch' ),
+				array( 'wp-api-fetch', 'wp-polyfill', 'lodash' ),
 				JETPACK__VERSION,
 				false
 			);

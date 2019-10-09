@@ -1,4 +1,4 @@
-/* globals wp */
+/* globals wp, lodash */
 
 wp.apiFetch.use( function( options, next ) {
 	var path = options.path;
@@ -44,5 +44,20 @@ wp.apiFetch.use( function( options, next ) {
 			options.body = body;
 		} );
 
-	return next( options );
+	var result = next( options );
+
+	return new Promise( function( resolve, reject ) {
+		result
+			.then( function( data ) {
+				var wpcomMediaObject = lodash.get( data, 'media[0]' );
+				var id = lodash.get( wpcomMediaObject, 'ID' );
+				var gutenbergMediaObject = wp.apiFetch( {
+					path: '/wp/v2/media/' + id,
+				} );
+				resolve( gutenbergMediaObject );
+			} )
+			.catch( function() {
+				reject();
+			} );
+	} );
 } );
