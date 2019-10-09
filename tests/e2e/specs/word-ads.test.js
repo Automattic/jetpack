@@ -40,20 +40,16 @@ describe( 'WordAds block', () => {
 
 		await blockEditor.focus();
 
-		const availability = await page.evaluate(
-			() => window.Jetpack_Editor_Initial_State.available_blocks
-		);
-		await sendMessageToSlack( JSON.stringify( availability.wordads ) );
-
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
 
 		let frontend = await PostFrontendPage.init( page );
+		const url = page.url();
 		await frontend.logout();
 
-		await page.reload( { waitFor: 'networkidle0' } );
+		// await page.reload( { waitFor: 'networkidle0' } );
 
-		frontend = await PostFrontendPage.init( page );
+		frontend = await PostFrontendPage.visit( page, url );
 		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
