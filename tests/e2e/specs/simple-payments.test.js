@@ -37,6 +37,9 @@ describe( 'Simple Payment', () => {
 
 		const frontend = await PostFrontendPage.init( page );
 		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
+		await page.reload( { waitFor: 'networkidle0' } );
+		await PostFrontendPage.init( page );
+		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 		await frontend.isRenderedBlockPresent( SimplePaymentBlock );
 	} );
