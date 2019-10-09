@@ -18,7 +18,7 @@ export default class SimplePaymentBlock {
 	async fillDetails( {
 		title = `SP test ${ new Date() }`,
 		description = 'random product description',
-		price = 23.42,
+		price = '23.42',
 		// isMultiple = false,
 		email = 'test@example.com',
 	} = {} ) {
