@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Status;
+
 /**
  * The Tracking class, used to record events in wpcom
  */
@@ -77,6 +79,12 @@ class Tracking {
 
 		// We don't want to track user events during unit tests/CI runs.
 		if ( $user instanceof \WP_User && 'wptests_capabilities' === $user->cap_key ) {
+			return false;
+		}
+
+		// Don't track users who have opted our, or not agreed to the TOS, or sites in development mode
+		$status = new Status();
+		if ( ! \Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) || $status->is_development_mode() ) {
 			return false;
 		}
 
