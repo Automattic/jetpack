@@ -54,7 +54,7 @@ export const settings = {
 			{
 				name: 'jetpack/email',
 				attributes: {
-					email: 'hello@jetpack.com',
+					email: 'hello@yourjetpack.blog',
 				},
 			},
 			{
