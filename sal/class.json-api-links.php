@@ -18,7 +18,7 @@ class WPCOM_JSON_API_Links {
 	}
 
 	// protect these methods for singleton
-	protected function __construct() { 
+	protected function __construct() {
 		$this->api = WPCOM_JSON_API::init();
 	}
 	private function __clone() { }
@@ -29,11 +29,10 @@ class WPCOM_JSON_API_Links {
 	 *
 	 * Used to construct meta links in API responses
 	 *
-	 * @param mixed $args Optional arguments to be appended to URL
+	 * @param mixed ...$args Optional arguments to be appended to URL
 	 * @return string Endpoint URL
 	 **/
-	function get_link() {
-		$args   = func_get_args();
+	function get_link( ...$args ) {
 		$format = array_shift( $args );
 		$base = WPCOM_JSON_API__BASE;
 
@@ -127,7 +126,7 @@ class WPCOM_JSON_API_Links {
 	 *   maximum available version of /animals/%s, e.g. 1.1
 	 *
 	 * This method is used in get_link() to construct meta links for API responses.
-	 * 
+	 *
 	 * @param $template_path string The generic endpoint path, e.g. /sites/%s
 	 * @param $path string The current endpoint path, relative to the version, e.g. /sites/12345
 	 * @param $request_method string Request method used to access the endpoint path

@@ -46,10 +46,10 @@ class Jetpack_IXR_Client extends IXR_Client {
 	/**
 	 * Perform the IXR request.
 	 *
+	 * @param mixed ...$args First argument is the method. Following args are parameters for the method.
 	 * @return bool True if request succeeded, false otherwise.
 	 */
-	public function query() {
-		$args    = func_get_args();
+	public function query( ...$args ) {
 		$method  = array_shift( $args );
 		$request = new IXR_Request( $method, $args );
 		$xml     = trim( $request->getXml() );

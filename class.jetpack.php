@@ -5537,8 +5537,10 @@ endif;
 
 	/**
 	 * Helper method for multicall XMLRPC.
+	 *
+	 * @param ...$args Args for the async_call.
 	 */
-	public static function xmlrpc_async_call() {
+	public static function xmlrpc_async_call( ...$args ) {
 		global $blog_id;
 		static $clients = array();
 
@@ -5551,8 +5553,6 @@ endif;
 			}
 			add_action( 'shutdown', array( 'Jetpack', 'xmlrpc_async_call' ) );
 		}
-
-		$args = func_get_args();
 
 		if ( ! empty( $args[0] ) ) {
 			call_user_func_array( array( $clients[ $client_blog_id ], 'addCall' ), $args );

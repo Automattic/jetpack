@@ -79,8 +79,7 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
-	function __construct() {
-		$args = func_get_args();
+	function __construct( ...$args ) {
 		call_user_func_array( array( $this, 'setup_inputs' ), $args );
 	}
 

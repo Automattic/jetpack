@@ -21,11 +21,10 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 
 	/**
 	 * Add a IXR call to the client.
-	 * First argument is the method name.
-	 * The rest of the arguments are the params specified to the method.
+	 *
+	 * @param mixed ...$args First argument is the method name, remaining are params specific to the method.
 	 */
-	public function addCall() {
-		$args          = func_get_args();
+	public function addCall( ...$args ) {
 		$method_name   = array_shift( $args );
 		$struct        = array(
 			'methodName' => $method_name,
