@@ -7,7 +7,6 @@ import { wrap } from 'lodash';
  */
 import { sendFailedTestScreenshotToSlack, sendFailedTestMessageToSlack } from './reporters/slack';
 import { takeScreenshot } from './reporters/screenshot';
-import { readFileSync } from 'fs';
 import { logHTML, logDebugLog } from './page-helper';
 /**
  * Override the test case method so we can take screenshots of assertion failures.

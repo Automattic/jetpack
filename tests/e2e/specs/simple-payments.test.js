@@ -6,6 +6,8 @@ import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, execShellCommand } from '../lib/utils-helper';
+import { sendFailedTestScreenshotToSlack } from '../lib/reporters/slack';
+import { takeScreenshot } from '../lib/reporters/screenshot';
 
 describe( 'Simple Payment', () => {
 	beforeAll( async () => {
@@ -23,6 +25,9 @@ describe( 'Simple Payment', () => {
 
 		const spBlock = new SimplePaymentBlock( blockInfo, page );
 		await spBlock.fillDetails();
+
+		const filePath = await takeScreenshot( 'test', 'simple-payment' );
+		await sendFailedTestScreenshotToSlack( filePath );
 
 		await blockEditor.focus();
 
