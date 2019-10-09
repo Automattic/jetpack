@@ -36,6 +36,8 @@ describe( 'Simple Payment', () => {
 		await blockEditor.viewPost();
 
 		const frontend = await PostFrontendPage.init( page );
+		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
+
 		await frontend.isRenderedBlockPresent( SimplePaymentBlock );
 	} );
 } );
