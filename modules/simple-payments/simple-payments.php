@@ -118,6 +118,8 @@ class Jetpack_Simple_Payments {
 		}
 
 		// For all Jetpack sites
+		error_log( print_r(Jetpack::is_active() ? 'Jetpack::is_active true' : 'Jetpack::is_active false ', 1) );
+		error_log( print_r(Jetpack_Plan::supports( 'simple-payments') ? 'Jetpack_Plan::supports true' : 'Jetpack_Plan::supports false ', 1) );
 		return Jetpack::is_active() && Jetpack_Plan::supports( 'simple-payments');
 	}
 

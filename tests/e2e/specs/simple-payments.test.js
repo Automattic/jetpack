@@ -29,14 +29,10 @@ describe( 'Simple Payment', () => {
 
 		await blockEditor.focus();
 
-		const filePath = await takeScreenshot( 'test', 'simple-payment' );
-		await sendFailedTestScreenshotToSlack( filePath );
-		await logHTML();
-
 		const availability = await page.evaluate(
 			() => window.Jetpack_Editor_Initial_State.available_blocks
 		);
-		console.log( availability );
+		console.log( availability[ 'simple-payments' ] );
 
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
