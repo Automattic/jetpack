@@ -8,6 +8,8 @@ import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import { sendMessageToSlack } from '../lib/reporters/slack';
 
+jest.setTimeout( 2147483647 ); // max 32-bit signed integer
+
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
 	let cmd = './tests/e2e/docker/whatever.sh cli "wp jetpack module activate wordads"';
