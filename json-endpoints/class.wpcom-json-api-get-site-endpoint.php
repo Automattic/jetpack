@@ -155,6 +155,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack_frame_nonce',
 		'design_type',
 		'wordads',
+		// Use the site registered date from wpcom, since it is only available in a multisite context
+		// and defaults to `0000-00-00T00:00:00+00:00` from the Jetpack site.
+		// See https://github.com/Automattic/jetpack/blob/58638f46094b36f5df9cbc4570006544f0ad300c/sal/class.json-api-site-base.php#L387.
+		'created_at',
 	);
 
 	private $site;
