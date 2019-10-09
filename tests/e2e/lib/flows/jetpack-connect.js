@@ -103,16 +103,20 @@ export async function connectThroughJetpackStart( {
 
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
+
+	await page.waitFor( 10000 );
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
-	// Reload the page to hydrate plans cache
-	await jetpackPage.reload();
 
 	await jetpackPage.openMyPlan();
+
+	// Reload the page to hydrate plans cache
+	await page.reload( { waitFor: 'networkidle0' } );
+
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
