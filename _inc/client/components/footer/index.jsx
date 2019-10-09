@@ -24,8 +24,11 @@ export class Footer extends React.Component {
 	};
 
 	render() {
+		if ( ! this.props.isDevVersion ) {
+			return null;
+		}
 		const maybeShowReset = () => {
-			if ( this.props.isDevVersion && this.props.userCanManageOptions ) {
+			if ( this.props.userCanManageOptions ) {
 				return (
 					<li className="jp-footer__link-item" key="reset">
 						<a
@@ -40,32 +43,27 @@ export class Footer extends React.Component {
 					</li>
 				);
 			}
-			return '';
+			return null;
 		};
 
 		const maybeShowDevCardFooterLink = () => {
-			if ( this.props.isDevVersion ) {
-				return (
-					<li className="jp-footer__link-item" key="dev-tools">
-						<a
-							role="button"
-							tabIndex="0"
-							onKeyDown={ onKeyDownCallback( this.props.enableDevCard ) }
-							onClick={ this.props.enableDevCard }
-							className="jp-footer__link"
-						>
-							{ __( 'Dev Tools', { context: 'Navigation item.' } ) }
-						</a>
-					</li>
-				);
-			}
-			return '';
+			return (
+				<li className="jp-footer__link-item" key="dev-tools">
+					<a
+						role="button"
+						tabIndex="0"
+						onKeyDown={ onKeyDownCallback( this.props.enableDevCard ) }
+						onClick={ this.props.enableDevCard }
+						className="jp-footer__link"
+					>
+						{ __( 'Dev Tools', { context: 'Navigation item.' } ) }
+					</a>
+				</li>
+			);
 		};
 
 		const maybeShowDevCard = () => {
-			if ( this.props.isDevVersion && this.props.displayDevCard ) {
-				return <DevCard key="dev-card" />;
-			}
+			return this.props.displayDevCard && <DevCard key="dev-card" />;
 		};
 
 		const children = [ maybeShowReset(), maybeShowDevCardFooterLink(), maybeShowDevCard() ];
