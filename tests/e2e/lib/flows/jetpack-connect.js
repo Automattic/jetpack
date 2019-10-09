@@ -121,12 +121,6 @@ export async function connectThroughJetpackStart( {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
 
-	await page.reload( { waitFor: 'networkidle0' } );
-
-	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
-		throw new Error( `Site does not have ${ plan } plan` );
-	}
-
 	await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 	return true;
