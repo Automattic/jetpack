@@ -19,6 +19,7 @@ module.exports = [
 	'modules/memberships/',
 	'modules/module-extras.php',
 	'modules/module-info.php',
+	'modules/search/class.jetpack-search.php',
 	'modules/sharedaddy.php',
 	'modules/shortcodes/',
 	'modules/sitemaps/sitemaps.php',
