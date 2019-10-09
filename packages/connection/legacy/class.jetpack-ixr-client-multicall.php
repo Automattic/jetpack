@@ -36,9 +36,10 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	/**
 	 * Perform the IXR multicall request.
 	 *
+	 * @param mixed ...$args Unused. Added to be compatible with Jetpack_IXR_Client.
 	 * @return bool True if request succeeded, false otherwise.
 	 */
-	public function query() {
+	public function query( ...$args ) {
 		usort( $this->calls, array( $this, 'sort_calls' ) );
 
 		// Prepare multicall, then call the parent::query() method.
