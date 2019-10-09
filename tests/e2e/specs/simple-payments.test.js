@@ -6,7 +6,6 @@ import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, execShellCommand } from '../lib/utils-helper';
-import { sendMessageToSlack } from '../lib/reporters/slack';
 
 describe( 'Simple Payment', () => {
 	beforeAll( async () => {
@@ -26,21 +25,11 @@ describe( 'Simple Payment', () => {
 		await spBlock.fillDetails();
 
 		await blockEditor.focus();
-
-		const availability = await page.evaluate(
-			() => window.Jetpack_Editor_Initial_State.available_blocks
-		);
-		await sendMessageToSlack( JSON.stringify( availability[ 'simple-payments' ] ) );
-
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
 
 		const frontend = await PostFrontendPage.init( page );
 		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
-		await page.reload( { waitFor: 'networkidle0' } );
-		await PostFrontendPage.init( page );
-		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
-
 		await frontend.isRenderedBlockPresent( SimplePaymentBlock );
 	} );
 } );
