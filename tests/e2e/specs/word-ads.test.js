@@ -56,7 +56,6 @@ describe( 'WordAds block', () => {
 		await page.reload( { waitFor: 'networkidle0' } );
 		await PostFrontendPage.init( page );
 		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
-		await jestPuppeteer.debug();
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
 	} );
