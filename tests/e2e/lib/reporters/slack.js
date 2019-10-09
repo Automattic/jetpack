@@ -51,14 +51,21 @@ export async function sendFailedTestMessageToSlack( testResult ) {
 }
 
 export async function sendMessageToSlack( message ) {
+	const payload = {
+		channel: conversationId,
+		username: 'Gutenpack testbot',
+		icon_emoji: ':gutenpack:',
+	};
+
+	if ( typeof message === 'string' ) {
+		payload.text = message;
+	} else {
+		payload.blocks = message;
+	}
+
 	try {
 		// For details, see: https://api.slack.com/methods/chat.postMessage
-		await webCli.chat.postMessage( {
-			blocks: message,
-			channel: conversationId,
-			username: 'Gutenpack testbot',
-			icon_emoji: ':gutenpack:',
-		} );
+		await webCli.chat.postMessage( payload );
 	} catch ( error ) {
 		// Check the code property and log the response
 		if (
