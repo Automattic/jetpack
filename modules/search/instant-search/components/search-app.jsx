@@ -89,7 +89,7 @@ class SearchApp extends Component {
 			this.setState( { isLoading: true }, () => {
 				search( {
 					// Skip aggregations when requesting for paged results
-					aggregations: !! pageHandle ? this.props.aggregations : {},
+					aggregations: !! pageHandle ? {} : this.props.aggregations,
 					filter,
 					pageHandle,
 					query,
