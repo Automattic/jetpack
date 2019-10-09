@@ -36,7 +36,7 @@ global.it = async ( name, func ) => {
 				const filePath = await takeScreenshot( currentBlock, name );
 				await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 				await sendFailedTestScreenshotToSlack( filePath );
-				logDebugLog();
+				await logDebugLog();
 			}
 
 			if ( E2E_LOG_HTML ) {

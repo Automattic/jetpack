@@ -7,6 +7,10 @@ import config from 'config';
  */
 import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
 import { readFileSync } from 'fs';
+/**
+ * Internal dependencies
+ */
+import { sendMessageToSlack } from './reporters/slack';
 
 /**
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
@@ -176,10 +180,11 @@ export async function logHTML() {
 	return bodyHTML;
 }
 
-export function logDebugLog() {
+export async function logDebugLog() {
 	const log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
 	if ( log.length > 1 ) {
 		console.log( '#### WP DEBUG.LOG ####' );
 		console.log( log );
+		await sendMessageToSlack( log );
 	}
 }

@@ -124,7 +124,6 @@ export async function connectThroughJetpackStart( {
 	}
 
 	await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
-	await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
 
 	return true;
 }

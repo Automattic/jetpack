@@ -47,10 +47,14 @@ const getMessage = ( { name, block, error } ) => {
 };
 
 export async function sendFailedTestMessageToSlack( testResult ) {
+	await sendMessageToSlack( getMessage( testResult ) );
+}
+
+export async function sendMessageToSlack( message ) {
 	try {
 		// For details, see: https://api.slack.com/methods/chat.postMessage
 		await webCli.chat.postMessage( {
-			blocks: getMessage( testResult ),
+			blocks: message,
 			channel: conversationId,
 			username: 'Gutenpack testbot',
 			icon_emoji: ':gutenpack:',

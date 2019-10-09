@@ -6,6 +6,7 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import { sendMessageToSlack } from '../lib/reporters/slack';
 
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
@@ -28,6 +29,7 @@ describe( 'WordAds block', () => {
 		await connectThroughJetpackStart();
 		// Can activate WordAds module
 		await activateWordAdsModule();
+		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
 
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
@@ -40,7 +42,7 @@ describe( 'WordAds block', () => {
 		const availability = await page.evaluate(
 			() => window.Jetpack_Editor_Initial_State.available_blocks
 		);
-		console.log( availability.wordads );
+		await sendMessageToSlack( JSON.stringify( availability.wordads ) );
 
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();

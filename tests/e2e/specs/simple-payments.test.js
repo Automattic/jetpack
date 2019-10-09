@@ -6,9 +6,7 @@ import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, execShellCommand } from '../lib/utils-helper';
-import { sendFailedTestScreenshotToSlack } from '../lib/reporters/slack';
-import { takeScreenshot } from '../lib/reporters/screenshot';
-import { logHTML } from '../lib/page-helper';
+import { sendMessageToSlack } from '../lib/reporters/slack';
 
 describe( 'Simple Payment', () => {
 	beforeAll( async () => {
@@ -32,7 +30,7 @@ describe( 'Simple Payment', () => {
 		const availability = await page.evaluate(
 			() => window.Jetpack_Editor_Initial_State.available_blocks
 		);
-		console.log( availability[ 'simple-payments' ] );
+		await sendMessageToSlack( JSON.stringify( availability[ 'simple-payments' ] ) );
 
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
