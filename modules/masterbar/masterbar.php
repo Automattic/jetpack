@@ -209,7 +209,13 @@ class A8C_WPCOM_Masterbar {
 	 * Remove the default Admin Bar CSS.
 	 */
 	public function remove_core_styles() {
-		wp_dequeue_style( 'admin-bar' );
+		/*
+		 * Notifications need the admin bar styles,
+		 * so let's not remove them when the module is active.
+		 */
+		if ( ! Jetpack::is_module_active( 'notes' ) ) {
+			wp_dequeue_style( 'admin-bar' );
+		}
 	}
 
 	/**
