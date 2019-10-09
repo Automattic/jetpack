@@ -2082,7 +2082,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			}
 
-			if ( $attributes['hasFormSettingsSet'] ) {
+			if ( isset( $attributes['hasFormSettingsSet'] ) && $attributes['hasFormSettingsSet'] ) {
 				$r .= "\t\t<input type='hidden' name='is_block' value='1' />\n";
 			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
