@@ -175,11 +175,6 @@ class VideoPress_Gutenberg {
 	 * uploaded against the WP.com API media endpoint and thus transcoded by VideoPress.
 	 */
 	public function override_video_upload() {
-		// Bail if WP.com site.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return;
-		}
-
 		// Bail if Jetpack or VideoPress is not active.
 		if ( ! Jetpack::is_active() || ! Jetpack::is_module_active( 'videopress' ) ) {
 			return;
