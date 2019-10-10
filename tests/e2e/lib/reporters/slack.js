@@ -17,6 +17,28 @@ const token = E2E_SLACK_TOKEN || config.get( 'slackToken' );
 const conversationId = E2E_CHANNEL_NAME || config.get( 'slackChannel' );
 const webCli = new WebClient( token );
 
+async function sendRequestToSlack( fn ) {
+	try {
+		await fn();
+	} catch ( error ) {
+		// Check the code property and log the response
+		if (
+			error.code === ErrorCode.PlatformError ||
+			error.code === ErrorCode.RequestError ||
+			error.code === ErrorCode.RateLimitedError ||
+			error.code === ErrorCode.HTTPError
+		) {
+			console.log( error.data );
+		} else {
+			// Some other error, oh no!
+			console.log(
+				'The error occurred does not match an error we are checking for in this block.'
+			);
+			console.log( error );
+		}
+	}
+}
+
 const createSection = ( text, type = 'mrkdwn' ) => {
 	return {
 		type: 'section',
@@ -63,51 +85,28 @@ export async function sendMessageToSlack( message ) {
 		payload.blocks = message;
 	}
 
-	try {
-		// For details, see: https://api.slack.com/methods/chat.postMessage
-		await webCli.chat.postMessage( payload );
-	} catch ( error ) {
-		// Check the code property and log the response
-		if (
-			error.code === ErrorCode.PlatformError ||
-			error.code === ErrorCode.RequestError ||
-			error.code === ErrorCode.RateLimitedError ||
-			error.code === ErrorCode.HTTPError
-		) {
-			console.log( error.data );
-		} else {
-			// Some other error, oh no!
-			console.log(
-				'The error occurred does not match an error we are checking for in this block.'
-			);
-			console.log( error );
-		}
-	}
+	// For details, see: https://api.slack.com/methods/chat.postMessage
+	await sendRequestToSlack( async () => await webCli.chat.postMessage( payload ) );
+}
+
+export async function sendSnippetToSlack( message ) {
+	const payload = {
+		channels: conversationId,
+		username: 'Gutenpack testbot',
+		icon_emoji: ':gutenpack:',
+		content: message,
+	};
+
+	return await sendRequestToSlack( async () => await webCli.files.upload( payload ) );
 }
 
 export async function sendFailedTestScreenshotToSlack( screenshotOfFailedTest ) {
-	try {
-		// For details, see: https://api.slack.com/methods/files.upload
-		await webCli.files.upload( {
-			filename: screenshotOfFailedTest,
-			file: createReadStream( screenshotOfFailedTest ),
-			channels: conversationId,
-		} );
-	} catch ( error ) {
-		// Check the code property and log the response
-		if (
-			error.code === ErrorCode.PlatformError ||
-			error.code === ErrorCode.RequestError ||
-			error.code === ErrorCode.RateLimitedError ||
-			error.code === ErrorCode.HTTPError
-		) {
-			console.log( error.data );
-		} else {
-			// Some other error, oh no!
-			console.log(
-				'The error occurred does not match an error we are checking for in this block.'
-			);
-			console.log( error );
-		}
-	}
+	const payload = {
+		filename: screenshotOfFailedTest,
+		file: createReadStream( screenshotOfFailedTest ),
+		channels: conversationId,
+	};
+
+	// For details, see: https://api.slack.com/methods/files.upload
+	return await sendRequestToSlack( async () => await webCli.files.upload( payload ) );
 }

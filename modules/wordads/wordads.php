@@ -197,6 +197,7 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	private function insert_adcode() {
+		error_log( print_r( 'insert_adcode is called' , 1) );
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -270,7 +271,10 @@ class WordAds {
 	 * @return [type] [description]
 	 */
 	function insert_head_meta() {
+		error_log( print_r( 'insert_head_meta is called' , 1 ) );
+
 		if ( self::is_amp() ) {
+			error_log( print_r( 'insert_head_meta in is_amp', 1 ) );
 			return;
 		}
 		$themename = esc_js( get_stylesheet() );
@@ -295,7 +299,10 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_head_iponweb() {
+		error_log( print_r( 'insert_head_iponweb is called' , 1 ) );
 		if ( self::is_amp() ) {
+		error_log( print_r( 'insert_head_meta in is_amp' , 1 ) );
+
 			return;
 		}
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';

@@ -10,7 +10,7 @@ import { readFileSync } from 'fs';
 /**
  * Internal dependencies
  */
-import { sendMessageToSlack } from './reporters/slack';
+import { sendSnippetToSlack } from './reporters/slack';
 
 /**
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
@@ -177,6 +177,7 @@ export async function logHTML() {
 	console.log( '#### PAGE HTML ####' );
 	console.log( page.url() );
 	console.log( bodyHTML );
+	await sendSnippetToSlack( bodyHTML );
 	return bodyHTML;
 }
 
@@ -185,6 +186,6 @@ export async function logDebugLog() {
 	if ( log.length > 1 ) {
 		console.log( '#### WP DEBUG.LOG ####' );
 		console.log( log );
-		await sendMessageToSlack( log );
+		await sendSnippetToSlack( log );
 	}
 }
