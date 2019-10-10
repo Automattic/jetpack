@@ -31,7 +31,7 @@ describe( 'WordAds block', () => {
 		await activateWordAdsModule();
 		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
 
-		await page.waitFor( 20000 );
+		await page.waitFor( 30000 );
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
@@ -51,8 +51,12 @@ describe( 'WordAds block', () => {
 		await page._client.send( 'Network.clearBrowserCookies' );
 
 		// await page.reload( { waitFor: 'networkidle0' } );
+		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
+		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 		frontend = await PostFrontendPage.visit( page, url );
+		await page.reload( { waitFor: 'networkidle0' } );
+		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
 		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
