@@ -51,6 +51,9 @@ async function saveNetworkRequests( results ) {
 		if ( request.redirectChain().length === 0 ) {
 			// body can only be access for non-redirect responses
 			responseBody = await response.buffer();
+			if ( responseBody.type && responseBody.type === 'Buffer' ) {
+				responseBody = Buffer.from( responseBody.data ).toString();
+			}
 		}
 
 		const information = {

@@ -130,12 +130,3 @@ export async function connectThroughJetpackStart( {
 
 	return true;
 }
-
-bb = qq.map( obj => {
-	if ( obj.responseBody && obj.responseBody.data ) {
-		const buff = Buffer.from( obj.responseBody.data );
-		obj.responseBody = buff.toString();
-	}
-
-	return obj;
-} );
