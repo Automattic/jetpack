@@ -15,7 +15,7 @@ import { DEFAULT_CURRENCY } from './constants';
 /**
  * Example image
  */
-import simplePaymentsExample1 from './simple-payments__example-1.jpg';
+import simplePaymentsExample1 from './simple-payments_example-1.jpg';
 
 /**
  * Styles
