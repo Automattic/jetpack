@@ -24,8 +24,9 @@ import {
 	getFilterQuery,
 	setSortQuery,
 	getSortQuery,
+	hasFilter,
 } from '../lib/query-string';
-import { removeChildren, hideElements } from '../lib/dom';
+import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
 class SearchApp extends Component {
 	constructor() {
@@ -43,15 +44,12 @@ class SearchApp extends Component {
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
-	}
 
-	componentDidMount() {
-		if ( this.props.grabFocus ) {
-			this.input.current.focus();
-		}
-
+		//clean up the page in prep for adding component
 		hideElements( this.props.themeOptions.elem_selectors );
-		removeChildren( document.querySelector( this.props.themeOptions.results_selector ) );
+		if ( this.hasActiveQuery() ) {
+			this.activateResults();
+		}
 		this.props.widgets.forEach( function( widget ) {
 			removeChildren( document.getElementById( widget.widget_id ) );
 		} );
@@ -61,7 +59,43 @@ class SearchApp extends Component {
 		} );
 	}
 
+	componentDidMount() {
+		if ( this.props.grabFocus ) {
+			this.input.current.focus();
+		}
+	}
+
+	hasActiveQuery() {
+		return this.state.query !== '' || hasFilter();
+	}
+
+	activateResults() {
+		if ( ! this.state.resultsActive ) {
+			this.setState( { resultsActive: true } );
+			hideChildren( this.props.themeOptions.results_selector );
+		}
+	}
+
+	maybeDeactivateResults() {
+		if ( this.hasActiveQuery() ) {
+			return;
+		}
+		if ( this.state.resultsActive ) {
+			this.setState( { resultsActive: false } );
+			showChildren( this.props.themeOptions.results_selector );
+		}
+	}
+
+	onSearchFocus = event => {
+		this.activateResults();
+	};
+
+	onSearchBlur = event => {
+		this.maybeDeactivateResults();
+	};
+
 	onChangeQuery = event => {
+		this.activateResults();
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
@@ -70,12 +104,20 @@ class SearchApp extends Component {
 
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
-		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+		if ( this.hasActiveQuery() ) {
+			this.activateResults();
+		}
+		this.maybeDeactivateResults();
+		if ( this.hasActiveQuery() ) {
+			this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+		}
 	};
 
 	onChangeSort = sort => {
 		setSortQuery( sort );
-		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+		if ( this.hasActiveQuery() ) {
+			this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+		}
 	};
 
 	getResults = ( query, filter, sort ) => {
@@ -122,6 +164,8 @@ class SearchApp extends Component {
 							<div className="search-form">
 								<SearchBox
 									onChangeQuery={ this.onChangeQuery }
+									onFocus={ this.onSearchFocus }
+									onBlur={ this.onSearchBlur }
 									appRef={ this.input }
 									query={ query }
 								/>

@@ -33,7 +33,11 @@ export function getSearchQuery() {
 
 export function setSearchQuery( searchValue ) {
 	const query = getQuery();
-	query.s = searchValue;
+	if ( searchValue === '' ) {
+		delete query.s;
+	} else {
+		query.s = searchValue;
+	}
 	pushQueryString( encode( query ) );
 }
 

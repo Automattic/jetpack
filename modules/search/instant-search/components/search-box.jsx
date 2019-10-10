@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 
 class SearchBox extends Component {
 	render() {
-		const { query, onChangeQuery, appRef, onFocus, onBlur } = this.props;
+		const { query, onChangeQuery, appRef, onFocus, onBlur, onKeyPress } = this.props;
 
 		return (
 			<div className={ 'jp-instant-search__box' }>
