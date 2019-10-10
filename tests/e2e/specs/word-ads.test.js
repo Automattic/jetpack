@@ -95,6 +95,7 @@ describe( 'WordAds block', () => {
 
 		await page.reload( { waitFor: 'networkidle0' } );
 		await logHTML();
+		await sendSnippetToSlack( JSON.stringify( res ) );
 
 		const frontend = await PostFrontendPage.init( page );
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
