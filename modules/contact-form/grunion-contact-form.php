@@ -26,7 +26,11 @@ function grunion_contact_form_require_endpoint() {
 	require_once GRUNION_PLUGIN_DIR . 'class-grunion-contact-form-endpoint.php';
 }
 
-require_once GRUNION_PLUGIN_DIR . 'tracks-events.php';
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	require_once GRUNION_PLUGIN_DIR . 'tracks-events-wpcom.php';
+} else {
+	require_once GRUNION_PLUGIN_DIR . 'tracks-events.php';
+}
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.

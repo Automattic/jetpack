@@ -3,13 +3,9 @@
  * Jetpack_Contact_Form: Add tracking for submitting contact form blocks
  *
  * This file is specific to Jetpack's Tracks implementation
- *
  * @package    Jetpack
  * @since      ?
  */
-
-use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Status;
 
 /**
  * Function that sends a `jetpack_contact_form_block_message_sent` event to Tracks
@@ -18,17 +14,12 @@ use Automattic\Jetpack\Status;
  * @param array $all_values - fields from the default contact form.
  * @param array $extra_values - extra fields added to from the contact form.
 
- * @return null|void
+ * @return null
  */
-function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
-	$status = new Automattic\Jetpack\Status();
-	if ( $status->is_development_mode() ) {
-		return false;
-	}
-
+function jetpack_wpcom_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
 	if ( isset( $extra_values['is_block'] ) && $extra_values['is_block'] ) {
-		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->tracks_record_event(
+		require_lib( 'tracks/client' );
+		tracks_record_event(
 			wp_get_current_user(),
 			'jetpack_contact_form_block_message_sent',
 			array(
@@ -39,4 +30,4 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	}
 }
 
-add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
+add_action( 'grunion_pre_message_sent', 'jetpack_wpcom_tracks_record_grunion_pre_message_sent', 12, 3 );
