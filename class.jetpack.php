@@ -7045,7 +7045,14 @@ endif;
 		}
 	}
 
-	public static function is_active_and_not_development_mode( $maybe = null ) {
+	/**
+	 * Checks if a Jetpack site is both active and not in development.
+	 *
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Jetpack::is_development_mode`.
+	 *
+	 * @return bool True if Jetpack is active and not in development.
+	 */
+	public static function is_active_and_not_development_mode() {
 		if ( ! self::is_active() || self::is_development_mode() ) {
 			return false;
 		}
