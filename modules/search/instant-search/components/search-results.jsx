@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import SearchResultMinimal from './search-result-minimal';
+import ScrollButton from './scroll-button';
 
 class SearchResults extends Component {
 	render_result( result ) {
@@ -23,7 +24,9 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const { results = [], query, total = 0, corrected_query = false, loading = false } = this.props;
+		const { query } = this.props;
+		const { results = [], total = 0, corrected_query = false } = this.props.response;
+
 		if ( query === '' ) {
 			return <div className="jetpack-instant-search__search-results" />;
 		}
@@ -37,13 +40,13 @@ class SearchResults extends Component {
 			);
 		}
 		const num = new Intl.NumberFormat().format( total );
-		const cls =
-			loading === true
-				? 'jetpack-instant-search__search-results jetpack-instant-search__is-loading'
-				: 'jetpack-instant-search__search-results';
 
 		return (
-			<div className={ cls }>
+			<div
+				className={ `jetpack-instant-search__search-results ${
+					this.state.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+				}` }
+			>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ corrected_query !== false
 						? sprintf(
@@ -59,6 +62,13 @@ class SearchResults extends Component {
 					</p>
 				) }
 				{ results.map( result => this.render_result( result ) ) }
+				{ this.props.hasNextPage && (
+					<ScrollButton
+						enableLoadOnScroll
+						isLoading={ this.props.isLoading }
+						onLoadNextPage={ this.props.onLoadNextPage }
+					/>
+				) }
 			</div>
 		);
 	}
