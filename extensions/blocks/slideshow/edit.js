@@ -1,45 +1,24 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
-import { filter, get, isEmpty, map, pick } from 'lodash';
+import { filter, get, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { withDispatch, withSelect } from '@wordpress/data';
-import {
-	BlockControls,
-	BlockIcon,
-	InspectorControls,
-	MediaPlaceholder,
-	MediaUpload,
-	mediaUpload,
-} from '@wordpress/editor';
-import {
-	DropZone,
-	FormFileUpload,
-	IconButton,
-	PanelBody,
-	RangeControl,
-	SelectControl,
-	ToggleControl,
-	Toolbar,
-	withNotices,
-} from '@wordpress/components';
+import { BlockIcon, MediaPlaceholder, mediaUpload } from '@wordpress/editor';
+import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { icon } from '.';
+import Controls from './controls';
 import Slideshow from './slideshow';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image' ];
-
-const effectOptions = [
-	{ label: _x( 'Slide', 'Slideshow transition effect', 'jetpack' ), value: 'slide' },
-	{ label: _x( 'Fade', 'Slideshow transition effect', 'jetpack' ), value: 'fade' },
-];
 
 export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );
@@ -138,94 +117,19 @@ class SlideshowEdit extends Component {
 		this.setAttributes( { images, sizeSlug } );
 	};
 	render() {
-		const {
-			attributes,
-			className,
-			isSelected,
-			noticeOperations,
-			noticeUI,
-			setAttributes,
-		} = this.props;
-		const { align, autoplay, delay, effect, images, sizeSlug } = attributes;
-		const prefersReducedMotion =
-			typeof window !== 'undefined' &&
-			window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		const { attributes, className, isSelected, noticeOperations, noticeUI } = this.props;
+		const { align, autoplay, delay, effect, images } = attributes;
+
 		const imageSizeOptions = this.getImageSizeOptions();
 		const controls = (
-			<Fragment>
-				<InspectorControls>
-					<PanelBody title={ __( 'Autoplay', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Autoplay', 'jetpack' ) }
-							help={ __( 'Autoplay between slides', 'jetpack' ) }
-							checked={ autoplay }
-							onChange={ value => {
-								setAttributes( { autoplay: value } );
-							} }
-						/>
-						{ autoplay && (
-							<RangeControl
-								label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
-								value={ delay }
-								onChange={ value => {
-									setAttributes( { delay: value } );
-								} }
-								min={ 1 }
-								max={ 5 }
-							/>
-						) }
-						{ autoplay && prefersReducedMotion && (
-							<span>
-								{ __(
-									'The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser.',
-									'jetpack'
-								) }
-							</span>
-						) }
-					</PanelBody>
-					<PanelBody title={ __( 'Effects', 'jetpack' ) }>
-						<SelectControl
-							label={ __( 'Transition effect', 'jetpack' ) }
-							value={ effect }
-							onChange={ value => {
-								setAttributes( { effect: value } );
-							} }
-							options={ effectOptions }
-						/>
-					</PanelBody>
-					{ ! isEmpty( images ) && ! isEmpty( imageSizeOptions ) && (
-						<PanelBody title={ __( 'Image Settings', 'jetpack' ) }>
-							<SelectControl
-								label={ __( 'Image Size', 'jetpack' ) }
-								value={ sizeSlug }
-								options={ imageSizeOptions }
-								onChange={ this.updateImagesSize }
-							/>
-						</PanelBody>
-					) }
-				</InspectorControls>
-				<BlockControls>
-					{ !! images.length && (
-						<Toolbar>
-							<MediaUpload
-								onSelect={ this.onSelectImages }
-								allowedTypes={ ALLOWED_MEDIA_TYPES }
-								multiple
-								gallery
-								value={ images.map( img => img.id ) }
-								render={ ( { open } ) => (
-									<IconButton
-										className="components-toolbar__control"
-										label={ __( 'Edit Slideshow', 'jetpack' ) }
-										icon="edit"
-										onClick={ open }
-									/>
-								) }
-							/>
-						</Toolbar>
-					) }
-				</BlockControls>
-			</Fragment>
+			<Controls
+				allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
+				attributes={ attributes }
+				imageSizeOptions={ imageSizeOptions }
+				onChangeImageSize={ this.updateImagesSize }
+				onSelectImages={ this.onSelectImages }
+				setAttributes={ this.setAttributes }
+			/>
 		);
 
 		if ( images.length === 0 ) {
