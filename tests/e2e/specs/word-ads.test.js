@@ -90,7 +90,8 @@ describe( 'WordAds block', () => {
 
 		console.log( new Date() );
 
-		await page.goto( getNgrokSiteUrl() );
+		const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
+		await page.goto( httpURL );
 
 		await page.reload( { waitFor: 'networkidle0' } );
 		await logHTML();
