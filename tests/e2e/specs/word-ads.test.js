@@ -97,8 +97,8 @@ describe( 'WordAds block', () => {
 		await page.setCacheEnabled( false );
 		await blockEditor.publishPost();
 
-		const res = [];
-		await saveNetworkRequests( res );
+		// const res = [];
+		// await saveNetworkRequests( res );
 		await blockEditor.viewPost();
 
 		const frontend = await PostFrontendPage.init( page );
@@ -120,7 +120,7 @@ describe( 'WordAds block', () => {
 		await page.reload( { waitFor: 'networkidle0' } );
 
 		await logHTML();
-		await sendSnippetToSlack( JSON.stringify( res ) );
+		// await sendSnippetToSlack( JSON.stringify( res ) );
 
 		// frontend.reloadUntil(
 		// 	async () => ! ( await isEventuallyPresent( page, '.entry-content iframe[src*="wordads"]' ) )
