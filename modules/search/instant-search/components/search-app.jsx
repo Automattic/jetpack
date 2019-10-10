@@ -100,6 +100,12 @@ class SearchApp extends Component {
 					if ( this.requestId === requestId ) {
 						const response = { ...newResponse };
 						if ( !! pageHandle ) {
+							response.aggregations = {
+								...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
+									? this.state.response.aggregations
+									: {} ),
+								...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
+							};
 							response.results = [
 								...( 'results' in this.state.response ? this.state.response.results : [] ),
 								...newResponse.results,
