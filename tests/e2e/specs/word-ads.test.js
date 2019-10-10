@@ -53,12 +53,12 @@ describe( 'WordAds block', () => {
 		// await page.reload( { waitFor: 'networkidle0' } );
 
 		frontend = await PostFrontendPage.visit( page, url );
-		frontend.reloadUntil( async () => {
-			const r = await execShellCommand(
-				'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
-			);
-			return typeof r === 'string' ? false : true;
-		} );
+		// frontend.reloadUntil( async () => {
+		// 	const r = await execShellCommand(
+		// 		'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
+		// 	);
+		// 	return typeof r === 'string' ? false : true;
+		// } );
 
 		frontend.reloadUntil(
 			async () => ! ( await isEventuallyPresent( page, '.entry-content iframe[src*="wordads"]' ) )
