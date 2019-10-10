@@ -42,7 +42,7 @@ class SearchApp extends Component {
 			results: {},
 			loading: false,
 		};
-		this.getResults = debounce( this.getResults, 200 );
+		this.getDebouncedResults = debounce( this.getResults, 200 );
 		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
 
 		//clean up the page in prep for adding component
@@ -86,11 +86,11 @@ class SearchApp extends Component {
 		}
 	}
 
-	onSearchFocus = event => {
+	onSearchFocus = () => {
 		this.activateResults();
 	};
 
-	onSearchBlur = event => {
+	onSearchBlur = () => {
 		this.maybeDeactivateResults();
 	};
 
@@ -99,7 +99,7 @@ class SearchApp extends Component {
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
-		this.getResults( query, getFilterQuery(), getSortQuery() );
+		this.getDebouncedResults( query, getFilterQuery(), getSortQuery() );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
@@ -121,38 +121,31 @@ class SearchApp extends Component {
 	};
 
 	getResults = ( query, filter, sort ) => {
-		if ( query ) {
-			this.requestId++;
-			const requestId = this.requestId;
+		this.requestId++;
+		const requestId = this.requestId;
 
-			this.setState( {
-				loading: true,
-			} );
-			search( {
-				aggregations: this.props.aggregations,
-				filter,
-				query,
-				resultFormat: this.props.options.resultFormat,
-				siteId: this.props.options.siteId,
-				sort,
-			} ).then( results => {
-				if ( this.requestId === requestId ) {
-					this.setState( {
-						results,
-						loading: false,
-					} );
-				}
-			} );
-		} else {
-			this.setState( {
-				results: [],
-				loading: false,
-			} );
-		}
+		this.setState( {
+			loading: true,
+		} );
+		search( {
+			aggregations: this.props.aggregations,
+			filter,
+			query,
+			resultFormat: this.props.options.resultFormat,
+			siteId: this.props.options.siteId,
+			sort,
+		} ).then( results => {
+			if ( this.requestId === requestId ) {
+				this.setState( {
+					results,
+					loading: false,
+				} );
+			}
+		} );
 	};
 
 	render() {
-		const { query, results } = this.state;
+		const { query, results, resultsActive } = this.state;
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
@@ -199,14 +192,16 @@ class SearchApp extends Component {
 						</Portal>
 					) ) }
 
-				<Portal into={ this.props.themeOptions.results_selector }>
-					<SearchResults
-						query={ query }
-						loading={ this.state.loading }
-						{ ...results }
-						result_format={ this.props.options.resultFormat }
-					/>
-				</Portal>
+				{ resultsActive && (
+					<Portal into={ this.props.themeOptions.results_selector }>
+						<SearchResults
+							query={ query }
+							loading={ this.state.loading }
+							{ ...results }
+							result_format={ this.props.options.resultFormat }
+						/>
+					</Portal>
+				) }
 			</Preact.Fragment>
 		);
 	}
