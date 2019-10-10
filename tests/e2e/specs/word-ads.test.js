@@ -40,12 +40,15 @@ describe( 'WordAds block', () => {
 
 		await blockEditor.focus();
 
+		await page.setCacheEnabled( false );
 		await blockEditor.publishPost();
 		await blockEditor.viewPost();
 
 		let frontend = await PostFrontendPage.init( page );
 		const url = page.url();
 		await frontend.logout();
+
+		await page._client.send( 'Network.clearBrowserCookies' );
 
 		// await page.reload( { waitFor: 'networkidle0' } );
 
