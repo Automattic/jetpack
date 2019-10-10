@@ -104,6 +104,9 @@ export async function connectThroughJetpackStart( {
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
+	// trigger heartbeat to update plan data
+	await execShellCommand( 'wp cron event run jetpack_heartbeat --path="/home/travis/wordpress"' );
+
 	await page.waitFor( 10000 );
 	const siteUrl = getNgrokSiteUrl();
 

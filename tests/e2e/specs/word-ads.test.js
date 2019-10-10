@@ -95,6 +95,9 @@ describe( 'WordAds block', () => {
 
 		await page.reload( { waitFor: 'networkidle0' } );
 		await logHTML();
+
+		const frontend = await PostFrontendPage.init( page );
+		await frontend.isRenderedBlockPresent( WordAdsBlock );
 	} );
 
 	it.skip( 'Can publish a post with a WordAds block', async () => {
@@ -143,6 +146,8 @@ describe( 'WordAds block', () => {
 		// frontend.reloadUntil(
 		// 	async () => ! ( await isEventuallyPresent( page, '.entry-content iframe[src*="wordads"]' ) )
 		// );
+
+		// frontend = await PostFrontendPage.visit( page, url );
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
 	} );

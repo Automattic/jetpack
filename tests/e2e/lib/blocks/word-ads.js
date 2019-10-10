@@ -40,6 +40,6 @@ export default class WordAdsBlock {
 		const containerSelector = ".entry-content iframe[src*='wordads']";
 
 		await page.reload();
-		await waitForSelector( page, containerSelector, { timeout: 50000 } );
+		await waitForSelector( page, containerSelector );
 	}
 }
