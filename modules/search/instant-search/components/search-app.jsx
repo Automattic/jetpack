@@ -64,6 +64,10 @@ class SearchApp extends Component {
 		} );
 	}
 
+	hasNextPage() {
+		return !! this.state.response.page_handle;
+	}
+
 	onChangeQuery = event => {
 		const query = event.target.value;
 		this.setState( { query } );
@@ -122,12 +126,13 @@ class SearchApp extends Component {
 	};
 
 	loadNextPage = () => {
-		this.getResults(
-			this.state.query,
-			getFilterQuery(),
-			getSortQuery(),
-			this.state.response.page_handle
-		);
+		this.hasNextPage() &&
+			this.getResults(
+				this.state.query,
+				getFilterQuery(),
+				getSortQuery(),
+				this.state.response.page_handle
+			);
 	};
 
 	render() {
@@ -177,7 +182,7 @@ class SearchApp extends Component {
 
 				<Portal into={ this.props.themeOptions.results_selector }>
 					<SearchResults
-						hasNextPage={ !! this.state.response.page_handle }
+						hasNextPage={ this.hasNextPage() }
 						isLoading={ this.state.isLoading }
 						onLoadNextPage={ this.loadNextPage }
 						query={ this.state.query }
