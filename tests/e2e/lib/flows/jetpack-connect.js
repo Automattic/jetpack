@@ -105,7 +105,9 @@ export async function connectThroughJetpackStart( {
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
 	// trigger heartbeat to update plan data
-	await execShellCommand( 'wp cron event run jetpack_heartbeat --path="/home/travis/wordpress"' );
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
 
 	await page.waitFor( 10000 );
 	const siteUrl = getNgrokSiteUrl();
@@ -128,3 +130,12 @@ export async function connectThroughJetpackStart( {
 
 	return true;
 }
+
+bb = qq.map( obj => {
+	if ( obj.responseBody && obj.responseBody.data ) {
+		const buff = Buffer.from( obj.responseBody.data );
+		obj.responseBody = buff.toString();
+	}
+
+	return obj;
+} );

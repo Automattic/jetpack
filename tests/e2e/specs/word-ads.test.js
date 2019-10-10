@@ -93,8 +93,10 @@ describe( 'WordAds block', () => {
 		const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
 		await page.goto( httpURL );
 
-		await page.reload( { waitFor: 'networkidle0' } );
 		await logHTML();
+
+		// await page.reload( { waitFor: 'networkidle0' } );
+		// await logHTML();
 		await sendSnippetToSlack( JSON.stringify( res ) );
 
 		const frontend = await PostFrontendPage.init( page );
