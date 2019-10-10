@@ -4,11 +4,9 @@
  * Plugin URI: http://wordpress.com
  * Description: Add a "Create Logo" button to the Customizer when the theme supports a logo. The button directs customers to LogoJoy.
  * Author: Automattic
- * Version: 1.2
+ * Version: 1.4
  * Author URI: http://wordpress.com
  * License: GPL2 or later
- * Text Domain: logo-tools
- * Domain Path: /languages/
  */
 
 /**
@@ -22,41 +20,57 @@
  * Activate the Site Logo plugin.
  *
  * @uses current_theme_supports()
+ *
+ * @param WP_Customize_Manager $wp_customize Control manager for the Customizer.
  */
 function add_logotool_button( $wp_customize ) {
 	if ( ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) || ! is_admin() ) {
 		return;
 	}
 
-	// WP Core logo integration.
+	$logo_control = null;
+
 	if ( current_theme_supports( 'custom-logo' ) ) {
+		// WP Core logo integration.
 		$logo_control = $wp_customize->get_control( 'custom_logo' );
-	// Jetpack logo integration.
 	} else if ( current_theme_supports( 'site-logo' ) ) {
+		// Jetpack logo integration.
 		$logo_control = $wp_customize->get_control( 'site_logo' );
 	} else {
-		return;
+		// Other custom logo integrations, for example in the dotorg versions of Lovecraft or Radcliffe themes.
+		foreach ( $wp_customize->controls() as $control ) {
+			if (
+				// Control has the name logo in it.
+				strpos( $control->id, 'logo' ) &&
+				// Control is not a `site_logo` or `custom_logo` (those are handled above).
+				! in_array( $control->id, [ 'custom_logo', 'site_logo' ], true ) &&
+				// Control is an instance of `WP_Customize_Image_Control` so we know how the UI is rendered to add the button.
+				is_a( $control, 'WP_Customize_Image_Control' )
+			) {
+				$logo_control = $control;
+				break;
+			}
+		}
 	}
 
 	if ( ! is_a( $logo_control, 'WP_Customize_Control' ) ) {
 		return;
 	}
 
-	$logo_control->description = __( 'Add a logo once and it will automatically display in every theme that supports logos. No
-logo? Buy a pro one from Looka — Click “Create logo” to start.' );
+	$logo_control->description = __( 'Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start.' );
 	// Adding it back just overwrites the previous control instance.
 	$wp_customize->add_control( $logo_control );
 
-	add_action( 'customize_controls_enqueue_scripts', function() {
-		wp_enqueue_style( 'wpcom-logo-tool', plugins_url( 'css/customizer.css', __FILE__ ), [], '20190928' );
+	add_action( 'customize_controls_enqueue_scripts', function() use ( $logo_control ) {
+		wp_enqueue_style( 'wpcom-logo-tool', plugins_url( 'css/customizer.css', __FILE__ ), [], '20191003' );
 		wp_style_add_data( 'wpcom-logo-tool', 'rtl', 'replace' );
 
-		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ],
-'20190928', true );
-		wp_localize_script( 'wpcom-logo-tool', '_LogoTool_l10n', [
-			'create' => __( 'Create logo' ),
+		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20191003', true );
+		wp_localize_script( 'wpcom-logo-tool', '_LogoTool_', [
+			'l10n' => [ 'create' => __( 'Create logo' ) ],
+			'controlId' => $logo_control->id,
 		] );
-	});
+	} );
 
 }
 add_action( 'customize_register', 'add_logotool_button', 20 );

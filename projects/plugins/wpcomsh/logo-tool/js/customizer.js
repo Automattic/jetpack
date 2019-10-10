@@ -1,34 +1,15 @@
-(function( $, wp ){
+/**
+ * IMPORTANT: All changes in this plugin should be synced between wpcom (Simple Sites) and wpcomsh (Atomic Sites).
+ */
+
+(function( $, wp, LogoTool ){
 	'use strict';
+
 	wp.customize.bind( 'ready', function() {
-		var logoControlId, logoThumbnail;
+		var logoThumbnail, logoControlId = '#customize-control-' + LogoTool.controlId;
 
-		// Core custom logo
-		if ( wp.customize( 'custom_logo' ) ) {
-			logoControlId = '#customize-control-custom_logo';
-			logoThumbnail = $( logoControlId + ' .thumbnail' );
-			wp.customize( 'custom_logo' ).bind( 'change', function( to, from ) {
-				if ( ! to ) {
-					insertLogoButton( logoControlId );
-					showLogoDescription( logoControlId );
-				} else {
-					// Logo button is removed automatically.
-					hideLogoDescription( logoControlId );
-				}
-			});
-
-			if ( ! logoThumbnail.length ) {
-				insertLogoButton( logoControlId );
-				showLogoDescription( logoControlId );
-			} else {
-				// Logo buttin is removed automatically.
-				hideLogoDescription( logoControlId );
-			}
-		}
-
-		// Jetpack logo
 		if ( wp.customize( 'site_logo' ) ) {
-			logoControlId = '#customize-control-site_logo';
+			// Jetpack logo, which has a slightly different HTML structure.
 			logoThumbnail = $( logoControlId + ' .site-logo-thumbnail' );
 			wp.customize( 'site_logo' ).bind( 'change', function( to, from ) {
 				if ( ! to.url ) {
@@ -46,11 +27,31 @@
 			} else {
 				hideLogoDescription( logoControlId );
 			}
+		} else if ( wp.customize( LogoTool.controlId ) ) {
+			// Core `custom-logo` or a theme specific logo that uses the same type of customize control.
+			logoThumbnail = $( logoControlId + ' .thumbnail' );
+			wp.customize( LogoTool.controlId ).bind( 'change', function( to, from ) {
+				if ( ! to ) {
+					insertLogoButton( logoControlId );
+					showLogoDescription( logoControlId );
+				} else {
+					// Logo button is removed automatically.
+					hideLogoDescription( logoControlId );
+				}
+			});
+
+			if ( ! logoThumbnail.length ) {
+				insertLogoButton( logoControlId );
+				showLogoDescription( logoControlId );
+			} else {
+				// Logo button is removed automatically.
+				hideLogoDescription( logoControlId );
+			}
 		}
 	});
 
 	function insertLogoButton( id ) {
-		var button = $( '<a class="button create-logo-button" target="_blank" href="https://looka.grsm.io/logo-maker-app" />' ).text( _LogoTool_l10n.create );
+		var button = $( '<a class="button create-logo-button" target="_blank" href="logo-maker-p2" />' ).text( LogoTool.l10n.create );
 
 		// Timeout lets us render after the core control finishes.
 		setTimeout( function(){
@@ -69,4 +70,4 @@
 	function hideLogoDescription( id ) {
 		$( id + ' .description' ).hide();
 	}
-})( jQuery, wp );
+})( jQuery, wp, _LogoTool_ );
