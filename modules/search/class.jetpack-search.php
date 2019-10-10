@@ -204,6 +204,7 @@ class Jetpack_Search {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+				$this->load_and_initialize_tracks();
 
 				$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
 				if ( is_array( $widget_options ) ) {
@@ -232,13 +233,14 @@ class Jetpack_Search {
 				}
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
-					'postTypes' => $post_type_labels,
-					'siteId'    => Jetpack::get_option( 'id' ),
-					'widgets'   => array_values( $widgets ),
-					'sort'      => $widget_options['sort'],
-					'postTypeFilters' => $widget_options['post_types'],
 					'enableLoadOnScroll' => false,
-					'locale'    => str_replace( '_', '-', get_locale() ),
+					'locale'             => str_replace( '_', '-', get_locale() ),
+					'postTypeFilters'    => $widget_options['post_types'],
+					'postTypes'          => $post_type_labels,
+					'siteId'             => Jetpack::get_option( 'id' ),
+					'sort'               => $widget_options['sort'],
+					'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+					'widgets'            => array_values( $widgets ),
 				);
 				/**
 				 * Customize Instant Search Options.
@@ -263,6 +265,11 @@ class Jetpack_Search {
 				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
 		}
+	}
+
+	public function load_and_initialize_tracks() {
+		define( 'W_JS_VER', 60 ); // W_JS_VER
+		wp_enqueue_script( 'jetpack-instant-search-tracks', '//stats.wp.com/w.js', array(), W_JS_VER, true ); 
 	}
 
 	/**

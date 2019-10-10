@@ -9,6 +9,8 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import arrayOverlap from '../lib/array-overlap';
+import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 
 const ShortcodeTypes = {
 	video: [
@@ -29,13 +31,41 @@ const ShortcodeTypes = {
 };
 
 class SearchResultMinimal extends Component {
-	arrayOverlap( a1, a2 ) {
-		if ( ! Array.isArray( a1 ) ) {
-			a1 = [ a1 ];
-		}
-		const intersection = a1.filter( value => a2.includes( value ) );
-		return intersection.length !== 0;
+	componentDidMount() {
+		recordTrainTracksRender( this.getCommonTrainTracksProps() );
 	}
+
+	getCommonTrainTracksProps() {
+		return {
+			fetch_algo: 'jetpack-instant-search-api/v1',
+			fetch_position: this.props.index,
+			fetch_query: this.props.query,
+			railcar: this.props.railcarId,
+			rec_blog_id: this.props.result.fields.blog_id,
+			rec_post_id: this.props.result.fields.post_id,
+			ui_algo: 'jetpack-instant-search-ui/v1',
+			ui_position: this.props.index,
+		};
+	}
+
+	onClick = event => {
+		// User-triggered event
+		if ( event.isTrusted ) {
+			event.stopPropagation();
+			event.preventDefault();
+			// Send out analytics call
+			recordTrainTracksInteract( this.getCommonTrainTracksProps() );
+			// Await next animation frame to ensure w.js processes the queue
+			requestAnimationFrame( () => {
+				// Re-dispatch click event
+				const clonedEvent = new event.constructor( event.type, event );
+				event.target.dispatchEvent( clonedEvent );
+			} );
+		} else {
+			// Programmatically dispatched event from `dispatchEvent`
+			return true;
+		}
+	};
 
 	render() {
 		const { result_type, fields, highlight } = this.props.result;
@@ -114,11 +144,10 @@ class SearchResultMinimal extends Component {
 					{ postTypeIcon }
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						target="_blank"
-						rel="noopener noreferrer"
 						className="jetpack-instant-search__result-minimal-title"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
+						onClick={ this.onClick }
 					/>
 				</h3>
 
