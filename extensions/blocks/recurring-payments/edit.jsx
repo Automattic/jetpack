@@ -196,7 +196,7 @@ class MembershipsButtonEdit extends Component {
 		return sprintf( __( '%s / %s', 'jetpack' ), amount, product.interval );
 	};
 
-	renderAddMembershipAmount = ( forceShowForm = false ) => {
+	renderAddMembershipAmount = forceShowForm => {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
@@ -469,7 +469,7 @@ class MembershipsButtonEdit extends Component {
 									</p>
 									{ this.renderMembershipAmounts() }
 									<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
-									{ this.renderAddMembershipAmount() }
+									{ this.renderAddMembershipAmount( false ) }
 									{ this.renderDisclaimer() }
 								</div>
 							</Placeholder>
