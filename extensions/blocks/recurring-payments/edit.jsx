@@ -196,15 +196,15 @@ class MembershipsButtonEdit extends Component {
 		return sprintf( __( '%s / %s', 'jetpack' ), amount, product.interval );
 	};
 
-	renderAddMembershipAmount = () => {
-		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING ) {
+	renderAddMembershipAmount = forceShowForm => {
+		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
 					isDefault
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
-					{ __( 'Add a Recurring Payments Plan', 'jetpack' ) }
+					{ __( 'Add a plan', 'jetpack' ) }
 				</Button>
 			);
 		}
@@ -270,7 +270,7 @@ class MembershipsButtonEdit extends Component {
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
-						{ __( 'Add Amount', 'jetpack' ) }
+						{ __( 'Add this plan', 'jetpack' ) }
 					</Button>
 					<Button
 						isLarge
@@ -440,8 +440,10 @@ class MembershipsButtonEdit extends Component {
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
-									<p>{ __( 'Add your first Recurring Payments plan:', 'jetpack' ) }</p>
-									{ this.renderAddMembershipAmount() }
+									<p>
+										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
+									</p>
+									{ this.renderAddMembershipAmount( true ) }
 									{ this.renderDisclaimer() }
 								</div>
 							</Placeholder>
@@ -459,10 +461,15 @@ class MembershipsButtonEdit extends Component {
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
-									<p>{ __( 'Select payment plan:', 'jetpack' ) }</p>
+									<p>
+										{ __(
+											'To use this block, select a previously created payment plan.',
+											'jetpack'
+										) }
+									</p>
 									{ this.renderMembershipAmounts() }
-									<p>{ __( 'Or add another Recurring Payments plan:', 'jetpack' ) }</p>
-									{ this.renderAddMembershipAmount() }
+									<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
+									{ this.renderAddMembershipAmount( false ) }
 									{ this.renderDisclaimer() }
 								</div>
 							</Placeholder>
