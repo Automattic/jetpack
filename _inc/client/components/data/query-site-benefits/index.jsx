@@ -14,7 +14,7 @@ class QuerySiteBenefits extends Component {
 		isFetchingSiteBenefitsData: false,
 	};
 
-	UNSAFE_componentWillMount() {
+	componentDidMount() {
 		if ( ! this.props.isFetchingSiteBenefits ) {
 			this.props.fetchSiteBenefits();
 		}
