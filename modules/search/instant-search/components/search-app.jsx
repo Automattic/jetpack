@@ -36,6 +36,7 @@ class SearchApp extends Component {
 		this.props.resultFormat = 'minimal';
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
+		this.isSearchPage = this.props.initialValue !== '';
 		this.state = {
 			query: this.props.initialValue,
 			sort: this.props.initialSort,
@@ -77,7 +78,7 @@ class SearchApp extends Component {
 	}
 
 	maybeDeactivateResults() {
-		if ( this.hasActiveQuery() ) {
+		if ( this.isSearchPage || this.hasActiveQuery() ) {
 			return;
 		}
 		if ( this.state.resultsActive ) {
@@ -108,9 +109,7 @@ class SearchApp extends Component {
 			this.activateResults();
 		}
 		this.maybeDeactivateResults();
-		if ( this.hasActiveQuery() ) {
-			this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
-		}
+		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
 	};
 
 	onChangeSort = sort => {
