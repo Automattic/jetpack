@@ -51,13 +51,14 @@ describe( 'WordAds block', () => {
 		await page._client.send( 'Network.clearBrowserCookies' );
 
 		// await page.reload( { waitFor: 'networkidle0' } );
-		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
-		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 		frontend = await PostFrontendPage.visit( page, url );
-		await page.reload( { waitFor: 'networkidle0' } );
-		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
-		await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
+		frontend.reloadUntil( async () => {
+			const r = await execShellCommand(
+				'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
+			);
+			return typeof r === 'string' ? false : true;
+		} );
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
 	} );

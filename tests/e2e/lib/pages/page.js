@@ -76,4 +76,14 @@ export default class Page {
 		await this.page.reload();
 		return await this.waitForPage();
 	}
+
+	async reloadUntil( callback ) {
+		let reloadNeeded = await callback();
+		while ( reloadNeeded ) {
+			console.log( 'Reloading since reloadNeeded is: ', reloadNeeded.toString() );
+
+			await this.reload();
+			reloadNeeded = await callback();
+		}
+	}
 }

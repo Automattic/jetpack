@@ -15,7 +15,7 @@ export async function execShellCommand( cmd ) {
 			if ( error ) {
 				console.warn( error );
 			}
-			return resolve( stdout ? stdout : stderr );
+			return resolve( stdout ? stdout : error );
 		} );
 		cmdExec.stdout.on( 'data', data => console.log( data ) );
 	} );
@@ -32,7 +32,11 @@ export function getNgrokSiteUrl() {
 }
 
 export async function resetWordpressInstall() {
-	await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
+	let cmd = './tests/e2e/docker/setup-travis-e2e-tests.sh reset';
+	if ( process.env.CI ) {
+		cmd = './tests/e2e/bin/setup-e2e-travis.sh reset_wp';
+	}
+	await execShellCommand( cmd );
 }
 
 /**
