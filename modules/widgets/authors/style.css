@@ -3,6 +3,11 @@
 	margin-left: inherit;
 	padding-left: 0;
 }
+
+.widget_authors ul {
+	margin-left: 0;
+}
+
 .widget_authors ul li li {
 	padding-left: 0;
 }
@@ -22,4 +27,13 @@
 	vertical-align: middle;
 	-webkit-box-shadow: none;
 	box-shadow: none;
+}
+
+.widget_authors li {
+	margin-top: 1rem;
+	list-style: none;
+}
+
+.widget_authors li:first-child {
+    margin-top: 2rem;
 }
