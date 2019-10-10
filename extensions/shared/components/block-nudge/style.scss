@@ -34,4 +34,8 @@
 	.jetpack-block-nudge__message {
 		color: var( --color-text-subtle );
 	}
+
+	.block-editor-inserter__preview & {
+		display: none;
+	}
 }
