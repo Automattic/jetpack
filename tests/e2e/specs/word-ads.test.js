@@ -31,7 +31,7 @@ describe( 'WordAds block', () => {
 		await activateWordAdsModule();
 		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
 
-		await page.waitFor( 5000 );
+		await page.waitFor( 20000 );
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
