@@ -100,11 +100,11 @@ export async function connectThroughJetpackStart( {
 	}
 
 	const nextUrl = provisionJetpackStartConnection();
-
+	await page.waitFor( 5000 );
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
-	// await page.waitFor( 30000 );
+	await page.waitFor( 10000 );
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
