@@ -6,7 +6,7 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
-import { sendMessageToSlack } from '../lib/reporters/slack';
+import { isEventuallyPresent } from '../lib/page-helper';
 
 // Activate WordAds module if in CI
 async function activateWordAdsModule() {
@@ -59,6 +59,10 @@ describe( 'WordAds block', () => {
 			);
 			return typeof r === 'string' ? false : true;
 		} );
+
+		frontend.reloadUntil(
+			async () => ! ( await isEventuallyPresent( page, '.entry-content iframe[src*="wordads"]' ) )
+		);
 
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
 	} );
