@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Status;
-
 /**
  * The Tracking class, used to record events in wpcom
  */
@@ -103,9 +101,8 @@ class Tracking {
 			return false;
 		}
 
-		// Don't track users who have opted our, or not agreed to the TOS, or sites in development mode.
-		$status = new Status();
-		if ( ! \Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) || $status->is_development_mode() ) {
+		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
+		if ( ! \Jetpack::jetpack_tos_agreed() ) {
 			return false;
 		}
 
