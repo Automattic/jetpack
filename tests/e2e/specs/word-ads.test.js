@@ -94,7 +94,7 @@ describe( 'WordAds block', () => {
 		console.log( new Date() );
 
 		const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
-		await page.goto( httpURL );
+		await page.goto( httpURL, { timeout: 90000 } );
 
 		await logHTML();
 
