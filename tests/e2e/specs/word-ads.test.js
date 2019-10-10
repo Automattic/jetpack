@@ -79,7 +79,24 @@ describe( 'WordAds block', () => {
 		console.log( 'NEW SITE URL: ' + url );
 	} );
 
-	it( 'Can publish a post with a WordAds block', async () => {
+	it( 'TEST', async () => {
+		await connectThroughJetpackStart();
+		// Can activate WordAds module
+		await activateWordAdsModule();
+		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
+
+		const res = [];
+		await saveNetworkRequests( res );
+
+		console.log( new Date() );
+
+		await page.goto( getNgrokSiteUrl() );
+
+		await page.reload( { waitFor: 'networkidle0' } );
+		await logHTML();
+	} );
+
+	it.skip( 'Can publish a post with a WordAds block', async () => {
 		await connectThroughJetpackStart();
 		// Can activate WordAds module
 		await activateWordAdsModule();
