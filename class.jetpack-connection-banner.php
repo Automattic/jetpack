@@ -168,6 +168,9 @@ class Jetpack_Connection_Banner {
 			$force_variation = null;
 		}
 
+		$tracking = new Automattic\Jetpack\Tracking();
+		$identity = $tracking->tracks_get_identity( get_current_user_id() );
+
 		wp_localize_script(
 			'jetpack-connect-button',
 			'jpConnect',
@@ -182,6 +185,7 @@ class Jetpack_Connection_Banner {
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
+				'identity'             => $identity,
 			)
 		);
 	}
