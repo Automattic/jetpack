@@ -77,7 +77,6 @@ const attributes = {
 	},
 	sizeSlug: {
 		type: 'string',
-		default: 'large',
 	},
 };
 

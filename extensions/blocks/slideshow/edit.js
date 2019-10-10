@@ -57,6 +57,12 @@ class SlideshowEdit extends Component {
 			selectedImage: null,
 		};
 	}
+	componentDidMount() {
+		const { ids, sizeSlug } = this.props.attributes;
+		if ( ! sizeSlug ) {
+			this.setAttributes( { sizeSlug: ids.length ? 'full' : 'large' } );
+		}
+	}
 	setAttributes( attributes ) {
 		if ( attributes.ids ) {
 			throw new Error(
