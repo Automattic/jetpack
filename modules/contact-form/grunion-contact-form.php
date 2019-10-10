@@ -1,17 +1,13 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Grunion Contact Form
+ * Add a contact form to any post, page or text widget.
+ * Emails will be sent to the post's author by default, or any email address you choose.
+ *
+ * @package Jetpack
+ */
 
 use Automattic\Jetpack\Assets;
-
-/*
-Plugin Name: Grunion Contact Form
-Description: Add a contact form to any post, page or text widget.  Emails will be sent to the post's author by default, or any email address you choose.  As seen on WordPress.com.
-Plugin URI: https://automattic.com/#
-AUthor: Automattic, Inc.
-Author URI: https://automattic.com/
-Version: 2.4
-License: GPLv2 or later
-*/
-
 use Automattic\Jetpack\Sync\Settings;
 
 define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -24,12 +20,6 @@ if ( is_admin() ) {
 add_action( 'rest_api_init', 'grunion_contact_form_require_endpoint' );
 function grunion_contact_form_require_endpoint() {
 	require_once GRUNION_PLUGIN_DIR . 'class-grunion-contact-form-endpoint.php';
-}
-
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	require_once GRUNION_PLUGIN_DIR . 'tracks-events-wpcom.php';
-} else {
-	require_once GRUNION_PLUGIN_DIR . 'tracks-events.php';
 }
 
 /**
@@ -3527,3 +3517,45 @@ function grunion_delete_old_spam() {
 		wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete' );
 	}
 }
+
+/**
+ * Send an event to Tracks on form submission.
+ *
+ * @param int   $post_id - the post_id for the CPT that is created.
+ * @param array $all_values - fields from the default contact form.
+ * @param array $extra_values - extra fields added to from the contact form.
+
+ * @return null|void
+ */
+function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
+	// Do not do anything if the submission is not from a block.
+	if (
+		! isset( $extra_values['is_block'] )
+		|| ! $extra_values['is_block']
+	) {
+		return;
+	}
+
+	/*
+	 * Event details.
+	 */
+	$event_user  = wp_get_current_user();
+	$event_name  = 'jetpack_contact_form_block_message_sent';
+	$event_props = array(
+		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
+		'feedback_id'     => absint( $all_values['feedback_id'] ),
+	);
+
+	/*
+	 * Record event.
+	 * We use different libs on wpcom and Jetpack.
+	 */
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'tracks/client' );
+		tracks_record_event( $event_user, $event_name, $event_props );
+	} else {
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->tracks_record_event( $event_user, $event_name, $event_props );
+	}
+}
+add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
