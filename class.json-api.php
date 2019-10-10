@@ -96,7 +96,7 @@ class WPCOM_JSON_API {
 			$this->url = $url;
 		}
 
-		$parsed = parse_url( $this->url );
+		$parsed = wp_parse_url( $this->url );
 		if ( ! empty( $parsed['path'] ) ) {
 			$this->path = $parsed['path'];
 		}

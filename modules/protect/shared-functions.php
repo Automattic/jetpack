@@ -201,7 +201,7 @@ function jetpack_protect_get_ip() {
  */
 function jetpack_clean_ip( $ip ) {
 
-	// Some misconfigured servers give back extra info, which comes after "unless"
+	// Some misconfigured servers give back extra info, which comes after "unless".
 	$ips = explode( ' unless ', $ip );
 	$ip = $ips[0];
 
@@ -211,8 +211,8 @@ function jetpack_clean_ip( $ip ) {
 		$ip = $matches[1];
 	}
 
-	if ( function_exists( 'parse_url' ) ) {
-		$parsed_url = parse_url( $ip );
+	if ( function_exists( 'wp_parse_url' ) ) {
+		$parsed_url = wp_parse_url( $ip );
 
 		if ( isset( $parsed_url['host'] ) ) {
 			$ip = $parsed_url['host'];

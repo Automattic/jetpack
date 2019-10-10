@@ -2619,7 +2619,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
-		$blog_url        = parse_url( site_url() );
+		$blog_url        = wp_parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
 
 		if ( ! empty( $comment_author_email ) ) {

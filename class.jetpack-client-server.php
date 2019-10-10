@@ -145,7 +145,7 @@ class Jetpack_Client_Server {
 		Jetpack::invalidate_onboarding_token();
 
 		// If redirect_uri is SSO, ensure SSO module is enabled
-		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
+		parse_str( wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
 
 		/** This filter is documented in class.jetpack-cli.php */
 		$jetpack_start_enable_sso = apply_filters( 'jetpack_start_enable_sso', true );

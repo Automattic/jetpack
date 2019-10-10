@@ -3141,7 +3141,7 @@ p {
 			return array( 'wp-cli', null );
 		}
 
-		$referer = parse_url( $referer_url );
+		$referer = wp_parse_url( $referer_url );
 
 		$source_type  = 'unknown';
 		$source_query = null;
@@ -3150,8 +3150,8 @@ p {
 			return array( $source_type, $source_query );
 		}
 
-		$plugins_path         = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
-		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
+		$plugins_path         = wp_parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
+		$plugins_install_path = wp_parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
 
 		if ( isset( $referer['query'] ) ) {
 			parse_str( $referer['query'], $query_parts );
@@ -3331,8 +3331,8 @@ p {
 			// Before attempting to connect, let's make sure that the domains are viable.
 			$domains_to_check = array_unique(
 				array(
-					'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
-					'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
+					'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'homeurl' => wp_parse_url( get_home_url(), PHP_URL_HOST ),
 				)
 			);
 			foreach ( $domains_to_check as $domain ) {
@@ -5583,7 +5583,7 @@ endif;
 	public static function staticize_subdomain( $url ) {
 
 		// Extract hostname from URL
-		$host = parse_url( $url, PHP_URL_HOST );
+		$host = wp_parse_url( $url, PHP_URL_HOST );
 
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
@@ -5637,7 +5637,7 @@ endif;
 			return $url;
 		}
 
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 		$url        = strtok( $url, '?' );
 		$url        = "$url?{$_SERVER['QUERY_STRING']}";
 		if ( ! empty( $parsed_url['query'] ) ) {
@@ -6350,7 +6350,7 @@ endif;
 	public static function absolutize_css_urls( $css, $css_file_url ) {
 		$pattern = '#url\((?P<path>[^)]*)\)#i';
 		$css_dir = dirname( $css_file_url );
-		$p       = parse_url( $css_dir );
+		$p       = wp_parse_url( $css_dir );
 		$domain  = sprintf(
 			'%1$s//%2$s%3$s%4$s',
 			isset( $p['scheme'] ) ? "{$p['scheme']}:" : '',

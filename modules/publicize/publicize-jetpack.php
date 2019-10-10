@@ -639,7 +639,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_basehostname( $url ) {
-		return parse_url( $url, PHP_URL_HOST );
+		return wp_parse_url( $url, PHP_URL_HOST );
 	}
 
 	function options_save_tumblr() {

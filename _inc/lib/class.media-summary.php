@@ -131,7 +131,7 @@ class Jetpack_Media_Summary {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
-								$poster_url_parts = parse_url( $poster_image );
+								$poster_url_parts = wp_parse_url( $poster_image );
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
 						}
@@ -162,12 +162,12 @@ class Jetpack_Media_Summary {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
-								$poster_url_parts = parse_url( $poster_image );
+								$poster_url_parts = wp_parse_url( $poster_image );
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
 						} else if ( false !== strpos( $embed, 'dailymotion' ) ) {
 							$return['image'] = str_replace( 'dailymotion.com/video/','dailymotion.com/thumbnail/video/', $embed );
-							$return['image'] = parse_url( $return['image'], PHP_URL_SCHEME ) === null ? 'http://' . $return['image'] : $return['image'];
+							$return['image'] = wp_parse_url( $return['image'], PHP_URL_SCHEME ) === null ? 'http://' . $return['image'] : $return['image'];
 							$return['secure']['image'] = self::https( $return['image'] );
 						}
 
@@ -348,8 +348,8 @@ class Jetpack_Media_Summary {
 	static function split_content_in_words( $text ) {
 		$words = preg_split( '/[\s!?;,.]+/', $text, null, PREG_SPLIT_NO_EMPTY );
 
-		// Return an empty array if the split above fails. 
-		return $words ? $words : array();	
+		// Return an empty array if the split above fails.
+		return $words ? $words : array();
 	}
 
 	static function get_word_count( $post_content ) {
@@ -358,7 +358,7 @@ class Jetpack_Media_Summary {
 
 	static function get_word_remaining_count( $post_content, $excerpt_content ) {
 		$content_word_count = count( self::split_content_in_words( self::clean_text( $post_content ) ) );
-		$excerpt_word_count = count( self::split_content_in_words( self::clean_text( $excerpt_content ) ) ); 
+		$excerpt_word_count = count( self::split_content_in_words( self::clean_text( $excerpt_content ) ) );
 
 		return (int) $content_word_count - $excerpt_word_count;
 	}

@@ -156,7 +156,6 @@ class Jetpack_Signature {
 	 *
 	 * @todo Having body_hash v. body-hash is annoying. Refactor to accept an array?
 	 * @todo Use wp_json_encode() instead of json_encode()?
-	 * @todo Use wp_parse_url() instead of parse_url()?
 	 *
 	 * @param string $token            Request token.
 	 * @param int    $timestamp        Timestamp of the request.
@@ -225,8 +224,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		$parsed = parse_url( $url );
+		$parsed = wp_parse_url( $url );
 		if ( ! isset( $parsed['host'] ) ) {
 			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ), compact( 'signature_details' ) );
 		}

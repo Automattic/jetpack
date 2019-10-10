@@ -861,7 +861,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function add_www_subdomain_to_siteurl( $url ) {
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
 	}

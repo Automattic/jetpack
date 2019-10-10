@@ -154,7 +154,7 @@ class Jetpack_Connection_Banner {
 			)
 		);
 
-		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
+		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile.

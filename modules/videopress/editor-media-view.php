@@ -29,7 +29,7 @@ function videopress_handle_editor_view_js() {
 		'videopress-editor-view',
 		'vpEditorView',
 		array(
-			'home_url_host'     => parse_url( home_url(), PHP_URL_HOST ),
+			'home_url_host'     => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
 			'content_width'     => $content_width,
 			'modal_labels'      => array(
