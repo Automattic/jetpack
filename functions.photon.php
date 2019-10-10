@@ -163,7 +163,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	/*
 	 * Figure out which CDN subdomain to use.
 	 *
-	 * Previously, we used srand and rand, which had issues--most notably that some systems disable srand completely.
 	 * The goal is to have the same subdomain for any particular image to prevent multiple runs resulting in multiple
 	 * images needing to be downloaded by the browser.
 	 *
