@@ -191,18 +191,22 @@ class Jetpack_Gutenberg {
 		if (
 			// Extensions that require a plan may be eligible for upgrades.
 			'missing_plan' === $reason
-			/**
-			 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
-			 * to disable paid feature upgrade nudges in the block editor.
-			 *
-			 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
-			 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
-			 *
-			 * @since 7.7.0
-			 *
-			 * @param boolean
-			 */
-			&& ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+			&& (
+				/**
+				 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
+				 * to disable paid feature upgrade nudges in the block editor.
+				 *
+				 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
+				 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
+				 *
+				 * @since 7.7.0
+				 *
+				 * @param boolean
+				 */
+				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+				/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+				|| ! apply_filters( 'jetpack_show_promotions', true )
+			)
 		) {
 			// The block editor may apply an upgrade nudge if `missing_plan` is the reason.
 			// Add a descriptive suffix to disable behavior but provide informative reason.
