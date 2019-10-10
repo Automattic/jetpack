@@ -10,11 +10,12 @@ import SimpleNotice from 'components/notice';
  * Internal dependencies
  */
 
-import { getCurrentVersion, isGutenbergAvailable, getSiteAdminUrl } from 'state/initial-state';
+import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription,
+	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
 import { isUnavailableInDevMode } from 'state/connection';
 import NoticeAction from 'components/notice/notice-action.jsx';
@@ -251,16 +252,14 @@ class JetpackStateNotices extends React.Component {
 		}
 
 		// Show custom message for upgraded Jetpack
-		const { currentVersion, gutenbergAvailable } = this.props;
-		const versionForUpgradeNotice = /(6\.8).*/;
-		const match = currentVersion.match( versionForUpgradeNotice );
-		if ( 'modules_activated' === message && match && gutenbergAvailable ) {
+		if ( 'modules_activated' === message ) {
 			return (
 				<UpgradeNoticeContent
 					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
-					version={ match[ '1' ] }
+					version={ this.props.currentVersion }
+					messageContent={ this.props.jetpackStateNoticesMessageContent }
 				/>
 			);
 		}
@@ -291,10 +290,10 @@ class JetpackStateNotices extends React.Component {
 export default connect( state => {
 	return {
 		currentVersion: getCurrentVersion( state ),
-		gutenbergAvailable: isGutenbergAvailable( state ),
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
+		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
 		adminUrl: getSiteAdminUrl( state ),
 		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 	};

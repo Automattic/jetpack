@@ -292,6 +292,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
+				'messageContent' => Jetpack::state( 'message_content' ),
 			),
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,

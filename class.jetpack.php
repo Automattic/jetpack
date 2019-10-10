@@ -2222,7 +2222,13 @@ class Jetpack {
 			)
 		);
 
-		self::state( 'message', 'modules_activated' );
+		$release_post_content = self::get_release_post_content();
+		if ( $release_post_content ) {
+			// Show upgrade state notice if release post content is available.
+			self::state( 'message', 'modules_activated' );
+			self::state( 'message_content', $release_post_content );
+		}
+
 		self::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
@@ -2234,6 +2240,34 @@ class Jetpack {
 			wp_safe_redirect( self::admin_url( 'page=' . $page ) );
 			exit;
 		}
+	}
+
+	/**
+	 * Retrieves the post content and featured image from the latest Jetpack
+	 * release post.
+	 *
+	 * @return string JSON encoded string containing the release post content and
+	 * featured image url.
+	 */
+	private static function get_release_post_content() {
+		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts/?order_by=date&category=Releases&number=1' );
+		if ( ! is_array( $response ) ) {
+			return null;
+		}
+
+		$post_data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		$post_content   = $post_data['posts'][0]['content'];
+		$post_image_src = $post_data['posts'][0]['featured_image'];
+
+		$content   = wp_kses_post( $post_content );
+		$image_src = esc_url( $post_image_src );
+
+		$post_array = array(
+			'content' => $content,
+			'image'   => $image_src,
+		);
+		return wp_json_encode( $post_array );
 	}
 
 	/**
