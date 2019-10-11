@@ -12,10 +12,15 @@ const {
 	TRAVIS_BUILD_WEB_URL,
 	E2E_SLACK_TOKEN,
 	E2E_CHANNEL_NAME,
+	TRAVIS_PULL_REQUEST,
 } = process.env;
 const token = E2E_SLACK_TOKEN || config.get( 'slackToken' );
 const conversationId = E2E_CHANNEL_NAME || config.get( 'slackChannel' );
 const webCli = new WebClient( token );
+
+const repoURL = `https://github.com/${ TRAVIS_REPO_SLUG }`;
+const branchName = TRAVIS_PULL_REQUEST_BRANCH !== '' ? TRAVIS_PULL_REQUEST_BRANCH : TRAVIS_BRANCH;
+const ccBrbrr = 'cc <@U6NSPV1LY>';
 
 async function sendRequestToSlack( fn ) {
 	try {
@@ -55,14 +60,13 @@ const getMessage = ( { name, block, error } ) => {
 		testFailure = error.name + ': ' + error.message;
 	}
 	const testFullName = block + ' :: ' + name;
-	const branchName = TRAVIS_PULL_REQUEST_BRANCH !== '' ? TRAVIS_PULL_REQUEST_BRANCH : TRAVIS_BRANCH;
-	const ccBrbrr = 'cc <@U6NSPV1LY>';
 	const message = [];
 	message.push(
 		createSection( `*TEST FAILED:* ${ testFullName }
 *Failure reason:* ${ testFailure }
 *Travis build:* ${ TRAVIS_BUILD_WEB_URL }
-*Github branch:* https://github.com/${ TRAVIS_REPO_SLUG }/${ branchName }` )
+*Github branch:* ${ branchName }
+*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }` )
 	);
 	message.push( createSection( ccBrbrr ) );
 	return message;

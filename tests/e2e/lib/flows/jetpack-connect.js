@@ -74,11 +74,6 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 
-	// trigger heartbeat to update plan data
-	// await execShellCommand(
-	// 	'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	// );
-
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
@@ -119,11 +114,6 @@ export async function connectThroughJetpackStart( {
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
-	// trigger heartbeat to update plan data
-	//await execShellCommand(
-	//	'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	//);
-
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
@@ -132,21 +122,6 @@ export async function connectThroughJetpackStart( {
 	const jetpackPage = await JetpackPage.init( page );
 
 	await jetpackPage.openMyPlan();
-
-	// Reload the page to hydrate plans cache
-	// jetpackPage.reloadUntil(
-	// 	async () => {
-	// 		const out = await page.waitForResponse(
-	// 			response => response.url().includes( 'v4/site?' ) && response.status() === 200,
-	// 			{ timeout: 60000 }
-	// 		);
-	// 		const r = await execShellCommand(
-	// 			'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
-	// 		);
-	// 		return typeof r === 'string' && out.ok() ? false : true;
-	// 	},
-	// 	{ waitFor: 'networkidle0' }
-	// );
 
 	await page.waitForResponse(
 		response => response.url().includes( 'v4/site?' ) && response.status() === 200

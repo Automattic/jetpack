@@ -39,9 +39,8 @@ export async function waitForSelector( page, selector, options = {} ) {
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
 		console.log(
-			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec`
+			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec. URL: ${ page.url() }`
 		);
-		console.log( `URL: ${ page.url() }` );
 		throw e;
 	}
 }
@@ -174,9 +173,11 @@ export async function scrollIntoView( page, selector ) {
 
 export async function logHTML() {
 	const bodyHTML = await page.evaluate( () => document.body.innerHTML );
-	console.log( '#### PAGE HTML ####' );
-	console.log( page.url() );
-	console.log( bodyHTML );
+	if ( process.env.E2E_DEBUG ) {
+		console.log( '#### PAGE HTML ####' );
+		console.log( page.url() );
+		console.log( bodyHTML );
+	}
 	await sendSnippetToSlack( bodyHTML );
 	return bodyHTML;
 }
@@ -184,8 +185,10 @@ export async function logHTML() {
 export async function logDebugLog() {
 	const log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
 	if ( log.length > 1 ) {
-		console.log( '#### WP DEBUG.LOG ####' );
-		console.log( log );
+		if ( process.env.E2E_DEBUG ) {
+			console.log( '#### WP DEBUG.LOG ####' );
+			console.log( log );
+		}
 		await sendSnippetToSlack( log );
 	}
 }
