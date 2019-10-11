@@ -29,12 +29,6 @@ describe( 'Simple Payment', () => {
 		await blockEditor.viewPost();
 
 		const frontend = await PostFrontendPage.init( page );
-		frontend.reloadUntil( async () => {
-			const r = await execShellCommand(
-				'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
-			);
-			return typeof r === 'string' ? false : true;
-		} );
 		await frontend.isRenderedBlockPresent( SimplePaymentBlock );
 	} );
 } );
