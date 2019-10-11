@@ -82,6 +82,8 @@ export async function connectThroughWPAdminIfNeeded( {
 	// Reload the page to hydrate plans cache
 	await page.reload( { waitFor: 'networkidle0' } );
 
+	await page.reload( { waitFor: 'networkidle0' } );
+
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
