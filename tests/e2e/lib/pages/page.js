@@ -72,8 +72,8 @@ export default class Page {
 	/**
 	 * Reloads the page and waits for the expected locator
 	 */
-	async reload() {
-		await this.page.reload();
+	async reload( options = {} ) {
+		await this.page.reload( options );
 		return await this.waitForPage();
 	}
 

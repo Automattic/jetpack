@@ -74,15 +74,18 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 
+	// trigger heartbeat to update plan data
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
+
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
-	await page.reload( { waitFor: 'networkidle0' } );
-
-	await page.reload( { waitFor: 'networkidle0' } );
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
@@ -111,7 +114,7 @@ export async function connectThroughJetpackStart( {
 		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
 	);
 
-	await page.waitFor( 10000 );
+	await page.waitFor( 5000 );
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
@@ -122,13 +125,11 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.openMyPlan();
 
 	// Reload the page to hydrate plans cache
-	await page.reload( { waitFor: 'networkidle0' } );
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
-
-	await execShellCommand( 'wp option get jetpack_active_plan --path="/home/travis/wordpress"' );
 
 	return true;
 }

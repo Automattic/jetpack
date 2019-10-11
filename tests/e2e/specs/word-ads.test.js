@@ -85,15 +85,52 @@ describe( 'WordAds block', () => {
 		console.log( 'NEW SITE URL: ' + url );
 	} );
 
-	it( 'TEST', async () => {
-		// await connectThroughJetpackStart();
+	// it( 'TEST', async () => {
+	// 	// await connectThroughJetpackStart();
+	// 	await connectThroughWPAdminIfNeeded();
+	// 	// Can activate WordAds module
+	// 	// await page.waitFor( 5000 );
+
+	// 	await activateWordAdsModule();
+	// 	await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
+	// 	// await page.waitFor( 5000 );
+
+	// 	const blockEditor = await BlockEditorPage.visit( page );
+	// 	const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
+
+	// 	const adBlock = new WordAdsBlock( blockInfo, page );
+	// 	await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
+
+	// 	await blockEditor.focus();
+
+	// 	await blockEditor.publishPost();
+
+	// 	// const res = [];
+	// 	// await saveNetworkRequests( res );
+	// 	await blockEditor.viewPost();
+
+	// 	// const res = [];
+	// 	// await saveNetworkRequests( res );
+
+	// 	// console.log( new Date() );
+
+	// 	// const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
+	// 	// await page.goto( httpURL, { timeout: 90000 } );
+
+	// 	// await logHTML();
+
+	// 	// await page.reload( { waitFor: 'networkidle0' } );
+	// 	// await logHTML();
+	// 	// await sendSnippetToSlack( JSON.stringify( res ) );
+
+	// 	const frontend = await PostFrontendPage.init( page );
+	// 	await frontend.isRenderedBlockPresent( WordAdsBlock );
+	// } );
+
+	it( 'Can publish a post with a WordAds block', async () => {
 		await connectThroughWPAdminIfNeeded();
 		// Can activate WordAds module
-		// await page.waitFor( 5000 );
-
 		await activateWordAdsModule();
-		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
-		// await page.waitFor( 5000 );
 
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
@@ -102,80 +139,10 @@ describe( 'WordAds block', () => {
 		await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
 
 		await blockEditor.focus();
-
 		await blockEditor.publishPost();
-
-		// const res = [];
-		// await saveNetworkRequests( res );
-		await blockEditor.viewPost();
-
-		// const res = [];
-		// await saveNetworkRequests( res );
-
-		// console.log( new Date() );
-
-		// const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
-		// await page.goto( httpURL, { timeout: 90000 } );
-
-		// await logHTML();
-
-		// await page.reload( { waitFor: 'networkidle0' } );
-		// await logHTML();
-		// await sendSnippetToSlack( JSON.stringify( res ) );
-
-		const frontend = await PostFrontendPage.init( page );
-		await frontend.isRenderedBlockPresent( WordAdsBlock );
-	} );
-
-	it.skip( 'Can publish a post with a WordAds block', async () => {
-		await connectThroughJetpackStart();
-		// Can activate WordAds module
-		await activateWordAdsModule();
-		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
-
-		await page.waitFor( 30000 );
-		const blockEditor = await BlockEditorPage.visit( page );
-		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
-
-		const adBlock = new WordAdsBlock( blockInfo, page );
-		await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
-
-		await blockEditor.focus();
-
-		await page.setCacheEnabled( false );
-		await blockEditor.publishPost();
-
-		// const res = [];
-		// await saveNetworkRequests( res );
 		await blockEditor.viewPost();
 
 		const frontend = await PostFrontendPage.init( page );
-		// const url = page.url();
-		// await frontend.logout();
-
-		// await page._client.send( 'Network.clearBrowserCookies' );
-
-		// await page.reload( { waitFor: 'networkidle0' } );
-
-		// frontend = await PostFrontendPage.visit( page, url );
-		// frontend.reloadUntil( async () => {
-		// 	const r = await execShellCommand(
-		// 		'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
-		// 	);
-		// 	return typeof r === 'string' ? false : true;
-		// } );
-
-		await page.reload( { waitFor: 'networkidle0' } );
-
-		await logHTML();
-		// await sendSnippetToSlack( JSON.stringify( res ) );
-
-		// frontend.reloadUntil(
-		// 	async () => ! ( await isEventuallyPresent( page, '.entry-content iframe[src*="wordads"]' ) )
-		// );
-
-		// frontend = await PostFrontendPage.visit( page, url );
-
 		await frontend.isRenderedBlockPresent( WordAdsBlock );
 	} );
 } );
