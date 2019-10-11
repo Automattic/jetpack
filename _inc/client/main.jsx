@@ -233,6 +233,7 @@ class Main extends React.Component {
 						siteRawUrl={ this.props.siteRawUrl }
 						searchTerm={ this.props.searchTerm }
 						rewindStatus={ this.props.rewindStatus }
+						userCanManageModules={ this.props.userCanManageModules }
 					/>
 				);
 				break;
