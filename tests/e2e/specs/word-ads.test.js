@@ -4,7 +4,10 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
-import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
+import {
+	connectThroughJetpackStart,
+	connectThroughWPAdminIfNeeded,
+} from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import { isEventuallyPresent, logHTML } from '../lib/page-helper';
 import { sendSnippetToSlack } from '../lib/reporters/slack';
@@ -83,7 +86,8 @@ describe( 'WordAds block', () => {
 	} );
 
 	it( 'TEST', async () => {
-		await connectThroughJetpackStart();
+		// await connectThroughJetpackStart();
+		await connectThroughWPAdminIfNeeded();
 		// Can activate WordAds module
 		await activateWordAdsModule();
 		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
