@@ -91,6 +91,7 @@ describe( 'WordAds block', () => {
 		// Can activate WordAds module
 		await activateWordAdsModule();
 		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
+		await page.waitFor( 5000 );
 
 		const res = [];
 		await saveNetworkRequests( res );
