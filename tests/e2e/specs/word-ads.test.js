@@ -29,6 +29,8 @@ describe( 'WordAds block', () => {
 		// Can activate WordAds module
 		await activateWordAdsModule();
 
+		await page.waitFor( 5000 ); // Trying to wait for plan data to be updated
+
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
