@@ -129,14 +129,12 @@ export async function connectThroughJetpackStart( {
 
 	await jetpackPage.openMyPlan();
 
-	await page.waitForResponse(
-		response => response.url().includes( 'v4/site?' ) && response.status() === 200
-	);
 	// Reload the page to hydrate plans cache
 	jetpackPage.reloadUntil(
 		async () => {
 			const out = await page.waitForResponse(
-				response => response.url().includes( 'v4/site?' ) && response.status() === 200
+				response => response.url().includes( 'v4/site?' ) && response.status() === 200,
+				{ timeout: 60000 }
 			);
 			const r = await execShellCommand(
 				'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
