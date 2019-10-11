@@ -80,7 +80,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
-	await jetpackPage.reload();
+	await page.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
