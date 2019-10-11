@@ -103,7 +103,6 @@ describe( 'WordAds block', () => {
 
 		await blockEditor.focus();
 
-		await page.setCacheEnabled( false );
 		await blockEditor.publishPost();
 
 		// const res = [];
