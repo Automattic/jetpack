@@ -32,6 +32,7 @@ import Locations from './locations';
 import Map from './component.js';
 import MapThemePicker from './map-theme-picker';
 import { settings } from './settings.js';
+import previewPlaceholder from './map-preview.png';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -120,7 +121,16 @@ class MapEdit extends Component {
 	};
 	render() {
 		const { className, setAttributes, attributes, noticeUI, notices } = this.props;
-		const { mapStyle, mapDetails, points, zoom, mapCenter, markerColor, align } = attributes;
+		const {
+			mapStyle,
+			mapDetails,
+			points,
+			zoom,
+			mapCenter,
+			markerColor,
+			align,
+			preview,
+		} = attributes;
 		const {
 			addPointVisibility,
 			apiKey,
@@ -269,12 +279,18 @@ class MapEdit extends Component {
 				</div>
 			</Fragment>
 		);
+		const placholderPreview = (
+			<div>
+				<img alt="Map Preview" src={ previewPlaceholder } />
+			</div>
+		);
 		return (
 			<Fragment>
 				{ noticeUI }
-				{ apiState === API_STATE_LOADING && placholderAPIStateLoading }
-				{ apiState === API_STATE_FAILURE && placeholderAPIStateFailure }
-				{ apiState === API_STATE_SUCCESS && placeholderAPIStateSuccess }
+				{ preview && placholderPreview }
+				{ ! preview && apiState === API_STATE_LOADING && placholderAPIStateLoading }
+				{ ! preview && apiState === API_STATE_FAILURE && placeholderAPIStateFailure }
+				{ ! preview && apiState === API_STATE_SUCCESS && placeholderAPIStateSuccess }
 			</Fragment>
 		);
 	}
