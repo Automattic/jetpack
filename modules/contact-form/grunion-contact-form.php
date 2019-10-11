@@ -1599,8 +1599,6 @@ class Grunion_Contact_Form_Plugin {
 			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 		// For all Jetpack sites
-		error_log('message');
-		error_log(print_r(Jetpack_Plan::supports( 'contact-form-integrations'), true));
 		return Jetpack::is_active() && Jetpack_Plan::supports( 'contact-form-integrations');
 	}
 }
