@@ -3551,9 +3551,13 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	 * We use different libs on wpcom and Jetpack.
 	 */
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$event_props['blog_id'] = get_current_blog_id();
+
 		require_lib( 'tracks/client' );
 		tracks_record_event( $event_user, $event_name, $event_props );
 	} else {
+		$event_props['blog_id'] = Jetpack_Options::get_option( 'id', 0 );
+
 		$tracking = new Automattic\Jetpack\Tracking();
 		$tracking->tracks_record_event( $event_user, $event_name, $event_props );
 	}
