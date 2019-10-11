@@ -11,7 +11,7 @@ import config from 'config';
  */
 export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
-		const cmdExec = exec( cmd, ( error, stdout, stderr ) => {
+		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
 				console.warn( error );
 			}

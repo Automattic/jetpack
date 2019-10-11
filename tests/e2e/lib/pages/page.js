@@ -71,6 +71,7 @@ export default class Page {
 
 	/**
 	 * Reloads the page and waits for the expected locator
+	 * @param {Object} options page.reload options object
 	 */
 	async reload( options = {} ) {
 		await this.page.reload( options );
