@@ -98,6 +98,13 @@ export async function connectThroughJetpackStart( {
 	wpcomUser = 'defaultUser',
 	plan = 'pro',
 } = {} ) {
+	// remove Sandbox cookie
+	let cookies = await page.cookies();
+	console.log( cookies );
+	await page.deleteCookie( { name: 'store_sandbox' } );
+	cookies = await page.cookies();
+	console.log( cookies );
+
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );
 	if ( ! ( await login.isLoggedIn() ) ) {
