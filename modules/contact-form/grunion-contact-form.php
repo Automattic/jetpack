@@ -3552,11 +3552,23 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	 */
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$event_props['blog_id'] = get_current_blog_id();
+		// If the form was sent by a logged out visitor, record event with blog owner.
+		if ( empty( $event_user->ID ) ) {
+			$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
+			$event_user    = get_userdata( $event_user_id );
+		}
 
 		require_lib( 'tracks/client' );
 		tracks_record_event( $event_user, $event_name, $event_props );
 	} else {
 		$event_props['blog_id'] = Jetpack_Options::get_option( 'id', 0 );
+		// If the form was sent by a logged out visitor, record event with Jetpack master user.
+		if ( empty( $event_user->ID ) ) {
+			$master_user_id = Jetpack_Options::get_option( 'master_user' );
+			if ( ! empty( $master_user_id ) ) {
+				$event_user = get_userdata( $master_user_id );
+			}
+		}
 
 		$tracking = new Automattic\Jetpack\Tracking();
 		$tracking->tracks_record_event( $event_user, $event_name, $event_props );
