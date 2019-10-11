@@ -442,7 +442,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					'https://www.google.com/maps/embed/v1/place'
 				);
 				$wp_remote_get_args = array(
-					'headers' => array( 'Referer' => site_url() ),
+					'headers' => array( 'Referer' => home_url() ),
 				);
 				$response           = wp_remote_get( esc_url_raw( $path ), $wp_remote_get_args );
 
