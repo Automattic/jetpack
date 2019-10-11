@@ -32,6 +32,8 @@ class WPCOM_JSON_API {
 
 	public $extra_headers = array();
 
+	public $amp_source_origin = null;
+
 	/**
 	 * @return WPCOM_JSON_API instance
 	 */
@@ -378,6 +380,14 @@ class WPCOM_JSON_API {
 		if ( 404 == $status_code || 400 == $status_code ) {
 			header( 'Access-Control-Allow-Origin: *' );
 		}
+
+		/* Add headers for form submission from <amp-form/> */
+		if ( $this->amp_source_origin ) {
+			$amp_source_origin = wp_unslash( $_GET['__amp_source_origin'] );
+			header( "Access-Control-Allow-Origin: " . $amp_source_origin );
+			header( 'Access-Control-Allow-Credentials: true' );
+		}
+
 
 		if ( is_null( $response ) ) {
 			$response = new stdClass();

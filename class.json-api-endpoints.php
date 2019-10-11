@@ -2070,6 +2070,72 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Determine if endpoint has been called from amp-form
+	 *
+	 * @return bool
+	 */
+	public function is_amp_request() {
+		return ( isset( $_GET, $_GET['__amp_source_origin'] ) );
+	}
+
+	/**
+	 * Get an array of all valid AMP origins for a blog's siteurl 
+	 *
+	 * @return array
+	 */
+	public function get_amp_cache_origins( $siteurl ) {
+		$host = parse_url( $siteurl, PHP_URL_HOST );
+		/*
+		 * From AMP docs:
+		 * "When possible, the Google AMP Cache will create a subdomain for each AMP document's domain by first converting it
+		 * from IDN (punycode) to UTF-8. The caches replaces every - (dash) with -- (2 dashes) and replace every . (dot) with
+		 * - (dash). For example, pub.com will map to pub-com.cdn.ampproject.org."
+		 */
+		if ( function_exists( 'idn_to_utf8' ) ) {
+			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
+			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated
+			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
+		}
+		$subdomain = str_replace( [ '-', '.' ], [ '--', '-' ], $host );
+		return [
+			$siteurl, 
+			// Google AMP Cache (legacy).
+			'https://cdn.ampproject.org',
+			// Google AMP Cache subdomain.
+			sprintf( 'https://%s.cdn.ampproject.org', $subdomain ),
+			// Cloudflare AMP Cache.
+			sprintf( 'https://%s.amp.cloudflare.com', $subdomain ),
+			// Bing AMP Cache.
+			sprintf( 'https://%s.bing-amp.com', $subdomain ),
+		];
+	}
+
+	/**
+	 * Return the source origin for use in API response headers, or false if invalid.
+	 *
+	 * @return string|bool
+	 */
+	public function get_amp_source_origin( $siteurl ) {
+		if ( ! isset( $_GET['__amp_source_origin'], $_SERVER['HTTP_ORIGIN'] ) ) {
+			return false;
+		}
+
+		$source_origin = esc_url_raw( $_GET['__amp_source_origin'] );
+		$http_origin = esc_url_raw( $_SERVER['HTTP_ORIGIN'] );
+		
+		if ( $source_origin !== esc_url_raw( $siteurl ) ) {
+			return false;
+		}
+
+		$amp_urls = $this->get_amp_cache_origins( $siteurl );
+		if ( ! in_array( $http_origin, $amp_urls, true ) ) {
+			return false;
+		}
+
+		return wp_unslash( $source_origin );
+	}
+
+	/**
 	 * Return endpoint response
 	 *
 	 * @param ... determined by ->$path
