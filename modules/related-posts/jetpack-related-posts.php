@@ -292,18 +292,18 @@ EOT;
 		);
 
 		$item_markup .= sprintf(
-			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" rel="%4$s">%3$s</a></li>',
+			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" %4$s>%3$s</a></li>',
 			esc_attr( $label_id ),
 			esc_url( $related_post['url'] ),
 			esc_attr( $related_post['title'] ),
-			esc_attr( $related_post['rel'] )
+			( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' )
 		);
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" rel="%2$s"><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
 				esc_url( $related_post['url'] ),
-				esc_attr( $related_post['rel'] ),
+				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),
 				esc_attr( $related_post['img']['width'] ),
 				esc_attr( $related_post['img']['alt_text'] )
