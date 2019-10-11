@@ -89,6 +89,8 @@ describe( 'WordAds block', () => {
 		// await connectThroughJetpackStart();
 		await connectThroughWPAdminIfNeeded();
 		// Can activate WordAds module
+		await page.waitFor( 5000 );
+
 		await activateWordAdsModule();
 		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
 		await page.waitFor( 5000 );
