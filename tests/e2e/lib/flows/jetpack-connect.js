@@ -91,6 +91,10 @@ export async function connectThroughWPAdminIfNeeded( {
 		response => response.url().includes( 'v4/site?' ) && response.status() === 200
 	);
 
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
+
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
@@ -150,7 +154,9 @@ export async function connectThroughJetpackStart( {
 
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
