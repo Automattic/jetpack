@@ -3,8 +3,8 @@
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
 
-	dd span {
-		display: block;
+	dd, dt {
+		display: inline;
 	}
 
 	.business-hours__row {

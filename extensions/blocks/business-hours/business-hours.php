@@ -126,7 +126,7 @@ function jetpack_business_hours_render( $attributes ) {
 		}
 
 		if ( empty( $days_hours ) ) {
-			$days_hours = esc_html__( 'Closed', 'jetpack' );
+			$days_hours = esc_html__( 'Closed', 'jetpack' ) . '<br />';
 		}
 		$content .= $days_hours;
 		$content .= '</dd>';

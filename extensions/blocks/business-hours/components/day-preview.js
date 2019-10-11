@@ -44,6 +44,7 @@ class DayPreview extends Component {
 					{ isEmpty( hours )
 						? _x( 'Closed', 'business is closed on a full day', 'jetpack' )
 						: hours.map( this.renderInterval ) }
+					<br />
 				</dd>
 			</Fragment>
 		);
