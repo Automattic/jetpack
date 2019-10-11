@@ -6938,7 +6938,7 @@ endif;
 	 * Will return true if a user has clicked to register, or is already connected.
 	 */
 	public static function jetpack_tos_agreed() {
-		return Jetpack_Options::get_option( 'tos_agreed' ) || self::is_active();
+		return Jetpack_Options::get_option( 'tos_agreed' ) || self::is_active_and_not_development_mode();
 	}
 
 	/**
@@ -7045,7 +7045,14 @@ endif;
 		}
 	}
 
-	function is_active_and_not_development_mode( $maybe ) {
+	/**
+	 * Checks if a Jetpack site is both active and not in development.
+	 *
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Jetpack::is_development_mode`.
+	 *
+	 * @return bool True if Jetpack is active and not in development.
+	 */
+	public static function is_active_and_not_development_mode() {
 		if ( ! self::is_active() || self::is_development_mode() ) {
 			return false;
 		}
