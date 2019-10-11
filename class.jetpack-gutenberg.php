@@ -399,6 +399,11 @@ class Jetpack_Gutenberg {
 				'available' => $is_available,
 			);
 
+			$attributes = self::get_attributes( 'jetpack/' . $extension );
+			if ( isset( $attributes ) && isset( $attributes['limited'] ) ) {
+				$available_extensions[ $extension ]['limited'] = $attributes['limited'];
+			}
+
 			if ( ! $is_available ) {
 				$reason  = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['reason'] : 'missing_module';
 				$details = isset( self::$availability[ $extension ] ) ? self::$availability[ $extension ]['details'] : array();
@@ -408,6 +413,22 @@ class Jetpack_Gutenberg {
 		}
 
 		return $available_extensions;
+	}
+
+	/**
+	 * Gets the attributes for a registered block
+	 *
+	 * @since ?
+	 *
+	 * @param string $slug Name of extension/block to check.
+	 *
+	 * @return null | array
+	 */
+	public static function get_attributes( $slug ) {
+		$registered_block_type = WP_Block_Type_Registry::get_instance()->get_registered( $slug );
+		if ( isset( $registered_block_type ) ) {
+			return $registered_block_type->get_attributes();
+		}
 	}
 
 	/**

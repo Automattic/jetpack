@@ -243,12 +243,13 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		self::register_contact_form_blocks();
+		$this->register_contact_form_blocks();
 	}
 
-	private static function register_contact_form_blocks() {
+	private function register_contact_form_blocks() {
 		jetpack_register_block( 'jetpack/contact-form', array(
 			'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+			'attributes' => array( 'limited' => ! $this->contact_form_integrations_enabled() )
 		) );
 
 		// Field render methods.
@@ -1584,6 +1585,23 @@ class Grunion_Contact_Form_Plugin {
 
 	public static function get_ip_address() {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+	}
+
+	/**
+	 * Used to check whether integrations are enabled the contact form for this site
+	 *
+	 * @return bool True if integrations are enabled, false otherwise.
+	 */
+	function contact_form_integrations_enabled() {
+		// For WPCOM sites
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+			$site_id = $this->get_blog_id();
+			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		}
+		// For all Jetpack sites
+		error_log('message');
+		error_log(print_r(Jetpack_Plan::supports( 'contact-form-integrations'), true));
+		return Jetpack::is_active() && Jetpack_Plan::supports( 'contact-form-integrations');
 	}
 }
 

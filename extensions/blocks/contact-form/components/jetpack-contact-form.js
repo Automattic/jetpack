@@ -4,7 +4,14 @@
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, PanelBody, Path, Placeholder, TextControl } from '@wordpress/components';
+import {
+	Button,
+	PanelBody,
+	Path,
+	Placeholder,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { InnerBlocks, InspectorControls } from '@wordpress/editor';
@@ -207,6 +214,9 @@ class JetpackContactForm extends Component {
 				<InspectorControls>
 					<PanelBody title={ __( 'Email feedback settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
+					</PanelBody>
+					<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
+						<ToggleControl label="Google Sheets" checked={ false } onChange={ () => {} } />
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>

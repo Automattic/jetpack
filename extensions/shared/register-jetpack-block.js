@@ -30,7 +30,9 @@ function requiresPlan( unavailableReason, details ) {
  * @returns {object|false} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
-	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
+	const { available, details, unavailableReason, limited } = getJetpackExtensionAvailability(
+		name
+	);
 
 	const requiredPlan = requiresPlan( unavailableReason, details );
 
@@ -42,6 +44,10 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 			);
 		}
 		return false;
+	}
+
+	if ( limited ) {
+		settings.attributes.limited = { type: 'boolean', default: limited };
 	}
 
 	const result = registerBlockType( `jetpack/${ name }`, {

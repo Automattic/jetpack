@@ -56,6 +56,10 @@ export const settings = {
 			type: 'string',
 			default: null,
 		},
+		limited: {
+			type: 'boolean',
+			default: false,
+		},
 
 		// Deprecated
 		has_form_settings_set: {
