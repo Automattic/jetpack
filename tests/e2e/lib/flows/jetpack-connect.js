@@ -105,7 +105,7 @@ export async function connectThroughJetpackStart( {
 	}
 
 	const nextUrl = provisionJetpackStartConnection();
-	await page.waitFor( 5000 );
+	await page.waitFor( 10000 );
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
