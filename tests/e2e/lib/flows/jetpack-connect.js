@@ -99,10 +99,10 @@ export async function connectThroughJetpackStart( {
 	plan = 'pro',
 } = {} ) {
 	// remove Sandbox cookie
-	let cookies = await page.cookies();
+	let cookies = await page.cookies( '.wordpress.com' );
 	console.log( cookies );
-	await page.deleteCookie( { name: 'store_sandbox' } );
-	cookies = await page.cookies();
+	await page.deleteCookie( { name: 'store_sandbox', domain: '.wordpress.com' } );
+	cookies = await page.cookies( '.wordpress.com' );
 	console.log( cookies );
 
 	// Logs in to WPCOM
@@ -112,7 +112,6 @@ export async function connectThroughJetpackStart( {
 	}
 
 	const nextUrl = provisionJetpackStartConnection();
-	await page.waitFor( 10000 );
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
@@ -121,7 +120,6 @@ export async function connectThroughJetpackStart( {
 		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
 	);
 
-	await page.waitFor( 5000 );
 	const siteUrl = getNgrokSiteUrl();
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
