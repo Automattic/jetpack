@@ -6,11 +6,11 @@
 // ==========================================================================
 
 .dops-button {
-	background: $white;
-	border-color: lighten( $gray, 20% );
+	background: $blue-grey-light;
+	border-color: $blue-medium-dark;
 	border-style: solid;
-	border-width: 1px 1px 2px;
-	color: $gray-dark;
+	border-width: 1px;
+	color: $blue-medium-dark;
 	cursor: pointer;
 	display: inline-block;
 	margin: 0;
@@ -23,15 +23,17 @@
 	vertical-align: top;
 	box-sizing: border-box;
 	font-size: 14px;
-	line-height: 21px;
 	border-radius: 4px;
 	padding: 7px 14px 9px;
 	-webkit-appearance: none;
 	appearance: none;
 
 	&:hover {
-		border-color: lighten( $gray, 10% );
-		color: $gray-dark;
+		// border-color: lighten( $gray, 10% );
+		// color: $gray-dark;
+		background: #f1f1f1;
+    	border-color: $blue-grey-dark;
+    	color: $blue-grey-dark;
 	}
 	&:active {
 		border-width: 2px 1px 1px;
@@ -54,7 +56,6 @@
 	}
 	&.is-compact {
 		padding: 7px;
-		color: darken( $gray, 10% );
 		font-size: 11px;
 		line-height: 1;
 		text-transform: uppercase;
@@ -94,12 +95,13 @@
 // Primary buttons
 .dops-button.is-primary {
 	background: $blue-medium;
-	border-color: $blue-wordpress;
+	border-color: $blue-medium;
 	color: $white;
 
 	&:hover,
 	&:focus {
-		border-color: $blue-dark;
+		border-color: $blue-medium-dark;
+		background: $blue-medium-dark;
 		color: $white;
 	}
 	&[disabled],

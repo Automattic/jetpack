@@ -25,13 +25,15 @@
 }
 
 // New JITMS - modified calypso banner styles
+$blue-grey-light:        #f3f5f6;
+$blue-medium-dark:       #0071a1;
 
 .jitm-button {
-	background: $white;
-	border-color: lighten( $gray, 20% );
+	background: $blue-grey-light;
+	border-color: $blue-medium-dark;
 	border-style: solid;
-	border-width: 1px 1px 2px;
-	color: $gray-dark;
+	border-width: 1px;
+	color: $blue-medium-dark;
 	cursor: pointer;
 	display: inline-block;
 	margin: 0;
@@ -93,12 +95,13 @@
 // Primary buttons
 .jitm-button.is-primary {
 	background: $blue-medium;
-	border-color: $blue-wordpress;
+	border-color: $blue-medium;
 	color: $white;
 
 	&:hover,
 	&:focus {
-		border-color: $blue-dark;
+		border-color: $blue-medium-dark;
+		background: $blue-medium-dark;
 		color: $white;
 	}
 	&[disabled],
