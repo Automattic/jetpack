@@ -134,10 +134,14 @@ body,
 	}
 
 	div.wp-menu-name {
-		color: $gray-text;
+		color: $gray-text-min;
 		font-size: 15px;
 		padding: 9px 0 8px 41px;
 		font-weight: 600;
+	}
+
+	li a:hover div.wp-menu-name {
+		color: $gray-text;
 	}
 
 	li.menu-top {
@@ -170,11 +174,12 @@ body,
 }
 
 #calypso-sidebar-header {
+	border-bottom: 1px solid $muriel-gray-50;
 	position: fixed;
 	top: 47px;
 	left: 0;
 	width: 272px;
-	height: 70px;
+	height: 65px;
 	background: $white;
 	z-index: 10000;
 
@@ -188,7 +193,6 @@ body,
 	ul {
 		float: left;
 		position: relative;
-		top: 3px;
 		left: 15px;
 
 		li {
@@ -427,6 +431,7 @@ body,
 	background: $color-primary;
 	-webkit-box-shadow: none;
 	-mozilla-box-shadow: none;
+	border-bottom: 1px solid $color-primary-dark;
 	height: 46px;
 	position: fixed;
 
@@ -482,7 +487,11 @@ body,
 
 	#wp-admin-bar-blog.my-sites > a.ab-item:before,
 	#wp-admin-bar-newdash > a.ab-item:before {
-		margin-top: 12px;
+		margin-top: 13px;
+	}
+
+	#wp-admin-bar-blog.my-sites > a.ab-item:before {
+		top: -2px !important;
 	}
 
 	ul li#wp-admin-bar-ab-new-post {
@@ -495,11 +504,17 @@ body,
 			span {
 				color: $color-primary !important;
 				font-size: 14px !important;
+				margin-right: 4px;
+				margin-left: 6px;
 			}
 
 			&:before,
 			&:after {
 				background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="0" fill="none" width="24" height="24"/><g><path fill="%230087be" d="M21 14v5c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V5c0-1.105.895-2 2-2h5v2H5v14h14v-5h2z"/><path fill="%230087be" d="M21 7h-4V3h-2v4h-4v2h4v4h2V9h4"/></g></svg>') !important;
+			}
+
+			&:before {
+				margin-left: -6px;
 			}
 		}
 
@@ -515,6 +530,11 @@ body,
 	li#wp-admin-bar-newdash.menupop > .ab-sub-wrapper,
 	li#wp-admin-bar-my-account.menupop > .ab-sub-wrapper {
 		display: none !important;
+	}
+
+	.quicklinks li#wp-admin-bar-my-account.with-avatar {
+		margin-right: -1px;
+		margin-left: 9px;
 	}
 
 	li#wp-admin-bar-notes {
@@ -555,6 +575,19 @@ body,
 	li#wp-admin-bar-recovery-mode {
 		background-color: $alert-orange !important;
 	}
+}
+
+body #wp-admin-bar-notes > .ab-item {
+	padding: 0 15px !important;
+}
+
+#wpadminbar ul li#wp-admin-bar-ab-new-post {
+	top: 5px !important;
+}
+
+ul#adminmenu a.wp-has-current-submenu:after,
+ul#adminmenu > li.current > a.current:after {
+	display: none;
 }
 
 /* WP Admin UI Mods */
