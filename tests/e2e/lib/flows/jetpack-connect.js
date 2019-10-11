@@ -144,11 +144,13 @@ export async function connectThroughJetpackStart( {
 	// 	{ waitFor: 'networkidle0' }
 	// );
 
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
-
 	await page.waitForResponse(
 		response => response.url().includes( 'v4/site?' ) && response.status() === 200
 	);
+
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
