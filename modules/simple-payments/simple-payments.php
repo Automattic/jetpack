@@ -156,7 +156,10 @@ class Jetpack_Simple_Payments {
 		}
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			return $this->output_admin_warning( $data );
+			if ( ! is_feed() ) {
+				$this->output_admin_warning( $data );
+			}
+			return;
 		}
 
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
