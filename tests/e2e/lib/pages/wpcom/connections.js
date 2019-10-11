@@ -13,7 +13,7 @@ import {
 export default class ConnectionsPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.sharing-settings.sharing-connections';
-		super( page, { expectedSelector, timeout: 40000 } );
+		super( page, { expectedSelector, explicitWaitMS: 40000 } );
 	}
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
