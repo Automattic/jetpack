@@ -75,9 +75,9 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 
 	// trigger heartbeat to update plan data
-	await execShellCommand(
-		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	);
+	//await execShellCommand(
+	//	'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	//);
 
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
@@ -85,7 +85,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
-	// await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
