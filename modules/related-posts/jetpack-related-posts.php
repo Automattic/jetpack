@@ -4,7 +4,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20190204';
+	const VERSION   = '20191011';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
