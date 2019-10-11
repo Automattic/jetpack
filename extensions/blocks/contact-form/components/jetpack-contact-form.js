@@ -19,6 +19,7 @@ import { InnerBlocks, InspectorControls } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
+import getJetpackExtensionAvailability from '../../../shared/get-jetpack-extension-availability';
 import HelpMessage from '../../../shared/help-message';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import SubmitButton from '../../../shared/submit-button';
@@ -208,6 +209,9 @@ class JetpackContactForm extends Component {
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'has-intro': ! hasFormSettingsSet,
 		} );
+		const { limited } = getJetpackExtensionAvailability(
+			this.props.name.replace( 'jetpack/', '' )
+		);
 
 		return (
 			<Fragment>
@@ -215,9 +219,11 @@ class JetpackContactForm extends Component {
 					<PanelBody title={ __( 'Email feedback settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
 					</PanelBody>
-					<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
-						<ToggleControl label="Google Sheets" checked={ false } onChange={ () => {} } />
-					</PanelBody>
+					{ ! limited && (
+						<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
+							<ToggleControl label="Google Sheets" checked={ false } onChange={ () => {} } />
+						</PanelBody>
+					) }
 				</InspectorControls>
 				<div className={ formClassnames }>
 					{ ! hasFormSettingsSet && (
