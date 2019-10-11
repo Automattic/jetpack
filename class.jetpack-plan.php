@@ -32,6 +32,7 @@ class Jetpack_Plan {
 	 */
 	public static function update_from_sites_response( $response ) {
 		// Bail if there was an error or malformed response.
+		error_log( print_r( $response, 1 ) );
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
 			return false;
 		}
@@ -57,6 +58,9 @@ class Jetpack_Plan {
 			delete_option( self::PLAN_OPTION );
 			$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		}
+
+		error_log( print_r( '#### jetpack_active plan updated', 1 ) );
+		error_log( print_r( $result, 1 ) );
 
 		if ( $result ) {
 			// Reset the cache since we've just updated the plan.
