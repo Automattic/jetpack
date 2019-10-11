@@ -3543,7 +3543,7 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	$event_name  = 'jetpack_contact_form_block_message_sent';
 	$event_props = array(
 		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
-		'feedback_id'     => absint( $all_values['feedback_id'] ),
+		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
 	);
 
 	/*
