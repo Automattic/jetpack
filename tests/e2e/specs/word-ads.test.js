@@ -89,21 +89,36 @@ describe( 'WordAds block', () => {
 		// await connectThroughJetpackStart();
 		await connectThroughWPAdminIfNeeded();
 		// Can activate WordAds module
-		await page.waitFor( 5000 );
+		// await page.waitFor( 5000 );
 
 		await activateWordAdsModule();
 		await execShellCommand( 'wp option get wordads_approved --path="/home/travis/wordpress"' );
-		await page.waitFor( 5000 );
+		// await page.waitFor( 5000 );
 
-		const res = [];
-		await saveNetworkRequests( res );
+		const blockEditor = await BlockEditorPage.visit( page );
+		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
 
-		console.log( new Date() );
+		const adBlock = new WordAdsBlock( blockInfo, page );
+		await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
 
-		const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
-		await page.goto( httpURL, { timeout: 90000 } );
+		await blockEditor.focus();
 
-		await logHTML();
+		await page.setCacheEnabled( false );
+		await blockEditor.publishPost();
+
+		// const res = [];
+		// await saveNetworkRequests( res );
+		await blockEditor.viewPost();
+
+		// const res = [];
+		// await saveNetworkRequests( res );
+
+		// console.log( new Date() );
+
+		// const httpURL = getNgrokSiteUrl().replace( 'https', 'http' );
+		// await page.goto( httpURL, { timeout: 90000 } );
+
+		// await logHTML();
 
 		// await page.reload( { waitFor: 'networkidle0' } );
 		// await logHTML();
