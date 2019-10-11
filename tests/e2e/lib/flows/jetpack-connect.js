@@ -130,18 +130,24 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.openMyPlan();
 
 	// Reload the page to hydrate plans cache
-	jetpackPage.reloadUntil(
-		async () => {
-			const out = await page.waitForResponse(
-				response => response.url().includes( 'v4/site?' ) && response.status() === 200,
-				{ timeout: 60000 }
-			);
-			const r = await execShellCommand(
-				'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
-			);
-			return typeof r === 'string' && out.ok() ? false : true;
-		},
-		{ waitFor: 'networkidle0' }
+	// jetpackPage.reloadUntil(
+	// 	async () => {
+	// 		const out = await page.waitForResponse(
+	// 			response => response.url().includes( 'v4/site?' ) && response.status() === 200,
+	// 			{ timeout: 60000 }
+	// 		);
+	// 		const r = await execShellCommand(
+	// 			'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
+	// 		);
+	// 		return typeof r === 'string' && out.ok() ? false : true;
+	// 	},
+	// 	{ waitFor: 'networkidle0' }
+	// );
+
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
+	await page.waitForResponse(
+		response => response.url().includes( 'v4/site?' ) && response.status() === 200
 	);
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
