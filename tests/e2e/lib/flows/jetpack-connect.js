@@ -75,9 +75,9 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 
 	// trigger heartbeat to update plan data
-	//await execShellCommand(
-	//	'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	//);
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
 
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
@@ -112,9 +112,9 @@ export async function connectThroughJetpackStart( {
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
 	// trigger heartbeat to update plan data
-	await execShellCommand(
-		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	);
+	//await execShellCommand(
+	//	'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	//);
 
 	const siteUrl = getNgrokSiteUrl();
 
@@ -125,6 +125,9 @@ export async function connectThroughJetpackStart( {
 
 	await jetpackPage.openMyPlan();
 
+	await page.waitForResponse(
+		response => response.url().includes( 'v4/site?' ) && response.status() === 200
+	);
 	// Reload the page to hydrate plans cache
 	jetpackPage.reloadUntil(
 		async () => {
