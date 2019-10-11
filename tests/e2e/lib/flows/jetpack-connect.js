@@ -126,7 +126,15 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.openMyPlan();
 
 	// Reload the page to hydrate plans cache
-	// await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	jetpackPage.reloadUntil(
+		async () => {
+			const r = await execShellCommand(
+				'wp option get jetpack_active_plan --path="/home/travis/wordpress"'
+			);
+			return typeof r === 'string' ? false : true;
+		},
+		{ waitFor: 'networkidle0' }
+	);
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
