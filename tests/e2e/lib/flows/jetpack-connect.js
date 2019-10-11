@@ -85,7 +85,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	// await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
@@ -99,11 +99,7 @@ export async function connectThroughJetpackStart( {
 	plan = 'pro',
 } = {} ) {
 	// remove Sandbox cookie
-	let cookies = await page.cookies( '.wordpress.com' );
-	console.log( cookies );
 	await page.deleteCookie( { name: 'store_sandbox', domain: '.wordpress.com' } );
-	cookies = await page.cookies( '.wordpress.com' );
-	console.log( cookies );
 
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );
@@ -130,7 +126,7 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.openMyPlan();
 
 	// Reload the page to hydrate plans cache
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+	// await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
