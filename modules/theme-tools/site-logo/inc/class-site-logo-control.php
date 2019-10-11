@@ -54,12 +54,21 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 		// Enqueues all needed media resources.
 		wp_enqueue_media();
 
-		// Enqueue our control script and styles.
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		/*
+		 * Enqueue our control script and styles.
+		 */
+
+		// We only enqueue a minified version of the file on prod. Jetpack.
+		$min = (
+			( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG )
+			|| ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		)
+			? ''
+			: '.min';
 
 		wp_enqueue_style(
 			'site-logo-control',
-			plugins_url( "../css/site-logo-control{$min}.css", __FILE__ ),
+			plugins_url( '../css/site-logo-control.css', __FILE__ ),
 			array(),
 			JETPACK__VERSION
 		);
