@@ -50,7 +50,7 @@ export default class SearchFilterDates extends Component {
 				<h4 className="jetpack-search-filters-widget__sub-heading">
 					{ this.props.configuration.name }
 				</h4>
-				<ul className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
+				<div className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
 					{ this.props.aggregation &&
 						'buckets' in this.props.aggregation &&
 						[
@@ -62,7 +62,7 @@ export default class SearchFilterDates extends Component {
 							// TODO: Remove this reverse & slice when API adds filter count support
 							.reverse()
 							.slice( 0, this.props.configuration.count ) }
-				</ul>
+				</div>
 			</div>
 		);
 	}

@@ -48,11 +48,11 @@ export default class SearchFilterPostTypes extends Component {
 				<h4 className="jetpack-search-filters-widget__sub-heading">
 					{ this.props.configuration.name }
 				</h4>
-				<ul className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
+				<div className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
 					{ this.props.aggregation &&
 						'buckets' in this.props.aggregation &&
 						this.props.aggregation.buckets.map( this.renderPostType ) }
-				</ul>
+				</div>
 			</div>
 		);
 	}
