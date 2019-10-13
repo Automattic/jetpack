@@ -143,6 +143,23 @@ JetpackSlideshow.prototype.renderControls_ = function() {
 		var controlName = controls[ i ];
 		var a = document.createElement( 'a' );
 		a.href = '#';
+		switch ( i ) {
+			case 0:
+				a.className = 'classic-jetpack-slideshow_button-prev';
+				a.setAttribute( 'aria-label', 'Previous Slide' );
+				break;
+
+			case 1:
+				a.className = 'classic-jetpack-slideshow_button-pause';
+				a.setAttribute( 'aria-label', 'Pause Slideshow' );
+				break;
+
+			case 2:
+				a.className = 'classic-jetpack-slideshow_button-next';
+				a.setAttribute( 'aria-label', 'Next Slide' );
+				break;
+		}
+		a.setAttribute( 'role', 'button' );
 		controlsDiv.appendChild( a );
 		this.controls[ controlName ] = a;
 	}
