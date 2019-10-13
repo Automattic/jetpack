@@ -205,6 +205,11 @@ class Jetpack_Search {
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 
+				$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
+				if ( is_array( $widget_options ) ) {
+					$widget_options = end( $widget_options );
+				}
+
 				$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 				$widgets = array();
 				foreach( $filters as $key => $filter ) {
@@ -222,6 +227,9 @@ class Jetpack_Search {
 					'postTypes' => get_post_types(),
 					'siteId'		=> Jetpack::get_option( 'id' ),
 					'widgets' 	=> array_values( $widgets ),
+					'sort'      => $widget_options['sort'],
+					'postTypeFilters' => $widget_options['post_types'],
+					'enableLoadOnScroll' => false,
 				);
 				/**
 				 * Customize Instant Search Options.

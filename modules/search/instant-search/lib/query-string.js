@@ -37,6 +37,23 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
+export function determineDefaultSort( widgetOptions ) {
+	const query = getQuery();
+	if ( 'orderby' in query ) {
+		return getSortQuery();
+	}
+
+	switch ( widgetOptions ) {
+		case 'date|DESC':
+			return 'date_desc';
+		case 'date|ASC':
+			return 'date_asc';
+		case 'relevance|DESC':
+		default:
+			return 'score_default';
+	}
+}
+
 export function getSortQuery() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';
