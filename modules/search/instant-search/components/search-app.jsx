@@ -44,9 +44,10 @@ class SearchApp extends Component {
 			loading: false,
 		};
 		this.getDebouncedResults = debounce( this.getResults, 200 );
-		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
 
 		//clean up the page in prep for adding component
+		// we can manipulate the existing DOM on the page, but not this component because
+		// it hasn't mounted yet.
 		hideElements( this.props.themeOptions.elem_selectors );
 		if ( this.hasActiveQuery() ) {
 			this.activateResults();
@@ -61,6 +62,7 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
 		if ( this.props.grabFocus ) {
 			this.input.current.focus();
 		}
@@ -72,8 +74,8 @@ class SearchApp extends Component {
 
 	activateResults() {
 		if ( ! this.state.resultsActive ) {
-			this.setState( { resultsActive: true } );
 			hideChildren( this.props.themeOptions.results_selector );
+			this.setState( { resultsActive: true } );
 		}
 	}
 
@@ -82,8 +84,9 @@ class SearchApp extends Component {
 			return;
 		}
 		if ( this.state.resultsActive ) {
-			this.setState( { resultsActive: false } );
-			showChildren( this.props.themeOptions.results_selector );
+			this.setState( { resultsActive: false }, () => {
+				showChildren( this.props.themeOptions.results_selector );
+			} );
 		}
 	}
 
@@ -105,11 +108,12 @@ class SearchApp extends Component {
 
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
+		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
 		if ( this.hasActiveQuery() ) {
 			this.activateResults();
+		} else {
+			this.maybeDeactivateResults();
 		}
-		this.maybeDeactivateResults();
-		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
 	};
 
 	onChangeSort = sort => {
