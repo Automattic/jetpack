@@ -14,7 +14,7 @@ To install the Jetpack plugin on your site, [follow the instructions on this pag
 
 ### Installation From Git Repo
 
-To use this plugin on your own site, you will need to build every JS and CSS first. To do so, [follow the instructions here](./docs/development-environment.md).
+To use this plugin on your site, you will need to build every JS and CSS first. To do so, [follow the instructions here](./docs/development-environment.md).
 
 ### Installation from the Jetpack Beta plugin
 
@@ -28,7 +28,7 @@ If you cannot build the Jetpack plugin yourself, you can rely on [the Jetpack Be
 
 ## Contribute
 
-Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question, or to change something in your pull request. There are variety of options how you can help:
+Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question or to change something in your pull request. There are a variety of options for how you can help:
 
 - [Write and submit patches](./docs/CONTRIBUTING.md#write-and-submit-a-patch).
 - If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
