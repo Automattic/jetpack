@@ -105,7 +105,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		?>
 		<div id="fb-root"></div>
-		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
+		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" <?php echo ($like_args['width'] == 0) ? 'data-adapt-container-width="true"' : 'data-adapt-container-width="false" data-width="'. $like_args['width'] . '"'; ?> data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
 		<?php
@@ -168,8 +168,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>">
 				<?php _e( 'Width in pixels', 'jetpack' ); ?>
-				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_width ); ?>" max="<?php echo esc_attr( $this->max_width ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'width' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />
+				<input type="number" class="smalltext" min="0" max="<?php echo esc_attr( $this->max_width ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'width' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="text-align: center;" />
+				<br />
 				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_width ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_width ); ?></small>
+				<br />
+				<small><?php _e( 'Enter 0 to adapt to container width.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 
@@ -177,6 +180,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>">
 				<?php _e( 'Height in pixels', 'jetpack' ); ?>
 				<input type="number" class="smalltext" min="<?php echo esc_attr( $this->min_height ); ?>" max="<?php echo esc_attr( $this->max_height ); ?>" maxlength="3" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="text-align: center;" />
+				<br />
 				<small><?php echo sprintf( __( 'Minimum: %s', 'jetpack' ), $this->min_height ); ?> / <?php echo sprintf( __( 'Maximum: %s', 'jetpack' ), $this->max_height ); ?></small>
 			</label>
 		</p>
@@ -243,7 +247,9 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$args['href'] = '';
 		}
 
-		$args['width']      = $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
+		if ( ( $args['width'] > 0 ) && ( $args['width'] < 180 ) ) {
+			$args['width'] = $this->default_width;
+		}
 		$args['height']     = $this->normalize_int_value( (int) $args['height'], $this->default_height, $this->max_height, $this->min_height );
 		$args['show_faces'] = (bool) $args['show_faces'];
 		$args['stream']     = (bool) $args['stream'];
