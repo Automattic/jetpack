@@ -4,6 +4,8 @@
 import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
+import Cache from 'cache';
+import hash from 'object-hash';
 
 /**
  * Internal dependencies
@@ -11,6 +13,7 @@ import { flatten } from 'q-flat';
 import { getFilterKeys } from './query-string';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
+const apiCache = new Cache( 300 * 1000 ); //5 min TTL fully in memory cache
 
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
@@ -117,7 +120,12 @@ function buildFilterObject( filterQuery ) {
 	return filter;
 }
 
-export function search( { aggregations, filter, query, resultFormat, siteId, sort } ) {
+export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
+	const key = hash( Array.from( arguments ) );
+	const cachedVal = apiCache.get( key );
+	if ( cachedVal ) {
+		return cachedVal;
+	}
 	let fields = [];
 	let highlight_fields = [];
 	switch ( resultFormat ) {
@@ -145,10 +153,17 @@ export function search( { aggregations, filter, query, resultFormat, siteId, sor
 			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
 			sort,
+			page_handle: pageHandle,
 		} )
 	);
 
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	).then( response => response.json() );
+	).then( response => {
+		const r = response.json();
+		apiCache.put( key, r );
+		return r;
+	} );
+	//TODO: handle errors and fallback to a longer term cache - network connectivity for mobile
+	//TODO: store cache data in the browser - esp for mobile
 }

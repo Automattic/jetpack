@@ -27,7 +27,6 @@ const ShortcodeTypes = {
 	],
 	gallery: [ 'gallery', 'ione_media_gallery' ],
 	audio: [ 'audio', 'soundcloud' ],
-	code: [ 'code', 'sourcecode' ],
 };
 
 class SearchResultMinimal extends Component {
@@ -66,49 +65,42 @@ class SearchResultMinimal extends Component {
 		}
 		const noTags = tags.length === 0 && cats.length === 0;
 
-		let hasVideo = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
-		let hasAudio = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
-		const hasCode = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.code );
-
-		let hasGallery =
-			this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery ) ||
-			fields[ 'has.image' ] > 1;
-		let hasImage = fields[ 'has.image' ] === 1;
+		const hasVideo = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
+		const hasAudio = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
+		const hasGallery = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
 
 		let postTypeIcon = null;
 		switch ( fields.post_type ) {
 			case 'product':
 				postTypeIcon = <Gridicon icon="cart" size={ IconSize } />;
-				hasImage = false;
-				hasGallery = false;
 				break;
 			case 'page':
-				postTypeIcon = <Gridicon icon="pages" size={ IconSize } />;
+				if ( hasVideo ) {
+					postTypeIcon = <Gridicon icon="video" size={ IconSize } />;
+				} else if ( hasAudio ) {
+					postTypeIcon = <Gridicon icon="audio" size={ IconSize } />;
+				} else {
+					postTypeIcon = <Gridicon icon="pages" size={ IconSize } />;
+				}
 				break;
 			case 'video':
-				hasVideo = true;
+				postTypeIcon = <Gridicon icon="video" size={ IconSize } />;
 				break;
 			case 'gallery':
-				hasGallery = true;
+				postTypeIcon = <Gridicon icon="image-multiple" size={ IconSize } />;
 				break;
 			case 'event':
 			case 'events':
 				postTypeIcon = <Gridicon icon="calendar" size={ IconSize } />;
 				break;
-		}
-
-		//don't show too many icons
-		if ( hasVideo ) {
-			hasImage = false;
-			hasGallery = false;
-			hasAudio = false;
-		}
-		if ( hasAudio ) {
-			hasImage = false;
-			hasGallery = false;
-		}
-		if ( hasGallery ) {
-			hasImage = false;
+			default:
+				if ( hasVideo ) {
+					postTypeIcon = <Gridicon icon="video" size={ IconSize } />;
+				} else if ( hasAudio ) {
+					postTypeIcon = <Gridicon icon="audio" size={ IconSize } />;
+				} else if ( hasGallery ) {
+					postTypeIcon = <Gridicon icon="image-multiple" size={ IconSize } />;
+				}
 		}
 
 		return (
@@ -126,11 +118,6 @@ class SearchResultMinimal extends Component {
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
-					{ hasVideo && <Gridicon icon="video" size={ IconSize } /> }
-					{ hasImage && <Gridicon icon="image" size={ IconSize } /> }
-					{ hasGallery && <Gridicon icon="image-multiple" size={ IconSize } /> }
-					{ hasAudio && <Gridicon icon="audio" size={ IconSize } /> }
-					{ hasCode && <Gridicon icon="code" size={ IconSize } /> }
 				</h3>
 
 				{ no_content && (

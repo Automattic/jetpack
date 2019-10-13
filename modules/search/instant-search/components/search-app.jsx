@@ -33,15 +33,18 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = Preact.createRef();
 		this.requestId = 0;
+
+		// TODO: Rework these lines. We shouldn't reassign properties.
 		this.props.resultFormat = 'minimal';
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
 		this.isSearchPage = this.props.initialValue !== '';
+
 		this.state = {
+			isLoading: false,
 			query: this.props.initialValue,
+			response: {},
 			sort: this.props.initialSort,
-			results: {},
-			loading: false,
 		};
 		this.getDebouncedResults = debounce( this.getResults, 200 );
 
@@ -62,7 +65,7 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		this.getResults( this.state.query, getFilterQuery(), this.state.sort );
+		this.getResults( this.state.query, getFilterQuery(), this.state.sort, null );
 		if ( this.props.grabFocus ) {
 			this.input.current.focus();
 		}
@@ -70,6 +73,10 @@ class SearchApp extends Component {
 
 	hasActiveQuery() {
 		return this.state.query !== '' || hasFilter();
+	}
+
+	hasNextPage() {
+		return !! this.state.response.page_handle;
 	}
 
 	activateResults() {
@@ -103,12 +110,12 @@ class SearchApp extends Component {
 		const query = event.target.value;
 		this.setState( { query } );
 		setSearchQuery( query );
-		this.getDebouncedResults( query, getFilterQuery(), getSortQuery() );
+		this.getDebouncedResults( query, getFilterQuery(), getSortQuery(), null );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
-		this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+		this.getResults( this.state.query, getFilterQuery(), getSortQuery(), null );
 		if ( this.hasActiveQuery() ) {
 			this.activateResults();
 		} else {
@@ -119,36 +126,57 @@ class SearchApp extends Component {
 	onChangeSort = sort => {
 		setSortQuery( sort );
 		if ( this.hasActiveQuery() ) {
-			this.getResults( this.state.query, getFilterQuery(), getSortQuery() );
+			this.getResults( this.state.query, getFilterQuery(), getSortQuery(), null );
 		}
 	};
 
-	getResults = ( query, filter, sort ) => {
+	loadNextPage = () => {
+		this.hasNextPage() &&
+			this.getResults(
+				this.state.query,
+				getFilterQuery(),
+				getSortQuery(),
+				this.state.response.page_handle
+			);
+	};
+
+	getResults = ( query, filter, sort, pageHandle ) => {
 		this.requestId++;
 		const requestId = this.requestId;
 
-		this.setState( {
-			loading: true,
-		} );
-		search( {
-			aggregations: this.props.aggregations,
-			filter,
-			query,
-			resultFormat: this.props.options.resultFormat,
-			siteId: this.props.options.siteId,
-			sort,
-		} ).then( results => {
-			if ( this.requestId === requestId ) {
-				this.setState( {
-					results,
-					loading: false,
-				} );
-			}
+		this.setState( { isLoading: true }, () => {
+			search( {
+				// Skip aggregations when requesting for paged results
+				aggregations: !! pageHandle ? {} : this.props.aggregations,
+				filter,
+				pageHandle,
+				query,
+				resultFormat: this.props.options.resultFormat,
+				siteId: this.props.options.siteId,
+				sort,
+			} ).then( newResponse => {
+				if ( this.requestId === requestId ) {
+					const response = { ...newResponse };
+					if ( !! pageHandle ) {
+						response.aggregations = {
+							...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
+								? this.state.response.aggregations
+								: {} ),
+							...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
+						};
+						response.results = [
+							...( 'results' in this.state.response ? this.state.response.results : [] ),
+							...newResponse.results,
+						];
+					}
+					this.setState( { response } );
+				}
+				this.setState( { isLoading: false } );
+			} );
 		} );
 	};
 
 	render() {
-		const { query, results, resultsActive } = this.state;
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
@@ -163,7 +191,7 @@ class SearchApp extends Component {
 									onFocus={ this.onSearchFocus }
 									onBlur={ this.onSearchBlur }
 									appRef={ this.input }
-									query={ query }
+									query={ this.state.query }
 								/>
 							</div>
 							<div className="jetpack-search-sort-wrapper">
@@ -175,9 +203,9 @@ class SearchApp extends Component {
 							<SearchFiltersWidget
 								initialValues={ this.props.initialFilters }
 								onChange={ this.onChangeFilter }
-								loading={ this.state.loading }
+								loading={ this.state.isLoading }
 								postTypes={ this.props.options.postTypes }
-								results={ this.state.results }
+								results={ this.state.response }
 								widget={ widget }
 							/>
 						</div>
@@ -190,18 +218,20 @@ class SearchApp extends Component {
 							<SearchBox
 								onChangeQuery={ this.onChangeQuery }
 								appRef={ this.input }
-								query={ query }
+								query={ this.state.query }
 							/>
 						</Portal>
 					) ) }
 
-				{ resultsActive && (
+				{ this.state.resultsActive && (
 					<Portal into={ this.props.themeOptions.results_selector }>
 						<SearchResults
-							query={ query }
-							loading={ this.state.loading }
-							{ ...results }
-							result_format={ this.props.options.resultFormat }
+							hasNextPage={ this.hasNextPage() }
+							isLoading={ this.state.isLoading }
+							onLoadNextPage={ this.loadNextPage }
+							query={ this.state.query }
+							response={ this.state.response }
+							resultFormat={ this.props.options.resultFormat }
 						/>
 					</Portal>
 				) }

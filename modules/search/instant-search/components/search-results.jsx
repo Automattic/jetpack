@@ -11,6 +11,7 @@ import { h, Component } from 'preact';
  */
 import SearchResultMinimal from './search-result-minimal';
 import { hasFilter } from '../lib/query-string';
+import ScrollButton from './scroll-button';
 
 class SearchResults extends Component {
 	render_result( result ) {
@@ -24,8 +25,10 @@ class SearchResults extends Component {
 	}
 
 	render() {
-		const { results = [], query, total = 0, corrected_query = false, loading = false } = this.props;
+		const { query } = this.props;
+		const { results = [], total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = query !== '';
+		const hasCorrectedQuery = corrected_query !== false;
 		if ( ! hasQuery && ! hasFilter() ) {
 			return <div className="jetpack-instant-search__search-results" />;
 		}
@@ -39,31 +42,44 @@ class SearchResults extends Component {
 			);
 		}
 		const num = new Intl.NumberFormat().format( total );
-		const cls =
-			loading === true
-				? 'jetpack-instant-search__search-results jetpack-instant-search__is-loading'
-				: 'jetpack-instant-search__search-results';
+
+		let headerText = sprintf( _n( '%s result', '%s results', total ), num );
+		if ( hasQuery ) {
+			if ( hasCorrectedQuery ) {
+				headerText = sprintf(
+					_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
+					num,
+					corrected_query
+				);
+			} else {
+				headerText = sprintf(
+					_n( '%s result for "%s"', '%s results for "%s"', total ),
+					num,
+					query
+				);
+			}
+		}
 
 		return (
-			<div className={ cls }>
-				<p className="jetpack-instant-search__search-results-real-query">
-					{ hasQuery
-						? corrected_query !== false
-							? sprintf(
-									_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
-									num,
-									corrected_query
-							  )
-							: sprintf( _n( '%s result for "%s"', '%s results for "%s"', total ), num, query )
-						: //only filtering, no search query
-						  sprintf( _n( '%s result', '%s results', total ), num ) }
-				</p>
-				{ corrected_query !== false && (
+			<div
+				className={ `jetpack-instant-search__search-results ${
+					this.state.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+				}` }
+			>
+				<p className="jetpack-instant-search__search-results-real-query">{ headerText }</p>
+				{ hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
 				{ results.map( result => this.render_result( result ) ) }
+				{ this.props.hasNextPage && (
+					<ScrollButton
+						enableLoadOnScroll
+						isLoading={ this.props.isLoading }
+						onLoadNextPage={ this.props.onLoadNextPage }
+					/>
+				) }
 			</div>
 		);
 	}
