@@ -9,10 +9,6 @@ export function initializeTracks() {
 	window._tkq = window._tkq || [];
 }
 
-export function identifyUser( userId, userName ) {
-	window._tkq.push( [ 'identifyUser', userId, userName ] );
-}
-
 export function identifySite( siteId ) {
 	globalProperties.blog_id = siteId;
 }

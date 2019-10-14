@@ -239,7 +239,6 @@ class Jetpack_Search {
 					'postTypes'          => $post_type_labels,
 					'siteId'             => Jetpack::get_option( 'id' ),
 					'sort'               => $widget_options['sort'],
-					'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 					'widgets'            => array_values( $widgets ),
 				);
 				/**
