@@ -185,7 +185,7 @@ class Jetpack_Connection_Banner {
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
-				'identity'             => $identity,
+				'identity'              => $identity,
 			)
 		);
 	}
