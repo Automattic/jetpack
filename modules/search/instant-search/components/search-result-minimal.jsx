@@ -48,23 +48,9 @@ class SearchResultMinimal extends Component {
 		};
 	}
 
-	onClick = event => {
-		// User-triggered event
-		if ( event.isTrusted ) {
-			event.stopPropagation();
-			event.preventDefault();
-			// Send out analytics call
-			recordTrainTracksInteract( { ...this.getCommonTrainTracksProps(), action: 'click' } );
-			// Await next animation frame to ensure w.js processes the queue
-			requestAnimationFrame( () => {
-				// Re-dispatch click event
-				const clonedEvent = new event.constructor( event.type, event );
-				event.target.dispatchEvent( clonedEvent );
-			} );
-		} else {
-			// Programmatically dispatched event from `dispatchEvent`
-			return true;
-		}
+	onClick = () => {
+		// Send out analytics call
+		recordTrainTracksInteract( { ...this.getCommonTrainTracksProps(), action: 'click' } );
 	};
 
 	render() {
