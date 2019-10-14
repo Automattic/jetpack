@@ -161,6 +161,7 @@ class SearchApp extends Component {
 								initialValues={ this.props.initialFilters }
 								onChange={ this.onChangeFilter }
 								loading={ this.state.isLoading }
+								locale={ this.props.options.locale }
 								postTypes={ this.props.options.postTypes }
 								results={ this.state.response }
 								widget={ widget }
@@ -185,6 +186,7 @@ class SearchApp extends Component {
 						hasNextPage={ this.hasNextPage() }
 						isLoading={ this.state.isLoading }
 						onLoadNextPage={ this.loadNextPage }
+						locale={ this.props.options.locale }
 						query={ this.state.query }
 						response={ this.state.response }
 						resultFormat={ this.props.options.resultFormat }

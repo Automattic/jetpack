@@ -4,7 +4,6 @@
  * External dependencies
  */
 import { h, createRef, Component } from 'preact';
-import strip from 'strip';
 import { getCheckedInputNames } from '../lib/dom';
 
 export default class SearchFilterDates extends Component {
@@ -12,6 +11,31 @@ export default class SearchFilterDates extends Component {
 		super( props );
 		this.state = { selected: this.props.initialValue };
 		this.filtersList = createRef();
+
+		this.dateOptions = {
+			year: 'numeric',
+			month: 'long',
+		};
+		switch ( this.props.configuration.interval ) {
+			case 'day':
+				this.dateOptions = {
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+				};
+				break;
+			case 'month':
+				this.dateOptions = {
+					year: 'numeric',
+					month: 'long',
+				};
+				break;
+			case 'year':
+				this.dateOptions = {
+					year: 'numeric',
+				};
+				break;
+		}
 	}
 
 	getIdentifier() {
@@ -28,6 +52,7 @@ export default class SearchFilterDates extends Component {
 	};
 
 	renderDates = ( { key_as_string: key, doc_count: count } ) => {
+		const { locale = 'en-US' } = this.props;
 		return (
 			<div>
 				<input
@@ -38,7 +63,7 @@ export default class SearchFilterDates extends Component {
 					type="checkbox"
 				/>
 				<label htmlFor={ `jp-instant-search-filter-dates-${ this.getIdentifier() }-${ key }` }>
-					{ strip( key ) } ({ count })
+					{ new Date( key ).toLocaleString( locale, this.dateOptions ) } ({ count })
 				</label>
 			</div>
 		);
