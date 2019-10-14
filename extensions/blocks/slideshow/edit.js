@@ -106,17 +106,18 @@ class SlideshowEdit extends Component {
 		const { images } = this.props.attributes;
 		const { resizedImages } = this.props;
 
-		images.forEach( image => {
+		const updatedImages = images.map( image => {
 			const resizedImage = resizedImages.find(
 				( { id } ) => parseInt( id, 10 ) === parseInt( image.id, 10 )
 			);
 			const url = get( resizedImage, [ 'sizes', sizeSlug, 'source_url' ] );
-			if ( url ) {
-				image.url = url;
-			}
+			return {
+				...image,
+				...( url && { url } ),
+			};
 		} );
 
-		this.setAttributes( { images, sizeSlug } );
+		this.setAttributes( { images: updatedImages, sizeSlug } );
 	};
 	render() {
 		const { attributes, className, isSelected, noticeOperations, noticeUI } = this.props;
