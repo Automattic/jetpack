@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
 import {
+	BaseControl,
 	Button,
 	PanelBody,
 	Path,
@@ -16,7 +17,7 @@ import {
 } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { InnerBlocks, InspectorControls } from '@wordpress/editor';
+import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -200,6 +201,7 @@ class JetpackContactForm extends Component {
 	}
 
 	renderOnSubmissionFields() {
+		const { instanceId } = this.props;
 		const {
 			customThankyou,
 			customThankyouType,
@@ -234,12 +236,17 @@ class JetpackContactForm extends Component {
 					/>
 				) }
 				{ customThankyou && 'redirect' === customThankyouType && (
-					<TextControl
+					<BaseControl
 						label={ __( 'Redirect address', 'jetpack' ) }
-						value={ customThankyouRedirect }
-						placeholder={ 'https://' }
-						onChange={ value => this.props.setAttributes( { customThankyouRedirect: value } ) }
-					/>
+						id={ `contact-form-${ instanceId }-thankyou-url` }
+					>
+						<URLInput
+							id={ `contact-form-${ instanceId }-thankyou-url` }
+							value={ customThankyouRedirect }
+							className="jetpack-contact-form__thankyou-redirect-url"
+							onChange={ value => this.props.setAttributes( { customThankyouRedirect: value } ) }
+						/>
+					</BaseControl>
 				) }
 			</Fragment>
 		);
