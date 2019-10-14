@@ -39,8 +39,10 @@ class SlideshowEdit extends Component {
 	componentDidMount() {
 		const { ids, sizeSlug } = this.props.attributes;
 		if ( ! sizeSlug ) {
-			// Blocks inserted before the image size selector was available were using full size images. After including
-			// the image selector, blocks will use large size images by default.
+			// To improve the performance, we use large size images by default except for blocks inserted before the
+			// image size attribute was added, since they were loading full size images. The presence or lack of images
+			// in a block determines when it has been inserted (before or after we added the image size attribute),
+			// given that now it is not possible to have a block with images and no size.
 			this.setAttributes( { sizeSlug: ids.length ? 'full' : 'large' } );
 		}
 	}
