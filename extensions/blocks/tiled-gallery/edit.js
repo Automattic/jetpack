@@ -15,7 +15,6 @@ import {
 import {
 	DropZone,
 	FormFileUpload,
-	IconButton,
 	PanelBody,
 	RangeControl,
 	SelectControl,
@@ -31,6 +30,7 @@ import Layout from './layout';
 import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
+import EditButton from '../../shared/edit-button';
 
 const linkOptions = [
 	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },
@@ -182,12 +182,7 @@ class TiledGalleryEdit extends Component {
 								gallery
 								value={ images.map( img => img.id ) }
 								render={ ( { open } ) => (
-									<IconButton
-										className="components-toolbar__control"
-										label={ __( 'Edit Gallery', 'jetpack' ) }
-										icon="edit"
-										onClick={ open }
-									/>
+									<EditButton label={ __( 'Edit Gallery', 'jetpack' ) } onClick={ open } />
 								) }
 							/>
 						</Toolbar>
