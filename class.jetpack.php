@@ -6938,7 +6938,13 @@ endif;
 	 * Will return true if a user has clicked to register, or is already connected.
 	 */
 	public static function jetpack_tos_agreed() {
-		return Jetpack_Options::get_option( 'tos_agreed' ) || self::is_active_and_not_development_mode();
+		$tos_agreed = Jetpack_Options::get_option( 'tos_agreed' ) || self::is_active_and_not_development_mode();
+
+		if ( $tos_agreed ) {
+			add_filter( 'jetpack_tos_agreed', '__return_true' );
+		}
+
+		return $tos_agreed;
 	}
 
 	/**
