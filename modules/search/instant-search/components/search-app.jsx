@@ -24,7 +24,6 @@ import {
 	getFilterQuery,
 	setSortQuery,
 	getSortQuery,
-	determineDefaultSort,
 } from '../lib/query-string';
 import { removeChildren, hideElements } from '../lib/dom';
 
@@ -38,7 +37,6 @@ class SearchApp extends Component {
 		this.props.resultFormat = 'minimal';
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 		this.props.widgets = this.props.options.widgets ? this.props.options.widgets : [];
-		this.props.initialSort = determineDefaultSort( this.props.options.sort );
 
 		this.state = {
 			isLoading: false,
