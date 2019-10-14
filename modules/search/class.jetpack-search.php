@@ -268,7 +268,7 @@ class Jetpack_Search {
 
 	public function load_and_initialize_tracks() {
 		define( 'W_JS_VER', 60 ); // W_JS_VER
-		wp_enqueue_script( 'jetpack-instant-search-tracks', '//stats.wp.com/w.js', array(), W_JS_VER, true ); 
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), W_JS_VER, true ); 
 	}
 
 	/**
