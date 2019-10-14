@@ -95,9 +95,9 @@ class SearchResultMinimal extends Component {
 		}
 		const noTags = tags.length === 0 && cats.length === 0;
 
-		const hasVideo = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
-		const hasAudio = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
-		const hasGallery = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
+		const hasVideo = arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
+		const hasAudio = arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
+		const hasGallery = arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
 
 		let postTypeIcon = null;
 		switch ( fields.post_type ) {
