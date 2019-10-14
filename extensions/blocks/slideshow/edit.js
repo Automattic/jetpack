@@ -128,7 +128,7 @@ class SlideshowEdit extends Component {
 				imageSizeOptions={ imageSizeOptions }
 				onChangeImageSize={ this.updateImagesSize }
 				onSelectImages={ this.onSelectImages }
-				setAttributes={ this.setAttributes }
+				setAttributes={ attrs => this.setAttributes( attrs ) }
 			/>
 		);
 
