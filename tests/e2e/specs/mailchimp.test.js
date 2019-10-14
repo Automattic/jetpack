@@ -1,15 +1,11 @@
 /**
- * WordPress dependencies
- */
-import { createNewPost } from '@wordpress/e2e-test-utils/build/create-new-post';
-/**
  * Internal dependencies
  */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { execShellCommand } from '../lib/utils-helper';
+import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
+import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 
 // Activate WordAds module if in CI
 async function activatePublicizeModule() {
@@ -23,13 +19,18 @@ async function activatePublicizeModule() {
 }
 
 describe( 'Mailchimp Block', () => {
+	beforeAll( async () => {
+		await resetWordpressInstall();
+		const url = getNgrokSiteUrl();
+		console.log( 'NEW SITE URL: ' + url );
+	} );
+
 	it( 'Can publish a post with a Mailchimp Block', async () => {
-		await connectThroughWPAdminIfNeeded();
+		await connectThroughJetpackStart();
 
 		await activatePublicizeModule();
-		await createNewPost();
 
-		const blockEditor = await BlockEditorPage.init( page );
+		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( MailchimpBlock.name() );
 
 		const mcBlock = new MailchimpBlock( blockInfo, page );
@@ -37,8 +38,6 @@ describe( 'Mailchimp Block', () => {
 
 		await blockEditor.focus();
 		await blockEditor.publishPost();
-
-		// jestPuppeteer.debug();
 
 		await blockEditor.viewPost();
 		const frontend = await PostFrontendPage.init( page );

@@ -4,13 +4,13 @@
 import { waitForSelector } from '../page-helper';
 
 export default class Page {
-	constructor( page, { expectedSelector, url = null, expectedWaitMC = 25000 } ) {
+	constructor( page, { expectedSelector, url = null, explicitWaitMS = 25000 } ) {
 		this.page = page;
 		this.expectedSelector = expectedSelector;
 		this.visit = false;
 		this.url = url;
 		this.name = this.constructor.name;
-		this.explicitWaitMS = expectedWaitMC;
+		this.explicitWaitMS = explicitWaitMS;
 	}
 
 	/**
@@ -65,6 +65,28 @@ export default class Page {
 			value: sandboxCookieValue,
 			domain,
 		} );
-		return await this.page.reload();
+
+		return await this.reload();
+	}
+
+	/**
+	 * Reloads the page and waits for the expected locator
+	 * @param {Object} options page.reload options object
+	 */
+	async reload( options = {} ) {
+		await this.page.reload( options );
+		return await this.waitForPage();
+	}
+
+	async reloadUntil( callback, options = {} ) {
+		let reloadNeeded = await callback();
+		let count = 1;
+		while ( reloadNeeded || count > 5 ) {
+			console.log( 'Reloading since reloadNeeded is: ', reloadNeeded.toString() );
+
+			await this.reload( options );
+			reloadNeeded = await callback();
+			count++;
+		}
 	}
 }

@@ -16,10 +16,15 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
+import {
+	getNgrokSiteUrl,
+	provisionJetpackStartConnection,
+	execShellCommand,
+} from '../utils-helper';
+import PlansPage from '../pages/wpcom/plans';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
-const siteUrl = new URL( process.env.WP_BASE_URL ).host;
 
 /**
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
@@ -37,11 +42,14 @@ export async function connectThroughWPAdminIfNeeded( {
 		await login.login( wpcomUser );
 	}
 
-	await ( await WPLoginPage.visit( page ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
+	const siteUrl = getNgrokSiteUrl();
+	const host = new URL( siteUrl ).host;
+
+	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
+	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
-	const jetpackPage = await JetpackPage.init( page );
+	let jetpackPage = await JetpackPage.init( page );
 	if ( await jetpackPage.isConnected() ) {
 		await jetpackPage.openMyPlan();
 		if ( await jetpackPage.isPlan( plan ) ) {
@@ -68,6 +76,66 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
-	await ( await JetpackPage.init( page ) ).waitForPage();
-	await ( await JetpackPage.init( page ) ).setSandboxModeForPayments( cookie, siteUrl );
+	jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.setSandboxModeForPayments( cookie, host );
+
+	// Reload the page to hydrate plans cache
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
+	await page.waitForResponse(
+		response => response.url().includes( 'v4/site?' ) && response.status() === 200
+	);
+
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
+
+	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
+		throw new Error( `Site does not have ${ plan } plan` );
+	}
+
+	return true;
+}
+
+export async function connectThroughJetpackStart( {
+	wpcomUser = 'defaultUser',
+	plan = 'pro',
+} = {} ) {
+	// remove Sandbox cookie
+	await page.deleteCookie( { name: 'store_sandbox', domain: '.wordpress.com' } );
+
+	// Logs in to WPCOM
+	const login = await LoginPage.visit( page );
+	if ( ! ( await login.isLoggedIn() ) ) {
+		await login.login( wpcomUser );
+	}
+
+	const nextUrl = provisionJetpackStartConnection();
+	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
+	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
+
+	const siteUrl = getNgrokSiteUrl();
+
+	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
+	await ( await Sidebar.init( page ) ).selectJetpack();
+
+	const jetpackPage = await JetpackPage.init( page );
+
+	await jetpackPage.openMyPlan();
+
+	await page.waitForResponse(
+		response => response.url().includes( 'v4/site?' ) && response.status() === 200
+	);
+
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
+	await execShellCommand(
+		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
+	);
+
+	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
+		throw new Error( `Site does not have ${ plan } plan` );
+	}
+
+	return true;
 }
