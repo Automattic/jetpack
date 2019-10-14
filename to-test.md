@@ -8,6 +8,10 @@ We've made some changes to simplify the Jetpack Dashboard interface when your us
 
 We've made some changes to ensure that blocks are properly translated in the block editor. If you switch to a language that offers language packs, like French or Spanish, you should see that Jetpack Blocks will now be translated in the editor.
 
+## Contact Form Block
+
+The Contact Form Block now includes options for showing a custom post-submission message, or to redirect to a different URL.
+
 ### Carousel
 
 In this release, we've made some changes to how the Carousel metadata was added to each gallery. To test this:
