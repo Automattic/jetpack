@@ -17,7 +17,7 @@ describe( 'Simple Payment', () => {
 	it( 'Can publish a post with a Simple Payments block', async () => {
 		await connectThroughJetpackStart();
 
-		await page.waitFor( 20000 ); // Trying to wait for plan data to be updated
+		await page.waitFor( 5000 ); // Trying to wait for plan data to be updated
 		await page.reload( { waitFor: 'networkidle0' } );
 
 		const blockEditor = await BlockEditorPage.visit( page );
