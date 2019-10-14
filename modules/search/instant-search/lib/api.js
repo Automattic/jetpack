@@ -62,8 +62,7 @@ function generateDateRangeFilter( fieldName, input, type ) {
 	if ( month ) {
 		startDate = `${ year }-${ month }-01`;
 		endDate = `${ year }-${ +month + 1 }-01`;
-	}
-	if ( year ) {
+	} else if ( year ) {
 		startDate = `${ year }-01-01`;
 		endDate = `${ +year + 1 }-01-01`;
 	}

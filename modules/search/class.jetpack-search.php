@@ -217,11 +217,20 @@ class Jetpack_Search {
 					$widgets[$filter[ 'widget_id' ]][ 'filters' ][] = $new_filter;
 				}
 
+				$post_type_objs = get_post_types( array(), 'objects' );
+				$post_type_labels = array();
+				foreach( $post_type_objs as $key => $obj ) {
+					$post_type_labels[$key] = array(
+						'singular_name' => $obj->labels->singular_name,
+						'name' => $obj->labels->name,
+					);
+				}
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
-					'postTypes' => get_post_types(),
+					'postTypes' => $post_type_labels,
 					'siteId'		=> Jetpack::get_option( 'id' ),
 					'widgets' 	=> array_values( $widgets ),
+					'locale'    => str_replace( '_', '-', get_locale() ),
 				);
 				/**
 				 * Customize Instant Search Options.

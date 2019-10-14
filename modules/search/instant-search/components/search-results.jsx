@@ -20,7 +20,7 @@ class SearchResults extends Component {
 			case 'product':
 			case 'minimal':
 			default:
-				return <SearchResultMinimal result={ result } />;
+				return <SearchResultMinimal result={ result } locale={ this.props.locale } />;
 		}
 	}
 
