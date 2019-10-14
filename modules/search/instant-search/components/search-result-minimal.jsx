@@ -54,7 +54,7 @@ class SearchResultMinimal extends Component {
 			event.stopPropagation();
 			event.preventDefault();
 			// Send out analytics call
-			recordTrainTracksInteract( this.getCommonTrainTracksProps() );
+			recordTrainTracksInteract( { ...this.getCommonTrainTracksProps(), action: 'click' } );
 			// Await next animation frame to ensure w.js processes the queue
 			requestAnimationFrame( () => {
 				// Re-dispatch click event
