@@ -133,6 +133,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'design_type',
 		'site_goals',
 		'site_segment',
+		'import_engine',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -584,6 +585,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_segment':
 					$options[ $key ] = $site->get_site_segment();
+					break;
+				case 'import_engine':
+					$options[ $key ] = $site->get_import_engine();
 					break;
 			}
 		}
