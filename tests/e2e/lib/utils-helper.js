@@ -62,3 +62,17 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 
 	return json.next_url;
 }
+
+/**
+ * Runs wp cli command to activate jetpack module
+ * @param {string} module Jetpack module name
+ */
+export async function activateModule( module ) {
+	const cliCmd = `wp jetpack module activate ${ module }`;
+	let cmd = `./tests/e2e/docker/whatever.sh cli "${ cliCmd }"`;
+	if ( process.env.CI ) {
+		cmd = `${ cliCmd } --path="/home/travis/wordpress"`;
+	}
+
+	await execShellCommand( cmd );
+}
