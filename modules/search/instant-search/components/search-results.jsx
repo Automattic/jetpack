@@ -12,13 +12,8 @@ import { h, Component } from 'preact';
 import SearchResultMinimal from './search-result-minimal';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
-import { getRailcarIdPrefix } from '../lib/tracks';
 
 class SearchResults extends Component {
-	constructor( props ) {
-		super( props );
-		this.state = { railcarIdPrefix: getRailcarIdPrefix() };
-	}
 	renderResult = ( result, index ) => {
 		switch ( this.props.resultFormat ) {
 			case 'engagement':
@@ -30,7 +25,6 @@ class SearchResults extends Component {
 						index={ index }
 						locale={ this.props.locale }
 						query={ this.props.query }
-						railcarId={ `${ this.state.railcarIdPrefix }-${ index }` }
 						result={ result }
 					/>
 				);
@@ -76,7 +70,7 @@ class SearchResults extends Component {
 		return (
 			<div
 				className={ `jetpack-instant-search__search-results ${
-					this.state.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
 				<p className="jetpack-instant-search__search-results-real-query">{ headerText }</p>

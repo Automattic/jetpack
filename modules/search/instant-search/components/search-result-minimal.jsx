@@ -37,12 +37,12 @@ class SearchResultMinimal extends Component {
 
 	getCommonTrainTracksProps() {
 		return {
-			fetch_algo: 'jetpack-instant-search-api/v1',
-			fetch_position: this.props.index,
-			fetch_query: this.props.query,
-			railcar: this.props.railcarId,
-			rec_blog_id: this.props.result.fields.blog_id,
-			rec_post_id: this.props.result.fields.post_id,
+			fetch_algo: this.props.result.railcar.fetch_algo,
+			fetch_position: this.props.result.railcar.fetch_position,
+			fetch_query: this.props.result.railcar.fetch_query,
+			railcar: this.props.result.railcar.railcar,
+			rec_blog_id: this.props.result.railcar.rec_blog_id,
+			rec_post_id: this.props.result.railcar.rec_post_id,
 			ui_algo: 'jetpack-instant-search-ui/v1',
 			ui_position: this.props.index,
 		};

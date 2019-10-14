@@ -1,8 +1,3 @@
-/**
- * External dependencies
- */
-import { v4 as uuid } from 'uuid';
-
 const globalProperties = {};
 
 export function initializeTracks() {
@@ -15,10 +10,6 @@ export function identifySite( siteId ) {
 
 export function recordEvent( eventName, properties ) {
 	window._tkq.push( [ 'recordEvent', eventName, { ...globalProperties, ...properties } ] );
-}
-
-export function getRailcarIdPrefix() {
-	return `${ uuid().replace( /-/g, '' ) }`;
 }
 
 export function recordTrainTracksRender( properties ) {
