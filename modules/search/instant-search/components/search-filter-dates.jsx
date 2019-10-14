@@ -12,6 +12,8 @@ export default class SearchFilterDates extends Component {
 		this.state = { selected: this.props.initialValue };
 		this.filtersList = createRef();
 
+		//this assumes that the configuration never changes and we
+		// may eventually want to adjust it dynamically
 		this.dateOptions = {
 			year: 'numeric',
 			month: 'long',
