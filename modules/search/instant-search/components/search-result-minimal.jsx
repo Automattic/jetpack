@@ -4,7 +4,6 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
-import strip from 'strip';
 
 /**
  * Internal dependencies
@@ -40,6 +39,7 @@ class SearchResultMinimal extends Component {
 
 	render() {
 		const { result_type, fields, highlight } = this.props.result;
+		const { locale = 'en-US' } = this.props;
 		const IconSize = 18;
 		if ( result_type !== 'post' ) {
 			return null;
@@ -106,7 +106,9 @@ class SearchResultMinimal extends Component {
 		return (
 			<div className="jetpack-instant-search__result-minimal">
 				<span className="jetpack-instant-search__result-minimal-date">
-					{ strip( fields.date ).split( ' ' )[ 0 ] }
+					{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
+						dateStyle: 'short',
+					} ) }
 				</span>
 				<h3>
 					{ postTypeIcon }

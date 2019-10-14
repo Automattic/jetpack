@@ -25,6 +25,7 @@ export default class SearchFiltersWidget extends Component {
 						<SearchFilterDates
 							aggregation={ results }
 							configuration={ configuration }
+							locale={ this.props.locale }
 							initialValue={
 								this.props.initialValues[ `${ configuration.interval }_${ configuration.field }` ]
 							}
