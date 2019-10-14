@@ -4,7 +4,16 @@
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, PanelBody, Path, Placeholder, TextControl } from '@wordpress/components';
+import {
+	Button,
+	PanelBody,
+	Path,
+	Placeholder,
+	SelectControl,
+	TextareaControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { InnerBlocks, InspectorControls } from '@wordpress/editor';
@@ -190,6 +199,52 @@ class JetpackContactForm extends Component {
 		);
 	}
 
+	renderOnSubmissionFields() {
+		const {
+			customThankyou,
+			customThankyouType,
+			customThankyouMessage,
+			customThankyouRedirect,
+		} = this.props.attributes;
+		return (
+			<Fragment>
+				<ToggleControl
+					label={ __( 'Thank you message', 'jetpack' ) }
+					help={ __( 'Toggle to show a thank you message', 'jetpack' ) }
+					checked={ customThankyou }
+					onChange={ value => this.props.setAttributes( { customThankyou: value } ) }
+				/>
+				{ customThankyou && (
+					<SelectControl
+						label={ __( 'Message type', 'jetpack' ) }
+						value={ customThankyouType }
+						options={ [
+							{ label: __( 'Text message', 'jetpack' ), value: 'message' },
+							{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
+						] }
+						onChange={ value => this.props.setAttributes( { customThankyouType: value } ) }
+					/>
+				) }
+				{ customThankyou && ( ! customThankyouType || 'message' === customThankyouType ) && (
+					<TextareaControl
+						label={ __( 'Message text', 'jetpack' ) }
+						value={ customThankyouMessage }
+						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
+						onChange={ value => this.props.setAttributes( { customThankyouMessage: value } ) }
+					/>
+				) }
+				{ customThankyou && 'redirect' === customThankyouType && (
+					<TextControl
+						label={ __( 'Redirect address', 'jetpack' ) }
+						value={ customThankyouRedirect }
+						placeholder={ 'https://' }
+						onChange={ value => this.props.setAttributes( { customThankyouRedirect: value } ) }
+					/>
+				) }
+			</Fragment>
+		);
+	}
+
 	hasEmailError() {
 		const fieldEmailError = this.state.toError;
 		return fieldEmailError && fieldEmailError.length > 0;
@@ -207,6 +262,9 @@ class JetpackContactForm extends Component {
 				<InspectorControls>
 					<PanelBody title={ __( 'Email feedback settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
+					</PanelBody>
+					<PanelBody title={ __( 'On submission', 'jetpack' ) }>
+						{ this.renderOnSubmissionFields() }
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>

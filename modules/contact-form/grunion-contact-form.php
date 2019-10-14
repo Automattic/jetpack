@@ -1838,12 +1838,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		self::$current_form = $this;
 
 		$this->defaults = array(
-			'to'                 => $default_to,
-			'subject'            => $default_subject,
-			'show_subject'       => 'no', // only used in back-compat mode
-			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
-			'id'                 => null, // Not exposed to the user. Set above.
-			'submit_button_text' => __( 'Submit', 'jetpack' ),
+			'to'                     => $default_to,
+			'subject'                => $default_subject,
+			'show_subject'           => 'no', // only used in back-compat mode
+			'widget'                 => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
+			'id'                     => null, // Not exposed to the user. Set above.
+			'submit_button_text'     => __( 'Submit', 'jetpack' ),
+			'customThankyou'         => 'false',
+			'customThankyouType'     => 'message',
+			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ),
+			'customThankyouRedirect' => '',
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -1990,6 +1994,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'<h3>' . __( 'Message Sent', 'jetpack' ) .
 				' (<a href="' . esc_url( $back_url ) . '">' . esc_html__( 'go back', 'jetpack' ) . '</a>)' .
 				"</h3>\n\n";
+
+			if ( $attributes['customThankyou'] && ( ! $attributes['customThankyouType'] || 'message' === $attributes['customThankyouType'] ) ) {
+				$r_success_message .= wpautop( $attributes['customThankyouMessage'] );
+			}
 
 			// Don't show the feedback details unless the nonce matches
 			if ( $feedback_id && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) {
@@ -2813,10 +2821,21 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			return self::success_message( $post_id, $this );
+			$custom_thankyou = '';
+			if ( $this->get_attribute( 'customThankyou' ) && $this->get_attribute( 'customThankyouType' ) === 'message' ) {
+				$custom_thankyou = wpautop( $this->get_attribute( 'customThankyouMessage' ) );
+			}
+			return $custom_thankyou . self::success_message( $post_id, $this );
 		}
 
-		$redirect = wp_get_referer();
+		if ( $this->get_attribute( 'customThankyou' ) && $this->get_attribute( 'customThankyouType' ) === 'redirect' ) {
+			$redirect = $this->get_attribute( 'customThankyouRedirect' );
+		}
+
+		if ( ! $redirect ) {
+			$redirect = wp_get_referer();
+		}
+
 		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page
 			$redirect = $_SERVER['REQUEST_URI'];
 		}
@@ -2845,7 +2864,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
 
-		wp_safe_redirect( $redirect );
+		wp_redirect( $redirect );
 		exit;
 	}
 

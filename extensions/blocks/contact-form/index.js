@@ -56,6 +56,22 @@ export const settings = {
 			type: 'string',
 			default: null,
 		},
+		customThankyou: {
+			type: 'boolean',
+			default: false,
+		},
+		customThankyouType: {
+			type: 'string',
+			default: 'message',
+		},
+		customThankyouMessage: {
+			type: 'string',
+			default: '',
+		},
+		customThankyouRedirect: {
+			type: 'string',
+			default: '',
+		},
 
 		// Deprecated
 		has_form_settings_set: {
