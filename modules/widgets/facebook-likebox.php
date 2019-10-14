@@ -76,9 +76,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 		$page_url = set_url_scheme( $like_args['href'], 'https' );
 
-		$like_args['show_faces'] = (bool) $like_args['show_faces'] ? 'true' : 'false';
-		$like_args['stream']     = (bool) $like_args['stream'] ? 'true' : 'false';
-		$like_args['cover']      = (bool) $like_args['cover'] ? 'false' : 'true';
+		$like_args['show_faces'] 		= (bool) $like_args['show_faces'] ? 'true' : 'false';
+		$like_args['stream']     		= (bool) $like_args['stream'] ? 'true' : 'false';
+		$like_args['cover']      		= (bool) $like_args['cover'] ? 'false' : 'true';
+		$like_args['hide_cta']      	= (bool) $like_args['hide_cta'] ? 'true' : 'false';
+		$like_args['small_header']      = (bool) $like_args['small_header'] ? 'true' : 'false';
 
 		echo $before_widget;
 
@@ -105,7 +107,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		?>
 		<div id="fb-root"></div>
-		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>">
+		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>" data-hide-cta="<?php echo esc_attr( $like_args['hide_cta'] ); ?>" data-small-header="<?php echo esc_attr( $like_args['small_header'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
 		<?php
@@ -126,12 +128,14 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		// Set up widget values
 		$instance['like_args'] = array(
-			'href'       => trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
-			'width'      => (int) $new_instance['width'],
-			'height'     => (int) $new_instance['height'],
-			'show_faces' => isset( $new_instance['show_faces'] ),
-			'stream'     => isset( $new_instance['stream'] ),
-			'cover'      => isset( $new_instance['cover'] ),
+			'href'       		=> trim( strip_tags( stripslashes( $new_instance['href'] ) ) ),
+			'width'      		=> (int) $new_instance['width'],
+			'height'     		=> (int) $new_instance['height'],
+			'show_faces' 		=> isset( $new_instance['show_faces'] ),
+			'stream'     		=> isset( $new_instance['stream'] ),
+			'cover'      		=> isset( $new_instance['cover'] ),
+			'hide_cta'      	=> isset( $new_instance['hide_cta'] ),
+			'small_header'      => isset( $new_instance['small_header'] ),
 		);
 
 		$instance['like_args'] = $this->normalize_facebook_args( $instance['like_args'] );
@@ -207,17 +211,36 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			</label>
 		</p>
 
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'hide_cta' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'hide_cta' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'hide_cta' ) ); ?>" <?php checked( $like_args['hide_cta'] ); ?> />
+				<?php _e( 'Hide Call To Action Button', 'jetpack' ); ?>
+				<br />
+				<small><?php _e( 'Hides the custom call to action button (if available).', 'jetpack' ); ?></small>
+			</label>
+		</p>
+
+		<p>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'small_header' ) ); ?>">
+				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'small_header' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'small_header' ) ); ?>" <?php checked( $like_args['small_header'] ); ?> />
+				<?php _e( 'Use Small Header', 'jetpack' ); ?>
+				<br />
+			</label>
+		</p>
+
 		<?php
 	}
 
 	function get_default_args() {
 		$defaults = array(
-			'href'       => '',
-			'width'      => $this->default_width,
-			'height'     => $this->default_height,
-			'show_faces' => 'true',
-			'stream'     => '',
-			'cover'      => 'true',
+			'href'       		=> '',
+			'width'      		=> $this->default_width,
+			'height'     		=> $this->default_height,
+			'show_faces' 		=> 'true',
+			'stream'     		=> '',
+			'cover'      		=> 'true',
+			'hide_cta'      	=> '',
+			'small_header'      => '',
 		);
 
 		/**
@@ -243,11 +266,13 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			$args['href'] = '';
 		}
 
-		$args['width']      = $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
-		$args['height']     = $this->normalize_int_value( (int) $args['height'], $this->default_height, $this->max_height, $this->min_height );
-		$args['show_faces'] = (bool) $args['show_faces'];
-		$args['stream']     = (bool) $args['stream'];
-		$args['cover']      = (bool) $args['cover'];
+		$args['width']      		= $this->normalize_int_value( (int) $args['width'], $this->default_width, $this->max_width, $this->min_width );
+		$args['height']     		= $this->normalize_int_value( (int) $args['height'], $this->default_height, $this->max_height, $this->min_height );
+		$args['show_faces'] 		= (bool) $args['show_faces'];
+		$args['stream']     		= (bool) $args['stream'];
+		$args['cover']      		= (bool) $args['cover'];
+		$args['hide_cta']      		= (bool) $args['hide_cta'];
+		$args['small_header']      	= (bool) $args['small_header'];
 
 		// The height used to be dependent on other widget settings
 		// If the user changes those settings but doesn't customize the height,
