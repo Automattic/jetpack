@@ -43,16 +43,12 @@ jQuery( document ).ready( function( $ ) {
 		},
 		startConnectionFlow: function() {
 			var abTestName = 'jetpack_connect_in_place_v3';
-			var type = jpConnect.identity && jpConnect.identity._ut;
-			var identity = jpConnect.identity && jpConnect.identity._ui;
+
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
 				type: 'GET',
 				error: jetpackConnectButton.handleConnectionError,
-				data: {
-					_ut: type,
-					_ui: identity,
-				},
+				data: jpConnect.identity,
 				xhrFields: {
 					withCredentials: true,
 				},
