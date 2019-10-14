@@ -4,7 +4,7 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
-import { connectThroughJetpackStart } from '../lib/flows/jetpack-connect';
+import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
@@ -15,13 +15,12 @@ describe( 'Paid blocks', () => {
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
 
-		await connectThroughJetpackStart();
+		await connectThroughWPAdminIfNeeded();
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
 		await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-
 		await page.reload( { waitFor: 'networkidle0' } );
 	} );
 

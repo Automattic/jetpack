@@ -111,6 +111,10 @@ export async function connectThroughJetpackStart( {
 	}
 
 	const nextUrl = provisionJetpackStartConnection();
+	// sometimes after clicking on Approve button below user being redirected to wp-login page
+	// maybe waiting for a bit will help?
+	await page.waitFor( 10000 );
+
 	await ( await AuthorizePage.visit( page, nextUrl ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 
