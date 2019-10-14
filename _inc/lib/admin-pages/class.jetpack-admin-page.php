@@ -331,9 +331,29 @@ abstract class Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Render the footer of the jetpack dashboard. For admin pages.
+	 * Output a list item with a link.
+	 *
+	 * @param string $url         URL.
+	 * @param string $title       Link title attribute.
+	 * @param string $text        Link text.
+	 * @param bool   $is_internal Is the link linking to an internal or external domain.
 	 */
-	static function render_footer() {
+	public static function the_footer_link( $url, $title, $text, $is_internal = true ) {
+		printf(
+			'<li class="jp-footer__link-item"><a class="jp-footer__link" href="%1$s" title="%2$s" %4$s>%3$s</a></li>',
+			esc_url( $url ),
+			esc_attr( $title ),
+			esc_html( $text ),
+			( $is_internal ? '' : 'target="_blank" rel="noopener noreferrer"' )
+		);
+	}
+
+	/**
+	 * Render the footer of the jetpack dashboard. For admin pages.
+	 *
+	 * Note that the Jetpack Dashboard may append additional links to that list.
+	 */
+	public static function render_footer() {
 		$admin_url = admin_url( 'admin.php?page=jetpack' );
 
 		$is_dev_mode_or_connected = Jetpack::is_active() || Jetpack::is_development_mode();
@@ -354,40 +374,83 @@ abstract class Jetpack_Admin_Page {
 					</a>
 				</div>
 				<ul class="jp-footer__links" id="jp-footer__links-id">
-					<li class="jp-footer__link-item">
-						<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
-					</li>
+					<?php
+					// Version number.
+					self::the_footer_link(
+						'https://jetpack.com',
+						__( 'Jetpack version', 'jetpack' ),
+						sprintf(
+							/* Translators: placeholder is a number. */
+							__( 'Jetpack version %s', 'jetpack' ),
+							JETPACK__VERSION
+						),
+						false
+					);
 
-					<li class="jp-footer__link-item">
-						<a href="<?php echo esc_url( $about_url ); ?>" title="<?php esc_attr__( 'About Jetpack', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html__( 'About', 'jetpack' ); ?></a>
-					</li>
+					// About page.
+					self::the_footer_link(
+						$about_url,
+						__( 'About Jetpack', 'jetpack' ),
+						__( 'About', 'jetpack' ),
+						$is_dev_mode_or_connected
+					);
 
-					<li class="jp-footer__link-item">
-						<a href="https://wordpress.com/tos/" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
-					</li>
-					<li class="jp-footer__link-item">
-						<a href="<?php echo esc_url( $privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>
-					</li>
-					<?php if ( is_multisite() && current_user_can( 'jetpack_network_sites_page' ) ) { ?>
-						<li class="jp-footer__link-item">
-							<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack' ) ); ?>" title="<?php esc_html_e( "Manage your network's Jetpack Sites.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Network Sites', 'Navigation item', 'jetpack' ); ?></a>
-						</li>
-					<?php } ?>
-					<?php if ( is_multisite() && current_user_can( 'jetpack_network_settings_page' ) ) { ?>
-						<li class="jp-footer__link-item">
-							<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack-settings' ) ); ?>" title="<?php esc_html_e( "Manage your network's Jetpack Sites.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Network Settings', 'Navigation item', 'jetpack' ); ?></a>
-						</li>
-					<?php } ?>
-					<?php if ( current_user_can( 'manage_options' ) && $is_dev_mode_or_connected ) { ?>
-						<li class="jp-footer__link-item">
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack_modules' ) ); ?>" title="<?php esc_html_e( "Access the full list of Jetpack modules available on your site.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Modules', 'Navigation item', 'jetpack' ); ?></a>
-						</li>
-					<?php } ?>
-					<?php if ( current_user_can( 'manage_options' ) ) { ?>
-						<li class="jp-footer__link-item">
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-debugger' ) ); ?>" title="<?php esc_html_e( "Test your site's compatibility with Jetpack.", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Debug', 'Navigation item', 'jetpack' ); ?></a>
-						</li>
-					<?php } ?>
+					// TOS.
+					self::the_footer_link(
+						'https://wordpress.com/tos/',
+						__( 'WordPress.com Terms of Service', 'jetpack' ),
+						_x( 'Terms', 'Navigation item', 'jetpack' ),
+						false
+					);
+
+					// Privacy policy.
+					self::the_footer_link(
+						$privacy_url,
+						__( "Automattic's Privacy Policy", 'jetpack' ),
+						_x( 'Privacy', 'Navigation item', 'jetpack' ),
+						$is_dev_mode_or_connected
+					);
+
+					// Network Admin Jetpack dashboard.
+					if ( is_multisite() && current_user_can( 'jetpack_network_sites_page' ) ) {
+						self::the_footer_link(
+							network_admin_url( 'admin.php?page=jetpack' ),
+							__( "Manage your network's Jetpack Sites", 'jetpack' ),
+							_x( 'Network Sites', 'Navigation item', 'jetpack' ),
+							true
+						);
+					}
+
+					// Network Admin Jetpack settings.
+					if ( is_multisite() && current_user_can( 'jetpack_network_settings_page' ) ) {
+						self::the_footer_link(
+							network_admin_url( 'admin.php?page=jetpack-settings' ),
+							__( "Manage your network's Jetpack settings", 'jetpack' ),
+							_x( 'Network Settings', 'Navigation item', 'jetpack' ),
+							true
+						);
+					}
+
+					// Legacy Modules page.
+					if ( current_user_can( 'manage_options' ) && $is_dev_mode_or_connected ) {
+						self::the_footer_link(
+							admin_url( 'admin.php?page=jetpack_modules' ),
+							__( 'Access the full list of Jetpack modules available on your site', 'jetpack' ),
+							_x( 'Modules', 'Navigation item', 'jetpack' ),
+							true
+						);
+					}
+
+					// Debugger.
+					if ( current_user_can( 'manage_options' ) ) {
+						self::the_footer_link(
+							admin_url( 'admin.php?page=jetpack-debugger' ),
+							__( "Test your site's compatibility with Jetpack", 'jetpack' ),
+							_x( 'Debug', 'Navigation item', 'jetpack' ),
+							true
+						);
+					}
+					?>
 				</ul>
 			</div>
 		<?php
