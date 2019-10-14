@@ -4,7 +4,10 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import WordAdsBlock from '../lib/blocks/word-ads';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import {
+	connectThroughWPAdminIfNeeded,
+	connectThroughJetpackStart,
+} from '../lib/flows/jetpack-connect';
 import { execShellCommand, resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 
 // Activate WordAds module if in CI
@@ -25,11 +28,14 @@ describe( 'WordAds block', () => {
 	} );
 
 	it( 'Can publish a post with a WordAds block', async () => {
-		await connectThroughWPAdminIfNeeded();
+		// await connectThroughWPAdminIfNeeded();
+		await connectThroughJetpackStart();
+
 		// Can activate WordAds module
 		await activateWordAdsModule();
 
 		await page.waitFor( 5000 ); // Trying to wait for plan data to be updated
+		await page.reload( { waitFor: 'networkidle0' } );
 
 		const blockEditor = await BlockEditorPage.visit( page );
 		const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name() );
