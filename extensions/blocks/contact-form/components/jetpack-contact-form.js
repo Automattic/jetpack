@@ -211,8 +211,7 @@ class JetpackContactForm extends Component {
 		return (
 			<Fragment>
 				<ToggleControl
-					label={ __( 'Thank you message', 'jetpack' ) }
-					help={ __( 'Toggle to show a thank you message', 'jetpack' ) }
+					label={ __( 'Show a thank you message', 'jetpack' ) }
 					checked={ customThankyou }
 					onChange={ value => this.props.setAttributes( { customThankyou: value } ) }
 				/>
