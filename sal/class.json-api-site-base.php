@@ -380,7 +380,7 @@ abstract class SAL_Site {
 	}
 
 	function get_xmlrpc_url() {
-		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
 		return site_url( 'xmlrpc.php', $xmlrpc_scheme );
 	}
 

@@ -287,7 +287,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		}
 
 		// if we didn't get a URL, let's bail
-		$parsed = @parse_url( $url );
+		$parsed = wp_parse_url( $url );
 		if ( empty( $parsed ) ) {
 			return new WP_Error( 'invalid_url', 'No media provided in url.' );
 		}

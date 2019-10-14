@@ -49,7 +49,7 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 		}
 
 		$embed_url = array_shift( $matches[1] );
-		$parts = parse_url( $embed_url );
+		$parts = wp_parse_url( $embed_url );
 		if ( ! $parts ) {
 			return new WP_Error( 'invalid_embed_url', __( 'The embed_url parameter must be a valid URL.', 'jetpack' ), 400 );
 		}

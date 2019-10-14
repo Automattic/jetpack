@@ -38,7 +38,7 @@ class Jetpack_Comment_Likes {
 		$this->settings  = new Jetpack_Likes_Settings();
 		$this->blog_id   = Jetpack_Options::get_option( 'id' );
 		$this->url       = home_url();
-		$this->url_parts = parse_url( $this->url );
+		$this->url_parts = wp_parse_url( $this->url );
 		$this->domain    = $this->url_parts['host'];
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
