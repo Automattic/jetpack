@@ -26,7 +26,7 @@ export default class SearchFilterPostTypes extends Component {
 	};
 
 	renderPostType = ( { key, doc_count: count } ) => {
-		const name = key in this.props.postTypes ? this.props.postTypes[ key ] : key;
+		const name = key in this.props.postTypes ? this.props.postTypes[ key ].singular_name : key;
 		return (
 			<div>
 				<input
