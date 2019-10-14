@@ -1995,10 +1995,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				' (<a href="' . esc_url( $back_url ) . '">' . esc_html__( 'go back', 'jetpack' ) . '</a>)' .
 				"</h3>\n\n";
 
-			if ( $attributes['customThankyou'] && ( ! $attributes['customThankyouType'] || 'message' === $attributes['customThankyouType'] ) ) {
-				$r_success_message .= wpautop( $attributes['customThankyouMessage'] );
-			}
-
 			// Don't show the feedback details unless the nonce matches
 			if ( $feedback_id && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) {
 				$r_success_message .= self::success_message( $feedback_id, $form );
@@ -2108,8 +2104,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string $message
 	 */
 	static function success_message( $feedback_id, $form ) {
+		$thankyou = '';
+		if ( $form->get_attribute( 'customThankyou' ) && ( ! $form->get_attribute( 'customThankyouType' ) || 'message' === $form->get_attribute( 'customThankyouType' ) ) ) {
+			$thankyou = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+		}
+
 		return wp_kses(
-			'<blockquote class="contact-form-submission">'
+			$thankyou
+			. '<blockquote class="contact-form-submission">'
 			. '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>'
 			. '</blockquote>',
 			array(
@@ -2821,11 +2823,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			$custom_thankyou = '';
-			if ( $this->get_attribute( 'customThankyou' ) && $this->get_attribute( 'customThankyouType' ) === 'message' ) {
-				$custom_thankyou = wpautop( $this->get_attribute( 'customThankyouMessage' ) );
-			}
-			return $custom_thankyou . self::success_message( $post_id, $this );
+			return self::success_message( $post_id, $this );
 		}
 
 		if ( $this->get_attribute( 'customThankyou' ) && $this->get_attribute( 'customThankyouType' ) === 'redirect' ) {
