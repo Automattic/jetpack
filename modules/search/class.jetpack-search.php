@@ -230,6 +230,7 @@ class Jetpack_Search {
 					'postTypes' => $post_type_labels,
 					'siteId'		=> Jetpack::get_option( 'id' ),
 					'widgets' 	=> array_values( $widgets ),
+					'locale'    => str_replace( '_', '-', get_locale() ),
 				);
 				/**
 				 * Customize Instant Search Options.
