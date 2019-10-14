@@ -363,10 +363,6 @@ abstract class Jetpack_Admin_Page {
 					</li>
 
 					<li class="jp-footer__link-item">
-						<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
-					</li>
-
-					<li class="jp-footer__link-item">
 						<a href="https://wordpress.com/tos/" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
 					</li>
 					<li class="jp-footer__link-item">
