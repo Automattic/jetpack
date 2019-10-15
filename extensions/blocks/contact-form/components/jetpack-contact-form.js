@@ -13,7 +13,6 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	ToggleControl,
 } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -200,38 +199,22 @@ class JetpackContactForm extends Component {
 		);
 	}
 
-	renderOnSubmissionFields() {
+	renderConfirmationMessageFields() {
 		const { instanceId } = this.props;
-		const {
-			customThankyou,
-			customThankyouType,
-			customThankyouMessage,
-			customThankyouRedirect,
-		} = this.props.attributes;
+		const { customThankyou, customThankyouMessage, customThankyouRedirect } = this.props.attributes;
 		return (
 			<Fragment>
-				<ToggleControl
-					label={ __( 'Show a thank you message', 'jetpack' ) }
-					checked={ customThankyou }
-					onChange={ value => {
-						this.props.setAttributes( {
-							customThankyou: value,
-							customThankyouType: customThankyouType || 'message',
-						} );
-					} }
+				<SelectControl
+					label={ __( 'On Submission', 'jetpack' ) }
+					value={ customThankyou }
+					options={ [
+						{ label: __( 'Show a summary of submitted fields', 'jetpack' ), value: '' },
+						{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
+						{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
+					] }
+					onChange={ value => this.props.setAttributes( { customThankyou: value } ) }
 				/>
-				{ customThankyou && (
-					<SelectControl
-						label={ __( 'Message type', 'jetpack' ) }
-						value={ customThankyouType }
-						options={ [
-							{ label: __( 'Text message', 'jetpack' ), value: 'message' },
-							{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
-						] }
-						onChange={ value => this.props.setAttributes( { customThankyouType: value } ) }
-					/>
-				) }
-				{ customThankyou && 'message' === customThankyouType && (
+				{ 'message' === customThankyou && (
 					<TextareaControl
 						label={ __( 'Message text', 'jetpack' ) }
 						value={ customThankyouMessage }
@@ -239,7 +222,7 @@ class JetpackContactForm extends Component {
 						onChange={ value => this.props.setAttributes( { customThankyouMessage: value } ) }
 					/>
 				) }
-				{ customThankyou && 'redirect' === customThankyouType && (
+				{ 'redirect' === customThankyou && (
 					<BaseControl
 						label={ __( 'Redirect address', 'jetpack' ) }
 						id={ `contact-form-${ instanceId }-thankyou-url` }
@@ -271,11 +254,11 @@ class JetpackContactForm extends Component {
 		return (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Email feedback settings', 'jetpack' ) }>
+					<PanelBody title={ __( 'Email Feedback Settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
 					</PanelBody>
-					<PanelBody title={ __( 'On submission', 'jetpack' ) }>
-						{ this.renderOnSubmissionFields() }
+					<PanelBody title={ __( 'Confirmation Message', 'jetpack' ) }>
+						{ this.renderConfirmationMessageFields() }
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>

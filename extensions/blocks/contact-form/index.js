@@ -57,10 +57,6 @@ export const settings = {
 			default: null,
 		},
 		customThankyou: {
-			type: 'boolean',
-			default: false,
-		},
-		customThankyouType: {
 			type: 'string',
 			default: '',
 		},
