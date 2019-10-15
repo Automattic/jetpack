@@ -2825,6 +2825,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return self::success_message( $post_id, $this );
 		}
 
+		$redirect = '';
 		if ( $this->get_attribute( 'customThankyou' ) === 'redirect' ) {
 			$redirect = $this->get_attribute( 'customThankyouRedirect' );
 		}
