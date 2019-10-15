@@ -1353,8 +1353,6 @@ class A8C_WPCOM_Masterbar {
 
 		$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
 
-		l( $site_data->options );
-
 		if (
 			$site_data &&
 			isset( $site_data->options->created_at ) &&
