@@ -216,7 +216,7 @@ class JetpackContactForm extends Component {
 				/>
 				{ 'message' === customThankyou && (
 					<TextareaControl
-						label={ __( 'Message text', 'jetpack' ) }
+						label={ __( 'Message Text', 'jetpack' ) }
 						value={ customThankyouMessage }
 						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
 						onChange={ value => this.props.setAttributes( { customThankyouMessage: value } ) }
@@ -224,7 +224,7 @@ class JetpackContactForm extends Component {
 				) }
 				{ 'redirect' === customThankyou && (
 					<BaseControl
-						label={ __( 'Redirect address', 'jetpack' ) }
+						label={ __( 'Redirect Address', 'jetpack' ) }
 						id={ `contact-form-${ instanceId }-thankyou-url` }
 					>
 						<URLInput
