@@ -13,9 +13,14 @@ class Tracking {
 	 * @access private
 	 */
 	private $tracking;
+	private $initialized = false;
 
 	function init() {
+		if ( $this->initialized ) {
+			return null; // Don't initalize this more then once.
+		}
 		$this->tracking = new Tracks( 'jetpack' );
+		$this->initialized = true;
 
 		// For tracking stuff via js/ajax
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
