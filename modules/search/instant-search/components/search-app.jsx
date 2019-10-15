@@ -234,6 +234,7 @@ class SearchApp extends Component {
 							query={ this.state.query }
 							response={ this.state.response }
 							resultFormat={ this.props.options.resultFormat }
+							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 						/>
 					</Portal>
 				) }
