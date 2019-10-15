@@ -29,6 +29,24 @@ class MyPlanHeader extends React.Component {
 
 	render() {
 		const { plan, siteSlug } = this.props;
+
+		const PlanHeaderCard = props => {
+			const { title, text, imgSrc, imgAlt } = props;
+
+			return (
+				<div className="jp-landing__plan-card">
+					<div className="jp-landing__plan-card-img">
+						<img src={ imgSrc } className="jp-landing__plan-icon" alt={ imgAlt } />
+					</div>
+					<div className="jp-landing__plan-card-current">
+						<h3 className="jp-landing__plan-features-title">{ title }</h3>
+						<p className="jp-landing__plan-features-text">{ text }</p>
+						<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
+					</div>
+				</div>
+			);
+		};
+
 		let planCard = '';
 		switch ( getPlanClass( plan ) ) {
 			case 'is-free-plan':
@@ -148,73 +166,49 @@ class MyPlanHeader extends React.Component {
 
 			case 'is-daily-backup-plan':
 				planCard = (
-					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img
-								src={ imagePath + '/plans/plan-free.svg' } // TODO: create a new version
-								className="jp-landing__plan-icon"
-								alt={ __( 'Jetpack Daily Backup Plan' ) }
-							/>
-						</div>
-						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Your plan: Jetpack Free + Daily Backup' ) }
-							</h3>
-							<p className="jp-landing__plan-features-text">
-								{ __(
-									'Worried about security? Get automated security fixes and more: {{a}}Upgrade now{{/a}}',
-									{
-										components: {
-											a: (
-												<UpgradeLink
-													source="my-plan-header-daily-backup-text-link"
-													target="upgrade-now"
-													feature="my-plan-header-daily-backup-upgrade"
-												/>
-											),
-										},
-									}
-								) }
-							</p>
-							<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
-						</div>
-					</div>
+					<PlanHeaderCard
+						title={ __( 'Your plan: Jetpack Free + Daily Backup' ) }
+						text={ __(
+							'Worried about security? Get automated security fixes and more: {{a}}Upgrade now{{/a}}',
+							{
+								components: {
+									a: (
+										<UpgradeLink
+											source="my-plan-header-daily-backup-text-link"
+											target="upgrade-now"
+											feature="my-plan-header-daily-backup-upgrade"
+										/>
+									),
+								},
+							}
+						) }
+						imgSrc={ imagePath + '/plans/plan-free.svg' }
+						imgAlt={ __( 'Jetpack Daily Backup Plan' ) }
+					/>
 				);
 				break;
 
 			case 'is-realtime-backup-plan':
 				planCard = (
-					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img
-								src={ imagePath + '/plans/plan-free.svg' } // TODO: create a new version
-								className="jp-landing__plan-icon"
-								alt={ __( 'Jetpack Real-time Backup Plan' ) }
-							/>
-						</div>
-						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">
-								{ __( 'Your plan: Jetpack Free + Real-time Backup' ) }
-							</h3>
-							<p className="jp-landing__plan-features-text">
-								{ __(
-									'Worried about security? Get automated security fixes and more: {{a}}Upgrade now{{/a}}',
-									{
-										components: {
-											a: (
-												<UpgradeLink
-													source="my-plan-header-real-time-backup-text-link"
-													target="upgrade-now"
-													feature="my-plan-header-real-time-backup-upgrade"
-												/>
-											),
-										},
-									}
-								) }
-							</p>
-							<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
-						</div>
-					</div>
+					<PlanHeaderCard
+						title={ __( 'Your plan: Jetpack Free + Real-time Backup' ) }
+						text={ __(
+							'Worried about security? Get automated security fixes and more: {{a}}Upgrade now{{/a}}',
+							{
+								components: {
+									a: (
+										<UpgradeLink
+											source="my-plan-header-real-time-backup-text-link"
+											target="upgrade-now"
+											feature="my-plan-header-real-time-backup-upgrade"
+										/>
+									),
+								},
+							}
+						) }
+						imgSrc={ imagePath + '/plans/plan-free.svg' }
+						imgAlt={ __( 'Jetpack Real-time Backup Plan' ) }
+					/>
 				);
 				break;
 
