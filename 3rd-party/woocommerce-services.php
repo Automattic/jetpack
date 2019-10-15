@@ -96,7 +96,7 @@ class WC_Services_Installer {
 	 * Set up installation error admin notice.
 	 */
 	public function add_error_notice() {
-		if ( ! empty( $_GET['wc-services-install-error'] ) ) {
+		if ( ! empty( $_GET['wc-services-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'error_notice' ) );
 		}
 	}
