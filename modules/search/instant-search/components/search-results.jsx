@@ -14,15 +14,22 @@ import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 
 class SearchResults extends Component {
-	render_result( result ) {
+	renderResult = ( result, index ) => {
 		switch ( this.props.resultFormat ) {
 			case 'engagement':
 			case 'product':
 			case 'minimal':
 			default:
-				return <SearchResultMinimal result={ result } locale={ this.props.locale } />;
+				return (
+					<SearchResultMinimal
+						index={ index }
+						locale={ this.props.locale }
+						query={ this.props.query }
+						result={ result }
+					/>
+				);
 		}
-	}
+	};
 
 	render() {
 		const { query } = this.props;
@@ -63,7 +70,7 @@ class SearchResults extends Component {
 		return (
 			<div
 				className={ `jetpack-instant-search__search-results ${
-					this.state.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
 				<p className="jetpack-instant-search__search-results-real-query">{ headerText }</p>
@@ -72,7 +79,7 @@ class SearchResults extends Component {
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ results.map( result => this.render_result( result ) ) }
+				{ results.map( this.renderResult ) }
 				{ this.props.hasNextPage && (
 					<ScrollButton
 						enableLoadOnScroll={ this.props.enableLoadOnScroll }

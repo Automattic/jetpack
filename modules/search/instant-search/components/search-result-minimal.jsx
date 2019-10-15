@@ -9,6 +9,8 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import arrayOverlap from '../lib/array-overlap';
+import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 
 const ShortcodeTypes = {
 	video: [
@@ -29,13 +31,27 @@ const ShortcodeTypes = {
 };
 
 class SearchResultMinimal extends Component {
-	arrayOverlap( a1, a2 ) {
-		if ( ! Array.isArray( a1 ) ) {
-			a1 = [ a1 ];
-		}
-		const intersection = a1.filter( value => a2.includes( value ) );
-		return intersection.length !== 0;
+	componentDidMount() {
+		recordTrainTracksRender( this.getCommonTrainTracksProps() );
 	}
+
+	getCommonTrainTracksProps() {
+		return {
+			fetch_algo: this.props.result.railcar.fetch_algo,
+			fetch_position: this.props.result.railcar.fetch_position,
+			fetch_query: this.props.result.railcar.fetch_query,
+			railcar: this.props.result.railcar.railcar,
+			rec_blog_id: this.props.result.railcar.rec_blog_id,
+			rec_post_id: this.props.result.railcar.rec_post_id,
+			ui_algo: 'jetpack-instant-search-ui/v1',
+			ui_position: this.props.index,
+		};
+	}
+
+	onClick = () => {
+		// Send out analytics call
+		recordTrainTracksInteract( { ...this.getCommonTrainTracksProps(), action: 'click' } );
+	};
 
 	render() {
 		const { result_type, fields, highlight } = this.props.result;
@@ -65,9 +81,9 @@ class SearchResultMinimal extends Component {
 		}
 		const noTags = tags.length === 0 && cats.length === 0;
 
-		const hasVideo = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
-		const hasAudio = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
-		const hasGallery = this.arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
+		const hasVideo = arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
+		const hasAudio = arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
+		const hasGallery = arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
 
 		let postTypeIcon = null;
 		switch ( fields.post_type ) {
@@ -114,11 +130,10 @@ class SearchResultMinimal extends Component {
 					{ postTypeIcon }
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						target="_blank"
-						rel="noopener noreferrer"
 						className="jetpack-instant-search__result-minimal-title"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
+						onClick={ this.onClick }
 					/>
 				</h3>
 
