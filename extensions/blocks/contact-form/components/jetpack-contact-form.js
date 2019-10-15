@@ -213,7 +213,12 @@ class JetpackContactForm extends Component {
 				<ToggleControl
 					label={ __( 'Show a thank you message', 'jetpack' ) }
 					checked={ customThankyou }
-					onChange={ value => this.props.setAttributes( { customThankyou: value } ) }
+					onChange={ value => {
+						this.props.setAttributes( {
+							customThankyou: value,
+							customThankyouType: customThankyouType || 'message',
+						} );
+					} }
 				/>
 				{ customThankyou && (
 					<SelectControl
@@ -226,7 +231,7 @@ class JetpackContactForm extends Component {
 						onChange={ value => this.props.setAttributes( { customThankyouType: value } ) }
 					/>
 				) }
-				{ customThankyou && ( ! customThankyouType || 'message' === customThankyouType ) && (
+				{ customThankyou && 'message' === customThankyouType && (
 					<TextareaControl
 						label={ __( 'Message text', 'jetpack' ) }
 						value={ customThankyouMessage }

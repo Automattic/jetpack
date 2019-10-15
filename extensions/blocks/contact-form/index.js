@@ -62,7 +62,7 @@ export const settings = {
 		},
 		customThankyouType: {
 			type: 'string',
-			default: 'message',
+			default: '',
 		},
 		customThankyouMessage: {
 			type: 'string',

@@ -2105,7 +2105,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 */
 	static function success_message( $feedback_id, $form ) {
 		$thankyou = '';
-		if ( $form->get_attribute( 'customThankyou' ) && ( ! $form->get_attribute( 'customThankyouType' ) || 'message' === $form->get_attribute( 'customThankyouType' ) ) ) {
+		if ( $form->get_attribute( 'customThankyou' ) && 'message' === $form->get_attribute( 'customThankyouType' ) ) {
 			$thankyou = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		}
 
