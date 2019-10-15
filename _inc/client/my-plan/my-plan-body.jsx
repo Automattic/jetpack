@@ -169,26 +169,23 @@ class MyPlanBody extends React.Component {
 			let description = '';
 			switch ( planClass ) {
 				case 'is-personal-plan':
-					// Note: these first 3 descriptions add the "powered by VaultPress" string like they do in order to avoid retranslating.
-					// However this pattern should be dropped the next time these strings are changed.
-					description =
-						__( 'Daily backup of all your site data with unlimited space and one-click restores' ) +
-						__( ' (powered by VaultPress).' );
+					description = __(
+						'Daily backup of all your site data with unlimited space and one-click restores'
+					);
 					break;
 				case 'is-premium-plan':
-					description =
-						__(
-							'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
-						) + __( ' (powered by VaultPress).' );
+					description = __(
+						'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
+					);
 					break;
 				case 'is-business-plan':
-					description =
-						__(
-							'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
-						) + __( ' (powered by VaultPress).' );
+					description = __(
+						'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
+					);
 					break;
 				default:
 					description = '';
+					break;
 			}
 
 			return (
@@ -202,7 +199,7 @@ class MyPlanBody extends React.Component {
 					</div>
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">{ __( 'Site Security' ) }</h3>
-						<p>{ description }</p>
+						<p>{ description + __( ' (powered by VaultPress).' ) }</p>
 						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
 						this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 							<Button
