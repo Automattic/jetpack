@@ -130,9 +130,9 @@ class PlanGrid extends React.Component {
 	renderSkeletonGrid() {
 		return (
 			<div className="plan-grid-skeletons">
-				<div className="plan-grid-skeletons__plan is-placeholder" />
-				<div className="plan-grid-skeletons__plan is-placeholder" />
-				<div className="plan-grid-skeletons__plan is-placeholder" />
+				<div className="plan-grid-skeletons__plan is-placeholder"></div>
+				<div className="plan-grid-skeletons__plan is-placeholder"></div>
+				<div className="plan-grid-skeletons__plan is-placeholder"></div>
 			</div>
 		);
 	}
