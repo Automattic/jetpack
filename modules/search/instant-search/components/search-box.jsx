@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 
 class SearchBox extends Component {
 	render() {
-		const { query, onChangeQuery, appRef } = this.props;
+		const { query, onChangeQuery, appRef, onFocus, onBlur } = this.props;
 
 		return (
 			<div className={ 'jp-instant-search__box' }>
@@ -17,6 +17,8 @@ class SearchBox extends Component {
 				<input
 					className="search-field jp-instant-search__box-input"
 					onInput={ onChangeQuery }
+					onFocus={ onFocus }
+					onBlur={ onBlur }
 					ref={ appRef }
 					placeholder={ __( 'Search…', 'jetpack' ) }
 					type="search"

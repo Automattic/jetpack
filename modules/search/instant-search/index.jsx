@@ -28,11 +28,7 @@ const injectSearchApp = grabFocus => {
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	if (
-		!! window[ SERVER_OBJECT_NAME ] &&
-		'siteId' in window[ SERVER_OBJECT_NAME ] &&
-		document.body.classList.contains( 'search' )
-	) {
+	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		injectSearchApp();
 	}
 } );
