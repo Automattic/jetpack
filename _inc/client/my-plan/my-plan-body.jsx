@@ -229,11 +229,14 @@ class MyPlanBody extends React.Component {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-business-plan':
-			case 'is-daily-backup-plan':
-			case 'is-realtime-backup-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
-						{ getRewindVaultPressCard() }
+						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
+
+						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
+
+						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
+
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
