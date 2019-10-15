@@ -120,24 +120,6 @@ class MyPlanBody extends React.Component {
 				return;
 			}
 
-			if ( 'is-daily-backup-plan' === planClass ) {
-				return getJetpackBackupCard( {
-					title: __( 'Automated Daily Backups' ),
-					description: __(
-						'We back up your website every day, so you never have to worry about your data again.'
-					),
-				} );
-			}
-
-			if ( 'is-realtime-backup-plan' === planClass ) {
-				return getJetpackBackupCard( {
-					title: __( 'Automated Real-time Backups' ),
-					description: __(
-						'We back up your website with every change you make, making it easy to fix your mistakes.'
-					),
-				} );
-			}
-
 			if ( rewindActive ) {
 				return (
 					<div className="jp-landing__plan-features-card">
@@ -224,6 +206,25 @@ class MyPlanBody extends React.Component {
 				</div>
 			);
 		};
+
+		let jetpackBackupCard;
+		if ( 'is-daily-backup-plan' === planClass ) {
+			jetpackBackupCard = getJetpackBackupCard( {
+				title: __( 'Automated Daily Backups' ),
+				description: __(
+					'We back up your website every day, so you never have to worry about your data again.'
+				),
+			} );
+		}
+
+		if ( 'is-realtime-backup-plan' === planClass ) {
+			jetpackBackupCard = getJetpackBackupCard( {
+				title: __( 'Automated Real-time Backups' ),
+				description: __(
+					'We back up your website with every change you make, making it easy to fix your mistakes.'
+				),
+			} );
+		}
 
 		switch ( planClass ) {
 			case 'is-personal-plan':
@@ -576,9 +577,12 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
+			case 'is-daily-backup-plan':
+			case 'is-realtime-backup-plan':
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-features">
+						{ jetpackBackupCard }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
