@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import SearchResultMinimal from './search-result-minimal';
+import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 
 class SearchResults extends Component {
@@ -26,8 +27,9 @@ class SearchResults extends Component {
 	render() {
 		const { query } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
-
-		if ( query === '' ) {
+		const hasQuery = query !== '';
+		const hasCorrectedQuery = corrected_query !== false;
+		if ( ! hasQuery && ! hasFilter() ) {
 			return <div className="jetpack-instant-search__search-results" />;
 		}
 		if ( total === 0 ) {
@@ -41,22 +43,31 @@ class SearchResults extends Component {
 		}
 		const num = new Intl.NumberFormat().format( total );
 
+		let headerText = sprintf( _n( '%s result', '%s results', total ), num );
+		if ( hasQuery ) {
+			if ( hasCorrectedQuery ) {
+				headerText = sprintf(
+					_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
+					num,
+					corrected_query
+				);
+			} else {
+				headerText = sprintf(
+					_n( '%s result for "%s"', '%s results for "%s"', total ),
+					num,
+					query
+				);
+			}
+		}
+
 		return (
 			<div
 				className={ `jetpack-instant-search__search-results ${
 					this.state.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
-				<p className="jetpack-instant-search__search-results-real-query">
-					{ corrected_query !== false
-						? sprintf(
-								_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
-								num,
-								corrected_query
-						  )
-						: sprintf( _n( '%s results for "%s"', '%s results for "%s"', total ), num, query ) }
-				</p>
-				{ corrected_query !== false && (
+				<p className="jetpack-instant-search__search-results-real-query">{ headerText }</p>
+				{ hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>

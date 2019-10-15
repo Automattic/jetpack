@@ -33,7 +33,11 @@ export function getSearchQuery() {
 
 export function setSearchQuery( searchValue ) {
 	const query = getQuery();
-	query.s = searchValue;
+	if ( searchValue === '' ) {
+		delete query.s;
+	} else {
+		query.s = searchValue;
+	}
 	pushQueryString( encode( query ) );
 }
 
@@ -145,6 +149,16 @@ export function getFilterQuery( filterKey ) {
 			[ key ]: getFilterQueryByKey( key ),
 		} ) )
 	);
+}
+
+export function hasFilter() {
+	const filter_keys = getFilterKeys();
+	for ( let i = 0; i < filter_keys.length; i++ ) {
+		if ( getFilterQueryByKey( filter_keys[ i ] ).length > 0 ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 export function setFilterQuery( filterKey, filterValue ) {
