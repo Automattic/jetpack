@@ -93,6 +93,8 @@ abstract class SAL_Site {
 
 	abstract public function get_podcasting_archive();
 
+	abstract public function get_import_engine();
+
 	abstract public function get_jetpack_seo_front_page_description();
 
 	abstract public function get_jetpack_seo_title_formats();

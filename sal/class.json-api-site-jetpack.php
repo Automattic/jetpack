@@ -205,6 +205,15 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Return the last engine used for an import on the site.
+	 *
+	 * This option is not used in Jetpack.
+	 */
+	function get_import_engine() {
+		return null;
+	}
+
+	/**
 	 * Post functions
 	 */
 
