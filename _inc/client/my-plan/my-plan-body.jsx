@@ -94,31 +94,48 @@ class MyPlanBody extends React.Component {
 				! this.props.showBackups ||
 				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
 
+		const getJetpackBackupCard = args => {
+			const { title, description } = args;
+
+			return (
+				<div className="jp-landing__plan-features-card">
+					<div className="jp-landing__plan-features-img">
+						<img
+							src={ imagePath + '/jetpack-security.svg' }
+							className="jp-landing__plan-features-icon"
+							alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup' ) }
+						/>
+					</div>
+					<div className="jp-landing__plan-features-text">
+						<h3 className="jp-landing__plan-features-title">{ title }</h3>
+						<p>{ description }</p>
+						<Button>{ __( 'View Your Backups' ) }</Button>
+					</div>
+				</div>
+			);
+		};
+
 		const getRewindVaultPressCard = () => {
 			if ( hideVaultPressCard ) {
 				return;
 			}
 
-			let description = '';
+			if ( 'is-daily-backup-plan' === planClass ) {
+				return getJetpackBackupCard( {
+					title: __( 'Automated Daily Backups' ),
+					description: __(
+						'We back up your website every day, so you never have to worry about your data again.'
+					),
+				} );
+			}
 
-			switch ( planClass ) {
-				case 'is-personal-plan':
-					description = __(
-						'Daily backup of all your site data with unlimited space and one-click restores'
-					);
-					break;
-				case 'is-premium-plan':
-					description = __(
-						'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
-					);
-					break;
-				case 'is-business-plan':
-					description = __(
-						'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
-					);
-					break;
-				default:
-					description = '';
+			if ( 'is-realtime-backup-plan' === planClass ) {
+				return getJetpackBackupCard( {
+					title: __( 'Automated Real-time Backups' ),
+					description: __(
+						'We back up your website with every change you make, making it easy to fix your mistakes.'
+					),
+				} );
 			}
 
 			if ( rewindActive ) {
@@ -149,6 +166,31 @@ class MyPlanBody extends React.Component {
 				);
 			}
 
+			let description = '';
+			switch ( planClass ) {
+				case 'is-personal-plan':
+					// Note: these first 3 descriptions add the "powered by VaultPress" string like they do in order to avoid retranslating.
+					// However this pattern should be dropped the next time these strings are changed.
+					description =
+						__( 'Daily backup of all your site data with unlimited space and one-click restores' ) +
+						__( ' (powered by VaultPress).' );
+					break;
+				case 'is-premium-plan':
+					description =
+						__(
+							'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
+						) + __( ' (powered by VaultPress).' );
+					break;
+				case 'is-business-plan':
+					description =
+						__(
+							'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
+						) + __( ' (powered by VaultPress).' );
+					break;
+				default:
+					description = '';
+			}
+
 			return (
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
@@ -160,7 +202,7 @@ class MyPlanBody extends React.Component {
 					</div>
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">{ __( 'Site Security' ) }</h3>
-						<p>{ description + __( ' (powered by VaultPress).' ) }</p>
+						<p>{ description }</p>
 						{ this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) &&
 						this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 							<Button
@@ -190,14 +232,11 @@ class MyPlanBody extends React.Component {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-business-plan':
+			case 'is-daily-backup-plan':
+			case 'is-realtime-backup-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
-						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
-
-						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
-
-						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
-
+						{ getRewindVaultPressCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
