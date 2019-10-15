@@ -206,6 +206,7 @@
 
 .jp-connect-full__row {
 	display: flex;
+	justify-content: space-around; // Fallback for IE and Edge as they don't support the `space-evenly` value.
 	justify-content: space-evenly;
 	text-align: left;
 	align-items: baseline;
@@ -254,14 +255,23 @@
 	}
 }
 
+.jp-connect-full__button-container-loading {
+	font-size: 14px;
+	animation: jetpack-loading-fade 1.6s ease-in-out infinite;
+}
+
+.jp-connect-full__button-container .jp-spinner {
+	width: 100%;
+}
+
 @media screen and (max-width: 480px) {
-  .jp-connect-full__row {
-	display: block;
-  }
-  .jp-connect-full__slide {
-	margin: 2em 0;
-	max-width: 100%;
-  }
+	.jp-connect-full__row {
+		display: block;
+	}
+	.jp-connect-full__slide {
+		margin: 2em 0;
+		max-width: 100%;
+	}
 }
 
 

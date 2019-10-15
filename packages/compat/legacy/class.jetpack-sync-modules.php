@@ -2,7 +2,7 @@
 /**
  * A compatibility shim for the sync modules class.
  *
- * @package jetpack-compat
+ * @package automattic/jetpack-compat
  */
 
 use Automattic\Jetpack\Sync\Modules;

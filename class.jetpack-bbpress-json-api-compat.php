@@ -1,17 +1,18 @@
 <?php
 /**
-* bbPress & Jetpack REST API Compatibility
-* Enables bbPress to work with the Jetpack REST API
-*/
+ * bbPress & Jetpack REST API Compatibility
+ * Enables bbPress to work with the Jetpack REST API
+ */
 class bbPress_Jetpack_REST_API {
 
 	private static $instance;
 
 	public static function instance() {
-		if ( isset( self::$instance ) )
+		if ( isset( self::$instance ) ) {
 			return self::$instance;
+		}
 
-		self::$instance = new self;
+		self::$instance = new self();
 	}
 
 	private function __construct() {
@@ -46,19 +47,21 @@ class bbPress_Jetpack_REST_API {
 		$allowed_meta_keys[] = '_bbp_voice_count';
 		$allowed_meta_keys[] = '_bbp_reply_count_hidden';
 		$allowed_meta_keys[] = '_bbp_anonymous_reply_count';
-	
+
 		return $allowed_meta_keys;
 	}
 
 	function adjust_meta_caps( $caps, $cap, $user_id, $args ) {
 
 		// only run for REST API requests
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
 			return $caps;
+		}
 
 		// only modify caps for meta caps and for bbPress meta keys
-		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ) ) || empty( $args[1] ) || false === strpos( $args[1], '_bbp_' ) )
+		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ) ) || empty( $args[1] ) || false === strpos( $args[1], '_bbp_' ) ) {
 			return $caps;
+		}
 
 		// $args[0] could be a post ID or a post_type string
 		if ( is_int( $args[0] ) ) {
@@ -71,8 +74,9 @@ class bbPress_Jetpack_REST_API {
 		}
 
 		// no post type found, bail
-		if ( empty( $post_type ) )
+		if ( empty( $post_type ) ) {
 			return $caps;
+		}
 
 		// reset the needed caps
 		$caps = array();
@@ -81,11 +85,11 @@ class bbPress_Jetpack_REST_API {
 		if ( bbp_is_user_inactive( $user_id ) ) {
 			$caps[] = 'do_not_allow';
 
-		// Moderators can always edit meta
+			// Moderators can always edit meta
 		} elseif ( user_can( $user_id, 'moderate' ) ) {
 			$caps[] = 'moderate';
 
-		// Unknown so map to edit_posts
+			// Unknown so map to edit_posts
 		} else {
 			$caps[] = $post_type->cap->edit_posts;
 		}

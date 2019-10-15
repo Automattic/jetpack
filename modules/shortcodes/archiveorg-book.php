@@ -78,7 +78,9 @@ function jetpack_archiveorg_book_shortcode( $atts ) {
 
 	$url = esc_url( "https://archive.org/stream/{$id}?ui=embed#mode/1up" );
 
-	$html = "<div class='embed-archiveorg-book' style='text-align:center;'><iframe src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
+	$title = esc_html__( 'Archive.org Book', 'jetpack' );
+
+	$html = "<div class='embed-archiveorg-book' style='text-align:center;'><iframe title='$title' src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
 	return $html;
 }
 

@@ -203,13 +203,13 @@ class Tonesque {
 
 		switch ( $type ) {
 			case 'rgb' :
-				$color = implode( $c->toRgbInt(), ',' );
+				$color = implode( ',', $c->toRgbInt() );
 				break;
 			case 'hex' :
 				$color = $c->toHex();
 				break;
 			case 'hsv' :
-				$color = implode( $c->toHsvInt(), ',' );
+				$color = implode( ',', $c->toHsvInt() );
 				break;
 			default:
 				return $color = $c->toHex();
@@ -231,7 +231,7 @@ class Tonesque {
 			return false;
 
 		$c = $this->color->getMaxContrastColor();
-		return implode( $c->toRgbInt(), ',' );
+		return implode( ',', $c->toRgbInt() );
 	}
 
 };

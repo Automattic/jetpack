@@ -15,7 +15,7 @@ class Class_ extends Declaration {
 			$this->type(),
 			$this->path,
 			$this->line,
-			$this->class_name
+			$this->class_name,
 		);
 	}
 

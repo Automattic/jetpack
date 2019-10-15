@@ -191,15 +191,22 @@ class Jetpack_Gutenberg {
 		if (
 			// Extensions that require a plan may be eligible for upgrades.
 			'missing_plan' === $reason
-			/**
-			 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
-			 * to disable paid feature upgrade nudges in the block editor.
-			 *
-			 * @since 7.7.0
-			 *
-			 * @param boolean
-			 */
-			&& ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+			&& (
+				/**
+				 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
+				 * to disable paid feature upgrade nudges in the block editor.
+				 *
+				 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
+				 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
+				 *
+				 * @since 7.7.0
+				 *
+				 * @param boolean
+				 */
+				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+				/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+				|| ! apply_filters( 'jetpack_show_promotions', true )
+			)
 		) {
 			// The block editor may apply an upgrade nudge if `missing_plan` is the reason.
 			// Add a descriptive suffix to disable behavior but provide informative reason.
@@ -642,30 +649,9 @@ class Jetpack_Gutenberg {
 			)
 		);
 
-		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack', plugins_url( 'languages/json', JETPACK__PLUGIN_FILE ) );
-
-		// Adding a filter late to allow every other filter to process the path, including the CDN.
-		add_filter( 'pre_load_script_translations', array( __CLASS__, 'filter_pre_load_script_translations' ), 1000, 3 );
+		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack' );
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
-	}
-
-	/**
-	 * A workaround for setting i18n data for WordPress client-side i18n mechanism.
-	 * We are not yet using dotorg language packs for the editor file, so this short-circuits
-	 * the translation loading and feeds our JSON data directly into the translation getter.
-	 *
-	 * @param NULL   $null     not used.
-	 * @param String $file     the file path that is being loaded, ignored.
-	 * @param String $handle   the script handle.
-	 * @return NULL|String the translation data only if we're working with our handle.
-	 */
-	public static function filter_pre_load_script_translations( $null, $file, $handle ) {
-		if ( 'jetpack-blocks-editor' !== $handle ) {
-			return null;
-		}
-
-		return Jetpack::get_i18n_data_json();
 	}
 
 	/**
@@ -729,6 +715,6 @@ class Jetpack_Gutenberg {
 			$classes = array_merge( $classes, $extra );
 		}
 
-		return implode( $classes, ' ' );
+		return implode( ' ', $classes );
 	}
 }

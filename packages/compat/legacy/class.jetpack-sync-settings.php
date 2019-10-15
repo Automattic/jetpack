@@ -61,12 +61,12 @@ class Jetpack_Sync_Settings {
 
 	static function is_importing() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		Settings::is_importing();
+		return Settings::is_importing();
 	}
 
 	static function is_sync_enabled() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		Settings::is_sync_enabled();
+		return Settings::is_sync_enabled();
 	}
 
 	static function set_doing_cron( $is_doing_cron ) {
@@ -76,7 +76,7 @@ class Jetpack_Sync_Settings {
 
 	static function is_doing_cron() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		Settings::is_doing_cron();
+		return Settings::is_doing_cron();
 	}
 
 	static function is_syncing() {
@@ -91,7 +91,7 @@ class Jetpack_Sync_Settings {
 
 	static function is_sending() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		Settings::is_sending();
+		return Settings::is_sending();
 	}
 
 	static function set_is_sending( $is_sending ) {

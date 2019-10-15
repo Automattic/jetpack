@@ -250,8 +250,10 @@ class Jetpack_Network {
 
 		if ( is_string( $args ) ) {
 			$name = $args;
-		} else {
+		} else if ( is_array( $args ) ) {
 			$name = $args['name'];
+		} else {
+			return $url;
 		}
 
 		switch ( $name ) {
@@ -387,7 +389,7 @@ class Jetpack_Network {
 		if ( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) {
 			$notice    = __( 'Site successfully connected.', 'jetpack' );
 			$classname = 'updated';
-		} else if ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) {
+		} elseif ( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] ) {
 			$notice    = __( 'Site connection failed!', 'jetpack' );
 			$classname = 'error';
 		}
@@ -638,24 +640,6 @@ class Jetpack_Network {
 		if ( isset( $_POST['sub-site-connection-override'] ) ) {
 			$sub_site_connection_override = 1;
 		}
-
-		/**
-		 * Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
-		 *
-		 * $manage_auto_activated_modules = 0;
-		 * if ( isset( $_POST['manage_auto_activated_modules'] ) ) {
-		 *     $manage_auto_activated_modules = 1;
-		 * }
-		 *
-		 * $modules = array();
-		 * if ( isset( $_POST['modules'] ) ) {
-		 *     $modules = $_POST['modules'];
-		 * }
-		 *
-		 * Removed from the data array below:
-		 * // 'manage_auto_activated_modules' => $manage_auto_activated_modules,
-		 * // 'modules'                       => $modules,
-		 */
 
 		$data = array(
 			'auto-connect'                 => $auto_connect,

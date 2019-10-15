@@ -16,8 +16,8 @@ class Function_Call extends PersistentListItem implements Depends_On {
 	public $func_name;
 
 	public function __construct( $path, $line, $func_name ) {
-		$this->path = $path;
-		$this->line = $line;
+		$this->path      = $path;
+		$this->line      = $line;
 		$this->func_name = $func_name;
 	}
 
@@ -27,7 +27,7 @@ class Function_Call extends PersistentListItem implements Depends_On {
 			$this->path,
 			$this->line,
 			'',
-			$this->func_name
+			$this->func_name,
 		);
 	}
 

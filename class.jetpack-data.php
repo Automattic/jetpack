@@ -1,6 +1,6 @@
 <?php
 
-use \Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 class Jetpack_Data {
 	/**

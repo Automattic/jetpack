@@ -27,7 +27,7 @@ You should expect to get no red `FAILED` check messages. If there happens to be 
 
 We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `yarn build` or `yarn`).
 
-We recommend usage of [nvm](https://www.npmjs.com/package/nvm) for managing different Node versions on the same environment.
+We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing different Node versions on the same environment.
 
 **Note:** If you have previously run the Jetpack build tasks (e.g. `yarn build`), and didn't come back to it for a long time, you can
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.
@@ -45,6 +45,8 @@ $ yarn distclean
 	$ git clone git@github.com:Automattic/jetpack.git
 	$ cd jetpack
 	```
+ You'll need to have a public SSH key setup with Github, which is more secure than saving your password in yor keychain.
+ There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
 
 3. [Install Composer](#installing-composer).
 4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
@@ -70,7 +72,7 @@ $ yarn build
 ## Development build with changes monitoring (watch)
 
 You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-Instead of `yarn build` you'd use `yarn watch`.
+Instead of `yarn build` you'd use `yarn watch`. `yarn watch` will fully build Jetpack and update the React-powered admin and CSS/Saas.
 
 ```
 $ yarn watch

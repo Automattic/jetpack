@@ -13,12 +13,13 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
-renovate.json
 bin/phpcs-whitelist.js
 bin/pre-commit-hook.js
+bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
 bin/release-package.php
 css/*.css.map
+css/*.css.min.map
 docs
 tests
 scss
@@ -49,6 +50,7 @@ modules/calypsoify/*.scss
 to-test.md
 webpack.config*
 .editorconfig
+_inc/.eslintrc.js
 _inc/client
 _inc/build/*.js.map
 _inc/build/*.css.map
@@ -70,6 +72,9 @@ extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
+extensions/**/*.snap
+extensions/.eslintrc.js
 packages
 **/__snapshots__
 modules/search/instant-search
+modules/search/.eslintrc.js

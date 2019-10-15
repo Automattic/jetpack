@@ -28,6 +28,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	if ( ! jetpack_mailchimp_verify_connection() ) {
 		return null;
 	}
+
 	$values  = array();
 	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		? get_current_blog_id()
@@ -68,13 +69,24 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 			)
 		);
 	}
-	$button_styles = implode( $button_styles, ';' );
+	$button_styles   = implode( ';', $button_styles );
+	$amp_form_action = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
+	$is_amp_request  = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 
 	ob_start();
 	?>
+
 	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<div class="components-placeholder">
-			<form aria-describedby="wp-block-jetpack-mailchimp_consent-text">
+			<form
+				aria-describedby="wp-block-jetpack-mailchimp_consent-text"
+				<?php if ( $is_amp_request ) : ?>
+					action-xhr="<?php echo esc_url( $amp_form_action ); ?>"
+					method="post"
+					id="mailchimp_form"
+					target="_top"
+				<?php endif; ?>
+			>
 				<p>
 					<input
 						aria-label="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
@@ -82,6 +94,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						required
 						title="<?php echo esc_attr( $values['emailPlaceholder'] ); ?>"
 						type="email"
+						name="email"
 					/>
 				</p>
 				<p>
@@ -89,19 +102,50 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
 					</button>
 				</p>
-				<p id="wp-block-jetpack-mailchimp_consent-text" name="wp-block-jetpack-mailchimp_consent-text">
+				<p id="wp-block-jetpack-mailchimp_consent-text">
 					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
+
+				<?php if ( $is_amp_request ) : ?>
+
+					<div submit-success>
+						<template type="amp-mustache">
+							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success wp-block-jetpack-mailchimp__is-amp">
+								<?php echo esc_html( $values['successLabel'] ); ?>
+							</div>
+						</template>
+					</div>
+					<div submit-error>
+						<template type="amp-mustache">
+							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error wp-block-jetpack-mailchimp__is-amp">
+								<?php echo esc_html( $values['errorLabel'] ); ?>
+							</div>
+						</template>
+					</div>
+					<div submitting>
+						<template type="amp-mustache">
+							<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing wp-block-jetpack-mailchimp__is-amp" role="status">
+								<?php echo esc_html( $values['processingLabel'] ); ?>
+							</div>
+						</template>
+					</div>
+
+				<?php endif; ?>
+
 			</form>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
-				<?php echo esc_html( $values['processingLabel'] ); ?>
-			</div>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success" role="status">
-				<?php echo esc_html( $values['successLabel'] ); ?>
-			</div>
-			<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error" role="alert">
-				<?php echo esc_html( $values['errorLabel'] ); ?>
-			</div>
+			<?php if ( ! $is_amp_request ) : ?>
+
+				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_processing" role="status">
+					<?php echo esc_html( $values['processingLabel'] ); ?>
+				</div>
+				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_success" role="status">
+					<?php echo esc_html( $values['successLabel'] ); ?>
+				</div>
+				<div class="wp-block-jetpack-mailchimp_notification wp-block-jetpack-mailchimp_error" role="alert">
+					<?php echo esc_html( $values['errorLabel'] ); ?>
+				</div>
+
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php

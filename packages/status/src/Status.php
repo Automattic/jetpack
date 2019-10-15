@@ -2,7 +2,7 @@
 /**
  * A status class for Jetpack.
  *
- * @package jetpack-status
+ * @package automattic/jetpack-status
  */
 
 namespace Automattic\Jetpack;

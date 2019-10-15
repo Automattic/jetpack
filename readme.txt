@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.6
+Stable tag: 7.7.2
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.2
@@ -96,57 +96,40 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.7 =
+= 7.8 =
 
-* Release date: September 3, 2019
-* Release post: https://wp.me/p1moTy-log
-
-**Major Enhancements**
-
-* This release brings in multiple improvements to the WordPress.com connection process, to fix issues site owners may experience when first connecting their site to WordPress.com.
+* Release date: October 1, 2019
+* Release post: https://wp.me/p1moTy-lvE
 
 **Enhancements**
 
-* Anti-spam: improve the flow to configure Akismet from Jetpack's Dashboard.
-* Blocks: add new utility to get all CSS classes for a given block.
-* Bruteforce Login Protection: improve Network Activation detection on Multisite networks.
-* Dashboard: update all illustrations to use new color scheme.
-* General: log XML-RPC communication errors between the site and WordPress.com.
-* General: use HTTPS URLs when linking to external sites when possible.
-* General: warn admins when about to delete another admin user that happens to be the main Jetpack admin on the site.
-* Sharing / Publicize: add Open Graph Meta Tags to archive pages.
-* Sitemaps: reduce sitemap cache duration when using Jetpack's Development mode.
-* Social menus: replace the outdated Medium icon with updated logo.
-* Stats: improve method used to enqueue JavaScript when the feature is active.
-* Videos: Add video settings to Jetpack's enhanced video block.
-* Widgets: improve the creation process and display of maps inside the Contact Info Widget.
-* Widgets: add more RSS feed patterns to the Social Icons Widget.
-* Widgets: add new `jetpack_widget_authors_params` filter to the Authors widget, to allow site owners to customize the list of authors.
-* WordPress.com API: add option to manage Full Site Editing.
-* WordPress.com Interface: allow language to be changed even if `WPLANG` constant is defined.
-* WooCommerce Analytics: use core WordPress function to enqueue script asynchronously.
+* Connection flow: remove some of the text from the connection prompt.
+* Dashboard: remove custom About menu page ordering.
+* Dashboard: review and remove unnecessary queries.
+* General: remove files that were deprecated in Jetpack 7.5.
+* General: remove outdated pre-PHP 5.6 era code.
+* Image CDN: check for local file upload before processing post images.
+* Markdown Block: display in the block picker even if the classic Markdown feature is disabled.
+* Recurring Payments: add an alignment option to the button.
+* Recurring Payments: improve the display of connection notifications.
+* Tiled Galleries: the block is now available even if you've disable the "Image Accelerator" feature.
+* WordPress.com REST API: improve detection of the Full Site Editing feature.
 
 **Improved compatibility**
 
-* Ads: make sure the Ad block generates ads that are compatible with the AMP plugin.
-* Image CDN: update the size of images used in AMP Stories when using the AMP plugin.
-* Responsive Videos: improve compatibility and avoid validation errors when using the AMP plugin.
-* WordPress.com API: avoid errors when used in combination with the Polylang plugin.
-* WordPress.com API: improve compatibility with plugins that alter the behavior of search queries.
+* AMP / Sharing: include Open Graph metadata to AMP Story posts.
+* General: avoid conflicts when using Jetpack alongside other plugins or services that rely on an Autoloader.
 
 **Bug fixes**
 
-* Bruteforce Login Protection: fix the display of the admin notice displayed on Multisite networks.
-* Contact Form: update the feedback post type capability to a valid value.
-* Dashboard: improve the layout of the Connection modal on mobile devices.
-* General: do not redirect during automatic upgrades.
-* Image CDN: support the `medium_large` image sizes.
-* Related Posts: ensure Related Posts can be displayed when using the AMP plugin and Jetpack's Sharing feature.
-* Search: authenticated search requests will now display non-public content.
-* Sitemaps: improve the display of descriptions in video sitemaps, when they include HTML content.
-* Stats: load RTL stylesheet for dashboard widget, to fix layout issues on RTL language sites.
-* WordPress.com API: fix API responses which contain malformed (non-UTF-8) data.
-* WordPress.com Toolbar: limit access to Stats and Plan menu items.
+* Activity Log: avoid displaying events from the Action Scheduler.
+* Ads Block: avoid PHP errors when loading posts via the WordPress.com interface.
+* Blocks: ensure that all blocks are properly translated when a translation is available.
+* Dashboard: do not display Plans page to non-connected admins.
+* Post Images: look for representative images in inner blocks as well.
+* Shortcodes: add title attribute to Archive.org and Archive.org Book embeds.
+* Sync: avoid issues when using deprecated Sync functions.
+* WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
 
 --------
 

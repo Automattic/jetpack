@@ -27,7 +27,7 @@ class Jetpack_Frame_Nonce_Preview {
 		}
 
 		// autosave previews are validated differently
-		if ( isset( $_GET[ 'frame-nonce' ] ) && isset( $_GET[ 'preview_id' ] ) && isset( $_GET[ 'preview_nonce' ] ) ) {
+		if ( isset( $_GET['frame-nonce'] ) && isset( $_GET['preview_id'] ) && isset( $_GET['preview_nonce'] ) ) {
 			remove_action( 'init', '_show_post_preview' );
 			add_action( 'init', array( $this, 'handle_autosave_nonce_validation' ) );
 		}
@@ -41,7 +41,7 @@ class Jetpack_Frame_Nonce_Preview {
 	 * @return bool
 	 */
 	public function is_frame_nonce_valid() {
-		if ( empty( $_GET[ 'frame-nonce' ] ) ) {
+		if ( empty( $_GET['frame-nonce'] ) ) {
 			return false;
 		}
 
@@ -105,7 +105,6 @@ class Jetpack_Frame_Nonce_Preview {
 	 * Handle validation for autosave preview request
 	 *
 	 * @since 4.7.0
-	 *
 	 */
 	public function handle_autosave_nonce_validation() {
 		if ( ! $this->is_frame_nonce_valid() ) {

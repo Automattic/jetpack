@@ -72,7 +72,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		return $image_url;
 	}
 
-	$image_url_parts = @jetpack_photon_parse_url( $image_url );
+	$image_url_parts = @wp_parse_url( $image_url );
 
 	// Unable to parse
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) ) {
@@ -111,7 +111,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	// Alternately, if it's a *.files.wordpress.com url, then keep the domain as is.
 	if (
 		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
-		|| $image_url_parts['host'] === jetpack_photon_parse_url( $custom_photon_url, PHP_URL_HOST )
+		|| $image_url_parts['host'] === wp_parse_url( $custom_photon_url, PHP_URL_HOST )
 		|| $is_wpcom_image
 	) {
 		/*
@@ -273,18 +273,18 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
  * A wrapper for PHP's parse_url, prepending assumed scheme for network path
  * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
  *
+ * WP ships with a wrapper for parse_url, wp_parse_url, that should be used instead.
+ *
  * @see https://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
+ * @deprecated 7.8.0 Use wp_parse_url instead.
  *
  * @param string $url The URL to parse
  * @param integer $component Retrieve specific URL component
  * @return mixed Result of parse_url
  */
 function jetpack_photon_parse_url( $url, $component = -1 ) {
-	if ( 0 === strpos( $url, '//' ) ) {
-		$url = ( is_ssl() ? 'https:' : 'http:' ) . $url;
-	}
-
-	return parse_url( $url, $component );
+	_deprecated_function( 'jetpack_photon_parse_url', 'jetpack-7.8.0', 'wp_parse_url' );
+	return wp_parse_url( $url, $component );
 }
 
 add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
@@ -299,7 +299,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.cdninstagram\.com$/',
 	);
 
-	$host = jetpack_photon_parse_url( $image_url, PHP_URL_HOST );
+	$host = wp_parse_url( $image_url, PHP_URL_HOST );
 
 	foreach ( $banned_host_patterns as $banned_host_pattern ) {
 		if ( 1 === preg_match( $banned_host_pattern, $host ) ) {

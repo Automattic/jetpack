@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Modules;
 
 class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	function test_get_sync_status() {
@@ -47,5 +48,22 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'comments_checksum', $comment_meta );
 		$this->assertArrayNotHasKey( 'post_meta_checksum', $comment_meta );
 		$this->assertArrayHasKey( 'comment_meta_checksum', $comment_meta );
+	}
+
+	function test_do_initial_sync_during_full_sync() {
+		$full_sync = Modules::get_module( 'full-sync' );
+		$full_sync->start();
+
+		$initial_sync = Actions::do_initial_sync();
+
+		$this->assertFalse( $initial_sync );
+
+		$full_sync->reset_data();
+	}
+
+	function test_do_initial_sync_during_no_sync() {
+		$initial_sync = Actions::do_initial_sync();
+
+		$this->assertNull( $initial_sync );
 	}
 }

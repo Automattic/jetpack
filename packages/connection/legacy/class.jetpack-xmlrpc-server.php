@@ -83,7 +83,6 @@ class Jetpack_XMLRPC_Server {
 					'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
 					'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 					'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
-					'jetpack.syncObject'        => array( $this, 'sync_object' ),
 					'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
 				)
 			);
@@ -315,7 +314,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( ! Jetpack_Options::get_option( 'id' ) || ! Jetpack_Data::get_access_token() || ! empty( $request['force'] ) ) {
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! $this->connection->get_access_token() || ! empty( $request['force'] ) ) {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.
@@ -740,7 +739,7 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = Jetpack_Data::get_access_token( $user_id );
+		$jetpack_token = $this->connection->get_access_token( $user_id );
 
 		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
 		if ( ! $api_user_code ) {
@@ -814,16 +813,15 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Returns any object that is able to be synced.
 	 *
+	 * @deprecated since 7.8.0
+	 * @see Automattic\Jetpack\Sync\Sender::sync_object()
+	 *
 	 * @param array $args the synchronized object parameters.
+	 * @return string Encoded sync object.
 	 */
 	public function sync_object( $args ) {
-		// For example: posts, post, 5.
-		list( $module_name, $object_type, $id ) = $args;
-
-		$sync_module = Modules::get_module( $module_name );
-		$codec       = Sender::get_instance()->get_codec();
-
-		return $codec->encode( $sync_module->get_object_by_id( $object_type, $id ) );
+		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Sync\\Sender::sync_object' );
+		return Sender::get_instance()->sync_object( $args );
 	}
 
 	/**
@@ -961,7 +959,7 @@ class Jetpack_XMLRPC_Server {
 			$token_key = $verified['token_key'];
 		}
 
-		$token = Jetpack_Data::get_access_token( $user_id, $token_key );
+		$token = $this->connection->get_access_token( $user_id, $token_key );
 		if ( ! $token || is_wp_error( $token ) ) {
 			return false;
 		}

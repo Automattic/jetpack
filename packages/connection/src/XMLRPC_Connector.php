@@ -2,7 +2,7 @@
 /**
  * Sets up the Connection XML-RPC methods.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;

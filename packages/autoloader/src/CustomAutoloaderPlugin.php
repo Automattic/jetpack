@@ -2,7 +2,7 @@
 /**
  * Custom Autoloader Composer Plugin, hooks into composer events to generate the custom autoloader.
  *
- * @package Automattic\Jetpack\Autoloader
+ * @package automattic/jetpack-autoloader
  */
 
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_useFound
@@ -24,7 +24,7 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 /**
  * Class CustomAutoloaderPlugin.
  *
- * @package Automattic\Jetpack\Autoloader
+ * @package automattic/jetpack-autoloader
  */
 class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterface {
 

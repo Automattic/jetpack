@@ -23,7 +23,7 @@ export default class PickAPlanPage extends Page {
 
 	async selectFreeJetpackPlan() {
 		const freePlanButton = '.plans-skip-button button';
-		return waitAndClick( this.page, freePlanButton );
+		return await waitAndClick( this.page, freePlanButton );
 	}
 
 	async selectPremiumPlan() {

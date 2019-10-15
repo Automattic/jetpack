@@ -119,27 +119,51 @@ class Jetpack_Notifications {
 		}
 
 		if ( ! $is_rtl ) {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 		} else {
-			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array( 'admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
-		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+
+		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array( 'wpcom-notes-admin-bar' ), JETPACK_NOTES__CACHE_BUSTER );
 
 		$this->print_js();
 
 		// attempt to use core or plugin libraries if registered
+		$script_handles = array();
 		if ( !wp_script_is( 'mustache', 'registered' ) ) {
 			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
+		$script_handles[] = 'mustache';
 		if ( !wp_script_is( 'underscore', 'registered' ) ) {
 			wp_register_script( 'underscore', $this->wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
+		$script_handles[] = 'underscore';
 		if ( !wp_script_is( 'backbone', 'registered' ) ) {
 			wp_register_script( 'backbone', $this->wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
+		$script_handles[] = 'backbone';
 
 		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER );
+		$script_handles[] = 'wpcom-notes-common';
+		$script_handles[] = 'jquery';
+		$script_handles[] = 'jquery-migrate';
+		$script_handles[] = 'jquery-core';
 		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER );
+		$script_handles[] = 'wpcom-notes-admin-bar';
+
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			add_filter(
+				'script_loader_tag',
+				function ( $tag, $handle ) use ( $script_handles ) {
+					if ( in_array( $handle, $script_handles, true ) ) {
+						$tag = preg_replace( '/(?<=<script)(?=\s|>)/i', ' data-ampdevmode', $tag );
+					}
+					return $tag;
+				},
+				10,
+				2
+			);
+		}
 	}
 
 	function admin_bar_menu() {
@@ -180,7 +204,7 @@ class Jetpack_Notifications {
 	function print_js() {
 		$link_accounts_url = is_user_logged_in() && !Jetpack::is_user_connected() ? Jetpack::admin_url() : false;
 ?>
-<script type="text/javascript">
+<script data-ampdevmode type="text/javascript">
 /* <![CDATA[ */
 	var wpNotesIsJetpackClient = true;
 	var wpNotesIsJetpackClientV2 = true;

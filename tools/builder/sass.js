@@ -233,18 +233,19 @@ gulp.task(
 export const build = gulp.parallel(
 	gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:instant-search' ),
 	'sass:old',
-	'sass:packages:rtl'
+	'sass:packages'
 );
 
 export const watch = function() {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.parallel(
-			'sass:dashboard',
-			'sass:instant-search',
-			'sass:calypsoify',
-			'sass:old',
-			'sass:packages:rtl'
-		)
+		gulp.series( 'sass:dashboard', 'sass:instant-search', 'sass:calypsoify', 'sass:old' )
+	);
+};
+
+export const watchPackages = function() {
+	return gulp.watch(
+		[ './packages/jitm/assets/*.scss', ...alwaysIgnoredPaths ],
+		gulp.parallel( 'sass:packages:rtl' )
 	);
 };

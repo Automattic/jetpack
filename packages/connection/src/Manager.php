@@ -2,7 +2,7 @@
 /**
  * The Jetpack Connection manager class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -14,7 +14,7 @@ use Automattic\Jetpack\Tracking;
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
  * and Jetpack.
  */
-class Manager implements Manager_Interface {
+class Manager {
 
 	const SECRETS_MISSING        = 'secrets_missing';
 	const SECRETS_EXPIRED        = 'secrets_expired';
@@ -61,6 +61,11 @@ class Manager implements Manager_Interface {
 		} else {
 			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
 		}
+
+		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
 	}
 
 	/**
@@ -77,6 +82,8 @@ class Manager implements Manager_Interface {
 		$is_signed,
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
+		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ), 1000, 2 );
+
 		if (
 			! isset( $request_params['for'] )
 			|| 'jetpack' !== $request_params['for']
@@ -137,16 +144,8 @@ class Manager implements Manager_Interface {
 			}
 		}
 
-		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
-
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
-		}
-
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 		add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
-
 		return true;
 	}
 
@@ -309,8 +308,10 @@ class Manager implements Manager_Interface {
 	 * use the memoized version `->verify_xml_rpc_signature()`.
 	 *
 	 * @internal
+	 * @todo Refactor to use proper nonce verification.
 	 */
 	private function internal_verify_xml_rpc_signature() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// It's not for us.
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
@@ -326,7 +327,10 @@ class Manager implements Manager_Interface {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
 		if (
 			empty( $token_key )
 		||
@@ -415,8 +419,10 @@ class Manager implements Manager_Interface {
 			return $signature;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
@@ -432,6 +438,7 @@ class Manager implements Manager_Interface {
 		// bad things might be possible.
 		$signature_details['expected'] = $signature;
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return new \WP_Error(
 				'signature_mismatch',
@@ -531,7 +538,7 @@ class Manager implements Manager_Interface {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @param string The capability of the user
+	 * @param string $capability The capability of the user.
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any' ) {
@@ -540,7 +547,7 @@ class Manager implements Manager_Interface {
 
 		if ( ! empty( $connected_user_ids ) ) {
 			foreach ( $connected_user_ids as $id ) {
-				// Check for capability
+				// Check for capability.
 				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
 					continue;
 				}
@@ -1024,6 +1031,11 @@ class Manager implements Manager_Interface {
 	 * @return string Assumed site creation date and time.
 	 */
 	public function get_assumed_site_creation_date() {
+		$cached_date = get_transient( 'jetpack_assumed_site_creation_date' );
+		if ( ! empty( $cached_date ) ) {
+			return $cached_date;
+		}
+
 		$earliest_registered_users  = get_users(
 			array(
 				'role'    => 'administrator',
@@ -1052,11 +1064,16 @@ class Manager implements Manager_Interface {
 			$earliest_post_date = PHP_INT_MAX;
 		}
 
-		return min( $earliest_registration_date, $earliest_post_date );
+		$assumed_date = min( $earliest_registration_date, $earliest_post_date );
+		set_transient( 'jetpack_assumed_site_creation_date', $assumed_date );
+
+		return $assumed_date;
 	}
 
 	/**
 	 * Adds the activation source string as a parameter to passed arguments.
+	 *
+	 * @todo Refactor to use rawurlencode() instead of urlencode().
 	 *
 	 * @param Array $args arguments that need to have the source added.
 	 * @return Array $amended arguments.
@@ -1065,10 +1082,12 @@ class Manager implements Manager_Interface {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
 
 		if ( $activation_source_name ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
 			$args['_as'] = urlencode( $activation_source_name );
 		}
 
 		if ( $activation_source_keyword ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
 			$args['_ak'] = urlencode( $activation_source_keyword );
 		}
 
@@ -1624,7 +1643,7 @@ class Manager implements Manager_Interface {
 	 */
 	public function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
-			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
+			$methods['wp.getOptions'] = array( $this, 'jetpack_get_options' );
 		}
 		return $methods;
 	}
@@ -1635,7 +1654,7 @@ class Manager implements Manager_Interface {
 	 * @param Array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
-	public function jetpack_getOptions( $args ) {
+	public function jetpack_get_options( $args ) {
 		global $wp_xmlrpc_server;
 
 		$wp_xmlrpc_server->escape( $args );

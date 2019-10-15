@@ -107,7 +107,7 @@ class DashSearch extends Component {
 			return (
 				<div className="jp-dash-item">
 					<DashItem
-						label={ __( 'Search' ) }
+						label={ __( 'Jetpack Search' ) }
 						module="search"
 						support={ {
 							text: __(

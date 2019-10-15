@@ -2,7 +2,7 @@
 /**
  * A logo for Jetpack.
  *
- * @package jetpack-logo
+ * @package automattic/jetpack-logo
  */
 
 namespace Automattic\Jetpack\Assets;

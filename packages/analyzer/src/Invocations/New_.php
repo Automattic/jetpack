@@ -16,8 +16,8 @@ class New_ extends PersistentListItem implements Depends_On {
 	public $class_name;
 
 	public function __construct( $path, $line, $class_name ) {
-		$this->path = $path;
-		$this->line = $line;
+		$this->path       = $path;
+		$this->line       = $line;
 		$this->class_name = $class_name;
 	}
 
@@ -27,7 +27,7 @@ class New_ extends PersistentListItem implements Depends_On {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			''
+			'',
 		);
 	}
 

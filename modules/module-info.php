@@ -859,25 +859,6 @@ function jetpack_comment_likes_more_info() {
 add_action( 'jetpack_module_more_info_comment-likes', 'jetpack_comment_likes_more_info' );
 
 /**
- * Progressive Web Apps support link.
- */
-function jetpack_pwa_more_link() {
-	echo 'https://jetpack.com/support/progressive-web-apps/';
-}
-add_action( 'jetpack_learn_more_button_pwa', 'jetpack_pwa_more_link' );
-
-/**
- * Progressive Web Apps description.
- */
-function jetpack_pwa_more_info() {
-	esc_html_e(
-		'Speed up and improve the reliability of your site using the latest in web technology.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_pwa', 'jetpack_pwa_more_info' );
-
-/**
  * Asset CDN support link.
  */
 function jetpack_assetcdn_more_link() {

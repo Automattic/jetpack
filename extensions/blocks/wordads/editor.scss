@@ -1,9 +1,5 @@
 @import '../../shared/styles/gutenberg-colors.scss';
 
-.wp-block-jetpack-wordads {
-	background: $white;
-}
-
 [data-type='jetpack/wordads'][data-align='center'] .jetpack-wordads__ad {
 	margin: 0 auto;
 }

@@ -14,8 +14,8 @@ class Dependencies extends PersistentList {
 		/**
 		 * Scan every invocation to see if it depends on a declaration
 		 */
-		foreach( $invocations->get() as $invocation ) {
-			foreach( $declarations->get() as $declaration ) {
+		foreach ( $invocations->get() as $invocation ) {
+			foreach ( $declarations->get() as $declaration ) {
 				if ( $invocation->depends_on( $declaration ) ) {
 					$this->add( new Dependencies\Dependency( $invocation, $declaration, $invocation_root ) );
 				}
@@ -35,20 +35,20 @@ class Dependencies extends PersistentList {
 
 		// assoc array of declarations and counts
 		$summary = array();
-		foreach( $this->get() as $dependency ) {
+		foreach ( $this->get() as $dependency ) {
 			$unique_issue_key = $dependency->declaration->display_name();
 
-			if ( ! isset( $summary[$unique_issue_key] ) ) {
-				$summary[$unique_issue_key] = 0;
+			if ( ! isset( $summary[ $unique_issue_key ] ) ) {
+				$summary[ $unique_issue_key ] = 0;
 			}
 
-			$summary[$unique_issue_key] += 1;
+			$summary[ $unique_issue_key ] += 1;
 		}
 
 		arsort( $summary );
 
 		$summary_string = '';
-		foreach( $summary as $issue => $count ) {
+		foreach ( $summary as $issue => $count ) {
 			$summary_string .= "$issue,$count\n";
 		}
 
@@ -62,20 +62,20 @@ class Dependencies extends PersistentList {
 
 		// assoc array of files and counts
 		$summary = array();
-		foreach( $this->get() as $dependency ) {
+		foreach ( $this->get() as $dependency ) {
 			$unique_issue_key = $dependency->full_path();
 
-			if ( ! isset( $summary[$unique_issue_key] ) ) {
-				$summary[$unique_issue_key] = 0;
+			if ( ! isset( $summary[ $unique_issue_key ] ) ) {
+				$summary[ $unique_issue_key ] = 0;
 			}
 
-			$summary[$unique_issue_key] += 1;
+			$summary[ $unique_issue_key ] += 1;
 		}
 
 		arsort( $summary );
 
 		$summary_string = '';
-		foreach( $summary as $issue => $count ) {
+		foreach ( $summary as $issue => $count ) {
 			$summary_string .= "$issue,$count\n";
 		}
 

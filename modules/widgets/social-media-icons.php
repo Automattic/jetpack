@@ -147,7 +147,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			/** Check if full URL entered in configuration, use it instead of tinkering **/
 			if (
 				in_array(
-					parse_url( $username, PHP_URL_SCHEME ),
+					wp_parse_url( $username, PHP_URL_SCHEME ),
 					array( 'http', 'https' )
 				)
 			) {

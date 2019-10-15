@@ -1,6 +1,7 @@
 <?php
 
 namespace Automattic\Jetpack\Analyzer\Warnings;
+
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 
 class Warning extends PersistentListItem {
@@ -11,10 +12,10 @@ class Warning extends PersistentListItem {
 	public $old_declaration;
 
 	function __construct( $type, $path, $line, $message, $old_declaration ) {
-		$this->type = $type;
-		$this->path = $path;
-		$this->line = $line;
-		$this->message = $message;
+		$this->type            = $type;
+		$this->path            = $path;
+		$this->line            = $line;
+		$this->message         = $message;
 		$this->old_declaration = $old_declaration;
 	}
 

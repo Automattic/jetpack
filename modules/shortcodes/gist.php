@@ -1,7 +1,4 @@
 <?php
-
-use Automattic\Jetpack\Assets;
-
 /**
  * GitHub's Gist site supports oEmbed but their oembed provider only
  * returns raw HTML (no styling) and the first little bit of the code.
@@ -20,6 +17,8 @@ use Automattic\Jetpack\Assets;
  *
  * @package Jetpack
  */
+
+use Automattic\Jetpack\Assets;
 
 wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9/]+)(\#file\-[a-zA-Z0-9\_\-]+)?#', 'github_gist_embed_handler' );
 add_shortcode( 'gist', 'github_gist_shortcode' );

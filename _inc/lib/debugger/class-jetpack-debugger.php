@@ -113,7 +113,16 @@ class Jetpack_Debugger {
 							echo '<div class="jetpack-test-error">';
 							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['message'] );
 							echo '<span class="noticon noticon-collapse"></span></a></p>';
-							echo '<p class="jetpack-test-details">' . esc_html( $fail['resolution'] ) . '</p>';
+							echo '<p class="jetpack-test-details">' . wp_kses(
+								$fail['resolution'],
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+										'rel'    => array(),
+									),
+								)
+							) . '</p>';
 							echo '</div>';
 
 							$debug_info .= "FAILED TESTS!\r\n";

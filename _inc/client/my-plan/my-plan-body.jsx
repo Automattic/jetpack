@@ -217,7 +217,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'paid_performance' ) }
-									href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
 								>
 									{ __( 'Make your site faster' ) }
 								</Button>
@@ -583,7 +583,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
-									href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
 								>
 									{ __( 'Make your site faster' ) }
 								</Button>

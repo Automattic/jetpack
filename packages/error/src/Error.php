@@ -4,7 +4,7 @@
  *
  * @see https://codex.wordpress.org/Class_Reference/WP_Error
  *
- * @package jetpack-error
+ * @package automattic/jetpack-error
  */
 
 namespace Automattic\Jetpack;

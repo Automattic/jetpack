@@ -10,8 +10,8 @@ class Dependency extends PersistentListItem {
 	public $invocation_root;
 
 	function __construct( $invocation, $declaration, $invocation_root = null ) {
-		$this->invocation = $invocation;
-		$this->declaration = $declaration;
+		$this->invocation      = $invocation;
+		$this->declaration     = $declaration;
 		$this->invocation_root = $invocation_root;
 	}
 

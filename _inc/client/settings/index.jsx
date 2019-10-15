@@ -27,6 +27,7 @@ export default class extends React.Component {
 			route: this.props.route,
 			searchTerm: this.props.searchTerm,
 			rewindStatus: this.props.rewindStatus,
+			userCanManageModules: this.props.userCanManageModules,
 		};
 
 		return (
@@ -43,7 +44,10 @@ export default class extends React.Component {
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
-					active={ '/security' === this.props.route.path || '/settings' === this.props.route.path }
+					active={
+						'/security' === this.props.route.path ||
+						( '/settings' === this.props.route.path && commonProps.userCanManageModules )
+					}
 					{ ...commonProps }
 				/>
 				<Discussion
@@ -60,7 +64,10 @@ export default class extends React.Component {
 				/>
 				<Writing
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/writing' === this.props.route.path }
+					active={
+						'/writing' === this.props.route.path ||
+						( '/settings' === this.props.route.path && ! commonProps.userCanManageModules )
+					}
 					{ ...commonProps }
 				/>
 				<Sharing

@@ -1,0 +1,10 @@
+{
+	"extends": [ "config:base" ],
+	"labels": [ "[Type] Janitorial", "[Status] Needs Review" ],
+	"prHourlyLimit": 1,
+	"supportPolicy": [ "lts_latest" ],
+	"timezone": "UTC",
+	"schedule": [ "every weekend" ],
+	"updateNotScheduled": false,
+	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ]
+}

@@ -56,9 +56,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 * @param string $hook Hook of current page, unused.
 	 */
 	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Place the Jetpack menu item on top and others in the order they appear.
-		add_filter( 'custom_menu_order', '__return_true' );
-		add_filter( 'menu_order', array( $this, 'submenu_order' ) );
 		$this->a8c_data = $this->fetch_a8c_data();
 	}
 
@@ -87,37 +84,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 */
 	public function render() {
 		Jetpack_Admin_Page::wrap_ui( array( $this, 'page_render' ), array( 'show-nav' => false ) );
-	}
-
-	/**
-	 * Change order of menu item so the About page menu item is below Site Stats.
-	 *
-	 * @param array $menu_order List of menu slugs. It's unaffected. This filter is used to reorder the Jetpack submenu items.
-	 *
-	 * @return array
-	 */
-	public function submenu_order( $menu_order ) {
-		global $submenu;
-
-		$stats_key = null;
-		$about_key = null;
-
-		foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-			if ( false !== array_search( 'stats', $menu_item, true ) ) {
-				$stats_key = $index;
-			}
-			if ( false !== array_search( 'jetpack_about', $menu_item, true ) ) {
-				$about_key = $index;
-			}
-		}
-
-		if ( $stats_key && $about_key ) {
-			$temp                             = $submenu['jetpack'][ $stats_key ];
-			$submenu['jetpack'][ $stats_key ] = $submenu['jetpack'][ $about_key ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu['jetpack'][ $about_key ] = $temp; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		}
-
-		return $menu_order;
 	}
 
 	/**

@@ -1643,7 +1643,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 				'code'    => 'success',
 				'message' => esc_html(
 					sprintf(
-						__( 'Your site was successfully backed-up %s ago.', 'jetpack' ),
+						/* translators: placeholder is a unit of time (1 hour, 5 days, ...) */
+						esc_html__( 'Your site was successfully backed up %s ago.', 'jetpack' ),
 						human_time_diff(
 							$data->backups->last_backup,
 							current_time( 'timestamp' )

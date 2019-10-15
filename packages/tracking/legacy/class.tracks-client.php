@@ -1,7 +1,13 @@
 <?php
+/**
+ * Legacy Jetpack Tracks Client
+ *
+ * @package Jetpack
+ */
 
 /**
  * Jetpack_Tracks_Client
+ *
  * @autounit nosara tracks-client
  *
  * Send Tracks events on behalf of a user
@@ -37,24 +43,24 @@
 	}
 ```
  */
-
 class Jetpack_Tracks_Client {
-	const PIXEL = 'https://pixel.wp.com/t.gif';
-	const BROWSER_TYPE = 'php-agent';
+	const PIXEL           = 'https://pixel.wp.com/t.gif';
+	const BROWSER_TYPE    = 'php-agent';
 	const USER_AGENT_SLUG = 'tracks-client';
-	const VERSION = '0.3';
+	const VERSION         = '0.3';
 
 	/**
-	 * record_event
-	 * @param  mixed  $event Event object to send to Tracks. An array will be cast to object. Required.
-	 *                       Properties are included directly in the pixel query string after light validation.
+	 * Record an event.
+	 *
+	 * @param  mixed $event Event object to send to Tracks. An array will be cast to object. Required.
+	 *                      Properties are included directly in the pixel query string after light validation.
 	 * @return mixed         True on success, WP_Error on failure
 	 */
-	static function record_event( $event ) {
+	public static function record_event( $event ) {
 		if ( ! Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
 			return false;
 		}
-		
+
 		if ( ! $event instanceof Jetpack_Tracks_Event ) {
 			$event = new Jetpack_Tracks_Event( $event );
 		}
@@ -72,19 +78,25 @@ class Jetpack_Tracks_Client {
 	}
 
 	/**
-	 * Synchronously request the pixel
+	 * Synchronously request the pixel.
+	 *
+	 * @param string $pixel The wp.com tracking pixel.
+	 * @return array|bool|WP_Error True if successful. wp_remote_get response or WP_Error if not.
 	 */
-	static function record_pixel( $pixel ) {
+	public static function record_pixel( $pixel ) {
 		// Add the Request Timestamp and URL terminator just before the HTTP request.
 		$pixel .= '&_rt=' . self::build_timestamp() . '&_=_';
 
-		$response = wp_remote_get( $pixel, array(
-			'blocking'    => true, // The default, but being explicit here :)
-			'timeout'     => 1,
-			'redirection' => 2,
-			'httpversion' => '1.1',
-			'user-agent'  => self::get_user_agent(),
-		) );
+		$response = wp_remote_get(
+			$pixel,
+			array(
+				'blocking'    => true, // The default, but being explicit here :).
+				'timeout'     => 1,
+				'redirection' => 2,
+				'httpversion' => '1.1',
+				'user-agent'  => self::get_user_agent(),
+			)
+		);
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -92,32 +104,39 @@ class Jetpack_Tracks_Client {
 
 		$code = isset( $response['response']['code'] ) ? $response['response']['code'] : 0;
 
-		if ( $code !== 200 ) {
+		if ( 200 !== $code ) {
 			return new WP_Error( 'request_failed', 'Tracks pixel request failed', $code );
 		}
 
 		return true;
 	}
 
-	static function get_user_agent() {
-		return Jetpack_Tracks_Client::USER_AGENT_SLUG . '-v' . Jetpack_Tracks_Client::VERSION;
+	/**
+	 * Get the user agent.
+	 *
+	 * @return string The user agent.
+	 */
+	public static function get_user_agent() {
+		return self::USER_AGENT_SLUG . '-v' . self::VERSION;
 	}
 
 	/**
 	 * Build an event and return its tracking URL
+	 *
 	 * @deprecated          Call the `build_pixel_url` method on a Jetpack_Tracks_Event object instead.
-	 * @param  array $event Event keys and values
-	 * @return string       URL of a tracking pixel
+	 * @param  array $event Event keys and values.
+	 * @return string       URL of a tracking pixel.
 	 */
-	static function build_pixel_url( $event ) {
+	public static function build_pixel_url( $event ) {
 		$_event = new Jetpack_Tracks_Event( $event );
 		return $_event->build_pixel_url();
 	}
 
 	/**
 	 * Validate input for a tracks event.
+	 *
 	 * @deprecated          Instantiate a Jetpack_Tracks_Event object instead
-	 * @param  array $event Event keys and values
+	 * @param  array $event Event keys and values.
 	 * @return mixed        Validated keys and values or WP_Error on failure
 	 */
 	private static function validate_and_sanitize( $event ) {
@@ -128,8 +147,14 @@ class Jetpack_Tracks_Client {
 		return get_object_vars( $_event );
 	}
 
-	// Milliseconds since 1970-01-01
-	static function build_timestamp() {
+	/**
+	 * Builds a timestamp.
+	 *
+	 * Milliseconds since 1970-01-01.
+	 *
+	 * @return string
+	 */
+	public static function build_timestamp() {
 		$ts = round( microtime( true ) * 1000 );
 		return number_format( $ts, 0, '', '' );
 	}
@@ -139,25 +164,25 @@ class Jetpack_Tracks_Client {
 	 *
 	 * @return string An anon id for the user
 	 */
-	static function get_anon_id() {
+	public static function get_anon_id() {
 		static $anon_id = null;
 
 		if ( ! isset( $anon_id ) ) {
 
 			// Did the browser send us a cookie?
-			if ( isset( $_COOKIE[ 'tk_ai' ] ) && preg_match( '#^[A-Za-z0-9+/=]{24}$#', $_COOKIE[ 'tk_ai' ] ) ) {
-				$anon_id = $_COOKIE[ 'tk_ai' ];
+			if ( isset( $_COOKIE['tk_ai'] ) && preg_match( '#^[A-Za-z0-9+/=]{24}$#', $_COOKIE['tk_ai'] ) ) {
+				$anon_id = $_COOKIE['tk_ai'];
 			} else {
 
 				$binary = '';
 
-				// Generate a new anonId and try to save it in the browser's cookies
-				// Note that base64-encoding an 18 character string generates a 24-character anon id
+				// Generate a new anonId and try to save it in the browser's cookies.
+				// Note that base64-encoding an 18 character string generates a 24-character anon id.
 				for ( $i = 0; $i < 18; ++$i ) {
-					$binary .= chr( mt_rand( 0, 255 ) );
+					$binary .= chr( wp_rand( 0, 255 ) );
 				}
 
-				$anon_id = 'jetpack:' . base64_encode( $binary );
+				$anon_id = 'jetpack:' . base64_encode( $binary ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 
 				if ( ! headers_sent()
 					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
@@ -176,14 +201,15 @@ class Jetpack_Tracks_Client {
 	 *
 	 * @return array|bool
 	 */
-	static function get_connected_user_tracks_identity() {
-		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
+	public static function get_connected_user_tracks_identity() {
+		$user_data = Jetpack::get_connected_user_data();
+		if ( ! $user_data ) {
 			return false;
 		}
 
 		return array(
-			'blogid' => Jetpack_Options::get_option( 'id', 0 ),
-			'userid' => $user_data['ID'],
+			'blogid'   => Jetpack_Options::get_option( 'id', 0 ),
+			'userid'   => $user_data['ID'],
 			'username' => $user_data['login'],
 		);
 	}

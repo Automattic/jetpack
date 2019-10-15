@@ -256,6 +256,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
+							target="_blank"
 							href="https://dashboard.vaultpress.com/"
 						>
 							{ __( 'Configure your Security Scans' ) }

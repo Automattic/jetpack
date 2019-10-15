@@ -881,14 +881,14 @@ class Jetpack_Protect_Module {
 			$uri = network_home_url();
 		}
 
-		$uridata = parse_url( $uri );
+		$uridata = wp_parse_url( $uri );
 
 		$domain = $uridata['host'];
 
 		// If we still don't have the site_url, get it
 		if ( ! $domain ) {
 			$uri     = get_site_url( 1 );
-			$uridata = parse_url( $uri );
+			$uridata = wp_parse_url( $uri );
 			$domain  = $uridata['host'];
 		}
 

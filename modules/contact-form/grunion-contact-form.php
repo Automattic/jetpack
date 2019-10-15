@@ -2102,7 +2102,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static function success_message( $feedback_id, $form ) {
 		return wp_kses(
 			'<blockquote class="contact-form-submission">'
-			. '<p>' . join( self::get_compiled_form( $feedback_id, $form ), '</p><p>' ) . '</p>'
+			. '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>'
 			. '</blockquote>',
 			array(
 				'br'         => array(),
@@ -2619,7 +2619,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
-		$blog_url        = parse_url( site_url() );
+		$blog_url        = wp_parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
 
 		if ( ! empty( $comment_author_email ) ) {
@@ -2727,7 +2727,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack' ) . '</p>' );
 		}
 
-		$message = join( $message, '' );
+		$message = join( '', $message );
 
 		/**
 		 * Filters the message sent via email after a successful form submission.

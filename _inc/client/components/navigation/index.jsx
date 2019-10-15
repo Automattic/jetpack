@@ -18,7 +18,7 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 } from 'state/initial-state';
-import { isDevMode } from 'state/connection';
+import { isCurrentUserLinked, isDevMode } from 'state/connection';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -52,7 +52,7 @@ export class Navigation extends React.Component {
 					>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
-					{ ! this.props.isDevMode && (
+					{ ! this.props.isDevMode && this.props.isLinked && (
 						<NavItem
 							path="#/my-plan"
 							onClick={ this.trackMyPlanClick }
@@ -61,7 +61,7 @@ export class Navigation extends React.Component {
 							{ __( 'My Plan', { context: 'Navigation item.' } ) }
 						</NavItem>
 					) }
-					{ ! this.props.isDevMode && (
+					{ ! this.props.isDevMode && this.props.isLinked && (
 						<NavItem
 							path="#/plans"
 							onClick={ this.trackPlansClick }
@@ -103,5 +103,6 @@ export default connect( state => {
 		userCanViewStats: _userCanViewStats( state ),
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		isDevMode: isDevMode( state ),
+		isLinked: isCurrentUserLinked( state ),
 	};
 } )( Navigation );

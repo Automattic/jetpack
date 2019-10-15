@@ -12,8 +12,8 @@ class Class_Property extends Declaration {
 
 	function __construct( $path, $line, $class_name, $prop_name, $static ) {
 		$this->class_name = $class_name;
-		$this->prop_name = $prop_name;
-		$this->static = $static;
+		$this->prop_name  = $prop_name;
+		$this->static     = $static;
 		parent::__construct( $path, $line );
 	}
 
@@ -25,7 +25,7 @@ class Class_Property extends Declaration {
 			$this->class_name,
 			$this->prop_name,
 			$this->static,
-			''
+			'',
 		);
 	}
 

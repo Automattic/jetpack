@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -291,6 +292,15 @@ class Actions {
 
 		$url = add_query_arg( $query_args, \Jetpack::xmlrpc_api_url() );
 
+		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
+		// because since 7.7 it's being autoloaded with Composer.
+		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
+			return new \WP_Error(
+				'ixr_client_missing',
+				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
+			);
+		}
+
 		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
@@ -343,6 +353,12 @@ class Actions {
 	public static function do_initial_sync() {
 		// Lets not sync if we are not suppose to.
 		if ( ! self::sync_allowed() ) {
+			return false;
+		}
+
+		// Don't start new sync if a full sync is in process.
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
 

@@ -2,7 +2,7 @@
 /**
  * A user roles class for Jetpack.
  *
- * @package jetpack-roles
+ * @package automattic/jetpack-roles
  */
 
 namespace Automattic\Jetpack;

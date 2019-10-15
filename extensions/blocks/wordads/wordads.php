@@ -76,7 +76,12 @@ class Jetpack_WordAds_Gutenblock {
 		global $wordads;
 
 		/** This filter is already documented in modules/wordads/wordads.php `insert_ad()` */
-		if ( empty( $wordads ) || is_feed() || apply_filters( 'wordads_inpost_disable', false ) ) {
+		if (
+			empty( $wordads )
+			|| empty( $wordads->params )
+			|| is_feed()
+			|| apply_filters( 'wordads_inpost_disable', false )
+		) {
 			return '';
 		}
 

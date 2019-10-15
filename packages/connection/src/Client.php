@@ -2,7 +2,7 @@
 /**
  * The Connection Client class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
@@ -178,7 +178,7 @@ class Client {
 	 * @param Boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
 	 * @return array|WP_Error WP HTTP response on success
 	 */
-	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
+	public static function _wp_remote_request( $url, $args, $set_fallback = false ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		/**
 		 * SSL verification (`sslverify`) for the JetpackClient remote request
 		 * defaults to off, use this filter to force it on.
@@ -411,7 +411,7 @@ class Client {
 	 *
 	 * @return array|string
 	 */
-	public static function _stringify_data( $data ) {
+	public static function _stringify_data( $data ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 
 		// Booleans are special, lets just makes them and explicit 1/0 instead of the 0 being an empty string.
 		if ( is_bool( $data ) ) {

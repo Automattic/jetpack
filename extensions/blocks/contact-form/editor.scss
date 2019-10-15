@@ -49,7 +49,7 @@
 
 		&.jetpack-field-label__required {
 			.components-form-toggle {
-				margin: 2px 8px 0 0;
+				margin: 2px 8px 0 16px;
 			}
 
 			.components-toggle-control__label {
@@ -83,10 +83,17 @@
 	margin-bottom: 2px;
 	padding: 0;
 	width: auto;
+	background: transparent;
+
+	&:hover {
+		border-color: #357cb5;
+	}
 
 	&:focus {
-		border-color: $white;
+		border: 1px solid #e3e5e8;
+		padding: 2px 4px;
 		box-shadow: none;
+		background: #fff;
 	}
 }
 
@@ -139,7 +146,8 @@ input.components-text-control__input {
 
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-option__input.jetpack-option__input.jetpack-option__input {
-	border-color: $white;
+	border-color: transparent;
+	background: transparent;
 	border-radius: 0;
 	flex-grow: 1;
 
@@ -148,6 +156,7 @@ input.components-text-control__input {
 	}
 
 	&:focus {
+		background: #fff;
 		border-color: #e3e5e8;
 		box-shadow: none;
 	}
@@ -168,6 +177,10 @@ input.components-text-control__input {
 	}
 }
 
+.jetpack-field .components-base-control__label {
+	display: block;
+}
+
 .jetpack-field-checkbox .components-base-control__label {
 	display: flex;
 	align-items: center;
@@ -180,6 +193,17 @@ input.components-text-control__input {
 		font-size: 13px;
 		font-weight: 400;
 		padding-left: 10px;
+	}
+}
+
+// Overrides to make the preview look good
+.block-editor-inserter__preview {
+	.jetpack-contact-form {
+		padding: 16px;
+
+		> .block-editor-inner-blocks > .block-editor-block-list__layout {
+			margin: 0;
+		}
 	}
 }
 

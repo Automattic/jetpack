@@ -1665,7 +1665,7 @@ jQuery( document ).ready( function( $ ) {
 	// register the event listener for starting the gallery
 	$( document.body ).on(
 		'click.jp-carousel',
-		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
+		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
 		function( e ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;

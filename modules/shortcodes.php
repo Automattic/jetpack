@@ -91,7 +91,7 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
 	$textarr = wp_html_split( $content );
 	unset( $content );
 	foreach ( $textarr as &$element ) {
-		if ( '' === $element || '<' === $element{0} ) {
+		if ( '' === $element || '<' === $element[0] ) {
 			continue;
 		}
 		$element = preg_replace( $pattern, $replacement, $element );
@@ -119,7 +119,7 @@ function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $conte
 	$textarr = wp_html_split( $content );
 	unset( $content );
 	foreach ( $textarr as &$element ) {
-		if ( '' === $element || '<' === $element{0} ) {
+		if ( '' === $element || '<' === $element[0] ) {
 			continue;
 		}
 		$element = preg_replace_callback( $pattern, $callback, $element );
