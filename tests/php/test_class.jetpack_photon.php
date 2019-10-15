@@ -58,6 +58,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		elseif ( 'medium' == $size ) { // 1024x768
 			$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-medium.png';
 		}
+		else if ( 'big' === $size ) { // 3000x3000
+			$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-big.png';
+		}
+
 		// Add sizes that exist before uploading the file.
 		add_image_size( 'jetpack_soft_defined', 700, 500, false ); // Intentionally not a 1.33333 ratio.
 		add_image_size( 'jetpack_soft_undefined', 700, 99999, false );
@@ -1083,5 +1087,26 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertEquals( $expected, Jetpack_Photon::strip_image_dimensions_maybe( $url ) );
 
 		wp_delete_attachment( $id );
+	}
+
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 * @author kraftbj
+	 * @since 7.9.0
+	 */
+	public function test_photon_strip_image_dimensions_maybe_wordpress_big_images() {
+		$test_image = $this->_get_image( 'big' );
+		$full = wp_get_attachment_image_url( $test_image, 'full' );
+		$image_meta = wp_get_attachment_metadata( $test_image );
+
+		if ( empty( $image_meta['original_image'] ) ) {
+			$this->markTestSkipped( 'Image not processed as a Big Image' );
+		} else {
+			$this->assertStringEndsWith( $image_meta['original_image'], Jetpack_Photon::strip_image_dimensions_maybe( $full ) );
+		}
+
+		wp_delete_attachment( $test_image );
+		$this->_remove_image_sizes();
+
 	}
 }
