@@ -10,7 +10,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC } from './constants';
+import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from './constants';
 import { getSortOption } from './sort';
 
 function getQuery() {
@@ -19,9 +19,7 @@ function getQuery() {
 
 function pushQueryString( queryString ) {
 	if ( history.pushState ) {
-		const newurl = `${ window.location.protocol }//${ window.location.host }${
-			window.location.pathname
-		}?${ queryString }`;
+		const newurl = `${ window.location.protocol }//${ window.location.host }${ window.location.pathname }?${ queryString }`;
 		window.history.pushState( { path: newurl }, '', newurl );
 	}
 }
@@ -58,47 +56,34 @@ export function determineDefaultSort( widgetOptions ) {
 	}
 }
 
+const ORDERED_SORT_TYPES = [ 'date', 'price', 'rating' ];
+const SORT_QUERY_MAP = {
+	date: {
+		[ SORT_DIRECTION_ASC ]: 'date_asc',
+		[ SORT_DIRECTION_DESC ]: 'date_desc',
+	},
+	price: {
+		[ SORT_DIRECTION_ASC ]: 'price_asc',
+		[ SORT_DIRECTION_DESC ]: 'price_desc',
+	},
+	rating: {
+		[ SORT_DIRECTION_ASC ]: 'rating_asc',
+		[ SORT_DIRECTION_DESC ]: 'rating_desc',
+	},
+	recency: 'score_recency',
+	keyword: 'score_keyword',
+	popularity: 'score_popularity',
+};
+
 export function getSortQuery() {
 	const query = getQuery();
 	const order = 'order' in query ? query.order : 'DESC';
 	const orderby = 'orderby' in query ? query.orderby : 'relevance';
-	let sort;
-	switch ( orderby ) {
-		case 'date':
-			if ( order === SORT_DIRECTION_ASC ) {
-				sort = 'date_asc';
-			} else {
-				sort = 'date_desc';
-			}
-			break;
-		case 'price':
-			if ( order === SORT_DIRECTION_ASC ) {
-				sort = 'price_asc';
-			} else {
-				sort = 'price_desc';
-			}
-			break;
-		case 'rating':
-			if ( order === SORT_DIRECTION_ASC ) {
-				sort = 'rating_asc';
-			} else {
-				sort = 'rating_desc';
-			}
-			break;
-		case 'recency':
-			sort = 'score_recency';
-			break;
-		case 'keyword':
-			sort = 'score_keyword';
-			break;
-		case 'popularity':
-			sort = 'score_popularity';
-			break;
-		case 'relevance':
-		case 'score_default':
-		default:
-			sort = 'score_default';
-			break;
+	let sort = 'score_default';
+	if ( ORDERED_SORT_TYPES.includes( orderby ) ) {
+		sort = SORT_QUERY_MAP[ orderby ][ order ];
+	} else if ( Object.keys( SORT_QUERY_MAP ).includes( orderby ) ) {
+		sort = SORT_QUERY_MAP[ orderby ];
 	}
 	return sort;
 }

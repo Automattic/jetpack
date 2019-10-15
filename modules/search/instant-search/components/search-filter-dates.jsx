@@ -6,38 +6,27 @@
 import { h, createRef, Component } from 'preact';
 import { getCheckedInputNames } from '../lib/dom';
 
+function getDateOptions( interval ) {
+	switch ( interval ) {
+		case 'day':
+			return { year: 'numeric', month: 'long', day: 'numeric' };
+		case 'month':
+			return { year: 'numeric', month: 'long' };
+		case 'year':
+			return { year: 'numeric' };
+	}
+	return { year: 'numeric', month: 'long' };
+}
+
 export default class SearchFilterDates extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = { selected: this.props.initialValue };
 		this.filtersList = createRef();
 
-		//this assumes that the configuration never changes and we
-		// may eventually want to adjust it dynamically
-		this.dateOptions = {
-			year: 'numeric',
-			month: 'long',
-		};
-		switch ( this.props.configuration.interval ) {
-			case 'day':
-				this.dateOptions = {
-					year: 'numeric',
-					month: 'long',
-					day: 'numeric',
-				};
-				break;
-			case 'month':
-				this.dateOptions = {
-					year: 'numeric',
-					month: 'long',
-				};
-				break;
-			case 'year':
-				this.dateOptions = {
-					year: 'numeric',
-				};
-				break;
-		}
+		// NOTE: This assumes that the configuration never changes. It will break if we
+		// ever adjust it dynamically.
+		this.dateOptions = getDateOptions( this.props.configuration.interval );
 	}
 
 	getIdentifier() {

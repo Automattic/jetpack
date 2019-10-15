@@ -176,54 +176,61 @@ class SearchApp extends Component {
 		} );
 	};
 
-	render() {
+	renderWidgets() {
+		return this.props.widgets.map( widget => (
+			<Portal into={ `#${ widget.widget_id }` }>
+				<div id={ `${ widget.widget_id }-wrapper` }>
+					<div className="search-form">
+						<SearchBox
+							onChangeQuery={ this.onChangeQuery }
+							onFocus={ this.onSearchFocus }
+							onBlur={ this.onSearchBlur }
+							appRef={ this.input }
+							query={ this.state.query }
+						/>
+					</div>
+					<div className="jetpack-search-sort-wrapper">
+						<SearchSortWidget
+							initialValue={ this.props.initialSort }
+							onChange={ this.onChangeSort }
+						/>
+					</div>
+					<SearchFiltersWidget
+						initialValues={ this.props.initialFilters }
+						onChange={ this.onChangeFilter }
+						loading={ this.state.isLoading }
+						locale={ this.props.options.locale }
+						postTypes={ this.props.options.postTypes }
+						results={ this.state.response }
+						widget={ widget }
+					/>
+				</div>
+			</Portal>
+		) );
+	}
+	renderSearchForms() {
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.search_form_selector )
 		);
 		return (
+			searchForms &&
+			searchForms.map( elem => (
+				<Portal into={ elem }>
+					<SearchBox
+						onChangeQuery={ this.onChangeQuery }
+						appRef={ this.input }
+						query={ this.state.query }
+					/>
+				</Portal>
+			) )
+		);
+	}
+
+	render() {
+		return (
 			<Preact.Fragment>
-				{ this.props.widgets.map( widget => (
-					<Portal into={ `#${ widget.widget_id }` }>
-						<div id={ `${ widget.widget_id }-wrapper` }>
-							<div className="search-form">
-								<SearchBox
-									onChangeQuery={ this.onChangeQuery }
-									onFocus={ this.onSearchFocus }
-									onBlur={ this.onSearchBlur }
-									appRef={ this.input }
-									query={ this.state.query }
-								/>
-							</div>
-							<div className="jetpack-search-sort-wrapper">
-								<SearchSortWidget
-									initialValue={ this.props.initialSort }
-									onChange={ this.onChangeSort }
-								/>
-							</div>
-							<SearchFiltersWidget
-								initialValues={ this.props.initialFilters }
-								onChange={ this.onChangeFilter }
-								loading={ this.state.isLoading }
-								locale={ this.props.options.locale }
-								postTypes={ this.props.options.postTypes }
-								results={ this.state.response }
-								widget={ widget }
-							/>
-						</div>
-					</Portal>
-				) ) }
-
-				{ searchForms &&
-					searchForms.map( elem => (
-						<Portal into={ elem }>
-							<SearchBox
-								onChangeQuery={ this.onChangeQuery }
-								appRef={ this.input }
-								query={ this.state.query }
-							/>
-						</Portal>
-					) ) }
-
+				{ this.renderWidgets() }
+				{ this.renderSearchForms() }
 				{ this.state.resultsActive && (
 					<Portal into={ this.props.themeOptions.results_selector }>
 						<SearchResults

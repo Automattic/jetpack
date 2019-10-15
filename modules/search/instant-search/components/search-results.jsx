@@ -31,40 +31,50 @@ class SearchResults extends Component {
 		}
 	};
 
+	getSearchTitle() {
+		const { total = 0, corrected_query = false } = this.props.response;
+		const hasQuery = this.props.query !== '';
+		const hasCorrectedQuery = corrected_query !== false;
+		const num = new Intl.NumberFormat().format( total );
+
+		if ( hasQuery && hasCorrectedQuery ) {
+			return sprintf(
+				_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
+				num,
+				corrected_query
+			);
+		} else if ( hasQuery ) {
+			return sprintf(
+				_n( '%s result for "%s"', '%s results for "%s"', total ),
+				num,
+				this.props.query
+			);
+		}
+		return sprintf( _n( '%s result', '%s results', total ), num );
+	}
+
+	renderEmptyResults( { showText = false } ) {
+		return (
+			<div className="jetpack-instant-search__search-results">
+				{ showText ? (
+					<div>
+						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), this.props.query ) }</h3>
+					</div>
+				) : null }
+			</div>
+		);
+	}
+
 	render() {
 		const { query } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = query !== '';
 		const hasCorrectedQuery = corrected_query !== false;
 		if ( ! hasQuery && ! hasFilter() ) {
-			return <div className="jetpack-instant-search__search-results" />;
+			return this.renderEmptyResults();
 		}
 		if ( total === 0 ) {
-			return (
-				<div className="jetpack-instant-search__search-results">
-					<div>
-						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), query ) }</h3>
-					</div>
-				</div>
-			);
-		}
-		const num = new Intl.NumberFormat().format( total );
-
-		let headerText = sprintf( _n( '%s result', '%s results', total ), num );
-		if ( hasQuery ) {
-			if ( hasCorrectedQuery ) {
-				headerText = sprintf(
-					_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
-					num,
-					corrected_query
-				);
-			} else {
-				headerText = sprintf(
-					_n( '%s result for "%s"', '%s results for "%s"', total ),
-					num,
-					query
-				);
-			}
+			return this.renderEmptyResults( { showText: true } );
 		}
 
 		return (
@@ -73,7 +83,9 @@ class SearchResults extends Component {
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
-				<p className="jetpack-instant-search__search-results-real-query">{ headerText }</p>
+				<p className="jetpack-instant-search__search-results-real-query">
+					{ this.getSearchTitle() }
+				</p>
 				{ hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }

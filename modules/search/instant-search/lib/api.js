@@ -19,32 +19,33 @@ export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
 	widgets.forEach( ( { filters: widgetFilters } ) =>
 		widgetFilters.forEach( filter => {
-			switch ( filter.type ) {
-				case 'date_histogram': {
-					const field = filter.field === 'post_date_gmt' ? 'date_gmt' : 'date';
-					aggregation[ filter.filter_id ] = {
-						date_histogram: { field, interval: filter.interval },
-					};
-					break;
-				}
-				case 'taxonomy': {
-					let field = `taxonomy.${ filter.taxonomy }.slug`;
-					if ( filter.taxonomy === 'post_tag' ) {
-						field = 'tag.slug';
-					} else if ( filter.type === 'category' ) {
-						field = 'category.slug';
-					}
-					aggregation[ filter.filter_id ] = { terms: { field, size: filter.count } };
-					break;
-				}
-				case 'post_type': {
-					aggregation[ filter.filter_id ] = { terms: { field: filter.type, size: filter.count } };
-					break;
-				}
-			}
+			aggregation[ filter.filter_id ] = generateAggregation( filter );
 		} )
 	);
 	return aggregation;
+}
+
+function generateAggregation( filter ) {
+	switch ( filter.type ) {
+		case 'date_histogram': {
+			const field = filter.field === 'post_date_gmt' ? 'date_gmt' : 'date';
+			return {
+				date_histogram: { field, interval: filter.interval },
+			};
+		}
+		case 'taxonomy': {
+			let field = `taxonomy.${ filter.taxonomy }.slug`;
+			if ( filter.taxonomy === 'post_tag' ) {
+				field = 'tag.slug';
+			} else if ( filter.type === 'category' ) {
+				field = 'category.slug';
+			}
+			return { terms: { field, size: filter.count } };
+		}
+		case 'post_type': {
+			return { terms: { field: filter.type, size: filter.count } };
+		}
+	}
 }
 
 const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;

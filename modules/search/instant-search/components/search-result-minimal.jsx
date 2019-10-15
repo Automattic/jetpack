@@ -30,6 +30,14 @@ const ShortcodeTypes = {
 	audio: [ 'audio', 'soundcloud' ],
 };
 
+const POST_TYPE_TO_ICON_MAP = {
+	product: 'cart',
+	video: 'video',
+	gallery: 'image-multiple',
+	event: 'calendar',
+	events: 'calendar',
+};
+
 class SearchResultMinimal extends Component {
 	componentDidMount() {
 		recordTrainTracksRender( this.getCommonTrainTracksProps() );
@@ -53,72 +61,132 @@ class SearchResultMinimal extends Component {
 		recordTrainTracksInteract( { ...this.getCommonTrainTracksProps(), action: 'click' } );
 	};
 
-	render() {
-		const { result_type, fields, highlight } = this.props.result;
-		const { locale = 'en-US' } = this.props;
-		const IconSize = 18;
-		if ( result_type !== 'post' ) {
-			return null;
-		}
-		const url = new URL( 'http://' + fields[ 'permalink.url.raw' ] );
-		const path = url.pathname;
-		const no_content = ! highlight.content || highlight.content[ 0 ] === '';
+	getIconSize() {
+		return 18;
+	}
 
-		let tags = fields[ 'tag.name.default' ];
+	getTags() {
+		let tags = this.props.result.fields[ 'tag.name.default' ];
 		if ( ! tags ) {
-			tags = [];
+			return [];
 		}
 		if ( ! Array.isArray( tags ) ) {
 			tags = [ tags ];
 		}
+		return tags;
+	}
 
-		let cats = fields[ 'category.name.default' ];
+	getCategories() {
+		let cats = this.props.result.fields[ 'category.name.default' ];
 		if ( ! cats ) {
-			cats = [];
+			return [];
 		}
 		if ( ! Array.isArray( cats ) ) {
 			cats = [ cats ];
 		}
-		const noTags = tags.length === 0 && cats.length === 0;
+		return cats;
+	}
 
+	renderPostTypeIcon() {
+		const { fields } = this.props.result;
+		const iconSize = this.getIconSize();
 		const hasVideo = arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
 		const hasAudio = arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
 		const hasGallery = arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
 
-		let postTypeIcon = null;
-		switch ( fields.post_type ) {
-			case 'product':
-				postTypeIcon = <Gridicon icon="cart" size={ IconSize } />;
-				break;
-			case 'page':
-				if ( hasVideo ) {
-					postTypeIcon = <Gridicon icon="video" size={ IconSize } />;
-				} else if ( hasAudio ) {
-					postTypeIcon = <Gridicon icon="audio" size={ IconSize } />;
-				} else {
-					postTypeIcon = <Gridicon icon="pages" size={ IconSize } />;
-				}
-				break;
-			case 'video':
-				postTypeIcon = <Gridicon icon="video" size={ IconSize } />;
-				break;
-			case 'gallery':
-				postTypeIcon = <Gridicon icon="image-multiple" size={ IconSize } />;
-				break;
-			case 'event':
-			case 'events':
-				postTypeIcon = <Gridicon icon="calendar" size={ IconSize } />;
-				break;
-			default:
-				if ( hasVideo ) {
-					postTypeIcon = <Gridicon icon="video" size={ IconSize } />;
-				} else if ( hasAudio ) {
-					postTypeIcon = <Gridicon icon="audio" size={ IconSize } />;
-				} else if ( hasGallery ) {
-					postTypeIcon = <Gridicon icon="image-multiple" size={ IconSize } />;
-				}
+		if ( Object.keys( POST_TYPE_TO_ICON_MAP ).includes( fields.post_type ) ) {
+			return POST_TYPE_TO_ICON_MAP[ fields.post_type ];
 		}
 
+		switch ( fields.post_type ) {
+			case 'page':
+				if ( hasVideo ) {
+					return <Gridicon icon="video" size={ iconSize } />;
+				} else if ( hasAudio ) {
+					return <Gridicon icon="audio" size={ iconSize } />;
+				}
+				return <Gridicon icon="pages" size={ iconSize } />;
+			default:
+				if ( hasVideo ) {
+					return <Gridicon icon="video" size={ iconSize } />;
+				} else if ( hasAudio ) {
+					return <Gridicon icon="audio" size={ iconSize } />;
+				} else if ( hasGallery ) {
+					return <Gridicon icon="image-multiple" size={ iconSize } />;
+				}
+		}
+		return null;
+	}
+
+	renderNoMatchingContent() {
+		const path = new URL( 'http://' + this.props.result.fields[ 'permalink.url.raw' ] ).pathname;
+		const tags = this.getTags();
+		const cats = this.getCategories();
+		const noTags = tags.length === 0 && cats.length === 0;
+		return (
+			<div className="jetpack-instant-search__result-minimal-content">
+				{ noTags && <div className="jetpack-instant-search__result-minimal-path">{ path }</div> }
+				{ tags.length !== 0 && (
+					<div className="jetpack-instant-search__result-minimal-tag">
+						{ tags.map( tag => (
+							<span>
+								<Gridicon icon="tag" size={ this.getIconSize() } />
+								{ tag }
+							</span>
+						) ) }
+					</div>
+				) }
+				{ cats.length !== 0 && (
+					<div className="jetpack-instant-search__result-minimal-cat">
+						{ cats.map( cat => (
+							<span>
+								<Gridicon icon="folder" size={ this.getIconSize() } />
+								{ cat }
+							</span>
+						) ) }
+					</div>
+				) }
+			</div>
+		);
+	}
+
+	renderMatchingContent() {
+		return (
+			<div
+				className="jetpack-instant-search__result-minimal-content"
+				//eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={ {
+					__html: this.props.result.highlight.content.join( ' ... ' ),
+				} }
+			/>
+		);
+	}
+
+	renderComments() {
+		return (
+			this.props.result.highlight.comments && (
+				<div className="jetpack-instant-search__result-minimal-comment">
+					<Gridicon icon="comment" size={ this.getIconSize() } />
+					<span
+						className="jetpack-instant-search__result-minimal-comment-span"
+						//eslint-disable-next-line react/no-danger
+						dangerouslySetInnerHTML={ {
+							__html: this.props.result.highlight.comments.join( ' ... ' ),
+						} }
+					/>
+				</div>
+			)
+		);
+	}
+
+	render() {
+		const { locale = 'en-US' } = this.props;
+		const { result_type, fields, highlight } = this.props.result;
+		if ( result_type !== 'post' ) {
+			return null;
+		}
+
+		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 		return (
 			<div className="jetpack-instant-search__result-minimal">
 				<span className="jetpack-instant-search__result-minimal-date">
@@ -127,7 +195,7 @@ class SearchResultMinimal extends Component {
 					} ) }
 				</span>
 				<h3>
-					{ postTypeIcon }
+					{ this.renderPostTypeIcon() }
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						className="jetpack-instant-search__result-minimal-title"
@@ -136,56 +204,8 @@ class SearchResultMinimal extends Component {
 						onClick={ this.onClick }
 					/>
 				</h3>
-
-				{ no_content && (
-					<div className="jetpack-instant-search__result-minimal-content">
-						{ noTags && (
-							<div className="jetpack-instant-search__result-minimal-path">{ path }</div>
-						) }
-						{ tags.length !== 0 && (
-							<div className="jetpack-instant-search__result-minimal-tag">
-								{ tags.map( tag => (
-									<span>
-										<Gridicon icon="tag" size={ IconSize } />
-										{ tag }
-									</span>
-								) ) }
-							</div>
-						) }
-						{ cats.length !== 0 && (
-							<div className="jetpack-instant-search__result-minimal-cat">
-								{ cats.map( cat => (
-									<span>
-										<Gridicon icon="folder" size={ IconSize } />
-										{ cat }
-									</span>
-								) ) }
-							</div>
-						) }
-					</div>
-				) }
-				{ ! no_content && (
-					<div
-						className="jetpack-instant-search__result-minimal-content"
-						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ {
-							__html: highlight.content.join( ' ... ' ),
-						} }
-					/>
-				) }
-
-				{ highlight.comments && (
-					<div className="jetpack-instant-search__result-minimal-comment">
-						<Gridicon icon="comment" size={ IconSize } />
-						<span
-							className="jetpack-instant-search__result-minimal-comment-span"
-							//eslint-disable-next-line react/no-danger
-							dangerouslySetInnerHTML={ {
-								__html: highlight.comments.join( ' ... ' ),
-							} }
-						/>
-					</div>
-				) }
+				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
+				{ this.renderComments() }
 			</div>
 		);
 	}
