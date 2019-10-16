@@ -419,26 +419,20 @@ class JITM {
 	/**
 	 * Asks the wpcom API for the current message to display keyed on query string and message path
 	 *
-	 * @param $message_path string The message path to ask for
-	 * @param $query string The query string originally from the front end
+	 * @param string $message_path The message path to ask for.
+	 * @param string $query The query string originally from the front end.
 	 *
 	 * @return array The JITM's to show, or an empty array if there is nothing to show
 	 */
-	function get_messages( $message_path, $query ) {
-		// custom filters go here
-		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
-		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
-		add_filter(
-			'jitm_jetpack_woo_services_activate',
-			array(
-				'Jetpack_JITM',
-				'jitm_jetpack_woo_services_activate',
-			)
-		);
+	public function get_messages( $message_path, $query ) {
+		// Custom filters go here.
+		add_filter( 'jitm_woocommerce_services_msg', array( $this, 'jitm_woocommerce_services_msg' ) );
+		add_filter( 'jitm_jetpack_woo_services_install', array( $this, 'jitm_jetpack_woo_services_install' ) );
+		add_filter( 'jitm_jetpack_woo_services_activate', array( $this, 'jitm_jetpack_woo_services_activate' ) );
 
 		$user = wp_get_current_user();
 
-		// unauthenticated or invalid requests just bail
+		// Unauthenticated or invalid requests just bail.
 		if ( ! $user ) {
 			return array();
 		}
@@ -446,7 +440,7 @@ class JITM {
 		$user_roles = implode( ',', $user->roles );
 		$site_id    = \Jetpack_Options::get_option( 'id' );
 
-		// build our jitm request
+		// Build our jitm request.
 		$path = add_query_arg(
 			array(
 				'external_user_id' => urlencode_deep( $user->ID ),
@@ -458,10 +452,10 @@ class JITM {
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
 		);
 
-		// attempt to get from cache
+		// Attempt to get from cache.
 		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
-		// if something is in the cache and it was put in the cache after the last sync we care about, use it
+		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
 
 		/** This filter is documented in class.jetpack.php */
@@ -476,7 +470,7 @@ class JITM {
 			$from_cache = false;
 		}
 
-		// otherwise, ask again
+		// Otherwise, ask again.
 		if ( ! $from_cache ) {
 			$wpcom_response = Client::wpcom_json_api_request_as_blog(
 				$path,
@@ -502,7 +496,7 @@ class JITM {
 
 			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
 
-			// do not cache if expiration is 0 or we're not using the cache
+			// Do not cache if expiration is 0 or we're not using the cache.
 			if ( 0 != $expiration && $use_cache ) {
 				$envelopes['last_response_time'] = time();
 
@@ -526,7 +520,7 @@ class JITM {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
-			// if the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed
+			// If the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed.
 			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
@@ -550,7 +544,7 @@ class JITM {
 			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
 				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 			}
-			// Get affiliate code and add it to the array of URL parameters
+			// Get affiliate code and add it to the array of URL parameters.
 			if ( '' !== ( $aff = \Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
 				$url_params['aff'] = $aff;
 			}
@@ -569,7 +563,7 @@ class JITM {
 				unset( $envelope->content->hook );
 			}
 
-			// no point in showing an empty message
+			// No point in showing an empty message.
 			if ( empty( $envelope->content->message ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
