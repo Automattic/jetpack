@@ -1,5 +1,5 @@
 export function removeChildren( htmlElement ) {
-	while ( htmlElement.lastChild ) {
+	while ( htmlElement && htmlElement.lastChild ) {
 		htmlElement.removeChild( htmlElement.lastChild );
 	}
 }
