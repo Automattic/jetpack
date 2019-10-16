@@ -1844,9 +1844,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'widget'                 => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
 			'id'                     => null, // Not exposed to the user. Set above.
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
-			'customThankyou'         => '',
-			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ),
-			'customThankyouRedirect' => '',
+			'customThankyou'         => '', // Whether to show a custom thank you response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
+			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
+			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
