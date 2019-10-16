@@ -2827,28 +2827,35 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$redirect = '';
+		$custom_redirect = false;
 		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
-			$redirect = esc_url( $this->get_attribute( 'customThankyouRedirect' ) );
+			$custom_redirect = true;
+			$redirect        = esc_url( $this->get_attribute( 'customThankyouRedirect' ) );
 		}
 
 		if ( ! $redirect ) {
-			$redirect = wp_get_referer();
+			$custom_redirect = false;
+			$redirect        = wp_get_referer();
 		}
 
-		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page
-			$redirect = $_SERVER['REQUEST_URI'];
+		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page.
+			$custom_redirect = false;
+			$redirect        = $_SERVER['REQUEST_URI'];
 		}
 
-		$redirect = add_query_arg(
-			urlencode_deep(
-				array(
-					'contact-form-id'   => $id,
-					'contact-form-sent' => $post_id,
-					'contact-form-hash' => $this->hash,
-					'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
-				)
-			), $redirect
-		);
+		if ( ! $custom_redirect ) {
+			$redirect = add_query_arg(
+				urlencode_deep(
+					array(
+						'contact-form-id'   => $id,
+						'contact-form-sent' => $post_id,
+						'contact-form-hash' => $this->hash,
+						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
+					)
+				),
+				$redirect
+			);
+		}
 
 		/**
 		 * Filter the URL where the reader is redirected after submitting a form.
