@@ -3326,7 +3326,7 @@ p {
 		// The user has agreed to the TOS at some point by now.
 		Jetpack_Options::update_option( 'tos_agreed', true );
 		// Make sure that we initialize tracking if we haven't already
-		$tracking = new \Automattic\Jetpack\Plugin\Tracking();
+		$tracking = new Automattic\Jetpack\Plugin\Tracking();
 		$tracking->init();
 
 		// Let's get some testing in beta versions and such.
