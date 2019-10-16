@@ -39,18 +39,18 @@ class SearchResults extends Component {
 
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
-				_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total ),
+				_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total, 'jetpack' ),
 				num,
 				corrected_query
 			);
 		} else if ( hasQuery ) {
 			return sprintf(
-				_n( '%s result for "%s"', '%s results for "%s"', total ),
+				_n( '%s result for "%s"', '%s results for "%s"', total, 'jetpack' ),
 				num,
 				this.props.query
 			);
 		}
-		return sprintf( _n( '%s result', '%s results', total ), num );
+		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
 	}
 
 	renderEmptyResults( { showText = false } ) {
