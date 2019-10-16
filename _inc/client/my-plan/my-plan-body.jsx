@@ -109,7 +109,12 @@ class MyPlanBody extends React.Component {
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">{ title }</h3>
 						<p>{ description }</p>
-						<Button>{ __( 'View Your Backups' ) }</Button>
+						<Button
+							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
+							href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+						>
+							{ __( 'View Your Backups' ) }
+						</Button>
 					</div>
 				</div>
 			);
