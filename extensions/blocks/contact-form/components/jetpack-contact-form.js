@@ -223,6 +223,8 @@ class JetpackContactForm extends Component {
 					/>
 				) }
 				{ 'redirect' === customThankyou && (
+					// @todo This can likely be simplified when WP 5.4 is the minimum supported version.
+					// See https://github.com/Automattic/jetpack/pull/13745#discussion_r334712381
 					<BaseControl
 						label={ __( 'Redirect Address', 'jetpack' ) }
 						id={ `contact-form-${ instanceId }-thankyou-url` }
