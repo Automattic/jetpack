@@ -12,20 +12,19 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import SearchFilterDates from './search-filter-dates';
-import SearchFilterTaxonomies from './search-filter-taxonomies';
-import SearchFilterPostTypes from './search-filter-post-types';
+import SearchFilter from './search-filter';
 
-export default class SearchFiltersWidget extends Component {
+export default class SearchFilters extends Component {
 	renderFilterComponent = ( { configuration, results } ) => {
 		switch ( configuration.type ) {
 			case 'date_histogram':
 				return (
 					results && (
-						<SearchFilterDates
+						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
 							locale={ this.props.locale }
+							type="date"
 							initialValue={
 								this.props.initialValues[ `${ configuration.interval }_${ configuration.field }` ]
 							}
@@ -36,23 +35,25 @@ export default class SearchFiltersWidget extends Component {
 			case 'taxonomy':
 				return (
 					results && (
-						<SearchFilterTaxonomies
+						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
 							initialValue={ this.props.initialValues[ configuration.taxonomy ] }
 							onChange={ this.props.onChange }
+							type="taxonomy"
 						/>
 					)
 				);
 			case 'post_type':
 				return (
 					results && (
-						<SearchFilterPostTypes
+						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
 							initialValue={ this.props.initialValues.post_types }
 							onChange={ this.props.onChange }
 							postTypes={ this.props.postTypes }
+							type="postType"
 						/>
 					)
 				);

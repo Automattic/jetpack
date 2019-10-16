@@ -14,7 +14,7 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import SearchResults from './search-results';
-import SearchFiltersWidget from './search-filters-widget';
+import SearchFilters from './search-filters';
 import SearchSortWidget from './search-sort-widget';
 import SearchBox from './search-box';
 import { search, buildFilterAggregations } from '../lib/api';
@@ -195,7 +195,7 @@ class SearchApp extends Component {
 							onChange={ this.onChangeSort }
 						/>
 					</div>
-					<SearchFiltersWidget
+					<SearchFilters
 						initialValues={ this.props.initialFilters }
 						onChange={ this.onChangeFilter }
 						loading={ this.state.isLoading }
