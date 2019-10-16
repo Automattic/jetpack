@@ -147,7 +147,10 @@ export const settings = {
 
 			isEligible: attr => {
 				// when the deprecated, snake_case values are default, no need to migrate
-				if ( ! attr.has_form_settings_set && attr.submit_button_text === 'Submit' ) {
+				if (
+					! attr.has_form_settings_set &&
+					( ! attr.submit_button_text || attr.submit_button_text === 'Submit' )
+				) {
 					return false;
 				}
 				return true;
