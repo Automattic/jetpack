@@ -23,6 +23,7 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-tracking": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-terms-of-service": "@dev",
 		"automattic/jetpack-compat": "@dev"
 	},
 	"require-dev": {
