@@ -4,62 +4,109 @@
 namespace Automattic\Jetpack;
 
 use PHPUnit\Framework\TestCase;
+use phpmock\Mock;
+use phpmock\MockBuilder;
 
-class Test_TermsOfService extends TestCase {
+class Test_Terms_Of_Service extends TestCase {
 
 	/**
 	 * Test setup.
 	 */
 	public function setUp() {
-		$this->terms_of_service = new TermsOfService();
+		$this->terms_of_service = $this->createPartialMock( __NAMESPACE__ .'\\Terms_Of_Service',
+			array( 'get_raw_has_agreed', 'is_development_mode', 'is_active', 'set_agree', 'set_revoke' )
+		);
 	}
 
 	/**
 	 * Test teardown.
 	 */
 	public function tearDown() {
-		unset( $this->manager );
-		Constants::clear_constants();
 		Mock::disableAll();
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\TermsOfService::agree
+	 * @covers Automattic\Jetpack\Terms_Of_Service->agree
 	 */
 	public function test_agree() {
+		$this->mock_function( 'do_action', null );
+		$this->terms_of_service->expects( $this->once() )->method( 'set_agree' )->willReturn( null );
 
-		$this->assertFalse( $this->terms_of_service->has_agreed() );
 		$this->terms_of_service->agree();
-
-		// check that the do_action has run.
-		$this->assertTrue( $this->terms_of_service->has_agreed() );
-
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\TermsOfService::has_agreed
+	 * @covers Automattic\Jetpack\Terms_Of_Service->revoke
+	 */
+	public function test_revoke() {
+		$this->mock_function( 'do_action', null );
+		$this->terms_of_service->expects( $this->once() )->method( 'set_revoke' )->willReturn( null );
+
+		$this->terms_of_service->revoke();
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
 	 */
 	public function test_has_agreed_after_the_site_agrees() {
-		$this->terms_of_service->agree();
+		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
+		$this->assertFalse( $this->terms_of_service->has_agreed() );
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
+	 */
+	public function test_has_agreed_is_development_mode() {
+		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( true );
+		// is_development_mode
+		$this->terms_of_service->expects( $this->once() )->method( 'is_development_mode' )->willReturn( true );
+		$this->assertFalse( $this->terms_of_service->has_agreed() );
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
+	 */
+	public function test_has_agreed_is_active_mode() {
+		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( true );
+		// Not in dev mode...
+		$this->terms_of_service->expects( $this->once() )->method( 'is_development_mode' )->willReturn( false );
+
+		// Jetpack is active
+		$this->terms_of_service->expects( $this->once() )->method( 'is_active' )->willReturn( true );
+
 		$this->assertTrue( $this->terms_of_service->has_agreed() );
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\TermsOfService::has_agreed
+	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
 	 */
-	public function test_has_agreed_is_development_mode() {
-		$this->terms_of_service->agree();
-		// TODO: Set the site in dev mode.
+	public function test_has_agreed_is_not_active_mode() {
+		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( true );
+		// not in dev mode...
+		$this->terms_of_service->expects( $this->once() )->method( 'is_development_mode' )->willReturn( false );
+
+		// Jetpack is not active
+		$this->terms_of_service->expects( $this->once() )->method( 'is_active' )->willReturn( false );
+
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\TermsOfService::has_agreed
+	 * Mock a global function and make it return a certain value.
+	 *
+	 * @param string $function_name Name of the function.
+	 * @param mixed  $return_value  Return value of the function.
+	 * @return phpmock\Mock The mock object.
 	 */
-	public function test_has_agreed_is_active_mode() {
-		$this->terms_of_service->agree();
-		// TODO: Set the site in disconnected mode
-		$this->assertFalse( $this->terms_of_service->has_agreed() );
+	protected function mock_function( $function_name, $return_value = null ) {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+		        ->setName( $function_name )
+		        ->setFunction( function() use ( &$return_value ) {
+			        return $return_value;
+		        } );
+		return $builder->build()->enable();
 	}
+
 
 }
