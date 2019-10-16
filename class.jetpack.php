@@ -566,10 +566,15 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-
-		if ( self::jetpack_tos_agreed() ) {
-			$tracking = new Automattic\Jetpack\Plugin\Tracking();
+		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		$tracking = new \Automattic\Jetpack\Plugin\Tracking();
+		if ( $terms_of_service->has_agreed() ) {
 			add_action( 'init', array( $tracking, 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
 		}
 
 		add_filter(
@@ -3323,8 +3328,9 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
+		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
 		// The user has agreed to the TOS at some point by now.
-		Jetpack_Options::update_option( 'tos_agreed', true );
+		$terms_of_service->agree();
 
 		// Let's get some testing in beta versions and such.
 		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
@@ -6936,15 +6942,14 @@ endif;
 	/**
 	 * Checks whether or not TOS has been agreed upon.
 	 * Will return true if a user has clicked to register, or is already connected.
+	 *
+	 * @deprecated
 	 */
 	public static function jetpack_tos_agreed() {
-		$tos_agreed = Jetpack_Options::get_option( 'tos_agreed' ) || self::is_active_and_not_development_mode();
+		_deprecated_function( 'Jetpack::jetpack_tos_agreed', 'Jetpack 7.9.0', '\Automattic\Jetpack\Terms_Of_Service->has_agreed' );
 
-		if ( $tos_agreed ) {
-			add_filter( 'jetpack_tos_agreed', '__return_true' );
-		}
-
-		return $tos_agreed;
+		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		return $terms_of_service->has_agreed();
 	}
 
 	/**

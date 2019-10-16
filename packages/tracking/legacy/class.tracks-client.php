@@ -49,6 +49,8 @@ class Jetpack_Tracks_Client {
 	const USER_AGENT_SLUG = 'tracks-client';
 	const VERSION         = '0.3';
 
+	private $terms_of_service;
+
 	/**
 	 * Record an event.
 	 *
@@ -57,7 +59,11 @@ class Jetpack_Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	public static function record_event( $event ) {
-		if ( ! Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
+		if ( ! self::$terms_of_service ) {
+			self::$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		}
+
+		if ( ! self::$terms_of_service->has_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
 			return false;
 		}
 
