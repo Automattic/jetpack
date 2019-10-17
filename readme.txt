@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: change default settings tab depending on your role.
 * Admin Page: do not display Composing header for editors.
 * Debug: reduce instances when an inconclusive response would result in an error.
+* Sync: prevent a PHP Notice in some cases where a post isn't actually a post.
 * Widgets: fix timeout issues that may sometimes occur in the GoodReads widget when user has added lots of books to their account.
 
 --------
