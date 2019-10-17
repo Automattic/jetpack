@@ -104,6 +104,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Page: update icons for security settings.
+* Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
 
 **Improved compatibility**
 
