@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: update icons for security settings.
 * Block Editor: provide block previews for Jetpack blocks.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
+* Connection flow: add plan billing period toggle.
 * Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
 
 **Improved compatibility**
