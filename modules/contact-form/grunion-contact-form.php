@@ -3524,7 +3524,7 @@ function grunion_delete_old_spam() {
  * @param int   $post_id - the post_id for the CPT that is created.
  * @param array $all_values - fields from the default contact form.
  * @param array $extra_values - extra fields added to from the contact form.
-
+ *
  * @return null|void
  */
 function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
