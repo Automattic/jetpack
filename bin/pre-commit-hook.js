@@ -58,7 +58,8 @@ function checkFailed() {
 		chalk.red( 'COMMIT ABORTED:' ),
 		'The linter reported some problems. ' +
 			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.'
+			'repeat the commit command with --no-verify to avoid this check. ' +
+			"But please don't. Code is poetry."
 	);
 	exitCode = 1;
 }
@@ -188,11 +189,18 @@ let phpChangedResult;
 if ( phpFiles.length > 0 ) {
 	phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
 		shell: true,
-		stdio: 'inherit',
+		stdio: 'pipe',
+		encoding: 'utf-8',
 	} );
 }
 
 if ( phpChangedResult && phpChangedResult.stdout ) {
+	let phpChangedResultText;
+	phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
+	phpChangedResultText.shift();
+	console.log(
+		JSON.stringify( JSON.parse( phpChangedResultText.toString().slice( 0, -1 ) ), null, 2 )
+	);
 	checkFailed();
 }
 
