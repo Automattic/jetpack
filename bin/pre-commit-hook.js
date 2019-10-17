@@ -192,7 +192,7 @@ if ( phpFiles.length > 0 ) {
 	} );
 }
 
-if ( phpChangedResult && phpChangedResult.status ) {
+if ( phpChangedResult && phpChangedResult.stdout ) {
 	checkFailed();
 }
 
