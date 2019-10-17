@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Debug: Reduce instances when an inconclusive response would result in an error.
 
 --------
 
