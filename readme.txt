@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * AMP: ensure that one can use the Slideshow and the MailChimp blocks when using the AMP plugin.
 * Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
+* Blocks: ensure that all blocks display well in the editor when using WordPress 5.3.
 * Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 
