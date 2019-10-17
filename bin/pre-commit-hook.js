@@ -184,6 +184,18 @@ if ( phpcsResult && phpcsResult.status ) {
 	exitCode = 1;
 }
 
+let phpChangedResult;
+if ( phpFiles.length > 0 ) {
+	phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+}
+
+if ( phpChangedResult && phpChangedResult.status ) {
+	checkFailed();
+}
+
 capturePreCommitDate();
 
 process.exit( exitCode );
