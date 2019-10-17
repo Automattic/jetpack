@@ -17,29 +17,29 @@ RUN \
 		composer \
 		curl \
 		less \
-		libapache2-mod-php7.3 \
+		libapache2-mod-php7.4 \
 		libsodium23 \
 		mysql-client \
 		nano \
 		php-apcu \
 		php-xdebug \
-		php7.3 \
-		php7.3-bcmath \
-		php7.3-cli \
-		php7.3-curl \
-		php7.3-gd \
-		php7.3-imagick \
-		php7.3-json \
-		php7.3-ldap \
-		php7.3-mbstring \
-		php7.3-mysql \
-		php7.3-opcache \
-		php7.3-pgsql \
-		php7.3-soap \
-		php7.3-sqlite3 \
-		php7.3-xml \
-		php7.3-xsl \
-		php7.3-zip \
+		php7.4 \
+		php7.4-bcmath \
+		php7.4-cli \
+		php7.4-curl \
+		php7.4-gd \
+		# php7.4-imagick \
+		php7.4-json \
+		php7.4-ldap \
+		php7.4-mbstring \
+		php7.4-mysql \
+		php7.4-opcache \
+		php7.4-pgsql \
+		php7.4-soap \
+		php7.4-sqlite3 \
+		php7.4-xml \
+		php7.4-xsl \
+		php7.4-zip \
 		ssmtp \
 		subversion \
 		sudo \
@@ -66,8 +66,8 @@ RUN curl https://phar.phpunit.de/phpunit-7.phar -L -o phpunit.phar \
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
 
 # Copy a default set of settings for PHP (php.ini)
-COPY ./config/php.ini /etc/php/7.3/apache2/conf.d/20-jetpack-wordpress.ini
-COPY ./config/php.ini /etc/php/7.3/cli/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/7.4/apache2/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/7.4/cli/conf.d/20-jetpack-wordpress.ini
 
 # Copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /tmp/htaccess
