@@ -97,6 +97,20 @@
 	font-weight: 500;
 }
 
+/* Authors widget */
+.widget_authors ul {
+	margin-left: 0;
+}
+
+.widget_authors li {
+	margin-top: 1rem;
+	list-style: none;
+}
+
+.widget_authors li:first-child {
+    margin-top: 2rem;
+}
+
 /* EU cookie law */
 .widget_eu_cookie_law_widget #eu-cookie-law,
 .widget_eu_cookie_law_widget #eu-cookie-law .accept {
