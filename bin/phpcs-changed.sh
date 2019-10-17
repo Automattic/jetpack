@@ -18,7 +18,7 @@ function phpcschanged {
 
   for file in $( git diff --name-only --cached ); do
 	  mkdir -p tmp-phpcschanged/original/$(dirname ${file} ) > /dev/null 2>&1
-	  git cat-file -p master:${file} > tmp-phpcschanged/original/${file} > /dev/null 2>&1
+	  git cat-file -p HEAD:${file} > tmp-phpcschanged/original/${file}
   done
 
   vendor/bin/phpcs --report=json tmp-phpcschanged/original > tmp-phpcschanged/phpcs-orig.json

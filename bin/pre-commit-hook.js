@@ -198,10 +198,11 @@ if ( phpChangedResult && phpChangedResult.stdout ) {
 	let phpChangedResultText;
 	phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
 	phpChangedResultText.shift();
-	console.log(
-		JSON.stringify( JSON.parse( phpChangedResultText.toString().slice( 0, -1 ) ), null, 2 )
-	);
-	checkFailed();
+	phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
+	if ( phpChangedResultText ) {
+		console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
+		checkFailed();
+	}
 }
 
 capturePreCommitDate();
