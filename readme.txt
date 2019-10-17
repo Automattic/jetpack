@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
+* Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 
 **Bug fixes**
