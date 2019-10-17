@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Page: translate empty Stats chart's message.
 * Admin Page: change default settings tab depending on your role.
 * Admin Page: do not display Composing header for editors.
 * Debug: reduce instances when an inconclusive response would result in an error.
