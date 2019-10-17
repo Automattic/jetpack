@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Admin Page: change default settings tab depending on your role.
 * Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
 * Block Editor: provide block previews for Jetpack blocks.
 
