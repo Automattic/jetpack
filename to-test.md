@@ -2,11 +2,11 @@
 
 ### Blocks
 
-#### MailChimp
+#### AMP
 
-The MailChimp block now works well with the AMP plugin. To test this, try adding a MailChimp block to a site where you use the AMP plugin.
+Both the MailChimp and the SlideShow blocks now work well with the AMP plugin.
 
-When visiting your site on an AMP view, you should be able to subscribe using the MailChimp block with no issues.
+To test this, try adding either of those blocks to a site where you use the AMP plugin. When visiting your site on an AMP view, you should be able to use the 2 blocks with no issues.
 
 ### Others
 
