@@ -1,4 +1,9 @@
 <?php
+/**
+ * A Terms of Service class for Jetpack.
+ *
+ * @package automattic/jetpack-terms-of-service
+ */
 
 namespace Automattic\Jetpack;
 
@@ -8,15 +13,14 @@ use Automattic\Jetpack\Status;
 /**
  * Class Terms_Of_Service
  *
- * Helper class that tells is resposible for the agreemend of the terms of service.
- * When a user delete Jetpack the deletion script
- * Remove the option that is responsible for the terms of service option.
- * Resetting it.
+ * Helper class that tells is responsible for the state of agreement of the terms of service.
+ * When a user delete Jetpack it also deletes the option which also revokes the terms of service.
  *
  * @package Automattic\Jetpack
  */
 class Terms_Of_Service {
 	/**
+	 * Option name where the terms of service gets stored.
 	 *
 	 * @var string
 	 */
@@ -50,6 +54,11 @@ class Terms_Of_Service {
 
 	/**
 	 * Returns whether the master user has agreed to the terms of service.
+	 *
+	 * The following conditions have to be meet in order to agree to the terms of service.
+	 * 1. The master user has gone though the connect flow.
+	 * 2. The site is not in dev mode.
+	 * 3. The master user of the is still connected.
 	 *
 	 * @return bool
 	 */
@@ -102,6 +111,7 @@ class Terms_Of_Service {
 	protected function set_agree() {
 		\Jetpack_Options::update_option( self::OPTION_NAME, true );
 	}
+
 	/**
 	 * Abstracted for testing purposes.
 	 */
