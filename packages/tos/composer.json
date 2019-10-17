@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-tos",
+	"name": "automattic/jetpack-terms-of-service",
 	"description": "Everything need to manage the TOS state",
 	"type": "library",
 	"license": "GPL-2.0-or-later",

@@ -566,16 +566,8 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
-		$tracking = new \Automattic\Jetpack\Plugin\Tracking();
-		if ( $terms_of_service->has_agreed() ) {
-			add_action( 'init', array( $tracking, 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
-		}
+
+		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' )  );
 
 		add_filter(
 			'jetpack_connection_secret_generator',
@@ -731,6 +723,23 @@ class Jetpack {
 		 * Load some scripts asynchronously.
 		 */
 		add_action( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 3 );
+	}
+
+	/**
+	 * Runs after all the plugins have loaded but before init.
+	 *
+	 */
+	function after_plugins_loaded() {
+		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		$tracking = new \Automattic\Jetpack\Plugin\Tracking();
+		if ( $terms_of_service->has_agreed() ) {
+			add_action( 'init', array( $tracking, 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+		}
 	}
 
 	/**
