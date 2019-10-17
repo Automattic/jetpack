@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Admin Page: update icons for security settings.
 
 **Improved compatibility**
 
@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-* Debug: Reduce instances when an inconclusive response would result in an error.
+* Debug: reduce instances when an inconclusive response would result in an error.
 
 --------
 
