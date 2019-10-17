@@ -12,7 +12,7 @@ import SearchApp from './components/search-app';
 import { getSearchQuery, determineDefaultSort } from './lib/query-string';
 import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
-import { initializeTracks, identifySite } from './lib/tracks';
+import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
 
 const injectSearchApp = grabFocus => {
 	render(
@@ -31,6 +31,7 @@ const injectSearchApp = grabFocus => {
 document.addEventListener( 'DOMContentLoaded', function() {
 	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		initializeTracks();
+		resetTrackingCookies();
 		identifySite( window[ SERVER_OBJECT_NAME ].siteId );
 		injectSearchApp();
 	}

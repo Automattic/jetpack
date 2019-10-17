@@ -3,6 +3,9 @@ const globalProperties = {};
 export function initializeTracks() {
 	window._tkq = window._tkq || [];
 }
+export function resetTrackingCookies() {
+	window._tkq.push( [ 'clearIdentity' ] );
+}
 
 export function identifySite( siteId ) {
 	globalProperties.blog_id = siteId;
