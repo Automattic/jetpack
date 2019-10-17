@@ -4,10 +4,10 @@ export function removeChildren( htmlElement ) {
 	}
 }
 
-export function hideElements( elem_selectors ) {
+export function hideElements( elementSelectors ) {
 	let elem = null;
-	for ( let i = 0; i < elem_selectors.length; i++ ) {
-		elem = document.querySelector( elem_selectors[ i ] );
+	for ( let i = 0; i < elementSelectors.length; i++ ) {
+		elem = document.querySelector( elementSelectors[ i ] );
 		if ( elem ) {
 			elem.style.display = 'none';
 		}
@@ -66,9 +66,9 @@ function findElementsToRemove() {
 
 export function getThemeOptions( searchOptions ) {
 	const options = {
-		results_selector: findResultSelector(),
-		elem_selectors: findElementsToRemove(),
-		search_form_selector: 'form#searchform, form.search-form, form.searchform',
+		resultsSelector: findResultSelector(),
+		elementSelectors: findElementsToRemove(),
+		searchFormSelector: 'form#searchform, form.search-form, form.searchform',
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
 }
