@@ -104,17 +104,18 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Page: update icons for security settings.
+* Block Editor: provide block previews for Jetpack blocks.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
 
 **Improved compatibility**
 
-* Admin Page: change default settings tab depending on your role.
-* Admin Page: do not display Composing header for editors.
 * Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
-* Block Editor: provide block previews for Jetpack blocks.
+* PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 
 **Bug fixes**
 
+* Admin Page: change default settings tab depending on your role.
+* Admin Page: do not display Composing header for editors.
 * Debug: reduce instances when an inconclusive response would result in an error.
 
 --------
