@@ -238,10 +238,18 @@ class JetpackStateNotices extends React.Component {
 			noticeText = '',
 			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
-			message = this.props.jetpackStateNoticesMessageCode;
+			message = this.props.jetpackStateNoticesMessageCode,
+			messageContent = this.props.jetpackStateNoticesMessageContent;
 
-		if ( ! error && ! message ) {
+		if ( ! error && ! message && ! messageContent ) {
 			return;
+		}
+
+		let parsedMessage = null,
+			releasePostContent = null;
+		if ( messageContent ) {
+			parsedMessage = JSON.parse( messageContent );
+			releasePostContent = parsedMessage.release_post_content;
 		}
 
 		if ( error ) {
@@ -252,14 +260,17 @@ class JetpackStateNotices extends React.Component {
 		}
 
 		// Show custom message for upgraded Jetpack
-		if ( 'modules_activated' === message ) {
+		if ( releasePostContent ) {
+			const releasePostImage = parsedMessage.release_post_image;
+
 			return (
 				<UpgradeNoticeContent
 					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ this.props.currentVersion }
-					messageContent={ this.props.jetpackStateNoticesMessageContent }
+					releasePostContent={ releasePostContent }
+					releasePostImage={ releasePostImage }
 				/>
 			);
 		}

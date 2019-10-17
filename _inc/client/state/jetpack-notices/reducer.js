@@ -79,7 +79,7 @@ export function getJetpackStateNoticesMessageCode( state ) {
  * Returns the message content passed from PHP to the intial state of the app.
  *
  * @param {Object} state Global state tree
- * @return {number} The message content.
+ * @return {string} The message content.
  */
 export function getJetpackStateNoticesMessageContent( state ) {
 	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageContent' ] );

@@ -36,11 +36,10 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		};
 
 		renderInnerContent() {
-			const content = JSON.parse( this.props.messageContent ).content;
 			/*eslint-disable react/no-danger*/
 			return (
 				<div className="jp-upgrade-notice__content">
-					<div dangerouslySetInnerHTML={ { __html: content } } />
+					<div dangerouslySetInnerHTML={ { __html: this.props.releasePostContent } } />
 					<div className="jp-dialogue__cta-container">
 						<Button onClick={ this.dismissNotice }>{ __( 'Okay, got it!' ) }</Button>
 					</div>
@@ -50,18 +49,15 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		}
 
 		render() {
-			if ( null !== this.props.messageContent ) {
-				const post_image = JSON.parse( this.props.messageContent ).image;
-				return (
-					// TODO: update SVG?
-					<JetpackDialogue
-						svg={ <img src={ post_image } width="250" alt={ '' } /> }
-						title={ __( 'New in Jetpack ' + this.props.version + '!' ) }
-						content={ this.renderInnerContent() }
-						dismiss={ this.dismissNotice }
-					/>
-				);
-			}
+			return (
+				// TODO: update SVG?
+				<JetpackDialogue
+					svg={ <img src={ this.props.releasePostImage } width="250" alt={ '' } /> }
+					title={ __( 'New in Jetpack ' + this.props.version + '!' ) }
+					content={ this.renderInnerContent() }
+					dismiss={ this.dismissNotice }
+				/>
+			);
 		}
 	}
 );

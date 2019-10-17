@@ -2222,12 +2222,7 @@ class Jetpack {
 			)
 		);
 
-		$release_post_content = self::get_release_post_content();
-		if ( $release_post_content ) {
-			// Show upgrade state notice if release post content is available.
-			self::state( 'message', 'modules_activated' );
-			self::state( 'message_content', $release_post_content );
-		}
+		self::state( 'message', 'modules_activated' );
 
 		self::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
@@ -2240,34 +2235,6 @@ class Jetpack {
 			wp_safe_redirect( self::admin_url( 'page=' . $page ) );
 			exit;
 		}
-	}
-
-	/**
-	 * Retrieves the post content and featured image from the latest Jetpack
-	 * release post.
-	 *
-	 * @return string JSON encoded string containing the release post content and
-	 * featured image url.
-	 */
-	private static function get_release_post_content() {
-		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts/?order_by=date&category=Releases&number=1' );
-		if ( ! is_array( $response ) ) {
-			return null;
-		}
-
-		$post_data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		$post_content   = $post_data['posts'][0]['content'];
-		$post_image_src = $post_data['posts'][0]['featured_image'];
-
-		$content   = wp_kses_post( $post_content );
-		$image_src = esc_url( $post_image_src );
-
-		$post_array = array(
-			'content' => $content,
-			'image'   => $image_src,
-		);
-		return wp_json_encode( $post_array );
 	}
 
 	/**
@@ -3222,14 +3189,46 @@ p {
 	/**
 	 * Runs before bumping version numbers up to a new version
 	 *
-	 * @param  string $version    Version:timestamp
-	 * @param  string $old_version Old Version:timestamp or false if not set yet.
-	 * @return null              [description]
+	 * @param string $version    Version:timestamp.
+	 * @param string $old_version Old Version:timestamp or false if not set yet.
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-		if ( ! $old_version ) { // For new sites
-			// There used to be stuff here, but this seems like it might  be useful to someone in the future...
+		if ( $old_version ) { // For existing Jetpack installations.
+			self::send_update_modal_data();
 		}
+	}
+
+	/**
+	 * Prepares the release post content and image data and saves it in the
+	 * state array. This data is used to create the update modal.
+	 */
+	public static function send_update_modal_data() {
+		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts/?order_by=date&category=Releases&number=1' );
+		if ( ! is_array( $response ) ) {
+			return;
+		}
+
+		$post_data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! isset( $post_data['posts'] ) || ! isset( $post_data['posts'][0] ) ) {
+			return;
+		}
+
+		$post_content = isset( $post_data['posts'][0]['content'] ) ? $post_data['posts'][0]['content'] : null;
+		if ( empty( $post_content ) ) {
+			return;
+		}
+		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
+
+		$content   = wp_kses_post( $post_content );
+		$image_src = esc_url( $post_image_src );
+
+		$post_array = array(
+			'release_post_content' => $content,
+			'release_post_image'   => $image_src,
+		);
+
+		self::state( 'message_content', wp_json_encode( $post_array ) );
 	}
 
 	/**
@@ -5495,7 +5494,7 @@ endif;
 
 		// Extract state from cookies and delete cookies
 		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
-			$yum = $_COOKIE['jetpackState'];
+			$yum = wp_unslash( $_COOKIE['jetpackState'] );
 			unset( $_COOKIE['jetpackState'] );
 			foreach ( $yum as $k => $v ) {
 				if ( strlen( $v ) ) {
