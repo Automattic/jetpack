@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
 
 **Bug fixes**
 
