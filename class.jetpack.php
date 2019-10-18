@@ -12,6 +12,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Terms_Of_Service;
 
 /*
 Options:
@@ -730,7 +731,7 @@ class Jetpack {
 	 *
 	 */
 	function after_plugins_loaded() {
-		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		$terms_of_service = new Terms_Of_Service();
 		$tracking = new \Automattic\Jetpack\Plugin\Tracking();
 		if ( $terms_of_service->has_agreed() ) {
 			add_action( 'init', array( $tracking, 'init' ) );
@@ -3337,7 +3338,7 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
-		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		$terms_of_service = new Terms_Of_Service();
 		// The user has agreed to the TOS at some point by now.
 		$terms_of_service->agree();
 
@@ -6957,7 +6958,7 @@ endif;
 	public static function jetpack_tos_agreed() {
 		_deprecated_function( 'Jetpack::jetpack_tos_agreed', 'Jetpack 7.9.0', '\Automattic\Jetpack\Terms_Of_Service->has_agreed' );
 
-		$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		$terms_of_service = new Terms_Of_Service();
 		return $terms_of_service->has_agreed();
 	}
 

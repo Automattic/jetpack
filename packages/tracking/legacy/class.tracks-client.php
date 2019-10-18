@@ -49,6 +49,11 @@ class Jetpack_Tracks_Client {
 	const USER_AGENT_SLUG = 'tracks-client';
 	const VERSION         = '0.3';
 
+	/**
+	 * Stores the reference to the terms of service object if there is one.
+	 *
+	 * @var Terms Of Service object.
+	 */
 	private $terms_of_service;
 
 	/**
@@ -60,7 +65,7 @@ class Jetpack_Tracks_Client {
 	 */
 	public static function record_event( $event ) {
 		if ( ! self::$terms_of_service ) {
-			self::$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+			self::$terms_of_service = new Automattic\Jetpack\Terms_Of_Service();
 		}
 
 		if ( ! self::$terms_of_service->has_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
