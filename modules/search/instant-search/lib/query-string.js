@@ -186,3 +186,8 @@ export function setFilterQuery( filterKey, filterValue ) {
 	query[ filterKey ] = filterValue;
 	pushQueryString( encode( query ) );
 }
+
+export function getResultFormatQuery() {
+	const query = getQuery();
+	return 'result_format' in query;
+}

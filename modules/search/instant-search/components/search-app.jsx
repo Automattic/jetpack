@@ -27,12 +27,12 @@ import {
 	hasFilter,
 	restorePreviousPath,
 	getSearchQuery,
+	//getResultFormatQuery,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
 class SearchApp extends Component {
 	static defaultProps = {
-		resultFormat: 'minimal',
 		widgets: [],
 	};
 
@@ -44,7 +44,8 @@ class SearchApp extends Component {
 		// TODO: Rework this line; we shouldn't reassign properties.
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 
-		this.state = { isLoading: false, response: {}, showResults: false };
+		// @todo resultformat hardcoded for the moment
+		this.state = { isLoading: false, response: {}, showResults: false, resultFormat: 'product' };
 		this.getDebouncedResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
 	}
@@ -147,6 +148,7 @@ class SearchApp extends Component {
 	getResults = ( query, filter, sort, pageHandle ) => {
 		this.requestId++;
 		const requestId = this.requestId;
+		const resultFormat = this.state.resultFormat;
 
 		this.setState( { isLoading: true }, () => {
 			search( {
@@ -155,7 +157,7 @@ class SearchApp extends Component {
 				filter,
 				pageHandle,
 				query,
-				resultFormat: this.props.options.resultFormat,
+				resultFormat,
 				siteId: this.props.options.siteId,
 				sort,
 			} ).then( newResponse => {
@@ -243,7 +245,7 @@ class SearchApp extends Component {
 							locale={ this.props.options.locale }
 							query={ getSearchQuery() }
 							response={ this.state.response }
-							resultFormat={ this.props.options.resultFormat }
+							resultFormat={ this.state.resultFormat }
 							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 						/>,
 						document.querySelector( this.props.themeOptions.resultsSelector )
