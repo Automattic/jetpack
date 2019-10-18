@@ -5,7 +5,13 @@
 }
 
 .plan-card__header {
+	padding: 15px;
+
 	&.is-backup-daily-plan {
 		border-bottom: solid 2px $blue-medium;
 	}
+}
+
+.plan-card__body {
+	padding: 15px;
 }
