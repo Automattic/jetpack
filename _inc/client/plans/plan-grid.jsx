@@ -115,8 +115,8 @@ class PlanGrid extends React.Component {
 	renderPlanPeriodToggle() {
 		const { period } = this.state;
 		const periods = {
-			monthly: __( 'Monthly' ),
-			yearly: __( 'Yearly' ),
+			monthly: __( 'Monthly Billing' ),
+			yearly: __( 'Yearly Billing' ),
 		};
 
 		return (
@@ -221,7 +221,7 @@ class PlanGrid extends React.Component {
 		// 	{}
 		// );
 
-		this.featuredPlans = [ 'business', 'personal', 'premium' ].map(
+		this.featuredPlans = [ 'business', 'premium', 'personal' ].map(
 			planType => featuredPlans.find( item => item.planType === planType ) // todo: more robust
 		);
 		return this.featuredPlans;
