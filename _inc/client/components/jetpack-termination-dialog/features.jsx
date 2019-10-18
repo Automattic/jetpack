@@ -19,7 +19,6 @@ import './style.scss';
 
 class JetpackTerminationDialogFeatures extends Component {
 	static propTypes = {
-		isAtomicSite: PropTypes.bool,
 		isDevVersion: PropTypes.bool,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array.isRequired,
@@ -87,7 +86,7 @@ class JetpackTerminationDialogFeatures extends Component {
 	}
 
 	render() {
-		const { isAtomicSite, isDevVersion, purpose, siteBenefits, siteName } = this.props;
+		const { isDevVersion, purpose, siteBenefits, siteName } = this.props;
 
 		const siteBenefitCount = siteBenefits.length;
 
@@ -148,15 +147,13 @@ class JetpackTerminationDialogFeatures extends Component {
 					<div className="jetpack-termination-dialog__get-help">
 						<p>
 							{ __(
-								'Have a question? We’d love to help! {{a}}Chat now with the Jetpack support team.{{/a}}',
+								'Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}',
 								{
 									components: {
 										a: (
 											<a
 												className="jetpack-termination-dialog__link"
-												href={
-													isAtomicSite ? 'https://wordpress.com/help/contact/' : jetpackSupportURl
-												}
+												href={ jetpackSupportURl }
 												rel="noopener noreferrer"
 												target="_blank"
 											/>
