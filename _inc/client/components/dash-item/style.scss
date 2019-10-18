@@ -72,13 +72,14 @@
 .jp-dash-item {
 	.dops-section-header__actions {
 		.dops-notice {
-			margin-top: rem( 2px );
+			margin-top: rem( -1px );
+			margin-bottom: rem( -1px );
 		}
 	}
 }
 .jp-dash-item__active-label {
 	display: inline-block;
-	padding: rem( 6px ) 0;
+	padding: rem( 6px ) 0 0;
 	color: darken( $gray, 10% );
 	color: $gray;
 	font-size: rem( 12px );
