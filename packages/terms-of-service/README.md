@@ -24,7 +24,6 @@ $terms_of_service = new Terms_Of_Service();
 $terms_of_service->revoke();
 ```
 
-
 Has the site agreed the terms of service?
 
 ```php

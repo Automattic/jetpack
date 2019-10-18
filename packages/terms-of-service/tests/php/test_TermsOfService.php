@@ -107,6 +107,4 @@ class Test_Terms_Of_Service extends TestCase {
 		        } );
 		return $builder->build()->enable();
 	}
-
-
 }

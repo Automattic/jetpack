@@ -14,7 +14,6 @@ use Automattic\Jetpack\Status;
  * Class Terms_Of_Service
  *
  * Helper class that tells is responsible for the state of agreement of the terms of service.
- * When a user delete Jetpack it also deletes the option which also revokes the terms of service.
  *
  * @package Automattic\Jetpack
  */
