@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-terms-of-service",
-	"description": "Everything need to manage the TOS state",
+	"description": "Everything need to manage the terms of service state",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {

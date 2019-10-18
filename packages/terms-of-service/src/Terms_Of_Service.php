@@ -13,9 +13,8 @@ use Automattic\Jetpack\Status;
 /**
  * Class Terms_Of_Service
  *
- * Helper class that tells is responsible for the state of agreement of the terms of service.
+ * Helper class that is responsible for the state of agreement of the terms of service.
  *
- * @package Automattic\Jetpack
  */
 class Terms_Of_Service {
 	/**
@@ -54,10 +53,10 @@ class Terms_Of_Service {
 	/**
 	 * Returns whether the master user has agreed to the terms of service.
 	 *
-	 * The following conditions have to be meet in order to agree to the terms of service.
+	 * The following conditions have to be met in order to agree to the terms of service.
 	 * 1. The master user has gone though the connect flow.
 	 * 2. The site is not in dev mode.
-	 * 3. The master user of the is still connected.
+	 * 3. The master user of the site is still connected.
 	 *
 	 * @return bool
 	 */

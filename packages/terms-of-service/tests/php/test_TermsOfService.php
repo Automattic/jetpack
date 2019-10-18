@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Automattic\Jetpack;
 
 use PHPUnit\Framework\TestCase;
@@ -48,7 +47,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
 	 */
-	public function test_has_agreed_after_the_site_agrees() {
+	public function test_has_agreed_before_the_site_agrees() {
 		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
