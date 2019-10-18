@@ -89,7 +89,7 @@ class Jetpack_Tiled_Gallery_Block {
 							$srcset_src = add_query_arg(
 								array(
 									'resize' => $w . ',' . $w,
-									'strip'  => 'all',
+									'strip'  => 'info',
 								),
 								$orig_src
 							);
@@ -108,7 +108,7 @@ class Jetpack_Tiled_Gallery_Block {
 						for ( $w = $min_width; $w <= $max_width; $w = min( $max_width, $w + self::IMG_SRCSET_WIDTH_STEP ) ) {
 							$srcset_src = add_query_arg(
 								array(
-									'strip' => 'all',
+									'strip' => 'info',
 									'w'     => $w,
 								),
 								$orig_src

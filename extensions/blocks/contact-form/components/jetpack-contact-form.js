@@ -4,10 +4,19 @@
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, PanelBody, Path, Placeholder, TextControl } from '@wordpress/components';
+import {
+	BaseControl,
+	Button,
+	PanelBody,
+	Path,
+	Placeholder,
+	SelectControl,
+	TextareaControl,
+	TextControl,
+} from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { InnerBlocks, InspectorControls } from '@wordpress/editor';
+import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -190,6 +199,48 @@ class JetpackContactForm extends Component {
 		);
 	}
 
+	renderConfirmationMessageFields() {
+		const { instanceId } = this.props;
+		const { customThankyou, customThankyouMessage, customThankyouRedirect } = this.props.attributes;
+		return (
+			<Fragment>
+				<SelectControl
+					label={ __( 'On Submission', 'jetpack' ) }
+					value={ customThankyou }
+					options={ [
+						{ label: __( 'Show a summary of submitted fields', 'jetpack' ), value: '' },
+						{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
+						{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
+					] }
+					onChange={ value => this.props.setAttributes( { customThankyou: value } ) }
+				/>
+				{ 'message' === customThankyou && (
+					<TextareaControl
+						label={ __( 'Message Text', 'jetpack' ) }
+						value={ customThankyouMessage }
+						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
+						onChange={ value => this.props.setAttributes( { customThankyouMessage: value } ) }
+					/>
+				) }
+				{ 'redirect' === customThankyou && (
+					// @todo This can likely be simplified when WP 5.4 is the minimum supported version.
+					// See https://github.com/Automattic/jetpack/pull/13745#discussion_r334712381
+					<BaseControl
+						label={ __( 'Redirect Address', 'jetpack' ) }
+						id={ `contact-form-${ instanceId }-thankyou-url` }
+					>
+						<URLInput
+							id={ `contact-form-${ instanceId }-thankyou-url` }
+							value={ customThankyouRedirect }
+							className="jetpack-contact-form__thankyou-redirect-url"
+							onChange={ value => this.props.setAttributes( { customThankyouRedirect: value } ) }
+						/>
+					</BaseControl>
+				) }
+			</Fragment>
+		);
+	}
+
 	hasEmailError() {
 		const fieldEmailError = this.state.toError;
 		return fieldEmailError && fieldEmailError.length > 0;
@@ -205,8 +256,11 @@ class JetpackContactForm extends Component {
 		return (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Email feedback settings', 'jetpack' ) }>
+					<PanelBody title={ __( 'Email Feedback Settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
+					</PanelBody>
+					<PanelBody title={ __( 'Confirmation Message', 'jetpack' ) }>
+						{ this.renderConfirmationMessageFields() }
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>

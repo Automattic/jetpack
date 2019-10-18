@@ -2,6 +2,7 @@
 module.exports = [
 	'3rd-party/3rd-party.php',
 	'3rd-party/class.jetpack-amp-support.php',
+	'3rd-party/woocommerce-services.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
 	'extensions/',
@@ -25,6 +26,7 @@ module.exports = [
 	'modules/sitemaps/sitemaps.php',
 	'modules/theme-tools/social-menu/',
 	'modules/verification-tools.php',
+	'modules/widgets/contact-info.php',
 	'modules/widgets/social-icons.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'packages',

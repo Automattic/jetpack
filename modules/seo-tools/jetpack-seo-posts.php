@@ -60,4 +60,32 @@ class Jetpack_SEO_Posts {
 
 		return $custom_description;
 	}
+
+	/**
+	 * Registers the self::DESCRIPTION_META_KEY post_meta for use in the REST API.
+	 */
+	public static function register_post_meta() {
+		$args = array(
+			'type' => 'string',
+			'description' => __( 'Custom post description to be used in HTML <meta /> tag.', 'jetpack' ),
+			'single' => true,
+			'default' => '',
+			'show_in_rest' => array(
+				'name' => self::DESCRIPTION_META_KEY
+			),
+		);
+
+		register_meta( 'post', self::DESCRIPTION_META_KEY, $args );
+	}
+
+	/**
+	 * Register the Advanced SEO Gutenberg extension
+	 */
+	public static function register_gutenberg_extension() {
+		if ( Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			Jetpack_Gutenberg::set_extension_available( 'jetpack-seo' );
+		} else {
+			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack-seo', 'jetpack_seo_disabled' );
+		}
+	}
 }

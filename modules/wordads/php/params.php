@@ -52,7 +52,7 @@ class WordAds_Params {
 		$this->targeting_tags = array(
 			'WordAds' => 1,
 			'BlogId'  => Jetpack::is_development_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
-			'Domain'  => esc_js( parse_url( home_url(), PHP_URL_HOST ) ),
+			'Domain'  => esc_js( wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			'PageURL' => esc_js( $this->url ),
 			'LangId'  => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
 			'AdSafe'  => 1, // TODO

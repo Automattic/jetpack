@@ -58,8 +58,7 @@ matrix:
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
     script:
-    - find $(pwd)/tests/e2e/specs/*.js > ~/.jest-e2e-tests
-    - yarn test-e2e --runInBand --verbose --runTestsByPath $(cat ~/.jest-e2e-tests )
+    - yarn test-e2e --runInBand --verbose
     addons:
       apt:
         packages:

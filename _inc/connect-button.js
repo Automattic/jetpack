@@ -42,11 +42,13 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place_v2';
+			var abTestName = 'jetpack_connect_in_place_v3';
+
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
 				type: 'GET',
 				error: jetpackConnectButton.handleConnectionError,
+				data: jpConnect.identity,
 				xhrFields: {
 					withCredentials: true,
 				},

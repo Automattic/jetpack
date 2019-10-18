@@ -102,7 +102,16 @@ class Tracking {
 		}
 
 		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
-		if ( ! \Jetpack::jetpack_tos_agreed() ) {
+		if (
+			/**
+			 * Filter whether ToS were accepted on this site.
+			 *
+			 * @since 7.9.0
+			 *
+			 * @param bool $tos_agreed Was ToS accepted for this site. Defaults to false.
+			 */
+			apply_filters( 'jetpack_tos_agreed', false )
+		) {
 			return false;
 		}
 
