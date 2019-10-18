@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { PlanCard, PlanCardHeader, PlanCardBody } from './plan-card';
+import { AccentedCard, AccentedCardHeader, AccentedCardBody } from './accented-card';
 import PlanGrid from './plan-grid';
 import QuerySite from 'components/data/query-site';
 import { getAvailablePlans } from 'state/site/reducer';
@@ -68,12 +68,12 @@ export class Plans extends React.Component {
 					</header>
                 </div> */ }
 				<div style={ { display: 'flex', justifyContent: 'center', marginBottom: '10px' } }>
-					<PlanCard>
+					<AccentedCard>
 						{ {
-							header: <PlanCardHeader>{ this.renderHeaderContent() }</PlanCardHeader>,
-							body: <PlanCardBody>{ <p>This is the body.</p> }</PlanCardBody>,
+							header: <AccentedCardHeader>{ this.renderHeaderContent() }</AccentedCardHeader>,
+							body: <AccentedCardBody>{ <p>This is the body.</p> }</AccentedCardBody>,
 						} }
-					</PlanCard>
+					</AccentedCard>
 				</div>
 				<PlanGrid />
 			</>

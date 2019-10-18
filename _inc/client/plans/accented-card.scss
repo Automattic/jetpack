@@ -1,17 +1,19 @@
-.plan-card {
+.accented-card {
 	max-width: 518px;
+	min-height: 313px;
 	background-color: #fff;
 	border: solid 1px #e6e6e6;
 }
 
-.plan-card__header {
+.accented-card__header {
 	padding: 15px;
 
+	// TODO: this should be in a more generic place somehow
 	&.is-backup-daily-plan {
 		border-bottom: solid 2px $blue-medium;
 	}
 }
 
-.plan-card__body {
+.accented-card__body {
 	padding: 15px;
 }

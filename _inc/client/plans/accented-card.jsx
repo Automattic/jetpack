@@ -4,20 +4,22 @@
 import React from 'react';
 import classNames from 'classnames';
 
-const PlanCard = props => {
+const AccentedCard = props => {
 	const { header, body } = props.children;
 
 	return (
-		<div className="plan-card">
+		<div className="accented-card">
 			{ /* TODO: make the className dynamic */ }
-			<div className={ classNames( 'plan-card__header', 'is-backup-daily-plan' ) }>{ header }</div>
-			<div className="plan-card__body">{ body }</div>
+			<div className={ classNames( 'accented-card__header', 'is-backup-daily-plan' ) }>
+				{ header }
+			</div>
+			<div className="accented-card__body">{ body }</div>
 		</div>
 	);
 };
 
-const PlanCardHeader = props => props.children;
-const PlanCardBody = props => props.children;
+const AccentedCardHeader = props => props.children;
+const AccentedCardBody = props => props.children;
 
 // TODO: change to work with children
 // PlanCard.PropTypes = {
@@ -25,4 +27,4 @@ const PlanCardBody = props => props.children;
 // 	body: PropTypes.objectOf( PlanCardBody ).isRequired,
 // };
 
-export { PlanCard, PlanCardHeader, PlanCardBody };
+export { AccentedCard, AccentedCardHeader, AccentedCardBody };
