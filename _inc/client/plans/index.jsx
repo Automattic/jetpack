@@ -13,16 +13,16 @@ import PlanGrid from './plan-grid';
 import QuerySite from 'components/data/query-site';
 import { getAvailablePlans } from 'state/site/reducer';
 
-function PlanPriceDisplay( props ) {
-	const { price } = props;
+function PlanPriceDisplay() {
+	// TODO: actually connect price
+	// const { price } = props;
+
 	return (
-		<span
-			className="plan-price__yearly"
-			// using dangerouslySetInnerHTML because formatting localized
-			// currencies is best left to our server and it includes the <abbr> element
-			/*eslint-disable react/no-danger*/
-			dangerouslySetInnerHTML={ { __html: price.per.replace( 'per ', '/' ) } }
-		/>
+		<div style={ { height: '50px', lineHeight: '50px', textAlign: 'center' } }>
+			<span style={ { display: 'inline-block', verticalAlign: 'middle', lineHeight: 'normal' } }>
+				{ '$12-16 /year' }
+			</span>
+		</div>
 	); // TODO: don't use this replace
 }
 
@@ -35,7 +35,14 @@ export class Plans extends React.Component {
 		const { sitePlans } = this.props;
 
 		return (
-			<div style={ { display: 'flex', flexDirection: 'row' } }>
+			<div
+				style={ {
+					display: 'flex',
+					flexDirection: 'row',
+					justifyContent: 'space-between',
+					alignContent: 'center',
+				} }
+			>
 				<h3>{ __( 'Jetpack Backup' ) }</h3>
 				{ // TODO: make sitePlans dynamic
 				sitePlans && (
@@ -78,7 +85,7 @@ export class Plans extends React.Component {
 										<p>
 											{ __(
 												'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
-												{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } }
+												{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } } // TODO: does this link need to open a new tab and have that icon?
 											) }
 										</p>
 									}
