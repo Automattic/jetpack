@@ -53,7 +53,7 @@ class SearchResults extends Component {
 		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
 	}
 
-	renderEmptyResults( { showText = false } ) {
+	renderEmptyResults( { showText = false } = {} ) {
 		return (
 			<div className="jetpack-instant-search__search-results">
 				{ showText ? (
