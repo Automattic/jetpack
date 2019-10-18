@@ -17,7 +17,7 @@ import './style.scss';
 
 class Gridicon extends Component {
 	needsOffset( icon, size ) {
-		const iconNeedsOffset = [ 'gridicons-calendar', 'gridicons-cart' ];
+		const iconNeedsOffset = [ 'gridicons-calendar', 'gridicons-cart', 'gridicons-folder' ];
 
 		if ( iconNeedsOffset.indexOf( icon ) >= 0 ) {
 			return size % 18 === 0;
@@ -35,12 +35,16 @@ class Gridicon extends Component {
 				return <title>{ __( 'Is an event' ) }</title>;
 			case 'gridicons-cart':
 				return <title>{ __( 'Is a product' ) }</title>;
+			case 'gridicons-comment':
+				return <title>{ __( 'Matching comment' ) }</title>;
 			case 'gridicons-folder':
 				return <title>{ __( 'Category' ) }</title>;
 			case 'gridicons-image-multiple':
 				return <title>{ __( 'Has multiple images' ) }</title>;
 			case 'gridicons-image':
 				return <title>{ __( 'Has an image' ) }</title>;
+			case 'gridicons-page':
+				return <title>{ __( 'Page' ) }</title>;
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
 				return <title>{ __( 'Search' ) }</title>;
@@ -73,6 +77,18 @@ class Gridicon extends Component {
 						<path d="M9 20c0 1.1-.9 2-2 2s-1.99-.9-1.99-2S5.9 18 7 18s2 .9 2 2zm8-2c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm.396-5c.937 0 1.75-.65 1.952-1.566L21 5H7V4c0-1.105-.895-2-2-2H3v2h2v11c0 1.105.895 2 2 2h12c0-1.105-.895-2-2-2H7v-2h10.396z" />
 					</g>
 				);
+			case 'gridicons-comment':
+				return (
+					<g>
+						<path d="M3 6v9c0 1.105.895 2 2 2h9v5l5.325-3.804c1.05-.75 1.675-1.963 1.675-3.254V6c0-1.105-.895-2-2-2H5c-1.105 0-2 .895-2 2z" />
+					</g>
+				);
+			case 'gridicons-folder':
+				return (
+					<g>
+						<path d="M18 19H6c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2h7c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2z" />
+					</g>
+				);
 			case 'gridicons-image-multiple':
 				return (
 					<g>
@@ -83,6 +99,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M16 8H8V6h8v2zm0 2H8v2h8v-2zm4-6v12l-6 6H6c-1.105 0-2-.895-2-2V4c0-1.105.895-2 2-2h12c1.105 0 2 .895 2 2zm-2 10V4H6v16h6v-4c0-1.105.895-2 2-2h4z" />
+					</g>
+				);
+			case 'gridicons-tag':
+				return (
+					<g>
+						<path d="M20 2.007h-7.087c-.53 0-1.04.21-1.414.586L2.592 11.5c-.78.78-.78 2.046 0 2.827l7.086 7.086c.78.78 2.046.78 2.827 0l8.906-8.906c.376-.374.587-.883.587-1.413V4.007c0-1.105-.895-2-2-2zM17.007 9c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2z" />
 					</g>
 				);
 			case 'gridicons-video':
