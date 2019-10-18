@@ -35,13 +35,15 @@ export class Plans extends React.Component {
 						<h3 className="plan-features__header-title">TITLE</h3>
 						<div className="plan-features__description">DESCRIPTION</div>
 					</header>
-				</div> */ }
-				<PlanCard>
-					{ {
-						header: <PlanCardHeader>{ <h1>This is the header.</h1> }</PlanCardHeader>,
-						body: <PlanCardBody>{ <p>This is the body.</p> }</PlanCardBody>,
-					} }
-				</PlanCard>
+                </div> */ }
+				<div style={ { display: 'flex', justifyContent: 'center', marginBottom: '10px' } }>
+					<PlanCard>
+						{ {
+							header: <PlanCardHeader>{ <h1>This is the header.</h1> }</PlanCardHeader>,
+							body: <PlanCardBody>{ <p>This is the body.</p> }</PlanCardBody>,
+						} }
+					</PlanCard>
+				</div>
 				<PlanGrid />
 			</>
 		);

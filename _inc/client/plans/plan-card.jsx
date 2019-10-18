@@ -3,13 +3,14 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 const PlanCard = props => {
 	const { header, body } = props.children;
 
 	return (
 		<div className="plan-card">
-			<div className="plan-card__header">{ header }</div>
+			<div className={ classNames( 'plan-card__header', 'is-backup-daily-plan' ) }>{ header }</div>
 			<div className="plan-card__body">{ body }</div>
 		</div>
 	);

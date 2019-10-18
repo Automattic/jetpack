@@ -1,3 +1,11 @@
-// &.is-backup-daily-plan {
-// 	border-bottom: solid 2px $blue-medium;
-// }
+.plan-card {
+	max-width: 518px;
+	background-color: #fff;
+	border: solid 1px #e6e6e6;
+}
+
+.plan-card__header {
+	&.is-backup-daily-plan {
+		border-bottom: solid 2px $blue-medium;
+	}
+}
