@@ -75,30 +75,27 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	componentDidMount() {
-		const { location, purpose, siteName } = this.props;
+		const { location, purpose } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_view', {
 			location,
 			purpose,
-			siteName,
 		} );
 	}
 
 	handleTerminationClick = () => {
-		const { location, purpose, siteName } = this.props;
+		const { location, purpose } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', {
 			location,
 			purpose,
-			siteName,
 		} );
 		this.props.terminateJetpack();
 	};
 
 	handleDialogCloseClick = () => {
-		const { location, purpose, siteName } = this.props;
+		const { location, purpose } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', {
 			location,
 			purpose,
-			siteName,
 		} );
 		this.props.closeDialog();
 	};
