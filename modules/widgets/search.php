@@ -7,6 +7,8 @@
  * @since      5.0.0
  */
 
+use Automattic\Jetpack\Constants;
+
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
@@ -164,7 +166,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) || defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+		if ( ! is_active_widget( false, false, $this->id_base, true ) || Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
 			return;
 		}
 
@@ -310,7 +312,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		echo $args['before_widget'];
 		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="<?php 
-		echo defined( 'JETPACK_SEARCH_PROTOTYPE' ) ? 'jetpack-instant-search-wrapper' : '' ?>">
+		echo Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ? 'jetpack-instant-search-wrapper' : '' ?>">
 		<?php
 
 		if ( ! empty( $title ) ) {
@@ -394,7 +396,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param string $orderby  The orderby to initialize the select with.
 	 */
 	private function maybe_render_sort_javascript( $instance, $order, $orderby ) {
-		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
 			return;
 		}
 

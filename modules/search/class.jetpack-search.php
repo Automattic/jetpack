@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 
 /**
  * The main class for the Jetpack Search module.
@@ -210,7 +211,7 @@ class Jetpack_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
 			$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$script_version = self::get_asset_version( $script_relative_path );
