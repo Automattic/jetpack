@@ -113,6 +113,39 @@ function runJSLinter( toLintFiles ) {
 	return lintResult.status;
 }
 
+/**
+ * Run phpcs-changed.
+ */
+function runPHPCSChanged( phpFiles ) {
+	let phpChangedResult;
+	if ( phpFiles.length > 0 ) {
+		phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
+			shell: true,
+			stdio: 'pipe',
+			encoding: 'utf-8',
+		} );
+	}
+
+	if ( phpChangedResult && phpChangedResult.stdout ) {
+		let phpChangedResultText;
+		phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
+		phpChangedResultText.shift();
+		phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
+		if ( phpChangedResultText ) {
+			console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
+			checkFailed();
+		}
+	}
+}
+
+/**
+ * Exit
+ */
+function exit( exitCode ) {
+	capturePreCommitDate();
+	process.exit( exitCode );
+}
+
 dirtyFiles.forEach( file =>
 	console.log(
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
@@ -180,31 +213,15 @@ if ( phpcsResult && phpcsResult.status ) {
 		phpcsStatus +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.\n' +
-			"But please don't. Code is poetry."
+			"But please don't. Code is poetry.\n\n" +
+			'Note: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
+			'they will be reported only after these issues are resolved.'
 	);
-	exitCode = 1;
+
+	// If we get here, whitelisted files have failed PHPCS. Let's return early and avoid the duplicate information.
+	exit( 1 );
 }
 
-let phpChangedResult;
-if ( phpFiles.length > 0 ) {
-	phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
-		shell: true,
-		stdio: 'pipe',
-		encoding: 'utf-8',
-	} );
-}
+runPHPCSChanged( phpFiles );
 
-if ( phpChangedResult && phpChangedResult.stdout ) {
-	let phpChangedResultText;
-	phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
-	phpChangedResultText.shift();
-	phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
-	if ( phpChangedResultText ) {
-		console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
-		checkFailed();
-	}
-}
-
-capturePreCommitDate();
-
-process.exit( exitCode );
+exit( exitCode );
