@@ -1838,12 +1838,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		self::$current_form = $this;
 
 		$this->defaults = array(
-			'to'                 => $default_to,
-			'subject'            => $default_subject,
-			'show_subject'       => 'no', // only used in back-compat mode
-			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
-			'id'                 => null, // Not exposed to the user. Set above.
-			'submit_button_text' => __( 'Submit', 'jetpack' ),
+			'to'                     => $default_to,
+			'subject'                => $default_subject,
+			'show_subject'           => 'no', // only used in back-compat mode
+			'widget'                 => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
+			'id'                     => null, // Not exposed to the user. Set above.
+			'submit_button_text'     => __( 'Submit', 'jetpack' ),
+			// These attributes come from the block editor, so use camel case instead of snake case.
+			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
+			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
+			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -2100,10 +2104,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string $message
 	 */
 	static function success_message( $feedback_id, $form ) {
-		return wp_kses(
-			'<blockquote class="contact-form-submission">'
+		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
+			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
+		} else {
+			$message = '<blockquote class="contact-form-submission">'
 			. '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>'
-			. '</blockquote>',
+			. '</blockquote>';
+		}
+
+		return wp_kses(
+			$message,
 			array(
 				'br'         => array(),
 				'blockquote' => array( 'class' => array() ),
@@ -2816,21 +2826,36 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return self::success_message( $post_id, $this );
 		}
 
-		$redirect = wp_get_referer();
-		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page
-			$redirect = $_SERVER['REQUEST_URI'];
+		$redirect = '';
+		$custom_redirect = false;
+		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+			$custom_redirect = true;
+			$redirect        = esc_url( $this->get_attribute( 'customThankyouRedirect' ) );
 		}
 
-		$redirect = add_query_arg(
-			urlencode_deep(
-				array(
-					'contact-form-id'   => $id,
-					'contact-form-sent' => $post_id,
-					'contact-form-hash' => $this->hash,
-					'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
-				)
-			), $redirect
-		);
+		if ( ! $redirect ) {
+			$custom_redirect = false;
+			$redirect        = wp_get_referer();
+		}
+
+		if ( ! $redirect ) { // wp_get_referer() returns false if the referer is the same as the current page.
+			$custom_redirect = false;
+			$redirect        = $_SERVER['REQUEST_URI'];
+		}
+
+		if ( ! $custom_redirect ) {
+			$redirect = add_query_arg(
+				urlencode_deep(
+					array(
+						'contact-form-id'   => $id,
+						'contact-form-sent' => $post_id,
+						'contact-form-hash' => $this->hash,
+						'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :( .
+					)
+				),
+				$redirect
+			);
+		}
 
 		/**
 		 * Filter the URL where the reader is redirected after submitting a form.
@@ -2845,7 +2870,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		$redirect = apply_filters( 'grunion_contact_form_redirect_url', $redirect, $id, $post_id );
 
-		wp_safe_redirect( $redirect );
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We intentially allow external redirects here.
+		wp_redirect( $redirect );
 		exit;
 	}
 
