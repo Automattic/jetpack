@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -182,7 +183,27 @@ class A8C_WPCOM_Masterbar {
 			&& 'masterbar' === $_GET['context'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& $masterbar_should_logout_from_wpcom
 		) {
-			do_action( 'wp_masterbar_logout' );
+			/*
+			 * Get the associated WordPress.com User ID, if the user is connected.
+			 */
+			$user_id            = get_current_user_id();
+			$connection_manager = new Connection_Manager();
+			if ( $connection_manager->is_user_connected( $user_id ) ) {
+				$wpcom_user_data = $connection_manager->get_connected_user_data( $user_id );
+				if ( ! empty( $wpcom_user_data['ID'] ) ) {
+					/**
+					 * Hook into the log out event happening from the Masterbar.
+					 *
+					 * @since 5.1.0
+					 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
+					 *
+					 * @module masterbar
+					 *
+					 * @param int $wpcom_user_id WordPress.com User ID.
+					 */
+					do_action( 'wp_masterbar_logout', $wpcom_user_data['ID'] );
+				}
+			}
 		}
 	}
 
