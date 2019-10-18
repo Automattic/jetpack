@@ -1,15 +1,4 @@
 .jetpack-business-hours {
-	&:before,
-	&:after {
-		content: "";
-		display: table;
-		table-layout: fixed;
-	}
-
-	&:after {
-		clear: both;
-	}
-
 	dt,
 	dd {
 		display: inline;
@@ -17,10 +6,14 @@
 
 	dt {
 		font-weight: bold;
-		margin-right: 0.5rem;
+		margin-right: 0.5em;
 	}
 
 	dd {
 		margin: 0;
 	}
+}
+
+.jetpack-business-hours__item {
+	margin-bottom: 0.5em;
 }
