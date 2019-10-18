@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -34,8 +35,8 @@ export class Plans extends React.Component {
 		const { sitePlans } = this.props;
 
 		return (
-			<div>
-				<h3>This is the header.</h3>
+			<div style={ { display: 'flex', flexDirection: 'row' } }>
+				<h3>{ __( 'Jetpack Backup' ) }</h3>
 				{ // TODO: make sitePlans dynamic
 				sitePlans && (
 					<PlanPriceDisplay price={ sitePlans[ 'daily-backup' ].price[ this.state.period ] } />
@@ -71,7 +72,18 @@ export class Plans extends React.Component {
 					<AccentedCard>
 						{ {
 							header: <AccentedCardHeader>{ this.renderHeaderContent() }</AccentedCardHeader>,
-							body: <AccentedCardBody>{ <p>This is the body.</p> }</AccentedCardBody>,
+							body: (
+								<AccentedCardBody>
+									{
+										<p>
+											{ __(
+												'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
+												{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } }
+											) }
+										</p>
+									}
+								</AccentedCardBody>
+							),
 						} }
 					</AccentedCard>
 				</div>
