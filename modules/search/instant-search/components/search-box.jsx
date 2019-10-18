@@ -8,21 +8,19 @@ import { __ } from '@wordpress/i18n';
 
 class SearchBox extends Component {
 	render() {
-		const { query, onChangeQuery, appRef, onFocus, onBlur } = this.props;
-
 		return (
 			<div className={ 'jp-instant-search__box' }>
 				{ /* TODO: Add support for preserving label text */ }
 				<span className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</span>
 				<input
 					className="search-field jp-instant-search__box-input"
-					onInput={ onChangeQuery }
-					onFocus={ onFocus }
-					onBlur={ onBlur }
-					ref={ appRef }
+					onInput={ this.props.onChangeQuery }
+					onFocus={ this.props.onFocus }
+					onBlur={ this.props.onBlur }
+					ref={ this.props.appRef }
 					placeholder={ __( 'Search…', 'jetpack' ) }
 					type="search"
-					value={ query }
+					value={ this.props.query }
 				/>
 			</div>
 		);
