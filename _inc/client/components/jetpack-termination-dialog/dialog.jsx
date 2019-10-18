@@ -10,7 +10,7 @@ import React, { Component } from 'react';
  * Internal dependencies
  */
 import { getSiteBenefits } from 'state/site';
-import { getSiteRawUrl, isDevVersion } from 'state/initial-state';
+import { isDevVersion } from 'state/initial-state';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -71,7 +71,6 @@ class JetpackTerminationDialog extends Component {
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array,
-		siteName: PropTypes.string,
 	};
 
 	componentDidMount() {
@@ -101,14 +100,13 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	renderFeatures() {
-		const { isDevSite: siteIsDev, purpose, siteBenefits, siteName } = this.props;
+		const { isDevSite: siteIsDev, purpose, siteBenefits } = this.props;
 
 		return siteBenefits ? (
 			<JetpackTerminationDialogFeatures
 				isDevSite={ siteIsDev }
 				purpose={ purpose }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
-				siteName={ siteName }
 			/>
 		) : (
 			<Card className="jetpack-termination-dialog__spinner">
@@ -161,6 +159,5 @@ class JetpackTerminationDialog extends Component {
 
 export default connect( state => ( {
 	isDevVersion: isDevVersion( state ),
-	siteName: getSiteRawUrl( state ).replace( /:: /g, '/' ),
 	siteBenefits: getSiteBenefits( state ),
 } ) )( JetpackTerminationDialog );

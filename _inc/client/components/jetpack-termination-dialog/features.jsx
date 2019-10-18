@@ -22,7 +22,6 @@ class JetpackTerminationDialogFeatures extends Component {
 		isDevVersion: PropTypes.bool,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array.isRequired,
-		siteName: PropTypes.string.isRequired,
 	};
 
 	renderCDNReason() {
@@ -86,7 +85,7 @@ class JetpackTerminationDialogFeatures extends Component {
 	}
 
 	render() {
-		const { isDevVersion, purpose, siteBenefits, siteName } = this.props;
+		const { isDevVersion, purpose, siteBenefits } = this.props;
 
 		const siteBenefitCount = siteBenefits.length;
 
@@ -98,20 +97,10 @@ class JetpackTerminationDialogFeatures extends Component {
 					<p className="jetpack-termination-dialog__info">
 						{ purpose === 'disconnect'
 							? __(
-									'Jetpack is currently powering several features of %(siteName)s. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.',
-									{
-										args: {
-											siteName,
-										},
-									}
+									'Jetpack is currently powering several features of your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.'
 							  )
 							: __(
-									'Jetpack is currently powering several features of %(siteName)s. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.',
-									{
-										args: {
-											siteName,
-										},
-									}
+									'Jetpack is currently powering several features of your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.'
 							  ) }
 						{ siteBenefitCount > 0 &&
 							__( ' We’ve highlighted some of the features you rely on below.' ) }
