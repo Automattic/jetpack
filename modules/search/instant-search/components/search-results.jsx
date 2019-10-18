@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import SearchResultMinimal from './search-result-minimal';
+import SearchResultProduct from './search-result-product';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 
@@ -18,6 +19,14 @@ class SearchResults extends Component {
 		switch ( this.props.resultFormat ) {
 			case 'engagement':
 			case 'product':
+				return (
+					<SearchResultProduct
+						index={ index }
+						locale={ this.props.locale }
+						query={ this.props.query }
+						result={ result }
+					/>
+				);
 			case 'minimal':
 			default:
 				return (
