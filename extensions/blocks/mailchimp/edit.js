@@ -227,7 +227,8 @@ class MailchimpSubscribeEdit extends Component {
 				) }
 			</div>
 		);
-		const previewUI = <h1>Preview</h1>;
+		const previewUI = blockContent;
+
 		return (
 			<Fragment>
 				{ noticeUI }
