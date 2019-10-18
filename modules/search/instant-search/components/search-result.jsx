@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import { h } from 'preact';
 
 /**
  * Internal dependencies
@@ -11,14 +11,12 @@ import { h, Component } from 'preact';
 import SearchResultMinimal from './search-result-minimal';
 import SearchResultProduct from './search-result-product';
 
-class SearchResult extends Component {
-	render() {
-		if ( this.props.resultFormat === 'product' ) {
-			return <SearchResultProduct { ...this.props } />;
-		}
-
-		return <SearchResultMinimal { ...this.props } />;
+const SearchResult = ( { resultFormat, ...props } ) => {
+	if ( resultFormat === 'product' ) {
+		return <SearchResultProduct { ...props } />;
 	}
-}
+
+	return <SearchResultMinimal { ...props } />;
+};
 
 export default SearchResult;
