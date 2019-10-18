@@ -8,8 +8,8 @@ function phpcschanged {
   # 3. A file of the phpcs results for the revised files.
 
   # Make a folder for the files.
-  mkdir tmp-phpcschanged
-  mkdir tmp-phpcschanged/original
+  mkdir /tmp/jetpack-phpcschanged
+  mkdir /tmp/jetpack-phpcschanged/original
 
   # File 1
   git diff --cached > tmp-phpcschanged/diff.diff
@@ -30,7 +30,7 @@ function phpcschanged {
   vendor/bin/phpcs-changed --diff tmp-phpcschanged/diff.diff --phpcs-orig tmp-phpcschanged/phpcs-orig.json --phpcs-new tmp-phpcschanged/phpcs-new.json
 
   # Clean up! Clean up! Everybody, eveywhere! Clean up! Clean up! Everybody does their share.
- rm -rf tmp-phpcschanged
+ rm -rf /tmp/jetpack-phpcschanged
 }
 
 phpcschanged
