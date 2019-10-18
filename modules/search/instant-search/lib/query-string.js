@@ -18,8 +18,18 @@ function getQuery() {
 }
 
 function pushQueryString( queryString ) {
+	// NOTE: This erases location.pathname
 	if ( history.pushState ) {
-		const newurl = `${ window.location.protocol }//${ window.location.host }${ window.location.pathname }?${ queryString }`;
+		const newurl = queryString
+			? `${ window.location.protocol }//${ window.location.host }?${ queryString }`
+			: `${ window.location.protocol }//${ window.location.host }${ window.location.pathname }`;
+		window.history.pushState( { path: newurl }, '', newurl );
+	}
+}
+
+export function restorePreviousPath( pathname ) {
+	if ( history.pushState ) {
+		const newurl = `${ window.location.protocol }//${ window.location.host }${ pathname }`;
 		window.history.pushState( { path: newurl }, '', newurl );
 	}
 }

@@ -25,6 +25,7 @@ import {
 	setSortQuery,
 	getSortQuery,
 	hasFilter,
+	restorePreviousPath,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
@@ -93,30 +94,39 @@ class SearchApp extends Component {
 	}
 
 	maybeDeactivateResults() {
-		if ( this.isSearchPage() || this.hasActiveQuery() ) {
+		if ( this.isSearchPage() || this.hasActiveQuery() || ! this.state.resultsActive ) {
 			return;
 		}
-		if ( this.state.resultsActive ) {
-			this.setState( { resultsActive: false }, () => {
-				showChildren( this.props.themeOptions.resultsSelector );
-			} );
-		}
+
+		this.setState( { resultsActive: false }, () => {
+			showChildren( this.props.themeOptions.resultsSelector );
+			restorePreviousPath( this.props.initialPathname );
+		} );
 	}
 
 	onSearchFocus = () => {
-		this.activateResults();
+		if ( this.hasActiveQuery() ) {
+			this.activateResults();
+		}
 	};
 
 	onSearchBlur = () => {
-		this.maybeDeactivateResults();
+		if ( this.state.resultsActive ) {
+			this.maybeDeactivateResults();
+		}
 	};
 
 	onChangeQuery = event => {
 		this.activateResults();
 		const query = event.target.value;
-		this.setState( { query } );
-		setSearchQuery( query );
-		this.getDebouncedResults( query, getFilterQuery(), getSortQuery(), null );
+		this.setState( { query }, () => {
+			if ( query === '' ) {
+				this.maybeDeactivateResults();
+			} else {
+				setSearchQuery( query );
+				this.getDebouncedResults( query, getFilterQuery(), getSortQuery(), null );
+			}
+		} );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
