@@ -9,37 +9,11 @@ import { h, Component } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchResultMinimal from './search-result-minimal';
-import SearchResultProduct from './search-result-product';
+import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 
 class SearchResults extends Component {
-	renderResult = ( result, index ) => {
-		switch ( this.props.resultFormat ) {
-			case 'engagement':
-			case 'product':
-				return (
-					<SearchResultProduct
-						index={ index }
-						locale={ this.props.locale }
-						query={ this.props.query }
-						result={ result }
-					/>
-				);
-			case 'minimal':
-			default:
-				return (
-					<SearchResultMinimal
-						index={ index }
-						locale={ this.props.locale }
-						query={ this.props.query }
-						result={ result }
-					/>
-				);
-		}
-	};
-
 	getSearchTitle() {
 		const { total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = this.props.query !== '';
@@ -100,7 +74,15 @@ class SearchResults extends Component {
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ results.map( this.renderResult ) }
+				{ results.map( ( result, index ) => (
+					<SearchResult
+						index={ index }
+						locale={ this.props.locale }
+						query={ this.props.query }
+						result={ result }
+						resultFormat={ this.props.resultFormat }
+					/>
+				) ) }
 				{ this.props.hasNextPage && (
 					<ScrollButton
 						enableLoadOnScroll={ this.props.enableLoadOnScroll }
