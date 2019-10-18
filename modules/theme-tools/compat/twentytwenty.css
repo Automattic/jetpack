@@ -108,14 +108,14 @@
 }
 
 .widget_authors li:first-child {
-    margin-top: 2rem;
+	margin-top: 2rem;
 }
 
 /* EU cookie law */
 .widget_eu_cookie_law_widget #eu-cookie-law,
 .widget_eu_cookie_law_widget #eu-cookie-law .accept {
 	font-size: 1.8rem;
-    font-weight: 500;
+	font-weight: 500;
 }
 
 .widget_eu_cookie_law_widget #eu-cookie-law .accept {
