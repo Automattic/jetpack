@@ -184,6 +184,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function disconnect( $args, $assoc_args ) {
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::success( __( 'The site is not currently connected, so nothing to do!', 'jetpack' ) );
+			return;
 		}
 
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
