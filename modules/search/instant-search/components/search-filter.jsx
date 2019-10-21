@@ -28,6 +28,7 @@ export default class SearchFilter extends Component {
 		super( props );
 		this.state = { selected: this.props.initialValue };
 		this.filtersList = createRef();
+		this.idPrefix = `jp-instant-search-filter-${ Math.floor( Math.random() * 100 ) }`;
 
 		if ( this.props.type === 'date' ) {
 			// NOTE: This assumes that the configuration never changes. It will break if we
@@ -61,12 +62,12 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.state.selected && this.state.selected.includes( key ) }
-					id={ `jp-instant-search-filter-dates-${ this.getIdentifier() }-${ key }` }
+					id={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
 				/>
-				<label htmlFor={ `jp-instant-search-filter-dates-${ this.getIdentifier() }-${ key }` }>
+				<label htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }>
 					{ new Date( key ).toLocaleString( locale, this.dateOptions ) } ({ count })
 				</label>
 			</div>
@@ -79,12 +80,12 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.state.selected.includes( key ) }
-					id={ `jp-instant-search-filter-post-types-${ key }` }
+					id={ `${ this.idPrefix }-post-types-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
 				/>
-				<label htmlFor={ `jp-instant-search-filter-post-types-${ key }` }>
+				<label htmlFor={ `${ this.idPrefix }-post-types-${ key }` }>
 					{ strip( name ) } ({ count })
 				</label>
 			</div>
@@ -96,12 +97,12 @@ export default class SearchFilter extends Component {
 			<div>
 				<input
 					checked={ this.state.selected && this.state.selected.includes( key ) }
-					id={ `jp-instant-search-filter-taxonomies-${ key }` }
+					id={ `${ this.idPrefix }-taxonomies-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
 				/>
-				<label htmlFor={ `jp-instant-search-filter-taxonomies-${ key }` }>
+				<label htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }>
 					{ strip( key ) } ({ count })
 				</label>
 			</div>
