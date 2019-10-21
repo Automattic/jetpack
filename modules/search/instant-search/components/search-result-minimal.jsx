@@ -9,34 +9,8 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
-import arrayOverlap from '../lib/array-overlap';
+import PostTypeIcon from './post-type-icon';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
-
-const ShortcodeTypes = {
-	video: [
-		'youtube',
-		'ooyala',
-		'anvplayer',
-		'wpvideo',
-		'bc_video',
-		'video',
-		'brightcove',
-		'tp_video',
-		'jwplayer',
-		'tempo-video',
-		'vimeo',
-	],
-	gallery: [ 'gallery', 'ione_media_gallery' ],
-	audio: [ 'audio', 'soundcloud' ],
-};
-
-const POST_TYPE_TO_ICON_MAP = {
-	product: 'cart',
-	video: 'video',
-	gallery: 'image-multiple',
-	event: 'calendar',
-	events: 'calendar',
-};
 
 class SearchResultMinimal extends Component {
 	componentDidMount() {
@@ -85,37 +59,6 @@ class SearchResultMinimal extends Component {
 			cats = [ cats ];
 		}
 		return cats;
-	}
-
-	renderPostTypeIcon() {
-		const { fields } = this.props.result;
-		const iconSize = this.getIconSize();
-		const hasVideo = arrayOverlap( fields.shortcode_types, ShortcodeTypes.video );
-		const hasAudio = arrayOverlap( fields.shortcode_types, ShortcodeTypes.audio );
-		const hasGallery = arrayOverlap( fields.shortcode_types, ShortcodeTypes.gallery );
-
-		if ( Object.keys( POST_TYPE_TO_ICON_MAP ).includes( fields.post_type ) ) {
-			return POST_TYPE_TO_ICON_MAP[ fields.post_type ];
-		}
-
-		switch ( fields.post_type ) {
-			case 'page':
-				if ( hasVideo ) {
-					return <Gridicon icon="video" size={ iconSize } />;
-				} else if ( hasAudio ) {
-					return <Gridicon icon="audio" size={ iconSize } />;
-				}
-				return <Gridicon icon="pages" size={ iconSize } />;
-			default:
-				if ( hasVideo ) {
-					return <Gridicon icon="video" size={ iconSize } />;
-				} else if ( hasAudio ) {
-					return <Gridicon icon="audio" size={ iconSize } />;
-				} else if ( hasGallery ) {
-					return <Gridicon icon="image-multiple" size={ iconSize } />;
-				}
-		}
-		return null;
 	}
 
 	renderNoMatchingContent() {
@@ -185,7 +128,6 @@ class SearchResultMinimal extends Component {
 		if ( result_type !== 'post' ) {
 			return null;
 		}
-
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 		return (
 			<div className="jetpack-instant-search__result-minimal">
@@ -195,7 +137,11 @@ class SearchResultMinimal extends Component {
 					} ) }
 				</span>
 				<h3>
-					{ this.renderPostTypeIcon() }
+					<PostTypeIcon
+						postType={ fields.post_type }
+						shortcodeTypes={ fields.shortcode_types }
+						imageCount={ fields[ 'has.image' ] }
+					/>
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						className="jetpack-instant-search__result-minimal-title"
