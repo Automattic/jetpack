@@ -62,13 +62,15 @@ export function determineDefaultSort( initialSort, initialSearchString ) {
 		return getSortQuery();
 	}
 
+	// NOTE: Force descending date sorting when no initial search string is provided
+	if ( initialSearchString === '' ) {
+		return 'date_desc';
+	}
+
 	if ( Object.keys( DEFAULT_SORT_MAP ).includes( initialSort ) ) {
 		return DEFAULT_SORT_MAP[ initialSort ];
 	}
 
-	if ( initialSearchString === '' ) {
-		return 'date_desc';
-	}
 	return 'score_default';
 }
 
