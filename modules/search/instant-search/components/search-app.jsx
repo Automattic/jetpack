@@ -3,8 +3,8 @@
 /**
  * External dependencies
  */
-import Preact, { h, Component } from 'preact';
-import Portal from 'preact-portal';
+import { Component, createRef, Fragment, h } from 'preact';
+import { createPortal } from 'preact/compat';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -38,7 +38,7 @@ class SearchApp extends Component {
 
 	constructor() {
 		super( ...arguments );
-		this.input = Preact.createRef();
+		this.input = createRef();
 		this.requestId = 0;
 
 		// TODO: Rework this line; we shouldn't reassign properties.
@@ -181,8 +181,8 @@ class SearchApp extends Component {
 	};
 
 	renderWidgets() {
-		return this.props.options.widgets.map( widget => (
-			<Portal into={ `#${ widget.widget_id }-wrapper` }>
+		return this.props.options.widgets.map( widget =>
+			createPortal(
 				<div id={ `${ widget.widget_id }-portaled-wrapper` }>
 					<div className="search-form">
 						<SearchBox
@@ -205,9 +205,10 @@ class SearchApp extends Component {
 						results={ this.state.response }
 						widget={ widget }
 					/>
-				</div>
-			</Portal>
-		) );
+				</div>,
+				document.getElementById( `${ widget.widget_id }-wrapper` )
+			)
+		);
 	}
 	renderSearchForms() {
 		const searchForms = Array.from(
@@ -215,25 +216,26 @@ class SearchApp extends Component {
 		);
 		return (
 			searchForms &&
-			searchForms.map( elem => (
-				<Portal into={ elem }>
+			searchForms.map( searchForm =>
+				createPortal(
 					<SearchBox
 						onChangeQuery={ this.onChangeQuery }
 						appRef={ this.input }
 						query={ getSearchQuery() }
-					/>
-				</Portal>
-			) )
+					/>,
+					searchForm
+				)
+			)
 		);
 	}
 
 	render() {
 		return (
-			<Preact.Fragment>
+			<Fragment>
 				{ this.renderWidgets() }
 				{ this.renderSearchForms() }
-				{ this.state.showResults && (
-					<Portal into={ this.props.themeOptions.resultsSelector }>
+				{ this.state.showResults &&
+					createPortal(
 						<SearchResults
 							hasNextPage={ this.hasNextPage() }
 							isLoading={ this.state.isLoading }
@@ -243,10 +245,10 @@ class SearchApp extends Component {
 							response={ this.state.response }
 							resultFormat={ this.props.options.resultFormat }
 							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
-						/>
-					</Portal>
-				) }
-			</Preact.Fragment>
+						/>,
+						document.querySelector( this.props.themeOptions.resultsSelector )
+					) }
+			</Fragment>
 		);
 	}
 }

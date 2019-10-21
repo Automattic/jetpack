@@ -14,6 +14,11 @@ import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { initializeTracks, identifySite } from './lib/tracks';
 
+// Must be the first import
+if ( process.env.NODE_ENV === 'development' ) {
+	require( 'preact/debug' );
+}
+
 const injectSearchApp = grabFocus => {
 	render(
 		<SearchApp
