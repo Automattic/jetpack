@@ -1,27 +1,26 @@
 .jetpack-business-hours {
-  &:before,
-  &:after {
-    content: "";
-    display: table;
-    table-layout: fixed;
-  }
+	dt,
+	dd {
+		@media (min-width: 480px ) {
+			display: inline-block;
+		}
+	}
 
-  &:after {
-    clear: both;
-  }
+	dt {
+		font-weight: bold;
+		margin-right: 0.5em;
+		min-width: 30%;
+		vertical-align: top;
+	}
 
-  dt,
-  dd {
-      float: left;
-  }
+	dd {
+		margin: 0;
+		@media (min-width: 480px ) {
+			max-width: calc( 70% - 0.5em );
+		}
+	}
+}
 
-  dt {
-      clear: both;
-      font-weight: bold;
-      margin-right: 0.5rem;
-  }
-
-  dd {
-      margin: 0;
-  }
+.jetpack-business-hours__item {
+	margin-bottom: 0.5em;
 }
