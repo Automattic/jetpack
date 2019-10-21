@@ -9,7 +9,7 @@ import { h, render } from 'preact';
  * Internal dependencies
  */
 import SearchApp from './components/search-app';
-import { getSearchQuery, getFilterQuery, determineDefaultSort } from './lib/query-string';
+import { getSearchQuery, determineDefaultSort } from './lib/query-string';
 import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { initializeTracks, identifySite } from './lib/tracks';
@@ -18,10 +18,9 @@ const injectSearchApp = grabFocus => {
 	render(
 		<SearchApp
 			grabFocus={ grabFocus }
-			initialFilters={ getFilterQuery() }
 			initialPath={ window[ SERVER_OBJECT_NAME ].siteUrl }
 			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort ) }
-			initialValue={ getSearchQuery() }
+			isSearchPage={ getSearchQuery() !== '' }
 			options={ window[ SERVER_OBJECT_NAME ] }
 			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
 		/>,

@@ -26,7 +26,6 @@ function getDateOptions( interval ) {
 export default class SearchFilter extends Component {
 	constructor( props ) {
 		super( props );
-		this.state = { selected: this.props.initialValue };
 		this.filtersList = createRef();
 		this.idPrefix = `jp-instant-search-filter-${ Math.floor( Math.random() * 100 ) }`;
 
@@ -49,11 +48,12 @@ export default class SearchFilter extends Component {
 		}
 	}
 
+	isChecked( value ) {
+		return this.props.value && this.props.value.includes( value );
+	}
+
 	toggleFilter = () => {
-		const selected = getCheckedInputNames( this.filtersList.current );
-		this.setState( { selected }, () => {
-			this.props.onChange( this.getIdentifier(), selected );
-		} );
+		this.props.onChange( this.getIdentifier(), getCheckedInputNames( this.filtersList.current ) );
 	};
 
 	renderDate = ( { key_as_string: key, doc_count: count } ) => {
@@ -61,7 +61,7 @@ export default class SearchFilter extends Component {
 		return (
 			<div>
 				<input
-					checked={ this.state.selected && this.state.selected.includes( key ) }
+					checked={ this.isChecked( key ) }
 					id={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -79,7 +79,7 @@ export default class SearchFilter extends Component {
 		return (
 			<div>
 				<input
-					checked={ this.state.selected.includes( key ) }
+					checked={ this.isChecked( key ) }
 					id={ `${ this.idPrefix }-post-types-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }
@@ -96,7 +96,7 @@ export default class SearchFilter extends Component {
 		return (
 			<div>
 				<input
-					checked={ this.state.selected && this.state.selected.includes( key ) }
+					checked={ this.isChecked( key ) }
 					id={ `${ this.idPrefix }-taxonomies-${ key }` }
 					name={ key }
 					onChange={ this.toggleFilter }

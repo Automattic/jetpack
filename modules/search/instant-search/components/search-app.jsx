@@ -26,6 +26,7 @@ import {
 	getSortQuery,
 	hasFilter,
 	restorePreviousPath,
+	getSearchQuery,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
@@ -43,21 +44,21 @@ class SearchApp extends Component {
 		// TODO: Rework this line; we shouldn't reassign properties.
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 
-		this.state = {
-			isLoading: false,
-			query: this.props.initialValue,
-			response: {},
-			sort: this.props.initialSort,
-		};
+		this.state = { isLoading: false, response: {} };
 		this.getDebouncedResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
 	}
 
 	componentDidMount() {
-		this.getResults( this.state.query, getFilterQuery(), this.state.sort, null );
+		this.getResults( getSearchQuery(), getFilterQuery(), this.props.initialSort, null );
 		if ( this.props.grabFocus ) {
 			this.input.current.focus();
 		}
+
+		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
+	}
+	componentWillUnmount() {
+		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 	}
 
 	prepareDomForMounting() {
@@ -75,15 +76,11 @@ class SearchApp extends Component {
 	}
 
 	hasActiveQuery() {
-		return this.state.query !== '' || hasFilter();
+		return getSearchQuery() !== '' || hasFilter();
 	}
 
 	hasNextPage() {
 		return !! this.state.response.page_handle;
-	}
-
-	isSearchPage() {
-		return this.props.initialValue !== '';
 	}
 
 	activateResults() {
@@ -94,7 +91,7 @@ class SearchApp extends Component {
 	}
 
 	maybeDeactivateResults() {
-		if ( this.isSearchPage() || this.hasActiveQuery() || ! this.state.resultsActive ) {
+		if ( this.props.isSearchPage || this.hasActiveQuery() || ! this.state.resultsActive ) {
 			return;
 		}
 
@@ -117,39 +114,30 @@ class SearchApp extends Component {
 	};
 
 	onChangeQuery = event => {
-		this.activateResults();
-		const query = event.target.value;
-		this.setState( { query }, () => {
-			if ( query === '' ) {
-				this.maybeDeactivateResults();
-			} else {
-				setSearchQuery( query );
-				this.getDebouncedResults( query, getFilterQuery(), getSortQuery(), null );
-			}
-		} );
+		setSearchQuery( event.target.value );
 	};
 
-	onChangeFilter = ( filterName, filterValue ) => {
-		setFilterQuery( filterName, filterValue );
-		this.getResults( this.state.query, getFilterQuery(), getSortQuery(), null );
+	onChangeQueryString = () => {
 		if ( this.hasActiveQuery() ) {
 			this.activateResults();
+			this.getDebouncedResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
 		} else {
 			this.maybeDeactivateResults();
 		}
 	};
 
+	onChangeFilter = ( filterName, filterValue ) => {
+		setFilterQuery( filterName, filterValue );
+	};
+
 	onChangeSort = sort => {
 		setSortQuery( sort );
-		if ( this.hasActiveQuery() ) {
-			this.getResults( this.state.query, getFilterQuery(), getSortQuery(), null );
-		}
 	};
 
 	loadNextPage = () => {
 		this.hasNextPage() &&
 			this.getResults(
-				this.state.query,
+				getSearchQuery(),
 				getFilterQuery(),
 				getSortQuery(),
 				this.state.response.page_handle
@@ -202,20 +190,17 @@ class SearchApp extends Component {
 							onFocus={ this.onSearchFocus }
 							onBlur={ this.onSearchBlur }
 							appRef={ this.input }
-							query={ this.state.query }
+							query={ getSearchQuery() }
 						/>
 					</div>
 					<div className="jetpack-search-sort-wrapper">
-						<SearchSortWidget
-							initialValue={ this.props.initialSort }
-							onChange={ this.onChangeSort }
-						/>
+						<SearchSortWidget onChange={ this.onChangeSort } value={ getSortQuery() } />
 					</div>
 					<SearchFilters
-						initialValues={ this.props.initialFilters }
-						onChange={ this.onChangeFilter }
+						filters={ getFilterQuery() }
 						loading={ this.state.isLoading }
 						locale={ this.props.options.locale }
+						onChange={ this.onChangeFilter }
 						postTypes={ this.props.options.postTypes }
 						results={ this.state.response }
 						widget={ widget }
@@ -235,7 +220,7 @@ class SearchApp extends Component {
 					<SearchBox
 						onChangeQuery={ this.onChangeQuery }
 						appRef={ this.input }
-						query={ this.state.query }
+						query={ getSearchQuery() }
 					/>
 				</Portal>
 			) )
@@ -254,7 +239,7 @@ class SearchApp extends Component {
 							isLoading={ this.state.isLoading }
 							onLoadNextPage={ this.loadNextPage }
 							locale={ this.props.options.locale }
-							query={ this.state.query }
+							query={ getSearchQuery() }
 							response={ this.state.response }
 							resultFormat={ this.props.options.resultFormat }
 							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }

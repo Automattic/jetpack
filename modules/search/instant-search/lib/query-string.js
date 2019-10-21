@@ -24,12 +24,14 @@ function pushQueryString( queryString ) {
 			? `${ window.location.protocol }//${ window.location.host }?${ queryString }`
 			: `${ window.location.protocol }//${ window.location.host }${ window.location.pathname }`;
 		window.history.pushState( { path: newUrl }, '', newUrl );
+		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
 
 export function restorePreviousPath( newUrl ) {
 	if ( history.pushState ) {
 		window.history.pushState( { path: newUrl }, '', newUrl );
+		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
 

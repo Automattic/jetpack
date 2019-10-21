@@ -25,9 +25,7 @@ export default class SearchFilters extends Component {
 							configuration={ configuration }
 							locale={ this.props.locale }
 							type="date"
-							initialValue={
-								this.props.initialValues[ `${ configuration.interval }_${ configuration.field }` ]
-							}
+							value={ this.props.filters[ `${ configuration.interval }_${ configuration.field }` ] }
 							onChange={ this.props.onChange }
 						/>
 					)
@@ -38,7 +36,7 @@ export default class SearchFilters extends Component {
 						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
-							initialValue={ this.props.initialValues[ configuration.taxonomy ] }
+							value={ this.props.filters[ configuration.taxonomy ] }
 							onChange={ this.props.onChange }
 							type="taxonomy"
 						/>
@@ -50,7 +48,7 @@ export default class SearchFilters extends Component {
 						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
-							initialValue={ this.props.initialValues.post_types }
+							value={ this.props.filters.post_types }
 							onChange={ this.props.onChange }
 							postTypes={ this.props.postTypes }
 							type="postType"

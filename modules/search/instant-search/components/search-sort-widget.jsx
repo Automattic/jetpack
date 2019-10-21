@@ -12,19 +12,12 @@ import { __ } from '@wordpress/i18n';
 import { getSortOptions } from '../lib/sort';
 
 export default class SearchSortWidget extends Component {
-	constructor( props ) {
-		super( props );
-		this.state = { selected: this.props.initialValue };
-	}
-
 	handleChange = event => {
-		if ( this.state.selected === event.target.value ) {
+		if ( this.props.value === event.target.value ) {
 			return;
 		}
 
-		this.setState( { selected: event.target.value }, () => {
-			this.props.onChange( event.target.value );
-		} );
+		this.props.onChange( event.target.value );
 	};
 
 	render() {
@@ -38,7 +31,7 @@ export default class SearchSortWidget extends Component {
 					onChange={ this.handleChange }
 				>
 					{ Object.keys( sortOptions ).map( sortKey => (
-						<option value={ sortKey } selected={ this.state.selected === sortKey }>
+						<option value={ sortKey } selected={ this.props.value === sortKey }>
 							{ sortOptions[ sortKey ].label }
 						</option>
 					) ) }
