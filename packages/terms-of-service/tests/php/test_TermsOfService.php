@@ -14,7 +14,7 @@ class Test_Terms_Of_Service extends TestCase {
 	public function setUp() {
 		$this->terms_of_service = $this->createPartialMock( __NAMESPACE__ .'\\Terms_Of_Service',
 			array( 'get_raw_has_agreed', 'is_development_mode', 'is_active', 'set_agree', 'set_reject' )
-		);
+		)
 	}
 
 	/**
@@ -28,7 +28,7 @@ class Test_Terms_Of_Service extends TestCase {
 	 * @covers Automattic\Jetpack\Terms_Of_Service->agree
 	 */
 	public function test_agree() {
-		$this->mock_function( 'do_action', null );
+		$this->mock_function( 'do_action', null,  'jetpack_agreed_to_terms_of_service' );
 		$this->terms_of_service->expects( $this->once() )->method( 'set_agree' )->willReturn( null );
 
 		$this->terms_of_service->agree();
@@ -38,7 +38,7 @@ class Test_Terms_Of_Service extends TestCase {
 	 * @covers Automattic\Jetpack\Terms_Of_Service->revoke
 	 */
 	public function test_revoke() {
-		$this->mock_function( 'do_action', null );
+		$this->mock_function( 'do_action', null, 'jetpack_reject_to_terms_of_service' );
 		$this->terms_of_service->expects( $this->once() )->method( 'set_reject' )->willReturn( null );
 
 		$this->terms_of_service->reject();
@@ -97,11 +97,14 @@ class Test_Terms_Of_Service extends TestCase {
 	 * @param mixed  $return_value  Return value of the function.
 	 * @return phpmock\Mock The mock object.
 	 */
-	protected function mock_function( $function_name, $return_value = null ) {
+	protected function mock_function( $function_name, $return_value = null, $called_with = null ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 		        ->setName( $function_name )
-		        ->setFunction( function() use ( &$return_value ) {
+		        ->setFunction( function( $VALUE ) use ( &$return_value, $called_with ) {
+		        	if ( $called_with ) {
+		        		$this->assertEquals( $VALUE, $called_with );
+			        }
 			        return $return_value;
 		        } );
 		return $builder->build()->enable();
