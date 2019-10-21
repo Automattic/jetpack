@@ -44,13 +44,16 @@ class SearchApp extends Component {
 		// TODO: Rework this line; we shouldn't reassign properties.
 		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
 
-		this.state = { isLoading: false, response: {} };
+		this.state = { isLoading: false, response: {}, showResults: false };
 		this.getDebouncedResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
 	}
 
 	componentDidMount() {
 		this.getResults( getSearchQuery(), getFilterQuery(), this.props.initialSort, null );
+		if ( this.hasActiveQuery() ) {
+			this.showResults();
+		}
 		if ( this.props.grabFocus ) {
 			this.input.current.focus();
 		}
@@ -64,9 +67,6 @@ class SearchApp extends Component {
 	prepareDomForMounting() {
 		// Clean up the page prior to mounting component
 		hideElements( this.props.themeOptions.elementSelectors );
-		if ( this.hasActiveQuery() ) {
-			this.activateResults();
-		}
 		document
 			.querySelectorAll( '.jetpack-instant-search-wrapper' )
 			.forEach( widget => removeChildren( widget ) );
@@ -83,19 +83,19 @@ class SearchApp extends Component {
 		return !! this.state.response.page_handle;
 	}
 
-	activateResults() {
-		if ( ! this.state.resultsActive ) {
+	showResults() {
+		if ( ! this.state.showResults ) {
 			hideChildren( this.props.themeOptions.resultsSelector );
-			this.setState( { resultsActive: true } );
+			this.setState( { showResults: true } );
 		}
 	}
 
-	maybeDeactivateResults() {
-		if ( this.props.isSearchPage || this.hasActiveQuery() || ! this.state.resultsActive ) {
+	hideResults() {
+		if ( this.props.isSearchPage || this.hasActiveQuery() || ! this.state.showResults ) {
 			return;
 		}
 
-		this.setState( { resultsActive: false }, () => {
+		this.setState( { showResults: false }, () => {
 			showChildren( this.props.themeOptions.resultsSelector );
 			restorePreviousPath( this.props.initialPath );
 		} );
@@ -103,13 +103,13 @@ class SearchApp extends Component {
 
 	onSearchFocus = () => {
 		if ( this.hasActiveQuery() ) {
-			this.activateResults();
+			this.showResults();
 		}
 	};
 
 	onSearchBlur = () => {
-		if ( this.state.resultsActive ) {
-			this.maybeDeactivateResults();
+		if ( this.state.showResults ) {
+			this.hideResults();
 		}
 	};
 
@@ -119,10 +119,10 @@ class SearchApp extends Component {
 
 	onChangeQueryString = () => {
 		if ( this.hasActiveQuery() ) {
-			this.activateResults();
+			this.showResults();
 			this.getDebouncedResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
 		} else {
-			this.maybeDeactivateResults();
+			this.hideResults();
 		}
 	};
 
@@ -232,7 +232,7 @@ class SearchApp extends Component {
 			<Preact.Fragment>
 				{ this.renderWidgets() }
 				{ this.renderSearchForms() }
-				{ this.state.resultsActive && (
+				{ this.state.showResults && (
 					<Portal into={ this.props.themeOptions.resultsSelector }>
 						<SearchResults
 							hasNextPage={ this.hasNextPage() }
