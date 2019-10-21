@@ -13,8 +13,8 @@ class Test_Terms_Of_Service extends TestCase {
 	 */
 	public function setUp() {
 		$this->terms_of_service = $this->createPartialMock( __NAMESPACE__ .'\\Terms_Of_Service',
-			array( 'get_raw_has_agreed', 'is_development_mode', 'is_active', 'set_agree', 'set_reject' )
-		)
+			[ 'get_raw_has_agreed', 'is_development_mode', 'is_active', 'set_agree', 'set_reject' ]
+		);
 	}
 
 	/**
