@@ -100,13 +100,13 @@ class Test_Terms_Of_Service extends TestCase {
 	protected function mock_function( $function_name, $return_value = null, $called_with = null ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
-		        ->setName( $function_name )
-		        ->setFunction( function( $VALUE ) use ( &$return_value, $called_with ) {
-		        	if ( $called_with ) {
-		        		$this->assertEquals( $VALUE, $called_with );
-			        }
-			        return $return_value;
-		        } );
+				->setName( $function_name )
+				->setFunction( function( $VALUE ) use ( &$return_value, $called_with ) {
+					if ( $called_with ) {
+						$this->assertEquals( $VALUE, $called_with );
+					}
+					return $return_value;
+				} );
 		return $builder->build()->enable();
 	}
 }

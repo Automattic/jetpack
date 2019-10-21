@@ -29,7 +29,7 @@ class Terms_Of_Service {
 	public function agree() {
 		$this->set_agree();
 		/**
-		 * Acton gets fire when the master user has aggreed to the terms of service.
+		 * Acton fired when the master user has agreed to the terms of service.
 		 *
 		 * @since 7.9.0
 		 */
@@ -42,7 +42,7 @@ class Terms_Of_Service {
 	public function reject() {
 		$this->set_reject();
 		/**
-		 * Acton gets fire when the master user has aggreed to the terms of service.
+		 * Acton fired when the master user has revoked their agreement to the terms of service.
 		 *
 		 * @since 7.9.0
 		 */
@@ -112,7 +112,7 @@ class Terms_Of_Service {
 	}
 
 	/**
-	 * Sets the correct Jetpack Option to mark the that the site has rejected the terms of service.
+	 * Sets the correct Jetpack Option to mark that the site has rejected the terms of service.
 	 * Abstracted for testing purposes.
 	 */
 	protected function set_reject() {
