@@ -19,7 +19,7 @@ const injectSearchApp = grabFocus => {
 		<SearchApp
 			grabFocus={ grabFocus }
 			initialFilters={ getFilterQuery() }
-			initialPathname={ window.location.pathname }
+			initialPath={ window[ SERVER_OBJECT_NAME ].siteUrl }
 			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort ) }
 			initialValue={ getSearchQuery() }
 			options={ window[ SERVER_OBJECT_NAME ] }

@@ -251,6 +251,7 @@ class Jetpack_Search {
 					'postTypeFilters'    => $widget_options['post_types'],
 					'postTypes'          => $post_type_labels,
 					'siteId'             => Jetpack::get_option( 'id' ),
+					'siteUrl'            => site_url(),
 					'sort'               => $widget_options['sort'],
 					'widgets'            => array_values( $widgets ),
 				);

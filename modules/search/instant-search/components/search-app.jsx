@@ -100,7 +100,7 @@ class SearchApp extends Component {
 
 		this.setState( { resultsActive: false }, () => {
 			showChildren( this.props.themeOptions.resultsSelector );
-			restorePreviousPath( this.props.initialPathname );
+			restorePreviousPath( this.props.initialPath );
 		} );
 	}
 
