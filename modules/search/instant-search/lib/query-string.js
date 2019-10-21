@@ -50,21 +50,26 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
-export function determineDefaultSort( widgetOptions ) {
+const DEFAULT_SORT_MAP = {
+	'date|DESC': 'date_desc',
+	'date|ASC': 'date_asc',
+	'relevance|DESC': 'score_default',
+};
+
+export function determineDefaultSort( initialSort, initialSearchString ) {
 	const query = getQuery();
 	if ( 'orderby' in query ) {
 		return getSortQuery();
 	}
 
-	switch ( widgetOptions ) {
-		case 'date|DESC':
-			return 'date_desc';
-		case 'date|ASC':
-			return 'date_asc';
-		case 'relevance|DESC':
-		default:
-			return 'score_default';
+	if ( Object.keys( DEFAULT_SORT_MAP ).includes( initialSort ) ) {
+		return DEFAULT_SORT_MAP[ initialSort ];
 	}
+
+	if ( initialSearchString === '' ) {
+		return 'date_desc';
+	}
+	return 'score_default';
 }
 
 const ORDERED_SORT_TYPES = [ 'date', 'price', 'rating' ];
