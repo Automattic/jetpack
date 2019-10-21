@@ -67,36 +67,29 @@ function mapBenefitDataToViewData( benefit ) {
 class JetpackTerminationDialog extends Component {
 	static propTypes = {
 		closeDialog: PropTypes.func.isRequired,
-		disconnectJetpack: PropTypes.func.isRequired,
+		isDevVersion: PropTypes.bool,
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array,
+		terminateJetpack: PropTypes.func.isRequired,
 	};
 
-	componentDidMount() {
-		const { location, purpose } = this.props;
-		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_view', {
-			location,
-			purpose,
-		} );
-	}
-
 	handleTerminationClick = () => {
-		const { location, purpose } = this.props;
+		const { location, purpose, terminateJetpack } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', {
 			location,
 			purpose,
 		} );
-		this.props.terminateJetpack();
+		terminateJetpack();
 	};
 
 	handleDialogCloseClick = () => {
-		const { location, purpose } = this.props;
+		const { closeDialog, location, purpose } = this.props;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', {
 			location,
 			purpose,
 		} );
-		this.props.closeDialog();
+		closeDialog();
 	};
 
 	renderFeatures() {

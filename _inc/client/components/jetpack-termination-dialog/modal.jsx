@@ -29,14 +29,14 @@ class JetpackDisconnectModal extends Component {
 	};
 
 	render() {
-		const { show } = this.props;
+		const { show, toggleModal } = this.props;
 
 		return (
 			show && (
-				<Modal className="jp-connection-settings__modal" onRequestClose={ this.props.toggleModal }>
+				<Modal className="jp-connection-settings__modal" onRequestClose={ toggleModal }>
 					<JetpackTerminationDialog
-						closeDialog={ this.props.toggleModal }
-						disconnectJetpack={ this.disconnectJetpack }
+						closeDialog={ toggleModal }
+						terminateJetpack={ this.disconnectJetpack }
 						location={ 'dashboard' }
 						purpose={ 'disconnect' }
 					/>
