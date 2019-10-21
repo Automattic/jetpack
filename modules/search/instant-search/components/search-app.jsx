@@ -120,10 +120,10 @@ class SearchApp extends Component {
 	onChangeQueryString = () => {
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
-			this.getDebouncedResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
 		} else {
 			this.hideResults();
 		}
+		this.getDebouncedResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
