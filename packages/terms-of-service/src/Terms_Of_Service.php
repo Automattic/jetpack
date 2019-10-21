@@ -14,11 +14,10 @@ use Automattic\Jetpack\Status;
  * Class Terms_Of_Service
  *
  * Helper class that is responsible for the state of agreement of the terms of service.
- *
  */
 class Terms_Of_Service {
 	/**
-	 * Option name where the terms of service gets stored.
+	 * Jetpack option name where the terms of service state is stored.
 	 *
 	 * @var string
 	 */
@@ -38,16 +37,16 @@ class Terms_Of_Service {
 	}
 
 	/**
-	 * Allow the site to revoke to the terms of service.
+	 * Allow the site to reject to the terms of service.
 	 */
-	public function revoke() {
-		$this->set_revoke();
+	public function reject() {
+		$this->set_reject();
 		/**
 		 * Acton gets fire when the master user has aggreed to the terms of service.
 		 *
 		 * @since 7.9.0
 		 */
-		do_action( 'jetpack_revoke_to_terms_of_service' );
+		do_action( 'jetpack_reject_to_terms_of_service' );
 	}
 
 	/**
@@ -84,17 +83,8 @@ class Terms_Of_Service {
 	}
 
 	/**
-	 * Abstracted for testing purposes.
-	 *
-	 * @return bool
-	 */
-	protected function get_raw_has_agreed() {
-		return \Jetpack_Options::get_option( self::OPTION_NAME );
-	}
-
-	/**
-	 * Abstracted for testing purposes.
 	 * Tells us if the site is connected.
+	 * Abstracted for testing purposes.
 	 *
 	 * @return bool
 	 */
@@ -104,6 +94,17 @@ class Terms_Of_Service {
 	}
 
 	/**
+	 * Gets just the Jetpack Option that contains the terms of service state.
+	 * Abstracted for testing purposes.
+	 *
+	 * @return bool
+	 */
+	protected function get_raw_has_agreed() {
+		return \Jetpack_Options::get_option( self::OPTION_NAME );
+	}
+
+	/**
+	 * Sets the correct Jetpack Option to mark the that the site has agreed to the terms of service.
 	 * Abstracted for testing purposes.
 	 */
 	protected function set_agree() {
@@ -111,9 +112,10 @@ class Terms_Of_Service {
 	}
 
 	/**
+	 * Sets the correct Jetpack Option to mark the that the site has rejected the terms of service.
 	 * Abstracted for testing purposes.
 	 */
-	protected function set_revoke() {
+	protected function set_reject() {
 		\Jetpack_Options::update_option( self::OPTION_NAME, false );
 	}
 
