@@ -163,7 +163,8 @@ class Jetpack_RelatedPosts {
 
 	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
-	 * Will skip adding the target if the post content contains a Related Posts block.
+	 * Will skip adding the target if the post content contains a Related Posts block or if the 'get_the_excerpt'
+	 * hook is in the current filter list.
 	 *
 	 * @filter the_content
 	 *
@@ -172,7 +173,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( has_block( 'jetpack/related-posts', $content ) ) {
+		if ( has_block( 'jetpack/related-posts' ) ) {
 			return $content;
 		}
 
@@ -369,17 +370,7 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		$excludes      = $this->parse_numeric_get_arg( 'relatedposts_origin' );
-
-		$target_to_dom_priority = has_filter(
-			'the_content',
-			array( $this, 'filter_add_target_to_dom' )
-		);
-		remove_filter(
-			'the_content',
-			array( $this, 'filter_add_target_to_dom' ),
-			$target_to_dom_priority
-		);
+		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 
 		$related_posts = $this->get_for_post_id(
 			get_the_ID(),
@@ -452,7 +443,7 @@ EOT;
 	 *
 	 * @uses absint
 	 *
-	 * @param string $arg Name of the GET variable
+	 * @param string $arg Name of the GET variable.
 	 * @return array $result Parsed value(s)
 	 */
 	public function parse_numeric_get_arg( $arg ) {
