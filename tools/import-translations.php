@@ -30,7 +30,7 @@ function apize_url( $url ) {
 		return $url;
 	}
 
-	$host = preg_quote( wp_parse_url( $url, PHP_URL_HOST ) );
+	$host = preg_quote( parse_url( $url, PHP_URL_HOST ) );
 
 	return preg_replace( "#^https?://$host#", '\\0/api', $url );
 }
