@@ -120,7 +120,7 @@ class SearchResultMinimal extends Component {
 						dateStyle: 'short',
 					} ) }
 				</span>
-				<h3>
+				<h3 className="jetpack-instant-search__result-title">
 					<PostTypeIcon
 						postType={ fields.post_type }
 						shortcodeTypes={ fields.shortcode_types }
