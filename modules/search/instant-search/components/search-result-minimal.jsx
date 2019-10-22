@@ -10,6 +10,7 @@ import { h, Component } from 'preact';
  */
 import Gridicon from './gridicon';
 import PostTypeIcon from './post-type-icon';
+import SearchResultComments from './search-result-comments';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 
 class SearchResultMinimal extends Component {
@@ -105,23 +106,6 @@ class SearchResultMinimal extends Component {
 		);
 	}
 
-	renderComments() {
-		return (
-			this.props.result.highlight.comments && (
-				<div className="jetpack-instant-search__result-minimal-comment">
-					<Gridicon icon="comment" size={ this.getIconSize() } />
-					<span
-						className="jetpack-instant-search__result-minimal-comment-span"
-						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ {
-							__html: this.props.result.highlight.comments.join( ' ... ' ),
-						} }
-					/>
-				</div>
-			)
-		);
-	}
-
 	render() {
 		const { locale = 'en-US' } = this.props;
 		const { result_type, fields, highlight } = this.props.result;
@@ -151,7 +135,7 @@ class SearchResultMinimal extends Component {
 					/>
 				</h3>
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
-				{ this.renderComments() }
+				<SearchResultComments comments={ highlight && highlight.comments } />
 			</div>
 		);
 	}
