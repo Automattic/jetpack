@@ -114,12 +114,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * AMP: ensure that one can use the Slideshow and the MailChimp blocks when using the AMP plugin.
-* AMP: suppor the new Dev mode for Notifications and Stats features.
+* AMP: support the new Dev mode for Notifications and Stats features.
 * Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
 * Blocks: ensure that all blocks display well in the editor when using WordPress 5.3.
 * Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
-* SSO: ensure that the Secure Signin Form is displayed properly when using WordPress 5.3.
+* SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
 
 **Bug fixes**
 
