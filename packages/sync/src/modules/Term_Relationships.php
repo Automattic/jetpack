@@ -93,7 +93,7 @@ class Term_Relationships extends Module {
 
 		// Count down from max_id to min_id so we get term relationships for the newest posts and terms first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $ids = $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE object_id <= {$previous_interval_end['object_id']} AND term_taxonomy_id < {$previous_interval_end['term_taxonomy_id']} ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT {$items_per_page}", ARRAY_A ) ) {
+		while ( $ids = $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = {$previous_interval_end['object_id']} AND term_taxonomy_id < {$previous_interval_end['term_taxonomy_id']} ) OR ( object_id < {$previous_interval_end['object_id']} ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT {$items_per_page}", ARRAY_A ) ) {
 			// Request term relationships in groups of N for efficiency.
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
