@@ -24,21 +24,15 @@ use Automattic\Jetpack\Sync\Settings;
  * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
 class Full_Sync extends Module {
+
+	var $is_full_sync_capable = false;
+
 	/**
 	 * Prefix of the full sync status option name.
 	 *
 	 * @var string
 	 */
 	const STATUS_OPTION_PREFIX = 'jetpack_sync_full_';
-
-	/**
-	 * Timeout between the previous and the next allowed full sync.
-	 *
-	 * @todo Remove this as it's no longer used since https://github.com/Automattic/jetpack/pull/4561
-	 *
-	 * @var int
-	 */
-	const FULL_SYNC_TIMEOUT = 3600;
 
 	/**
 	 * Sync module name.
@@ -106,17 +100,24 @@ class Full_Sync extends Module {
 		$include_empty    = false;
 		$empty            = array();
 
+		$full_sync_modules = array_filter(
+			Modules::get_modules(),
+			function( $module ) {
+				return $module->is_full_sync_capable;
+			}
+		);
+
 		// Default value is full sync.
 		if ( ! is_array( $module_configs ) ) {
 			$module_configs = array();
 			$include_empty  = true;
-			foreach ( Modules::get_modules() as $module ) {
+			foreach ( $full_sync_modules as $module ) {
 				$module_configs[ $module->name() ] = true;
 			}
 		}
 
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
-		foreach ( Modules::get_modules() as $module ) {
+		foreach ( $full_sync_modules as $module ) {
 			$module_name   = $module->name();
 			$module_config = isset( $module_configs[ $module_name ] ) ? $module_configs[ $module_name ] : false;
 
@@ -146,6 +147,8 @@ class Full_Sync extends Module {
 		}
 
 		$this->set_config( $full_sync_config );
+		l( 'INITAL ENEQUE STATUS', $enqueue_status );
+
 		$this->set_enqueue_status( $enqueue_status );
 
 		$range = $this->get_content_range( $full_sync_config );
@@ -162,6 +165,7 @@ class Full_Sync extends Module {
 		 * @param array $empty            The modules with no items to sync during a full sync.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range, $empty );
+		l( 'do_action( \'jetpack_full_sync_start\'' );
 
 		$this->continue_enqueuing( $full_sync_config, $enqueue_status );
 
@@ -177,6 +181,7 @@ class Full_Sync extends Module {
 	 * @param array $enqueue_status Current status of the queue, indexed by sync modules.
 	 */
 	public function continue_enqueuing( $configs = null, $enqueue_status = null ) {
+		l( 'continue enqueuing' );
 		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
@@ -186,6 +191,9 @@ class Full_Sync extends Module {
 		$full_sync_queue          = new Queue( 'full_sync' );
 
 		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
+
+		l( 'FIRST STATUS' );
+		l( $this->get_status() );
 
 		if ( $available_queue_slots <= 0 ) {
 			return;
@@ -215,8 +223,11 @@ class Full_Sync extends Module {
 				continue;
 			}
 
+			l( 'enqueue for module', $module_name );
+			l( 'enqueue_status', $enqueue_status );
 			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
 
+			l( $items_enqueued, $next_enqueue_state );
 			$enqueue_status[ $module_name ][2] = $next_enqueue_state;
 
 			// If items were processed, subtract them from the limit.
@@ -225,8 +236,11 @@ class Full_Sync extends Module {
 				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
+			l( 'ENQUEUE STATUS', $enqueue_status );
+			l( $remaining_items_to_enqueue );
 			// Stop processing if we've reached our limit of items to enqueue.
 			if ( 0 >= $remaining_items_to_enqueue ) {
+
 				$this->set_enqueue_status( $enqueue_status );
 				return;
 			}
@@ -510,6 +524,7 @@ class Full_Sync extends Module {
 		\Jetpack_Options::delete_raw_option( "{$prefix}_params" );
 		\Jetpack_Options::delete_raw_option( "{$prefix}_queue_finished" );
 		\Jetpack_Options::delete_raw_option( "{$prefix}_send_started" );
+		\Jetpack_Options::delete_raw_option( "{$prefix}_enqueue_status" );
 		\Jetpack_Options::delete_raw_option( "{$prefix}_finished" );
 
 		$this->delete_enqueue_status();
