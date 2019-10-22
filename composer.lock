@@ -424,6 +424,41 @@
             "description": "Everything needed to allow syncing to the WP.com infrastructure."
         },
         {
+            "name": "automattic/jetpack-terms-of-service",
+            "version": "dev-update/user-tos-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/terms-of-service",
+                "reference": "6f53f2987be1c025edcd7820759df50c134065e6",
+                "shasum": null
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything need to manage the terms of service state"
+        },
+        {
             "name": "automattic/jetpack-tracking",
             "version": "dev-master",
             "dist": {
@@ -846,6 +881,7 @@
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
+        "automattic/jetpack-terms-of-service": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-compat": 20
     },
