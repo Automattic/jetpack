@@ -9,7 +9,6 @@ import SimpleNotice from 'components/notice';
 /**
  * Internal dependencies
  */
-
 import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
@@ -236,20 +235,14 @@ class JetpackStateNotices extends React.Component {
 	renderContent = () => {
 		let status = 'is-info',
 			noticeText = '',
-			action;
+			action,
+			releasePostContent = null;
 		const error = this.props.jetpackStateNoticesErrorCode,
 			message = this.props.jetpackStateNoticesMessageCode,
 			messageContent = this.props.jetpackStateNoticesMessageContent;
 
 		if ( ! error && ! message && ! messageContent ) {
 			return;
-		}
-
-		let parsedMessage = null,
-			releasePostContent = null;
-		if ( messageContent ) {
-			parsedMessage = JSON.parse( messageContent );
-			releasePostContent = parsedMessage.release_post_content;
 		}
 
 		if ( error ) {
@@ -259,9 +252,13 @@ class JetpackStateNotices extends React.Component {
 			}
 		}
 
+		if ( messageContent ) {
+			releasePostContent = messageContent.release_post_content;
+		}
+
 		// Show custom message for upgraded Jetpack
 		if ( releasePostContent ) {
-			const releasePostImage = parsedMessage.release_post_image;
+			const releasePostImage = messageContent.release_post_image;
 
 			return (
 				<UpgradeNoticeContent

@@ -3203,14 +3203,9 @@ p {
 	 * state array. This data is used to create the update modal.
 	 */
 	public static function send_update_modal_data() {
-		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts/?order_by=date&category=Releases&number=1' );
-		if ( ! is_array( $response ) ) {
-			return;
-		}
+		$post_data = self::get_release_post_data();
 
-		$post_data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( ! isset( $post_data['posts'] ) || ! isset( $post_data['posts'][0] ) ) {
+		if ( ! isset( $post_data ) || ! isset( $post_data['posts'] ) || ! isset( $post_data['posts'][0] ) ) {
 			return;
 		}
 
@@ -3218,6 +3213,7 @@ p {
 		if ( empty( $post_content ) ) {
 			return;
 		}
+
 		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
 
 		$content   = wp_kses_post( $post_content );
@@ -3228,7 +3224,51 @@ p {
 			'release_post_image'   => $image_src,
 		);
 
-		self::state( 'message_content', wp_json_encode( $post_array ) );
+		self::state( 'message_content', $post_array );
+	}
+
+	/**
+	 * Obtains the most recent post in the 'releases' category in the Jetpack.com
+	 * blog. Returns an array with the release post's data at index ['posts'][0].
+	 *
+	 * The response parameters for the post array can be found here:
+	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
+	 *
+	 * @return array|null Returns an associative array containing the release post data.
+	 *                    Returns null if the release post data is not available.
+	 */
+	private static function get_release_post_data() {
+		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
+			return null;
+		}
+		/* Need to add tags to the release posts to use this.
+		$version = JETPACK__VERSION;
+		$release_post_src = add_query_arg(
+			array(
+				'order_by' => 'date',
+				'tag'      => $version,
+				'number'   => '1',
+			),
+			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'
+		);
+		*/
+
+		$release_post_src = add_query_arg(
+			array(
+				'order_by' => 'date',
+				'category' => 'releases',
+				'number'   => '1',
+			),
+			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'
+		);
+
+		$response = wp_remote_get( $release_post_src );
+
+		if ( ! is_array( $response ) ) {
+			return null;
+		}
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
@@ -5506,12 +5546,14 @@ endif;
 
 		if ( $restate ) {
 			foreach ( $state as $k => $v ) {
-				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				if ( 'message_content' !== $k ) {
+					setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				}
 			}
 			return;
 		}
 
-		// Get a state variable
+		// Get a state variable.
 		if ( isset( $key ) && ! isset( $value ) ) {
 			if ( array_key_exists( $key, $state ) ) {
 				return $state[ $key ];
@@ -5519,13 +5561,15 @@ endif;
 			return null;
 		}
 
-		// Set a state variable
+		// Set a state variable.
 		if ( isset( $key ) && isset( $value ) ) {
 			if ( is_array( $value ) && isset( $value[0] ) ) {
 				$value = $value[0];
 			}
 			$state[ $key ] = $value;
-			setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+			if ( 'message_content' !== $key ) {
+				setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+			}
 		}
 	}
 
