@@ -684,6 +684,7 @@ new Jetpack_JSON_API_Sync_Checkout_Endpoint( array(
 		'number_of_items'   => '(int=10) Maximum number of items from the queue to be returned',
 		'encode'            => '(bool=true) Use the default encode method',
 		'force'             => '(bool=false) Force unlock the queue',
+		'close'             => '(bool=false) Close the buffer and delete the processed items from the queue.',
 	),
 	'response_format' => array(
 		'buffer_id' => '(string) Buffer ID that we are using',
