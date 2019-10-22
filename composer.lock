@@ -468,7 +468,8 @@
                 "shasum": null
             },
             "require": {
-                "automattic/jetpack-options": "@dev"
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-terms-of-service": "@dev"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
