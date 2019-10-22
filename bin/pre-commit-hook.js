@@ -115,10 +115,12 @@ function runJSLinter( toLintFiles ) {
 
 /**
  * Run phpcs-changed.
+ *
+ * @param {Array} phpFilesToCheck Array of PHP files changed.
  */
-function runPHPCSChanged( phpFiles ) {
+function runPHPCSChanged( phpFilesToCheck ) {
 	let phpChangedResult;
-	if ( phpFiles.length > 0 ) {
+	if ( phpFilesToCheck.length > 0 ) {
 		phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
 			shell: true,
 			stdio: 'pipe',
@@ -140,10 +142,12 @@ function runPHPCSChanged( phpFiles ) {
 
 /**
  * Exit
+ *
+ * @param {Number} exitCodePassed Shell exit code.
  */
-function exit( exitCode ) {
+function exit( exitCodePassed ) {
 	capturePreCommitDate();
-	process.exit( exitCode );
+	process.exit( exitCodePassed );
 }
 
 dirtyFiles.forEach( file =>
