@@ -26,6 +26,9 @@ export function execSyncShellCommand( cmd ) {
 }
 
 export function getNgrokSiteUrl() {
+	if ( process.env.WP_BASE_URL ) {
+		return process.env.WP_BASE_URL;
+	}
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
 	return execSyncShellCommand( cmd );
