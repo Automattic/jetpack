@@ -5,6 +5,16 @@
 	max-width: 1080px;
 	min-height: 400px;
 	text-align: left;
+
+	mark {
+		background: none;
+		font-weight: bold;
+		color: inherit;
+	}
+}
+
+.jetpack-instant-search__result-title mark {
+	padding: 0;
 }
 
 .jetpack-instant-search__search-results-real-query {
