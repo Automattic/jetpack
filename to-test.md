@@ -1,6 +1,6 @@
 ## 7.9
 
-For this round of testing, I would encourage y'all to install [WordPress' Beta Tester plugin]() on your sites, and switch to using WordPress 5.3 Beta. It will allow you to test Jetpack with the upcoming version of WordPress scheduled to be released in a few weeks.
+For this round of testing, I would encourage y'all to install [WordPress' Beta Tester plugin](https://wordpress.org/plugins/wordpress-beta-tester/) on your sites, and switch to using WordPress 5.3 Beta. It will allow you to test Jetpack with the upcoming version of WordPress scheduled to be released in a few weeks.
 
 ### Blocks
 
