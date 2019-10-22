@@ -251,6 +251,7 @@ class Jetpack_Geo_Location {
 	public function rss_namespace() {
 		echo PHP_EOL . "\t" . 'xmlns:georss="http://www.georss.org/georss\"';
 		echo PHP_EOL . "\t" . 'xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"';
+		echo PHP_EOL . "\t";
 	}
 
 	/**
