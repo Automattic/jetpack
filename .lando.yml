@@ -1,0 +1,44 @@
+name: jetpack
+recipe: wordpress
+
+config:
+  webroot: docker/wordpress
+  xdebug: true
+
+env_file:
+  - ./docker/default.env
+  - ./docker/.env
+
+services:
+  appserver:
+    build_as_root:
+      - apt-get update -y && apt-get install -y subversion
+    build:
+      - composer g require psy/psysh:@stable
+    run:
+      - composer install
+      - bash /app/docker/bin/lando-setup.sh
+      - bash /app/docker/bin/install.sh
+    overrides:
+      volumes:
+        - ".:/app/docker/wordpress/wp-content/plugins/jetpack"
+        - "./docker/wp-cli.yml:/app/wp-cli.yml"
+
+  mail:
+    type: mailhog
+    hogfrom:
+      - appserver
+
+  db:
+    type: phpmyadmin
+    hosts:
+      - database
+    overrides:
+      environment:
+        PMA_USER: wordpress
+        PMA_PASSWORD: wordpress
+
+tooling:
+  phpunit:
+    service: appserver
+    description: "Run PHP unit tests: lando phpunit"

@@ -1,0 +1,2 @@
+path: /app/docker/wordpress
+require: /var/www/.composer/vendor/bin/psysh
