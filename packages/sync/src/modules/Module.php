@@ -26,6 +26,15 @@ abstract class Module {
 	const ARRAY_CHUNK_SIZE = 10;
 
 	/**
+	 * Does this module make sense in the context of full_sync?
+	 *
+	 * @access public
+	 *
+	 * @var boolean
+	 */
+	var $is_full_sync_capable = true;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public

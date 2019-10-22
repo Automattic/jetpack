@@ -11,6 +11,9 @@ namespace Automattic\Jetpack\Sync\Modules;
  * Class to handle sync for menus.
  */
 class Menus extends Module {
+
+	var $is_full_sync_capable = false;
+
 	/**
 	 * Navigation menu items that were added but not synced yet.
 	 *

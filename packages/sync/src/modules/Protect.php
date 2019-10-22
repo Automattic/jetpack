@@ -14,6 +14,9 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
  * Logs BruteProtect failed logins via sync.
  */
 class Protect extends Module {
+
+	var $is_full_sync_capable = false;
+
 	/**
 	 * Sync module name.
 	 *

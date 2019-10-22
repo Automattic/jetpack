@@ -11,6 +11,9 @@ namespace Automattic\Jetpack\Sync\Modules;
  * Class to handle sync for stats.
  */
 class Stats extends Module {
+
+	var $is_full_sync_capable = false;
+
 	/**
 	 * Sync module name.
 	 *

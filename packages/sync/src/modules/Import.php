@@ -14,6 +14,8 @@ use Automattic\Jetpack\Sync\Settings;
  */
 class Import extends Module {
 
+	var $is_full_sync_capable = false;
+
 	/**
 	 * Tracks which actions have already been synced for the import
 	 * to prevent the same event from being triggered a second time.
