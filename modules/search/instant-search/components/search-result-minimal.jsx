@@ -70,9 +70,9 @@ class SearchResultMinimal extends Component {
 			<div className="jetpack-instant-search__result-minimal-content">
 				{ noTags && <div className="jetpack-instant-search__result-minimal-path">{ path }</div> }
 				{ tags.length !== 0 && (
-					<div className="jetpack-instant-search__result-minimal-tag">
+					<div className="jetpack-instant-search__result-minimal-tags">
 						{ tags.map( tag => (
-							<span>
+							<span className="jetpack-instant-search__result-minimal-tag">
 								<Gridicon icon="tag" size={ this.getIconSize() } />
 								{ tag }
 							</span>
@@ -80,9 +80,9 @@ class SearchResultMinimal extends Component {
 					</div>
 				) }
 				{ cats.length !== 0 && (
-					<div className="jetpack-instant-search__result-minimal-cat">
+					<div className="jetpack-instant-search__result-minimal-cats">
 						{ cats.map( cat => (
-							<span>
+							<span className="jetpack-instant-search__result-minimal-cat">
 								<Gridicon icon="folder" size={ this.getIconSize() } />
 								{ cat }
 							</span>
