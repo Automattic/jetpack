@@ -364,7 +364,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		<p>
 			<label
 				for="<?php echo $this->get_field_id( 'height' ); ?>"
-				<?php echo $instance['tweet-limit'] ? 'style="color:#ccc;"' : '' ?>
+				<?php echo $instance['tweet-limit'] ? 'style="color:#ccc;"' : ''; ?>
 			>
 				<?php esc_html_e( 'Height (px; at least 200):', 'jetpack' ); ?>
 			</label>
@@ -374,7 +374,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				name="<?php echo $this->get_field_name( 'height' ); ?>"
 				type="number" min="200"
 				value="<?php echo esc_attr( $instance['height'] ); ?>"
-				<?php echo $instance['tweet-limit'] ? 'disabled' : '' ?>
+				<?php echo $instance['tweet-limit'] ? 'disabled' : ''; ?>
 			/>
 		</p>
 
