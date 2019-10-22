@@ -43,15 +43,15 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		return array( 'scheduled' => Actions::do_full_sync( $modules ) );
 	}
 
-	protected function validate_queue( $query ) {
-		if ( ! isset( $query ) ) {
+	protected function validate_queue( $queue_name ) {
+		if ( ! isset( $queue_name ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
 		}
 
-		if ( ! in_array( $query, array( 'sync', 'full_sync' ) ) ) {
+		if ( ! in_array( $queue_name, array( 'sync', 'full_sync' ) ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
 		}
-		return $query;
+		return $queue_name;
 	}
 }
 
@@ -168,7 +168,7 @@ class Jetpack_JSON_API_Sync_Now_Endpoint extends Jetpack_JSON_API_Sync_Endpoint 
 		}
 
 		$sender = Sender::get_instance();
-		$response = $sender->do_sync_for_queue( new Queue( $args['queue'] ) );
+		$response = $sender->do_sync_for_queue( new Queue( $queue_name ) );
 
 		return array(
 			'response' => $response
