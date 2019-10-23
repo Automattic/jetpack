@@ -282,6 +282,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_term_relationships() {
 		global $wpdb;
+		$this->sender->reset_data();
 		Settings::update_settings( array( 'max_queue_size_full_sync' => 10, 'max_enqueue_full_sync' => 10 ) );
 
 		$post_ids = $this->factory->post->create_many( 20 );
