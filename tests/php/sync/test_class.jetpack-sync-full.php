@@ -323,7 +323,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
 
-		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
+		Settings::update_settings(
+			array(
+				'max_queue_size_full_sync'      => 1,
+				'max_enqueue_full_sync'         => 10,
+				'term_relationships_batch_size' => 10
+			)
+		);
 
 		foreach ( $terms as $term ) {
 			wp_set_object_terms( $post_id, array( $term['term_id'] ), 'category', true );
