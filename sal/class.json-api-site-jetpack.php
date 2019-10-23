@@ -94,6 +94,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return true;
 	}
 
+	function get_unmapped_url() {
+		// Fallback to the home URL since all Jetpack sites don't have an unmapped *.wordpress.com domain.
+		return $this->get_url();
+	}
+
 	function is_redirect() {
 		return false;
 	}
