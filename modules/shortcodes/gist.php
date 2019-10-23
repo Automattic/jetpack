@@ -242,7 +242,7 @@ function github_gist_shortcode( $atts, $content = '' ) {
  * @param int    $tab_size The tab size of the gist.
  * @return string          The script tag of the gist.
  */
-function github_gist_simple_embed( $id, $tab_size = 4 ) {
+function github_gist_simple_embed( $id, $tab_size = 8 ) {
 	$id = str_replace( 'json', 'js', $id );
 	return '<script src="' . esc_url( "https://gist.github.com/$id?ts=$tab_size" ) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 }
