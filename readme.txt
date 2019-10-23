@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection flow: add plan billing period toggle.
 * Debug: provide additional information in Tools > Site Health when a site's connection to WordPress.com is broken.
 * Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
+* Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
 * Social Networks: update Facebook logo to match new color.
 
 **Improved compatibility**
