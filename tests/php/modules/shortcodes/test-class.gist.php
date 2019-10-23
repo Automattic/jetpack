@@ -343,7 +343,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_gist_public_full_url() {
 		$gist_id = '57cc50246aab776e110060926a2face2';
-		$content = '[gist https://gist.github.com/' . $gist_id . ' /]';
+		$content = '[gist https://gist.github.com/' . $gist_id . '/ ]';
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
@@ -391,7 +391,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_gist_private_full_url() {
 		$gist_id = 'xknown/fc5891af153e2cf365c9';
-		$content = '[gist https://gist.github.com/' . $gist_id . ' /]';
+		$content = '[gist https://gist.github.com/' . $gist_id . '/ ]';
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
