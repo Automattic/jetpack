@@ -298,6 +298,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start( array( 'term_relationships' => true ) );
 		$this->sender->do_full_sync();
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
 
 		$replica_number_of_term_relationships = count( $this->server_replica_storage->get_term_relationships() );
 		$this->assertEquals( $original_number_of_term_relationships, $replica_number_of_term_relationships );
