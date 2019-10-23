@@ -19,6 +19,13 @@ Then, go to Posts > Add New, insert a Video Block, and try to upload a video. Yo
 
 You'll also want to make sure the Video Block still works well when the VideoPress option is inactive.
 
+### Connection
+
+We've made some more changes to the connection flow, so you'll want to pay extra attention to the connection flow when initially configuring Jetpack on your site.
+
+- Try using a different prompt to start the connection process. You can start connecting from Jetpack > Dashboard, but also using the banners in the Plugins menu or in the main dashboard page.
+- When in Jetpack > Dashboard before you start the connection process, make sure everything on the page works well.
+
 ### SSO
 
 When on WordPress 5.3 and with the SSO feature active, you'll want to make sure the login form always looks good, with no layout issues or missing WordPress.com button when logging out / in.
