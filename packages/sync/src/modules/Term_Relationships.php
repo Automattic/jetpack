@@ -147,7 +147,7 @@ class Term_Relationships extends Module {
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
 		$count = $wpdb->get_var( $query );
 
-		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
+		return (int) ceil( $count / Settings::get_setting( 'term_relationships_batch_size' ) );
 	}
 
 	/**
