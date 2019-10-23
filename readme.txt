@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection flow: add plan billing period toggle.
 * Dashboard: update styles for visual parity with the WordPress.com dashboard.
 * Dashboard: improve performance of the Jetpack dashboard when the plugin is not connected to WordPress.com yet.
+* Dashboard: add new plans' information to Plans pages.
 * Debug: provide additional information in Tools > Site Health when a site's connection to WordPress.com is broken.
 * Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
 * Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
