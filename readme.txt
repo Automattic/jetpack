@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 * SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
+* WordPress.com REST API: ensure compatibility with WordPress 5.3.
 
 **Bug fixes**
 
