@@ -82,7 +82,7 @@ class Term_Relationships extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
-		$items_per_page        = 1000;
+		$items_per_page        = $max_items_to_enqueue * self::ARRAY_CHUNK_SIZE;
 		$chunk_count           = 0;
 		$previous_interval_end = $state ? $state : array(
 			'object_id'        => '~0',
