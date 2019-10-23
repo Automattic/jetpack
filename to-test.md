@@ -10,6 +10,15 @@ Both the MailChimp and the SlideShow blocks now work well with the AMP plugin.
 
 To test this, try adding either of those blocks to a site where you use the AMP plugin. When visiting your site on an AMP view, you should be able to use the 2 blocks with no issues.
 
+#### Contact Form
+
+We've added a new option to the Form block. When adding or editing a block in the block editor, you should now see a new "Confirmation Message" setting in the block sidebar. That setting will allow you to do one of 3 things when a visitor submits a form on your site:
+- Display a summary of the form they just submitted. This used to be the only option until now.
+- Redirect to a new URL, either on your site or anywhere else.
+- Display a custom confirmation message.
+
+Try to edit existing forms, and creating new ones. In both cases, the 3 options should behave as advertized.
+
 #### VideoPress
 
 This should be a big improvement for folks using Jetpack Videos on their site and using the Block editor. Until now, you had to go to the WordPress.com dashboard or to Media > Library to be able to upload videos to VideoPress. You would then go to the block editor and insert those videos you had uploaded earlier.
