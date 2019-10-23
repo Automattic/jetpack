@@ -14,6 +14,7 @@ vendor/automattic/jetpack-autoloader
 
 ## FILES
 .DS_Store
+*.code-workspace
 # Custom environment for docker-compose (used by docker-compose.yml)
 /.env
 languages/messages.pot
