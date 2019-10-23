@@ -132,12 +132,7 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 	switch ( resultFormat ) {
 		case 'engagement':
 		case 'product':
-			fields = fields.concat( [
-				//'meta._wc_average_rating.value.raw',
-				//'meta._wc_rating_count.value.raw',
-				'wc.price',
-				//'img.url.raw',
-			] );
+			fields = fields.concat( [ 'image.url.raw', 'wc.price' ] );
 	}
 
 	const queryString = encode(

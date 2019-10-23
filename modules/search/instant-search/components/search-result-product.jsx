@@ -31,11 +31,11 @@ class SearchResultProduct extends Component {
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
 				</h3>
-				{ fields[ 'img.url.raw' ] && (
+				{ fields[ 'image.url.raw' ] && (
 					<img
 						className="jetpack-instant-search__result-product-img"
-						src={ fields[ 'img.url.raw' ] }
-						alt={ strip( highlight.title ) }
+						src={ fields[ 'image.url.raw' ] }
+						alt=""
 					/>
 				) }
 				<div
@@ -45,17 +45,6 @@ class SearchResultProduct extends Component {
 						__html: highlight.content.join( ' ... ' ),
 					} }
 				/>
-				<div>
-					<span className="jetpack-instant-search__result-product-rating-ave">
-						{ fields[ 'meta._wc_average_rating.value.raw' ] &&
-							strip( fields[ 'meta._wc_average_rating.value.raw' ] ).split( ' ' )[ 0 ] }
-					</span>
-					<span className="jetpack-instant-search__result-product-rating-cnt">
-						{ fields[ 'meta._wc_rating_count' ] &&
-							strip( fields[ 'meta._wc_rating_count.value.raw' ] ).split( ' ' )[ 0 ] }
-					</span>
-				</div>
-
 				<div>
 					<span className="jetpack-instant-search__result-product-price">
 						{ strip( fields[ 'wc.price' ] ).split( ' ' )[ 0 ] }
