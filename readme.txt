@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
 * Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
 * Social Networks: update Facebook logo to match new color.
+* Tiled Galleries: ensure that color profile information is retained for all images in Tiled Galleries.
 
 **Improved compatibility**
 
