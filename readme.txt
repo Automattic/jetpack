@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: add image size option to the Slideshow block.
 * Block Editor: add new post-submission settings to the Form block.
 * Block Editor: improve the display of opening hours when using the Business Hours block.
+* CLI: no longer return exit code 1 if trying to disconnect a site that's already disconnected.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
 * Connection flow: add plan billing period toggle.
 * Dashboard: update styles for visual parity with the WordPress.com dashboard.
