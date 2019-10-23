@@ -425,7 +425,7 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-update/user-tos-package",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
