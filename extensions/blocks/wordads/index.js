@@ -49,6 +49,10 @@ export const settings = {
 		},
 	},
 
+	example: {
+		attributes: {},
+	},
+
 	category: 'jetpack',
 
 	keywords: [ __( 'ads', 'jetpack' ), 'WordAds', __( 'Advertisement', 'jetpack' ) ],
