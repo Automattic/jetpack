@@ -13,6 +13,15 @@ use Automattic\Jetpack\Sync\Listener;
  * Class to handle sync for term relationships.
  */
 class Term_Relationships extends Module {
+
+	/**
+	 * Max terms to return in one single query
+	 *
+	 * @access public
+	 *
+	 * @const int
+	 */
+	const QUERY_LIMIT = 1000;
 	/**
 	 * Sync module name.
 	 *
@@ -82,7 +91,7 @@ class Term_Relationships extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
-		$items_per_page        = $max_items_to_enqueue * self::ARRAY_CHUNK_SIZE;
+		$items_per_page        = min( $max_items_to_enqueue * self::ARRAY_CHUNK_SIZE, self::QUERY_LIMIT );
 		$chunk_count           = 0;
 		$previous_interval_end = $state ? $state : array(
 			'object_id'        => '~0',
