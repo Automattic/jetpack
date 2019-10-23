@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
 * Block Editor: add image size option to the Slideshow block.
 * Block Editor: add new post-submission settings to the Form block.
+* Block Editor: improve the display of opening hours when using the Business Hours block.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
 * Connection flow: add plan billing period toggle.
 * Dashboard: update styles for visual parity with the WordPress.com dashboard.
