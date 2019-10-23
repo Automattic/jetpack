@@ -89,7 +89,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -113,7 +113,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -137,7 +137,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -161,7 +161,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -185,7 +185,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -209,7 +209,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -241,7 +241,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		);
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $expected_gist_id . '"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $expected_gist_id . '" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -278,7 +278,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $expected_gist_id . '"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $expected_gist_id . '" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -347,7 +347,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -371,7 +371,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -395,7 +395,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -419,7 +419,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 
 		// Test HTML version.
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json"></div>', $shortcode_content );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json" data-ts="8"></div>', $shortcode_content );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -451,7 +451,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json"></div>', $actual );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . $gist_id . '.json" data-ts="8"></div>', $actual );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -486,7 +486,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		ob_start();
 		the_content();
 		$actual = ob_get_clean();
-		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json?file=wp-config.php"></div>', $actual );
+		$this->assertContains( '<div class="gist-oembed" data-gist="' . basename( $gist_id ) . '.json?file=wp-config.php" data-ts="8"></div>', $actual );
 
 		// Test AMP version.
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
