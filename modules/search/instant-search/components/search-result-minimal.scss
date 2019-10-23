@@ -1,0 +1,39 @@
+.jetpack-instant-search__result-minimal {
+	padding: 0.125em 0;
+	margin: 1em 0;
+	position: relative;
+}
+
+.jetpack-instant-search__result-minimal h3 {
+	clear: none;
+}
+
+.jetpack-instant-search__result-minimal h3 .gridicon {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.jetpack-instant-search__result-minimal .gridicon {
+	margin-right: 5px;
+}
+
+.jetpack-instant-search__result-minimal h3 {
+	overflow: hidden;
+}
+
+.jetpack-instant-search__result-minimal-date {
+	margin: 0.5em 0;
+	float: right;
+	display: block;
+	font-size: 0.85em;
+}
+
+.jetpack-instant-search__result-minimal-tag,
+.jetpack-instant-search__result-minimal-cat {
+	margin-right: 0.5em;
+}
+
+.jetpack-instant-search__result-minimal-tags,
+.jetpack-instant-search__result-minimal-cats {
+	padding-left: 10px;
+}
