@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: update icons for security settings.
 * Block Editor: provide block previews for Jetpack blocks.
 * Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
+* Block Editor: add image size option to the Slideshow block.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
 * Connection flow: add plan billing period toggle.
 * Dashboard: update styles for visual parity with the WordPress.com dashboard.
