@@ -77,6 +77,7 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 			return array(
 				'id'   => '',
 				'file' => '',
+				'ts'   => 8,
 			);
 		}
 
