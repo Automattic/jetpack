@@ -23,6 +23,15 @@ class Term_Relationships extends Module {
 	 */
 	const QUERY_LIMIT = 1000;
 	/**
+	 * Number of items per chunk when grouping objects for performance reasons.
+	 *
+	 * @access public
+	 *
+	 * @const int
+	 */
+	const ARRAY_CHUNK_SIZE = 100;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
