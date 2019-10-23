@@ -52,7 +52,7 @@ class SearchResultProduct extends Component {
 					</span>
 					<span className="jetpack-instant-search__result-product-rating-cnt">
 						{ fields[ 'meta._wc_rating_count' ] &&
-							strip( fields[ 'meta._wc_average_rating.value.raw' ] ).split( ' ' )[ 0 ] }
+							strip( fields[ 'meta._wc_rating_count.value.raw' ] ).split( ' ' )[ 0 ] }
 					</span>
 				</div>
 
