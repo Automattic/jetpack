@@ -12,7 +12,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Plugin\Tracking;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 
 /*
 Options:
@@ -731,7 +731,7 @@ class Jetpack {
 	function after_plugins_loaded() {
 
 		$terms_of_service = new Terms_Of_Service();
-		$tracking = new Tracking();
+		$tracking = new Plugin_Tracking();
 		if ( $terms_of_service->has_agreed() ) {
 			add_action( 'init', array( $tracking, 'init' ) );
 		} else {
