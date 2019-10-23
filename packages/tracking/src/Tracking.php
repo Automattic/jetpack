@@ -102,7 +102,7 @@ class Tracking {
 		if ( $user instanceof \WP_User && 'wptests_capabilities' === $user->cap_key ) {
 			return false;
 		}
-		$terms_of_service = Terms_Of_Service;
+		$terms_of_service = new Terms_Of_Service();
 		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
 		if ( ! $terms_of_service->has_agreed() ) {
 			return false;
