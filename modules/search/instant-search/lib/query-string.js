@@ -28,9 +28,9 @@ function pushQueryString( queryString ) {
 	}
 }
 
-export function restorePreviousPath( newUrl ) {
+export function restorePreviousHref( initialHref ) {
 	if ( history.pushState ) {
-		window.history.pushState( { path: newUrl }, '', newUrl );
+		window.history.pushState( { href: initialHref }, '', initialHref );
 		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
