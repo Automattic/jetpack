@@ -7,14 +7,11 @@
 	text-align: left;
 
 	mark {
-		background: none;
+		background-color: #ffc;
 		font-weight: bold;
 		color: inherit;
+		padding: 0;
 	}
-}
-
-.jetpack-instant-search__result-title mark {
-	padding: 0;
 }
 
 .jetpack-instant-search__search-results-real-query {
