@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: ensure that the Ad block is compatible with dark themes.
 * Contact Form: revise the email validation function to include length limit.
 * Debug: reduce instances when an inconclusive response would result in an error.
+* Image CDN: remove wp-dom-ready dependency to improve performance on the frontend.
 * Search: add hooks for when Search falls back to using the local database.
 * Sync: prevent a PHP Notice in some cases where a post isn't actually a post.
 * Widgets: ensure that the Google Maps API key in the Contact Info widget can be set to only work on your domain.
