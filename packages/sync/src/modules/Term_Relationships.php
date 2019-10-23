@@ -107,26 +107,25 @@ class Term_Relationships extends Module {
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $ids = $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = {$previous_interval_end['object_id']} AND term_taxonomy_id < {$previous_interval_end['term_taxonomy_id']} ) OR ( object_id < {$previous_interval_end['object_id']} ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT {$items_per_page}", ARRAY_A ) ) {
 			// Request term relationships in groups of N for efficiency.
-			$chunked_ids = array_chunk( $ids, $term_relationships_batch_size );
+			$chunked_ids           = array_chunk( $ids, $term_relationships_batch_size );
+			$remaining_items_count = $max_items_to_enqueue - $chunk_count;
 
 			// If we hit our row limit, process and return.
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
-				$remaining_items_count                      = $max_items_to_enqueue - $chunk_count;
 				$remaining_items                            = array_slice( $chunked_ids, 0, $remaining_items_count );
 				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
 				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
 
 				$last_chunk = end( $remaining_items );
-				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
+				return array( $max_items_to_enqueue, end( $last_chunk ) );
 			}
 			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
-
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
 			$chunk_count += count( $chunked_ids );
-
 			// The $ids are ordered in descending order.
 			$previous_interval_end = end( $ids );
+			$items_per_page        = min( $remaining_items_count * $term_relationships_batch_size, self::QUERY_LIMIT );
 		}
 
 		return array( $chunk_count, true );
