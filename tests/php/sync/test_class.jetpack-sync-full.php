@@ -281,29 +281,26 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_term_relationships() {
-		$post_id = $this->factory->post->create();
-		$NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE = 11;
-		$this->server_replica_storage->reset();
-		$this->sender->reset_data();
-		for ( $i = 0; $i < $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE; $i += 1 ) {
-			$cat = wp_insert_term( 'cat ' . $i, 'category' );
-			$tag = wp_insert_term( 'tag ' . $i, 'post_tag' );
-			wp_set_object_terms( $post_id, array( $cat['term_id'] ), 'category', true );
-			wp_set_object_terms( $post_id, array( $tag['term_id'] ), 'post_tag', true );
+		global $wpdb;
+		Settings::update_settings( array( 'max_queue_size_full_sync' => 10, 'max_enqueue_full_sync' => 10 ) );
+
+		$post_ids = $this->factory->post->create_many( 20 );
+
+		foreach ( $post_ids as $post_id ) {
+			wp_set_object_terms( $post_id, array( 'cat1', 'cat2', 'cat3' ), 'category', true );
+			wp_set_object_terms( $post_id, array( 'tag1', 'tag2', 'tag3' ), 'post_tag', true );
 		}
+
+		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
-		$this->sender->reset_data();
 
-		$this->full_sync->start();
+		$this->full_sync->start( array( 'term_relationships' => true ) );
 		$this->sender->do_full_sync();
 
-		$term_relationships = $this->server_replica_storage->get_the_terms( $post_id, 'post_tag' );
-		$this->assertEquals( $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE, count( $term_relationships ) );
-
-		$term_relationships = $this->server_replica_storage->get_the_terms( $post_id, 'category' );
-		$this->assertEquals( $NUMBER_OF_TERM_RELATIONSHIPS_TO_CREATE + 1, count( $term_relationships ) ); // 11 + 1 (for uncategorized term)
+		$replica_number_of_term_relationships = count( $this->server_replica_storage->get_term_relationships() );
+		$this->assertEquals( $original_number_of_term_relationships, $replica_number_of_term_relationships );
 	}
 
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
