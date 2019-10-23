@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Class to handle sync for term relationships.
@@ -22,14 +23,6 @@ class Term_Relationships extends Module {
 	 * @const int
 	 */
 	const QUERY_LIMIT = 1000;
-	/**
-	 * Number of items per chunk when grouping objects for performance reasons.
-	 *
-	 * @access public
-	 *
-	 * @const int
-	 */
-	const ARRAY_CHUNK_SIZE = 100;
 
 	/**
 	 * Sync module name.
@@ -100,20 +93,21 @@ class Term_Relationships extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
-		$items_per_page        = min( $max_items_to_enqueue * self::ARRAY_CHUNK_SIZE, self::QUERY_LIMIT );
-		$chunk_count           = 0;
-		$previous_interval_end = $state ? $state : array(
+		$term_relationships_batch_size = Settings::get_setting( 'term_relationships_batch_size' );
+		$items_per_page                = min( $max_items_to_enqueue * $term_relationships_batch_size, self::QUERY_LIMIT );
+		$chunk_count                   = 0;
+		$previous_interval_end         = $state ? $state : array(
 			'object_id'        => '~0',
 			'term_taxonomy_id' => '~0',
 		);
-		$listener              = Listener::get_instance();
-		$action_name           = 'jetpack_full_sync_term_relationships';
+		$listener                      = Listener::get_instance();
+		$action_name                   = 'jetpack_full_sync_term_relationships';
 
 		// Count down from max_id to min_id so we get term relationships for the newest posts and terms first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $ids = $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = {$previous_interval_end['object_id']} AND term_taxonomy_id < {$previous_interval_end['term_taxonomy_id']} ) OR ( object_id < {$previous_interval_end['object_id']} ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT {$items_per_page}", ARRAY_A ) ) {
 			// Request term relationships in groups of N for efficiency.
-			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
+			$chunked_ids = array_chunk( $ids, $term_relationships_batch_size );
 
 			// If we hit our row limit, process and return.
 			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
