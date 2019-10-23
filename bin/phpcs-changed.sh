@@ -12,22 +12,22 @@ function phpcschanged {
   mkdir /tmp/jetpack-phpcschanged/original
 
   # File 1
-  git diff --cached > tmp-phpcschanged/diff.diff
+  git diff --cached > /tmp/jetpack-phpcschanged/diff.diff
 
   # File 2. This one is a bit fun to make.
 
   for file in $( git diff --name-only --cached ); do
-	  mkdir -p tmp-phpcschanged/original/$(dirname ${file} ) > /dev/null 2>&1
-	  git cat-file -p HEAD:${file} > tmp-phpcschanged/original/${file}
+	  mkdir -p /tmp/jetpack-phpcschanged/original/$(dirname ${file} ) > /dev/null 2>&1
+	  git cat-file -p HEAD:${file} > /tmp/jetpack-phpcschanged/original/${file}
   done
 
-  vendor/bin/phpcs --report=json tmp-phpcschanged/original > tmp-phpcschanged/phpcs-orig.json
+  vendor/bin/phpcs --report=json /tmp/jetpack-phpcschanged/original > /tmp/jetpack-phpcschanged/phpcs-orig.json
 
   # File 3
-  vendor/bin/phpcs --report=json $(git diff --name-only --cached) > tmp-phpcschanged/phpcs-new.json
+  vendor/bin/phpcs --report=json $(git diff --name-only --cached) > /tmp/jetpack-phpcschanged/phpcs-new.json
 
   # Run the actual change tool!
-  vendor/bin/phpcs-changed --diff tmp-phpcschanged/diff.diff --phpcs-orig tmp-phpcschanged/phpcs-orig.json --phpcs-new tmp-phpcschanged/phpcs-new.json
+  vendor/bin/phpcs-changed --diff /tmp/jetpack-phpcschanged/diff.diff --phpcs-orig /tmp/jetpack-phpcschanged/phpcs-orig.json --phpcs-new /tmp/jetpack-phpcschanged/phpcs-new.json
 
   # Clean up! Clean up! Everybody, eveywhere! Clean up! Clean up! Everybody does their share.
  rm -rf /tmp/jetpack-phpcschanged
