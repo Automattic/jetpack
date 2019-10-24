@@ -280,6 +280,7 @@ $plan-features-sidebar-width: 272px;
 	h4 {
 		font-size: 14px;
 		color: #747474;
+		border-bottom: solid 2px #e6e6e6;
 	}
 
 	.gridicons-external {
@@ -297,11 +298,6 @@ $plan-features-sidebar-width: 272px;
 	display: inline-block;
 	vertical-align: middle;
 	line-height: normal;
-}
-
-.plans-section__divider {
-	height: 0px;
-	width: auto;
 }
 
 .slashed-price__container {

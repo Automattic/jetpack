@@ -104,7 +104,6 @@ export class Plans extends React.Component {
 												</span>
 											</p>
 											<h4>Backup options:</h4>
-											<div class="plans-section__divider"></div>
 										</div>
 									}
 								</AccentedCardBody>
