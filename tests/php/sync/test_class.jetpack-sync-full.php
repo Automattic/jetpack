@@ -327,7 +327,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			array(
 				'max_queue_size_full_sync'      => 1,
 				'max_enqueue_full_sync'         => 10,
-				'term_relationships_batch_size' => 10
+				'term_relationships_full_sync_item_size' => 10
 			)
 		);
 
