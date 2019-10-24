@@ -102,8 +102,8 @@ class Term_Relationships extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $last_object_enqueued ) {
 		global $wpdb;
-		$term_relationships_batch_size = Settings::get_setting( 'term_relationships_batch_size' );
-		$limit                         = min( $max_items_to_enqueue * $term_relationships_batch_size, self::QUERY_LIMIT );
+		$term_relationships_full_sync_item_size = Settings::get_setting( 'term_relationships_full_sync_item_size' );
+		$limit                         = min( $max_items_to_enqueue * $term_relationships_full_sync_item_size, self::QUERY_LIMIT );
 		$items_enqueued_count          = 0;
 		$last_object_enqueued          = $last_object_enqueued ? $last_object_enqueued : array(
 			'object_id'        => self::MAX_INT,
@@ -123,7 +123,7 @@ class Term_Relationships extends Module {
 			if ( ! count( $objects ) ) {
 				return array( $items_enqueued_count, true );
 			}
-			$items                 = array_chunk( $objects, $term_relationships_batch_size );
+			$items                 = array_chunk( $objects, $term_relationships_full_sync_item_size );
 			$last_object_enqueued  = $this->bulk_enqueue_full_sync_term_relationships( $items, $last_object_enqueued );
 			$items_enqueued_count += count( $items );
 			$limit                 = min( $limit - $objects_count, self::QUERY_LIMIT );
@@ -164,7 +164,7 @@ class Term_Relationships extends Module {
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
 		$count = $wpdb->get_var( $query );
 
-		return (int) ceil( $count / Settings::get_setting( 'term_relationships_batch_size' ) );
+		return (int) ceil( $count / Settings::get_setting( 'term_relationships_full_sync_item_size' ) );
 	}
 
 	/**
