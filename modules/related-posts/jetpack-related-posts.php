@@ -4,7 +4,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20190204';
+	const VERSION   = '20191011';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
@@ -293,18 +293,18 @@ EOT;
 		);
 
 		$item_markup .= sprintf(
-			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" rel="%4$s">%3$s</a></li>',
+			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" %4$s>%3$s</a></li>',
 			esc_attr( $label_id ),
 			esc_url( $related_post['url'] ),
 			esc_attr( $related_post['title'] ),
-			esc_attr( $related_post['rel'] )
+			( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' )
 		);
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" rel="%2$s"><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
 				esc_url( $related_post['url'] ),
-				esc_attr( $related_post['rel'] ),
+				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),
 				esc_attr( $related_post['img']['width'] ),
 				esc_attr( $related_post['img']['alt_text'] )
@@ -1213,11 +1213,12 @@ EOT;
 			 * @module related-posts
 			 *
 			 * @since 3.7.0
+			 * @since 7.9.0 - Change Default value to empty.
 			 *
-			 * @param string nofollow Link rel attribute for Related Posts' link. Default is nofollow.
-			 * @param int $post->ID Post ID.
+			 * @param string $link_rel Link rel attribute for Related Posts' link. Default is empty.
+			 * @param int    $post->ID Post ID.
 			 */
-			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', 'nofollow', $post->ID ),
+			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
 			/**
 			 * Filter the context displayed below each Related Post.
 			 *
