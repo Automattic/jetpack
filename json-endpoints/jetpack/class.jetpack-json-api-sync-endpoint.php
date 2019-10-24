@@ -200,7 +200,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		// try to give ourselves as much time as possible
 		set_time_limit( 0 );
 
-		if ( true ) {
+		if ( $args['pop'] ) {
 			$buffer = new Queue_Buffer( 'pop', $queue->pop( 5 ) );
 		} else {
 			// let's delete the checkin state
@@ -209,8 +209,6 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			}
 			$buffer = $this->get_buffer( $queue, $args[ 'number_of_items' ] );
 		}
-
-
 		// Check that the $buffer is not checkout out already
 		if ( is_wp_error( $buffer ) ) {
 			return new WP_Error( 'buffer_open', "We couldn't get the buffer it is currently checked out", 400 );
@@ -218,12 +216,6 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 		if ( ! is_object( $buffer ) ) {
 			return new WP_Error( 'buffer_non-object', 'Buffer is not an object', 400 );
-		}
-
-		if ( false ) {
-			$queue->close( $buffer );
-			$full_sync_module = Modules::get_module( 'full-sync' );
-			$full_sync_module->update_sent_progress_action( $buffer->get_items() );
 		}
 
 		Settings::set_is_syncing( true );
