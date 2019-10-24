@@ -172,6 +172,20 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 */
 	$subdomain = abs( crc32( $image_host_path ) % 3 );
 
+	/*
+	 * Need to perform a slowroll out per pMz3w-arH-p2
+	 *
+	 * 7.9 - Use the old method if the value is not 0.
+	 * 8.0 - Use the old method if the value is not 0 or 1.
+	 * 8.1 - Remove this completely.
+	 */
+	if ( 0 !== $subdomain ) {
+		// Figure out which CDN subdomain to use.
+		srand( crc32( $image_host_path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_srand
+		$subdomain = rand( 0, 2 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
+		srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_srand
+	}
+
 	/**
 	 * Filters the domain used by the Photon module.
 	 *
