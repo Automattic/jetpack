@@ -58,7 +58,8 @@ function checkFailed() {
 		chalk.red( 'COMMIT ABORTED:' ),
 		'The linter reported some problems. ' +
 			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.'
+			'repeat the commit command with --no-verify to avoid this check. ' +
+			"But please don't. Code is poetry."
 	);
 	exitCode = 1;
 }
@@ -110,6 +111,43 @@ function runJSLinter( toLintFiles ) {
 	} );
 
 	return lintResult.status;
+}
+
+/**
+ * Run phpcs-changed.
+ *
+ * @param {Array} phpFilesToCheck Array of PHP files changed.
+ */
+function runPHPCSChanged( phpFilesToCheck ) {
+	let phpChangedResult;
+	if ( phpFilesToCheck.length > 0 ) {
+		phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
+			shell: true,
+			stdio: 'pipe',
+			encoding: 'utf-8',
+		} );
+	}
+
+	if ( phpChangedResult && phpChangedResult.stdout ) {
+		let phpChangedResultText;
+		phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
+		phpChangedResultText.shift();
+		phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
+		if ( phpChangedResultText ) {
+			console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
+			checkFailed();
+		}
+	}
+}
+
+/**
+ * Exit
+ *
+ * @param {Number} exitCodePassed Shell exit code.
+ */
+function exit( exitCodePassed ) {
+	capturePreCommitDate();
+	process.exit( exitCodePassed );
 }
 
 dirtyFiles.forEach( file =>
@@ -179,11 +217,15 @@ if ( phpcsResult && phpcsResult.status ) {
 		phpcsStatus +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.\n' +
-			"But please don't. Code is poetry."
+			"But please don't. Code is poetry.\n\n" +
+			'Note: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
+			'they will be reported only after these issues are resolved.'
 	);
-	exitCode = 1;
+
+	// If we get here, whitelisted files have failed PHPCS. Let's return early and avoid the duplicate information.
+	exit( 1 );
 }
 
-capturePreCommitDate();
+runPHPCSChanged( phpFiles );
 
-process.exit( exitCode );
+exit( exitCode );
