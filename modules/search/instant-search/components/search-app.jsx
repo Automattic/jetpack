@@ -17,7 +17,7 @@ import SearchResults from './search-results';
 import SearchFilters from './search-filters';
 import SearchSortWidget from './search-sort-widget';
 import SearchBox from './search-box';
-import { search, buildFilterAggregations } from '../lib/api';
+import { search } from '../lib/api';
 import {
 	setSearchQuery,
 	setFilterQuery,
@@ -39,18 +39,14 @@ class SearchApp extends Component {
 	constructor() {
 		super( ...arguments );
 		this.input = createRef();
-		this.requestId = 0;
-
-		// TODO: Rework this line; we shouldn't reassign properties.
-		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
-
-		this.state = { isLoading: false, response: {}, showResults: false };
-		this.getDebouncedResults = debounce( this.getResults, 200 );
+		this.state = { isLoading: false, response: {}, requestId: 0, showResults: false };
+		this.getResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
 	}
 
 	componentDidMount() {
 		this.getResults( getSearchQuery(), getFilterQuery(), this.props.initialSort, null );
+		this.getResults.flush();
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
 		}
@@ -125,7 +121,7 @@ class SearchApp extends Component {
 		} else {
 			this.hideResults();
 		}
-		this.getDebouncedResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
+		this.getResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
@@ -147,10 +143,9 @@ class SearchApp extends Component {
 	};
 
 	getResults = ( query, filter, sort, pageHandle ) => {
-		this.requestId++;
-		const requestId = this.requestId;
+		const requestId = this.state.requestId + 1;
 
-		this.setState( { isLoading: true }, () => {
+		this.setState( { requestId, isLoading: true }, () => {
 			search( {
 				// Skip aggregations when requesting for paged results
 				aggregations: !! pageHandle ? {} : this.props.aggregations,
@@ -161,7 +156,7 @@ class SearchApp extends Component {
 				siteId: this.props.options.siteId,
 				sort,
 			} ).then( newResponse => {
-				if ( this.requestId === requestId ) {
+				if ( this.state.requestId === requestId ) {
 					const response = { ...newResponse };
 					if ( !! pageHandle ) {
 						response.aggregations = {
