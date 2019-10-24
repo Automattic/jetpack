@@ -25,6 +25,15 @@ class Term_Relationships extends Module {
 	const QUERY_LIMIT = 1000;
 
 	/**
+	 * Max mysql integer
+	 *
+	 * @access public
+	 *
+	 * @const int
+	 */
+	const MAX_INT = 999999999;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -83,47 +92,38 @@ class Term_Relationships extends Module {
 	 *
 	 * @access public
 	 *
+	 * @param array  $config Full sync configuration for this sync module.
+	 * @param int    $max_items_to_enqueue Maximum number of items to enqueue.
+	 * @param object $last_object_enqueued Last object enqueued.
+	 *
+	 * @return array Number of actions enqueued, and next module state.
 	 * @todo This method has similarities with Automattic\Jetpack\Sync\Modules\Module::enqueue_all_ids_as_action. Refactor to keep DRY.
 	 * @see Automattic\Jetpack\Sync\Modules\Module::enqueue_all_ids_as_action
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
 	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $last_object_enqueued ) {
 		global $wpdb;
 		$term_relationships_batch_size = Settings::get_setting( 'term_relationships_batch_size' );
-		$items_per_page                = min( $max_items_to_enqueue * $term_relationships_batch_size, self::QUERY_LIMIT );
-		$chunk_count                   = 0;
-		$previous_interval_end         = $state ? $state : array(
-			'object_id'        => '~0',
-			'term_taxonomy_id' => '~0',
+		$limit                         = min( $max_items_to_enqueue * $term_relationships_batch_size, self::QUERY_LIMIT );
+		$items_enqueued_count          = 0;
+		$last_object_enqueued          = $last_object_enqueued ? $last_object_enqueued : array(
+			'object_id'        => self::MAX_INT,
+			'term_taxonomy_id' => self::MAX_INT,
 		);
 
-		// Count down from max_id to min_id so we get term relationships for the newest posts and terms first.
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $ids = $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = {$previous_interval_end['object_id']} AND term_taxonomy_id < {$previous_interval_end['term_taxonomy_id']} ) OR ( object_id < {$previous_interval_end['object_id']} ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT {$items_per_page}", ARRAY_A ) ) {
+		while ( $limit > 0 ) {
+			// Count down from max_id to min_id so we get term relationships for the newest posts and terms first.
+			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], $limit ), ARRAY_A );
 			// Request term relationships in groups of N for efficiency.
-			$items                 = array_chunk( $ids, $term_relationships_batch_size );
-			$remaining_items_count = $max_items_to_enqueue - $chunk_count;
-
-			// If we hit our row limit, process and return.
-			if ( $chunk_count + count( $items ) >= $max_items_to_enqueue ) {
-				$items = array_slice( $items, 0, $remaining_items_count );
-				$this->bulk_enqueue_full_sync_term_relationships( $items, $previous_interval_end );
-				$last_chunk = end( $items );
-				return array( $max_items_to_enqueue, end( $last_chunk ) );
+			$objects_count = count( $objects );
+			if ( ! count( $objects ) ) {
+				return array( $items_enqueued_count, true );
 			}
-			$this->bulk_enqueue_full_sync_term_relationships( $items, $previous_interval_end );
-
-			$chunk_count += count( $items );
-			// The $ids are ordered in descending order.
-			$previous_interval_end = end( $ids );
-			$items_per_page        = min( $remaining_items_count * $term_relationships_batch_size, self::QUERY_LIMIT );
+			$items                 = array_chunk( $objects, $term_relationships_batch_size );
+			$last_object_enqueued  = $this->bulk_enqueue_full_sync_term_relationships( $items, $last_object_enqueued );
+			$items_enqueued_count += count( $items );
+			$limit                 = min( $limit - $objects_count, self::QUERY_LIMIT );
 		}
-
-		return array( $chunk_count, true );
+		return array( $items_enqueued_count, $last_object_enqueued );
 	}
 
 	/**
@@ -132,11 +132,15 @@ class Term_Relationships extends Module {
 	 *
 	 * @param array $items Groups of objects to sync.
 	 * @param array $previous_interval_end Last item enqueued.
+	 *
+	 * @return array Last enqueued object.
 	 */
 	public function bulk_enqueue_full_sync_term_relationships( $items, $previous_interval_end ) {
 		$listener                         = Listener::get_instance();
 		$items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $items, $previous_interval_end );
 		$listener->bulk_enqueue_full_sync_actions( 'jetpack_full_sync_term_relationships', $items_with_previous_interval_end );
+		$last_item = end( $items );
+		return end( $last_item );
 	}
 
 	/**

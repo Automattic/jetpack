@@ -348,8 +348,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// The first batch has the previous_end not set.
 		// We use ~0 to denote that the previous_end is unknown.
 		$this->assertEquals( $previous_interval_end, array(
-			'object_id'        => '~0',
-			'term_taxonomy_id' => '~0',
+			'object_id'        => 999999999,
+			'term_taxonomy_id' => 999999999,
 		) );
 
 		// Since term relationships are ordered by post IDs and term IDs and the IDs are in descending order
