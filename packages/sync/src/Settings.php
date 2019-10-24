@@ -51,6 +51,8 @@ class Settings {
 		'cron_sync_time_limit'                   => true,
 		'known_importers'                        => true,
 		'term_relationships_full_sync_item_size' => true,
+		'send_enabled_full_sync'                 => true,
+		'send_enabled_sync'                      => true,
 	);
 
 	/**
@@ -441,4 +443,21 @@ class Settings {
 	public static function set_is_sending( $is_sending ) {
 		self::$is_sending = $is_sending;
 	}
+
+	/**
+	 * Whether should send from the queue
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $queue_id The queue identifier.
+	 *
+	 * @return boolean Whether sync is enabled.
+	 */
+	public static function is_send_enabled( $queue_id ) {
+		l( 'send_enabled_' . $queue_id );
+		l( self::get_setting( 'send_enabled_' . $queue_id ) );
+		return (bool) self::get_setting( 'send_enabled_' . $queue_id );
+	}
+
 }

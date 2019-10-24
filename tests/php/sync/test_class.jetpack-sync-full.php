@@ -1615,6 +1615,36 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
+	function test_disable_sending_full_sync() {
+		$this->factory->post->create_many( 2 );
+
+		$this->sender->reset_data();
+		$this->server_event_storage->reset();
+
+		Settings::update_settings( array( 'send_enabled_full_sync' => 0 ) );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+		$this->assertTrue( ! $start_event );
+	}
+
+	function test_enable_sending_full_sync() {
+		$this->factory->post->create_many( 2 );
+
+		$this->sender->reset_data();
+		$this->server_event_storage->reset();
+
+		Settings::update_settings( array( 'send_enabled_full_sync' => 1 ) );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
+		$this->assertTrue( $start_event );
+	}
+
 	function _do_cron() {
 		$_GET['check'] = wp_hash( '187425' );
 		require( ABSPATH . '/wp-cron.php' );
