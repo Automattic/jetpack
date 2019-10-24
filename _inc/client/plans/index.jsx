@@ -11,17 +11,35 @@ import { translate as __ } from 'i18n-calypso';
 import { AccentedCard, AccentedCardHeader, AccentedCardBody } from './accented-card';
 import PlanGrid from './plan-grid';
 import QuerySite from 'components/data/query-site';
+import Gridicon from 'components/gridicon';
 import { getAvailablePlans } from 'state/site/reducer';
+
+function SlashedPrice() {
+	return (
+		<div className="slashed-price__container" style={ { marginRight: '14px' } }>
+			<div className="slashed-price__slash"></div>
+			<div className="slashed-price__price">{ '$15-25' }</div>
+		</div>
+	);
+}
 
 function PlanPriceDisplay() {
 	// TODO: actually connect price
 	// const { price } = props;
 
 	return (
-		<div style={ { height: '50px', lineHeight: '50px', textAlign: 'center' } }>
-			<span style={ { display: 'inline-block', verticalAlign: 'middle', lineHeight: 'normal' } }>
-				{ '$12-16 /year' }
-			</span>
+		<div
+			style={ {
+				display: 'flex',
+				flexDirection: 'row',
+				justifyContent: 'space-between',
+				alignContent: 'center',
+			} }
+		>
+			<SlashedPrice />
+			<div className="plans-price__container">
+				<span className="plans-price__span">{ '$12-$16 /year' }</span>
+			</div>
 		</div>
 	); // TODO: don't use this replace
 }
@@ -87,6 +105,9 @@ export class Plans extends React.Component {
 												'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
 												{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } } // TODO: does this link need to open a new tab and have that icon?
 											) }
+											<span>
+												<Gridicon icon="external" size="12" />
+											</span>
 										</p>
 									}
 								</AccentedCardBody>

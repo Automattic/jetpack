@@ -8,6 +8,10 @@
 .accented-card__header {
 	padding: 15px;
 
+	h3 {
+		font-size: 17px;
+	}
+
 	// TODO: this should be in a more generic place somehow
 	&.is-backup-daily-plan {
 		border-bottom: solid 2px $blue-medium;
@@ -16,4 +20,8 @@
 
 .accented-card__body {
 	padding: 15px;
+
+	.gridicons-external {
+		fill: #0073aa;
+	}
 }
