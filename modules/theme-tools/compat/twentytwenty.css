@@ -111,12 +111,13 @@
 /* EU cookie law */
 .widget_eu_cookie_law_widget #eu-cookie-law,
 .widget_eu_cookie_law_widget #eu-cookie-law .accept {
-	font-size: 1.8rem;
+	font-size: 1.6rem;
 	font-weight: 500;
+	padding: 2rem;
 }
 
 .widget_eu_cookie_law_widget #eu-cookie-law .accept {
-	font-size: 1.5rem;
+	font-size: 1.4rem;
 	font-weight: 600;
 	letter-spacing: 0.0333em;
 	line-height: 1.25;
@@ -124,4 +125,20 @@
 	text-decoration: none;
 	text-transform: uppercase;
 	transition: opacity 0.15s linear;
+}
+
+@media (max-width: 600px) {
+	.widget_eu_cookie_law_widget #eu-cookie-law {
+		font-size: 1.4rem;
+		padding: 1.5rem 1.5rem 6.5rem;
+	}
+
+	.widget_eu_cookie_law_widget #eu-cookie-law .accept {
+		font-size: 1.2rem;
+		bottom: 1.5rem;
+		right: auto;
+		left: 1.5rem;
+		padding: 1rem;
+		margin: 0;
+	}
 }
