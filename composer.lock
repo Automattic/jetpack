@@ -106,6 +106,28 @@
             "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
+            "name": "automattic/jetpack-backup",
+            "version": "dev-add/jetpack-backups-helper-apis",
+            "dist": {
+                "type": "path",
+                "url": "./packages/backup",
+                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Backup\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to assist with backing up Jetpack sites."
+        },
+        {
             "name": "automattic/jetpack-compat",
             "version": "dev-master",
             "dist": {

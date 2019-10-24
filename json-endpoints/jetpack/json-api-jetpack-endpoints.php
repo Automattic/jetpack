@@ -1264,3 +1264,55 @@ new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
 	'example_response' => '{ "success": true }',
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jps/woo-connect'
 ) );
+
+// POST /sites/%s/install-backup-helper-script
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-install-backup-helper-script.php' );
+new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
+	'description'    => 'Setup a Helper Script, to allow Jetpack Backups to connect to this site',
+	'group'          => '__do_not_document',
+	'method'         => 'POST',
+	'path'           => '/sites/%s/install-backup-helper-script',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'helper' => '(string) Base64-encoded Helper Script contents',
+	),
+	'response_format' => array(
+		'abspath' => '(string) WordPress install path',
+		'path'    => '(string) Path of the helper script',
+		'url'     => '(string) URL to access the helper script',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/install-backup-helper-script'
+) );
+
+// POST /sites/%s/delete-backup-helper-script
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-delete-backup-helper-script.php' );
+new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint( array(
+	'description'    => 'Delete a Helper Script',
+	'group'          => '__do_not_document',
+	'method'         => 'POST',
+	'path'           => '/sites/%s/delete-backup-helper-script',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'response_format' => array(
+		'success' => '(bool) Deleted the Helper Script successfully?'
+	),
+	'request_format' => array(
+		'path' => '(string) Path to Helper Script to delete',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/delete-backup-helper-script'
+) );
