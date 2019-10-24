@@ -19,6 +19,10 @@ class SearchResultProduct extends Component {
 			return null;
 		}
 
+		const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
+			? fields[ 'image.url.raw' ][ 0 ]
+			: fields[ 'image.url.raw' ];
+
 		return (
 			<div className="jetpack-instant-search__result-product">
 				<h3>
@@ -31,10 +35,10 @@ class SearchResultProduct extends Component {
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
 				</h3>
-				{ fields[ 'image.url.raw' ] && (
+				{ firstImage && (
 					<img
 						className="jetpack-instant-search__result-product-img"
-						src={ fields[ 'image.url.raw' ] }
+						src={ `//${ firstImage }` }
 						alt=""
 					/>
 				) }

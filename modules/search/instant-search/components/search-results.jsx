@@ -4,7 +4,7 @@
  * External dependencies
  */
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { h, Component } from 'preact';
+import { h, Component, Fragment } from 'preact';
 
 /**
  * Internal dependencies
@@ -72,27 +72,35 @@ class SearchResults extends Component {
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ this.getSearchTitle() }
 				</p>
-				{ hasCorrectedQuery && (
-					<p className="jetpack-instant-search__search-results-unused-query">
-						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
-					</p>
-				) }
-				{ results.map( ( result, index ) => (
-					<SearchResult
-						index={ index }
-						locale={ this.props.locale }
-						query={ this.props.query }
-						result={ result }
-						resultFormat={ this.props.resultFormat }
-					/>
-				) ) }
-				{ this.props.hasNextPage && (
-					<ScrollButton
-						enableLoadOnScroll={ this.props.enableLoadOnScroll }
-						isLoading={ this.props.isLoading }
-						onLoadNextPage={ this.props.onLoadNextPage }
-					/>
-				) }
+				<div
+					className={ `jetpack-instant-search__search-results jetpack-instant-search__is-format-${
+						this.props.resultFormat
+					}${ this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : '' }` }
+				>
+					{ hasCorrectedQuery && (
+						<p className="jetpack-instant-search__search-results-unused-query">
+							{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
+						</p>
+					) }
+					{ results.map( ( result, index ) => (
+						<SearchResult
+							index={ index }
+							locale={ this.props.locale }
+							query={ this.props.query }
+							result={ result }
+							resultFormat={ this.props.resultFormat }
+						/>
+					) ) }
+				</div>
+				<div className="jetpack-instant-search__search-pagination">
+					{ this.props.hasNextPage && (
+						<ScrollButton
+							enableLoadOnScroll={ this.props.enableLoadOnScroll }
+							isLoading={ this.props.isLoading }
+							onLoadNextPage={ this.props.onLoadNextPage }
+						/>
+					) }
+				</div>
 			</main>
 		);
 	}

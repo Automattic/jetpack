@@ -1,0 +1,19 @@
+.jetpack-instant-search__is-format-product {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 0;
+}
+
+.jetpack-instant-search__result-product {
+	flex: 0 1 calc( 25% - 1em );
+	margin-bottom: 1em;
+	border: 1px solid #eee;
+	margin-right: 1em;
+	min-width: 250px;
+	padding: 1em;
+}
+
+.jetpack-instant-search__result-product-img {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
