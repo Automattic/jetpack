@@ -41,7 +41,7 @@ function PlanPriceDisplay() {
 				<span className="plans-price__span">{ '$12-$16 /year' }</span>
 			</div>
 		</div>
-	); // TODO: don't use this replace
+	);
 }
 
 export class Plans extends React.Component {
@@ -86,13 +86,6 @@ export class Plans extends React.Component {
 				<h2 className="plans-section__subheader">
 					Just looking for backups? We've got you covered.
 				</h2>
-				{ /* TODO: remove
-                    <div key={ 'plan-header-' + planType } className={ className }>
-					<header className="plan-features__header">
-						<h3 className="plan-features__header-title">TITLE</h3>
-						<div className="plan-features__description">DESCRIPTION</div>
-					</header>
-                </div> */ }
 				<div style={ { display: 'flex', justifyContent: 'center', marginBottom: '10px' } }>
 					<AccentedCard>
 						{ {
@@ -100,15 +93,19 @@ export class Plans extends React.Component {
 							body: (
 								<AccentedCardBody>
 									{
-										<p>
-											{ __(
-												'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
-												{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } } // TODO: does this link need to open a new tab and have that icon?
-											) }
-											<span>
-												<Gridicon icon="external" size="12" />
-											</span>
-										</p>
+										<div className="plans-section__body">
+											<p>
+												{ __(
+													'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
+													{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } } // TODO: does this link need to open a new tab and have that icon?
+												) }
+												<span>
+													<Gridicon icon="external" size="12" />
+												</span>
+											</p>
+											<h4>Backup options:</h4>
+											<div class="plans-section__divider"></div>
+										</div>
 									}
 								</AccentedCardBody>
 							),

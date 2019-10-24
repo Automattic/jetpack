@@ -276,6 +276,17 @@ $plan-features-sidebar-width: 272px;
 	font-size: 14pt;
 }
 
+.plans-section__body {
+	h4 {
+		font-size: 14px;
+		color: #747474;
+	}
+
+	.gridicons-external {
+		fill: #0073aa;
+	}
+}
+
 .plans-price__container {
 	height: 50px;
 	line-height: 50px;
@@ -286,6 +297,11 @@ $plan-features-sidebar-width: 272px;
 	display: inline-block;
 	vertical-align: middle;
 	line-height: normal;
+}
+
+.plans-section__divider {
+	height: 0px;
+	width: auto;
 }
 
 .slashed-price__container {
