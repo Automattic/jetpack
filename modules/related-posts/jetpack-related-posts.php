@@ -72,6 +72,10 @@ class Jetpack_RelatedPosts {
 		// Add Related Posts to the REST API Post response.
 		add_action( 'rest_api_init', array( $this, 'rest_register_related_posts' ) );
 
+		if ( isset( $_GET['jetpackrpcustomize'] ) || Jetpack::is_development_mode() ) {
+			add_filter( 'jetpack_relatedposts_pre_results', array( $this, 'mock_results' ), 10, 3 );
+		}
+
 		jetpack_register_block(
 			'jetpack/related-posts',
 			array(
@@ -836,20 +840,25 @@ EOT;
 		 */
 		$args = apply_filters( 'jetpack_relatedposts_filter_args', $args, $post_id );
 
-		$filters = $this->_get_es_filters_from_args( $post_id, $args );
-		/**
-		 * Filter Elasticsearch options used to calculate Related Posts.
-		 *
-		 * @module related-posts
-		 *
-		 * @since 2.8.0
-		 *
-		 * @param array $filters Array of Elasticsearch filters based on the post_id and args.
-		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
-		 */
-		$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
+		$results = apply_filters( 'jetpack_relatedposts_pre_results', null, $post_id, $args );
 
-		$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
+		if ( null === $results ) {
+			$filters = $this->_get_es_filters_from_args( $post_id, $args );
+			/**
+			 * Filter Elasticsearch options used to calculate Related Posts.
+			 *
+			 * @module related-posts
+			 *
+			 * @since 2.8.0
+			 *
+			 * @param array $filters Array of Elasticsearch filters based on the post_id and args.
+			 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
+			 */
+			$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
+
+			$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
+		}
+
 		/**
 		 * Filter the array of related posts matched by Elasticsearch.
 		 *
@@ -1028,6 +1037,131 @@ EOT;
 		}
 	}
 
+	public function mock_results( $related_posts, $post_id, $args ) {
+		if ( null !== $related_posts ) {
+			return $related_posts;
+		}
+
+		$options = $this->get_options();
+
+		$date_now = current_time( get_option( 'date_format' ) );
+
+		// Dummy content
+		$related_posts = array(
+			array(
+				'id'       => - 1,
+				'url'      => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
+				'url_meta' => array(
+					'origin'   => 0,
+					'position' => 0
+				),
+				'title'    => esc_html__( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
+				'date'     => $date_now,
+				'format'   => false,
+				'excerpt'  => esc_html__( 'It is that time of the year when devices are shiny again.', 'jetpack' ),
+				'rel'      => 'nofollow',
+				'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+				'img'      => array(
+					'src'    => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
+					'width'  => 350,
+					'height' => 200
+				),
+				'classes'  => array()
+			),
+			array(
+				'id'       => - 1,
+				'url'      => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
+				'url_meta' => array(
+					'origin'   => 0,
+					'position' => 0
+				),
+				'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
+				'date'     => $date_now,
+				'format'   => false,
+				'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.', 'jetpack' ),
+				'rel'      => 'nofollow',
+				'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+				'img'      => array(
+					'src'    => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
+					'width'  => 350,
+					'height' => 200
+				),
+				'classes'  => array()
+			),
+			array(
+				'id'       => - 1,
+				'url'      => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
+				'url_meta' => array(
+					'origin'   => 0,
+					'position' => 0
+				),
+				'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
+				'date'     => $date_now,
+				'format'   => false,
+				'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.', 'jetpack' ),
+				'rel'      => 'nofollow',
+				'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+				'img'      => array(
+					'src'    => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
+					'width'  => 350,
+					'height' => 200
+				),
+				'classes'  => array()
+			),
+		);
+
+		// Pad to required length
+		for ( $total = 0; $total < $options['size'] - 3; $total++ ) {
+			$related_posts[] = $related_posts[ $total ];
+		}
+
+		// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
+		$excluded_posts = array_merge(
+			/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
+			apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'] ),
+			array( get_the_ID() )
+		);
+
+		// Fetch posts with featured image.
+		$with_post_thumbnails = get_posts( array(
+			'posts_per_page'   => $options['size'],
+			'post__not_in'     => $excluded_posts,
+			'post_type'        => $args['post_type'],
+			'meta_key'         => '_thumbnail_id',
+			'suppress_filters' => false,
+		) );
+
+		// If we don't have enough, fetch posts without featured image.
+		if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
+			$no_post_thumbnails = get_posts( array(
+				'posts_per_page'  => $more,
+				'post__not_in'    => $excluded_posts,
+				'post_type'       => $args['post_type'],
+				'meta_query' => array(
+					array(
+						'key'     => '_thumbnail_id',
+						'compare' => 'NOT EXISTS',
+					),
+				),
+				'suppress_filters' => false,
+			) );
+		} else {
+			$no_post_thumbnails = array();
+		}
+
+		foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
+			$related_posts[ $index ]['id']      = $real_post->ID;
+			$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
+			$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
+			$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
+			$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
+			$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
+			$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
+		}
+
+		return $related_posts;
+	}
+
 	/**
 	 * Generate and output ajax response for related posts API call.
 	 * NOTE: Calls exit() to end all further processing after payload has been outputed.
@@ -1044,130 +1178,12 @@ EOT;
 
 		$options = $this->get_options();
 
-		if ( isset( $_GET['jetpackrpcustomize'] ) ) {
-
-			// If we're in the customizer, add dummy content.
-			$date_now = current_time( get_option( 'date_format' ) );
-			$related_posts = array(
-				array(
-					'id'       => - 1,
-					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
-					'url_meta' => array(
-						'origin'   => 0,
-						'position' => 0
-					),
-					'title'    => esc_html__( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
-					'date'     => $date_now,
-					'format'   => false,
-					'excerpt'  => esc_html__( 'It is that time of the year when devices are shiny again.', 'jetpack' ),
-					'rel'      => 'nofollow',
-					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
-					'img'      => array(
-						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/cat-blog.png',
-						'width'  => 350,
-						'height' => 200
-					),
-					'classes'  => array()
-				),
-				array(
-					'id'       => - 1,
-					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
-					'url_meta' => array(
-						'origin'   => 0,
-						'position' => 0
-					),
-					'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
-					'date'     => $date_now,
-					'format'   => false,
-					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.', 'jetpack' ),
-					'rel'      => 'nofollow',
-					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
-					'img'      => array(
-						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/devices.jpg',
-						'width'  => 350,
-						'height' => 200
-					),
-					'classes'  => array()
-				),
-				array(
-					'id'       => - 1,
-					'url'      => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
-					'url_meta' => array(
-						'origin'   => 0,
-						'position' => 0
-					),
-					'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
-					'date'     => $date_now,
-					'format'   => false,
-					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.', 'jetpack' ),
-					'rel'      => 'nofollow',
-					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
-					'img'      => array(
-						'src'    => 'https://jetpackme.files.wordpress.com/2019/03/mobile-wedding.jpg',
-						'width'  => 350,
-						'height' => 200
-					),
-					'classes'  => array()
-				),
-			);
-
-			for ( $total = 0; $total < $options['size'] - 3; $total++ ) {
-				$related_posts[] = $related_posts[ $total ];
-			}
-
-			$current_post = get_post();
-
-			// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
-			$excluded_posts = array_merge(
-				/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
-				apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', array() ),
-				array( $current_post->ID )
-			);
-
-			// Fetch posts with featured image.
-			$with_post_thumbnails = get_posts( array(
-				'posts_per_page'   => $options['size'],
-				'post__not_in'     => $excluded_posts,
-				'post_type'        => $current_post->post_type,
-				'meta_key'         => '_thumbnail_id',
-				'suppress_filters' => false,
-			) );
-
-			// If we don't have enough, fetch posts without featured image.
-			if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
-				$no_post_thumbnails = get_posts( array(
-					'posts_per_page'  => $more,
-					'post__not_in'    => $excluded_posts,
-					'post_type'       => $current_post->post_type,
-					'meta_query' => array(
-						array(
-							'key'     => '_thumbnail_id',
-							'compare' => 'NOT EXISTS',
-						),
-					),
-					'suppress_filters' => false,
-				) );
-			} else {
-				$no_post_thumbnails = array();
-			}
-
-			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
-				$related_posts[ $index ]['id']      = $real_post->ID;
-				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
-				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
-				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
-				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
-				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
-				$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
-			}
-		} else {
-			$related_posts = $this->get_for_post_id(
-				get_the_ID(),
-				array(
-					'exclude_post_ids' => $excludes,
-				)
-			);
-		}
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'exclude_post_ids' => $excludes,
+			)
+		);
 
 		$response = array(
 			'version' => self::VERSION,
