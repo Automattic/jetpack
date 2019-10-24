@@ -193,7 +193,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'stream' ) ); ?>">
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'stream' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'stream' ) ); ?>" <?php checked( $like_args['stream'] ); ?> />
-				<?php _e( 'Show Stream', 'jetpack' ); ?>
+				<?php _e( 'Show Timeline', 'jetpack' ); ?>
 				<br />
 				<small><?php _e( 'Show Page Posts.', 'jetpack' ); ?></small>
 			</label>
