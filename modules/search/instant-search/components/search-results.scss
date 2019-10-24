@@ -5,6 +5,13 @@
 	max-width: 1080px;
 	min-height: 400px;
 	text-align: left;
+
+	mark {
+		background-color: #ffc;
+		font-weight: bold;
+		color: inherit;
+		padding: 0;
+	}
 }
 
 .jetpack-instant-search__search-results-real-query {
