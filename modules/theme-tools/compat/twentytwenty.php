@@ -93,3 +93,41 @@ function twentytwenty_enqueue_jetpack_style() {
 }
 add_action( 'wp_enqueue_scripts', 'twentytwenty_enqueue_jetpack_style' );
 
+/**
+ * Add inline custom CSS with custom accent color if there is any set.
+ */
+function twentytwenty_infinity_accent_color_css() {
+	// Bail early if no custom color was set.
+	if (
+		! 'custom' === get_theme_mod( 'accent_hue_active' )
+		|| empty( get_theme_mod( 'accent_accessible_colors' ) )
+	) {
+		return;
+	}
+
+	$color_info = get_theme_mod( 'accent_accessible_colors' );
+
+	$custom_css = sprintf(
+		'
+		#site-content #infinite-handle span button,
+		#site-content #infinite-handle span button:hover,
+		#site-content #infinite-handle span button:focus {
+			background: %1$s;
+			color: %2$s;
+		}
+		.entry-content div.sharedaddy h3.sd-title,
+		.entry-content h3.sd-title,
+		.entry-content #jp-relatedposts h3.jp-relatedposts-headline {
+			color: %3$s;
+		}
+		',
+		$color_info['content']['accent'],
+		$color_info['content']['background'],
+		$color_info['content']['secondary']
+	);
+
+	// Add our custom style to the existing Twenty Twenty CSS compat file.
+	wp_add_inline_style( 'twentytwenty-jetpack', $custom_css );
+}
+add_action( 'wp_enqueue_scripts', 'twentytwenty_infinity_accent_color_css' );
+
