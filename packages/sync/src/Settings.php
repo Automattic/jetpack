@@ -455,8 +455,6 @@ class Settings {
 	 * @return boolean Whether sync is enabled.
 	 */
 	public static function is_send_enabled( $queue_id ) {
-		l( 'send_enabled_' . $queue_id );
-		l( self::get_setting( 'send_enabled_' . $queue_id ) );
 		return (bool) self::get_setting( 'send_enabled_' . $queue_id );
 	}
 
