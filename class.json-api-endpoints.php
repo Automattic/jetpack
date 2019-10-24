@@ -1533,16 +1533,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * relative to now and will convert it to local time using either the
 	 * timezone set in the options table for the blog or the GMT offset.
 	 *
-	 * @param datetime string
+	 * @param datetime string $date_string Date to parse.
 	 *
 	 * @return array( $local_time_string, $gmt_time_string )
 	 */
-	function parse_date( $date_string ) {
+	public function parse_date( $date_string ) {
 		$date_string_info = date_parse( $date_string );
 		if ( is_array( $date_string_info ) && 0 === $date_string_info['error_count'] ) {
 			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
 			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
-				$dt_local = clone $dt_utc = new DateTime( $date_string );
+				$dt_utc   = new DateTime( $date_string );
+				$dt_local = clone $dt_utc;
 				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
 				return array(
 					(string) $dt_local->format( 'Y-m-d H:i:s' ),
@@ -1550,30 +1551,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 				);
 			}
 
-			// It's parseable but no TZ info so assume UTC
-			$dt_local = clone $dt_utc = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+			// It's parseable but no TZ info so assume UTC.
+			$dt_utc   = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+			$dt_local = clone $dt_utc;
 		} else {
-			// Could not parse time, use now in UTC
-			$dt_local = clone $dt_utc = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			// Could not parse time, use now in UTC.
+			$dt_utc   = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			$dt_local = clone $dt_utc;
 		}
 
-		// First try to use timezone as it's daylight savings aware.
-		$timezone_string = get_option( 'timezone_string' );
-		if ( $timezone_string ) {
-			$tz = timezone_open( $timezone_string );
-			if ( $tz ) {
-				$dt_local->setTimezone( $tz );
-				return array(
-					(string) $dt_local->format( 'Y-m-d H:i:s' ),
-					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
-				);
-			}
-		}
+		$dt_local->setTimezone( wp_timezone() );
 
-		// Fallback to GMT offset (in hours)
-		// NOTE: TZ of $dt_local is still UTC, we simply modified the timestamp with an offset.
-		$gmt_offset_seconds = intval( get_option( 'gmt_offset' ) * 3600 );
-		$dt_local->modify( "+{$gmt_offset_seconds} seconds" );
 		return array(
 			(string) $dt_local->format( 'Y-m-d H:i:s' ),
 			(string) $dt_utc->format( 'Y-m-d H:i:s' ),

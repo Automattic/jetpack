@@ -486,6 +486,9 @@ class Functions {
 	 * 2. Check if `gmt_offset` is set, formats UTC-offset from it and return it.
 	 * 3. Default to "UTC+0" if nothing is set.
 	 *
+	 * Note: This function is specifically not using wp_timezone() to keep consistency with
+	 * the existing formatting of the timezone string.
+	 *
 	 * @return string
 	 */
 	public static function get_timezone() {
