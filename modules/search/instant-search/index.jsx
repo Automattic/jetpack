@@ -18,7 +18,7 @@ const injectSearchApp = grabFocus => {
 	render(
 		<SearchApp
 			grabFocus={ grabFocus }
-			initialPath={ window[ SERVER_OBJECT_NAME ].siteUrl }
+			initialHref={ window.location.href }
 			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }
 			isSearchPage={ getSearchQuery() !== '' }
 			options={ window[ SERVER_OBJECT_NAME ] }

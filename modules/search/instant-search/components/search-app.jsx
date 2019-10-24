@@ -25,7 +25,7 @@ import {
 	setSortQuery,
 	getSortQuery,
 	hasFilter,
-	restorePreviousPath,
+	restorePreviousHref,
 	getSearchQuery,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
@@ -97,7 +97,7 @@ class SearchApp extends Component {
 
 		this.setState( { showResults: false }, () => {
 			showChildren( this.props.themeOptions.resultsSelector );
-			restorePreviousPath( this.props.initialPath );
+			restorePreviousHref( this.props.initialHref );
 		} );
 	}
 
