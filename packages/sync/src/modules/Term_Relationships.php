@@ -111,7 +111,12 @@ class Term_Relationships extends Module {
 		);
 
 		while ( $limit > 0 ) {
-			// Count down from max_id to min_id so we get term relationships for the newest posts and terms first.
+			/*
+			 * SELECT object_id, term_taxonomy_id
+			 *  FROM $wpdb->term_relationships
+			 *  WHERE ( object_id = 11 AND term_taxonomy_id < 14 ) OR ( object_id < 11 )
+			 *  ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT 1000
+			 */
 			$objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], $limit ), ARRAY_A );
 			// Request term relationships in groups of N for efficiency.
 			$objects_count = count( $objects );
