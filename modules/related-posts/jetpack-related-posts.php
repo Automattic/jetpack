@@ -891,6 +891,8 @@ EOT;
 
 		/**
 		 * Filter the terms used to search for Related Posts.
+		 * Only used in building the Elasticsearch filters.
+		 * Use `jetpack_relatedposts_filter_args` for filtering $args more generally.
 		 *
 		 * @module related-posts
 		 *
@@ -921,6 +923,8 @@ EOT;
 
 		/**
 		 * Filter the Post Types where we search Related Posts.
+		 * Only used in building the Elasticsearch filters.
+		 * Use `jetpack_relatedposts_filter_args` for filtering $args more generally.
 		 *
 		 * @module related-posts
 		 *
@@ -945,6 +949,8 @@ EOT;
 
 		/**
 		 * Filter the Post Formats where we search Related Posts.
+		 * Only used in building the Elasticsearch filters.
+		 * Use `jetpack_relatedposts_filter_args` for filtering $args more generally.
 		 *
 		 * @module related-posts
 		 *
@@ -967,6 +973,8 @@ EOT;
 
 		/**
 		 * Filter the date range used to search Related Posts.
+		 * Only used in building the Elasticsearch filters.
+		 * Use `jetpack_relatedposts_filter_args` for filtering $args more generally.
 		 *
 		 * @module related-posts
 		 *
@@ -989,6 +997,8 @@ EOT;
 
 		/**
 		 * Filter the Post IDs excluded from appearing in Related Posts.
+		 * Only used in building the Elasticsearch filters.
+		 * Use `jetpack_relatedposts_filter_args` for filtering $args more generally.
 		 *
 		 * @module related-posts
 		 *
@@ -1122,12 +1132,47 @@ EOT;
 			array( get_the_ID() )
 		);
 
+		$tax_query = array( 'relation' => 'AND' );
+		if ( $args['has_terms'] ) {
+			$term_query = array( 'relation' => 'OR' );
+			foreach ( $args['has_terms'] as $term ) {
+				$term_query[] = array(
+					'taxonomy' => $term->taxonomy,
+					'terms'    => $term->id,
+				);
+			}
+
+			$tax_query[] = $term_query;
+		}
+
+		if ( $args['post_formats'] ) {
+			$post_formats_query = array(
+				'relation' => 'OR',
+				'taxonomy' => 'post_format',
+				'terms' => array_intersect( $args['post_formats'], get_post_format_strings() ),
+			);
+
+			$tax_query = $post_formats_query;
+		}
+
+		if ( $args['date_range'] ) {
+			$date_query = array(
+				'column' => 'post_date_gmt',
+				'after'  => $args['date_range']['from'],
+				'before' => $args['date_range']['to'],
+			);
+		} else {
+			$date_query = array();
+		}
+
 		// Fetch posts with featured image.
 		$with_post_thumbnails = get_posts( array(
 			'posts_per_page'   => $options['size'],
 			'post__not_in'     => $excluded_posts,
 			'post_type'        => $args['post_type'],
 			'meta_key'         => '_thumbnail_id',
+			'tax_query'        => $tax_query,
+			'date_query'       => $date_query,
 			'suppress_filters' => false,
 		) );
 
@@ -1143,6 +1188,8 @@ EOT;
 						'compare' => 'NOT EXISTS',
 					),
 				),
+				'tax_query'        => $tax_query,
+				'date_query'       => $date_query,
 				'suppress_filters' => false,
 			) );
 		} else {
