@@ -265,15 +265,26 @@ class Queue {
 			$ids_to_remove = $buffer->get_item_ids();
 		}
 
-		global $wpdb;
-
-		if ( count( $ids_to_remove ) > 0 ) {
-			$sql   = "DELETE FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $ids_to_remove ), '%s' ) ) . ')';
-			$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $ids_to_remove ) );
-			$wpdb->query( $query );
-		}
+		$this->delete( $ids_to_remove );
 
 		return true;
+	}
+
+	/**
+	 * Delete elements from the queue.
+	 *
+	 * @param array $ids Ids to delete.
+	 *
+	 * @return bool|int
+	 */
+	private function delete( $ids ) {
+		if ( count( $ids ) > 0 ) {
+			return 0;
+		}
+		global $wpdb;
+		$sql   = "DELETE FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $ids_to_remove ), '%s' ) ) . ')';
+		$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $ids_to_remove ) );
+		return $wpdb->query( $query );
 	}
 
 	function flush_all() {
