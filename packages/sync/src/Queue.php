@@ -167,6 +167,40 @@ class Queue {
 		return $buffer;
 	}
 
+	/**
+	 * Given a list of items return the items ids
+	 *
+	 * @param array $items list of item objects
+	 *
+	 * @return array Ids of the items.
+	 */
+	function get_ids( $items ) {
+		return array_map(
+			function( $item ) {
+				return $item->id;
+			},
+			$items
+		);
+	}
+
+	/**
+	 *
+	 * Pop elements from the queue
+	 *
+	 * @param int $limit Number of items to pop from the queue.
+	 *
+	 * @return array|object|null
+	 */
+	function pop( $limit ) {
+		$items = $this->fetch_items( $limit );
+
+		$ids = $this->get_ids( $items );
+
+		$this->delete( $ids );
+
+		return $items;
+	}
+
 	// this checks out rows until it either empties the queue or hits a certain memory limit
 	// it loads the sizes from the DB first so that it doesn't accidentally
 	// load more data into memory than it needs to.
