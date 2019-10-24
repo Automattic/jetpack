@@ -4,7 +4,6 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
-import strip from 'strip';
 
 /**
  * Internal dependencies
@@ -49,11 +48,11 @@ class SearchResultProduct extends Component {
 						__html: highlight.content.join( ' ... ' ),
 					} }
 				/>
-				<div>
-					<span className="jetpack-instant-search__result-product-price">
-						{ strip( fields[ 'wc.price' ] ).split( ' ' )[ 0 ] }
-					</span>
-				</div>
+				{ fields[ 'wc.price' ] && (
+					<div className="jetpack-instant-search__result-product-price">
+						{ fields[ 'wc.price' ].toFixed( 2 ) }
+					</div>
+				) }
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
 			</div>
