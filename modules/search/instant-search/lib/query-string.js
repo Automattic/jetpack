@@ -18,9 +18,11 @@ function getQuery() {
 }
 
 function pushQueryString( queryString ) {
-	// NOTE: This erases location.pathname
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
+		if ( window[ SERVER_OBJECT_NAME ] && 'siteUrl' in window[ SERVER_OBJECT_NAME ] ) {
+			url.href = window[ SERVER_OBJECT_NAME ].siteUrl;
+		}
 		url.search = queryString;
 		window.history.pushState( null, null, url.toString() );
 		window.dispatchEvent( new Event( 'queryStringChange' ) );
