@@ -2,7 +2,7 @@
 /**
  * Jetpack's JITM class.
  *
- * @package Jetpack
+ * @package automattic/jetpack-jitm
  */
 
 namespace Automattic\Jetpack;
