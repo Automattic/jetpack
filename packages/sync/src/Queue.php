@@ -693,7 +693,7 @@ class Queue {
 			return new \WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
 		}
 
-		if ( $checkout_id !== $buffer->id ) {
+		if ( intval( $checkout_id ) !== intval( $buffer->id ) ) {
 			return new \WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
 		}
 
