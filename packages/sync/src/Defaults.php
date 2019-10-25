@@ -840,4 +840,6 @@ class Defaults {
 	static $default_sync_queue_lock_timeout                = 120; // 2 minutes
 	static $default_cron_sync_time_limit                   = 30; // 30 seconds
 	static $default_term_relationships_full_sync_item_size = 100;
+	static $default_sync_sender_enabled                    = 1; // Should send incremental sync items
+	static $default_full_sync_sender_enabled               = 1; // Should send full sync items
 }

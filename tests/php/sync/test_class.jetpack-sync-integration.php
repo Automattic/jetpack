@@ -163,6 +163,34 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, Settings::get_setting( 'render_filtered_content' ) );
 	}
 
+	function test_disable_sending_incremental_sync() {
+		$this->sender->reset_data();
+		$this->sender->do_sync();
+
+		Settings::update_settings( array( 'sync_sender_enabled' => 0 ) );
+
+		$this->server_event_storage->reset();
+
+		$this->factory->post->create_many( 2 );
+		$this->sender->do_sync();
+
+		$this->assertTrue( empty(  $this->server_event_storage->get_all_events() ) );
+	}
+
+	function test_enable_sending_incremental_sync() {
+		$this->sender->reset_data();
+		$this->sender->do_sync();
+
+		Settings::update_settings( array( 'sync_sender_enabled' => 1 ) );
+
+		$this->server_event_storage->reset();
+
+		$this->factory->post->create_many( 2 );
+		$this->sender->do_sync();
+
+		$this->assertFalse( empty(  $this->server_event_storage->get_all_events() ) );
+	}
+
 	/**
 	 * Utility functions
 	 */
