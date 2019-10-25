@@ -33,6 +33,7 @@ vendor/squizlabs
 vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
 vendor/automattic/**/tests/
+vendor/automattic/**/.gitattributes
 vendor/automattic/**/README.md
 vendor/automattic/**/phpunit.xml
 vendor/automattic/**/phpunit.xml.dist
