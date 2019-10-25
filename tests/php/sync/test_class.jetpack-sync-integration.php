@@ -167,7 +167,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->reset_data();
 		$this->sender->do_sync();
 
-		Settings::update_settings( array( 'send_enabled_sync' => 0 ) );
+		Settings::update_settings( array( 'sync_sender_enabled' => 0 ) );
 
 		$this->server_event_storage->reset();
 
@@ -181,7 +181,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->reset_data();
 		$this->sender->do_sync();
 
-		Settings::update_settings( array( 'send_enabled_sync' => 1 ) );
+		Settings::update_settings( array( 'sync_sender_enabled' => 1 ) );
 
 		$this->server_event_storage->reset();
 

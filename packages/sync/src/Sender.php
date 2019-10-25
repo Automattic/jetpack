@@ -310,7 +310,7 @@ class Sender {
 			return new \WP_Error( 'is_importing' );
 		}
 
-		if ( ! Settings::is_send_enabled( $queue->id ) ) {
+		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
 			return new \WP_Error( 'send_not_enabled_for_queue_' . $queue->id );
 		}
 
