@@ -77,9 +77,8 @@
 .entry-content div.sharedaddy h3.sd-title,
 .entry-content h3.sd-title,
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
-	color: #6d6d6d;
-	font-size: 1.6rem;
-	font-weight: 500;
+	font-size: 4rem;
+	font-weight: 700;
 	letter-spacing: -0.016875em;
 	line-height: 1.5;
 }
@@ -91,10 +90,6 @@
 
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline em:before {
 	border: 0 none;
-}
-
-.entry-content #jp-relatedposts h3.jp-relatedposts-headline em {
-	font-weight: 500;
 }
 
 /* Authors widget */
@@ -144,4 +139,12 @@
 		padding: 1rem;
 		margin: 0;
 	}
+}
+
+/* Related Posts */
+
+#jp-relatedposts#jp-relatedposts .jp-relatedposts-items p,
+#jp-relatedposts#jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
+	font-size: inherit;
+	line-height: 1.5;
 }
