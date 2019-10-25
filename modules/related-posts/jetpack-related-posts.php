@@ -1141,7 +1141,7 @@ EOT;
 			foreach ( $args['has_terms'] as $term ) {
 				$term_query[] = array(
 					'taxonomy' => $term->taxonomy,
-					'terms'    => $term->id,
+					'terms'    => $term->term_id,
 				);
 			}
 
