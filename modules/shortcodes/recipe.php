@@ -233,58 +233,12 @@ class Jetpack_Recipes {
 				);
 			}
 
-			if ( '' !== $atts['preptime'] ) {
-				// Get a time that's supported by Schema.org.
-				$duration = WPCOM_JSON_API_Date::format_duration( $atts['preptime'] );
-				// If no duration can be calculated, let's output what the user provided.
-				if ( empty( $duration ) ) {
-					$duration = $atts['preptime'];
+			$time_types = array( 'cooktime', 'preptime', 'time' );
+			foreach ( $time_types as $time_type ) {
+				if ( '' === $atts[ $time_type ] ) {
+					continue;
 				}
-
-				$html .= sprintf(
-					'<li class="jetpack-recipe-time jetpack-recipe-preptime">
-					<time itemprop="prepTime" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
-					</li>',
-					esc_html_x( 'Prep Time', 'recipe', 'jetpack' ),
-					esc_html( $atts['preptime'] ),
-					esc_attr( $duration )
-				);
-			}
-
-			if ( '' !== $atts['cooktime'] ) {
-				// Get a time that's supported by Schema.org.
-				$duration = WPCOM_JSON_API_Date::format_duration( $atts['cooktime'] );
-				// If no duration can be calculated, let's output what the user provided.
-				if ( empty( $duration ) ) {
-					$duration = $atts['cooktime'];
-				}
-
-				$html .= sprintf(
-					'<li class="jetpack-recipe-time jetpack-recipe-cooktime">
-					<time itemprop="cookTime" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
-					</li>',
-					esc_html_x( 'Cook Time', 'recipe', 'jetpack' ),
-					esc_html( $atts['cooktime'] ),
-					esc_attr( $duration )
-				);
-			}
-
-			if ( '' !== $atts['time'] ) {
-				// Get a time that's supported by Schema.org.
-				$duration = WPCOM_JSON_API_Date::format_duration( $atts['time'] );
-				// If no duration can be calculated, let's output what the user provided.
-				if ( empty( $duration ) ) {
-					$duration = $atts['time'];
-				}
-
-				$html .= sprintf(
-					'<li class="jetpack-recipe-time">
-					<time itemprop="totalTime" class="dt-duration duration" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
-					</li>',
-					esc_html_x( 'Time', 'recipe', 'jetpack' ),
-					esc_html( $atts['time'] ),
-					esc_attr( $duration )
-				);
+				$html .= self::output_time( $atts[ $time_type ], $time_type );
 			}
 
 			if ( '' !== $atts['difficulty'] ) {
@@ -632,6 +586,49 @@ class Jetpack_Recipes {
 
 		// Return the HTML block.
 		return $html;
+	}
+
+	/**
+	 * Outputs time meta tag.
+	 *
+	 * @param string $time_str  Raw time to output.
+	 * @param string $time_type Type of time to show.
+	 *
+	 * @return string HTML for recipe time meta.
+	 */
+	private static function output_time( $time_str, $time_type ) {
+		// Get a time that's supported by Schema.org.
+		$duration = WPCOM_JSON_API_Date::format_duration( $time_str );
+		// If no duration can be calculated, let's output what the user provided.
+		if ( ! $duration ) {
+			$duration = $time_str;
+		}
+
+		switch ( $time_type ) {
+			case 'cooktime':
+				$title    = _x( 'Cook Time', 'recipe', 'jetpack' );
+				$itemprop = 'cookTime';
+				break;
+			case 'preptime':
+				$title    = _x( 'Prep Time', 'recipe', 'jetpack' );
+				$itemprop = 'prepTime';
+				break;
+			default:
+				$title    = _x( 'Time', 'recipe', 'jetpack' );
+				$itemprop = 'totalTime';
+				break;
+		}
+
+		return sprintf(
+			'<li class="jetpack-recipe-%3$s">
+				<time itemprop="%4$s" datetime="%5$s"><strong>%1$s: </strong>%2$s</time>
+			</li>',
+			esc_html( $title ),
+			esc_html( $time_str ),
+			esc_attr( $time_type ),
+			esc_attr( $itemprop ),
+			esc_attr( $duration )
+		);
 	}
 
 	/**
