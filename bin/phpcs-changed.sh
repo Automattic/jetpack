@@ -29,7 +29,7 @@ function phpcschanged {
   # Run the actual change tool!
   vendor/bin/phpcs-changed --diff /tmp/jetpack-phpcschanged/diff.diff --phpcs-orig /tmp/jetpack-phpcschanged/phpcs-orig.json --phpcs-new /tmp/jetpack-phpcschanged/phpcs-new.json
 
-  # Clean up! Clean up! Everybody, eveywhere! Clean up! Clean up! Everybody does their share.
+  # Clean up! Clean up! Everybody, eveywhere! Clean up! Clean up! Everybody do their share.
  rm -rf /tmp/jetpack-phpcschanged
 }
 
