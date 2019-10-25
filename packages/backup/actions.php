@@ -9,10 +9,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-/**
- * Cleanup Helper Scripts from a scheduled event after installing them.
- */
-function jetpack_backup_cleanup_helper_scripts() {
-	Automattic\Jetpack\Backup\Helper_Script_Manager::cleanup_expired_helper_scripts();
-}
-add_action( 'jetpack_backup_cleanup_helper_scripts', 'jetpack_backup_cleanup_helper_scripts' );
+// Clean up expired Helper Scripts from a scheduled event.
+add_action( 'jetpack_backup_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Backup\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
