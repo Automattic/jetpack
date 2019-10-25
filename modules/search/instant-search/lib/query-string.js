@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import 'url-polyfill';
 import { decode, encode } from 'qss';
 // NOTE: We only import the get package here for to reduced bundle size.
 //       Do not import the entire lodash library!

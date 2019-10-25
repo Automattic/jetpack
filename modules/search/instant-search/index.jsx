@@ -3,7 +3,6 @@
 /**
  * External dependencies
  */
-import 'url-polyfill';
 import { h, render } from 'preact';
 
 /**
