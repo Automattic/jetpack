@@ -497,6 +497,11 @@ class Jetpack_Recipes {
 				$itemprop              = ' itemprop="nutrition"';
 				$listtype              = 'ul';
 				break;
+			case 'nutrition':
+				$list_item_replacement = '<li class="jetpack-recipe-nutrition">${1}</li>';
+				$itemprop              = ' itemprop="nutrition"';
+				$listtype              = 'ul';
+				break;
 			default:
 				$list_item_replacement = '<li class="jetpack-recipe-notes">${1}</li>';
 				$itemprop              = '';
