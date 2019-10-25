@@ -18,7 +18,7 @@ import {
 	LAYOUT_SQUARE,
 	LAYOUT_STYLES,
 } from './constants';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 /**
  * Style dependencies
@@ -196,7 +196,7 @@ export const settings = {
 	category: 'jetpack',
 	description:
 		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
-		( ! isAtomicSite() && ! isSimpleSite()
+		( ! isSimpleSite()
 			? ' ' + __( "Serves images using Jetpack's fast global network of servers.", 'jetpack' )
 			: '' ),
 	icon,
