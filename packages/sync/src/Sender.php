@@ -311,7 +311,7 @@ class Sender {
 		}
 
 		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
-			return new \WP_Error( 'send_not_enabled_for_queue_' . $queue->id );
+			return new \WP_Error( 'sender_disabled_for_queue_' . $queue->id );
 		}
 
 		// Don't sync if we are throttled.
