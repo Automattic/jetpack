@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use Automattic\Jetpack\Sync\Defaults;
-
 /**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
@@ -646,13 +644,18 @@ class Queue {
 	private function fetch_items_by_id( $items_ids ) {
 		global $wpdb;
 
-		$sql   = "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) ) . ')';
-		$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $items_ids ) );
-
-		$items = $wpdb->get_results(
-			$query, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$ids_placeholders        = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
+		$query_with_placeholders = "SELECT option_name AS id, option_value AS value
+				FROM $wpdb->options
+				WHERE option_name IN ( $ids_placeholders )";
+		$items                   = $wpdb->get_results(
+			$wpdb->prepare(
+				$query_with_placeholders, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$items_ids
+			),
 			OBJECT
 		);
+
 		return $this->unserialze_values( $items );
 	}
 
