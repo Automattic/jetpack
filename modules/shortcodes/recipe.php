@@ -107,6 +107,7 @@ class Jetpack_Recipes {
 		add_shortcode( 'recipe-ingredients', array( $this, 'recipe_ingredients_shortcode' ) );
 		add_shortcode( 'recipe-directions', array( $this, 'recipe_directions_shortcode' ) );
 		add_shortcode( 'recipe-nutrition', array( $this, 'recipe_nutrition_shortcode' ) );
+		add_shortcode( 'recipe-image', array( $this, 'recipe_image_shortcode' ) );
 	}
 
 	/**
@@ -339,12 +340,11 @@ class Jetpack_Recipes {
 			$html .= '</ul>';
 		}
 
-		// Output the image, if we have one.
+		// Output the image if we have one and it's not shown elsewhere.
 		if ( '' !== $atts['image'] ) {
-			$html .= sprintf(
-				'<img class="jetpack-recipe-image" itemprop="image" src="%1$s" />',
-				esc_url( $atts['image'] )
-			);
+			if ( ! has_shortcode( $content, 'recipe-image' ) ) {
+				$html .= self::output_image_html( $atts['image'] );
+			}
 		}
 
 		// Output the description, if we have one.
@@ -371,6 +371,30 @@ class Jetpack_Recipes {
 
 		// Return the HTML block.
 		return $html;
+	}
+
+	/**
+	 * Our [recipe-image] shortcode.
+	 * Controls placement of image in recipe.
+	 *
+	 * @param array $atts Array of shortcode attributes.
+	 *
+	 * @return string HTML for recipe notes shortcode.
+	 */
+	public static function recipe_image_shortcode( $atts ) {
+		$atts = shortcode_atts(
+			array(
+				'image' => '', // string.
+				0       => '', // string.
+			),
+			$atts,
+			'recipe-image'
+		);
+		$src  = $atts['image'];
+		if ( ! empty( $atts[0] ) ) {
+			$src = $atts[0];
+		}
+		return self::output_image_html( $src );
 	}
 
 	/**
@@ -608,6 +632,37 @@ class Jetpack_Recipes {
 
 		// Return the HTML block.
 		return $html;
+	}
+
+	/**
+	 * Outputs image tag for recipe.
+	 *
+	 * @param string $src The image source.
+	 *
+	 * @return string
+	 */
+	private static function output_image_html( $src ) {
+		// Exit if there is no provided source.
+		if ( ! $src ) {
+			return '';
+		}
+
+		// If it's numeric, this may be an attachment.
+		if ( is_numeric( $src ) ) {
+			return wp_get_attachment_image(
+				$src,
+				'full',
+				false,
+				array(
+					'class'    => 'jetpack-recipe-image',
+					'itemprop' => 'image',
+				)
+			);
+		}
+		return sprintf(
+			'<img class="jetpack-recipe-image" itemprop="image" src="%1$s" />',
+			esc_url( $src )
+		);
 	}
 
 	/**
