@@ -180,7 +180,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 					$r->the_post();
 
 					printf(
-						'<li><a href="%1$s" title="%2$s" %3$s>%4$s</a></li>',
+						'<li><a href="%1$s" title="%2$s"%3$s>%4$s</a></li>',
 						esc_url( get_permalink() ),
 						esc_attr( wp_kses( get_the_title(), array() ) ),
 						( get_queried_object_id() === get_the_ID() ? ' aria-current="page"' : '' ),
