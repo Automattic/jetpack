@@ -77,10 +77,18 @@
 .entry-content div.sharedaddy h3.sd-title,
 .entry-content h3.sd-title,
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
-	font-size: 4rem;
+	font-size: 2.8rem;
 	font-weight: 700;
 	letter-spacing: -0.016875em;
 	line-height: 1.5;
+}
+
+@media (min-width: 700px) {
+	.entry-content div.sharedaddy h3.sd-title,
+	.entry-content h3.sd-title,
+	.entry-content #jp-relatedposts h3.jp-relatedposts-headline {
+		font-size: 4rem;
+	}
 }
 
 .entry-content div.sharedaddy h3.sd-title:before,
@@ -147,4 +155,9 @@
 #jp-relatedposts#jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
 	font-size: inherit;
 	line-height: 1.5;
+}
+
+/* Related Posts Block */
+.jp-related-posts-i2__post li {
+	margin: 0;
 }
