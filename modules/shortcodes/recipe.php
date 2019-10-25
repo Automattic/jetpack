@@ -106,6 +106,7 @@ class Jetpack_Recipes {
 		add_shortcode( 'recipe-notes', array( $this, 'recipe_notes_shortcode' ) );
 		add_shortcode( 'recipe-ingredients', array( $this, 'recipe_ingredients_shortcode' ) );
 		add_shortcode( 'recipe-directions', array( $this, 'recipe_directions_shortcode' ) );
+		add_shortcode( 'recipe-nutrition', array( $this, 'recipe_nutrition_shortcode' ) );
 	}
 
 	/**
@@ -396,6 +397,43 @@ class Jetpack_Recipes {
 	}
 
 	/**
+	 * Our [recipe-nutrition] shortcode.
+	 * Outputs notes, styled in a div.
+	 *
+	 * @param array  $atts    Array of shortcode attributes.
+	 * @param string $content Post content.
+	 *
+	 * @return string HTML for recipe nutrition shortcode.
+	 */
+	public static function recipe_nutrition_shortcode( $atts, $content = '' ) {
+		$atts = shortcode_atts(
+			array(
+				'title' => esc_html_x( 'Nutrition', 'recipe', 'jetpack' ), // string.
+			),
+			$atts,
+			'recipe-nutrition'
+		);
+
+		$html = '<div class="jetpack-recipe-nutrition">';
+
+		// Print a title unless the user has opted to exclude it.
+		if ( 'false' !== $atts['title'] ) {
+			$html .= '<h4 class="jetpack-recipe-nutrition-title">' . esc_html( $atts['title'] ) . '</h4>';
+		}
+
+		// Format content using list functionality.
+		$html .= self::output_list_content( $content, 'nutrition' );
+
+		$html .= '</div>';
+
+		// Sanitize html.
+		$html = wp_kses_post( $html );
+
+		// Return the HTML block.
+		return $html;
+	}
+
+	/**
 	 * Reusable function to check for shortened formatting.
 	 * Basically, users can create lists with the following shorthand:
 	 * - item one
@@ -421,6 +459,11 @@ class Jetpack_Recipes {
 			case 'ingredients':
 				$list_item_replacement = '<li class="jetpack-recipe-ingredient" itemprop="recipeIngredient">${1}</li>';
 				$itemprop              = '';
+				$listtype              = 'ul';
+				break;
+			case 'nutrition':
+				$list_item_replacement = '<li class="jetpack-recipe-nutrition">${1}</li>';
+				$itemprop              = ' itemprop="nutrition"';
 				$listtype              = 'ul';
 				break;
 			default:
