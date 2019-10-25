@@ -17,6 +17,7 @@ class Assets {
 	 * Constructor.
 	 *
 	 * Static-only class, so nothing here.
+	 */
 	private function __construct() {}
 
 	/**
