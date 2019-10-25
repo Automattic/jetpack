@@ -1052,8 +1052,10 @@ EOT;
 			return $related_posts;
 		}
 
-		$options = $this->get_options();
+		return $this->get_mock_results( $post_id, $args );
+	}
 
+	public function get_mock_results( $post_id, $args ) {
 		$date_now = current_time( get_option( 'date_format' ) );
 
 		// Dummy content
@@ -1121,9 +1123,10 @@ EOT;
 		);
 
 		// Pad to required length
-		for ( $total = 0; $total < $options['size'] - 3; $total++ ) {
-			$related_posts[] = $related_posts[ $total ];
+		if ( 3 < $args['size'] ) {
+			$related_posts = call_user_func_array( 'array_merge', array_fill( 0, (int) ceil( $args['size'] / 3 ), $related_posts ) );
 		}
+		$related_posts = array_slice( $related_posts, 0, $args['size'] );
 
 		// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
 		$excluded_posts = array_merge(
@@ -1167,7 +1170,7 @@ EOT;
 
 		// Fetch posts with featured image.
 		$with_post_thumbnails = get_posts( array(
-			'posts_per_page'   => $options['size'],
+			'posts_per_page'   => $args['size'],
 			'post__not_in'     => $excluded_posts,
 			'post_type'        => $args['post_type'],
 			'meta_key'         => '_thumbnail_id',
@@ -1177,7 +1180,7 @@ EOT;
 		) );
 
 		// If we don't have enough, fetch posts without featured image.
-		if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
+		if ( 0 < ( $more = $args['size'] - count( $with_post_thumbnails ) ) ) {
 			$no_post_thumbnails = get_posts( array(
 				'posts_per_page'  => $more,
 				'post__not_in'    => $excluded_posts,
