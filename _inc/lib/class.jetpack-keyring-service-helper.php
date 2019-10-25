@@ -42,7 +42,7 @@ class Jetpack_Keyring_Service_Helper {
 	 * Constructor
 	 */
 	private function __construct() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_sharing_menu' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'add_sharing_menu' ), 21 );
 
 		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
