@@ -99,14 +99,13 @@ add_action( 'wp_enqueue_scripts', 'twentytwenty_enqueue_jetpack_style' );
 function twentytwenty_infinity_accent_color_css() {
 	// Bail early if no custom color was set.
 	if (
-		! 'custom' === get_theme_mod( 'accent_hue_active' )
+		'custom' !== get_theme_mod( 'accent_hue_active' )
 		|| empty( get_theme_mod( 'accent_accessible_colors' ) )
 	) {
 		return;
 	}
 
 	$color_info = get_theme_mod( 'accent_accessible_colors' );
-
 	$custom_css = sprintf(
 		'
 		.infinite-scroll #site-content #infinite-handle span button,
