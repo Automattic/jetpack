@@ -3,6 +3,71 @@
 require dirname( __FILE__ ) . '/../../../../modules/related-posts.php';
 
 class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
+	static $posts_by_date   = array();
+	static $posts_by_tag    = array();
+	static $posts_by_format = array();
+
+	public static function wpSetupBeforeClass( $factory ) {
+		$inputs = array(
+			array(
+				'post_date'  => '2011-03-09 12:00:00',
+				'tags_input' => array( 'red' ),
+				'post_format' => 'aside',
+			),
+			array(
+				'post_date' => '2011-03-19 12:00:00',
+				'tags_input' => array( 'green' ),
+				'post_format' => 'aside',
+			),
+			array(
+				'post_date' => '2011-07-06 12:00:00',
+				'tags_input' => array( 'blue' ),
+				'post_format' => 'aside',
+			),
+			array(
+				'post_date' => '2011-07-19 12:00:00',
+				'tags_input' => array( 'green', 'blue' ),
+				'post_format' => 'aside',
+			),
+			array(
+				'post_date' => '2011-11-17 12:00:00',
+				'tags_input' => array( 'red', 'blue' ),
+				'post_format' => 'aside',
+			),
+			array(
+				'post_date' => '2011-11-18 12:00:00',
+				'tags_input' => array( 'red', 'green' ),
+				'post_format' => 'aside',
+			),
+			array(
+				'post_date' => '2011-12-06 12:00:00',
+				'tags_input' => array( 'red', 'green', 'blue' ),
+				'post_format' => 'status',
+			),
+			array(
+				'post_date' => '2012-04-12 12:00:00',
+				'tags_input' => array(),
+				'post_format' => 'status',
+			),
+		);
+
+		foreach ( $inputs as $input ) {
+			$post_id = $factory->post->create( $input );
+			self::$posts_by_date[ $input['post_date'] ] = $post_id;
+
+			foreach ( $input['tags_input'] as $tag ) {
+				if ( ! isset( self::$posts_by_tag[$tag] ) ) {
+					self::$posts_by_tag[$tag] = array();
+				}
+
+				self::$posts_by_tag[$tag][] = $post_id;
+			}
+
+			set_post_format( $post_id, $input['post_format'] );
+
+			self::$posts_by_format[ $input['post_format'] ] = $post_id;
+		}
+	}
 
 	public function setUp() {
 		parent::setUp();
@@ -102,5 +167,161 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $empty_options, Jetpack_RelatedPosts::init()->parse_options( $options ) );
+	}
+
+	public function test_mocked_results_size() {
+		global $post;
+
+		$post_id = current( self::$posts_by_date );
+		$post = get_post( $post_id );
+
+		$args = array(
+			'size'             => 2,
+			'post_type'        => 'post',
+			'post_formats'     => array(),
+			'has_terms'        => array(),
+			'date_range'       => array(),
+			'exclude_post_ids' => array(),
+		);
+
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 2, $results );
+
+		$args['size'] = 4;
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 4, $results );
+	}
+
+	public function test_mocked_results_terms() {
+		global $post;
+
+		$post_id = current( self::$posts_by_date );
+		$post = get_post( $post_id );
+
+		$red = get_terms( [ 'taxonomy' => 'post_tag', 'slug' => 'red' ] )[0];
+
+		$args = array(
+			'size'             => 3,
+			'post_type'        => 'post',
+			'post_formats'     => array(),
+			'has_terms'        => array( $red ),
+			'date_range'       => array(),
+			'exclude_post_ids' => array(),
+		);
+
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 3, $results );
+
+		foreach ( $results as $result ) {
+			$this->assertTrue( has_tag( $red->id, $result['id'] ) );
+		}
+	}
+
+	public function test_mocked_results_post_formats() {
+		global $post;
+
+		$post_id = current( self::$posts_by_date );
+		$post = get_post( $post_id );
+
+		$args = array(
+			'size'             => 3,
+			'post_type'        => 'post',
+			'post_formats'     => array( 'aside' ),
+			'has_terms'        => array(),
+			'date_range'       => array(),
+			'exclude_post_ids' => array(),
+		);
+
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 3, $results );
+
+		foreach ( $results as $result ) {
+			$this->assertEquals( 'aside', $result['format'] );
+		}
+	}
+
+	public function test_mocked_results_date_range() {
+		global $post;
+
+		$post_id = current( self::$posts_by_date );
+		$post = get_post( $post_id );
+
+		$args = array(
+			'size'             => 3,
+			'post_type'        => 'post',
+			'post_formats'     => array(),
+			'has_terms'        => array(),
+			'date_range'       => array(
+				'from' => '2011-08-15 12:00:00',
+				'to'   => '2012-01-15 12:00:00',
+			),
+			'exclude_post_ids' => array(),
+		);
+
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 3, $results );
+
+		foreach ( $results as $result ) {
+			// Compares lexicographically, which is fine.
+			$this->assertLessThan( '2012-01-15 12:00:00', gmdate( 'Y-m-d H:i:s', strtotime( $result['date'] ) ) );
+			$this->assertGreaterThan( '2011-08-15 12:00:00', gmdate( 'Y-m-d H:i:s', strtotime( $result['date'] ) ) );
+		}
+	}
+
+	public function test_mocked_results_exclude_post_ids() {
+		global $post;
+
+		$post_id = current( self::$posts_by_date );
+		$post = get_post( $post_id );
+
+		$red = get_terms( [ 'taxonomy' => 'post_tag', 'slug' => 'red' ] )[0];
+		$exclude = self::$posts_by_tag['red'][0];
+
+		$args = array(
+			'size'             => 4,
+			'post_type'        => 'post',
+			'post_formats'     => array(),
+			'has_terms'        => array( $red ),
+			'date_range'       => array(),
+			'exclude_post_ids' => array( $exclude ),
+		);
+
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 4, $results );
+
+		foreach ( $results as $result ) {
+			$this->assertNotEquals( $exclude, $result['id'] );
+		}
+	}
+
+	public function test_mocked_results_multiple_conditions() {
+		global $post;
+
+		$post_id = current( self::$posts_by_date );
+		$post = get_post( $post_id );
+
+		$green = get_terms( [ 'taxonomy' => 'post_tag', 'slug' => 'green' ] )[0];
+		$exclude = self::$posts_by_tag['green'][0];
+
+		$args = array(
+			'size'             => 2,
+			'post_type'        => 'post',
+			'post_formats'     => array( 'aside' ),
+			'has_terms'        => array( $green ),
+			'date_range'       => array(
+				'from' => '2011-10-15 12:00:00',
+				'to'   => '2012-01-15 12:00:00',
+			),
+			'exclude_post_ids' => array( $exclude ),
+		);
+
+		$results = Jetpack_RelatedPosts::init()->get_mock_results( $post_id, $args );
+		$this->assertCount( 2, $results );
+
+		// Only one post that matches these conditions.
+		$this->assertEquals( self::$posts_by_tag['green'][2], $results[0]['id'] );
+
+		// The other is a hard-coded post.
+		$this->assertEquals( -1, $results[1]['id'] );
 	}
 }
