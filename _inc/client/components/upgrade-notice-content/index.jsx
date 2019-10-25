@@ -12,11 +12,17 @@ import Button from 'components/button';
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
+import ExternalLink from 'components/external-link';
 
 const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 	class extends Component {
 		componentDidMount() {
+			jQuery( 'body' ).addClass( 'jp-dialogue-showing' );
 			analytics.tracks.recordEvent( 'jetpack_warm_welcome_view', { version: this.props.version } );
+		}
+
+		componentWillUnmount() {
+			jQuery( 'body' ).removeClass( 'jp-dialogue-showing' );
 		}
 
 		trackLearnMoreClick = () => {
@@ -43,6 +49,24 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 					<div className="jp-dialogue__cta-container">
 						<Button onClick={ this.dismissNotice }>{ __( 'Okay, got it!' ) }</Button>
 					</div>
+					<br />
+					<div>
+						<ExternalLink
+							href={ this.props.releasePostLink }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'View this post on the Jetpack.com blog' ) }
+						</ExternalLink>
+						<br />
+						<ExternalLink
+							href="https://wordpress.org/plugins/jetpack/#developers"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'View the Jetpack ' + this.props.version + ' changelog' ) }
+						</ExternalLink>
+					</div>
 				</div>
 			);
 			/*eslint-enable react/no-danger*/
@@ -52,7 +76,7 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 			return (
 				// TODO: update SVG?
 				<JetpackDialogue
-					svg={ <img src={ this.props.releasePostImage } width="250" alt={ '' } /> }
+					svg={ <img src={ this.props.releasePostImage } width="350" alt={ '' } /> }
 					title={ __( 'New in Jetpack ' + this.props.version + '!' ) }
 					content={ this.renderInnerContent() }
 					dismiss={ this.dismissNotice }

@@ -3215,13 +3215,17 @@ p {
 		}
 
 		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
+		$post_link      = isset( $post_data['posts'][0]['URL'] ) ? $post_data['posts'][0]['URL'] : null;
 
-		$content   = wp_kses_post( $post_content );
-		$image_src = esc_url( $post_image_src );
+		$post_content = str_replace( '<a ', '<a target="_blank" rel="noopener noreferrer" ', $post_content );
+		$content      = wp_kses_post( $post_content );
+		$image_src    = esc_url( $post_image_src );
+		$link         = esc_url( $post_link );
 
 		$post_array = array(
 			'release_post_content' => $content,
 			'release_post_image'   => $image_src,
+			'release_post_link'    => $link,
 		);
 
 		self::state( 'message_content', $post_array );

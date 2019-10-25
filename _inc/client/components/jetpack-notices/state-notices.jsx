@@ -258,7 +258,8 @@ class JetpackStateNotices extends React.Component {
 
 		// Show custom message for upgraded Jetpack
 		if ( releasePostContent ) {
-			const releasePostImage = messageContent.release_post_image;
+			const releasePostImage = messageContent.release_post_image,
+				releasePostLink = messageContent.release_post_link;
 
 			return (
 				<UpgradeNoticeContent
@@ -268,6 +269,7 @@ class JetpackStateNotices extends React.Component {
 					version={ this.props.currentVersion }
 					releasePostContent={ releasePostContent }
 					releasePostImage={ releasePostImage }
+					releasePostLink={ releasePostLink }
 				/>
 			);
 		}
