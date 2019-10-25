@@ -184,6 +184,8 @@ class Jetpack_Recipes {
 				'sourceurl'   => '', // string.
 				'image'       => '', // string.
 				'description' => '', // string.
+				'cooktime'    => '', // string.
+				'preptime'    => '', // string.
 			),
 			$atts,
 			'recipe'
@@ -215,6 +217,8 @@ class Jetpack_Recipes {
 			|| '' !== $atts['time']
 			|| '' !== $atts['difficulty']
 			|| '' !== $atts['print']
+			|| '' !== $atts['preptime']
+			|| '' !== $atts['cooktime']
 		) {
 			$html .= '<ul class="jetpack-recipe-meta">';
 
@@ -223,6 +227,42 @@ class Jetpack_Recipes {
 					'<li class="jetpack-recipe-servings" itemprop="recipeYield"><strong>%1$s: </strong>%2$s</li>',
 					esc_html_x( 'Servings', 'recipe', 'jetpack' ),
 					esc_html( $atts['servings'] )
+				);
+			}
+
+			if ( '' !== $atts['preptime'] ) {
+				// Get a time that's supported by Schema.org.
+				$duration = WPCOM_JSON_API_Date::format_duration( $atts['preptime'] );
+				// If no duration can be calculated, let's output what the user provided.
+				if ( empty( $duration ) ) {
+					$duration = $atts['preptime'];
+				}
+
+				$html .= sprintf(
+					'<li class="jetpack-recipe-time jetpack-recipe-preptime">
+					<time itemprop="prepTime" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
+					</li>',
+					esc_html_x( 'Prep Time', 'recipe', 'jetpack' ),
+					esc_html( $atts['preptime'] ),
+					esc_attr( $duration )
+				);
+			}
+
+			if ( '' !== $atts['cooktime'] ) {
+				// Get a time that's supported by Schema.org.
+				$duration = WPCOM_JSON_API_Date::format_duration( $atts['cooktime'] );
+				// If no duration can be calculated, let's output what the user provided.
+				if ( empty( $duration ) ) {
+					$duration = $atts['cooktime'];
+				}
+
+				$html .= sprintf(
+					'<li class="jetpack-recipe-time jetpack-recipe-cooktime">
+					<time itemprop="cookTime" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
+					</li>',
+					esc_html_x( 'Cook Time', 'recipe', 'jetpack' ),
+					esc_html( $atts['cooktime'] ),
+					esc_attr( $duration )
 				);
 			}
 
