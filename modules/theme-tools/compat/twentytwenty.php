@@ -109,15 +109,15 @@ function twentytwenty_infinity_accent_color_css() {
 
 	$custom_css = sprintf(
 		'
-		#site-content #infinite-handle span button,
-		#site-content #infinite-handle span button:hover,
-		#site-content #infinite-handle span button:focus {
+		.infinite-scroll #site-content #infinite-handle span button,
+		.infinite-scroll #site-content #infinite-handle span button:hover,
+		.infinite-scroll #site-content #infinite-handle span button:focus {
 			background: %1$s;
 			color: %2$s;
 		}
-		.entry-content div.sharedaddy h3.sd-title,
-		.entry-content h3.sd-title,
-		.entry-content #jp-relatedposts h3.jp-relatedposts-headline {
+		#site-content .entry-content div.sharedaddy h3.sd-title,
+		#site-content .entry-content h3.sd-title,
+		#site-content .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
 			color: %3$s;
 		}
 		',
