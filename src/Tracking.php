@@ -13,8 +13,17 @@ class Tracking {
 	 * @access private
 	 */
 	private $tracking;
+	/**
+	 * Prevents the Tracking from being intialized more then once.
+	 * @var bool
+	 */
+	private $initalized = false;
 
 	function init() {
+		if ( $this->initalized ) {
+			return;
+		}
+		$this->initalized = true;
 		$this->tracking = new Tracks( 'jetpack' );
 
 		// For tracking stuff via js/ajax
