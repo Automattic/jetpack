@@ -51,6 +51,8 @@ abstract class SAL_Site {
 
 	abstract public function is_mapped_domain();
 
+	abstract public function get_unmapped_url();
+
 	abstract public function is_redirect();
 
 	abstract public function is_headstart_fresh();
@@ -477,10 +479,6 @@ abstract class SAL_Site {
 
 	function get_admin_url() {
 		return get_admin_url();
-	}
-
-	function get_unmapped_url() {
-		return get_site_url( get_current_blog_id() );
 	}
 
 	function get_theme_slug() {
