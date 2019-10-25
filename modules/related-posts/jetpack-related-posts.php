@@ -1149,13 +1149,22 @@ EOT;
 		}
 
 		if ( $args['post_formats'] ) {
-			$post_formats_query = array(
-				'relation' => 'OR',
-				'taxonomy' => 'post_format',
-				'terms' => array_intersect( $args['post_formats'], get_post_format_strings() ),
-			);
+			$post_formats = array_intersect( $args['post_formats'], get_post_format_slugs() );
 
-			$tax_query = $post_formats_query;
+			if ( $post_formats ) {
+				foreach ( $post_formats as &$post_format ) {
+					$post_format = "post-format-{$post_format}";
+				}
+
+				$post_formats_query = array(
+					'relation' => 'OR',
+					'taxonomy' => 'post_format',
+					'field'    => 'slug',
+					'terms'    => $post_formats,
+				);
+
+				$tax_query[] = $post_formats_query;
+			}
 		}
 
 		if ( $args['date_range'] ) {
@@ -1204,6 +1213,7 @@ EOT;
 			$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
 			$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
 			$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
+			$related_posts[ $index ]['format']  = get_post_format( $real_post );
 			$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
 			$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
 			$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
