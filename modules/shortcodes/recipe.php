@@ -45,7 +45,7 @@ class Jetpack_Recipes {
 	public function add_recipes_kses_rules( $allowedtags, $context ) {
 		if ( in_array( $context, array( '', 'post', 'data' ) ) ) : // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 			// Create an array of all the tags we'd like to add the itemprop attribute to.
-			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time' );
+			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time', 'span' );
 			foreach ( $tags as $tag ) {
 				$allowedtags = $this->add_kses_rule(
 					$allowedtags,
@@ -186,6 +186,7 @@ class Jetpack_Recipes {
 				'description' => '', // string.
 				'cooktime'    => '', // string.
 				'preptime'    => '', // string.
+				'rating'      => '', // string.
 			),
 			$atts,
 			'recipe'
@@ -219,6 +220,7 @@ class Jetpack_Recipes {
 			|| '' !== $atts['print']
 			|| '' !== $atts['preptime']
 			|| '' !== $atts['cooktime']
+			|| '' !== $atts['rating']
 		) {
 			$html .= '<ul class="jetpack-recipe-meta">';
 
@@ -289,6 +291,17 @@ class Jetpack_Recipes {
 					'<li class="jetpack-recipe-difficulty"><strong>%1$s: </strong>%2$s</li>',
 					esc_html_x( 'Difficulty', 'recipe', 'jetpack' ),
 					esc_html( $atts['difficulty'] )
+				);
+			}
+
+			if ( '' !== $atts['rating'] ) {
+				$html .= sprintf(
+					'<li class="jetpack-recipe-rating">
+						<strong>%1$s: </strong>
+						<span itemprop="contentRating">%2$s</span>
+					</li>',
+					esc_html_x( 'Rating', 'recipe', 'jetpack' ),
+					esc_html( $atts['rating'] )
 				);
 			}
 
