@@ -1331,16 +1331,12 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	/**
-	 * Adds "My Home" submenu item to sites that are eligible.
+	 * Calls the wpcom API to get the creation date of the site
+	 * and determine if it's eligible for the 'My Home' page.
 	 *
-	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
-	 * @return void
+	 * @return bool Whether the site has 'My Home' enabled.
 	 */
-	private function add_my_home_submenu_item( &$wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) || ! jetpack_is_atomic_site() ) {
-			return;
-		}
-
+	private function is_my_home_enabled() {
 		$my_home_enabled = get_transient( 'jetpack_my_home_enabled' );
 
 		if ( false === $my_home_enabled ) {
@@ -1351,21 +1347,35 @@ class A8C_WPCOM_Masterbar {
 			);
 
 			if ( is_wp_error( $site_response ) ) {
-				return;
+				return false;
 			}
 
 			$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
 
 			$my_home_enabled = $site_data &&
-				isset( $site_data->options->created_at ) &&
-				( new Datetime( '2019-08-06 00:00:00.000' ) ) <= ( new Datetime( $site_data->options->created_at ) )
+					isset( $site_data->options->created_at ) &&
+					( new Datetime( '2019-08-06 00:00:00.000' ) ) <= ( new Datetime( $site_data->options->created_at ) )
 				? 1
 				: 0;
 
 			set_transient( 'jetpack_my_home_enabled', $my_home_enabled );
 		}
 
-		if ( $my_home_enabled ) {
+		return (bool) $my_home_enabled;
+	}
+
+	/**
+	 * Adds "My Home" submenu item to sites that are eligible.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
+	 * @return void
+	 */
+	private function add_my_home_submenu_item( &$wp_admin_bar ) {
+		if ( ! current_user_can( 'manage_options' ) || ! jetpack_is_atomic_site() ) {
+			return;
+		}
+
+		if ( $this->my_home_enabled() ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'blog',
