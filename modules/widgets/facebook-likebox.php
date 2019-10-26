@@ -214,7 +214,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'hide_cta' ) ); ?>">
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'hide_cta' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'hide_cta' ) ); ?>" <?php checked( $like_args['hide_cta'] ); ?> />
-				<?php _e( 'Hide Call To Action Button', 'jetpack' ); ?>
+				<?php esc_html_e( 'Hide Call To Action Button', 'jetpack' ); ?>
 				<br />
 				<small><?php _e( 'Hides the custom call to action button (if available).', 'jetpack' ); ?></small>
 			</label>
