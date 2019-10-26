@@ -1375,7 +1375,7 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		if ( $this->my_home_enabled() ) {
+		if ( $this->is_my_home_enabled() ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'blog',
