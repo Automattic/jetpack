@@ -1341,23 +1341,31 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		$site_id       = Jetpack_Options::get_option( 'id' );
-		$site_response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d', $site_id ) . '?force=wpcom&options=created_at',
-			'1.1'
-		);
+		$my_home_enabled = get_transient( 'jetpack_my_home_enabled' );
 
-		if ( is_wp_error( $site_response ) ) {
-			return;
+		if ( false === $my_home_enabled ) {
+			$site_id       = Jetpack_Options::get_option( 'id' );
+			$site_response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d', $site_id ) . '?force=wpcom&options=created_at',
+				'1.1'
+			);
+
+			if ( is_wp_error( $site_response ) ) {
+				return;
+			}
+
+			$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
+
+			$my_home_enabled = $site_data &&
+				isset( $site_data->options->created_at ) &&
+				( new Datetime( '2019-08-06 00:00:00.000' ) ) <= ( new Datetime( $site_data->options->created_at ) )
+				? 1
+				: 0;
+
+			set_transient( 'jetpack_my_home_enabled', $my_home_enabled );
 		}
 
-		$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
-
-		if (
-			$site_data &&
-			isset( $site_data->options->created_at ) &&
-			( new Datetime( '2019-08-06 00:00:00.000' ) ) <= ( new Datetime( $site_data->options->created_at ) )
-		) {
+		if ( $my_home_enabled ) {
 			$wp_admin_bar->add_menu(
 				array(
 					'parent' => 'blog',
