@@ -1467,25 +1467,25 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.1.tgz#8da5c6530915653f3a1f38fd5f101d8c3f8079c5"
   integrity sha512-+iTbntw2IZPb/anVDbypzfQa+ay64MW0Zo8aJ8gZPWMMK6/OubMVb6lUPMagqjOPnmtauXnFCACVl3O7ogjeqQ==
 
-"@slack/logger@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@slack/logger/-/logger-1.0.0.tgz#e529974c7111f8a62d794a79cd807eee1628088b"
-  integrity sha512-QDYhQR/58xKfB5iquvQwfpxPsmKPP/5SuDp8hRhZeUluCHsP1qBCOc3sW2Xb3cydxK0PAEnkLbBJf/ezsGwtlA==
+"@slack/logger@>=1.0.0 <3.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@slack/logger/-/logger-2.0.0.tgz#6a4e1c755849bc0f66dac08a8be54ce790ec0e6b"
+  integrity sha512-OkIJpiU2fz6HOJujhlhfIGrc8hB4ibqtf7nnbJQDerG0BqwZCfmgtK5sWzZ0TkXVRBKD5MpLrTmCYyMxoMCgPw==
   dependencies:
     "@types/node" ">=8.9.0"
 
-"@slack/types@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@slack/types/-/types-1.1.0.tgz#64465b6c7e2db66498f335934335da81c15812e7"
-  integrity sha512-uak4Jbi8nlX8xmElkPt1ixxVQXMKdBRbzBayn5bRzZ9Yx3bQGlyJdFs6GjEKI+fvFP0ZTiGWKOzlJTH3Tm/9fg==
+"@slack/types@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@slack/types/-/types-1.2.1.tgz#132d50d02efb452c9a58573964b22f5f18ab9b1a"
+  integrity sha512-NyGh7MibW+a0OHkwwOPlv63hC639dzQdkFy4dj0tl4sAdZR4OBaE/OhXixKhCzcT3kJsPXaQmvkUN7sqSf52iA==
 
-"@slack/web-api@5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@slack/web-api/-/web-api-5.2.0.tgz#50f282b80809cd00fffee31a5fcc13c77c867c9c"
-  integrity sha512-z47Q0PVP15/Z6ZQ8NBK5QLVw64ToohTv5lHhbu6D7qs7jgiLNsyxhjJRD/LIvnw5CGXBmN6qV7Vk/5Y9xmcZxA==
+"@slack/web-api@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@slack/web-api/-/web-api-5.3.0.tgz#495a5a07ec700aca8281252af4a8e1d3e2fa7a0a"
+  integrity sha512-VxFtA4X1t2qc7Mk7zbtI8mpx/HAU3QbnjjVkZv1D5MV3w7OVIJ0n/N9UjO1B6k1Xi8PHAdcJ4uCIV4BP4U/VsA==
   dependencies:
-    "@slack/logger" "^1.0.0"
-    "@slack/types" "^1.1.0"
+    "@slack/logger" ">=1.0.0 <3.0.0"
+    "@slack/types" "^1.2.1"
     "@types/is-stream" "^1.1.0"
     "@types/node" ">=8.9.0"
     "@types/p-queue" "^2.3.2"
