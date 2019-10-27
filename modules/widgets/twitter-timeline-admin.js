@@ -32,4 +32,19 @@ jQuery( function( $ ) {
 	$container.find( '.jetpack-twitter-timeline-widget-type' ).each( function() {
 		twitterWidgetTypeChanged( this );
 	} );
+
+	// To use the No Scrollbar” option, you should not specify a number of
+	// tweets in the widget settings. Grey out the 'noscrollbar' option when
+	// user sets 'tweet-limit'
+	$container.on( 'input', '[id*="tweet-limit"]', function() {
+		var $scrollbarOptionCheckbox = $( this )
+			.closest( '.widget-content' )
+			.find( '[id*="chrome-noscrollbar"]' );
+
+		if ( ! $scrollbarOptionCheckbox.length ) {
+			return;
+		}
+
+		$scrollbarOptionCheckbox.prop( 'disabled', $( this ).val().length > 0 );
+	} );
 } );

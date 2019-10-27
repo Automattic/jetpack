@@ -72,6 +72,13 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 					'modules/widgets/twitter-timeline-admin.js'
 				)
 			);
+
+			wp_enqueue_style(
+				'twitter-timeline-admin',
+				plugins_url( 'twitter-timeline.css', __FILE__ ),
+				array(),
+				'20191027'
+			);
 		}
 	}
 
@@ -335,6 +342,20 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$instance['type'] = 'profile';
 		?>
 
+		<p class="jetpack-twitter-timeline-widget-id-container">
+			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>">
+				<?php esc_html_e( 'Twitter Username:', 'jetpack' ); ?>
+				<?php echo $this->get_docs_link( '#twitter-username' ); ?>
+			</label>
+			<input
+				class="widefat"
+				id="<?php echo $this->get_field_id( 'widget-id' ); ?>"
+				name="<?php echo $this->get_field_name( 'widget-id' ); ?>"
+				type="text"
+				value="<?php echo esc_attr( $instance['widget-id'] ); ?>"
+			/>
+		</p>
+
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
 				<?php esc_html_e( 'Title:', 'jetpack' ); ?>
@@ -387,20 +408,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			/>
 		</p>
 
-		<p class="jetpack-twitter-timeline-widget-id-container">
-			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>">
-				<?php esc_html_e( 'Twitter Username:', 'jetpack' ); ?>
-				<?php echo $this->get_docs_link( '#twitter-username' ); ?>
-			</label>
-			<input
-				class="widefat"
-				id="<?php echo $this->get_field_id( 'widget-id' ); ?>"
-				name="<?php echo $this->get_field_name( 'widget-id' ); ?>"
-				type="text"
-				value="<?php echo esc_attr( $instance['widget-id'] ); ?>"
-			/>
-		</p>
-
 		<p>
 			<label for="<?php echo $this->get_field_id( 'chrome-noheader' ); ?>">
 				<?php esc_html_e( 'Layout Options:', 'jetpack' ); ?>
@@ -440,7 +447,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
 				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
 				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
-				value="noscrollbar"
+				value="noscrollbar"<?php disabled( strlen( strval( $instance['tweet-limit'] ) ) > 0 ); ?>
 			/>
 			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
 				<?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?>
