@@ -2,7 +2,12 @@
 /**
  * API endpoint /sites/%s/delete-backup-helper-script
  * This API endpoint deletes a Jetpack Backup Helper Script
+ *
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Backup\Helper_Script_Manager;
+
 class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
 	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
@@ -53,8 +58,8 @@ class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON
 	 * Deletes the specified Helper Script.
 	 */
 	protected function delete() {
-		$this->result = Automattic\Jetpack\Backup\Helper_Script_Manager::delete_helper_script( $this->script_path );
-		Automattic\Jetpack\Backup\Helper_Script_Manager::cleanup_expired_helper_scripts();
+		$this->result = Helper_Script_Manager::delete_helper_script( $this->script_path );
+		Helper_Script_Manager::cleanup_expired_helper_scripts();
 	}
 
 	/**

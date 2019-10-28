@@ -2,7 +2,12 @@
 /**
  * API endpoint /sites/%s/install-backup-helper-script
  * This API endpoint installs a Helper Script to assist Jetpack Backup fetch data
+ *
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Backup\Helper_Script_Manager;
+
 class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint { 
 	/**
 	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
@@ -57,8 +62,8 @@ class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSO
 	 * Installs the uploaded Helper Script.
 	 */
 	protected function install() {
-		$this->result = Automattic\Jetpack\Backup\Helper_Script_Manager::install_helper_script( $this->helper_script );
-		Automattic\Jetpack\Backup\Helper_Script_Manager::cleanup_expired_helper_scripts();
+		$this->result = Helper_Script_Manager::install_helper_script( $this->helper_script );
+		Helper_Script_Manager::cleanup_expired_helper_scripts();
 	}
 
 	/**
