@@ -17,6 +17,7 @@ class Helper_Script_Manager {
 	const TEMP_DIRECTORY             = 'jetpack-temp';
 	const HELPER_HEADER              = "<?php /* JPR Helper Script */\n";
 	const EXPIRY_TIME                = 8 * 3600; // 8 hours
+	const MAX_FILESIZE               = 1024 * 1024; // 1 MiB
 
 	const README_LINES = array(
 		'These files have been put on your server by Jetpack to assist with backups and restores of your site content. They are cleaned up automatically when we no longer need them.',
@@ -42,6 +43,11 @@ class Helper_Script_Manager {
 			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script header' );
 		}
 
+		// Refuse to install a Helper Script that is too large.
+		if ( strlen( $script_body ) > self::MAX_FILESIZE ) {
+			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script size' );
+		}
+
 		// Create a jetpack-temp directory for the Helper Script.
 		$relative_temp_dir = self::create_temp_directory();
 		if ( is_wp_error( $relative_temp_dir ) ) {
@@ -57,8 +63,7 @@ class Helper_Script_Manager {
 
 			if ( ! file_exists( $absolute_file_path ) ) {
 				// Attempt to write helper script.
-				$bytes_written = file_put_contents( $absolute_file_path, $script_body );
-				if ( strlen( $script_body ) !== $bytes_written ) {
+				if ( ! self::put_contents( $absolute_file_path, $script_body ) ) {
 					if ( file_exists( $absolute_file_path ) ) {
 						unlink( $absolute_file_path );
 					}
@@ -95,8 +100,7 @@ class Helper_Script_Manager {
 		}
 
 		// Check this file looks like a JPR helper script.
-		$header = file_get_contents( $path, false, null, 0, strlen( self::HELPER_HEADER ) );
-		if ( self::HELPER_HEADER !== $header ) {
+		if ( ! self::verify_file_header( $path, self::HELPER_HEADER ) ) {
 			return false;
 		}
 
@@ -130,7 +134,7 @@ class Helper_Script_Manager {
 	 * @access public
 	 * @static
 	 *
-	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time
+	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
 	 */
 	public static function cleanup_helper_scripts( $expiry_time = null ) {
 		foreach ( self::RELATIVE_INSTALL_LOCATIONS as $relative_dir ) {
@@ -188,9 +192,7 @@ class Helper_Script_Manager {
 			}
 
 			// Verify the file starts with the expected contents.
-			$expected_header = $allowed_files[ $basename ];
-			$file_header     = file_get_contents( $path, false, null, 0, strlen( $expected_header ) );
-			if ( $file_header !== $expected_header ) {
+			if ( ! self::verify_file_header( $path, $allowed_files[ $basename ] ) ) {
 				return false;
 			}
 
@@ -250,10 +252,71 @@ class Helper_Script_Manager {
 	 */
 	private static function write_supplementary_temp_files( $dir ) {
 		$readme_path = trailingslashit( $dir ) . 'README';
-		file_put_contents( $readme_path, implode( "\n\n", self::README_LINES ) );
+		self::put_contents( $readme_path, implode( "\n\n", self::README_LINES ) );
 
 		$index_path = trailingslashit( $dir ) . 'index.php';
-		file_put_contents( $index_path, self::INDEX_FILE );
+		self::put_contents( $index_path, self::INDEX_FILE );
+	}
+
+	/**
+	 * Write a file to the specified location with the specified contents.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @param string $file_path Path to write to.
+	 * @param string $contents  File contents to write.
+	 * @return boolean          True if successfully written.
+	 */
+	private static function put_contents( $file_path, $contents ) {
+		global $wp_filesystem;
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		if ( ! WP_Filesystem() ) {
+			return false;
+		}
+
+		return $wp_filesystem->put_contents( $file_path, $contents );
+	}
+
+	/**
+	 * Checks that a file exists, is readable, and has the expected header.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @param string $file_path       File to verify.
+	 * @param string $expected_header Header that the file should have.
+	 * @return boolean                True if the file exists, is readable, and the header matches.
+	 */
+	private static function verify_file_header( $file_path, $expected_header ) {
+		global $wp_filesystem;
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		if ( ! WP_Filesystem() ) {
+			return false;
+		}
+
+		// Verify the file exists and is readable.
+		if ( ! $wp_filesystem->exists( $file_path ) || ! $wp_filesystem->is_readable( $file_path ) ) {
+			return false;
+		}
+
+		// Verify that the file isn't too big or small.
+		$file_size = $wp_filesystem->size( $file_path );
+		if ( $file_size < strlen( $expected_header ) || $file_size > self::MAX_FILESIZE ) {
+			return false;
+		}
+
+		// Read the file and verify its header.
+		$contents = $wp_filesystem->get_contents( $file_path );
+		return ( strncmp( $contents, $expected_header, strlen( $expected_header ) ) === 0 );
 	}
 
 }
