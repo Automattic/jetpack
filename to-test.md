@@ -4,6 +4,14 @@ For this round of testing, I would encourage y'all to install [WordPress' Beta T
 
 ### Dashboard
 
+#### Updated design
+
+When you load Jetpack > Dashboard with this release, you may notice that the buttons now look a bit different. We've indeed updated the dashboard's design to better match the updated design of the WordPress dashboard in the upcoming version of WordPress. 
+
+If you are running WordPress 5.3 RC already, I would invite you to compare the look of the buttons and elements of the dashboard with the look of the Jetpack dashboard. Let us know if you find anything that looks out of place.
+
+#### New disconnection exprerience
+
 From now on, whenever you want to disconnect your site from WordPress.com, Jetpack will present you with some details about your Jetpack usage and some links to help you fully understand the consequences of disconnecting your site.
 
 To test this, head over to Jetpack > Dashboard and click on the link to "Manage Site Connection". A new modal will appear with information about your site. Let us know what you think about the new modal, and make sure the data displayed there is correct.
