@@ -3214,13 +3214,16 @@ p {
 			return;
 		}
 
-		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
-		$post_link      = isset( $post_data['posts'][0]['URL'] ) ? $post_data['posts'][0]['URL'] : null;
+		$post_link = isset( $post_data['posts'][0]['URL'] ) ? $post_data['posts'][0]['URL'] : null;
+		if ( empty( $post_link ) ) {
+			return;
+		}
 
-		$post_content = str_replace( '<a ', '<a target="_blank" rel="noopener noreferrer" ', $post_content );
-		$content      = wp_kses_post( $post_content );
-		$image_src    = esc_url( $post_image_src );
-		$link         = esc_url( $post_link );
+		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
+
+		$content   = wp_kses_post( $post_content );
+		$image_src = esc_url( $post_image_src );
+		$link      = esc_url( $post_link );
 
 		$post_array = array(
 			'release_post_content' => $content,
@@ -3245,22 +3248,11 @@ p {
 		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
 			return null;
 		}
-		/* Need to add tags to the release posts to use this.
-		$version = JETPACK__VERSION;
-		$release_post_src = add_query_arg(
-			array(
-				'order_by' => 'date',
-				'tag'      => $version,
-				'number'   => '1',
-			),
-			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'
-		);
-		*/
 
 		$release_post_src = add_query_arg(
 			array(
 				'order_by' => 'date',
-				'category' => 'releases',
+				'tag'      => JETPACK__VERSION,
 				'number'   => '1',
 			),
 			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'

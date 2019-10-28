@@ -41,6 +41,12 @@ body.jp-dialogue-showing {
 		max-width: 100%;
 	}
 
+	li {
+		text-align: left;
+		list-style: disc outside none;
+		margin: rem(16px);
+	}
+
 	p + img {
 		margin: rem( 32px ) 0 rem( 16px );
 	}

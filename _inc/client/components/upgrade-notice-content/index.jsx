@@ -42,10 +42,23 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		};
 
 		renderInnerContent() {
+			const domparser = new DOMParser();
+			const dom_content = domparser.parseFromString( this.props.releasePostContent, 'text/html' );
+			const els = dom_content.getElementsByTagName( 'a' );
+			for ( let i = 0; i < els.length; i++ ) {
+				els[ i ].setAttribute( 'target', '_blank' );
+				els[ i ].setAttribute( 'rel', 'noopener noreferrer' );
+			}
+			const content = dom_content.body.innerHTML;
+
 			/*eslint-disable react/no-danger*/
 			return (
 				<div className="jp-upgrade-notice__content">
-					<div dangerouslySetInnerHTML={ { __html: this.props.releasePostContent } } />
+					{ /*
+					 * The release post content is santized before reaching this point.
+					 * See Jetpack::send_update_modal_data().
+					 */ }
+					<div dangerouslySetInnerHTML={ { __html: content } } />
 					<div className="jp-dialogue__cta-container">
 						<Button onClick={ this.dismissNotice }>{ __( 'Okay, got it!' ) }</Button>
 					</div>
@@ -64,7 +77,12 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'View the Jetpack ' + this.props.version + ' changelog' ) }
+							{ __( 'View the Jetpack %(version)s changelog', {
+								args: {
+									version: this.props.version,
+								},
+								comment: '%(version) is a version number.',
+							} ) }
 						</ExternalLink>
 					</div>
 				</div>
@@ -77,7 +95,12 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 				// TODO: update SVG?
 				<JetpackDialogue
 					svg={ <img src={ this.props.releasePostImage } width="350" alt={ '' } /> }
-					title={ __( 'New in Jetpack ' + this.props.version + '!' ) }
+					title={ __( 'New in Jetpack %(version)s', {
+						args: {
+							version: this.props.version,
+						},
+						comment: '%(version) is a version number.',
+					} ) }
 					content={ this.renderInnerContent() }
 					dismiss={ this.dismissNotice }
 				/>
