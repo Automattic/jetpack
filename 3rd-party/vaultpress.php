@@ -47,7 +47,6 @@ function jetpack_vaultpress_rewind_enabled_notice() {
  * @since 5.8
  */
 function jetpack_vaultpress_rewind_check() {
-	add_action( 'admin_notices', 'jetpack_vaultpress_rewind_enabled_notice' );
 	if ( Jetpack::is_active() &&
 		 Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) &&
 		 Jetpack::is_rewind_enabled()
