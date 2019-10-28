@@ -52,12 +52,9 @@ class Helper_Script_Manager {
 
 		// Create a jetpack-temp directory for the Helper Script.
 		$temp_directory = self::create_temp_directory();
-		if ( is_wp_error( $temp_directory ) ) {
+		if ( \is_wp_error( $temp_directory ) ) {
 			return $temp_directory;
 		}
-
-		$dir_path = $temp_directory['path'];
-		$dir_url  = $temp_directory['url'];
 
 		// Generate a random filename, avoid clashes.
 		$max_attempts = 5;
@@ -77,7 +74,7 @@ class Helper_Script_Manager {
 				}
 
 				// Always schedule a cleanup run shortly after EXPIRY_TIME.
-				wp_schedule_single_event( time() + self::EXPIRY_TIME + 60, 'jetpack_backup_cleanup_helper_scripts' );
+				\wp_schedule_single_event( time() + self::EXPIRY_TIME + 60, 'jetpack_backup_cleanup_helper_scripts' );
 
 				// Success! Figure out the URL and return the path and URL.
 				return array(
@@ -277,11 +274,11 @@ class Helper_Script_Manager {
 	private static function put_contents( $file_path, $contents ) {
 		global $wp_filesystem;
 
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
+		if ( ! function_exists( '\WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
-		if ( ! WP_Filesystem() ) {
+		if ( ! \WP_Filesystem() ) {
 			return false;
 		}
 
@@ -301,11 +298,11 @@ class Helper_Script_Manager {
 	private static function verify_file_header( $file_path, $expected_header ) {
 		global $wp_filesystem;
 
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
+		if ( ! function_exists( '\WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
-		if ( ! WP_Filesystem() ) {
+		if ( ! \WP_Filesystem() ) {
 			return false;
 		}
 
@@ -334,14 +331,14 @@ class Helper_Script_Manager {
 	 * @return array Array, with keys specifying the full path of install locations, and values with the equivalent URL.
 	 */
 	public static function get_install_locations() {
-		// Include WordPress root and wp-content
+		// Include WordPress root and wp-content.
 		$install_locations = array(
-			ABSPATH        => get_site_url(),
-			WP_CONTENT_DIR => WP_CONTENT_URL,
+			\ABSPATH        => \get_site_url(),
+			\WP_CONTENT_DIR => \WP_CONTENT_URL,
 		);
 
-		// Include uploads folder
-		$upload_dir_info                                  = wp_upload_dir();
+		// Include uploads folder.
+		$upload_dir_info                                  = \wp_upload_dir();
 		$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
 
 		return $install_locations;
