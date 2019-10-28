@@ -3562,8 +3562,6 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		require_lib( 'tracks/client' );
 		tracks_record_event( $event_user, $event_name, $event_props );
 	} else {
-		$event_name             = 'jetpack_' . $event_name;
-		$event_props['blog_id'] = Jetpack_Options::get_option( 'id', 0 );
 		// If the form was sent by a logged out visitor, record event with Jetpack master user.
 		if ( empty( $event_user->ID ) ) {
 			$master_user_id = Jetpack_Options::get_option( 'master_user' );
@@ -3573,7 +3571,7 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		}
 
 		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->tracks_record_event( $event_user, $event_name, $event_props );
+		$tracking->record_user_event( $event_name, $event_props, $event_user );
 	}
 }
 add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
