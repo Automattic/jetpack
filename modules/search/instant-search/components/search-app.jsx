@@ -58,9 +58,11 @@ class SearchApp extends Component {
 			this.input.current.focus();
 		}
 
+		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 	}
 	componentWillUnmount() {
+		window.removeEventListener( 'popstate', this.onChangeQueryString );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 	}
 
