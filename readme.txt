@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: ensure that all blocks display well in the editor when using WordPress 5.3.
 * Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
 * Dashboard Notices: ensure that all notices redirect to the right page, including on WooCommerce dashboard pages.
+* General: use new functionality available in WordPress 5.3.
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 * Related Posts: avoid conflicts with other plugins adding elements below the post content, especially when the AMP plugin is active on the site.
 * SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
