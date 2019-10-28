@@ -353,7 +353,7 @@ class Queue {
 	}
 
 	/**
-	 * Checkin the queue.
+	 * Check in the queue.
 	 *
 	 * @param Queue_Buffer $buffer Queue_Buffer object.
 	 *
