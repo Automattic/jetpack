@@ -2,6 +2,12 @@
 
 For this round of testing, I would encourage y'all to install [WordPress' Beta Tester plugin](https://wordpress.org/plugins/wordpress-beta-tester/) on your sites, and switch to using WordPress 5.3 Beta. It will allow you to test Jetpack with the upcoming version of WordPress scheduled to be released in a few weeks.
 
+### Dashboard
+
+From now on, whenever you want to disconnect your site from WordPress.com, Jetpack will present you with some details about your Jetpack usage and some links to help you fully understand the consequences of disconnecting your site.
+
+To test this, head over to Jetpack > Dashboard and click on the link to "Manage Site Connection". A new modal will appear with information about your site. Let us know what you think about the new modal, and make sure the data displayed there is correct.
+
 ### Blocks
 
 #### AMP

@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: update styles for visual parity with the WordPress.com dashboard.
 * Dashboard: improve performance of the Jetpack dashboard when the plugin is not connected to WordPress.com yet.
 * Dashboard: add new plans' information to Plans pages.
+* Dashboard: improve experience for site owners looking to disconnect their site from WordPress.com.
 * Debug: provide additional information in Tools > Site Health when a site's connection to WordPress.com is broken.
 * Performance: modernize various parts of the code to use PHP 5.6+ functionality.
 * Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
