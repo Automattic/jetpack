@@ -274,7 +274,7 @@ class Helper_Script_Manager {
 	private static function put_contents( $file_path, $contents ) {
 		global $wp_filesystem;
 
-		if ( ! function_exists( '\WP_Filesystem' ) ) {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
@@ -298,7 +298,7 @@ class Helper_Script_Manager {
 	private static function verify_file_header( $file_path, $expected_header ) {
 		global $wp_filesystem;
 
-		if ( ! function_exists( '\WP_Filesystem' ) ) {
+		if ( ! function_exists( '\\WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
