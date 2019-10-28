@@ -17,22 +17,22 @@ export const Connection = ( { onClick } ) => {
 };
 
 export default compose( [
-	withSelect( ( select, { serviceSlug } ) => {
+	withSelect( ( select, { connectUrl, serviceSlug } ) => {
 		const onClick = () => {
 			void analytics.tracks.recordEvent( 'jetpack_editor_connection_click', {
 				serviceSlug,
 			} );
 
-			const data = getJetpackData();
-			const service = data.externalServices[ serviceSlug ]
-				? data.externalServices[ serviceSlug ]
-				: null;
-			if ( ! service ) {
-				alert( __( "Sorry couldn't find a service called " + serviceSlug, 'jetpack' ) );
-				return;
-			}
+			// const data = getJetpackData();
+			// const service = data.externalServices[ serviceSlug ]
+			// 	? data.externalServices[ serviceSlug ]
+			// 	: null;
+			// if ( ! service ) {
+			// 	alert( __( "Sorry couldn't find a service called " + serviceSlug, 'jetpack' ) );
+			// 	return;
+			// }
 
-			window.open( service.connect_URL, '_blank', 'toolbar=0,location=0,menubar=0' );
+			window.open( connectUrl, '_blank', 'toolbar=0,location=0,menubar=0' );
 		};
 
 		return {

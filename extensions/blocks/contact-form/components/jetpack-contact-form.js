@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
@@ -70,7 +71,10 @@ class JetpackContactForm extends Component {
 
 		this.state = {
 			toError: error && error.length ? error : null,
-			googleSheetsIntegrationOpen: false,
+			googleSheetsIntegration: {
+				enabled: false,
+				connectionResponse: null,
+			},
 		};
 	}
 
@@ -250,13 +254,43 @@ class JetpackContactForm extends Component {
 	}
 
 	toggleGoogleSheetsIntegration = () => {
-		this.setState( {
-			googleSheetsIntegrationOpen: ! this.state.googleSheetsIntegrationOpen,
-		} );
+		const { googleSheetsIntegration } = this.state;
+		this.setState(
+			{
+				googleSheetsIntegration: {
+					...googleSheetsIntegration,
+					enabled: ! googleSheetsIntegration.enabled,
+				},
+			},
+			this.checkGoogleSheetsIntegrationStatus
+		);
+	};
+
+	checkGoogleSheetsIntegrationStatus = async () => {
+		const { googleSheetsIntegration } = this.state;
+		if ( ! this.state.googleSheetsIntegration.enabled ) {
+			return;
+		}
+
+		try {
+			const sheetsResponse = await apiFetch( {
+				path: '/wpcom/v2/external-connections/google-sheets',
+			} );
+
+			console.log( sheetsResponse );
+
+			this.setState( {
+				googleSheetsIntegration: {
+					...googleSheetsIntegration,
+					connectionResponse: sheetsResponse,
+				},
+			} );
+		} catch {}
 	};
 
 	render() {
 		const { className, attributes } = this.props;
+		const { googleSheetsIntegration } = this.state;
 		const { hasFormSettingsSet } = attributes;
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'has-intro': ! hasFormSettingsSet,
@@ -274,10 +308,15 @@ class JetpackContactForm extends Component {
 					<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Google Sheets' ) }
-							checked={ this.state.googleSheetsIntegrationOpen }
+							checked={ googleSheetsIntegration.enabled }
 							onChange={ this.toggleGoogleSheetsIntegration }
 						/>
-						{ this.state.googleSheetsIntegrationOpen && <Connection serviceSlug="google_photos" /> }
+						{ googleSheetsIntegration.enabled && googleSheetsIntegration.connectionResponse && (
+							<Connection
+								serviceSlug="google_sheets"
+								connectUrl={ googleSheetsIntegration.connectionResponse.connect_url }
+							/>
+						) }
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>
