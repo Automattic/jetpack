@@ -159,6 +159,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: prevent a PHP Notice in some cases where a post isn't actually a post.
 * Widgets: ensure that the Google Maps API key in the Contact Info widget can be set to only work on your domain.
 * Widgets: fix timeout issues that may sometimes occur in the GoodReads widget when user has added lots of books to their account.
+* WordPress.com REST API: better site preview support for sites using WordPress in a subdirectory.
 
 --------
 
