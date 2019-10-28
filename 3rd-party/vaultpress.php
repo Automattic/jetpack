@@ -17,7 +17,24 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 	?>
 	<div class="notice notice-success is-dismissible vp-deactivated">
 		<p style="margin-bottom: 0.25em;"><strong><?php esc_html_e( 'Jetpack is now handling your backups.', 'jetpack' ); ?></strong></p>
-		<p><?php esc_html_e( 'VaultPress is no longer needed and has been deactivated.', 'jetpack' ); ?></p>
+		<p>
+			<?php esc_html_e( 'VaultPress is no longer needed and has been deactivated.', 'jetpack' ); ?>
+			<?php
+				echo sprintf(
+					wp_kses(
+						/* Translators: first variable is the URL of the web site without the protocol, e.g. mysite.com */
+						__( 'You can access your backups on your site\'s <a href="https://wordpress.com/activity-log/%s" target="_blank">Activity</a> page.', 'jetpack' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+							),
+						)
+					),
+					esc_attr( Jetpack::build_raw_urls( get_home_url() ) )
+				);
+			?>
+		</p>
 	</div>
 	<style>#vp-notice{display:none;}</style>
 	<?php
@@ -29,6 +46,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
  * @since 5.8
  */
 function jetpack_vaultpress_rewind_check() {
+	add_action( 'admin_notices', 'jetpack_vaultpress_rewind_enabled_notice' );
 	if ( Jetpack::is_active() &&
 		 Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) &&
 		 Jetpack::is_rewind_enabled()
