@@ -35,6 +35,22 @@ We've made some more changes to the connection flow, so you'll want to pay extra
 - Try using a different prompt to start the connection process. You can start connecting from Jetpack > Dashboard, but also using the banners in the Plugins menu or in the main dashboard page.
 - When in Jetpack > Dashboard before you start the connection process, make sure everything on the page works well.
 
+### Search
+
+**Note: Jetpack Search is currently only available for sites using Jetpack Professional. If you do not use this plan on your site yet, you'll want to upgrade first.**
+
+We're currently working on several improvements to [Jetpack Search](https://jetpack.com/support/search/). We're aiming to deliver a better experience whenever someone launches a search on a site using what we call "Instant Search". This feature is currently in Beta, and we need your help and feedback to iron out any bugs before the feature is made available to everyone.
+
+To enable the new Instant Search feature, add the following to your site's `wp-config.php` file:
+
+```php
+define( 'JETPACK_SEARCH_PROTOTYPE', true );
+```
+
+Once you've done so, select a theme, make sure the Search feature is enabled under Jetpack > Settings > Search, and then head over to Appearance > Customize to add the Jetpack Search widget to your site.
+
+Once that's done, you can start testing that new searchform on your site, and let us know how that goes!
+
 ### SSO
 
 When on WordPress 5.3 and with the SSO feature active, you'll want to make sure the login form always looks good, with no layout issues or missing WordPress.com button when logging out / in.
