@@ -13,11 +13,10 @@ namespace Automattic\Jetpack\Backup;
  */
 class Helper_Script_Manager {
 
-	const RELATIVE_INSTALL_LOCATIONS = array( '', 'wp-content', 'wp-content/uploads' );
-	const TEMP_DIRECTORY             = 'jetpack-temp';
-	const HELPER_HEADER              = "<?php /* Jetpack Backup Helper Script */\n";
-	const EXPIRY_TIME                = 8 * 3600; // 8 hours
-	const MAX_FILESIZE               = 1024 * 1024; // 1 MiB
+	const TEMP_DIRECTORY = 'jetpack-temp';
+	const HELPER_HEADER  = "<?php /* Jetpack Backup Helper Script */\n";
+	const EXPIRY_TIME    = 8 * 3600; // 8 hours
+	const MAX_FILESIZE   = 1024 * 1024; // 1 MiB
 
 	const README_LINES = array(
 		'These files have been put on your server by Jetpack to assist with backups and restores of your site content. They are cleaned up automatically when we no longer need them.',
@@ -48,24 +47,30 @@ class Helper_Script_Manager {
 			return new \WP_Error( 'invalid_helper', 'Invalid Helper Script size' );
 		}
 
+		// Replace '[wp_path]' in the Helper Script with the WordPress installation location. Allows the Helper Script to find WordPress.
+		$script_body = str_replace( '[wp_path]', addslashes( ABSPATH ), $script_body );
+
 		// Create a jetpack-temp directory for the Helper Script.
-		$relative_temp_dir = self::create_temp_directory();
-		if ( is_wp_error( $relative_temp_dir ) ) {
-			return $relative_temp_dir;
+		$temp_directory = self::create_temp_directory();
+		if ( is_wp_error( $temp_directory ) ) {
+			return $temp_directory;
 		}
+
+		$dir_path = $temp_directory['path'];
+		$dir_url  = $temp_directory['url'];
 
 		// Generate a random filename, avoid clashes.
 		$max_attempts = 5;
 		for ( $attempt = 0; $attempt < $max_attempts; $attempt++ ) {
-			$file_key           = wp_generate_password( 10, false );
-			$relative_file_path = trailingslashit( $relative_temp_dir ) . 'jp-helper-' . $file_key . '.php';
-			$absolute_file_path = trailingslashit( ABSPATH ) . $relative_file_path;
+			$file_key  = wp_generate_password( 10, false );
+			$file_name = 'jp-helper-' . $file_key . '.php';
+			$file_path = trailingslashit( $temp_directory['path'] ) . $file_name;
 
-			if ( ! file_exists( $absolute_file_path ) ) {
+			if ( ! file_exists( $file_path ) ) {
 				// Attempt to write helper script.
-				if ( ! self::put_contents( $absolute_file_path, $script_body ) ) {
-					if ( file_exists( $absolute_file_path ) ) {
-						unlink( $absolute_file_path );
+				if ( ! self::put_contents( $file_path, $script_body ) ) {
+					if ( file_exists( $file_path ) ) {
+						unlink( $file_path );
 					}
 
 					continue;
@@ -76,8 +81,8 @@ class Helper_Script_Manager {
 
 				// Success! Figure out the URL and return the path and URL.
 				return array(
-					'path' => $absolute_file_path,
-					'url'  => trailingslashit( get_site_url() ) . $relative_file_path,
+					'path' => $file_path,
+					'url'  => trailingslashit( $temp_directory['url'] ) . $file_name,
 				);
 			}
 		}
@@ -137,9 +142,8 @@ class Helper_Script_Manager {
 	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time.
 	 */
 	public static function cleanup_helper_scripts( $expiry_time = null ) {
-		foreach ( self::RELATIVE_INSTALL_LOCATIONS as $relative_dir ) {
-			$absolute_dir = trailingslashit( ABSPATH ) . $relative_dir;
-			$temp_dir     = trailingslashit( $absolute_dir ) . self::TEMP_DIRECTORY;
+		foreach ( self::get_install_locations() as $directory => $url ) {
+			$temp_dir = trailingslashit( $directory ) . self::TEMP_DIRECTORY;
 
 			if ( is_dir( $temp_dir ) ) {
 				// Find expired helper scripts and delete them.
@@ -215,18 +219,17 @@ class Helper_Script_Manager {
 	 * @access public
 	 * @static
 	 *
-	 * @return WP_Error|string Relative path to temp directory if successful, WP_Error if not.
+	 * @return WP_Error|array Array containing the url and path of the temp directory if successful, WP_Error if not.
 	 */
 	private static function create_temp_directory() {
-		foreach ( self::RELATIVE_INSTALL_LOCATIONS as $relative_dir ) {
+		foreach ( self::get_install_locations() as $directory => $url ) {
 			// Check if the install location is writeable.
-			$absolute_dir = trailingslashit( ABSPATH ) . $relative_dir;
-			if ( ! is_writeable( $absolute_dir ) ) {
+			if ( ! is_writeable( $directory ) ) {
 				continue;
 			}
 
 			// Create if one doesn't already exist.
-			$temp_dir = trailingslashit( $absolute_dir ) . self::TEMP_DIRECTORY;
+			$temp_dir = trailingslashit( $directory ) . self::TEMP_DIRECTORY;
 			if ( ! is_dir( $temp_dir ) ) {
 				if ( ! mkdir( $temp_dir ) ) {
 					continue;
@@ -236,7 +239,10 @@ class Helper_Script_Manager {
 				self::write_supplementary_temp_files( $temp_dir );
 			}
 
-			return trailingslashit( $relative_dir ) . self::TEMP_DIRECTORY;
+			return array(
+				'path' => trailingslashit( $directory ) . self::TEMP_DIRECTORY,
+				'url'  => trailingslashit( $url ) . self::TEMP_DIRECTORY,
+			);
 		}
 
 		return new \WP_Error( 'temp_directory', 'Failed to create jetpack-temp directory' );
@@ -317,6 +323,28 @@ class Helper_Script_Manager {
 		// Read the file and verify its header.
 		$contents = $wp_filesystem->get_contents( $file_path );
 		return ( strncmp( $contents, $expected_header, strlen( $expected_header ) ) === 0 );
+	}
+
+	/**
+	 * Gets an associative array of possible places to install a jetpack-temp directory, along with the URL to access each.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @return array Array, with keys specifying the full path of install locations, and values with the equivalent URL.
+	 */
+	public static function get_install_locations() {
+		// Include WordPress root and wp-content
+		$install_locations = array(
+			ABSPATH        => get_site_url(),
+			WP_CONTENT_DIR => WP_CONTENT_URL,
+		);
+
+		// Include uploads folder
+		$upload_dir_info                                  = wp_upload_dir();
+		$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
+
+		return $install_locations;
 	}
 
 }
