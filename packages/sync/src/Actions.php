@@ -658,7 +658,7 @@ class Actions {
 	 * @static
 	 */
 	public static function init_sync_cron_jobs() {
-		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) );
+		add_filter( 'cron_schedules', array( __CLASS__, 'jetpack_cron_schedule' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 
 		add_action( 'jetpack_sync_cron', array( __CLASS__, 'do_cron_sync' ) );
 		add_action( 'jetpack_sync_full_cron', array( __CLASS__, 'do_cron_full_sync' ) );

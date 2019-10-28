@@ -65,7 +65,7 @@ class Jetpack_Client {
 
 	/**
 	 * Wrapper for wp_remote_request().  Turns off SSL verification for certain SSL errors.
-	 * This is lame, but many, many, many hosts have misconfigured SSL.
+	 * This is suboptimal, but many, many, many hosts have misconfigured SSL.
 	 *
 	 * @deprecated use Automattic\Jetpack\Connection\Client::_wp_remote_request
 	 *
@@ -83,7 +83,7 @@ class Jetpack_Client {
 	 * @param Boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
 	 * @return array|WP_Error WP HTTP response on success
 	 */
-	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
+	public static function _wp_remote_request( $url, $args, $set_fallback = false ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Connection\Client' );
 		return Client::_wp_remote_request( $url, $args, $set_fallback );
 	}

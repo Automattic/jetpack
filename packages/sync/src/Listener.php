@@ -1,24 +1,61 @@
 <?php
+/**
+ * Jetpack's Sync Listener
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Roles;
 
 /**
- * This class monitors actions and logs them to the queue to be sent
+ * This class monitors actions and logs them to the queue to be sent.
  */
 class Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes
+	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes.
 
+	/**
+	 * Sync queue.
+	 *
+	 * @var object
+	 */
 	private $sync_queue;
+
+	/**
+	 * Full sync queue.
+	 *
+	 * @var object
+	 */
 	private $full_sync_queue;
+
+	/**
+	 * Sync queue size limit.
+	 *
+	 * @var int size limit.
+	 */
 	private $sync_queue_size_limit;
+
+	/**
+	 * Sync queue lag limit.
+	 *
+	 * @var int Lag limit.
+	 */
 	private $sync_queue_lag_limit;
 
-	// singleton functions
+	/**
+	 * Singleton implementation.
+	 *
+	 * @var Listener
+	 */
 	private static $instance;
 
+	/**
+	 * Get the Listener instance.
+	 *
+	 * @return Listener
+	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -27,13 +64,20 @@ class Listener {
 		return self::$instance;
 	}
 
-	// this is necessary because you can't use "new" when you declare instance properties >:(
+	/**
+	 * Listener constructor.
+	 *
+	 * This is necessary because you can't use "new" when you declare instance properties >:(
+	 */
 	protected function __construct() {
 		Main::init();
 		$this->set_defaults();
 		$this->init();
 	}
 
+	/**
+	 * Sync Listener init.
+	 */
 	private function init() {
 		$handler           = array( $this, 'action_handler' );
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
@@ -43,49 +87,81 @@ class Listener {
 			$module->init_full_sync_listeners( $full_sync_handler );
 		}
 
-		// Module Activation
+		// Module Activation.
 		add_action( 'jetpack_activate_module', $handler );
 		add_action( 'jetpack_deactivate_module', $handler );
 
-		// Jetpack Upgrade
+		// Jetpack Upgrade.
 		add_action( 'updating_jetpack_version', $handler, 10, 2 );
 
-		// Send periodic checksum
+		// Send periodic checksum.
 		add_action( 'jetpack_sync_checksum', $handler );
 	}
 
-	function get_sync_queue() {
+	/**
+	 * Get incremental sync queue.
+	 */
+	public function get_sync_queue() {
 		return $this->sync_queue;
 	}
 
-	function get_full_sync_queue() {
+	/**
+	 * Gets the full sync queue.
+	 */
+	public function get_full_sync_queue() {
 		return $this->full_sync_queue;
 	}
 
-	function set_queue_size_limit( $limit ) {
+	/**
+	 * Sets queue size limit.
+	 *
+	 * @param int $limit Queue size limit.
+	 */
+	public function set_queue_size_limit( $limit ) {
 		$this->sync_queue_size_limit = $limit;
 	}
 
-	function get_queue_size_limit() {
+	/**
+	 * Get queue size limit.
+	 */
+	public function get_queue_size_limit() {
 		return $this->sync_queue_size_limit;
 	}
 
-	function set_queue_lag_limit( $age ) {
+	/**
+	 * Sets the queue lag limit.
+	 *
+	 * @param int $age Queue lag limit.
+	 */
+	public function set_queue_lag_limit( $age ) {
 		$this->sync_queue_lag_limit = $age;
 	}
 
-	function get_queue_lag_limit() {
+	/**
+	 * Return value of queue lag limit.
+	 */
+	public function get_queue_lag_limit() {
 		return $this->sync_queue_lag_limit;
 	}
 
-	function force_recheck_queue_limit() {
+	/**
+	 * Force a recheck of the queue limit.
+	 */
+	public function force_recheck_queue_limit() {
 		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->sync_queue->id );
 		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->full_sync_queue->id );
 	}
 
-	// prevent adding items to the queue if it hasn't sent an item for 15 mins
-	// AND the queue is over 1000 items long (by default)
-	function can_add_to_queue( $queue ) {
+	/**
+	 * Determine if an item can be added to the queue.
+	 *
+	 * Prevent adding items to the queue if it hasn't sent an item for 15 mins
+	 * AND the queue is over 1000 items long (by default).
+	 *
+	 * @param object $queue Sync queue.
+	 * @return bool
+	 */
+	public function can_add_to_queue( $queue ) {
 		if ( ! Settings::is_sync_enabled() ) {
 			return false;
 		}
@@ -102,37 +178,51 @@ class Listener {
 		list( $queue_size, $queue_age ) = $queue_state;
 
 		return ( $queue_age < $this->sync_queue_lag_limit )
-			   ||
-			   ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+			||
+			( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
 	}
 
-	function full_sync_action_handler( ...$args ) {
+	/**
+	 * Full sync action handler.
+	 *
+	 * @param mixed ...$args Args passed to the action.
+	 */
+	public function full_sync_action_handler( ...$args ) {
 		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
 	}
 
-	function action_handler( ...$args ) {
+	/**
+	 * Action handler.
+	 *
+	 * @param mixed ...$args Args passed to the action.
+	 */
+	public function action_handler( ...$args ) {
 		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
 	}
 
-	// add many actions to the queue directly, without invoking them
+	// add many actions to the queue directly, without invoking them.
 
 	/**
 	 * Bulk add action to the queue.
 	 *
-	 * @param $action_name String the name the full sync action.
-	 * @param $args_array Array of chunked arguments
+	 * @param string $action_name The name the full sync action.
+	 * @param array  $args_array Array of chunked arguments.
 	 */
-	function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
+	public function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
 		$queue = $this->get_full_sync_queue();
 
-		// periodically check the size of the queue, and disable adding to it if
-		// it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped)
+		/*
+		 * Periodically check the size of the queue, and disable adding to it if
+		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
+		 */
 		if ( ! $this->can_add_to_queue( $queue ) ) {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script
-		// can't be killed before they are sent
+		/*
+		 * If we add any items to the queue, we should try to ensure that our script
+		 * can't be killed before they are sent.
+		 */
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
@@ -160,8 +250,8 @@ class Listener {
 			if ( ! is_null( $previous_end ) ) {
 				$action_data[] = $previous_end;
 			}
-			// allow listeners to abort
-			if ( $args === false ) {
+			// allow listeners to abort.
+			if ( false === $args ) {
 				continue;
 			}
 
@@ -177,8 +267,15 @@ class Listener {
 		$queue->add_all( $data_to_enqueue );
 	}
 
-	function enqueue_action( $current_filter, $args, $queue ) {
-		// don't enqueue an action during the outbound http request - this prevents recursion
+	/**
+	 * Enqueue the action.
+	 *
+	 * @param string $current_filter Current WordPress filter.
+	 * @param object $args Sync args.
+	 * @param string $queue Sync queue.
+	 */
+	public function enqueue_action( $current_filter, $args, $queue ) {
+		// don't enqueue an action during the outbound http request - this prevents recursion.
 		if ( Settings::is_sending() ) {
 			return;
 		}
@@ -201,19 +298,23 @@ class Listener {
 		 */
 		$args = apply_filters( "jetpack_sync_before_enqueue_$current_filter", $args );
 
-		// allow listeners to abort
-		if ( $args === false ) {
+		// allow listeners to abort.
+		if ( false === $args ) {
 			return;
 		}
 
-		// periodically check the size of the queue, and disable adding to it if
-		// it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped)
+		/*
+		 * Periodically check the size of the queue, and disable adding to it if
+		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
+		 */
 		if ( ! $this->can_add_to_queue( $queue ) ) {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script
-		// can't be killed before they are sent
+		/*
+		 * If we add any items to the queue, we should try to ensure that our script
+		 * can't be killed before they are sent.
+		 */
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
 		}
@@ -226,7 +327,8 @@ class Listener {
 					'jetpack_full_sync_start',
 					'jetpack_full_sync_end',
 					'jetpack_full_sync_cancel',
-				)
+				),
+				true
 			)
 		) {
 			$queue->add(
@@ -251,7 +353,7 @@ class Listener {
 			);
 		}
 
-		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
+		// since we've added some items, let's try to load the sender so we can send them as quickly as possible.
 		if ( ! Actions::$sender ) {
 			add_filter( 'jetpack_sync_sender_should_load', '__return_true' );
 			if ( did_action( 'init' ) ) {
@@ -260,7 +362,14 @@ class Listener {
 		}
 	}
 
-	function get_actor( $current_filter, $args ) {
+	/**
+	 * Get the event's actor.
+	 *
+	 * @param string $current_filter Current wp-admin page.
+	 * @param object $args Sync event.
+	 * @return array Actor information.
+	 */
+	public function get_actor( $current_filter, $args ) {
 		if ( 'wp_login' === $current_filter ) {
 			$user = get_user_by( 'ID', $args[1]->data->ID );
 		} else {
@@ -296,8 +405,14 @@ class Listener {
 		return $actor;
 	}
 
-	function should_send_user_data_with_actor( $current_filter ) {
-		$should_send = in_array( $current_filter, array( 'jetpack_wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
+	/**
+	 * Should user data be sent as the actor?
+	 *
+	 * @param string $current_filter The current WordPress filter being executed.
+	 * @return bool
+	 */
+	public function should_send_user_data_with_actor( $current_filter ) {
+		$should_send = in_array( $current_filter, array( 'jetpack_wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ), true );
 		/**
 		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
 		 *
@@ -311,14 +426,22 @@ class Listener {
 		return apply_filters( 'jetpack_sync_actor_user_data', $should_send, $current_filter );
 	}
 
-	function set_defaults() {
+	/**
+	 * Sets Listener defaults.
+	 */
+	public function set_defaults() {
 		$this->sync_queue      = new Queue( 'sync' );
 		$this->full_sync_queue = new Queue( 'full_sync' );
 		$this->set_queue_size_limit( Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Settings::get_setting( 'max_queue_lag' ) );
 	}
 
-	function get_request_url() {
+	/**
+	 * Get the request URL.
+	 *
+	 * @return string Request URL, if known. Otherwise, wp-admin or home_url.
+	 */
+	public function get_request_url() {
 		if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
 			return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 		}
