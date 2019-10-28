@@ -141,6 +141,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 * Related Posts: avoid conflicts with other plugins adding elements below the post content, especially when the AMP plugin is active on the site.
 * SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
+* Widgets: update deprecated option in the Facebook Page Plugin widget.
 * WordPress.com REST API: ensure compatibility with WordPress 5.3.
 
 **Bug fixes**
