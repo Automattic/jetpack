@@ -41,14 +41,14 @@ class WordAdsEdit extends Component {
 		);
 		function getExampleAd( formatting ) {
 			switch ( formatting ) {
-				case 'mrec':
-					return rectangleExample;
 				case 'leaderboard':
 					return leaderboardExample;
 				case 'mobile_leaderboard':
 					return mobileLeaderboardExample;
 				case `wideskyscraper`:
 					return wideSkyscraperExample;
+				default:
+					return rectangleExample;
 			}
 		}
 		return (
@@ -65,7 +65,8 @@ class WordAdsEdit extends Component {
 						style={ {
 							width: selectedFormatObject.width,
 							height: selectedFormatObject.height,
-							background: `url( ${ getExampleAd( format ) } )`,
+							backgroundImage: `url( ${ getExampleAd( format ) } )`,
+							backgroundSize: 'cover',
 						} }
 					></div>
 					{ isSelected && adControls }
