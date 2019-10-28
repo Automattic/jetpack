@@ -152,6 +152,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: ensure that the Ad block is compatible with dark themes.
 * Contact Form: revise the email validation function to include length limit.
 * Debug: reduce instances when an inconclusive response would result in an error.
+* Geo-Location: fix spacing for RSS geo-location namespaces.
 * Image CDN: remove wp-dom-ready dependency to improve performance on the frontend.
 * Search: add hooks for when Search falls back to using the local database.
 * Site Logo: ensure that the right stylesheet is loaded depending on your site's language.
