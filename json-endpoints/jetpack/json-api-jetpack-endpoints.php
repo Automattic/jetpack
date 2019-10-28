@@ -1266,7 +1266,7 @@ new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
 ) );
 
 // POST /sites/%s/install-backup-helper-script
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-install-backup-helper-script.php' );
+require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php' );
 new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
 	'description'    => 'Setup a Helper Script, to allow Jetpack Backups to connect to this site',
 	'group'          => '__do_not_document',
@@ -1293,7 +1293,7 @@ new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
 ) );
 
 // POST /sites/%s/delete-backup-helper-script
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-delete-backup-helper-script.php' );
+require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-backup-helper-script-endpoint.php' );
 new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint( array(
 	'description'    => 'Delete a Helper Script',
 	'group'          => '__do_not_document',
