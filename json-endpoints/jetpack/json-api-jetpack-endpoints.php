@@ -1268,23 +1268,23 @@ new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
 // POST /sites/%s/install-backup-helper-script
 require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php' );
 new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
-	'description'    => 'Setup a Helper Script, to allow Jetpack Backups to connect to this site',
-	'group'          => '__do_not_document',
-	'method'         => 'POST',
-	'path'           => '/sites/%s/install-backup-helper-script',
+	'description'             => 'Setup a Helper Script, to allow Jetpack Backup to connect to this site',
+	'group'                   => '__do_not_document',
+	'method'                  => 'POST',
+	'path'                    => '/sites/%s/install-backup-helper-script',
 	'allow_jetpack_site_auth' => true,
-	'path_labels'    => array(
+	'path_labels'             => array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
-	'request_format' => array(
+	'request_format'          => array(
 		'helper' => '(string) Base64-encoded Helper Script contents',
 	),
-	'response_format' => array(
+	'response_format'         => array(
 		'abspath' => '(string) WordPress install path',
 		'path'    => '(string) Path of the helper script',
 		'url'     => '(string) URL to access the helper script',
 	),
-	'example_request_data' => array(
+	'example_request_data'    => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
