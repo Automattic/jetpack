@@ -23,11 +23,12 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 				echo sprintf(
 					wp_kses(
 						/* Translators: first variable is the URL of the web site without the protocol, e.g. mysite.com */
-						__( 'You can access your backups on your site\'s <a href="https://wordpress.com/activity-log/%s" target="_blank">Activity</a> page.', 'jetpack' ),
+						__( 'You can access your backups on your site\'s <a href="https://wordpress.com/activity-log/%s" target="_blank" rel="noopener noreferrer">Activity</a> page.', 'jetpack' ),
 						array(
 							'a' => array(
 								'href'   => array(),
 								'target' => array(),
+								'rel'    => array(),
 							),
 						)
 					),
