@@ -16,8 +16,8 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 	}
 	?>
 	<div class="notice notice-success is-dismissible vp-deactivated">
-		<h2 style="margin-bottom: 0.25em;"><?php _e( 'Jetpack is now handling your backups.', 'jetpack' ); ?></h2>
-		<p><?php _e( 'VaultPress is no longer needed and has been deactivated.', 'jetpack' ); ?></p>
+		<p style="margin-bottom: 0.25em;"><strong><?php esc_html_e( 'Jetpack is now handling your backups.', 'jetpack' ); ?></strong></p>
+		<p><?php esc_html_e( 'VaultPress is no longer needed and has been deactivated.', 'jetpack' ); ?></p>
 	</div>
 	<style>#vp-notice{display:none;}</style>
 	<?php
