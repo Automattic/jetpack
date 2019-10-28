@@ -15,7 +15,7 @@ class Helper_Script_Manager {
 
 	const RELATIVE_INSTALL_LOCATIONS = array( '', 'wp-content', 'wp-content/uploads' );
 	const TEMP_DIRECTORY             = 'jetpack-temp';
-	const HELPER_HEADER              = "<?php /* JPR Helper Script */\n";
+	const HELPER_HEADER              = "<?php /* Jetpack Backup Helper Script */\n";
 	const EXPIRY_TIME                = 8 * 3600; // 8 hours
 	const MAX_FILESIZE               = 1024 * 1024; // 1 MiB
 
