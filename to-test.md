@@ -69,6 +69,16 @@ Once that's done, you can start testing that new searchform on your site, and le
 
 When on WordPress 5.3 and with the SSO feature active, you'll want to make sure the login form always looks good, with no layout issues or missing WordPress.com button when logging out / in.
 
+### Themes
+
+WordPress 5.3 will ship with a brand new default theme, Twenty Twenty. We've updated Jetpack to make sure that widgets, sharing buttons, related posts, and other theme-dependent features like Infinite Scroll work well with that new theme. If you'd like to give that a try, you can enable the Twenty Twenty Theme on your site. To do so:
+
+1. Download a zip of the theme [here](https://github.com/wordpress/twentytwenty).
+2. Unzip the archive, remove `-master` from the unzipped directory, rezip it.
+3. Upload that new zip file to your site, and activate it.
+4. Try to use the theme without changing any of the colors in Apperance > Customize, then try again after applying custom colors.
+5. Make sure that all Jetpack features work well with the new theme.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
