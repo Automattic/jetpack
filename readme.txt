@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Related Posts: remove nofollow attribute from links.
 * Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
 * Search: continued work on upcoming Instant Search features.
+* Shortcodes: add support for tab sizing to Gist shortcodes and embeds.
 * Social Networks: update Facebook logo to match new color.
 * Sync: improve reliability of the information synchronized back to your site when connecting to WordPress.com.
 * Tiled Galleries: ensure that color profile information is retained for all images in Tiled Galleries.
