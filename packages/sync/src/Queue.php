@@ -281,7 +281,7 @@ class Queue {
 	 * exceeds the memory limit, but in that case it will send that item by itself.
 	 *
 	 * @param int $max_memory Maximum memory threshold.
-	 * @param int $max_buffer_size Maximum buffer size.
+	 * @param int $max_buffer_size Maximum buffer size (number of items).
 	 *
 	 * @return Queue_Buffer|bool|int|\WP_Error
 	 */
