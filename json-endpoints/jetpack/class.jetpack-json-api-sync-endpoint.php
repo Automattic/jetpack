@@ -189,7 +189,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
 		}
 
-		$number_of_items = intval( $args[ 'number_of_items' ] );
+		$number_of_items = absint( $args[ 'number_of_items' ] );
 
 		$queue = new Queue( $queue_name );
 
