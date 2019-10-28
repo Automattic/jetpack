@@ -109,7 +109,7 @@ class Queue {
 	/**
 	 * Gets items with particular IDs.
 	 *
-	 * @param array $item_ids Array of Ids names to retrieve.
+	 * @param array $item_ids Array of item IDs to retrieve.
 	 *
 	 * @return array
 	 */
