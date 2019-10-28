@@ -66,7 +66,7 @@ class Queue {
 	 *
 	 * @param array $items Array of events to add to the queue.
 	 *
-	 * @return bool\WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function add_all( $items ) {
 		global $wpdb;
