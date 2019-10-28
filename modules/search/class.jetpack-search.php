@@ -247,11 +247,11 @@ class Jetpack_Search {
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
 					'enableLoadOnScroll' => false,
+					'homeUrl'            => home_url(),
 					'locale'             => str_replace( '_', '-', get_locale() ),
 					'postTypeFilters'    => $widget_options['post_types'],
 					'postTypes'          => $post_type_labels,
 					'siteId'             => Jetpack::get_option( 'id' ),
-					'siteUrl'            => site_url(),
 					'sort'               => $widget_options['sort'],
 					'widgets'            => array_values( $widgets ),
 				);
