@@ -696,7 +696,8 @@ class Queue {
 			return new \WP_Error( 'buffer_not_checked_out', 'There are no checked out buffers' );
 		}
 
-		if ( intval( $checkout_id ) !== intval( $buffer->id ) ) {
+		// TODO: change to strict comparison.
+		if ( $checkout_id != $buffer->id ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 			return new \WP_Error( 'buffer_mismatch', 'The buffer you checked in was not checked out' );
 		}
 
