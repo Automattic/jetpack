@@ -13,6 +13,7 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -24,6 +25,7 @@ import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/editor';
 import HelpMessage from '../../../shared/help-message';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import SubmitButton from '../../../shared/submit-button';
+import Connection from '../../../shared/components/connection';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -68,6 +70,7 @@ class JetpackContactForm extends Component {
 
 		this.state = {
 			toError: error && error.length ? error : null,
+			googleSheetsIntegrationOpen: false,
 		};
 	}
 
@@ -246,6 +249,12 @@ class JetpackContactForm extends Component {
 		return fieldEmailError && fieldEmailError.length > 0;
 	}
 
+	toggleGoogleSheetsIntegration = () => {
+		this.setState( {
+			googleSheetsIntegrationOpen: ! this.state.googleSheetsIntegrationOpen,
+		} );
+	};
+
 	render() {
 		const { className, attributes } = this.props;
 		const { hasFormSettingsSet } = attributes;
@@ -261,6 +270,14 @@ class JetpackContactForm extends Component {
 					</PanelBody>
 					<PanelBody title={ __( 'Confirmation Message', 'jetpack' ) }>
 						{ this.renderConfirmationMessageFields() }
+					</PanelBody>
+					<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
+						<ToggleControl
+							label={ __( 'Google Sheets' ) }
+							checked={ this.state.googleSheetsIntegrationOpen }
+							onChange={ this.toggleGoogleSheetsIntegration }
+						/>
+						{ this.state.googleSheetsIntegrationOpen && <Connection serviceSlug="google_photos" /> }
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>

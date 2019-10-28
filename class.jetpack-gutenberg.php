@@ -7,7 +7,7 @@
  */
 
 use Automattic\Jetpack\Constants;
-
+use Automattic\Jetpack\Connection\Client;
 /**
  * Wrapper function to safely register a gutenberg block type
  *
@@ -646,6 +646,7 @@ class Jetpack_Gutenberg {
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
+				'externalServices' => self::get_external_services(),
 			)
 		);
 
@@ -716,5 +717,35 @@ class Jetpack_Gutenberg {
 		}
 
 		return implode( ' ', $classes );
+	}
+
+	/**
+	 * Get the list of external services from WordPress.com REST API
+	 *
+	 * @since ?
+	 *
+	 * @return array $services List of external services the site can connect to
+	 */
+	public static function get_external_services() {
+		$response = Client::wpcom_json_api_request_as_blog( '/meta/external-services', '1.1' );
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return false;
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		if ( is_wp_error( $body ) ) {
+			return false;
+		}
+
+		// Decode the results.
+		$results = json_decode( $body, true );
+
+		// Bail if there were no results or plan details returned.
+		if ( ! is_array( $results ) || ! isset( $results['services'] ) ) {
+			return false;
+		}
+
+		return $results['services'];
 	}
 }
