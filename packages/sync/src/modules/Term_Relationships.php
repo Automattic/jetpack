@@ -103,9 +103,9 @@ class Term_Relationships extends Module {
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $last_object_enqueued ) {
 		global $wpdb;
 		$term_relationships_full_sync_item_size = Settings::get_setting( 'term_relationships_full_sync_item_size' );
-		$limit                         = min( $max_items_to_enqueue * $term_relationships_full_sync_item_size, self::QUERY_LIMIT );
-		$items_enqueued_count          = 0;
-		$last_object_enqueued          = $last_object_enqueued ? $last_object_enqueued : array(
+		$limit                                  = min( $max_items_to_enqueue * $term_relationships_full_sync_item_size, self::QUERY_LIMIT );
+		$items_enqueued_count                   = 0;
+		$last_object_enqueued                   = $last_object_enqueued ? $last_object_enqueued : array(
 			'object_id'        => self::MAX_INT,
 			'term_taxonomy_id' => self::MAX_INT,
 		);
