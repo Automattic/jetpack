@@ -20,10 +20,11 @@ class VaultPress_Hotfixes {
 		if ( version_compare( $wp_version, '3.1.3', '<' ) ) {
 			add_filter( 'sanitize_file_name', array( $this, 'r17990' ) );
 
-			if ( !empty( $_POST ) )
+			if ( ! empty( $_POST ) ) {
 				$this->r17994( $_POST );
-			// Protect add_meta, update_meta used by the XML-RPC API
-			add_filter( 'wp_xmlrpc_server_class', create_function( '$class', 'return \'VaultPress_XMLRPC_Server_r17994\';' ) );
+			}
+			// Protect add_meta, update_meta used by the XML-RPC API.
+			add_filter( 'wp_xmlrpc_server_class', 'r17994_xmlrpc_server' );
 
 			// clean post_mime_type and guid (r17994)
 			add_filter( 'pre_post_mime_type', array( $this, 'r17994_sanitize_mime_type' ) );
@@ -93,7 +94,7 @@ class VaultPress_Hotfixes {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'disable_jetpack_xmlrpc_methods_293' ), 20, 3 );
 		add_filter( 'xmlrpc_methods', array( $this, 'disable_xmlrpc_methods_293' ), 20 );
 
-		// Protect All-in-one SEO from non-authorized users making changes, and script injection attacks.          
+		// Protect All-in-one SEO from non-authorized users making changes, and script injection attacks.
 		add_action( 'wp_ajax_aioseop_ajax_save_meta', array( $this, 'protect_aioseo_ajax' ), 1 );
 
 		// Protect The MailPoet plugin (wysija-newsletters) from remote file upload. Affects versions <= 2.6.6
@@ -101,24 +102,24 @@ class VaultPress_Hotfixes {
 
 		// Protect the Revolution Slider plugin (revslider) from local file inclusion. Affects versions < 4.2
 		add_action( 'init', array( $this , 'protect_revslider_lfi' ), 1 );
-		
+
 		// Protect WooCommerce from object injection via PayPal IPN notifications. Affects 2.0.20 -> 2.3.10
 		add_action( 'init', array( $this , 'protect_woocommerce_paypal_object_injection' ), 1 );
 
 		// Protect Jetpack from comments-based XSS attack
 		add_action( 'plugins_loaded', array( $this, 'protect_jetpack_402_from_oembed_xss' ), 1 );
-		
+
 		if ( version_compare(  $wp_version, '3.1', '>=') && version_compare( $wp_version, '4.3', '<=' ) ) {
 			if ( is_admin() ) {
 				add_filter( 'user_email', array( $this, 'patch_user_email' ), 10 , 3 );
 			}
-			
+
 			remove_shortcode( 'wp_caption' );
 			remove_shortcode( 'caption' );
 			add_shortcode( 'wp_caption', array( $this, 'filtered_caption_shortcode' ) );
 			add_shortcode( 'caption', array( $this, 'filtered_caption_shortcode' ) );
 		}
-		
+
 		// Protect Akismet < 3.1.5 from stored XSS in admin page
 		add_filter( 'init', array( $this, 'protect_akismet_comment_xss' ), 50 );
 
@@ -127,7 +128,7 @@ class VaultPress_Hotfixes {
 			if ( version_compare( $wp_version, '4.4', '>=' ) ) {
 				add_filter( 'rest_pre_dispatch', array( $this, 'protect_rest_type_juggling' ), 10, 3 );
 			}
-			
+
 			//	Protect WordPress 4.0 - 4.7.1 against faulty youtube embeds
 			if ( version_compare( $wp_version, '4.0', '>=' ) ) {
 				$this->protect_youtube_embeds();
@@ -226,7 +227,7 @@ class VaultPress_Hotfixes {
 	function filter_long_comment_xss( $commentdata ) {
 		if ( strlen( $commentdata['comment_content'] ) > 65500 )
 			wp_die( 'Comment too long', 'Invalid comment' );
-		
+
 		return $commentdata;
 	}
 
@@ -776,17 +777,17 @@ EOD;
 				die( 'file does not exist' );
 		}
 	}
-	
+
 	// Protect WooCommerce 2.0.20 - 2.3.10 from PayPal IPN object injection attack.
 	function protect_woocommerce_paypal_object_injection() {
 		global $woocommerce;
 		if ( ! isset( $woocommerce ) )
 			return;
-		
+
 		$wc_version = $woocommerce->version;
 		if ( version_compare( $wc_version, '2.0.20', '<' ) || version_compare( $wc_version, '2.3.11', '>=' ) )
 			return;
-		
+
 		if ( isset( $_REQUEST['paypalListener'] ) ) {
 			$check_fields = array( 'custom', 'cm' );
 			foreach ( $check_fields as $field ) {
@@ -805,16 +806,16 @@ EOD;
 
 		return $value;
 	}
-	
+
 	// Protect WordPress < 4.3.1 from evil tags inside caption shortcodes
 	function filtered_caption_shortcode( $attr, $content = null ) {
 		if ( isset( $attr['caption'] ) && strpos( $attr['caption'], '<' ) !== false ) {
 			$attr['caption'] = wp_kses( $attr['caption'], 'post' );
 		}
-		
+
 		return img_caption_shortcode( $attr, $content );
 	}
-	
+
 	// Protect Akismet < 3.1.5 from stored XSS in admin page
 	function protect_akismet_comment_xss() {
 		remove_filter( 'comment_text', array( 'Akismet_Admin', 'text_add_link_class' ) );
@@ -836,6 +837,10 @@ if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && $needs_class_fix ) {
 			}
 			parent::set_custom_fields( $post_id, $fields );
 		}
+	}
+
+	function r17994_xmlrpc_server() {
+		return 'VaultPress_XMLRPC_Server_r17994';
 	}
 }
 
