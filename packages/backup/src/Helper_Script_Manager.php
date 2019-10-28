@@ -110,6 +110,29 @@ class Helper_Script_Manager {
 	 * @static
 	 */
 	public static function cleanup_expired_helper_scripts() {
+		self::cleanup_helper_scripts( time() - self::EXPIRY_TIME );
+	}
+
+	/**
+	 * Search for and delete all Helper Scripts. Used during uninstallation.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function delete_all_helper_scripts() {
+		self::cleanup_helper_scripts( null );
+	}
+
+	/**
+	 * Search for and delete Helper Scripts. If an $expiry_time is specified, only delete Helper Scripts
+	 * with an mtime older than $expiry_time. Otherwise, delete them all.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param int|null $expiry_time If specified, only delete scripts older than $expiry_time
+	 */
+	public static function cleanup_helper_scripts( $expiry_time = null ) {
 		foreach ( self::RELATIVE_INSTALL_LOCATIONS as $relative_dir ) {
 			$absolute_dir = trailingslashit( ABSPATH ) . $relative_dir;
 			$temp_dir     = trailingslashit( $absolute_dir ) . self::TEMP_DIRECTORY;
@@ -118,10 +141,8 @@ class Helper_Script_Manager {
 				// Find expired helper scripts and delete them.
 				$helper_scripts = glob( trailingslashit( $temp_dir ) . 'jp-helper-*.php' );
 				if ( is_array( $helper_scripts ) ) {
-					$expiry_threshold = time() - self::EXPIRY_TIME;
-
 					foreach ( $helper_scripts as $filename ) {
-						if ( filemtime( $filename ) < $expiry_threshold ) {
+						if ( null === $expiry_time || filemtime( $filename ) < $expiry_time ) {
 							self::delete_helper_script( $filename );
 						}
 					}
