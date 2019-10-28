@@ -212,7 +212,7 @@ class Queue {
 	 *
 	 * @param int $buffer_size Size of the buffer to checkout.
 	 *
-	 * @return Queue_Buffer|bool|int|\WP_Error
+	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	public function checkout( $buffer_size ) {
 		if ( $this->get_checkout_id() ) {
@@ -280,7 +280,7 @@ class Queue {
 	 * The only way it will load more items than $max_size is if a single queue item
 	 * exceeds the memory limit, but in that case it will send that item by itself.
 	 *
-	 * @param int $max_memory Maximum memory threshold.
+	 * @param int $max_memory (bytes) Maximum memory threshold.
 	 * @param int $max_buffer_size Maximum buffer size (number of items).
 	 *
 	 * @return Queue_Buffer|bool|int|\WP_Error
