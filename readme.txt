@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Social Networks: update Facebook logo to match new color.
 * Sync: improve reliability of the information synchronized back to your site when connecting to WordPress.com.
 * Tiled Galleries: ensure that color profile information is retained for all images in Tiled Galleries.
+* WordAds: improve speed & resource use of Ads' loading scripts.
 
 **Improved compatibility**
 
