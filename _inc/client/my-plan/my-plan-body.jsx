@@ -278,7 +278,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Spam Filtering' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Anti-spam' ) }</h3>
 								<p>{ __( 'Spam is automatically blocked from your comments.' ) }</p>
 								{ this.props.isPluginInstalled( 'akismet/akismet.php' ) &&
 								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
