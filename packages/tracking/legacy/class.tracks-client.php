@@ -50,6 +50,13 @@ class Jetpack_Tracks_Client {
 	const VERSION         = '0.3';
 
 	/**
+	 * Stores the Terms of Service Object Reference.
+	 *
+	 * @var null
+	 */
+	private static $terms_of_service = null;
+
+	/**
 	 * Record an event.
 	 *
 	 * @param  mixed $event Event object to send to Tracks. An array will be cast to object. Required.
@@ -57,7 +64,12 @@ class Jetpack_Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	public static function record_event( $event ) {
-		if ( ! Jetpack::jetpack_tos_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
+		if ( ! self::$terms_of_service ) {
+			self::$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
+		}
+
+		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
+		if ( ! self::$terms_of_service->has_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
 			return false;
 		}
 

@@ -1,3 +1,5 @@
+@import '../scss/calypso-colors';
+
 .jp-landing__plans.dops-card {
 	padding: 0;
 }
@@ -56,8 +58,9 @@
 	box-sizing: border-box;
 	margin: rem( 8px );
 	background-color: $white;
-	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
-		0 1px 2px lighten( $gray, 30% );
+	box-shadow:
+		0 0 0 1px $light-gray-700,
+		0 1px 1px 1px  rgba(0,0,0,.04);
 
 	&:last-child {
 		max-width: 100%;

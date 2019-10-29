@@ -253,6 +253,11 @@ abstract class Module {
 			$previous_interval_end = end( $ids );
 		}
 
+		if ( $wpdb->last_error ) {
+			// return the values that were passed in so all these chunks get retried.
+			return array( $max_items_to_enqueue, $state );
+		}
+
 		return array( $chunk_count, true );
 	}
 

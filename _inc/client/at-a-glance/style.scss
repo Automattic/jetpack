@@ -1,5 +1,7 @@
 // This document contains styles that influence the styles of Stats & At a Glance, overall.
 // For more precise styles, dig into the styles of each component. ie. dash-item
+@import '../scss/calypso-colors';
+
 .jp-at-a-glance {
 	margin-bottom: rem( 48px );
 }
@@ -21,7 +23,7 @@
 .jp-at-a-glance__stats-inactive {
 	padding: rem( 16px );
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		display: flex;
 		flex-wrap: nowrap;
 		flex-direction: row;
@@ -30,12 +32,11 @@
 }
 
 .jp-at-a-glance__stats-inactive-icon {
-
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		display: none;
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-basis: 10%;
 	}
 }
@@ -44,11 +45,11 @@
 	font-size: rem( 14px );
 	line-height: 1.5;
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		padding: 0 0 rem( 16px );
 	}
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-basis: 50%;
 		padding: 0 rem( 16px );
 	}
@@ -57,7 +58,7 @@
 .jp-at-a-glance__stats-inactive-button {
 	text-align: left;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-basis: 40%;
 		text-align: right;
 	}
@@ -77,21 +78,21 @@
 .jp-at-a-glance__stats-bottom {
 	margin: rem( 32px ) 0 0;
 
-	@include breakpoint( "<480px" ) {
-		box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	@include breakpoint( '<480px' ) {
+		box-shadow: 0 0 0 1px $light-gray-700;
 	}
 }
 
 .jp-at-a-glance__stats-summary {
 	text-align: center;
-	border-top: 1px $gray-light solid;
+	border-bottom: 1px $light-gray-700 solid;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-wrap: nowrap;
 		display: flex;
 		flex-direction: row;
 	}
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		display: block;
 	}
 }
@@ -100,24 +101,24 @@
 .jp-at-a-glance__stats-summary-bestday {
 	flex-basis: 25%;
 	padding: rem( 16px );
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	box-shadow: 0 0 0 1px $light-gray-700;
 }
 
 .jp-at-a-glance__stats-summary-today {
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		margin-top: rem( -1px );
 	}
 }
 
 .jp-at-a-glance__stats-summary-bestday {
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		margin: 0 rem( 1px );
 	}
 }
 
 .jp-at-a-glance__stats-summary-bestday,
 .jp-at-a-glance__stats-summary-alltime {
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		margin-top: rem( 1px );
 	}
 }
@@ -125,10 +126,10 @@
 .jp-at-a-glance__stats-summary-alltime {
 	flex-basis: 50%;
 	padding: rem( 16px );
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px lighten( $gray, 30% );
+	box-shadow: 0 0 0 1px $light-gray-700;
 
-	@include breakpoint( ">660px" ) {
-		max-width: 40%; // for IE 10 since it doesn't recognize flex-basis
+	@include breakpoint( '>660px' ) {
+		max-width: 50%; // for IE 10 since it doesn't recognize flex-basis
 		display: flex;
 		flex-grow: 1;
 		flex-shrink: 1;
@@ -144,20 +145,19 @@
 	padding: rem( 16px );
 	background-color: lighten( $gray, 35% );
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
 		align-items: center;
 	}
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		display: block;
 	}
 }
 
 .jp-at-a-glance__stats-cta-description {
-
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-basis: 30%;
 	}
 }
@@ -173,13 +173,12 @@
 }
 
 .jp-at-a-glance__stats-cta-buttons {
-
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		text-align: right;
 		flex-basis: 70%;
 	}
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		text-align: center;
 
 		.dops-button {
@@ -209,7 +208,7 @@
 		outline: 0;
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include breakpoint( '<480px' ) {
 		margin-left: 0;
 		margin-right: rem( 16px );
 	}
@@ -224,7 +223,7 @@
 	&:visited.is-current,
 	&:focus.is-current {
 		color: #23282d;
-		text-decoration:none;
+		text-decoration: none;
 	}
 }
 
@@ -237,7 +236,7 @@
 .jp-at-a-glance__item-grid {
 	display: flex;
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		display: block; // don't need flexbox on smaller screens
 	}
 }
@@ -247,11 +246,11 @@
 	display: flex;
 	min-width: 0;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-basis: 50%;
 		margin-bottom: rem( 16px );
 	}
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<660px' ) {
 		margin-bottom: rem( 12px );
 	}
 
@@ -274,7 +273,7 @@
 			a.dops-notice__action {
 				margin-left: 0;
 				padding-left: 0;
-				@include breakpoint( "<480px" ) {
+				@include breakpoint( '<480px' ) {
 					text-transform: none;
 				}
 			}
@@ -292,11 +291,11 @@
 .jp-at-a-glance__left {
 	display: flex;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		margin-right: rem( 16px );
 
 		&:last-child {
-			flex-basis: calc( 50% - .5rem ); // rem function doesn't work in calc()
+			flex-basis: calc( 50% - 0.5rem ); // rem function doesn't work in calc()
 		}
 	}
 }
@@ -331,7 +330,7 @@
 }
 .jp-connection-settings__info {
 	.gridicon {
-		opacity: .6;
+		opacity: 0.6;
 	}
 	.gridicon,
 	.jp-connection-settings__site-icon {
@@ -360,7 +359,7 @@
 }
 
 .jp-connection-settings__modal.dops-modal {
-	max-width: 450px;
+	max-width: 635px;
 }
 
 .jp-connection-settings__modal-body {

@@ -815,29 +815,31 @@ class Defaults {
 		return $status->is_multi_network();
 	}
 
-	static $default_taxonomy_whitelist       = array();
-	static $default_dequeue_max_bytes        = 500000; // very conservative value, 1/2 MB
-	static $default_upload_max_bytes         = 600000; // a little bigger than the upload limit to account for serialization
-	static $default_upload_max_rows          = 500;
-	static $default_sync_wait_time           = 10; // seconds, between syncs
-	static $default_sync_wait_threshold      = 5; // only wait before next send if the current send took more than X seconds
-	static $default_enqueue_wait_time        = 10; // wait between attempting to continue a full sync, via requests
-	static $default_max_queue_size           = 1000;
-	static $default_max_queue_lag            = 900; // 15 minutes
-	static $default_queue_max_writes_sec     = 100; // 100 rows a second
-	static $default_post_types_blacklist     = array();
-	static $default_taxonomies_blacklist     = array();
-	static $default_post_meta_whitelist      = array();
-	static $default_comment_meta_whitelist   = array();
-	static $default_disable                  = 0; // completely disable sending data to wpcom
-	static $default_network_disable          = 0; // completely disable sending data to wpcom network wide
-	static $default_sync_via_cron            = 1; // use cron to sync
-	static $default_render_filtered_content  = 0; // render post_filtered_content
-	static $default_max_enqueue_full_sync    = 100; // max number of items to enqueue at a time when running full sync
-	static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue
-	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
-	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
-	static $default_sync_queue_lock_timeout  = 120; // 2 minutes
-	static $default_cron_sync_time_limit     = 30; // 30 seconds
-
+	static $default_taxonomy_whitelist                     = array();
+	static $default_dequeue_max_bytes                      = 500000; // very conservative value, 1/2 MB
+	static $default_upload_max_bytes                       = 600000; // a little bigger than the upload limit to account for serialization
+	static $default_upload_max_rows                        = 500;
+	static $default_sync_wait_time                         = 10; // seconds, between syncs
+	static $default_sync_wait_threshold                    = 5; // only wait before next send if the current send took more than X seconds
+	static $default_enqueue_wait_time                      = 10; // wait between attempting to continue a full sync, via requests
+	static $default_max_queue_size                         = 1000;
+	static $default_max_queue_lag                          = 900; // 15 minutes
+	static $default_queue_max_writes_sec                   = 100; // 100 rows a second
+	static $default_post_types_blacklist                   = array();
+	static $default_taxonomies_blacklist                   = array();
+	static $default_post_meta_whitelist                    = array();
+	static $default_comment_meta_whitelist                 = array();
+	static $default_disable                                = 0; // completely disable sending data to wpcom
+	static $default_network_disable                        = 0; // completely disable sending data to wpcom network wide
+	static $default_sync_via_cron                          = 1; // use cron to sync
+	static $default_render_filtered_content                = 0; // render post_filtered_content
+	static $default_max_enqueue_full_sync                  = 100; // max number of items to enqueue at a time when running full sync
+	static $default_max_queue_size_full_sync               = 1000; // max number of total items in the full sync queue
+	static $default_sync_callables_wait_time               = MINUTE_IN_SECONDS; // seconds before sending callables again
+	static $default_sync_constants_wait_time               = HOUR_IN_SECONDS; // seconds before sending constants again
+	static $default_sync_queue_lock_timeout                = 120; // 2 minutes
+	static $default_cron_sync_time_limit                   = 30; // 30 seconds
+	static $default_term_relationships_full_sync_item_size = 100;
+	static $default_sync_sender_enabled                    = 1; // Should send incremental sync items
+	static $default_full_sync_sender_enabled               = 1; // Should send full sync items
 }

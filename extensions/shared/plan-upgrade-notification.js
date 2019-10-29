@@ -11,7 +11,7 @@ import { parse as parseUrl } from 'url';
  * Internal dependencies
  */
 import getSiteFragment from './get-site-fragment';
-import { isSimpleSite } from './site-type-utils';
+import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
  * Returns a URL where the current site's plan can be viewed from.
@@ -23,7 +23,7 @@ function getPlanUrl() {
 	const siteFragment = getSiteFragment();
 
 	if ( undefined !== typeof window && window.location && siteFragment ) {
-		if ( isSimpleSite() ) {
+		if ( isSimpleSite() || isAtomicSite() ) {
 			return `https://wordpress.com/plans/my-plan/${ siteFragment }`;
 		}
 

@@ -29,27 +29,30 @@ class Settings {
 	 * @var array
 	 */
 	public static $valid_settings = array(
-		'dequeue_max_bytes'        => true,
-		'upload_max_bytes'         => true,
-		'upload_max_rows'          => true,
-		'sync_wait_time'           => true,
-		'sync_wait_threshold'      => true,
-		'enqueue_wait_time'        => true,
-		'max_queue_size'           => true,
-		'max_queue_lag'            => true,
-		'queue_max_writes_sec'     => true,
-		'post_types_blacklist'     => true,
-		'taxonomies_blacklist'     => true,
-		'disable'                  => true,
-		'network_disable'          => true,
-		'render_filtered_content'  => true,
-		'post_meta_whitelist'      => true,
-		'comment_meta_whitelist'   => true,
-		'max_enqueue_full_sync'    => true,
-		'max_queue_size_full_sync' => true,
-		'sync_via_cron'            => true,
-		'cron_sync_time_limit'     => true,
-		'known_importers'          => true,
+		'dequeue_max_bytes'                      => true,
+		'upload_max_bytes'                       => true,
+		'upload_max_rows'                        => true,
+		'sync_wait_time'                         => true,
+		'sync_wait_threshold'                    => true,
+		'enqueue_wait_time'                      => true,
+		'max_queue_size'                         => true,
+		'max_queue_lag'                          => true,
+		'queue_max_writes_sec'                   => true,
+		'post_types_blacklist'                   => true,
+		'taxonomies_blacklist'                   => true,
+		'disable'                                => true,
+		'network_disable'                        => true,
+		'render_filtered_content'                => true,
+		'post_meta_whitelist'                    => true,
+		'comment_meta_whitelist'                 => true,
+		'max_enqueue_full_sync'                  => true,
+		'max_queue_size_full_sync'               => true,
+		'sync_via_cron'                          => true,
+		'cron_sync_time_limit'                   => true,
+		'known_importers'                        => true,
+		'term_relationships_full_sync_item_size' => true,
+		'sync_sender_enabled'                    => true,
+		'full_sync_sender_enabled'               => true,
 	);
 
 	/**
@@ -440,4 +443,19 @@ class Settings {
 	public static function set_is_sending( $is_sending ) {
 		self::$is_sending = $is_sending;
 	}
+
+	/**
+	 * Whether should send from the queue
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param string $queue_id The queue identifier.
+	 *
+	 * @return boolean Whether sync is enabled.
+	 */
+	public static function is_sender_enabled( $queue_id ) {
+		return (bool) self::get_setting( $queue_id . '_sender_enabled' );
+	}
+
 }

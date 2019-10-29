@@ -17,3 +17,12 @@ function getSiteType() {
 export function isSimpleSite() {
 	return getSiteType() === 'simple';
 }
+
+/**
+ * Check if environment is Atomic site.
+ *
+ * @return {boolean} True for Atomic sites.
+ */
+export function isAtomicSite() {
+	return getSiteType() === 'atomic';
+}

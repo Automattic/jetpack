@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 
 /**
  * The main class for the Jetpack Search module.
@@ -207,19 +208,52 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Loads assets for Jetpack Search Prototype featuring Search As You Type experience.
+	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		if ( defined( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
 			$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
 				$script_version = self::get_asset_version( $script_relative_path );
 				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
-				$_blog_id = Jetpack::get_option( 'id' );
+				$this->load_and_initialize_tracks();
+
+				$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
+				if ( is_array( $widget_options ) ) {
+					$widget_options = end( $widget_options );
+				}
+
+				$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
+				$widgets = array();
+				foreach ( $filters as $key => $filter ) {
+					if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
+						$widgets[ $filter['widget_id'] ]['filters']   = array();
+						$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
+					}
+					$new_filter                                   = $filter;
+					$new_filter['filter_id']                      = $key;
+					$widgets[ $filter['widget_id'] ]['filters'][] = $new_filter;
+				}
+
+				$post_type_objs   = get_post_types( array(), 'objects' );
+				$post_type_labels = array();
+				foreach ( $post_type_objs as $key => $obj ) {
+					$post_type_labels[ $key ] = array(
+						'singular_name' => $obj->labels->singular_name,
+						'name'          => $obj->labels->name,
+					);
+				}
 				// This is probably a temporary filter for testing the prototype.
 				$options = array(
-					'siteId' => $_blog_id,
+					'enableLoadOnScroll' => false,
+					'homeUrl'            => home_url(),
+					'locale'             => str_replace( '_', '-', get_locale() ),
+					'postTypeFilters'    => $widget_options['post_types'],
+					'postTypes'          => $post_type_labels,
+					'siteId'             => Jetpack::get_option( 'id' ),
+					'sort'               => $widget_options['sort'],
+					'widgets'            => array_values( $widgets ),
 				);
 				/**
 				 * Customize Instant Search Options.
@@ -234,7 +268,7 @@ class Jetpack_Search {
 
 				wp_localize_script(
 					'jetpack-instant-search',
-					'jetpack_instant_search_options',
+					'JetpackInstantSearchOptions',
 					$options
 				);
 			}
@@ -246,6 +280,13 @@ class Jetpack_Search {
 				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
 		}
+	}
+
+	/**
+	 * Loads scripts for Tracks analytics library
+	 */
+	public function load_and_initialize_tracks() {
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**
