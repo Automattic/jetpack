@@ -114,7 +114,7 @@ class SearchResultMinimal extends Component {
 		}
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 		return (
-			<div className="jetpack-instant-search__result-minimal">
+			<div className="jetpack-instant-search__result-minimal" role="listitem">
 				<span className="jetpack-instant-search__result-minimal-date">
 					{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
 						dateStyle: 'short',
