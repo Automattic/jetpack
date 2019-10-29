@@ -30,19 +30,19 @@ class Gridicon extends Component {
 			default:
 				return null;
 			case 'gridicons-audio':
-				return <title>{ __( 'Has audio' ) }</title>;
+				return <title>{ __( 'Has audio.' ) }</title>;
 			case 'gridicons-calendar':
-				return <title>{ __( 'Is an event' ) }</title>;
+				return <title>{ __( 'Is an event.' ) }</title>;
 			case 'gridicons-cart':
-				return <title>{ __( 'Is a product' ) }</title>;
+				return <title>{ __( 'Is a product.' ) }</title>;
 			case 'gridicons-comment':
-				return <title>{ __( 'Matching comment' ) }</title>;
+				return <title>{ __( 'Matching comment.' ) }</title>;
 			case 'gridicons-folder':
 				return <title>{ __( 'Category' ) }</title>;
 			case 'gridicons-image-multiple':
-				return <title>{ __( 'Has multiple images' ) }</title>;
+				return <title>{ __( 'Has multiple images.' ) }</title>;
 			case 'gridicons-image':
-				return <title>{ __( 'Has an image' ) }</title>;
+				return <title>{ __( 'Has an image.' ) }</title>;
 			case 'gridicons-page':
 				return <title>{ __( 'Page' ) }</title>;
 			case 'gridicons-jetpack-search':
@@ -51,7 +51,7 @@ class Gridicon extends Component {
 			case 'gridicons-tag':
 				return <title>{ __( 'Tag' ) }</title>;
 			case 'gridicons-video':
-				return <title>{ __( 'Has a video' ) }</title>;
+				return <title>{ __( 'Has a video.' ) }</title>;
 		}
 	}
 
