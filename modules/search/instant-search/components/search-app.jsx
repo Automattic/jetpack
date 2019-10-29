@@ -69,9 +69,9 @@ class SearchApp extends Component {
 	prepareDomForMounting() {
 		// Clean up the page prior to mounting component
 		hideElements( this.props.themeOptions.elementSelectors );
-		document
-			.querySelectorAll( '.jetpack-instant-search-wrapper' )
-			.forEach( widget => removeChildren( widget ) );
+		//		document
+		//			.querySelectorAll( '.jetpack-instant-search-wrapper' )
+		//			.forEach( widget => removeChildren( widget ) );
 		document
 			.querySelectorAll( this.props.themeOptions.searchFormSelector )
 			.forEach( searchForm => removeChildren( searchForm ) );

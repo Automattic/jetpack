@@ -6,7 +6,7 @@
  * First Introduced: 5.0
  * Sort Order: 34
  * Free: false
- * Requires Connection: Yes
+ * Requires Connection: No
  * Auto Activate: No
  * Feature: Search
  * Additional Search Queries: search, elastic, elastic search, elasticsearch, fast search, search results, search performance, google search

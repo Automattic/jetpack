@@ -153,7 +153,12 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
+		if ( Jetpack::is_development_mode() ) {
+			require_once __DIR__ . '/class.jetpack-search-local-endpoint.php';
+
+			$jetpack_search_local_endpoint = new Jetpack_Search_Local_Endpoint();
+			add_action( 'rest_api_init', array( $jetpack_search_local_endpoint, 'register_routes' ) );
+		} elseif ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
