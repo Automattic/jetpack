@@ -374,7 +374,7 @@ class Queue {
 	/**
 	 * Close the buffer.
 	 *
-	 * @param Queue_Buffer $buffer Queue_Buffer object.
+	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
 	 * @param null|array   $ids_to_remove Ids to remove from the queue.
 	 *
 	 * @return bool|\WP_Error
