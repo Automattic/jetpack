@@ -131,7 +131,7 @@ https://github.com/thoughtbot/bourbon
 .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
   position: relative;
   bottom: 0;
-  box-shadow: 0 0 0 1px rgba(213, 213, 213, 0.5), 0 1px 2px #eeeeee;
+  box-shadow: 0 0 0 1px #ccd0d4, 0 1px 1px 1px rgba(0, 0, 0, 0.04);
   display: none;
 }
 
@@ -310,7 +310,8 @@ https://github.com/thoughtbot/bourbon
 .updated.jp-wpcom-connect__container {
   border-left: none;
   padding: 0;
-  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+  border: 1px solid #ccd0d4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 }
 
 @media screen and (max-width: 782px) {
@@ -487,6 +488,10 @@ https://github.com/thoughtbot/bourbon
 .jp-banner__button-container .dops-button.is-primary:hover, .jp-banner__button-container .dops-button.is-primary:focus {
   background: #00a523;
   border-color: #008b1d;
+}
+
+.jp-banner__button-container .dops-button.is-primary:focus {
+  box-shadow: 0 0 0 1px white, 0 0 0 3px #008b1d;
 }
 
 /*# sourceMappingURL=jetpack-banners.css.map */

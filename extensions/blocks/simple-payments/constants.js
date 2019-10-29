@@ -2,11 +2,14 @@ export const SIMPLE_PAYMENTS_PRODUCT_POST_TYPE = 'jp_pay_product';
 
 export const DEFAULT_CURRENCY = 'USD';
 
-// https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
-// If this list changes, Simple Payments in Jetpack must be updated as well.
-// See https://github.com/Automattic/jetpack/blob/master/modules/simple-payments/simple-payments.php
-
 /**
+ * Currencies should be supported by PayPal:
+ * @link https://developer.paypal.com/docs/api/reference/currency-codes/
+ *
+ * List has to be in sync with list at the widget's backend side and API's backend side:
+ * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/widgets/simple-payments.php#L19-L44
+ * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/simple-payments/simple-payments.php#L386-L415
+ *
  * Indian Rupee not supported because at the time of the creation of this file
  * because it's limited to in-country PayPal India accounts only.
  * Discussion: https://github.com/Automattic/wp-calypso/pull/28236

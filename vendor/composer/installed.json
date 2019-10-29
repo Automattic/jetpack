@@ -105,6 +105,30 @@
         "description": "Creates a custom autoloader for a plugin or theme."
     },
     {
+        "name": "automattic/jetpack-backup",
+        "version": "dev-add/jetpack-backups-helper-apis",
+        "version_normalized": "dev-add/jetpack-backups-helper-apis",
+        "dist": {
+            "type": "path",
+            "url": "./packages/backup",
+            "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "actions.php"
+            ],
+            "psr-4": {
+                "Automattic\\Jetpack\\Backup\\": "src/"
+            }
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Tools to assist with backing up Jetpack sites."
+    },
+    {
         "name": "automattic/jetpack-compat",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -430,6 +454,42 @@
         "description": "Everything needed to allow syncing to the WP.com infrastructure."
     },
     {
+        "name": "automattic/jetpack-terms-of-service",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "dist": {
+            "type": "path",
+            "url": "./packages/terms-of-service",
+            "reference": "6f53f2987be1c025edcd7820759df50c134065e6"
+        },
+        "require": {
+            "automattic/jetpack-connection": "@dev",
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-status": "@dev"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Everything need to manage the terms of service state"
+    },
+    {
         "name": "automattic/jetpack-tracking",
         "version": "dev-master",
         "version_normalized": "9999999-dev",
@@ -439,7 +499,8 @@
             "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
         },
         "require": {
-            "automattic/jetpack-options": "@dev"
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-terms-of-service": "@dev"
         },
         "require-dev": {
             "php-mock/php-mock": "^2.1",

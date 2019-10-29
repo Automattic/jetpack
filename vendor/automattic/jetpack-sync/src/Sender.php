@@ -310,6 +310,10 @@ class Sender {
 			return new \WP_Error( 'is_importing' );
 		}
 
+		if ( ! Settings::is_sender_enabled( $queue->id ) ) {
+			return new \WP_Error( 'sender_disabled_for_queue_' . $queue->id );
+		}
+
 		// Don't sync if we are throttled.
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
 			return new \WP_Error( 'sync_throttled' );

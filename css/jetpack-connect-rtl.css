@@ -40,28 +40,4 @@ https://github.com/thoughtbot/bourbon
   display: block;
 }
 
-.jp-connect-full__button-container .dops-button.jp-connect-button.is-primary {
-  background: #00aadc;
-  border-color: #0087be;
-  color: white;
-}
-
-.jp-connect-full__button-container .dops-button.jp-connect-button.is-primary:focus {
-  outline: 0;
-  border-color: #00aadc;
-  box-shadow: 0 0 0 2px #78dcfa;
-}
-
-.jp-connect-full__button-container .dops-button.jp-connect-button.is-primary:hover, .jp-connect-full__button-container .dops-button.jp-connect-button.is-primary:focus {
-  background: #00aadc;
-  border-color: #005082;
-  color: white;
-}
-
-.jp-connect-full__button-container .dops-button.jp-connect-button.is-primary[disabled], .jp-connect-full__button-container .dops-button.jp-connect-button.is-primary:disabled {
-  background: #66ccea;
-  border-color: #6696b4;
-  color: white;
-}
-
 /*# sourceMappingURL=jetpack-connect-rtl.css.map */

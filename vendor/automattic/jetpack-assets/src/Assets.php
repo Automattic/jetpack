@@ -1,10 +1,23 @@
 <?php
+/**
+ * Jetpack Assets package.
+ *
+ * @package  automattic/jetpack-assets
+ */
+
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
+/**
+ * Class Assets
+ */
 class Assets {
-	// static-only class
+	/**
+	 * Constructor.
+	 *
+	 * Static-only class, so nothing here.
+	 */
 	private function __construct() {}
 
 	/**
@@ -16,8 +29,8 @@ class Assets {
 	 *
 	 * @since 5.6.0
 	 *
-	 * @param string $min_path
-	 * @param string $non_min_path
+	 * @param string $min_path minified path.
+	 * @param string $non_min_path non-minified path.
 	 * @return string The URL to the file
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {

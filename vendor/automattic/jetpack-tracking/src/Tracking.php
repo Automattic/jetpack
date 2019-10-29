@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Terms_Of_Service;
+
 /**
  * The Tracking class, used to record events in wpcom
  */
@@ -100,18 +102,9 @@ class Tracking {
 		if ( $user instanceof \WP_User && 'wptests_capabilities' === $user->cap_key ) {
 			return false;
 		}
-
+		$terms_of_service = new Terms_Of_Service();
 		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
-		if (
-			/**
-			 * Filter whether ToS were accepted on this site.
-			 *
-			 * @since 7.9.0
-			 *
-			 * @param bool $tos_agreed Was ToS accepted for this site. Defaults to false.
-			 */
-			apply_filters( 'jetpack_tos_agreed', false )
-		) {
+		if ( ! $terms_of_service->has_agreed() ) {
 			return false;
 		}
 

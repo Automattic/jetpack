@@ -4,7 +4,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20190204';
+	const VERSION   = '20191011';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
@@ -163,7 +163,8 @@ class Jetpack_RelatedPosts {
 
 	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
-	 * Will skip adding the target if the post content contains a Related Posts block.
+	 * Will skip adding the target if the post content contains a Related Posts block or if the 'get_the_excerpt'
+	 * hook is in the current filter list.
 	 *
 	 * @filter the_content
 	 *
@@ -172,7 +173,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( has_block( 'jetpack/related-posts', $content ) ) {
+		if ( has_block( 'jetpack/related-posts' ) ) {
 			return $content;
 		}
 
@@ -292,18 +293,18 @@ EOT;
 		);
 
 		$item_markup .= sprintf(
-			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" rel="%4$s">%3$s</a></li>',
+			'<li class="jp-related-posts-i2__post-link"><a id="%1$s" href="%2$s" %4$s>%3$s</a></li>',
 			esc_attr( $label_id ),
 			esc_url( $related_post['url'] ),
 			esc_attr( $related_post['title'] ),
-			esc_attr( $related_post['rel'] )
+			( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' )
 		);
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" rel="%2$s"><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" alt="%5$s" /></a></li>',
 				esc_url( $related_post['url'] ),
-				esc_attr( $related_post['rel'] ),
+				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),
 				esc_attr( $related_post['img']['width'] ),
 				esc_attr( $related_post['img']['alt_text'] )
@@ -369,17 +370,7 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		$excludes      = $this->parse_numeric_get_arg( 'relatedposts_origin' );
-
-		$target_to_dom_priority = has_filter(
-			'the_content',
-			array( $this, 'filter_add_target_to_dom' )
-		);
-		remove_filter(
-			'the_content',
-			array( $this, 'filter_add_target_to_dom' ),
-			$target_to_dom_priority
-		);
+		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 
 		$related_posts = $this->get_for_post_id(
 			get_the_ID(),
@@ -452,7 +443,7 @@ EOT;
 	 *
 	 * @uses absint
 	 *
-	 * @param string $arg Name of the GET variable
+	 * @param string $arg Name of the GET variable.
 	 * @return array $result Parsed value(s)
 	 */
 	public function parse_numeric_get_arg( $arg ) {
@@ -1222,11 +1213,12 @@ EOT;
 			 * @module related-posts
 			 *
 			 * @since 3.7.0
+			 * @since 7.9.0 - Change Default value to empty.
 			 *
-			 * @param string nofollow Link rel attribute for Related Posts' link. Default is nofollow.
-			 * @param int $post->ID Post ID.
+			 * @param string $link_rel Link rel attribute for Related Posts' link. Default is empty.
+			 * @param int    $post->ID Post ID.
 			 */
-			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', 'nofollow', $post->ID ),
+			'rel' => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
 			/**
 			 * Filter the context displayed below each Related Post.
 			 *
@@ -1755,14 +1747,19 @@ EOT;
 	 * @return null
 	 */
 	public function rest_register_related_posts() {
-		register_rest_field( 'post',
-			'jetpack-related-posts',
-			array(
-				'get_callback' => array( $this, 'rest_get_related_posts' ),
-				'update_callback' => null,
-				'schema'          => null,
-			)
-		);
+		/** This filter is already documented in class.json-api-endpoints.php */
+		$post_types = apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
+		foreach ( $post_types as $post_type ) {
+			register_rest_field(
+				$post_type,
+				'jetpack-related-posts',
+				array(
+					'get_callback'    => array( $this, 'rest_get_related_posts' ),
+					'update_callback' => null,
+					'schema'          => null,
+				)
+			);
+		}
 	}
 
 	/**

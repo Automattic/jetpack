@@ -69,7 +69,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-idc-notice a:not(.dops-notice__action):hover, .jp-idc-notice a:not(.dops-notice__action):focus, .jp-idc-notice a:not(.dops-notice__action):active {
-  color: #33bbe3;
+  color: #3396c8;
 }
 
 .jp-idc-notice .dops-button {
