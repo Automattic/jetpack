@@ -9,13 +9,23 @@
  * two are optional, and probably a bit gratuitous :)
  *
  * `php jetpack-svn.php path/to/your/plugin/code`
+ *
+ * @package automattic/jetpack-analyzer
  */
 
+/**
+ * This script is meant to run outside of typical WordPress environments and only by knowledgeable folks.
+ * Disabling some phpcs scripts:
+ *
+ * phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
+ * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+ * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+ */
 require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
-// Args
+// Args.
 $external_repo_path = isset( $argv[1] ) ? $argv[1] : '/path/to/workspace/a8c/some-repo';
-$from_version       = isset( $argv[2] ) ? $argv[2] : ''; // Defaults to latest stable version in wp.org svn
+$from_version       = isset( $argv[2] ) ? $argv[2] : ''; // Defaults to latest stable version in wp.org svn.
 $to_version         = isset( $argv[3] ) ? $argv[3] : 'trunk';
 
 if ( ! file_exists( $external_repo_path ) ) {
@@ -23,18 +33,18 @@ if ( ! file_exists( $external_repo_path ) ) {
 	exit;
 }
 
-// tmp paths
+// tmp paths.
 $tmp_path             = dirname( __DIR__ ) . '/data/tmp';
 $to_path              = $tmp_path . '/jetpack-to';
 $from_path            = $tmp_path . '/jetpack-from';
 $jetpack_version_to   = "$to_path/jetpack";
 $jetpack_version_from = "$from_path/jetpack";
 
-// Make tmp directories
+// Make tmp directories.
 exec( "mkdir -p $tmp_path $to_path $from_path" );
 
 if ( empty( $from_version ) ) {
-	// Get latest stable version in svn
+	// Get latest stable version in svn.
 	$jetpack_info = json_decode( file_get_contents( 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' ) );
 	$org_versions = array_reverse( (array) $jetpack_info->versions );
 	foreach ( $org_versions as $version => $zip_path ) {
@@ -45,13 +55,13 @@ if ( empty( $from_version ) ) {
 	}
 }
 
-// Download and unzip "from" version
+// Download and unzip "from" version.
 if ( ! file_exists( $jetpack_version_from ) ) {
 	echo "Downloading {$org_versions[ $from_version ]} to $jetpack_version_from...\n";
 	exec( "wget -O $from_path/$from_version.zip {$org_versions[ $from_version ]}; unzip $from_path/$from_version.zip -d $from_path; rm $from_path/$from_version.zip" );
 }
 
-// Download and unzip "to" version
+// Download and unzip "to" version.
 if ( ! file_exists( $jetpack_version_to ) ) {
 	echo "Downloading {$org_versions[ $to_version ]} to $jetpack_version_to...\n";
 	exec( "wget -O $to_path/$to_version.zip {$org_versions[ $to_version ]}; unzip $to_path/$to_version.zip -d $to_path; rm $to_path/$to_version.zip" );
@@ -84,3 +94,5 @@ echo "Done!\n";
 
 echo "Cleaning up...\n";
 exec( "rm -rf $tmp_path" );
+
+// phpcs:enable

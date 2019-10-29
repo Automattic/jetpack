@@ -1,4 +1,9 @@
 <?php
+/**
+ * Jetpack Sync Defaults
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
@@ -8,11 +13,16 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
- * Just some defaults that we share with the server
+ * Just some defaults that we share with the server.
  */
 class Defaults {
 
-	static $default_options_whitelist = array(
+	/**
+	 * Default Options.
+	 *
+	 * @var array
+	 */
+	public static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
 		'blogdescription',
@@ -118,8 +128,8 @@ class Defaults {
 		'users_can_register',
 		'active_plugins',
 		'uninstall_plugins',
-		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
-		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
+		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION.
+		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION.
 		'jetpack_api_cache_enabled',
 		'start_of_week',
 		'blacklist_keys',
@@ -136,8 +146,8 @@ class Defaults {
 		'default_role',
 		'page_for_posts',
 		'mailserver_url',
-		'mailserver_login', // Not syncing contents, only the option name
-		'mailserver_pass', // Not syncing contents, only the option name
+		'mailserver_login', // Not syncing contents, only the option name.
+		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
 		'wp_page_for_privacy_policy',
 		'enable_header_ad',
@@ -153,6 +163,11 @@ class Defaults {
 		'jetpack_excluded_extensions',
 	);
 
+	/**
+	 * Return options whitelist filtered.
+	 *
+	 * @return array Options whitelist.
+	 */
 	public static function get_options_whitelist() {
 		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
 		$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
@@ -168,12 +183,25 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
 	}
 
-	// Do not sync contents for these events, only the option name
-	static $default_options_contentless = array(
+	/**
+	 * "Contentless" Options.
+	 *
+	 * Do not sync contents for these events, only the option name. Good for sensitive information that Sync does not need.
+	 *
+	 * @var array Options to sync name only.
+	 */
+	public static $default_options_contentless = array(
 		'mailserver_login',
 		'mailserver_pass',
 	);
 
+	/**
+	 * Return contentless options.
+	 *
+	 * These are options that Sync only uses the option names, not the content of the option.
+	 *
+	 * @return array
+	 */
 	public static function get_options_contentless() {
 		/**
 		 * Filter the list of WordPress options that should be synced without content
@@ -187,7 +215,12 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_options_contentless', self::$default_options_contentless );
 	}
 
-	static $default_constants_whitelist = array(
+	/**
+	 * Array of defaulted constants whitelisted.
+	 *
+	 * @var array Default constants whitelist
+	 */
+	public static $default_constants_whitelist = array(
 		'EMPTY_TRASH_DAYS',
 		'WP_POST_REVISIONS',
 		'AUTOMATIC_UPDATER_DISABLED',
@@ -210,6 +243,11 @@ class Defaults {
 		'WP_DEBUG',
 	);
 
+	/**
+	 * Get constants whitelisted by Sync.
+	 *
+	 * @return array Constants accessible via sync.
+	 */
 	public static function get_constants_whitelist() {
 		/**
 		 * Filter the list of PHP constants that are manageable via the JSON API.
@@ -223,7 +261,12 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
 	}
 
-	static $default_callable_whitelist = array(
+	/**
+	 * Callables able to be managed via JSON API.
+	 *
+	 * @var array Default whitelist of callables.
+	 */
+	public static $default_callable_whitelist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
@@ -254,13 +297,18 @@ class Defaults {
 		'site_icon_url'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_icon_url' ),
 		'roles'                            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'roles' ),
 		'timezone'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
-		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins
+		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
 	);
 
 
-	static $default_post_type_attributes = array(
+	/**
+	 * Array of post type attributes synced.
+	 *
+	 * @var array Default post type attributes.
+	 */
+	public static $default_post_type_attributes = array(
 		'name'                => '',
 		'label'               => '',
 		'labels'              => array(),
@@ -292,6 +340,11 @@ class Defaults {
 		'_edit_link'          => 'post.php?post=%d',
 	);
 
+	/**
+	 * Get the whitelist of callables allowed to be managed via the JSON API.
+	 *
+	 * @return array Whitelist of callables allowed to be managed via the JSON API.
+	 */
 	public static function get_callable_whitelist() {
 		/**
 		 * Filter the list of callables that are manageable via the JSON API.
@@ -305,11 +358,18 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_callable_whitelist', self::$default_callable_whitelist );
 	}
 
-	static $blacklisted_post_types = array(
+	/**
+	 * Post types that will not be synced.
+	 *
+	 * These are usually automated post types (sitemaps, logs, etc).
+	 *
+	 * @var array Blacklisted post types.
+	 */
+	public static $blacklisted_post_types = array(
 		'ai1ec_event',
 		'bwg_album',
 		'bwg_gallery',
-		'customize_changeset', // WP built-in post type for Customizer changesets
+		'customize_changeset', // WP built-in post type for Customizer changesets.
 		'dn_wp_yt_log',
 		'http',
 		'idx_page',
@@ -495,38 +555,73 @@ class Defaults {
 		'wp_title_rss',
 	);
 
-	static $default_post_checksum_columns = array(
+	/**
+	 * Default array of post table columns.
+	 *
+	 * @var array Post table columns.
+	 */
+	public static $default_post_checksum_columns = array(
 		'ID',
 		'post_modified',
 	);
 
-	static $default_post_meta_checksum_columns = array(
+	/**
+	 * Default array of post meta table columns.
+	 *
+	 * @var array Post meta table columns.
+	 */
+	public static $default_post_meta_checksum_columns = array(
 		'meta_id',
 		'meta_value',
 	);
 
-	static $default_comment_checksum_columns = array(
+	/**
+	 * Default array of comment table columns.
+	 *
+	 * @var array Default comment table columns.
+	 */
+	public static $default_comment_checksum_columns = array(
 		'comment_ID',
 		'comment_content',
 	);
 
-	static $default_comment_meta_checksum_columns = array(
+	/**
+	 * Default array of comment meta columns.
+	 *
+	 * @var array Comment meta table columns.
+	 */
+	public static $default_comment_meta_checksum_columns = array(
 		'meta_id',
 		'meta_value',
 	);
 
-	static $default_option_checksum_columns = array(
+	/**
+	 * Default array of option table columns.
+	 *
+	 * @var array Default array of option columns.
+	 */
+	public static $default_option_checksum_columns = array(
 		'option_name',
 		'option_value',
 	);
 
-	static $default_term_checksum_columns = array(
+	/**
+	 * Default array of term columns.
+	 *
+	 * @var array array of term columns.
+	 */
+	public static $default_term_checksum_columns = array(
 		'term_id',
 		'name',
 		'slug',
 	);
 
-	static $default_term_taxonomy_checksum_columns = array(
+	/**
+	 * Default array of term taxonomy columns.
+	 *
+	 * @var array Array of term taxonomy columns.
+	 */
+	public static $default_term_taxonomy_checksum_columns = array(
 		'term_taxonomy_id',
 		'term_id',
 		'taxonomy',
@@ -534,13 +629,23 @@ class Defaults {
 		'count',
 	);
 
-	static $default_term_relationships_checksum_columns = array(
+	/**
+	 * Default term relationship columns.
+	 *
+	 * @var array Array of term relationship columns.
+	 */
+	public static $default_term_relationships_checksum_columns = array(
 		'object_id',
 		'term_taxonomy_id',
 		'term_order',
 	);
 
-	static $default_multisite_callable_whitelist = array(
+	/**
+	 * Default multisite callables able to be managed via JSON API.
+	 *
+	 * @var array multsite callables whitelisted
+	 */
+	public static $default_multisite_callable_whitelist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
 		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
 		'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
@@ -549,6 +654,11 @@ class Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
+	/**
+	 * Get array of multisite callables whitelisted.
+	 *
+	 * @return array Multisite callables managable via JSON API.
+	 */
 	public static function get_multisite_callable_whitelist() {
 		/**
 		 * Filter the list of multisite callables that are manageable via the JSON API.
@@ -562,7 +672,12 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_multisite_callable_whitelist', self::$default_multisite_callable_whitelist );
 	}
 
-	static $post_meta_whitelist = array(
+	/**
+	 * Array of post meta keys whitelisted.
+	 *
+	 * @var array Post meta whitelist.
+	 */
+	public static $post_meta_whitelist = array(
 		'_feedback_akismet_values',
 		'_feedback_email',
 		'_feedback_extra_fields',
@@ -599,9 +714,14 @@ class Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
-		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY
+		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 	);
 
+	/**
+	 * Get the post meta key whitelist.
+	 *
+	 * @return array Post meta whitelist.
+	 */
 	public static function get_post_meta_whitelist() {
 		/**
 		 * Filter the list of post meta data that are manageable via the JSON API.
@@ -615,13 +735,23 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_post_meta_whitelist', self::$post_meta_whitelist );
 	}
 
-	static $comment_meta_whitelist = array(
+	/**
+	 * Comment meta whitelist.
+	 *
+	 * @var array Comment meta whitelist.
+	 */
+	public static $comment_meta_whitelist = array(
 		'hc_avatar',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
 		'hc_foreign_user_id',
 	);
 
+	/**
+	 * Get the comment meta whitelist.
+	 *
+	 * @return array
+	 */
 	public static function get_comment_meta_whitelist() {
 		/**
 		 * Filter the list of comment meta data that are manageable via the JSON API.
@@ -635,9 +765,15 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
 	}
 
-	// TODO: move this to server? - these are theme support values
-	// that should be synced as jetpack_current_theme_supports_foo option values
-	static $default_theme_support_whitelist = array(
+	/**
+	 * Default theme support whitelist.
+	 *
+	 * @todo move this to server? - these are theme support values
+	 * that should be synced as jetpack_current_theme_supports_foo option values
+	 *
+	 * @var array Default theme support whitelist.
+	 */
+	public static $default_theme_support_whitelist = array(
 		'post-thumbnails',
 		'post-formats',
 		'custom-header',
@@ -655,10 +791,16 @@ class Defaults {
 		'site-logo',
 	);
 
-	static function is_whitelisted_option( $option ) {
+	/**
+	 * Is an option whitelisted?
+	 *
+	 * @param string $option Option name.
+	 * @return bool If option is on the whitelist.
+	 */
+	public static function is_whitelisted_option( $option ) {
 		$whitelisted_options = self::get_options_whitelist();
 		foreach ( $whitelisted_options as $whitelisted_option ) {
-			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
+			if ( '/' === $whitelisted_option[0] && preg_match( $whitelisted_option, $option ) ) {
 				return true;
 			} elseif ( $whitelisted_option === $option ) {
 				return true;
@@ -668,7 +810,12 @@ class Defaults {
 		return false;
 	}
 
-	static $default_capabilities_whitelist = array(
+	/**
+	 * Default whitelist of capabilities to sync.
+	 *
+	 * @var array Array of WordPress capabilities.
+	 */
+	public static $default_capabilities_whitelist = array(
 		'switch_themes',
 		'edit_themes',
 		'edit_theme_options',
@@ -727,6 +874,11 @@ class Defaults {
 		'upload_themes',
 	);
 
+	/**
+	 * Get default capabilities whitelist.
+	 *
+	 * @return array
+	 */
 	public static function get_capabilities_whitelist() {
 		/**
 		 * Filter the list of capabilities that we care about
@@ -740,21 +892,37 @@ class Defaults {
 		return apply_filters( 'jetpack_sync_capabilities_whitelist', self::$default_capabilities_whitelist );
 	}
 
-	static function get_max_sync_execution_time() {
+	/**
+	 * Get max execution sync time.
+	 *
+	 * @return float Number of seconds.
+	 */
+	public static function get_max_sync_execution_time() {
 		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
 		if ( 0 === $max_exec_time ) {
-			// 0 actually means "unlimited", but let's not treat it that way
+			// 0 actually means "unlimited", but let's not treat it that way.
 			$max_exec_time = 60;
 		}
 		return floor( $max_exec_time / 3 );
 	}
 
-	static function get_default_setting( $setting ) {
-		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes
+	/**
+	 * Get default for a given setting.
+	 *
+	 * @param string $setting Setting to get.
+	 * @return mixed Value will be a string, int, array, based on the particular setting requested.
+	 */
+	public static function get_default_setting( $setting ) {
+		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes.
 		return self::$$default_name;
 	}
 
-	static $default_network_options_whitelist = array(
+	/**
+	 * Default list of network options.
+	 *
+	 * @var array network options
+	 */
+	public static $default_network_options_whitelist = array(
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
@@ -815,31 +983,197 @@ class Defaults {
 		return $status->is_multi_network();
 	}
 
-	static $default_taxonomy_whitelist                     = array();
-	static $default_dequeue_max_bytes                      = 500000; // very conservative value, 1/2 MB
-	static $default_upload_max_bytes                       = 600000; // a little bigger than the upload limit to account for serialization
-	static $default_upload_max_rows                        = 500;
-	static $default_sync_wait_time                         = 10; // seconds, between syncs
-	static $default_sync_wait_threshold                    = 5; // only wait before next send if the current send took more than X seconds
-	static $default_enqueue_wait_time                      = 10; // wait between attempting to continue a full sync, via requests
-	static $default_max_queue_size                         = 1000;
-	static $default_max_queue_lag                          = 900; // 15 minutes
-	static $default_queue_max_writes_sec                   = 100; // 100 rows a second
-	static $default_post_types_blacklist                   = array();
-	static $default_taxonomies_blacklist                   = array();
-	static $default_post_meta_whitelist                    = array();
-	static $default_comment_meta_whitelist                 = array();
-	static $default_disable                                = 0; // completely disable sending data to wpcom
-	static $default_network_disable                        = 0; // completely disable sending data to wpcom network wide
-	static $default_sync_via_cron                          = 1; // use cron to sync
-	static $default_render_filtered_content                = 0; // render post_filtered_content
-	static $default_max_enqueue_full_sync                  = 100; // max number of items to enqueue at a time when running full sync
-	static $default_max_queue_size_full_sync               = 1000; // max number of total items in the full sync queue
-	static $default_sync_callables_wait_time               = MINUTE_IN_SECONDS; // seconds before sending callables again
-	static $default_sync_constants_wait_time               = HOUR_IN_SECONDS; // seconds before sending constants again
-	static $default_sync_queue_lock_timeout                = 120; // 2 minutes
-	static $default_cron_sync_time_limit                   = 30; // 30 seconds
-	static $default_term_relationships_full_sync_item_size = 100;
-	static $default_sync_sender_enabled                    = 1; // Should send incremental sync items
-	static $default_full_sync_sender_enabled               = 1; // Should send full sync items
+	/**
+	 * Default bytes to dequeue.
+	 *
+	 * @var int Bytes.
+	 */
+	public static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB.
+
+	/**
+	 * Default upload bytes.
+	 *
+	 * This value is a little bigger than the upload limit to account for serialization.
+	 *
+	 * @var int Bytes.
+	 */
+	public static $default_upload_max_bytes = 600000;
+
+	/**
+	 * Default number of rows uploaded.
+	 *
+	 * @var int Number of rows.
+	 */
+	public static $default_upload_max_rows = 500;
+
+	/**
+	 * Default sync wait time.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_sync_wait_time = 10; // seconds, between syncs.
+
+	/**
+	 * Only wait before next send if the current send took more than this number of seconds.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_sync_wait_threshold = 5;
+
+	/**
+	 * Default wait between attempting to continue a full sync via requests.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_enqueue_wait_time = 10;
+
+	/**
+	 * Maximum queue size.
+	 *
+	 * Each item is represented with a new row in the wp_options table.
+	 *
+	 * @var int Number of queue items.
+	 */
+	public static $default_max_queue_size = 1000;
+
+	/**
+	 * Default maximum lag allowed in the queue.
+	 *
+	 * @var int Number of seconds
+	 */
+	public static $default_max_queue_lag = 900; // 15 minutes.
+
+	/**
+	 * Default for default writes per sec.
+	 *
+	 * @var int Rows per second.
+	 */
+	public static $default_queue_max_writes_sec = 100; // 100 rows a second.
+
+	/**
+	 * Default for post types blacklist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_post_types_blacklist = array();
+
+	/**
+	 * Default for taxonomies blacklist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_taxonomies_blacklist = array();
+
+	/**
+	 * Default for taxonomies whitelist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_taxonomy_whitelist = array();
+
+	/**
+	 * Default for post meta whitelist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_post_meta_whitelist = array();
+
+	/**
+	 * Default for comment meta whitelist.
+	 *
+	 * @var array Empty array.
+	 */
+	public static $default_comment_meta_whitelist = array();
+
+	/**
+	 * Default for disabling sync across the site.
+	 *
+	 * @var int Bool-ish. Default to 0.
+	 */
+	public static $default_disable = 0; // completely disable sending data to wpcom.
+
+	/**
+	 * Default for disabling sync across the entire network on multisite.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_network_disable = 0;
+
+	/**
+	 * Should Sync use cron?
+	 *
+	 * @var int Bool-ish value. Default 1.
+	 */
+	public static $default_sync_via_cron = 1;
+
+	/**
+	 * Default if Sync should render content.
+	 *
+	 * @var int Bool-ish value. Default is 0.
+	 */
+	public static $default_render_filtered_content = 0;
+
+	/**
+	 * Default number of items to enqueue at a time when running full sync.
+	 *
+	 * @var int Number of items.
+	 */
+	public static $default_max_enqueue_full_sync = 100;
+
+	/**
+	 * Default for maximum queue size during a full sync.
+	 *
+	 * Each item will represent a value in the wp_options table.
+	 *
+	 * @var int Number of items.
+	 */
+	public static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue.
+
+	/**
+	 * Defaul for time between syncing callables.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again.
+
+	/**
+	 * Default for time between syncing constants.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again.
+	/**
+	 * Default for sync queue lock timeout time.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_sync_queue_lock_timeout = 120; // 2 minutes.
+
+	/**
+	 * Default for cron sync time limit.
+	 *
+	 * @var int Number of seconds.
+	 */
+	public static $default_cron_sync_time_limit = 30; // 30 seconds.
+
+	/**
+	 * Default for number of term relationship items sent in an full sync item.
+	 *
+	 * @var int Number of items.
+	 */
+	public static $default_term_relationships_full_sync_item_size = 100;
+
+	/**
+	 * Default for enabling incremental sync.
+	 *
+	 * @var int 1 for true.
+	 */
+	public static $default_sync_sender_enabled = 1; // Should send incremental sync items.
+
+	/**
+	 * Default for enabling Full Sync.
+	 *
+	 * @var int 1 for true.
+	 */
+	public static $default_full_sync_sender_enabled = 1; // Should send full sync items.
 }
