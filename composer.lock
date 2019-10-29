@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93e0b67a67cc488d8765306b24ccd75c",
+    "content-hash": "450c222b62c210972270203510876203",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -12,7 +12,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "b873be98786907a49ac5cd21836167f662212aa0"
+                "reference": "b873be98786907a49ac5cd21836167f662212aa0",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -45,7 +46,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
+                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -77,7 +79,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
-                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb",
+                "shasum": null
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -133,7 +136,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
-                "reference": "2138cbc8b0b1aecb290608b5d82e873c7330aac5"
+                "reference": "2138cbc8b0b1aecb290608b5d82e873c7330aac5",
+                "shasum": null
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -165,7 +169,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510"
+                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -204,7 +209,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95",
+                "shasum": null
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -232,7 +238,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
-                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4"
+                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4",
+                "shasum": null
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -260,7 +267,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
+                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -298,7 +306,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610",
+                "shasum": null
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -327,7 +336,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
-                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -353,7 +363,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
-                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
+                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7",
+                "shasum": null
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -382,7 +393,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
+                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9",
+                "shasum": null
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -411,7 +423,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
+                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -473,7 +486,8 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
+                "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb",
+                "shasum": null
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -937,9 +951,9 @@
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-tracking": 20,
-        "automattic/jetpack-terms-of-service": 20,
         "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-compat": 20
+        "automattic/jetpack-compat": 20,
+        "automattic/jetpack-terms-of-service": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
