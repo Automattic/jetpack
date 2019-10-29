@@ -101,14 +101,18 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: November 5, 2019
 * Release post: https://wp.me/p1moTy-lzt
 
+**Major enhancements**
+
+* Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
+* Block Editor: add new post-submission settings to the Form block.
+* Twenty Twenty: Ensure full compatibility with the upcoming default theme.
+
 **Enhancements**
 
 * Admin Page: update icons for security settings.
 * Backup: support for Jetpack Backup functionality with simpler configuration.
 * Block Editor: provide block previews for Jetpack blocks.
-* Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
 * Block Editor: add image size option to the Slideshow block.
-* Block Editor: add new post-submission settings to the Form block.
 * Block Editor: improve the display of opening hours when using the Business Hours block.
 * CLI: no longer return exit code 1 if trying to disconnect a site that's already disconnected.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
@@ -145,7 +149,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * PHP: resolve deprecation warnings in anticipation of PHP 7.4.
 * Related Posts: avoid conflicts with other plugins adding elements below the post content, especially when the AMP plugin is active on the site.
 * SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
-* Twenty Twenty: Ensure full compatibility with the upcoming default theme.
 * Widgets: update deprecated option in the Facebook Page Plugin widget.
 * WordPress.com REST API: ensure compatibility with WordPress 5.3.
 
