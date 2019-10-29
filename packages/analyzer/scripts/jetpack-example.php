@@ -2,7 +2,7 @@
 /**
  * Example usage script.
  *
- * @package automattic/jetpack-anaylzer
+ * @package automattic/jetpack-analyzer
  */
 
 /**

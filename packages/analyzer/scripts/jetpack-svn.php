@@ -10,7 +10,7 @@
  *
  * `php jetpack-svn.php path/to/your/plugin/code`
  *
- * @package automattic/jetpack-anaylzer
+ * @package automattic/jetpack-analyzer
  */
 
 /**

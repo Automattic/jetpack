@@ -2,7 +2,7 @@
 /**
  * Example usage script.
  *
- * @package automattic/jetpack-anaylizer
+ * @package automattic/jetpack-analyzer
  */
 
 /**
@@ -72,7 +72,7 @@ $invocations->scan( $external_base_path . '/example-external.php' );
 
 echo "\n*** List of dependencies\n";
 $dependencies = new Automattic\Jetpack\Analyzer\Dependencies();
-$dependencies->generate( $invocations, $jp74_declarations, $data_path );
+$dependencies->generate( $invocations, $jp74_declarations, $base_path );
 $dependencies->output();
 
 echo "\n*** Summary of dependencies by declaration\n";
