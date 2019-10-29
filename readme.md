@@ -51,7 +51,7 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Team
 
-Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @brbrr, @dereksmart, @chaosexanima, @jeherve, @kbrownkd, @kraftbj, @mdawaffe, and @zinigor.
+Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @brbrr, @dereksmart, @chaosexanima, @jeherve, @kbrown9, @kraftbj, @mdawaffe, and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
