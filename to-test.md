@@ -6,11 +6,11 @@ For this round of testing, I would encourage y'all to install [WordPress' Beta T
 
 #### Updated design
 
-When you load Jetpack > Dashboard with this release, you may notice that the buttons now look a bit different. We've indeed updated the dashboard's design to better match the updated design of the WordPress dashboard in the upcoming version of WordPress. 
+When you load Jetpack > Dashboard with this release, you may notice that the buttons now look a bit different. We've indeed updated the dashboard's design to better match the updated design of the WordPress dashboard in the upcoming version of WordPress.
 
 If you are running WordPress 5.3 RC already, I would invite you to compare the look of the buttons and elements of the dashboard with the look of the Jetpack dashboard. Let us know if you find anything that looks out of place.
 
-#### New disconnection exprerience
+#### New disconnection experience
 
 From now on, whenever you want to disconnect your site from WordPress.com, Jetpack will present you with some details about your Jetpack usage and some links to help you fully understand the consequences of disconnecting your site.
 
@@ -63,7 +63,7 @@ define( 'JETPACK_SEARCH_PROTOTYPE', true );
 
 Once you've done so, select a theme, make sure the Search feature is enabled under Jetpack > Settings > Search, and then head over to Appearance > Customize to add the Jetpack Search widget to your site.
 
-Once that's done, you can start testing that new searchform on your site, and let us know how that goes!
+Once that's done, you can start testing that new search form on your site, and let us know how that goes!
 
 ### SSO
 
@@ -76,13 +76,13 @@ WordPress 5.3 will ship with a brand new default theme, Twenty Twenty. We've upd
 1. Download a zip of the theme [here](https://github.com/wordpress/twentytwenty).
 2. Unzip the archive, remove `-master` from the unzipped directory, rezip it.
 3. Upload that new zip file to your site, and activate it.
-4. Try to use the theme without changing any of the colors in Apperance > Customize, then try again after applying custom colors.
+4. Try to use the theme without changing any of the colors in Appearance > Customize, then try again after applying custom colors.
 5. Make sure that all Jetpack features work well with the new theme.
 
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticible and report anything you see.
+- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
 **Thank you for all your help!**
