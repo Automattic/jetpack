@@ -104,6 +104,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Page: update icons for security settings.
+* Backup: support for Jetpack Backup functionality with simpler configuration.
 * Block Editor: provide block previews for Jetpack blocks.
 * Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
 * Block Editor: add image size option to the Slideshow block.
