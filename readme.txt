@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Performance: modernize various parts of the code to use PHP 5.6+ functionality.
 * Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
 * Related Posts: remove nofollow attribute from links.
+* Related Posts: add Posts to the REST API response for all post types that support them.
 * Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
 * Search: continued work on upcoming Instant Search features.
 * Shortcodes: add support for tab sizing to Gist shortcodes and embeds.
