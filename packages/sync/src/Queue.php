@@ -2,7 +2,7 @@
 /**
  * The class that describes the Queue for the sync package.
  *
- * @package jetpack/sync
+ * @package automattic/jetpack-sync
  */
 
 namespace Automattic\Jetpack\Sync;
