@@ -7,7 +7,7 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
-import uniqueId from 'lodash/uniqueid';
+import uniqueId from 'lodash/uniqueId';
 
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jp-instant-search__box-input-' ) );
