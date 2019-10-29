@@ -375,7 +375,7 @@ class Queue {
 	 * Close the buffer.
 	 *
 	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
-	 * @param null|array   $ids_to_remove Ids to remove from the queue.
+	 * @param null|array                           $ids_to_remove Ids to remove from the queue.
 	 *
 	 * @return bool|\WP_Error
 	 */
@@ -630,7 +630,7 @@ class Queue {
 			);
 		}
 
-		return $this->unserialze_values( $items );
+		return $this->unserialize_values( $items );
 
 	}
 
@@ -656,7 +656,7 @@ class Queue {
 			OBJECT
 		);
 
-		return $this->unserialze_values( $items );
+		return $this->unserialize_values( $items );
 	}
 
 	/**
@@ -666,7 +666,7 @@ class Queue {
 	 *
 	 * @return mixed
 	 */
-	private function unserialze_values( $items ) {
+	private function unserialize_values( $items ) {
 		array_walk(
 			$items,
 			function( $item ) {
