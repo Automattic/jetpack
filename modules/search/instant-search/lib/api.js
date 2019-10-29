@@ -149,8 +149,12 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 		} )
 	);
 
+	const remoteURL = `https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`;
+	const localURL = `/?rest_route=/jetpack/v4/search-local&${ queryString }`;
+
 	return fetch(
-		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
+		// @todo - send is_dev_mode to JS.
+		document.location.origin.includes( '.' ) ? remoteURL : localURL
 	).then( response => {
 		return response.json();
 	} );
