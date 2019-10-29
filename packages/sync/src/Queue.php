@@ -681,7 +681,7 @@ class Queue {
 	/**
 	 * Return true if the buffer is still valid or an Error other wise.
 	 *
-	 * @param Queue_Buffer $buffer The Queue_Buffer.
+	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer The Queue_Buffer.
 	 *
 	 * @return bool|\WP_Error
 	 */
