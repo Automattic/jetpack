@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * CLI: no longer return exit code 1 if trying to disconnect a site that's already disconnected.
 * Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
 * Connection flow: add plan billing period toggle.
+* Contact Form: synchronize form data with WordPress.com when submitting a form via the Form block.
 * Dashboard: update styles for visual parity with the WordPress.com dashboard.
 * Dashboard: improve performance of the Jetpack dashboard when the plugin is not connected to WordPress.com yet.
 * Dashboard: add new plans' information to Plans pages.
