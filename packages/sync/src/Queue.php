@@ -355,7 +355,7 @@ class Queue {
 	/**
 	 * Check in the queue.
 	 *
-	 * @param Queue_Buffer $buffer Queue_Buffer object.
+	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue_Buffer object.
 	 *
 	 * @return bool|\WP_Error
 	 */
