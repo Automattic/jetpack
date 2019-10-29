@@ -79,6 +79,7 @@ class SearchResults extends Component {
 
 		return (
 			<main
+				aria-hidden={ this.props.isLoading === true }
 				aria-live="polite"
 				className={ `jetpack-instant-search__search-results ${
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
