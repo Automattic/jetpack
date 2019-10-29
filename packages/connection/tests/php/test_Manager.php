@@ -20,10 +20,11 @@ class ManagerTest extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( 'apply_filters' )
-				->setFunction( function( $filter_name, $return_value ) {
-					$this->arguments_stack[ $filter_name ] []= $return_value;
-					return $return_value;
-				} );
+				->setFunction(
+					function( $filter_name, $return_value ) {
+						return $return_value;
+					}
+				);
 
 		$this->apply_filters = $builder->build();
 	}
@@ -95,10 +96,12 @@ class ManagerTest extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( 'apply_filters' )
-				->setFunction( function( $filter_name, $return_value ) {
-					$this->arguments_stack[ $filter_name ] []= func_get_args();
-					return 'completely overwrite';
-				} );
+				->setFunction(
+					function( $filter_name, $return_value ) {
+						$this->arguments_stack[ $filter_name ] []= func_get_args();
+						return 'completely overwrite';
+					}
+				);
 
 		$builder->build()->enable();
 
