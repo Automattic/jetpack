@@ -109,7 +109,7 @@ class ManagerTest extends TestCase {
 
 		// The jetpack_api_url argument stack should not be empty, making sure the filter was
 		// called with a proper name and arguments.
-		$call_arguments = array_pop( $this->arguments_stack[ 'jetpack_api_url' ] );
+		$call_arguments = array_pop( $this->arguments_stack['jetpack_api_url'] );
 		$this->assertEquals( 'something', $call_arguments[2] );
 		$this->assertEquals(
 			Constants::get_constant( 'JETPACK__API_BASE' ),
