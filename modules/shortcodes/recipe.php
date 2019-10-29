@@ -31,67 +31,36 @@ class Jetpack_Recipes {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
-
-		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
 	}
 
 	/**
-	 * Add Schema-specific attributes to our allowed tags in wp_kses,
-	 * so we can have better Schema.org compliance.
+	 * Returns KSES tags with Schema-specific attributes.
 	 *
-	 * @param array $allowedtags Array of allowed HTML tags in recipes.
-	 * @param array $context Context to judge allowed tags by.
+	 * @since 8.0.0
+	 *
+	 * @return array Array to be used by KSES.
 	 */
-	public function add_recipes_kses_rules( $allowedtags, $context ) {
-		if ( in_array( $context, array( '', 'post', 'data' ) ) ) : // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
-			// Create an array of all the tags we'd like to add the itemprop attribute to.
-			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time', 'span' );
-			foreach ( $tags as $tag ) {
-				$allowedtags = $this->add_kses_rule(
-					$allowedtags,
-					$tag,
-					array(
-						'class'    => array(),
-						'itemprop' => array(),
-						'datetime' => array(),
-					)
-				);
+	private static function kses_tags() {
+		$allowedtags = wp_kses_allowed_html( 'post' );
+		// Create an array of all the tags we'd like to add the itemprop attribute to.
+		$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time', 'span' );
+		foreach ( $tags as $tag ) {
+			if ( ! isset( $allowedtags[ $tag ] ) ) {
+				$allowedtags[ $tag ] = array();
 			}
-
-			// Allow itemscope and itemtype for divs.
-			$allowedtags = $this->add_kses_rule(
-				$allowedtags,
-				'div',
-				array(
-					'class'     => array(),
-					'itemscope' => array(),
-					'itemtype'  => array(),
-				)
-			);
-		endif;
-
-		return $allowedtags;
-	}
-
-	/**
-	 * Function to add a new property rule to our kses array.
-	 * Used by add_recipe_kses_rules() above.
-	 *
-	 * @param array  $all_tags Array of allowed HTML tags in recipes.
-	 * @param string $tag      New HTML tag to add to the array of allowed HTML.
-	 * @param array  $rules    Array of allowed attributes for that HTML tag.
-	 */
-	private function add_kses_rule( $all_tags, $tag, $rules ) {
-
-		// If the tag doesn't already exist, add it.
-		if ( ! isset( $all_tags[ $tag ] ) ) {
-			$all_tags[ $tag ] = array();
+			$allowedtags[ $tag ]['class']    = array();
+			$allowedtags[ $tag ]['itemprop'] = array();
+			$allowedtags[ $tag ]['datetime'] = array();
 		}
 
-		// Merge the new tags with existing tags.
-		$all_tags[ $tag ] = array_merge( $all_tags[ $tag ], $rules );
-
-		return $all_tags;
+		// Allow itemscope and itemtype for divs.
+		if ( ! isset( $allowedtags['div'] ) ) {
+			$allowedtags['div'] = array();
+		}
+		$allowedtags['div']['class']     = array();
+		$allowedtags['div']['itemscope'] = array();
+		$allowedtags['div']['itemtype']  = array();
+		return $allowedtags;
 	}
 
 	/**
@@ -332,7 +301,7 @@ class Jetpack_Recipes {
 		}
 
 		// Sanitize html.
-		$html = wp_kses_post( $html );
+		$html = wp_kses( $html, self::kses_tags() );
 
 		// Return the HTML block.
 		return $html;
@@ -395,7 +364,7 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses_post( $html );
+		$html = wp_kses( $html, self::kses_tags() );
 
 		// Return the HTML block.
 		return $html;
@@ -432,7 +401,7 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses_post( $html );
+		$html = wp_kses( $html, self::kses_tags() );
 
 		// Return the HTML block.
 		return $html;
@@ -469,7 +438,7 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses_post( $html );
+		$html = wp_kses( $html, self::kses_tags() );
 
 		// Return the HTML block.
 		return $html;
@@ -598,7 +567,7 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses_post( $html );
+		$html = wp_kses( $html, self::kses_tags() );
 
 		// Return the HTML block.
 		return $html;
