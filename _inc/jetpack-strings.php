@@ -307,9 +307,15 @@ __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:97
 __( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:99
 __( "Monthly", "jetpack" ), // _inc/client/plans/plan-grid.jsx:108
 __( "Yearly", "jetpack" ), // _inc/client/plans/plan-grid.jsx:109
-__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
-__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
-__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
+__( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:77
+__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:82
+__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:87
+_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:103
+_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:107
+_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:110
+_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:120
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:134
+_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:167
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
@@ -322,15 +328,9 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
-__( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:77
-__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:82
-__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:87
-_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:103
-_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:107
-_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:110
-_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:120
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:134
-_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:167
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
@@ -584,26 +584,6 @@ __( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:148
 __( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:148
 __( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:52
 __( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:59
-__( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:41
-__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:45
-__( "Spam filtering", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:49
-__( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:57
-__( "Daily, automated malware scanning", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:61
-__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:65
-__( "Unlimited, high-speed video hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:69
-__( "Real-time, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:77
-__( "Daily, automated malware scanning with automated resolution", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:81
-__( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:85
-__( "Unlimited, high-speed video hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:89
-__( "SEO preview tools", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:93
-__( "Site stats, related content, and sharing tools", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:100
-__( "Brute force attack protection and downtime monitoring", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:104
-__( "Unlimited, high-speed image hosting", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:108
-__( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:138
-__( "By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:140
-_x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:159
-_x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:164
-__( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:169
 __( "What would you like to see on your Jetpack Dashboard?", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:38
 __( "Let us know!", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:40
 __( "You are currently running a development version of Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:37
@@ -635,6 +615,21 @@ __( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // 
 __( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:213
 __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:217
 __( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:223
+__( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:121
+__( "Disable Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:121
+__( "Are you sure you want to disconnect?", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:137
+__( "Are you sure you want to disconnect and deactivate?", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:138
+__( "Close", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:141
+__( "Disconnect", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:143
+__( "Disable", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:143
+__( "Speed up your site and provide mobile-ready images with {{a}}our CDN{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:30
+__( "Block {{a}}brute force attacks{{/a}} and get immediate notifications if your site is down", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:49
+__( "Grow your traffic with automated social {{a}}publishing and sharing{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:71
+__( "Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:99
+__( "Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:102
+__( " We’ve highlighted some of the features you rely on below.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:106
+__( "Jetpack has many powerful tools that can help you achieve your goals", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:127
+__( "Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:138
 __( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:95
 __( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:103
 __( "Email me a link to log in to the app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:52
