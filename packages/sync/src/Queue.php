@@ -283,7 +283,7 @@ class Queue {
 	 * @param int $max_memory (bytes) Maximum memory threshold.
 	 * @param int $max_buffer_size Maximum buffer size (number of items).
 	 *
-	 * @return Queue_Buffer|bool|int|\WP_Error
+	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	public function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
