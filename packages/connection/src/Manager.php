@@ -689,7 +689,7 @@ class Manager {
 		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
-		 * @since 7.9.0
+		 * @since 8.0.0
 		 *
 		 * @param String $url the generated URL.
 		 * @param String $relative_url the relative URL that was passed as an argument.
