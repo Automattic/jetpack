@@ -131,7 +131,7 @@
 		"json-loader": "0.5.7",
 		"mapbox-gl": "0.54.1",
 		"markdown-it": "8.4.2",
-		"node-sass": "4.12.0",
+		"node-sass": "4.13.0",
 		"object-hash": "2.0.0",
 		"page": "1.7.1",
 		"photon": "2.1.0",
