@@ -1213,6 +1213,7 @@ class Manager {
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
 	 * @param int    $user_id  The user ID of the owner of the secret.
+	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
 	public function verify_secrets( $action, $secret_1, $user_id ) {
 		$allowed_actions = array( 'register', 'authorize', 'publicize' );

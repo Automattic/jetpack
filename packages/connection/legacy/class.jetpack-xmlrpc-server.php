@@ -575,14 +575,20 @@ class Jetpack_XMLRPC_Server {
 	 * invalid_state: supplied state does not match the stored state
 	 *
 	 * @param array $params action parameters.
-	 * @return \WP_Error|string secret_2 on success, WP_Error( error_code => error_code, error_message => error description, error_data => status code ) on failure
+	 * @return \IXR_Error|string IXR_Error on failure, secret_2 on success.
 	 */
 	public function verify_action( $params ) {
 		$action        = $params[0];
 		$verify_secret = $params[1];
 		$state         = isset( $params[2] ) ? $params[2] : '';
 
-		return $this->connection->verify_secrets( $action, $verify_secret, $state );
+		$result = $this->connection->verify_secrets( $action, $verify_secret, $state );
+
+		if ( is_wp_error( $result ) ) {
+			return $this->error( $result );
+		}
+
+		return $result;
 	}
 
 	/**
