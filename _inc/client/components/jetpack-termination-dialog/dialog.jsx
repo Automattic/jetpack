@@ -103,7 +103,7 @@ class JetpackTerminationDialog extends Component {
 			/>
 		) : (
 			<Card className="jetpack-termination-dialog__spinner">
-				<Spinner size={ 50 } />
+				<Spinner />
 			</Card>
 		);
 	}
