@@ -49,6 +49,7 @@ function mapBenefitNameToGridicon( benefitName ) {
 
 function mapBenefitDataToViewData( benefit ) {
 	return {
+		name: benefit.name,
 		title: benefit.title,
 		description: benefit.description,
 		amount: benefit.value,
