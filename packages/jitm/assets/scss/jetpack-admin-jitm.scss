@@ -1,9 +1,9 @@
 // Just in Time Messaging - message prompts
 
-@import 'scss/functions/rem';
-@import 'scss/variables/colors';
-@import 'scss/mixins/breakpoints';
-@import 'scss/calypso-colors';
+@import 'functions/rem';
+@import 'variables/colors';
+@import 'mixins/breakpoints';
+@import 'calypso-colors';
 
 @mixin clear-fix {
 	&:after {
