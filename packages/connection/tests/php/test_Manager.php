@@ -74,6 +74,11 @@ class ManagerTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Testing the ability of the api_url method to follow set constants and filters.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::api_url
+	 */
 	public function test_api_url_uses_constants_and_filters() {
 		$this->apply_filters->enable();
 
@@ -98,7 +103,7 @@ class ManagerTest extends TestCase {
 				->setName( 'apply_filters' )
 				->setFunction(
 					function( $filter_name, $return_value ) {
-						$this->arguments_stack[ $filter_name ] []= func_get_args();
+						$this->arguments_stack[ $filter_name ] [] = func_get_args();
 						return 'completely overwrite';
 					}
 				);
@@ -153,6 +158,7 @@ class ManagerTest extends TestCase {
 
 		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
 	}
+
 
 	/**
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
