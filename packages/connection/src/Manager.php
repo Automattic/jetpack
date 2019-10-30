@@ -1214,7 +1214,7 @@ class Manager {
 	 * @param string $secret_1 The secret string to compare to what is stored.
 	 * @param int    $user_id  The user ID of the owner of the secret.
 	 */
-	protected function verify_secrets( $action, $secret_1, $user_id ) {
+	public function verify_secrets( $action, $secret_1, $user_id ) {
 		$allowed_actions = array( 'register', 'authorize', 'publicize' );
 		if ( ! in_array( $action, $allowed_actions, true ) ) {
 			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
@@ -1281,7 +1281,7 @@ class Manager {
 		} elseif ( ! ctype_digit( (string) $user_id ) ) {
 			return $return_error(
 				new \WP_Error(
-					'verify_secret_1_malformed',
+					'state_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
 					400
