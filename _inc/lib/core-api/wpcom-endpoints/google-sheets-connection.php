@@ -45,7 +45,7 @@ class WPCOM_REST_API_V2_Endpoint_Google_Sheets_Contact_Form_Integration extends 
 			return new WP_Error( 'site_id_missing' );
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/external-connections/google-sheets', $site_id ), '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_user( sprintf( '/sites/%d/external-connections/google-sheets', $site_id ), '2', array(), null, 'wpcom' );
 
 		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ) ) );
 	}
