@@ -686,7 +686,23 @@ class Manager {
 		$api_base = $api_base ? $api_base : 'https://jetpack.wordpress.com/jetpack.';
 		$version  = $version ? '/' . $version . '/' : '/1/';
 
-		return rtrim( $api_base . $relative_url, '/\\' ) . $version;
+		/**
+		 * Filters the API URL that Jetpack uses for server communication.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param String $url the generated URL.
+		 * @param String $relative_url the relative URL that was passed as an argument.
+		 * @param String $api_base the API base string that is being used.
+		 * @param String $version the version string that is being used.
+		 */
+		return apply_filters(
+			'jetpack_api_url',
+			rtrim( $api_base . $relative_url, '/\\' ) . $version,
+			$relative_url,
+			$api_base,
+			$version
+		);
 	}
 
 	/**
