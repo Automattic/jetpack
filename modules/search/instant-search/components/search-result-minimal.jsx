@@ -114,7 +114,7 @@ class SearchResultMinimal extends Component {
 		}
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 		return (
-			<div className="jetpack-instant-search__result-minimal" role="listitem">
+			<li className="jetpack-instant-search__result-minimal">
 				<span className="jetpack-instant-search__result-minimal-date">
 					{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
 						dateStyle: 'short',
@@ -136,7 +136,7 @@ class SearchResultMinimal extends Component {
 				</h3>
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
 				<SearchResultComments comments={ highlight && highlight.comments } />
-			</div>
+			</li>
 		);
 	}
 }

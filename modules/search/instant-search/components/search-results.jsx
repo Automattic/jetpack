@@ -94,7 +94,9 @@ class SearchResults extends Component {
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ results.map( this.renderResult ) }
+				<ol className="jetpack-instant-search__search-results-list">
+					{ results.map( this.renderResult ) }
+				</ol>
 				{ this.props.hasNextPage && (
 					<ScrollButton
 						enableLoadOnScroll={ this.props.enableLoadOnScroll }
