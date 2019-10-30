@@ -71,7 +71,7 @@ class JetpackContactForm extends Component {
 
 		this.state = {
 			toError: error && error.length ? error : null,
-			googleSheetsIntegration: {
+			googleDriveIntegration: {
 				enabled: false,
 				connectionResponse: null,
 			},
@@ -253,22 +253,22 @@ class JetpackContactForm extends Component {
 		return fieldEmailError && fieldEmailError.length > 0;
 	}
 
-	toggleGoogleSheetsIntegration = () => {
-		const { googleSheetsIntegration } = this.state;
+	toggleGoogleDriveIntegration = () => {
+		const { googleDriveIntegration } = this.state;
 		this.setState(
 			{
-				googleSheetsIntegration: {
-					...googleSheetsIntegration,
-					enabled: ! googleSheetsIntegration.enabled,
+				googleDriveIntegration: {
+					...googleDriveIntegration,
+					enabled: ! googleDriveIntegration.enabled,
 				},
 			},
-			this.checkGoogleSheetsIntegrationStatus
+			this.checkGoogleDriveIntegrationStatus
 		);
 	};
 
-	checkGoogleSheetsIntegrationStatus = async () => {
-		const { googleSheetsIntegration } = this.state;
-		if ( ! this.state.googleSheetsIntegration.enabled ) {
+	checkGoogleDriveIntegrationStatus = async () => {
+		const { googleDriveIntegration } = this.state;
+		if ( ! this.state.googleDriveIntegration.enabled ) {
 			return;
 		}
 
@@ -277,11 +277,9 @@ class JetpackContactForm extends Component {
 				path: '/wpcom/v2/external-connections/google-sheets',
 			} );
 
-			console.log( sheetsResponse );
-
 			this.setState( {
-				googleSheetsIntegration: {
-					...googleSheetsIntegration,
+				googleDriveIntegration: {
+					...googleDriveIntegration,
 					connectionResponse: sheetsResponse,
 				},
 			} );
@@ -290,7 +288,7 @@ class JetpackContactForm extends Component {
 
 	render() {
 		const { className, attributes } = this.props;
-		const { googleSheetsIntegration } = this.state;
+		const { googleDriveIntegration } = this.state;
 		const { hasFormSettingsSet } = attributes;
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'has-intro': ! hasFormSettingsSet,
@@ -307,14 +305,14 @@ class JetpackContactForm extends Component {
 					</PanelBody>
 					<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
 						<ToggleControl
-							label={ __( 'Google Sheets' ) }
-							checked={ googleSheetsIntegration.enabled }
-							onChange={ this.toggleGoogleSheetsIntegration }
+							label={ __( 'Google Drive' ) }
+							checked={ googleDriveIntegration.enabled }
+							onChange={ this.toggleGoogleDriveIntegration }
 						/>
-						{ googleSheetsIntegration.enabled && googleSheetsIntegration.connectionResponse && (
+						{ googleDriveIntegration.enabled && googleDriveIntegration.connectionResponse && (
 							<Connection
-								serviceSlug="google_sheets"
-								connectUrl={ googleSheetsIntegration.connectionResponse.connect_url }
+								serviceSlug="google_drive"
+								connectUrl={ googleDriveIntegration.connectionResponse.connect_url }
 							/>
 						) }
 					</PanelBody>
