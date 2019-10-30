@@ -1272,6 +1272,7 @@ new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
 	'description'             => 'Setup a Helper Script, to allow Jetpack Backup to connect to this site',
 	'group'                   => '__do_not_document',
 	'method'                  => 'POST',
+	'stat'                    => 'install-backup-helper-script',
 	'path'                    => '/sites/%s/install-backup-helper-script',
 	'allow_jetpack_site_auth' => true,
 	'path_labels'             => array(
@@ -1299,6 +1300,7 @@ new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint( array(
 	'description'             => 'Delete a Helper Script',
 	'group'                   => '__do_not_document',
 	'method'                  => 'POST',
+	'stat'                    => 'delete-backup-helper-script',
 	'path'                    => '/sites/%s/delete-backup-helper-script',
 	'allow_jetpack_site_auth' => true,
 	'path_labels'             => array(
