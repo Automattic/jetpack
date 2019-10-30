@@ -31,13 +31,13 @@ export const settings = {
 		<Fragment>
 			<p>
 				{ __(
-					'Lets you create and embed credit and debit card payment buttons with minimal setup.',
+					'Lets you add credit and debit card payment buttons with minimal setup.',
 					'jetpack'
 				) }
 			</p>
 			<p>
 				{ __(
-					'Good for collecting donations or paymens for products and services.',
+					'Good for collecting donations or payments for products and services.',
 					'jetpack'
 				) }
 			</p>
