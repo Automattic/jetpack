@@ -29,7 +29,11 @@ export default class SearchWidget extends Component {
 
 	render() {
 		return createPortal(
-			<div id={ `${ this.props.widget.widget_id }-portaled-wrapper` }>
+			<form
+				id={ `${ this.props.widget.widget_id }-portaled-wrapper` }
+				className="jetpack-instant-search__portaled-wrapper"
+				role="search"
+			>
 				<div className="search-form">
 					<SearchBox
 						onChangeQuery={ this.onChangeQuery }
@@ -50,7 +54,7 @@ export default class SearchWidget extends Component {
 					results={ this.props.response }
 					widget={ this.props.widget }
 				/>
-			</div>,
+			</form>,
 			document.getElementById( `${ this.props.widget.widget_id }-wrapper` )
 		);
 	}

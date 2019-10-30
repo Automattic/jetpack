@@ -12,7 +12,7 @@ import uniqueId from 'lodash/uniqueId';
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	return (
-		<div className="jetpack-instant-search__box" role="search">
+		<div className="jetpack-instant-search__box">
 			{ /* TODO: Add support for preserving label text */ }
 			<label htmlFor={ inputId } className="screen-reader-text">
 				{ __( 'Site Search', 'jetpack' ) }
