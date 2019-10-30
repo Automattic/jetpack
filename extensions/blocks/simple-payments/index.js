@@ -35,6 +35,12 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
+			<p>
+				{ __(
+					'Good for collecting donations or paymens for products and services.',
+					'jetpack'
+				) }
+			</p>
 			<ExternalLink href="https://support.wordpress.com/simple-payments/">
 				{ __( 'Support reference', 'jetpack' ) }
 			</ExternalLink>
