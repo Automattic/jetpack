@@ -22,6 +22,8 @@ import {
 	setSortQuery,
 } from '../lib/query-string';
 
+const noop = event => event.preventDefault();
+
 export default class SearchWidget extends Component {
 	onChangeFilter = ( filterName, filterValue ) => setFilterQuery( filterName, filterValue );
 	onChangeQuery = event => setSearchQuery( event.target.value );
@@ -32,6 +34,7 @@ export default class SearchWidget extends Component {
 			<form
 				id={ `${ this.props.widget.widget_id }-portaled-wrapper` }
 				className="jetpack-instant-search__portaled-wrapper"
+				onSubmit={ noop }
 				role="search"
 			>
 				<div className="search-form">
