@@ -4,7 +4,7 @@
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Placeholder, SandBox, Button, IconButton, Toolbar } from '@wordpress/components';
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/editor';
 
 /**
  * Internal dependencies
