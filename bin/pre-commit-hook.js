@@ -114,33 +114,6 @@ function runJSLinter( toLintFiles ) {
 }
 
 /**
- * Run phpcs-changed.
- *
- * @param {Array} phpFilesToCheck Array of PHP files changed.
- */
-function runPHPCSChanged( phpFilesToCheck ) {
-	let phpChangedResult;
-	if ( phpFilesToCheck.length > 0 ) {
-		phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
-			shell: true,
-			stdio: 'pipe',
-			encoding: 'utf-8',
-		} );
-	}
-
-	if ( phpChangedResult && phpChangedResult.stdout ) {
-		let phpChangedResultText;
-		phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
-		phpChangedResultText.shift();
-		phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
-		if ( phpChangedResultText ) {
-			console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
-			checkFailed();
-		}
-	}
-}
-
-/**
  * Exit
  *
  * @param {Number} exitCodePassed Shell exit code.
@@ -225,7 +198,5 @@ if ( phpcsResult && phpcsResult.status ) {
 	// If we get here, whitelisted files have failed PHPCS. Let's return early and avoid the duplicate information.
 	exit( 1 );
 }
-
-runPHPCSChanged( phpFiles );
 
 exit( exitCode );
