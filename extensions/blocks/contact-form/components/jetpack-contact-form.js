@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
@@ -14,7 +13,6 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	ToggleControl,
 } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -26,7 +24,7 @@ import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/editor';
 import HelpMessage from '../../../shared/help-message';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import SubmitButton from '../../../shared/submit-button';
-import Connection from '../../../shared/components/connection';
+import Integrations from './integrations';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -71,10 +69,6 @@ class JetpackContactForm extends Component {
 
 		this.state = {
 			toError: error && error.length ? error : null,
-			googleDriveIntegration: {
-				enabled: false,
-				connectionResponse: null,
-			},
 		};
 	}
 
@@ -253,46 +247,12 @@ class JetpackContactForm extends Component {
 		return fieldEmailError && fieldEmailError.length > 0;
 	}
 
-	toggleGoogleDriveIntegration = () => {
-		const { googleDriveIntegration } = this.state;
-		this.setState(
-			{
-				googleDriveIntegration: {
-					...googleDriveIntegration,
-					enabled: ! googleDriveIntegration.enabled,
-				},
-			},
-			this.checkGoogleDriveIntegrationStatus
-		);
-	};
-
-	checkGoogleDriveIntegrationStatus = async () => {
-		const { googleDriveIntegration } = this.state;
-		if ( ! this.state.googleDriveIntegration.enabled ) {
-			return;
-		}
-
-		try {
-			const sheetsResponse = await apiFetch( {
-				path: '/wpcom/v2/external-connections/google-sheets',
-			} );
-
-			this.setState( {
-				googleDriveIntegration: {
-					...googleDriveIntegration,
-					connectionResponse: sheetsResponse,
-				},
-			} );
-		} catch {}
-	};
-
-	saveSheetNameInBlockAttributes = sheetName => {
-		this.props.setAttributes( { googleDriveIntegration: sheetName } );
+	saveDriveFileNameInBlockAttributes = fileName => {
+		this.props.setAttributes( { driveFileName: fileName } );
 	};
 
 	render() {
 		const { className, attributes } = this.props;
-		const { googleDriveIntegration } = this.state;
 		const { hasFormSettingsSet } = attributes;
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'has-intro': ! hasFormSettingsSet,
@@ -307,26 +267,11 @@ class JetpackContactForm extends Component {
 					<PanelBody title={ __( 'Confirmation Message', 'jetpack' ) }>
 						{ this.renderConfirmationMessageFields() }
 					</PanelBody>
-					<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Google Drive' ) }
-							checked={ googleDriveIntegration.enabled }
-							onChange={ this.toggleGoogleDriveIntegration }
-						/>
-						{ googleDriveIntegration.enabled && googleDriveIntegration.connectionResponse && (
-							<Connection
-								serviceSlug="google_drive"
-								connectUrl={ googleDriveIntegration.connectionResponse.connect_url }
-								subject={ attributes.subject }
-								saveSheetNameInBlockAttributes={ this.saveSheetNameInBlockAttributes }
-							/>
-						) }
-						{ attributes.googleDriveIntegration && (
-							<div>
-								{ __( 'Sheet name', 'jetpack' ) }: { attributes.googleDriveIntegration }
-							</div>
-						) }
-					</PanelBody>
+					<Integrations
+						subject={ attributes.subject }
+						driveFileName={ attributes.driveFileName }
+						saveDriveFileNameInBlockAttributes={ this.saveDriveFileNameInBlockAttributes }
+					/>
 				</InspectorControls>
 				<div className={ formClassnames }>
 					{ ! hasFormSettingsSet && (
