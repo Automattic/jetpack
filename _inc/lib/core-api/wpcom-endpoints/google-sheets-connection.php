@@ -31,12 +31,12 @@ class WPCOM_REST_API_V2_Endpoint_Google_Sheets_Contact_Form_Integration extends 
 					'methods'  => WP_REST_SERVER::CREATABLE,
 					'callback' => [ $this, 'create_sheet_connection' ],
 					'args'     => array(
-						'keyring_id'   => array(
+						'keyring_id' => array(
 							'type'     => 'integer',
 							'required' => true,
 						),
-						'instance_id'   => array(
-							'type'     => 'integer',
+						'subject'    => array(
+							'type'     => 'string',
 							'required' => true,
 						),
 					),
@@ -62,21 +62,35 @@ class WPCOM_REST_API_V2_Endpoint_Google_Sheets_Contact_Form_Integration extends 
 
 	public function create_sheet_connection( $request ) {
 		$keyring_id = $request['keyring_id'];
-		$instance_id = $request['instance_id'];
+		$subject    = $request['subject'];
+		$site_id    = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing' );
+		}
 
 		if ( ! $keyring_id ) {
 			return new WP_Error( 'keyring_id_missing' );
 		}
 
-		if ( ! $instance_id ) {
-			return new WP_Error( 'instance_id_missing' );
+		if ( ! $subject ) {
+			return new WP_Error( 'subject_missing' );
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/external-connections/google-sheets', $site_id ), '2', array( 'method' => 'post' ), array( 'keyring_id' => $keyring_id, 'instance_id' => $instance_id ), 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/external-connections/google-sheets', $site_id ),
+			'2',
+			array( 'method' => 'post' ),
+			array(
+				'keyring_id' => $keyring_id,
+				'subject'    => $subject,
+			),
+			'wpcom'
+		);
 
 		$decoded_response = rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ) ) );
 
-		return 'this is a sheet name'; // $decoded_response;
+		return 'thisisasheetname'; // $decoded_response;
 	}
 }
 

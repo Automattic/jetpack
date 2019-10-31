@@ -11,11 +11,10 @@ import { withSelect } from '@wordpress/data';
  */
 import analytics from '../../../../_inc/client/lib/analytics';
 import { Button } from '@wordpress/components';
-import getJetpackData from '../../get-jetpack-data';
 
 // copy / paste from calypso
 const getScreenCenterSpecs = ( width, height ) => {
-	let screenTop = typeof window.screenTop !== 'undefined' ? window.screenTop : window.screenY,
+	const screenTop = typeof window.screenTop !== 'undefined' ? window.screenTop : window.screenY,
 		screenLeft = typeof window.screenLeft !== 'undefined' ? window.screenLeft : window.screenX;
 
 	return [
@@ -31,16 +30,16 @@ export const Connection = ( { onClick } ) => {
 };
 
 export default compose( [
-	withSelect( ( select, { connectUrl, serviceSlug, instanceId } ) => {
-		const createDriveConnection = async ( keyring_id, instance_id ) => {
+	withSelect( ( select, { connectUrl, serviceSlug, subject, saveSheetNameInBlockAttributes } ) => {
+		const createDriveConnection = async keyring_id => {
 			try {
 				const sheetsResponse = await apiFetch( {
 					path: '/wpcom/v2/external-connections/google-sheets',
 					method: 'POST',
-					data: { keyring_id, instance_id },
+					data: { keyring_id, subject },
 				} );
 
-				console.log( sheetsResponse );
+				saveSheetNameInBlockAttributes( sheetsResponse );
 			} catch {}
 		};
 
@@ -58,7 +57,7 @@ export default compose( [
 			// opener:
 			window.onmessage = function( { data } ) {
 				if ( data.keyring_id ) {
-					createDriveConnection( data.keyring_id, instanceId );
+					createDriveConnection( data.keyring_id, subject );
 				}
 			};
 		};

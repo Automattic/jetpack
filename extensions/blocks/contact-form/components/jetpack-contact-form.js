@@ -281,12 +281,13 @@ class JetpackContactForm extends Component {
 				googleDriveIntegration: {
 					...googleDriveIntegration,
 					connectionResponse: sheetsResponse,
-					instanceId,
 				},
 			} );
-
-			this.props.setAttributes( { googleDriveIntegration: 'sheetsResponse' } );
 		} catch {}
+	};
+
+	saveSheetNameInBlockAttributes = sheetName => {
+		this.props.setAttributes( { googleDriveIntegration: sheetName } );
 	};
 
 	render() {
@@ -316,7 +317,14 @@ class JetpackContactForm extends Component {
 							<Connection
 								serviceSlug="google_drive"
 								connectUrl={ googleDriveIntegration.connectionResponse.connect_url }
+								subject={ attributes.subject }
+								saveSheetNameInBlockAttributes={ this.saveSheetNameInBlockAttributes }
 							/>
+						) }
+						{ attributes.googleDriveIntegration && (
+							<div>
+								{ __( 'Sheet name', 'jetpack' ) }: { attributes.googleDriveIntegration }
+							</div>
 						) }
 					</PanelBody>
 				</InspectorControls>
