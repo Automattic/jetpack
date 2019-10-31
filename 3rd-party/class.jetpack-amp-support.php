@@ -466,7 +466,6 @@ class Jetpack_AMP_Support {
 		if ( empty( $video_id ) ) {
 			return '';
 		}
-
 		$aspect_ratio   = 0.5625;
 		$default_width  = 600;
 		$default_height = 338;
@@ -513,11 +512,7 @@ class Jetpack_AMP_Support {
 	public static function render_vimeo( $args ) {
 		$args = wp_parse_args(
 			$args,
-			array(
-				'video_id' => false,
-				'width'    => '',
-				'height'   => '',
-			)
+			array( 'video_id' => false )
 		);
 
 		if ( empty( $args['video_id'] ) ) {
