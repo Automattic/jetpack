@@ -1,0 +1,25 @@
+/**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { Component } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import './editor.scss';
+
+class PinterestEdit extends Component {
+	/**
+	 * Write the block editor UI.
+	 *
+	 * @returns {object} The UI displayed when user edits this block.
+	 */
+	render() {
+		// const { attributes, setAttributes } = this.props;
+
+		return <p>{ __( 'Block edit goes here', 'jetpack' ) }</p>;
+	}
+}
+
+export default PinterestEdit;
