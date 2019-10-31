@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Status;
+
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  *
@@ -189,6 +192,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	public function get_modules() {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
 
+		$status = new Status();
 		$modules = Jetpack_Admin::init()->get_modules();
 		foreach ( $modules as $slug => $properties ) {
 			$modules[ $slug ]['options'] =
@@ -196,7 +200,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			if (
 				isset( $modules[ $slug ]['requires_connection'] )
 				&& $modules[ $slug ]['requires_connection']
-				&& Jetpack::is_development_mode()
+				&& $status->is_development_mode()
 			) {
 				$modules[ $slug ]['activated'] = false;
 			}
@@ -354,6 +358,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @return mixed|void|WP_Error
 	 */
 	public function get_module( $request ) {
+		$status = new Status();
 		if ( Jetpack::is_module( $request['slug'] ) ) {
 
 			$module = Jetpack::get_module( $request['slug'] );
@@ -363,7 +368,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if (
 				isset( $module['requires_connection'] )
 				&& $module['requires_connection']
-				&& Jetpack::is_development_mode()
+				&& $status->is_development_mode()
 			) {
 				$module['activated'] = false;
 			}

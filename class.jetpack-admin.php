@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -73,10 +74,11 @@ class Jetpack_Admin {
 	// presentation like description, name, configuration url, etc.
 	function get_modules() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/module-info.php';
+		$status = new Status();
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || Jetpack::is_development_mode();
+		$jetpack_active    = Jetpack::is_active() || $status->is_development_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -197,7 +199,8 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		if ( Jetpack::is_development_mode() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
 			if ( ! Jetpack::is_active() ) {

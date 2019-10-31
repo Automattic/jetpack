@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -445,7 +446,8 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		$status = new Status();
+		if ( ! Jetpack::is_active() && ! $status->is_development_mode() ) {
 			return false;
 		}
 
@@ -580,8 +582,9 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		$status = new Status();
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
+		if ( ! $status->is_development_mode() && Jetpack::is_active() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 

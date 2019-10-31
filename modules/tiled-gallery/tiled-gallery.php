@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status;
 
 // Include the class file containing methods for rounding constrained array elements.
 // Here the constrained array element is the dimension of a row, group or an image in the tiled gallery.
@@ -180,10 +181,12 @@ class Jetpack_Tiled_Gallery {
 			$gallery       = new $gallery_class( $attachments, $this->atts['link'], $this->atts['grayscale'], (int) $this->atts['columns'] );
 			$gallery_html  = $gallery->HTML();
 
+			$status = new Status();
+
 			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( 'Jetpack_Photon' ) ) {
 				// Tiled Galleries in Jetpack require that Photon be active.
 				// If it's not active, run it just on the gallery output.
-				if ( ! in_array( 'photon', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() ) {
+				if ( ! in_array( 'photon', Jetpack::get_active_modules() ) && ! $status->is_development_mode() ) {
 					$gallery_html = Jetpack_Photon::filter_the_content( $gallery_html );
 				}
 			}

@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
@@ -928,10 +929,11 @@ class Jetpack {
 	}
 
 	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
+		$status = new Status();
 		switch ( $cap ) {
 			case 'jetpack_connect':
 			case 'jetpack_reconnect':
-				if ( self::is_development_mode() ) {
+				if ( $status->is_development_mode() ) {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
@@ -982,7 +984,7 @@ class Jetpack {
 				$caps = array( 'manage_sites' );
 				break;
 			case 'jetpack_admin_page':
-				if ( self::is_development_mode() ) {
+				if ( $status->is_development_mode() ) {
 					$caps = array( 'manage_options' );
 					break;
 				} else {
@@ -990,7 +992,7 @@ class Jetpack {
 				}
 				break;
 			case 'jetpack_connect_user':
-				if ( self::is_development_mode() ) {
+				if ( $status->is_development_mode() ) {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
@@ -1550,27 +1552,13 @@ class Jetpack {
 
 	/**
 	 * Is Jetpack in development (offline) mode?
+	 *
+	 * @deprecated since 8.0
 	 */
 	public static function is_development_mode() {
-		$development_mode = false;
-
-		if ( defined( 'JETPACK_DEV_DEBUG' ) ) {
-			$development_mode = JETPACK_DEV_DEBUG;
-		} elseif ( $site_url = site_url() ) {
-			$development_mode = false === strpos( $site_url, '.' );
-		}
-
-		/**
-		 * Filters Jetpack's development mode.
-		 *
-		 * @see https://jetpack.com/support/development-mode/
-		 *
-		 * @since 2.2.1
-		 *
-		 * @param bool $development_mode Is Jetpack's development mode active.
-		 */
-		$development_mode = (bool) apply_filters( 'jetpack_development_mode', $development_mode );
-		return $development_mode;
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Status->is_development_mode' );
+		$status = new Status();
+		return $status->is_development_mode();
 	}
 
 	/**
@@ -1592,7 +1580,8 @@ class Jetpack {
 	 * Determines reason for Jetpack development mode.
 	 */
 	public static function development_mode_trigger_text() {
-		if ( ! self::is_development_mode() ) {
+		$status = new Status();
+		if ( ! $status->is_development_mode() ) {
 			return __( 'Jetpack is not in Development Mode.', 'jetpack' );
 		}
 
@@ -1610,10 +1599,11 @@ class Jetpack {
 	/**
 	 * Get Jetpack development mode notice text and notice class.
 	 *
-	 * Mirrors the checks made in Jetpack::is_development_mode
+	 * Mirrors the checks made in Automattic\Jetpack\Status->is_development_mode
 	 */
 	public static function show_development_mode_notice() {
-		if ( self::is_development_mode() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			$notice = sprintf(
 				/* translators: %s is a URL */
 				__( 'In <a href="%s" target="_blank">Development Mode</a>:', 'jetpack' ),
@@ -1794,9 +1784,11 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
+		$status = new Status();
+		$is_development_mode = $status->is_development_mode();
 		if (
 			! self::is_active()
-			&& ! self::is_development_mode()
+			&& ! $is_development_mode
 			&& ! self::is_onboarding()
 			&& (
 				! is_multisite()
@@ -1837,8 +1829,6 @@ class Jetpack {
 
 			$modules = array_diff( $modules, $updated_modules );
 		}
-
-		$is_development_mode = self::is_development_mode();
 
 		foreach ( $modules as $index => $module ) {
 			// If we're in dev mode, disable modules requiring a connection
@@ -2192,7 +2182,8 @@ class Jetpack {
 	}
 
 	public static function activate_new_modules( $redirect = false ) {
-		if ( ! self::is_active() && ! self::is_development_mode() ) {
+		$status = new Status();
+		if ( ! self::is_active() && ! $status->is_development_mode() ) {
 			return;
 		}
 
@@ -2973,13 +2964,15 @@ class Jetpack {
 
 		$module_data = self::get_module( $module );
 
+		$status = new Status();
+		$is_development_mode = $status->is_development_mode();
 		if ( ! self::is_active() ) {
-			if ( ! self::is_development_mode() && ! self::is_onboarding() ) {
+			if ( ! $is_development_mode && ! self::is_onboarding() ) {
 				return false;
 			}
 
 			// If we're not connected but in development mode, make sure the module doesn't require a connection
-			if ( self::is_development_mode() && $module_data['requires_connection'] ) {
+			if ( $is_development_mode && $module_data['requires_connection'] ) {
 				return false;
 			}
 		}
@@ -3533,7 +3526,8 @@ p {
 			self::plugin_initialize();
 		}
 
-		if ( ! self::is_active() && ! self::is_development_mode() ) {
+		$status = new Status();
+		if ( ! self::is_active() && ! $status->is_development_mode() ) {
 			Jetpack_Connection_Banner::init();
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
@@ -3555,7 +3549,7 @@ p {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
-		if ( self::is_active() || self::is_development_mode() ) {
+		if ( self::is_active() || $status->is_development_mode() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
@@ -3942,7 +3936,8 @@ p {
 
 		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), 'Jetpack' ) );
 
-		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_active() || self::is_development_mode() ) ) {
+		$status = new Status();
+		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_active() || $status->is_development_mode() ) ) {
 			return array_merge(
 				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
@@ -5889,7 +5884,8 @@ endif;
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! self::is_active() || self::is_development_mode() || ! self::validate_sync_error_idc_option() ) {
+		$status = new Status();
+		if ( ! self::is_active() || $status->is_development_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
 
@@ -6459,7 +6455,8 @@ endif;
 		}
 
 		// We do not want to use the imploded file in dev mode, or if not connected
-		if ( self::is_development_mode() || ! self::is_active() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() || ! self::is_active() ) {
 			if ( ! $travis_test ) {
 				return;
 			}
@@ -6664,7 +6661,8 @@ endif;
 			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
 
 			// If we're inactive and not in development mode, sort our box to the top.
-			if ( ! self::is_active() && ! self::is_development_mode() ) {
+			$status = new Status();
+			if ( ! self::is_active() && ! $status->is_development_mode() ) {
 				global $wp_meta_boxes;
 
 				$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
@@ -6715,6 +6713,7 @@ endif;
 	}
 
 	public static function dashboard_widget_footer() {
+		$status = new Status();
 		?>
 		<footer>
 
@@ -6722,7 +6721,7 @@ endif;
 			<?php if ( self::is_module_active( 'protect' ) ) : ?>
 				<h3><?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?></h3>
 				<p><?php echo esc_html_x( 'Blocked malicious login attempts', '{#} Blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
-			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! self::is_development_mode() ) : ?>
+			<?php elseif ( current_user_can( 'jetpack_activate_modules' ) && ! $status->is_development_mode() ) : ?>
 				<a href="
 				<?php
 				echo esc_url(
@@ -7067,12 +7066,13 @@ endif;
 	/**
 	 * Checks if a Jetpack site is both active and not in development.
 	 *
-	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Jetpack::is_development_mode`.
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_development_mode`.
 	 *
 	 * @return bool True if Jetpack is active and not in development.
 	 */
 	public static function is_active_and_not_development_mode() {
-		if ( ! self::is_active() || self::is_development_mode() ) {
+		$status = new Status();
+		if ( ! self::is_active() || $status->is_development_mode() ) {
 			return false;
 		}
 		return true;

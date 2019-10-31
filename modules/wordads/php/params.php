@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Status;
+
 class WordAds_Params {
 
 	/**
@@ -49,9 +51,10 @@ class WordAds_Params {
 		$this->cloudflare     = self::is_cloudflare();
 		$this->blog_id        = Jetpack::get_option( 'id', 0 );
 		$this->mobile_device  = jetpack_is_mobile( 'any', true );
+		$status = new Status();
 		$this->targeting_tags = array(
 			'WordAds' => 1,
-			'BlogId'  => Jetpack::is_development_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
+			'BlogId'  => $status->is_development_mode() ? 0 : Jetpack_Options::get_option( 'id' ),
 			'Domain'  => esc_js( wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			'PageURL' => esc_js( $this->url ),
 			'LangId'  => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?

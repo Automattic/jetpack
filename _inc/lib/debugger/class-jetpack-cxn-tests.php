@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -67,7 +68,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return ( Jetpack::is_active() && ! Jetpack::is_development_mode() );
+		$status = new Status();
+		return ( Jetpack::is_active() && ! $status->is_development_mode() );
 	}
 
 	/**
@@ -75,9 +77,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function test__check_if_connected() {
 		$name = __FUNCTION__;
+		$status = new Status();
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test( $name );
-		} elseif ( Jetpack::is_development_mode() ) {
+		} elseif ( $status->is_development_mode() ) {
 			$result = self::skipped_test( $name, __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(), __( 'Disable development mode.', 'jetpack' ) );
 		} else {
 			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), 'cycle_connection' );
@@ -223,7 +226,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__wpcom_connection_test() {
 		$name = __FUNCTION__;
 
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+		$status = new Status();
+		if ( ! Jetpack::is_active() || $status->is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 
@@ -326,7 +330,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function last__wpcom_self_test() {
 		$name = 'test__wpcom_self_test';
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+
+		$status = new Status();
+		if ( ! Jetpack::is_active() || $status->is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 

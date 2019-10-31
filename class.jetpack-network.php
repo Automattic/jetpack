@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 /**
  * Used to manage Jetpack installation on Multisite Network installs
@@ -432,7 +433,8 @@ class Jetpack_Network {
 			return;
 		}
 
-		if ( Jetpack::is_development_mode() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			return;
 		}
 
@@ -543,7 +545,8 @@ class Jetpack_Network {
 		restore_current_blog();
 
 		// If we are in dev mode, just show the notice and bail.
-		if ( Jetpack::is_development_mode() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			Jetpack::show_development_mode_notice();
 			return;
 		}

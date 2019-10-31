@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Status;
+
 /**
  * Jetpack Debugger functionality allowing for self-service diagnostic information via the legacy jetpack debugger.
  *
@@ -289,9 +292,10 @@ class Jetpack_Debugger {
 					</div>
 				<?php endif; ?>
 				<?php
+				$status = new Status();
 				if (
 					current_user_can( 'jetpack_manage_modules' )
-					&& ( Jetpack::is_development_mode() || Jetpack::is_active() )
+					&& ( $status->is_development_mode() || Jetpack::is_active() )
 				) {
 					printf(
 						wp_kses(

@@ -4,6 +4,7 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Queue;
@@ -824,6 +825,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$action = isset( $args[0] ) ? $args[0] : 'status';
 
+		$status = new Status();
+
 		switch ( $action ) {
 			case 'status':
 				$status     = Actions::get_sync_status();
@@ -902,7 +905,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
 						return;
 					}
-					if ( Jetpack::is_development_mode() ) {
+					if ( $status->is_development_mode() ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
 						return;
 					}
@@ -1608,7 +1611,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
 		}
 
-		if ( Jetpack::is_development_mode() ) {
+		$status = new Status();
+		if ( $status->is_development_mode() ) {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
 				! has_filter( 'jetpack_development_mode' ) &&

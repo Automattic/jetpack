@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Status;
+
 /**
  * Generic functions using the Photon service.
  *
@@ -28,9 +31,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		 *
 		 * @since 4.1.0
 		 *
-		 * @param bool false Result of Jetpack::is_development_mode.
+		 * @param bool false Result of Automattic\Jetpack\Status->is_development_mode().
 		 */
-		if ( true === apply_filters( 'jetpack_photon_development_mode', Jetpack::is_development_mode() ) ) {
+		$status = new Status();
+		if ( true === apply_filters( 'jetpack_photon_development_mode', $status->is_development_mode() ) ) {
 			return $image_url;
 		}
 	}

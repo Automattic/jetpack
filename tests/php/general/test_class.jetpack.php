@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -585,14 +586,16 @@ EXPECTED;
 	}
 
 	function test_is_development_mode_filter() {
+		$status = new Status();
 		add_filter( 'jetpack_development_mode', '__return_true' );
-		$this->assertTrue( Jetpack::is_development_mode() );
+		$this->assertTrue( $status->is_development_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
 	function test_is_development_mode_bool() {
+		$status = new Status();
 		add_filter( 'jetpack_development_mode', '__return_zero' );
-		$this->assertFalse( Jetpack::is_development_mode() );
+		$this->assertFalse( $status->is_development_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_zero' );
 	}
 
