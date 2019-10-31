@@ -2,7 +2,7 @@
 /**
  * Pinterest Block.
  *
- * @since 7.x
+ * @since 8.0.0
  *
  * @package Jetpack
  */
