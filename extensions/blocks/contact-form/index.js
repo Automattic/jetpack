@@ -68,6 +68,10 @@ export const settings = {
 			type: 'string',
 			default: '',
 		},
+		googleDriveIntegration: {
+			type: 'string',
+			default: '',
+		},
 
 		// Deprecated
 		has_form_settings_set: {

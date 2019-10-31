@@ -281,8 +281,11 @@ class JetpackContactForm extends Component {
 				googleDriveIntegration: {
 					...googleDriveIntegration,
 					connectionResponse: sheetsResponse,
+					instanceId,
 				},
 			} );
+
+			this.props.setAttributes( { googleDriveIntegration: 'sheetsResponse' } );
 		} catch {}
 	};
 
