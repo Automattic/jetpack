@@ -126,7 +126,7 @@ class Term_Relationships extends Module {
 			$items                 = array_chunk( $objects, $term_relationships_full_sync_item_size );
 			$last_object_enqueued  = $this->bulk_enqueue_full_sync_term_relationships( $items, $last_object_enqueued );
 			$items_enqueued_count += count( $items );
-			$limit                 = min( $limit - $objects_count, self::QUERY_LIMIT );
+			$limit                 = min( $max_items_to_enqueue - $items_enqueued_count, self::QUERY_LIMIT );
 		}
 		return array( $items_enqueued_count, $last_object_enqueued );
 	}

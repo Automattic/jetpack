@@ -226,7 +226,7 @@ class Full_Sync extends Module {
 			}
 
 			// Stop processing if we've reached our limit of items to enqueue.
-			if ( 0 >= $remaining_items_to_enqueue ) {
+			if ( 0 <= $remaining_items_to_enqueue ) {
 				$this->set_enqueue_status( $enqueue_status );
 				return;
 			}
