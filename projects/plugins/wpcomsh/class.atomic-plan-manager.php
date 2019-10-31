@@ -114,11 +114,9 @@ class Atomic_Plan_Manager {
 
 		$plugin_caps = [
 			'activate_plugins',
-			'install_plguins',
+			'install_plugins',
 			'edit_plugins',
-			'delete_plugins',
 			'upload_plugins',
-			'update_plugins',
 		];
 
 		$all_atomic_caps = array_merge( $theme_caps, $plugin_caps );
