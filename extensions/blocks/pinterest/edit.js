@@ -21,8 +21,8 @@ class PinterestEdit extends Component {
 		this.setUrl = this.setUrl.bind( this );
 
 		this.state = {
-			url: this.props.attributes.url,
-			editingURL: false,
+			editedUrl: this.props.attributes.url,
+			editingUrl: false,
 			// The interactive-related magic comes from Core's EmbedPreview component,
 			// which currently isn't exported in a way we can use.
 			interactive: false,
@@ -54,8 +54,8 @@ class PinterestEdit extends Component {
 			event.preventDefault();
 		}
 
-		const { url } = this.state;
-		this.setState( { editingURL: false } );
+		const { editedUrl: url } = this.state;
+		this.setState( { editingUrl: false } );
 		this.props.setAttributes( { url } );
 	}
 
@@ -67,9 +67,9 @@ class PinterestEdit extends Component {
 	render() {
 		const { attributes, className } = this.props;
 		const { url } = attributes;
-		const { interactive, editingURL } = this.state;
+		const { editedUrl, interactive, editingUrl } = this.state;
 
-		const showEditor = ! url || editingURL;
+		const showEditor = editingUrl || ! url;
 		const type = pinType( url );
 		const html = `<a data-pin-do='${ type }' href='${ url }'></a>`;
 
@@ -85,7 +85,7 @@ class PinterestEdit extends Component {
 							className="components-toolbar__control"
 							label={ __( 'Edit URL', 'jetpack' ) }
 							icon="edit"
-							onClick={ () => this.setState( { editingURL: true } ) }
+							onClick={ () => this.setState( { editingUrl: true } ) }
 						/>
 					</Toolbar>
 				</BlockControls>
@@ -94,11 +94,11 @@ class PinterestEdit extends Component {
 						<form onSubmit={ this.setUrl }>
 							<input
 								type="url"
-								value={ url || '' }
+								value={ editedUrl || '' }
 								className="components-placeholder__input"
 								aria-label={ __( 'Pinterest URL', 'jetpack' ) }
 								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { url: event.target.value } ) }
+								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 							/>
 							<Button isLarge type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }
