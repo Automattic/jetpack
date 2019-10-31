@@ -17,9 +17,6 @@ class PinterestEdit extends Component {
 	constructor() {
 		super( ...arguments );
 
-		this.hideOverlay = this.hideOverlay.bind( this );
-		this.setUrl = this.setUrl.bind( this );
-
 		this.state = {
 			editedUrl: this.props.attributes.url,
 			editingUrl: false,
@@ -40,16 +37,16 @@ class PinterestEdit extends Component {
 		return null;
 	}
 
-	hideOverlay() {
+	hideOverlay = () => {
 		// This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
 		// changing, because that happens on mouse down, and the overlay immediately disappears,
 		// and the mouse event can end up in the preview content. We can't use onClick on
 		// the overlay to hide it either, because then the editor misses the mouseup event, and
 		// thinks we're multi-selecting blocks.
 		this.setState( { interactive: true } );
-	}
+	};
 
-	setUrl( event ) {
+	setUrl = event => {
 		if ( event ) {
 			event.preventDefault();
 		}
@@ -57,7 +54,7 @@ class PinterestEdit extends Component {
 		const { editedUrl: url } = this.state;
 		this.setState( { editingUrl: false } );
 		this.props.setAttributes( { url } );
-	}
+	};
 
 	/**
 	 * Render a preview of the Pinterest embed.
