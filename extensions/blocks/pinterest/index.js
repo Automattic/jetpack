@@ -29,11 +29,7 @@ export const icon = (
 export const settings = {
 	title,
 
-	description: (
-		<Fragment>
-			<p>{ __( 'Embed a Pinterest pin, board, or user.', 'jetpack' ) }</p>
-		</Fragment>
-	),
+	description: __( 'Embed a Pinterest pin, board, or user.', 'jetpack' ),
 
 	icon,
 
