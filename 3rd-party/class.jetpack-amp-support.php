@@ -453,19 +453,11 @@ class Jetpack_AMP_Support {
 			return $html;
 		}
 
-		if ( isset( $attr['id'] ) ) {
-			$video_id = $attr['id'];
-		} elseif ( isset( $attr['url'] ) ) {
-			$video_id = self::get_vimeo_id_from_url( $attr['url'] );
-		} elseif ( isset( $attr[0] ) ) {
-			$video_id = self::get_vimeo_id_from_url( $attr[0] );
-		} elseif ( function_exists( 'shortcode_new_to_old_params' ) ) {
-			$video_id = shortcode_new_to_old_params( $attr );
-		}
-
+		$video_id = self::get_vimeo_id_from_attr( $attr );
 		if ( empty( $video_id ) ) {
 			return '';
 		}
+
 		$aspect_ratio   = 0.5625;
 		$default_width  = 600;
 		$default_height = 338;
@@ -479,6 +471,24 @@ class Jetpack_AMP_Support {
 		}
 
 		return self::render_vimeo( compact( 'video_id', 'width', 'height' ) );
+	}
+
+	/**
+	 * Gets the Vimeo ID from the shortcode attributes.
+	 *
+	 * @param array $attr The shortcode attributes to get the ID from.
+	 * @return string|null The ID, as a numeric string, or null.
+	 */
+	public static function get_vimeo_id_from_attr( $attr ) {
+		if ( isset( $attr['id'] ) ) {
+			return $attr['id'];
+		} elseif ( isset( $attr['url'] ) ) {
+			return self::get_vimeo_id_from_url( $attr['url'] );
+		} elseif ( isset( $attr[0] ) ) {
+			return self::get_vimeo_id_from_url( $attr[0] );
+		} elseif ( function_exists( 'shortcode_new_to_old_params' ) ) {
+			return shortcode_new_to_old_params( $attr );
+		}
 	}
 
 	/**

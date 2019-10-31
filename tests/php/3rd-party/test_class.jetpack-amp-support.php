@@ -142,6 +142,45 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Gets the test data for test_get_vimeo_id_from_attr().
+	 *
+	 * @return array The test data.
+	 */
+	public function get_vimeo_id_from_attr_data() {
+		return array(
+			'id_is_present_in_attr' => array(
+				array( 'id' => '52324' ),
+				'52324'
+			),
+			'attr_has_a_url' => array(
+				array( 'url' => 'https://vimeo.com/52324' ),
+				'52324'
+			),
+			'attr_has_a_valid_url_at_0_index' => array(
+				array( 0 => 'https://vimeo.com/52324' ),
+				'52324'
+			),
+			'attr_has_an_invalid_url_at_0_index' => array(
+				array( 0 => 'https://example.com/52324' ),
+				''
+			),
+		);
+	}
+
+	/**
+	 * Tests get_vimeo_id_from_attr.
+	 *
+	 * @dataProvider get_vimeo_id_from_attr_data
+	 * @covers Jetpack_AMP_Support::get_vimeo_id_from_attr()
+	 *
+	 * @param array $attr The attributes to pass to the method.
+	 * @param string $expected The expected return value.
+	 */
+	public function test_get_vimeo_id_from_attr( $attr, $expected ) {
+		$this->assertEquals( $expected, Jetpack_AMP_Support::get_vimeo_id_from_attr( $attr ) );
+	}
+
+	/**
 	 * Gets the test data for test_get_vimeo_id_from_url().
 	 *
 	 * @return array An associative array of test data.
