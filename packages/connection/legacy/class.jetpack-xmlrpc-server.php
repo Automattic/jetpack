@@ -568,18 +568,19 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * The 'authorize' and 'register' actions have additional error codes
 	 *
-	 * Possible values for action are `authorize`, `publicize` and `register`.
-	 *
 	 * state_missing: a state ( user id ) was not supplied
 	 * state_malformed: state is not the correct data type
 	 * invalid_state: supplied state does not match the stored state
 	 *
-	 * @param array $params action parameters.
+	 * @param array $params action An array of 3 parameters:
+	 *     [0]: string action. Possible values are `authorize`, `publicize` and `register`.
+	 *     [1]: string secret_1.
+	 *     [2]: int state.
 	 * @return \IXR_Error|string IXR_Error on failure, secret_2 on success.
 	 */
 	public function verify_action( $params ) {
-		$action        = $params[0];
-		$verify_secret = $params[1];
+		$action        = isset( $params[0] ) ? $params[0] : '';
+		$verify_secret = isset( $params[1] ) ? $params[1] : '';
 		$state         = isset( $params[2] ) ? $params[2] : '';
 
 		$result = $this->connection->verify_secrets( $action, $verify_secret, $state );
