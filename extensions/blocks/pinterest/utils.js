@@ -12,6 +12,10 @@ import { getPath } from '@wordpress/url';
 export function pinType( url ) {
 	const path = getPath( url );
 
+	if ( ! path ) {
+		return '';
+	}
+
 	if ( path.startsWith( 'pin/' ) ) {
 		return 'embedPin';
 	}
