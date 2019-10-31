@@ -12,14 +12,12 @@
 		"php-mock/php-mock": "^2.1"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\Connection\\": "src"
-		},
 		"files": [
 			"legacy/load-ixr.php"
 		],
 		"classmap": [
-			"legacy"
+			"legacy",
+			"src/"
 		]
 	},
 	"scripts": {

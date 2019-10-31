@@ -14,7 +14,7 @@
  *
  * Example Usage:
 ```php
-	require( dirname(__FILE__).'path/to/tracks/class.tracks-client' );
+	require( dirname(__FILE__).'path/to/tracks/class-jetpack-tracks-client.php' );
 
 	$result = Jetpack_Tracks_Client::record_event( array(
 		'_en'        => $event_name,       // required

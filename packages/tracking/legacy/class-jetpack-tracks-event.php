@@ -10,7 +10,7 @@
  *
  * Example Usage:
 ```php
-	require_once( dirname(__FILE__) . 'path/to/tracks/class.tracks-event' );
+	require_once( dirname(__FILE__) . 'path/to/tracks/class-jetpack-tracks-event.php' );
 
 	$event = new Jetpack_Tracks_Event( array(
 		'_en'        => $event_name,       // required
