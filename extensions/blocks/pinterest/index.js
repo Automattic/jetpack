@@ -12,7 +12,7 @@ import { createBlock } from '@wordpress/blocks';
 import edit from './edit';
 import { pinType } from './utils';
 
-const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+\/([^/]+)(\/[^/]+)?/i;
+export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+\/([^/]+)(\/[^/]+)?/i;
 
 export const name = 'pinterest';
 export const title = __( 'Pinterest', 'jetpack' );
@@ -50,6 +50,13 @@ export const settings = {
 
 	save: ( { attributes } ) => {
 		const { url } = attributes;
+
+		const type = pinType( url );
+
+		if ( ! type ) {
+			return null;
+		}
+
 		return (
 			<Fragment>
 				<a data-pin-do={ pinType( url ) } href={ url } />

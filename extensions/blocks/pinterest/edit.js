@@ -9,7 +9,7 @@ import { BlockControls } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
-import { pinType } from './utils';
+import { fallback, pinType } from './utils';
 import { icon } from '.';
 import './editor.scss';
 
@@ -18,7 +18,7 @@ class PinterestEdit extends Component {
 		super( ...arguments );
 
 		this.state = {
-			editedUrl: this.props.attributes.url,
+			editedUrl: this.props.attributes.url || '',
 			editingUrl: false,
 			// The interactive-related magic comes from Core's EmbedPreview component,
 			// which currently isn't exported in a way we can use.
@@ -66,32 +66,33 @@ class PinterestEdit extends Component {
 		const { url } = attributes;
 		const { editedUrl, interactive, editingUrl } = this.state;
 
-		const showEditor = editingUrl || ! url;
 		const type = pinType( url );
 		const html = `<a data-pin-do='${ type }' href='${ url }'></a>`;
 
-		// Disabled because the overlay div doesn't actually have a role or functionality
-		// as far as the user is concerned. We're just catching the first click so that
-		// the block can be selected without interacting with the embed preview that the overlay covers.
-		/* eslint-disable jsx-a11y/no-static-element-interactions */
-		return (
-			<div className={ className }>
-				<BlockControls>
-					<Toolbar>
-						<IconButton
-							className="components-toolbar__control"
-							label={ __( 'Edit URL', 'jetpack' ) }
-							icon="edit"
-							onClick={ () => this.setState( { editingUrl: true } ) }
-						/>
-					</Toolbar>
-				</BlockControls>
-				{ showEditor && (
+		const cannotEmbed = url && ! type;
+
+		const controls = (
+			<BlockControls>
+				<Toolbar>
+					<IconButton
+						className="components-toolbar__control"
+						label={ __( 'Edit URL', 'jetpack' ) }
+						icon="edit"
+						onClick={ () => this.setState( { editingUrl: true } ) }
+					/>
+				</Toolbar>
+			</BlockControls>
+		);
+
+		if ( editingUrl || ! url || cannotEmbed ) {
+			return (
+				<div className={ className }>
+					{ controls }
 					<Placeholder label={ __( 'Pinterest', 'jetpack' ) } icon={ icon }>
 						<form onSubmit={ this.setUrl }>
 							<input
 								type="url"
-								value={ editedUrl || '' }
+								value={ editedUrl }
 								className="components-placeholder__input"
 								aria-label={ __( 'Pinterest URL', 'jetpack' ) }
 								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
@@ -100,24 +101,41 @@ class PinterestEdit extends Component {
 							<Button isLarge type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }
 							</Button>
+							{ cannotEmbed && (
+								<p className="components-placeholder__error">
+									{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
+									<br />
+									<Button isLarge onClick={ () => fallback( editedUrl, this.props.onReplace ) }>
+										{ _x( 'Convert to link', 'button label', 'jetpack' ) }
+									</Button>
+								</p>
+							) }
 						</form>
 					</Placeholder>
-				) }
-				{ ! showEditor && (
-					<div>
-						<SandBox
-							html={ html }
-							scripts={ [ 'https://assets.pinterest.com/js/pinit.js' ] }
-							onFocus={ this.hideOverlay }
+				</div>
+			);
+		}
+
+		// Disabled because the overlay div doesn't actually have a role or functionality
+		// as far as the user is concerned. We're just catching the first click so that
+		// the block can be selected without interacting with the embed preview that the overlay covers.
+		/* eslint-disable jsx-a11y/no-static-element-interactions */
+		return (
+			<div className={ className }>
+				{ controls }
+				<div>
+					<SandBox
+						html={ html }
+						scripts={ [ 'https://assets.pinterest.com/js/pinit.js' ] }
+						onFocus={ this.hideOverlay }
+					/>
+					{ ! interactive && (
+						<div
+							className="block-library-embed__interactive-overlay"
+							onMouseUp={ this.hideOverlay }
 						/>
-						{ ! interactive && (
-							<div
-								className="block-library-embed__interactive-overlay"
-								onMouseUp={ this.hideOverlay }
-							/>
-						) }
-					</div>
-				) }
+					) }
+				</div>
 			</div>
 		);
 	}
