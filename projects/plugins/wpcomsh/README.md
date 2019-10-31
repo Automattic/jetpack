@@ -95,7 +95,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Add a new tag with the new version e.g. `git tag v1.0.0 && git push origin v1.0.0`
 - Build a new release locally with `make build`. The build will be `./build/wpcomsh-{vesion}.zip`
 - Create a new release and add the build as an asset. Note the build asset in this [example](https://github.com/Automattic/wpcomsh/releases/tag/v2.3.50)
-- Make a systems request to have the lastest version deployed pMz3w-9lN-p2
+- Post a request on atomicp2.wordpress.com to have the lastest version deployed p9o2xV-Bg-p2. Make sure to mark the post as "to-do"
 
 ## Troubleshooting
 
