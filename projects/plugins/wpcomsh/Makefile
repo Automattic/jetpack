@@ -16,7 +16,7 @@ endif
 MAKEFILE   := $(abspath $(lastword $(MAKEFILE_LIST)))
 BUILD_SRC  := $(dir $(MAKEFILE))
 BUILD_DST  := $(addsuffix build, $(dir $(MAKEFILE)))
-BUILD_FILE := $(NAME)-$(VERSION_STRING).zip
+BUILD_FILE := $(NAME).$(VERSION_STRING).zip
 
 ## git related vars
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
