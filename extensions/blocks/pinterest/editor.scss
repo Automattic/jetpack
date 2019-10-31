@@ -2,4 +2,11 @@
  * Editor styles for Pinterest
  */
 
-.wp-block-jetpack-pinterest { }
+.wp-block-jetpack-pinterest {
+	.components-placeholder__label {
+		svg {
+			height: 24px;
+			width: 24px;
+		}
+	}
+}
