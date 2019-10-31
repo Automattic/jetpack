@@ -1,0 +1,9 @@
+[id*="twitter_timeline"] input:disabled,
+[id*="twitter_timeline"] input:disabled + label,
+label.jp-twitter-disabled {
+	cursor: not-allowed;
+}
+[id*="twitter_timeline"] input:disabled + label,
+label.jp-twitter-disabled {
+	color: grey;
+}

@@ -74,10 +74,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			);
 
 			wp_enqueue_style(
-				'twitter-timeline-admin',
-				plugins_url( 'twitter-timeline.css', __FILE__ ),
+				'twitter-timeline-admin-css',
+				plugins_url( 'twitter-timeline-admin.css', __FILE__ ),
 				array(),
-				'20191027'
+				JETPACK__VERSION
 			);
 		}
 	}
@@ -340,6 +340,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$instance['type'] = 'profile';
+
+		$has_tweet_limit = strlen( strval( $instance['tweet-limit'] ) ) > 0;
 		?>
 
 		<p class="jetpack-twitter-timeline-widget-id-container">
@@ -383,11 +385,11 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
+			<label for="<?php echo $this->get_field_id( 'height' ); ?>" <?= $has_tweet_limit ? 'class="jp-twitter-disabled"' : '' ?>>
 				<?php esc_html_e( 'Height (px; at least 200):', 'jetpack' ); ?>
 			</label>
 			<input
-				class="widefat"
+				class="widefat"<?php disabled( $has_tweet_limit ); ?>
 				id="<?php echo $this->get_field_id( 'height' ); ?>"
 				name="<?php echo $this->get_field_name( 'height' ); ?>"
 				type="number" min="200"
@@ -447,9 +449,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
 				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
 				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
-				value="noscrollbar"<?php disabled( strlen( strval( $instance['tweet-limit'] ) ) > 0 ); ?>
+				value="noscrollbar"<?php disabled( $has_tweet_limit ); ?>
 			/>
-			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
+			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>" <?= $has_tweet_limit ? 'class="jp-twitter-disabled"' : '' ?>>
 				<?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
