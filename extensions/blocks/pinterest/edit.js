@@ -4,14 +4,13 @@
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Placeholder, SandBox, Button, IconButton, Toolbar } from '@wordpress/components';
-import { BlockControls } from '@wordpress/editor';
+import { BlockControls, BlockIcon } from '@wordpress/editor';
 
 /**
  * Internal dependencies
  */
 import { fallback, pinType } from './utils';
 import { icon } from '.';
-import './editor.scss';
 
 class PinterestEdit extends Component {
 	constructor() {
@@ -88,7 +87,7 @@ class PinterestEdit extends Component {
 			return (
 				<div className={ className }>
 					{ controls }
-					<Placeholder label={ __( 'Pinterest', 'jetpack' ) } icon={ icon }>
+					<Placeholder label={ __( 'Pinterest', 'jetpack' ) } icon={ <BlockIcon icon={ icon } /> }>
 						<form onSubmit={ this.setUrl }>
 							<input
 								type="url"
