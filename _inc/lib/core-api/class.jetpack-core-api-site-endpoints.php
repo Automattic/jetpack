@@ -94,7 +94,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
 				'title'       => esc_html__( 'Site Stats', 'jetpack' ),
-				'description' => esc_html__( 'Visitors tracked by Jetpack this year', 'jetpack' ),
+				'description' => esc_html__( 'Visitors tracked by Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->visitors ),
 			);
 		}
