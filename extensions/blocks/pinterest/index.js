@@ -78,4 +78,10 @@ export const settings = {
 			},
 		],
 	},
+
+	example: {
+		attributes: {
+			url: 'https://pinterest.com/anapinskywalker/',
+		},
+	},
 };
