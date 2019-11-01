@@ -3,7 +3,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -57,12 +56,7 @@ export const settings = {
 			return null;
 		}
 
-		return (
-			<Fragment>
-				<a data-pin-do={ pinType( url ) } href={ url } />
-				<script src="https://assets.pinterest.com/js/pinit.js" />
-			</Fragment>
-		);
+		return <a data-pin-do={ pinType( url ) } href={ url } />;
 	},
 
 	transforms: {

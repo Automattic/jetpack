@@ -21,6 +21,6 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_pinterest_block_load_assets( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'pinterest' );
+	wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
 	return $content;
 }
