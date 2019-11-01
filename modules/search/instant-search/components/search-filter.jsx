@@ -27,7 +27,7 @@ export default class SearchFilter extends Component {
 	constructor( props ) {
 		super( props );
 		this.filtersList = createRef();
-		this.idPrefix = `jp-instant-search-filter-${ Math.floor( Math.random() * 100 ) }`;
+		this.idPrefix = `jetpack-instant-search-filter-${ Math.floor( Math.random() * 100 ) }`;
 
 		if ( this.props.type === 'date' ) {
 			// NOTE: This assumes that the configuration never changes. It will break if we
