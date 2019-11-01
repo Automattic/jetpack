@@ -201,8 +201,9 @@ class Full_Sync extends Module {
 			$enqueue_status = $this->get_enqueue_status();
 		}
 
-		$queue_finished = true;
-		foreach ( Modules::get_modules() as $module ) {
+		$modules           = Modules::get_modules();
+		$modules_processed = 0;
+		foreach ( $modules as $module ) {
 			$module_name = $module->name();
 
 			// Skip module if not configured for this sync or module is done.
@@ -213,6 +214,7 @@ class Full_Sync extends Module {
 					! $enqueue_status[ $module_name ]
 				|| // Finished enqueuing this module.
 					true === $enqueue_status[ $module_name ][2] ) {
+				$modules_processed ++;
 				continue;
 			}
 
@@ -226,8 +228,8 @@ class Full_Sync extends Module {
 				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
-			if ( ! $next_enqueue_state ) {
-				$queue_finished = false;
+			if ( true === $next_enqueue_state ) {
+				$modules_processed ++;
 			}
 			// Stop processing if we've reached our limit of items to enqueue.
 			if ( 0 >= $remaining_items_to_enqueue ) {
@@ -237,7 +239,7 @@ class Full_Sync extends Module {
 
 		$this->set_enqueue_status( $enqueue_status );
 
-		if ( ! $queue_finished ) {
+		if ( count( $modules ) === $modules_processed ) {
 			return;
 		}
 
