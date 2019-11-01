@@ -201,7 +201,9 @@ class Full_Sync extends Module {
 			$enqueue_status = $this->get_enqueue_status();
 		}
 
-		foreach ( Modules::get_modules() as $module ) {
+		$modules           = Modules::get_modules();
+		$modules_processed = 0;
+		foreach ( $modules as $module ) {
 			$module_name = $module->name();
 
 			// Skip module if not configured for this sync or module is done.
@@ -212,6 +214,7 @@ class Full_Sync extends Module {
 					! $enqueue_status[ $module_name ]
 				|| // Finished enqueuing this module.
 					true === $enqueue_status[ $module_name ][2] ) {
+				$modules_processed ++;
 				continue;
 			}
 
@@ -225,14 +228,20 @@ class Full_Sync extends Module {
 				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
+			if ( true === $next_enqueue_state ) {
+				$modules_processed ++;
+			}
 			// Stop processing if we've reached our limit of items to enqueue.
 			if ( 0 >= $remaining_items_to_enqueue ) {
-				$this->set_enqueue_status( $enqueue_status );
-				return;
+				break;
 			}
 		}
 
 		$this->set_enqueue_status( $enqueue_status );
+
+		if ( count( $modules ) > $modules_processed ) {
+			return;
+		}
 
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
 		$this->update_status_option( 'queue_finished', time(), true );
@@ -590,7 +599,7 @@ class Full_Sync extends Module {
 	 *
 	 * @return array Full sync enqueue status.
 	 */
-	private function get_enqueue_status() {
+	public function get_enqueue_status() {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
