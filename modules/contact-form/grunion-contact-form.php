@@ -1844,6 +1844,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
+			'driveFileName'          => false, // The name of the drive file to send submissions to.
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
