@@ -446,11 +446,11 @@ class Jetpack_AMP_Support {
 	 * @return string HTML markup.
 	 */
 	public static function build_tag( $tag_name, $attributes = [], $content = '' ) {
-		$string = array();
+		$collected_attributes = array();
 		foreach ( $attributes as $name => $value ) {
-			$string[] = ( '' === $value ) ? sprintf( '%s', sanitize_key( $name ) ) : sprintf( '%s="%s"', sanitize_key( $name ), esc_attr( $value ) );
+			$collected_attributes[] = ( '' === $value ) ? sprintf( '%s', sanitize_key( $name ) ) : sprintf( '%s="%s"', sanitize_key( $name ), esc_attr( $value ) );
 		}
-		return sprintf( '<%1$s %2$s>%3$s</%1$s>', sanitize_key( $tag_name ), implode( ' ', $string ), $content );
+		return sprintf( '<%1$s %2$s>%3$s</%1$s>', sanitize_key( $tag_name ), implode( ' ', $collected_attributes ), $content );
 	}
 }
 
