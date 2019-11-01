@@ -120,13 +120,18 @@ function runJSLinter( toLintFiles ) {
  */
 function runPHPCSChanged( phpFilesToCheck ) {
 	let phpChangedFail, phpFileChangedResult;
-	spawnSync( 'composer', [ 'install' ] );
+	spawnSync( 'composer', [ 'install' ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
 	if ( phpFilesToCheck.length > 0 ) {
+		process.env[ 'PHPCS' ] = 'vendor/bin/phpcs';
+
 		phpFilesToCheck.forEach( function( file ) {
-			phpFileChangedResult = spawnSync( 'composer', [ 'php:changed', file ], {
+			phpFileChangedResult = spawnSync( 'vendor/bin/phpcs-changed', [ '--git', file ], {
+				env: process.env,
 				shell: true,
 				stdio: 'inherit',
-				encoding: 'utf-8',
 			} );
 			if ( phpFileChangedResult && phpFileChangedResult.status ) {
 				phpChangedFail = true;
