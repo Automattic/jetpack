@@ -119,22 +119,21 @@ function runJSLinter( toLintFiles ) {
  * @param {Array} phpFilesToCheck Array of PHP files changed.
  */
 function runPHPCSChanged( phpFilesToCheck ) {
-	let phpChangedResult;
+	let phpChangedFail, phpFileChangedResult;
+	spawnSync( 'composer', [ 'install' ] );
 	if ( phpFilesToCheck.length > 0 ) {
-		phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
-			shell: true,
-			stdio: 'pipe',
-			encoding: 'utf-8',
+		phpFilesToCheck.forEach( function( file ) {
+			phpFileChangedResult = spawnSync( 'composer', [ 'php:changed', file ], {
+				shell: true,
+				stdio: 'inherit',
+				encoding: 'utf-8',
+			} );
+			if ( phpFileChangedResult && phpFileChangedResult.status ) {
+				phpChangedFail = true;
+			}
 		} );
-	}
 
-	if ( phpChangedResult && phpChangedResult.stdout ) {
-		let phpChangedResultText;
-		phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
-		phpChangedResultText.shift();
-		phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
-		if ( phpChangedResultText ) {
-			console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
+		if ( phpChangedFail ) {
 			checkFailed();
 		}
 	}
