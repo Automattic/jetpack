@@ -2772,7 +2772,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param array $all_values Contact form fields
 		 * @param array $extra_values Contact form fields not included in $all_values
 		 */
-		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
+		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values, $this );
 
 		// schedule deletes of old spam feedbacks
 		if ( ! wp_next_scheduled( 'grunion_scheduled_delete' ) ) {
@@ -3602,3 +3602,18 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	}
 }
 add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
+
+/**
+ * Update the Google Drive file associcated with this form, if there is one.
+ *
+ * @param int   $post_id - the post_id for the CPT that is created.
+ * @param array $all_values - fields from the default contact form.
+ * @param array $extra_values - extra fields added to from the contact form.
+ * @param array $plugin - an instance of the plugin
+ *
+ * @return null|void
+ */
+function google_drive_integration_grunion_pre_message_sent( $post_id, $all_values, $extra_values, $contact_form_instance ) {
+	error_log( $contact_form_instance->get_attribute( 'driveFileName' ) );
+}
+add_action( 'grunion_pre_message_sent', 'google_drive_integration_grunion_pre_message_sent', 12, 4 );
