@@ -8,9 +8,14 @@ fi
 phpenv config-rm xdebug.ini
 
 # Configure PHP and PHPUnit environment
-if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
+  COMPOSER=tests/composer-travis-prephp71.json  composer install
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
+elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+  composer install
+  composer global require "phpunit/phpunit=5.7.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+  COMPOSER=tests/composer-travis-prephp71.json  composer install
 	composer global require "phpunit/phpunit=4.8.*" --no-suggest
 fi
 
