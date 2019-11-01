@@ -68,7 +68,7 @@ export const settings = {
 			type: 'string',
 			default: '',
 		},
-		googleDriveIntegration: {
+		driveFileName: {
 			type: 'string',
 			default: '',
 		},
