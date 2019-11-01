@@ -3609,7 +3609,7 @@ add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_messa
  * @param int   $post_id - the post_id for the CPT that is created.
  * @param array $all_values - fields from the default contact form.
  * @param array $extra_values - extra fields added to from the contact form.
- * @param array $plugin - an instance of the plugin
+ * @param array $contact_form_instance - an instance of the contact form
  *
  * @return null|void
  */
