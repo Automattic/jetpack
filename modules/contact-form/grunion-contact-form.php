@@ -3630,7 +3630,7 @@ add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_messa
  * @return null|void
  */
 function google_drive_integration_grunion_pre_message_sent( $post_id, $all_values, $extra_values, $contact_form_instance ) {
-	$drive_file_name = $contact_form_instance->get_attribute( 'driveFileName' ) );
+	$drive_file_name = $contact_form_instance->get_attribute( 'driveFileName' );
 
 	if ( ! $drive_file_name || $drive_file_name === '' ) {
 		return;
@@ -3651,7 +3651,7 @@ function google_drive_integration_grunion_pre_message_sent( $post_id, $all_value
 		sprintf( 'TODO', $site_id ),
 		'2',
 		array( 'method' => 'post' ),
-		array( 'driveFileName' => $drive_file_name,
+		array( 'driveFileName' => $drive_file_name ),
 		'wpcom'
 	);
 
