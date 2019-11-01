@@ -158,20 +158,28 @@ class WP_Test_Jetpack_AMP_Shortcodes extends WP_UnitTestCase {
 	 */
 	public function get_vimeo_id_from_attr_data() {
 		return array(
-			'id_is_present_in_attr' => array(
+			'id_is_present_in_attr'                 => array(
 				array( 'id' => '52324' ),
 				'52324'
 			),
-			'attr_has_a_url' => array(
+			'attr_has_a_url'                        => array(
 				array( 'url' => 'https://vimeo.com/52324' ),
 				'52324'
 			),
-			'attr_has_a_valid_url_at_0_index' => array(
+			'attr_has_a_valid_url_at_0_index'       => array(
 				array( 0 => 'https://vimeo.com/52324' ),
 				'52324'
 			),
-			'attr_has_an_invalid_url_at_0_index' => array(
+			'attr_has_an_invalid_url_at_0_index'    => array(
 				array( 0 => 'https://example.com/52324' ),
+				''
+			),
+			'attr_has_numeric_id_at_0_index'        => array(
+				array( 0 => '52324' ),
+				'52324'
+			),
+			'attr_has_non_numeric_value_at_0_index' => array(
+				array( 0 => 'example-here' ),
 				''
 			),
 		);
