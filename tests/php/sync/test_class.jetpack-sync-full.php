@@ -351,6 +351,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// hit $max_queue_size_full_sync limit
 		$status = $this->full_sync->get_enqueue_status();
 		list( $total, $queued, $finished ) = $status['term_relationships'];
+		$this->assertNotTrue( $finished );
 		$this->assertEquals( $initial_queued +  $max_queue_size_full_sync, $queued );
 
 		$this->sender->do_full_sync();
