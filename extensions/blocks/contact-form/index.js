@@ -33,7 +33,6 @@ export const settings = {
 	],
 	category: 'jetpack',
 	supports: {
-		reusable: false,
 		html: false,
 	},
 	attributes: {
