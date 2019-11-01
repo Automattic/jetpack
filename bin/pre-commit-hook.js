@@ -126,7 +126,6 @@ function runPHPCSChanged( phpFilesToCheck ) {
 	} );
 	if ( phpFilesToCheck.length > 0 ) {
 		process.env.PHPCS = 'vendor/bin/phpcs';
-
 		phpFilesToCheck.forEach( function( file ) {
 			phpFileChangedResult = spawnSync( 'vendor/bin/phpcs-changed', [ '--git', file ], {
 				env: process.env,
