@@ -125,7 +125,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 		stdio: 'inherit',
 	} );
 	if ( phpFilesToCheck.length > 0 ) {
-		process.env[ 'PHPCS' ] = 'vendor/bin/phpcs';
+		process.env.PHPCS = 'vendor/bin/phpcs';
 
 		phpFilesToCheck.forEach( function( file ) {
 			phpFileChangedResult = spawnSync( 'vendor/bin/phpcs-changed', [ '--git', file ], {
@@ -231,5 +231,4 @@ if ( phpcsResult && phpcsResult.status ) {
 }
 
 runPHPCSChanged( phpFiles );
-
 exit( exitCode );
