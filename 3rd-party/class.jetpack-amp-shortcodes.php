@@ -8,10 +8,9 @@
 class Jetpack_AMP_Shortcodes {
 
 	/**
-	 * Apply custom AMP changes onthe frontend.
+	 * Add the shortcode filter.
 	 */
 	public static function init() {
-		// Filter [vimeo] shortcode markup.
 		add_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Shortcodes', 'filter_vimeo_shortcode' ), 10, 3 );
 	}
 
