@@ -1,11 +1,11 @@
 <?php
 
-require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-shortcodes.php';
 
 /**
- * Tests for class Jetpack_AMP_Support.
+ * Tests for class Jetpack_AMP_Shortcodes.
  */
-class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
+class WP_Test_Jetpack_AMP_Shortcodes extends WP_UnitTestCase {
 
 	/**
 	 * Tear down each test.
@@ -70,11 +70,21 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests init.
+	 *
+	 * @covers Jetpack_AMP_Shortcodes::init()
+	 */
+	public function test_init() {
+		Jetpack_AMP_Shortcodes::init();
+		$this->assertEquals( 10, has_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Support', 'filter_vimeo_shortcode' ) ) );
+	}
+
+	/**
 	 * Tests that the Vimeo shortcode filter produces the right HTML.
 	 *
 	 * @dataProvider get_vimeo_shortcode_data
-	 * @covers Jetpack_AMP_Support::filter_vimeo_shortcode()
-	 * @covers Jetpack_AMP_Support::render_vimeo()
+	 * @covers Jetpack_AMP_Shortcodes::filter_vimeo_shortcode()
+	 * @covers Jetpack_AMP_Shortcodes::render_vimeo()
 	 *
 	 * @param string $html The html passed to the filter.
 	 * @param string $shortcode_tag The tag (name) of the shortcode, like 'vimeo'.
@@ -89,13 +99,13 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 			$expected = $html;
 		}
 
-		$this->assertEquals( $expected, Jetpack_AMP_Support::filter_vimeo_shortcode( $html, $shortcode_tag, $attr ) );
+		$this->assertEquals( $expected, Jetpack_AMP_Shortcodes::filter_vimeo_shortcode( $html, $shortcode_tag, $attr ) );
 	}
 
 	/**
 	 * Tests the Vimeo shortcode filter when there is a global $content_width value.
 	 *
-	 * @covers Jetpack_AMP_Support::filter_vimeo_shortcode()
+	 * @covers Jetpack_AMP_Shortcodes::filter_vimeo_shortcode()
 	 */
 	public function test_filter_vimeo_shortcode_global_content_width() {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -107,7 +117,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			'<amp-vimeo data-videoid="' . $video_id .'" layout="responsive" width="' . $content_width . '" height="' . $expected_height .'"></amp-vimeo>',
-			Jetpack_AMP_Support::filter_vimeo_shortcode(
+			Jetpack_AMP_Shortcodes::filter_vimeo_shortcode(
 				'<div><span>Initial shortcode</span></div>',
 				'vimeo',
 				array(
@@ -122,14 +132,14 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	/**
 	 * Tests that the Vimeo shortcode filter does not filter the markup on non-AMP endpoints.
 	 *
-	 * @covers Jetpack_AMP_Support::filter_vimeo_shortcode()
+	 * @covers Jetpack_AMP_Shortcodes::filter_vimeo_shortcode()
 	 */
 	public function test_filter_vimeo_shortcode_non_amp() {
 		$initial_shortcode_markup = '<div><span>Shortcode here</span></div>';
 
 		$this->assertEquals(
 			$initial_shortcode_markup,
-			Jetpack_AMP_Support::filter_vimeo_shortcode(
+			Jetpack_AMP_Shortcodes::filter_vimeo_shortcode(
 				$initial_shortcode_markup,
 				'vimeo',
 				array(
@@ -171,13 +181,13 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 * Tests get_vimeo_id_from_attr.
 	 *
 	 * @dataProvider get_vimeo_id_from_attr_data
-	 * @covers Jetpack_AMP_Support::get_vimeo_id_from_attr()
+	 * @covers Jetpack_AMP_Shortcodes::get_vimeo_id_from_attr()
 	 *
 	 * @param array $attr The attributes to pass to the method.
 	 * @param string $expected The expected return value.
 	 */
 	public function test_get_vimeo_id_from_attr( $attr, $expected ) {
-		$this->assertEquals( $expected, Jetpack_AMP_Support::get_vimeo_id_from_attr( $attr ) );
+		$this->assertEquals( $expected, Jetpack_AMP_Shortcodes::get_vimeo_id_from_attr( $attr ) );
 	}
 
 	/**
@@ -214,13 +224,13 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 * Tests get_vimeo_id_from_url.
 	 *
 	 * @dataProvider get_video_id_data
-	 * @covers Jetpack_AMP_Support::get_vimeo_id_from_url()
+	 * @covers Jetpack_AMP_Shortcodes::get_vimeo_id_from_url()
 	 *
 	 * @param string $url The URL to pass to the function.
 	 * @param string $expected The expected return value.
 	 */
 	public function test_get_vimeo_id_from_url( $url, $expected ) {
-		$this->assertEquals( $expected, Jetpack_AMP_Support::get_vimeo_id_from_url( $url ) );
+		$this->assertEquals( $expected, Jetpack_AMP_Shortcodes::get_vimeo_id_from_url( $url ) );
 	}
 
 	/**
@@ -265,12 +275,12 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 * Test build_attributes_string.
 	 *
 	 * @dataProvider get_build_attributes_string_data
-	 * @covers Jetpack_AMP_Support::build_attributes_string()
+	 * @covers Jetpack_AMP_Shortcodes::build_attributes_string()
 	 *
 	 * @param array $attributes An associative array of $attribute => $value.
 	 */
 	public function test_build_attributes_string( $attributes, $expected ) {
-		$this->assertEquals( $expected, Jetpack_AMP_Support::build_attributes_string( $attributes ) );
+		$this->assertEquals( $expected, Jetpack_AMP_Shortcodes::build_attributes_string( $attributes ) );
 	}
 
 	/**
@@ -314,7 +324,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 * Test build_attributes_string.
 	 *
 	 * @dataProvider get_build_tag_data
-	 * @covers Jetpack_AMP_Support::build_tag()
+	 * @covers Jetpack_AMP_Shortcodes::build_tag()
 	 *
 	 * @param string $tag_name The tag name.
 	 * @param array  $attributes An associative array of $attribute => $value pairs.
@@ -322,6 +332,6 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 * @param string $expected The expected return value of the function.
 	 */
 	public function test_build_tag( $tag_name, $attributes, $content, $expected ) {
-		$this->assertEquals( $expected, Jetpack_AMP_Support::build_tag( $tag_name, $attributes, $content ) );
+		$this->assertEquals( $expected, Jetpack_AMP_Shortcodes::build_tag( $tag_name, $attributes, $content ) );
 	}
 }
