@@ -599,7 +599,7 @@ class Full_Sync extends Module {
 	 *
 	 * @return array Full sync enqueue status.
 	 */
-	private function get_enqueue_status() {
+	public function get_enqueue_status() {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
