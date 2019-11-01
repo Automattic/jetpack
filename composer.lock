@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "450c222b62c210972270203510876203",
+    "content-hash": "e62f97da2c3b8f8c02947f3ce846481e",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -747,24 +747,25 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v1.0",
+            "version": "2.2.7-beta-1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "bb7e513c7fcad503623064f240c8c76ce4891f3a"
+                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/bb7e513c7fcad503623064f240c8c76ce4891f3a",
-                "reference": "bb7e513c7fcad503623064f240c8c76ce4891f3a",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/333988bd9caccc5a73578860949f0e2f268b91a9",
+                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0"
+                "php": "^7.1"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
                 "limedeck/phpunit-detailed-printer": "^3.1",
+                "phpstan/phpstan": "^0.11.12",
                 "phpunit/phpunit": "^6.4",
                 "sirbrillig/phpcs-import-detection": "^1.1.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.1.3",
@@ -777,7 +778,13 @@
             "autoload": {
                 "psr-4": {
                     "PhpcsChanged\\": "PhpcsChanged/"
-                }
+                },
+                "files": [
+                    "PhpcsChanged/Cli.php",
+                    "PhpcsChanged/SvnWorkflow.php",
+                    "PhpcsChanged/GitWorkflow.php",
+                    "PhpcsChanged/functions.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -790,7 +797,7 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
-            "time": "2018-11-19T21:11:44+00:00"
+            "time": "2019-10-29T16:28:21+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
@@ -953,7 +960,9 @@
         "automattic/jetpack-tracking": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-compat": 20,
-        "automattic/jetpack-terms-of-service": 20
+        "automattic/jetpack-terms-of-service": 20,
+        "automattic/jetpack-backup": 20,
+        "sirbrillig/phpcs-changed": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
