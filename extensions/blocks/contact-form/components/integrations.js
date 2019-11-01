@@ -96,7 +96,7 @@ class Integrations extends Component {
 			<PanelBody title={ __( 'Integrations', 'jetpack' ) }>
 				<ToggleControl
 					label={ __( 'Google Drive' ) }
-					checked={ this.state.enabled }
+					checked={ this.props.driveFileName || this.state.enabled }
 					onChange={ this.toggleGoogleDriveIntegration }
 				/>
 				{ this.state.enabled && this.state.connectionResponse && (
