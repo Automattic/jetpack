@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Connection\Client;
 
 define( 'GRUNION_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GRUNION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -1580,6 +1581,21 @@ class Grunion_Contact_Form_Plugin {
 
 	public static function get_ip_address() {
 		return isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null;
+	}
+
+	/**
+	 * Used to check whether integrations are enabled the contact form for this site
+	 *
+	 * @return bool True if integrations are enabled, false otherwise.
+	 */
+	function contact_form_integrations_enabled() {
+		// For WPCOM sites
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+			$site_id = $this->get_blog_id();
+			return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		}
+		// For all Jetpack sites
+		return Jetpack::is_active() && Jetpack_Plan::supports( 'contact-form-integrations');
 	}
 }
 
@@ -3614,6 +3630,31 @@ add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_messa
  * @return null|void
  */
 function google_drive_integration_grunion_pre_message_sent( $post_id, $all_values, $extra_values, $contact_form_instance ) {
-	error_log( $contact_form_instance->get_attribute( 'driveFileName' ) );
+	$drive_file_name = $contact_form_instance->get_attribute( 'driveFileName' ) );
+
+	if ( ! $drive_file_name || $drive_file_name === '' ) {
+		return;
+	}
+
+	// Check the integration is enabled
+	if ( ! $contact_form_instance->contact_form_integrations_enabled() ) {
+		return;
+	}
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		// Call the API directly
+		return;
+	}
+
+	$site_id = Jetpack_Options::get_option( 'id' );
+	$response = Client::wpcom_json_api_request_as_blog(
+		sprintf( 'TODO', $site_id ),
+		'2',
+		array( 'method' => 'post' ),
+		array( 'driveFileName' => $drive_file_name,
+		'wpcom'
+	);
+
+	return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ) ) );
 }
 add_action( 'grunion_pre_message_sent', 'google_drive_integration_grunion_pre_message_sent', 12, 4 );
