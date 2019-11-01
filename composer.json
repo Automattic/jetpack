@@ -39,7 +39,7 @@
 		"php:lint": "composer install --ignore-platform-reqs && vendor/bin/phpcs -p -s",
 		"php:autofix": "composer install --ignore-platform-reqs && vendor/bin/phpcbf",
 		"php:lint:errors": "composer install --ignore-platform-reqs && vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
-		"php:changed": "composer install && bin/phpcs-changed.sh"
+		"php:changed": "composer install && PHPCS=vendor/bin/phpcs vendor/bin/phpcs-changed"
 	},
 	"repositories": [
 		{
