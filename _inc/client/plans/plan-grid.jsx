@@ -50,7 +50,7 @@ class PlanGrid extends React.Component {
 		};
 	}
 
-	handleFeatureClick( planType ) {
+	handleSeeFeaturesClick( planType ) {
 		return () => {
 			analytics.tracks.recordJetpackClick( {
 				target: 'see-all-features-' + planType,
@@ -342,7 +342,7 @@ class PlanGrid extends React.Component {
 				>
 					<Button
 						href={ this.props.plansLearnMoreUpgradeUrl }
-						onClick={ this.handleFeatureClick( planType ) }
+						onClick={ this.handleSeeFeaturesClick( planType ) }
 					>
 						{ plan.strings.see_all }
 					</Button>
