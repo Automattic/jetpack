@@ -141,7 +141,14 @@ class Jetpack_Likes {
 	 * @return null
 	 */
 	function load_styles_register_scripts() {
+		error_log("in load_styles_register_scripts");
 		if ( $this->in_jetpack ) {
+			error_log("in Jetpack");
+			if ( ! is_singular() ) {
+				error_log("NOT loading styles");
+				return;
+			}
+			error_log("YES loading styles");
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 			$this->register_scripts();
 		}

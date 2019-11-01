@@ -129,6 +129,9 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function load_styles_register_scripts() {
+		if ( ! is_singular() ) {
+			return;
+		}
 		if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
 			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
 		}
