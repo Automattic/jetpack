@@ -2,7 +2,7 @@
 module.exports = [
 	'3rd-party/3rd-party.php',
 	'3rd-party/class.jetpack-amp-support.php',
-	'3rd-party/class.jetpack-amp-shortcodes.php',
+	'3rd-party/class.jetpack-amp-vimeo-shortcode.php',
 	'3rd-party/woocommerce-services.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
