@@ -436,6 +436,38 @@ class Jetpack_AMP_Support {
 
 		return $args;
 	}
+
+	/**
+	 * Generates HTML markup for the given tag, attributes and content.
+	 *
+	 * @param string $tag_name   Tag name.
+	 * @param array  $attributes Associative array of $attribute => $value pairs.
+	 * @param string $content    Inner content for the generated node.
+	 * @return string HTML markup.
+	 */
+	public static function build_tag( $tag_name, $attributes = [], $content = '' ) {
+		$attr_string = self::build_attributes_string( $attributes );
+		return sprintf( '<%1$s %2$s>%3$s</%1$s>', sanitize_key( $tag_name ), $attr_string, $content );
+	}
+
+	/**
+	 * Generates a string of HTML attributes.
+	 *
+	 * @param array $attributes An associative array of $attribute => $value pairs.
+	 * @return string The HTML attributes.
+	 */
+	public static function build_attributes_string( $attributes ) {
+		$string = [];
+		foreach ( $attributes as $name => $value ) {
+			if ( '' === $value ) {
+				$string[] = sprintf( '%s', sanitize_key( $name ) );
+			} else {
+				$string[] = sprintf( '%s="%s"', sanitize_key( $name ), esc_attr( $value ) );
+			}
+		}
+
+		return implode( ' ', $string );
+	}
 }
 
 add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );

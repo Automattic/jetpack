@@ -1,17 +1,17 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
- * Makes certain Jetpack shortcodes AMP-compatible.
+ * Makes the [vimeo] Jetpack shortcode AMP-compatible.
  *
  * @see https://github.com/ampproject/amp-wp/blob/ea9e6fb9d262e699ea64978794840ba9868715f6/includes/embeds/class-amp-vimeo-embed.php#L71
  */
-class Jetpack_AMP_Shortcodes {
+class Jetpack_AMP_Vimeo_Shortcode {
 
 	/**
 	 * Add the shortcode filter.
 	 */
 	public static function init() {
-		add_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Shortcodes', 'filter_vimeo_shortcode' ), 10, 3 );
+		add_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Vimeo_Shortcode', 'filter_vimeo_shortcode' ), 10, 3 );
 	}
 
 	/**
@@ -105,7 +105,7 @@ class Jetpack_AMP_Shortcodes {
 		);
 
 		if ( empty( $args['video_id'] ) ) {
-			return self::build_tag(
+			return Jetpack_AMP_Support::build_tag(
 				'a',
 				[
 					'href'  => esc_url( $args['url'] ),
@@ -115,7 +115,7 @@ class Jetpack_AMP_Shortcodes {
 			);
 		}
 
-		return self::build_tag(
+		return Jetpack_AMP_Support::build_tag(
 			'amp-vimeo',
 			array(
 				'data-videoid' => $args['video_id'],
@@ -125,38 +125,6 @@ class Jetpack_AMP_Shortcodes {
 			)
 		);
 	}
-
-	/**
-	 * Generates HTML markup for the given tag, attributes and content.
-	 *
-	 * @param string $tag_name   Tag name.
-	 * @param array  $attributes Associative array of $attribute => $value pairs.
-	 * @param string $content    Inner content for the generated node.
-	 * @return string HTML markup.
-	 */
-	public static function build_tag( $tag_name, $attributes = [], $content = '' ) {
-		$attr_string = self::build_attributes_string( $attributes );
-		return sprintf( '<%1$s %2$s>%3$s</%1$s>', sanitize_key( $tag_name ), $attr_string, $content );
-	}
-
-	/**
-	 * Generates a string of HTML attributes.
-	 *
-	 * @param array $attributes An associative array of $attribute => $value pairs.
-	 * @return string The HTML attributes.
-	 */
-	public static function build_attributes_string( $attributes ) {
-		$string = [];
-		foreach ( $attributes as $name => $value ) {
-			if ( '' === $value ) {
-				$string[] = sprintf( '%s', sanitize_key( $name ) );
-			} else {
-				$string[] = sprintf( '%s="%s"', sanitize_key( $name ), esc_attr( $value ) );
-			}
-		}
-
-		return implode( ' ', $string );
-	}
 }
 
-add_action( 'init', array( 'Jetpack_AMP_Shortcodes', 'init' ), 1 );
+add_action( 'init', array( 'Jetpack_AMP_Vimeo_Shortcode', 'init' ), 1 );
