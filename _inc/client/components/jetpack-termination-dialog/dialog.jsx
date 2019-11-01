@@ -49,6 +49,7 @@ function mapBenefitNameToGridicon( benefitName ) {
 
 function mapBenefitDataToViewData( benefit ) {
 	return {
+		name: benefit.name,
 		title: benefit.title,
 		description: benefit.description,
 		amount: benefit.value,
@@ -138,7 +139,7 @@ class JetpackTerminationDialog extends Component {
 								: __( 'Are you sure you want to disconnect and deactivate?' ) }
 						</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
-							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Close' ) }</Button>
+							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel' ) }</Button>
 							<Button scary primary onClick={ this.handleTerminationClick }>
 								{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
 							</Button>
