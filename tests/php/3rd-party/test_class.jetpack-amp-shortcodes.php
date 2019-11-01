@@ -76,7 +76,7 @@ class WP_Test_Jetpack_AMP_Shortcodes extends WP_UnitTestCase {
 	 */
 	public function test_init() {
 		Jetpack_AMP_Shortcodes::init();
-		$this->assertEquals( 10, has_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Support', 'filter_vimeo_shortcode' ) ) );
+		$this->assertEquals( 10, has_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Shortcodes', 'filter_vimeo_shortcode' ) ) );
 	}
 
 	/**
