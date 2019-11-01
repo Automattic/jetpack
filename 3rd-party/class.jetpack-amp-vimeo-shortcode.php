@@ -11,7 +11,7 @@ class Jetpack_AMP_Vimeo_Shortcode {
 	 * Add the shortcode filter.
 	 */
 	public static function init() {
-		add_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Vimeo_Shortcode', 'filter_vimeo_shortcode' ), 10, 3 );
+		add_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Vimeo_Shortcode', 'filter_shortcode' ), 10, 3 );
 	}
 
 	/**
@@ -22,7 +22,7 @@ class Jetpack_AMP_Vimeo_Shortcode {
 	 * @param array  $attr The attributes of the shortcode.
 	 * @return string The filtered HTML.
 	 */
-	public static function filter_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
+	public static function filter_shortcode( $html, $shortcode_tag, $attr ) {
 		if ( ! Jetpack_AMP_Support::is_amp_request() || 'vimeo' !== $shortcode_tag ) {
 			return $html;
 		}
@@ -77,7 +77,7 @@ class Jetpack_AMP_Vimeo_Shortcode {
 	 * Determines the video ID from the URL.
 	 *
 	 * @param string $url URL.
-	 * @return string The video ID, or an empty string if it's not found.
+	 * @return int|string The video ID, or an empty string if it's not found.
 	 */
 	public static function get_vimeo_id_from_url( $url ) {
 		$host = wp_parse_url( $url, PHP_URL_HOST );

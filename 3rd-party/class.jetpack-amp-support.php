@@ -445,7 +445,7 @@ class Jetpack_AMP_Support {
 	 * @param string $content    Inner content for the generated node.
 	 * @return string HTML markup.
 	 */
-	public static function build_tag( $tag_name, $attributes = [], $content = '' ) {
+	public static function build_tag( $tag_name, $attributes = array(), $content = '' ) {
 		$collected_attributes = array();
 		foreach ( $attributes as $name => $value ) {
 			$collected_attributes[] = ( '' === $value ) ? sprintf( '%s', sanitize_key( $name ) ) : sprintf( '%s="%s"', sanitize_key( $name ), esc_attr( $value ) );
