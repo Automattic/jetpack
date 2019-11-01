@@ -201,6 +201,7 @@ class Full_Sync extends Module {
 			$enqueue_status = $this->get_enqueue_status();
 		}
 
+		$queue_finished = true;
 		foreach ( Modules::get_modules() as $module ) {
 			$module_name = $module->name();
 
@@ -225,14 +226,20 @@ class Full_Sync extends Module {
 				$remaining_items_to_enqueue        -= $items_enqueued;
 			}
 
+			if ( ! $next_enqueue_state ) {
+				$queue_finished = false;
+			}
 			// Stop processing if we've reached our limit of items to enqueue.
-			if ( 0 <= $remaining_items_to_enqueue ) {
-				$this->set_enqueue_status( $enqueue_status );
-				return;
+			if ( 0 >= $remaining_items_to_enqueue ) {
+				break;
 			}
 		}
 
 		$this->set_enqueue_status( $enqueue_status );
+
+		if ( ! $queue_finished ) {
+			return;
+		}
 
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
 		$this->update_status_option( 'queue_finished', time(), true );
