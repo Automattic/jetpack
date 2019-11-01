@@ -239,7 +239,7 @@ class Full_Sync extends Module {
 
 		$this->set_enqueue_status( $enqueue_status );
 
-		if ( count( $modules ) === $modules_processed ) {
+		if ( count( $modules ) > $modules_processed ) {
 			return;
 		}
 
