@@ -312,7 +312,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// how many items are we allowed to enqueue on a single request/continue_enqueuing
 		$max_enqueue_full_sync = 2;
-		// how many items are we allowed to enqueue on any given time
+		// how many sync items the full sync queue can contain
 		$max_queue_size_full_sync = 3;
 		// how many term relationships we can put on a full_sync_term_relationships item
 		$sync_item_size = 4;
