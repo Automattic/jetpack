@@ -363,7 +363,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $total_items, $total );
 		$this->assertEquals( $total_items, $queued );
-		$this->assertTrue( $finished === true );
+		$this->assertSame( $finished, true );
 	}
 
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
