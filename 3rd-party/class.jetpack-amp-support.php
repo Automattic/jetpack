@@ -446,17 +446,6 @@ class Jetpack_AMP_Support {
 	 * @return string HTML markup.
 	 */
 	public static function build_tag( $tag_name, $attributes = [], $content = '' ) {
-		$attr_string = self::build_attributes_string( $attributes );
-		return sprintf( '<%1$s %2$s>%3$s</%1$s>', sanitize_key( $tag_name ), $attr_string, $content );
-	}
-
-	/**
-	 * Generates a string of HTML attributes.
-	 *
-	 * @param array $attributes An associative array of $attribute => $value pairs.
-	 * @return string The HTML attributes.
-	 */
-	public static function build_attributes_string( $attributes ) {
 		$string = [];
 		foreach ( $attributes as $name => $value ) {
 			if ( '' === $value ) {
@@ -466,10 +455,10 @@ class Jetpack_AMP_Support {
 			}
 		}
 
-		return implode( ' ', $string );
+		$attr_string = implode( ' ', $string );
+		return sprintf( '<%1$s %2$s>%3$s</%1$s>', sanitize_key( $tag_name ), $attr_string, $content );
 	}
 }
 
 add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
-
 add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );

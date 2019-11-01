@@ -57,17 +57,20 @@ class Jetpack_AMP_Vimeo_Shortcode {
 		// This would be '1234' in [vimeo 1234].
 		$value_at_0_index = isset( $attr[0] ) ? $attr[0] : null;
 
+		$id = null;
 		if ( isset( $attr['id'] ) ) {
-			return $attr['id'];
+			$id = $attr['id'];
 		} elseif ( isset( $attr['url'] ) ) {
-			return self::get_vimeo_id_from_url( $attr['url'] );
+			$id = self::get_vimeo_id_from_url( $attr['url'] );
 		} elseif ( is_numeric( $value_at_0_index ) ) {
-			return $value_at_0_index;
+			$id = $value_at_0_index;
 		} elseif ( $value_at_0_index ) {
-			return self::get_vimeo_id_from_url( $value_at_0_index );
+			$id = self::get_vimeo_id_from_url( $value_at_0_index );
 		} elseif ( function_exists( 'shortcode_new_to_old_params' ) ) {
-			return shortcode_new_to_old_params( $attr );
+			$id = shortcode_new_to_old_params( $attr );
 		}
+
+		return $id;
 	}
 
 	/**
