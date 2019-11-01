@@ -84,7 +84,7 @@ class Jetpack_AMP_Vimeo_Shortcode {
 		$path = wp_parse_url( $url, PHP_URL_PATH );
 
 		if (
-			in_array( $host, [ 'vimeo.com', 'www.vimeo.com' ], true )
+			in_array( $host, array( 'vimeo.com', 'www.vimeo.com' ), true )
 			&&
 			preg_match( ':^/(\d+):', $path, $matches )
 		) {
@@ -110,10 +110,10 @@ class Jetpack_AMP_Vimeo_Shortcode {
 		if ( empty( $args['video_id'] ) ) {
 			return Jetpack_AMP_Support::build_tag(
 				'a',
-				[
+				array(
 					'href'  => esc_url( $args['url'] ),
 					'class' => 'amp-wp-embed-fallback',
-				],
+				),
 				esc_html( $args['url'] )
 			);
 		}
