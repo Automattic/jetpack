@@ -18,6 +18,16 @@ class WP_Test_Jetpack_AMP_Vimeo_Shortcode extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests init.
+	 *
+	 * @covers Jetpack_AMP_Vimeo_Shortcode::init()
+	 */
+	public function test_init() {
+		Jetpack_AMP_Vimeo_Shortcode::init();
+		$this->assertEquals( 10, has_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Vimeo_Shortcode', 'filter_shortcode' ) ) );
+	}
+
+	/**
 	 * Gets the test data for the Vimeo shortcodes.
 	 *
 	 * @return array An associative array of test data.
@@ -67,16 +77,6 @@ class WP_Test_Jetpack_AMP_Vimeo_Shortcode extends WP_UnitTestCase {
 				'<amp-vimeo data-videoid="623422" layout="responsive" width="900" height="1200"></amp-vimeo>'
 			),
 		);
-	}
-
-	/**
-	 * Tests init.
-	 *
-	 * @covers Jetpack_AMP_Vimeo_Shortcode::init()
-	 */
-	public function test_init() {
-		Jetpack_AMP_Vimeo_Shortcode::init();
-		$this->assertEquals( 10, has_filter( 'do_shortcode_tag', array( 'Jetpack_AMP_Vimeo_Shortcode', 'filter_shortcode' ) ) );
 	}
 
 	/**
