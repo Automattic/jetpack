@@ -318,6 +318,18 @@ abstract class Module {
 	}
 
 	/**
+	 * In most cases the total of items that we enqueue will always stays the same.
+	 * Since the items are ordered using the primary key which auto increments.
+	 *
+	 * @param array $previous_enqueue_status Arr
+	 *
+	 * @return int Return the previous total
+	 */
+	public function recalculate_total( $previous_enqueue_status ) {
+		return $previous_enqueue_status[0]; // the previous total
+	}
+
+	/**
 	 * Initialize listeners for the particular meta type.
 	 *
 	 * @access public

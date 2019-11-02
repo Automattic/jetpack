@@ -217,6 +217,8 @@ class Full_Sync extends Module {
 				$modules_processed ++;
 				continue;
 			}
+			// Recalculate the total for some modules.
+			$enqueue_status[ $module_name ][0] = $module->recalculate_total( $enqueue_status[ $module_name ] );
 
 			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
 

@@ -130,7 +130,7 @@ class Term_Relationships extends Module {
 		}
 
 		// We need to do this extra check in case $max_items_to_enqueue * $term_relationships_full_sync_item_size == relationships objects left.
-		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], 1 ) );
+		$count = $this->count_remaining_items( $last_object_enqueued );
 		if ( intval( $count ) === 0 ) {
 			return array( $items_enqueued_count, true );
 		}
@@ -172,6 +172,37 @@ class Term_Relationships extends Module {
 		$count = $wpdb->get_var( $query );
 
 		return (int) ceil( $count / Settings::get_setting( 'term_relationships_full_sync_item_size' ) );
+	}
+
+	/**
+	 * Use to calculate the new total.
+	 *
+	 * @param array $previous_enqueue_status
+	 *
+	 * @return int The number of items that we should be sending.
+	 */
+	public function recalculate_total( $previous_enqueue_status ) {
+
+		list( $previous_total, $previously_enqueued_item_count, $previous_enqueue_state ) = $previous_enqueue_status;
+		if ( ! is_array( $previous_enqueue_status[2] ) ) {
+			return $previous_total;
+		}
+		$count = $this->count_remaining_items( $previous_enqueue_state );
+
+		return (int) ceil( $count / Settings::get_setting( 'term_relationships_full_sync_item_size' ) ) + $previously_enqueued_item_count;
+	}
+
+	/**
+	 * Helper function that counts the remaining items give the last object enqueued.
+	 *
+	 * @param array $last_object_enqueued Array containing the place where we last left of.
+	 *
+	 * @return int The number of term relationships that are left to enqueue.
+	 */
+	private function count_remaining_items( $last_object_enqueued ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], 1 ) );
+
 	}
 
 	/**

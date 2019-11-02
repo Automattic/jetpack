@@ -366,6 +366,154 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( $finished, true );
 	}
 
+	/**
+	 * This tests tries to test the accuracy of the total that gets stored in the enqueu status.
+	 * Since term relationships are not enqueued with an autoincromenting primary key.
+	 *
+	 */
+	function test_full_sync_enqueue_older_post_add_term_relationships() {
+		global $wpdb;
+
+		// how many items are we allowed to enqueue on a single request/continue_enqueuing
+		$max_enqueue_full_sync = 2;
+		// how many sync items the full sync queue can contain
+		$max_queue_size_full_sync = 3;
+		// how many term relationships we can put on a full_sync_term_relationships item
+		$sync_item_size = 4;
+
+		Settings::update_settings( [
+			'term_relationships_full_sync_item_size' => $sync_item_size,
+			'max_queue_size_full_sync'               => $max_queue_size_full_sync,
+			'max_enqueue_full_sync'                  => $max_enqueue_full_sync,
+		] );
+
+		$first_post_ids = $this->factory->post->create_many( 1 ); // create a low post ID.
+
+		$post_ids = $this->factory->post->create_many( 4 );
+
+
+		foreach ( $post_ids as $post_id ) {
+			wp_set_object_terms( $post_id, array( 'cat1', 'cat2', 'cat3' ), 'category', true );
+			wp_set_object_terms( $post_id, array( 'tag1', 'tag2', 'tag3' ), 'post_tag', true );
+		}
+
+		// 28
+		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// ceil(28/4) = 7
+		$total_items = intval( ceil( $original_number_of_term_relationships  / $sync_item_size ) );
+
+		$this->full_sync->start( array( 'term_relationships' => true ) );
+		$this->sender->do_full_sync(); // empty the queue since – "full_sync_start" takes one item in the queue
+
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $initial_queued, $finished ) = $status['term_relationships'];
+
+		$this->assertEquals( $total_items, $total );
+		$this->assertEquals( $max_enqueue_full_sync, $initial_queued );
+		$this->assertNotTrue( $finished );
+
+		list( $total, $queued, $finished ) = $status['term_relationships'];
+
+		// An old post gets a category attached to it.
+		wp_set_object_terms( $first_post_ids[0] , array( 'cat1', 'cat2', 'cat3' ), 'category', true );
+		wp_set_object_terms( $first_post_ids[0], array( 'tag1', 'tag2', 'tag3' ), 'post_tag', true );
+
+		$new_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		$new_total_items = intval( ceil( $new_number_of_term_relationships  / $sync_item_size ) );
+
+		$this->full_sync->continue_enqueuing(); // try to enqueue $max_enqueue_full_sync items
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $queued, $finished ) = $status['term_relationships'];
+
+
+		$replica_number_of_term_relationships = count( $this->server_replica_storage->get_term_relationships() );
+		$this->assertEquals( $replica_number_of_term_relationships, $new_number_of_term_relationships );
+
+		$this->assertSame( $finished, true );
+		$this->assertEquals( $new_total_items, $queued );
+		$this->assertEquals( $new_total_items, $total, 'The initial total has not been updated' );
+
+	}
+
+	function test_full_sync_enqueue_older_post_remove_term_relationships() {
+		global $wpdb;
+
+		// how many items are we allowed to enqueue on a single request/continue_enqueuing
+		$max_enqueue_full_sync = 2;
+		// how many sync items the full sync queue can contain
+		$max_queue_size_full_sync = 3;
+		// how many term relationships we can put on a full_sync_term_relationships item
+		$sync_item_size = 4;
+
+		Settings::update_settings( [
+			'term_relationships_full_sync_item_size' => $sync_item_size,
+			'max_queue_size_full_sync'               => $max_queue_size_full_sync,
+			'max_enqueue_full_sync'                  => $max_enqueue_full_sync,
+		] );
+
+		$first_post_ids = $this->factory->post->create_many( 1 ); // create a low post ID.
+
+		$post_ids = $this->factory->post->create_many( 4 );
+
+
+		foreach ( $post_ids as $post_id ) {
+			wp_set_object_terms( $post_id, array( 'cat1', 'cat2', 'cat3' ), 'category', true );
+			wp_set_object_terms( $post_id, array( 'tag1', 'tag2', 'tag3' ), 'post_tag', true );
+		}
+
+		// 28
+		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// ceil(28/4) = 7
+		$total_items = intval( ceil( $original_number_of_term_relationships  / $sync_item_size ) );
+
+		$this->full_sync->start( array( 'term_relationships' => true ) );
+		$this->sender->do_full_sync(); // empty the queue since – "full_sync_start" takes one item in the queue
+
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $initial_queued, $finished ) = $status['term_relationships'];
+
+		$this->assertEquals( $total_items, $total );
+		$this->assertEquals( $max_enqueue_full_sync, $initial_queued );
+		$this->assertNotTrue( $finished );
+
+		list( $total, $queued, $finished ) = $status['term_relationships'];
+
+		// An old post removes the categories and tags
+		wp_set_object_terms( $post_ids[0], array( ), 'category'  );
+		wp_set_object_terms( $post_ids[0], array( ), 'post_tag' );
+
+		$new_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		$new_total_items = intval( ceil( $new_number_of_term_relationships  / $sync_item_size ) );
+
+		$this->full_sync->continue_enqueuing(); // try to enqueue $max_enqueue_full_sync items
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+		$this->sender->do_full_sync();
+
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $queued, $finished ) = $status['term_relationships'];
+
+		$replica_number_of_term_relationships = count( $this->server_replica_storage->get_term_relationships() );
+		$this->assertEquals( $replica_number_of_term_relationships, $new_number_of_term_relationships );
+
+		$this->assertSame( $finished, true );
+		$this->assertEquals( $new_total_items, $queued );
+		$this->assertEquals( $new_total_items, $total, 'The initial total has not been updated' );
+
+	}
+
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
 		$post_id = $this->factory->post->create();
 
