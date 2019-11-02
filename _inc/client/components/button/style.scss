@@ -99,9 +99,12 @@
 	}
 	&[disabled],
 	&:disabled {
-		background: tint( $blue-light, 50% );
-		border-color: tint( $blue-wordpress, 55% );
-		color: $white;
+		color: #66c6e4 !important;
+		background-color: #008ec2 !important;
+		border-color: #008ec2 !important;
+		box-shadow: none !important;
+		text-shadow: none !important;
+		cursor: default;
 	}
 	&.is-compact {
 		color: $white;
