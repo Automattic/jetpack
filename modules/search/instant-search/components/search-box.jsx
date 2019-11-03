@@ -3,28 +3,34 @@
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import { h } from 'preact';
+import { useState } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
+// eslint-disable-next-line lodash/import-scope
+import uniqueId from 'lodash/uniqueId';
 
-class SearchBox extends Component {
-	render() {
-		return (
-			<div className={ 'jp-instant-search__box' }>
-				{ /* TODO: Add support for preserving label text */ }
-				<span className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</span>
-				<input
-					className="search-field jp-instant-search__box-input"
-					onInput={ this.props.onChangeQuery }
-					onFocus={ this.props.onFocus }
-					onBlur={ this.props.onBlur }
-					ref={ this.props.appRef }
-					placeholder={ __( 'Search…', 'jetpack' ) }
-					type="search"
-					value={ this.props.query }
-				/>
-			</div>
-		);
-	}
-}
+const SearchBox = props => {
+	const [ inputId ] = useState( () => uniqueId( 'jp-instant-search__box-input-' ) );
+	return (
+		<div className={ 'jp-instant-search__box' }>
+			{ /* TODO: Add support for preserving label text */ }
+			<label htmlFor={ inputId } className="screen-reader-text">
+				{ __( 'Site Search', 'jetpack' ) }
+			</label>
+			<input
+				id={ inputId }
+				className="search-field jp-instant-search__box-input"
+				onInput={ props.onChangeQuery }
+				onFocus={ props.onFocus }
+				onBlur={ props.onBlur }
+				ref={ props.appRef }
+				placeholder={ __( 'Search…', 'jetpack' ) }
+				type="search"
+				value={ props.query }
+			/>
+			<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
+		</div>
+	);
+};
 
 export default SearchBox;
