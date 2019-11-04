@@ -55,7 +55,7 @@ class PlanGrid extends React.Component {
 			analytics.tracks.recordJetpackClick( {
 				target: 'see-all-features-link',
 				feature: 'plans-grid',
-				extra: 'see-all-features-' + planType,
+				extra: planType,
 			} );
 		};
 	}
