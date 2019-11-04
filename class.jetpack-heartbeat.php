@@ -119,6 +119,7 @@ class Jetpack_Heartbeat {
 		$return[ "{$prefix}is-multisite" ]   = is_multisite() ? 'multisite' : 'singlesite';
 		$return[ "{$prefix}identitycrisis" ] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
 		$return[ "{$prefix}plugins" ]        = implode( ',', Jetpack::get_active_plugins() );
+		$return[ "{$prefix}mu-plugins"]      = implode( ',', array_keys( get_mu_plugins() ) );
 		$return[ "{$prefix}manage-enabled" ] = true;
 
 		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
