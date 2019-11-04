@@ -173,6 +173,84 @@ function vimeo_shortcode( $atts ) {
 add_shortcode( 'vimeo', 'vimeo_shortcode' );
 
 /**
+ * Filters the Vimeo shortcode to be AMP-compatible.
+ *
+ * @param string $html The video player HTML.
+ * @param string $shortcode_tag The shortcode's tag (name).
+ * @param array  $attr The attributes of the shortcode.
+ * @return string The filtered HTML.
+ */
+function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
+	if (
+		( class_exists( 'Jetpack_AMP_Support' ) && ! Jetpack_AMP_Support::is_amp_request() )
+		||
+		'vimeo' !== $shortcode_tag
+	) {
+		return $html;
+	}
+
+	if ( isset( $attr[0] ) ) {
+		$video_id = jetpack_shortcode_get_vimeo_id( $attr );
+	} elseif ( isset( $attr['id'] ) ) {
+		$video_id = $attr['id'];
+	}
+
+	if ( empty( $video_id ) ) {
+		return '';
+	}
+
+	$aspect_ratio   = 0.5625;
+	$default_width  = 600;
+	$default_height = 338;
+
+	if ( ! empty( $GLOBALS['content_width'] ) ) {
+		$width  = $GLOBALS['content_width'];
+		$height = round( $GLOBALS['content_width'] * $aspect_ratio );
+	} else {
+		$width  = isset( $attr['width'] ) ? $attr['width'] : $default_width;
+		$height = isset( $attr['height'] ) ? $attr['height'] : $default_height;
+	}
+
+	return jetpack_render_amp_vimeo( compact( 'video_id', 'width', 'height' ) );
+}
+
+/**
+ * Renders the Vimeo shortcode as AMP.
+ *
+ * @param array $args The arguments.
+ * @return string The rendered HTML.
+ */
+function jetpack_render_amp_vimeo( $args ) {
+	$args = wp_parse_args(
+		$args,
+		array( 'video_id' => false )
+	);
+
+	if ( empty( $args['video_id'] ) ) {
+		return Jetpack_AMP_Support::build_tag(
+			'a',
+			array(
+				'href'  => esc_url( $args['url'] ),
+				'class' => 'amp-wp-embed-fallback',
+			),
+			esc_html( $args['url'] )
+		);
+	}
+
+	return Jetpack_AMP_Support::build_tag(
+		'amp-vimeo',
+		array(
+			'data-videoid' => $args['video_id'],
+			'layout'       => 'responsive',
+			'width'        => $args['width'],
+			'height'       => $args['height'],
+		)
+	);
+}
+
+add_filter( 'do_shortcode_tag', 'amp_vimeo_shortcode', 10, 3 );
+
+/**
  * Callback to modify output of embedded Vimeo video using Jetpack's shortcode.
  *
  * @since 3.9

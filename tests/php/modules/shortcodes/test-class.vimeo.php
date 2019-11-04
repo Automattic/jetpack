@@ -3,6 +3,15 @@
 class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
+	 * Tear down each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tearDown() {
+		unset( $GLOBALS['content_width'] );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers ::vimeo_shortcode
 	 * @since 3.2
@@ -222,5 +231,120 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$expected_shortcode = '[vimeo 81408697]';
 
 		$this->assertEquals( $expected_shortcode, $shortcode );
+	}
+
+	/**
+	 * Gets the test data for the Vimeo shortcodes.
+	 *
+	 * @return array An associative array of test data.
+	 */
+	public function get_vimeo_shortcode_data() {
+		return array(
+			'not_a_vimeo_shortcode'      => array(
+				'<amp-youtube></amp-youtube>',
+				'youtube',
+				array(
+					'id' => '62245'
+				),
+				null,
+			),
+			'empty_attr_array'           => array(
+				'<div>Initial shortcode</div>',
+				'vimeo',
+				array(),
+				'',
+			),
+			'no_width_or_height_in_attr' => array(
+				'<div>Initial shortcode</div>',
+				'vimeo',
+				array(
+					'id' => '24246'
+				),
+				'<amp-vimeo data-videoid="24246" layout="responsive" width="600" height="338"></amp-vimeo>'
+			),
+			'normal_attributes_present'  => array(
+				'<div>Initial shortcode</div>',
+				'vimeo',
+				array(
+					'id'     => '623422',
+					'width'  => '900',
+					'height' => '1200',
+				),
+				'<amp-vimeo data-videoid="623422" layout="responsive" width="900" height="1200"></amp-vimeo>'
+			),
+		);
+	}
+
+	/**
+	 * Tests that the Vimeo shortcode filter produces the right HTML.
+	 *
+	 * @dataProvider get_vimeo_shortcode_data
+	 * @covers Jetpack_AMP_Vimeo_Shortcode::filter_shortcode()
+	 * @covers Jetpack_AMP_Vimeo_Shortcode::render_vimeo()
+	 *
+	 * @param string $html The html passed to the filter.
+	 * @param string $shortcode_tag The tag (name) of the shortcode, like 'vimeo'.
+	 * @param array  $attr The shortcode attributes.
+	 * @param string $expected The expected return value.
+	 */
+	public function test_filter_shortcode( $html, $shortcode_tag, $attr, $expected ) {
+		unset( $GLOBALS['content_width'] );
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+
+		if ( null === $expected ) {
+			$expected = $html;
+		}
+
+		$this->assertEquals( $expected, amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) );
+	}
+
+	/**
+	 * Tests the Vimeo shortcode filter when there is a global $content_width value.
+	 *
+	 * @covers ::amp_vimeo_shortcode()
+	 */
+	public function test_filter_shortcode_global_content_width() {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+
+		$video_id                 = '624432';
+		$content_width            = 650;
+		$expected_height          = 366;
+		$GLOBALS['content_width'] = $content_width;
+
+		$this->assertEquals(
+			'<amp-vimeo data-videoid="' . $video_id .'" layout="responsive" width="' . $content_width . '" height="' . $expected_height .'"></amp-vimeo>',
+			amp_vimeo_shortcode(
+				'<div><span>Initial shortcode</span></div>',
+				'vimeo',
+				array(
+					'id'     => $video_id,
+					'width'  => '1000',
+					'height' => '600',
+				)
+			)
+		);
+	}
+
+	/**
+	 * Tests that the Vimeo shortcode filter does not filter the markup on non-AMP endpoints.
+	 *
+	 * @covers ::amp_vimeo_shortcode()
+	 */
+	public function test_filter_shortcode_non_amp() {
+		add_filter( 'jetpack_is_amp_request', '__return_false' );
+		$initial_shortcode_markup = '<div><span>Shortcode here</span></div>';
+
+		$this->assertEquals(
+			$initial_shortcode_markup,
+			amp_vimeo_shortcode(
+				$initial_shortcode_markup,
+				'vimeo',
+				array(
+					'id'     => '624432',
+					'width'  => '800',
+					'height' => '400',
+				)
+			)
+		);
 	}
 }
