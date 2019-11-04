@@ -13,7 +13,6 @@ class WP_Test_Jetpack_AMP_Vimeo_Shortcode extends WP_UnitTestCase {
 	 * @inheritDoc
 	 */
 	public function tearDown() {
-		remove_all_filters( 'jetpack_is_amp_request' );
 		unset( $GLOBALS['content_width'] );
 	}
 

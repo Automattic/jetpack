@@ -23,7 +23,11 @@ class Jetpack_AMP_Vimeo_Shortcode {
 	 * @return string The filtered HTML.
 	 */
 	public static function filter_shortcode( $html, $shortcode_tag, $attr ) {
-		if ( ! Jetpack_AMP_Support::is_amp_request() || 'vimeo' !== $shortcode_tag ) {
+		if (
+			( class_exists( 'Jetpack_AMP_Support' ) && ! Jetpack_AMP_Support::is_amp_request() )
+			||
+			'vimeo' !== $shortcode_tag
+		) {
 			return $html;
 		}
 
