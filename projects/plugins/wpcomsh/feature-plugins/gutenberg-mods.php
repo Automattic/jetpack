@@ -6,15 +6,12 @@
  * we need to ensure that some experimental functionality is not exposed yet.
  */
 
-/**
- * Removes Gutenberg's experimental Widget Blocks section from the Customizer.
- */
-function wpcomsh_remove_gutenberg_experimental_sections() {
-	// This filter is added in https://github.com/WordPress/gutenberg/blob/cf1da64370c209b25bb005c44083097a6137a119/lib/customizer.php#L73
-	remove_action( 'customize_register', 'gutenberg_customize_register' );
+// Disable all Gutenberg experiments.
+// See: https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
+add_filter( 'option_gutenberg-experiments', '__return_false' );
 
-	// Remove some additional actions and filters that experimental Widget Blocks functionality adds.
-	remove_action( 'customize_update_gutenberg_widget_blocks', 'gutenberg_customize_update' );
-	remove_filter( 'widget_customizer_setting_args', 'filter_widget_customizer_setting_args' );
+// Remove Gutenberg's Experiments submenu item.
+function wpcomsh_remove_gutenberg_experimental_menu() {
+	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
 }
-add_action( 'plugins_loaded', 'wpcomsh_remove_gutenberg_experimental_sections' );
+add_action( 'admin_init', 'wpcomsh_remove_gutenberg_experimental_menu' );
