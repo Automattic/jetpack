@@ -123,7 +123,7 @@ export function setSortQuery( sortKey ) {
 
 function getFilterQueryByKey( filterKey ) {
 	const query = getQuery();
-	if ( ! ( filterKey in query ) ) {
+	if ( ! ( filterKey in query ) || query[ filterKey ] === '' ) {
 		return [];
 	}
 	if ( typeof query[ filterKey ] === 'string' ) {
