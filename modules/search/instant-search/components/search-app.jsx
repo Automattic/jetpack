@@ -13,20 +13,16 @@ import debounce from 'lodash/debounce';
 /**
  * Internal dependencies
  */
-import SearchResults from './search-results';
-import SearchFilters from './search-filters';
-import SearchSortWidget from './search-sort-widget';
 import SearchBox from './search-box';
-import { search, buildFilterAggregations } from '../lib/api';
+import SearchResults from './search-results';
+import SearchWidget from './search-widget';
+import { search } from '../lib/api';
 import {
-	setSearchQuery,
-	setFilterQuery,
 	getFilterQuery,
-	setSortQuery,
+	getSearchQuery,
 	getSortQuery,
 	hasFilter,
 	restorePreviousHref,
-	getSearchQuery,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
@@ -39,18 +35,14 @@ class SearchApp extends Component {
 	constructor() {
 		super( ...arguments );
 		this.input = createRef();
-		this.requestId = 0;
-
-		// TODO: Rework this line; we shouldn't reassign properties.
-		this.props.aggregations = buildFilterAggregations( this.props.options.widgets );
-
-		this.state = { isLoading: false, response: {}, showResults: false };
-		this.getDebouncedResults = debounce( this.getResults, 200 );
+		this.state = { isLoading: false, response: {}, requestId: 0, showResults: false };
+		this.getResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
 	}
 
 	componentDidMount() {
 		this.getResults( getSearchQuery(), getFilterQuery(), this.props.initialSort, null );
+		this.getResults.flush();
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
 		}
@@ -85,14 +77,14 @@ class SearchApp extends Component {
 		return !! this.state.response.page_handle;
 	}
 
-	showResults() {
-		if ( ! this.state.showResults ) {
+	showResults = () => {
+		if ( this.hasActiveQuery() && ! this.state.showResults ) {
 			hideChildren( this.props.themeOptions.resultsSelector );
 			this.setState( { showResults: true } );
 		}
-	}
+	};
 
-	hideResults() {
+	hideResults = () => {
 		if ( this.props.isSearchPage || this.hasActiveQuery() || ! this.state.showResults ) {
 			return;
 		}
@@ -101,22 +93,6 @@ class SearchApp extends Component {
 			showChildren( this.props.themeOptions.resultsSelector );
 			restorePreviousHref( this.props.initialHref );
 		} );
-	}
-
-	onSearchFocus = () => {
-		if ( this.hasActiveQuery() ) {
-			this.showResults();
-		}
-	};
-
-	onSearchBlur = () => {
-		if ( this.state.showResults ) {
-			this.hideResults();
-		}
-	};
-
-	onChangeQuery = event => {
-		setSearchQuery( event.target.value );
 	};
 
 	onChangeQueryString = () => {
@@ -125,15 +101,7 @@ class SearchApp extends Component {
 		} else {
 			this.hideResults();
 		}
-		this.getDebouncedResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
-	};
-
-	onChangeFilter = ( filterName, filterValue ) => {
-		setFilterQuery( filterName, filterValue );
-	};
-
-	onChangeSort = sort => {
-		setSortQuery( sort );
+		this.getResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
 	};
 
 	loadNextPage = () => {
@@ -147,10 +115,9 @@ class SearchApp extends Component {
 	};
 
 	getResults = ( query, filter, sort, pageHandle ) => {
-		this.requestId++;
-		const requestId = this.requestId;
+		const requestId = this.state.requestId + 1;
 
-		this.setState( { isLoading: true }, () => {
+		this.setState( { requestId, isLoading: true }, () => {
 			search( {
 				// Skip aggregations when requesting for paged results
 				aggregations: !! pageHandle ? {} : this.props.aggregations,
@@ -161,7 +128,7 @@ class SearchApp extends Component {
 				siteId: this.props.options.siteId,
 				sort,
 			} ).then( newResponse => {
-				if ( this.requestId === requestId ) {
+				if ( this.state.requestId === requestId ) {
 					const response = { ...newResponse };
 					if ( !! pageHandle ) {
 						response.aggregations = {
@@ -183,34 +150,17 @@ class SearchApp extends Component {
 	};
 
 	renderWidgets() {
-		return this.props.options.widgets.map( widget =>
-			createPortal(
-				<div id={ `${ widget.widget_id }-portaled-wrapper` }>
-					<div className="search-form">
-						<SearchBox
-							onChangeQuery={ this.onChangeQuery }
-							onFocus={ this.onSearchFocus }
-							onBlur={ this.onSearchBlur }
-							appRef={ this.input }
-							query={ getSearchQuery() }
-						/>
-					</div>
-					<div className="jetpack-search-sort-wrapper">
-						<SearchSortWidget onChange={ this.onChangeSort } value={ getSortQuery() } />
-					</div>
-					<SearchFilters
-						filters={ getFilterQuery() }
-						loading={ this.state.isLoading }
-						locale={ this.props.options.locale }
-						onChange={ this.onChangeFilter }
-						postTypes={ this.props.options.postTypes }
-						results={ this.state.response }
-						widget={ widget }
-					/>
-				</div>,
-				document.getElementById( `${ widget.widget_id }-wrapper` )
-			)
-		);
+		return this.props.options.widgets.map( widget => (
+			<SearchWidget
+				isLoading={ this.state.isLoading }
+				locale={ this.props.options.locale }
+				onSearchBlur={ this.hideResults }
+				onSearchFocus={ this.showResults }
+				postTypes={ this.props.options.postTypes }
+				response={ this.state.response }
+				widget={ widget }
+			/>
+		) );
 	}
 	renderSearchForms() {
 		const searchForms = Array.from(
