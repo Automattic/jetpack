@@ -181,32 +181,20 @@ class Full_Sync extends Module {
 			return;
 		}
 
-		$listener        = Listener::get_instance();
-		$full_sync_queue = new Queue( 'full_sync' );
+		// If full sync queue is full, don't enqueue more items.
+		$max_queue_size_full_sync = Settings::get_setting( 'max_queue_size_full_sync' );
+		$full_sync_queue          = new Queue( 'full_sync' );
 
-		/*
-		* Periodically check the size of the queue, and disable adding to it if
-		* it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
-		*/
-		if ( ! $listener->can_add_to_queue( $full_sync_queue ) ) {
+		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
+
+		if ( $available_queue_slots <= 0 ) {
 			return;
+		} else {
+			$remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
 		}
 
-		if ( ! $this->attempt_enqueue_lock() ) {
-			return;
-		}
-		$this->continue_enqueuing_with_lock( $configs, $enqueue_status, $full_sync_queue );
-		$this->remove_enqueue_lock();
-	}
+		$listener = Listener::get_instance();
 
-	/**
-	 * Enqueue the next items to sync. Once we have a lock.
-	 *
-	 * @param array  $configs Full sync configuration for all sync modules.
-	 * @param array  $enqueue_status Current status of the queue, indexed by sync modules.
-	 * @param Object $full_sync_queue The full sync queue.
-	 */
-	private function continue_enqueuing_with_lock( $configs, $enqueue_status, $full_sync_queue ) {
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
@@ -215,11 +203,6 @@ class Full_Sync extends Module {
 			$enqueue_status = $this->get_enqueue_status();
 		}
 
-		// If full sync queue is full, don't enqueue more items.
-		$max_queue_size_full_sync   = Settings::get_setting( 'max_queue_size_full_sync' );
-		$available_queue_slots      = $max_queue_size_full_sync - $full_sync_queue->size();
-		$remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
-
 		$modules           = Modules::get_modules();
 		$modules_processed = 0;
 		foreach ( $modules as $module ) {
@@ -227,14 +210,22 @@ class Full_Sync extends Module {
 
 			// Skip module if not configured for this sync or module is done.
 			if ( ! isset( $configs[ $module_name ] )
-				 || // No module config.
-				 ! $configs[ $module_name ]
-				 || // No enqueue status.
-				 ! $enqueue_status[ $module_name ]
-				 || // Finished enqueuing this module.
-				 true === $enqueue_status[ $module_name ][2] ) {
+				|| // No module config.
+					! $configs[ $module_name ]
+				|| // No enqueue status.
+					! $enqueue_status[ $module_name ]
+				|| // Finished enqueuing this module.
+					true === $enqueue_status[ $module_name ][2] ) {
 				$modules_processed ++;
 				continue;
+			}
+
+			/*
+			* Periodically check the size of the queue, and disable adding to it if
+			* it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
+			*/
+			if ( ! $listener->can_add_to_queue( $full_sync_queue ) ) {
+				return;
 			}
 
 			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
@@ -271,11 +262,11 @@ class Full_Sync extends Module {
 		 * Fires when a full sync ends. This action is serialized
 		 * and sent to the server.
 		 *
-		 * @param string $checksum Deprecated since 7.3.0 - @see https://github.com/Automattic/jetpack/pull/11945/
-		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
-		 *
 		 * @since 4.2.0
 		 * @since 7.3.0 Added $range arg.
+		 *
+		 * @param string $checksum Deprecated since 7.3.0 - @see https://github.com/Automattic/jetpack/pull/11945/
+		 * @param array  $range    Range of the sync items, containing min and max IDs for some item types.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
 	}
@@ -655,62 +646,68 @@ class Full_Sync extends Module {
 		return \Jetpack_Options::get_raw_option( 'jetpack_sync_full_config' );
 	}
 
-
 	/**
-	 * Prefix of the blog lock transient.
+	 * Update an option manually to bypass filters and caching.
 	 *
-	 * @access public
+	 * @access private
 	 *
-	 * @var string
+	 * @param string $name  Option name.
+	 * @param mixed  $value Option value.
+	 * @return int The number of updated rows in the database.
 	 */
-	const ENQUEUE_LOCK_TRANSIENT_PREFIX = 'jp_sync_enqueue_lock_';
+	private function write_option( $name, $value ) {
+		// We write our own option updating code to bypass filters/caching/etc on set_option/get_option.
+		global $wpdb;
+		$serialized_value = maybe_serialize( $value );
 
-	/**
-	 * Lifetime of the blog lock transient.
-	 *
-	 * @access public
-	 *
-	 * @var int
-	 */
-	const ENQUEUE_LOCK_TRANSIENT_EXPIRY = 15; // Seconds.
+		/**
+		 * Try updating, if no update then insert
+		 * TODO: try to deal with the fact that unchanged values can return updated_num = 0
+		 * below we used "insert ignore" to at least suppress the resulting error.
+		 */
+		$updated_num = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
+				$serialized_value,
+				$name
+			)
+		);
 
-	/**
-	 * Attempt to lock enqueueing when the server receives concurrent requests from the same blog.
-	 *
-	 * @access public
-	 *
-	 * @param int $expiry  enqueue transient lifetime.
-	 * @return boolean True if succeeded, false otherwise.
-	 */
-	public function attempt_enqueue_lock( $expiry = self::ENQUEUE_LOCK_TRANSIENT_EXPIRY ) {
-		$transient_name = $this->get_concurrent_enqueue_transient_name();
-		$locked_time    = get_site_transient( $transient_name );
-		if ( $locked_time ) {
-			return false;
+		if ( ! $updated_num ) {
+			$updated_num = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )",
+					$name,
+					$serialized_value
+				)
+			);
 		}
-		set_site_transient( $transient_name, microtime( true ), $expiry );
-
-		return true;
+		return $updated_num;
 	}
 
 	/**
-	 * Retrieve the enqueue lock transient name for the current blog.
+	 * Update an option manually to bypass filters and caching.
 	 *
-	 * @access public
+	 * @access private
 	 *
-	 * @return string Name of the blog lock transient.
+	 * @param string $name    Option name.
+	 * @param mixed  $default Default option value.
+	 * @return mixed Option value.
 	 */
-	private function get_concurrent_enqueue_transient_name() {
-		return self::ENQUEUE_LOCK_TRANSIENT_PREFIX . get_current_blog_id();
-	}
+	private function read_option( $name, $default = null ) {
+		global $wpdb;
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				$name
+			)
+		);
+		$value = maybe_unserialize( $value );
 
-	/**
-	 * Remove the enqueue lock.
-	 *
-	 * @access public
-	 */
-	public function remove_enqueue_lock() {
-		delete_site_transient( $this->get_concurrent_enqueue_transient_name() );
-	}
+		if ( null === $value && null !== $default ) {
+			return $default;
+		}
 
+		return $value;
+	}
 }
