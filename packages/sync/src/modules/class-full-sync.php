@@ -229,6 +229,7 @@ class Full_Sync extends Module {
 	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function enqueue( $configs = null ) {
+
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
