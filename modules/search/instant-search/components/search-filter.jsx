@@ -5,6 +5,8 @@
  */
 import { h, createRef, Component } from 'preact';
 import strip from 'strip';
+// eslint-disable-next-line lodash/import-scope
+import uniqueId from 'lodash/uniqueId';
 
 /**
  * Internal dependencies
@@ -27,7 +29,7 @@ export default class SearchFilter extends Component {
 	constructor( props ) {
 		super( props );
 		this.filtersList = createRef();
-		this.idPrefix = `jp-instant-search-filter-${ Math.floor( Math.random() * 100 ) }`;
+		this.idPrefix = uniqueId( 'jetpack-instant-search__filter-' );
 
 		if ( this.props.type === 'date' ) {
 			// NOTE: This assumes that the configuration never changes. It will break if we

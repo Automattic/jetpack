@@ -10,16 +10,16 @@ import { __ } from '@wordpress/i18n';
 import uniqueId from 'lodash/uniqueId';
 
 const SearchBox = props => {
-	const [ inputId ] = useState( () => uniqueId( 'jp-instant-search__box-input-' ) );
+	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	return (
-		<div className={ 'jp-instant-search__box' }>
+		<div className={ 'jetpack-instant-search__box' }>
 			{ /* TODO: Add support for preserving label text */ }
 			<label htmlFor={ inputId } className="screen-reader-text">
 				{ __( 'Site Search', 'jetpack' ) }
 			</label>
 			<input
 				id={ inputId }
-				className="search-field jp-instant-search__box-input"
+				className="search-field jetpack-instant-search__box-input"
 				onInput={ props.onChangeQuery }
 				onFocus={ props.onFocus }
 				onBlur={ props.onBlur }
