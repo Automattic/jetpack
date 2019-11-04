@@ -11,7 +11,7 @@ import { createBlock } from '@wordpress/blocks';
 import edit from './edit';
 import { pinType } from './utils';
 
-export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+\/([^/]+)(\/[^/]+)?/i;
+export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
 export const name = 'pinterest';
 export const title = __( 'Pinterest', 'jetpack' );

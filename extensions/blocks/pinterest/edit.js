@@ -1,16 +1,20 @@
 /**
  * External dependencies
  */
+import { invoke } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { Placeholder, SandBox, Button, IconButton, Toolbar } from '@wordpress/components';
+import { Placeholder, SandBox, Button, IconButton, Spinner, Toolbar } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/editor';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import { fallback, pinType } from './utils';
 import { icon } from '.';
+
+const PINIT_URL_REGEX = /^\s*https?:\/\/pin\.it\//i;
 
 class PinterestEdit extends Component {
 	constructor() {
@@ -19,11 +23,56 @@ class PinterestEdit extends Component {
 		this.state = {
 			editedUrl: this.props.attributes.url || '',
 			editingUrl: false,
+			// If this is a pin.it URL, we're going to need to find where it redirects to.
+			resolvingRedirect: PINIT_URL_REGEX.test( this.props.attributes.url ),
 			// The interactive-related magic comes from Core's EmbedPreview component,
 			// which currently isn't exported in a way we can use.
 			interactive: false,
 		};
 	}
+
+	componentDidMount() {
+		const { resolvingRedirect } = this.state;
+
+		if ( resolvingRedirect ) {
+			this.resolveRedirect();
+		}
+	}
+
+	componentWillUnmount() {
+		invoke( this.fetchRequest, [ 'abort' ] );
+	}
+
+	resolveRedirect = () => {
+		const { url } = this.props.attributes;
+
+		this.fetchRequest = apiFetch( {
+			path: `/wpcom/v2/resolve-redirect/${ url }`,
+		} );
+
+		this.fetchRequest.then(
+			resolvedUrl => {
+				// resolve
+				this.fetchRequest = null;
+				this.props.setAttributes( { url: resolvedUrl } );
+				this.setState( {
+					resolvingRedirect: false,
+					editedUrl: resolvedUrl,
+				} );
+			},
+			xhr => {
+				// reject
+				if ( xhr.statusText === 'abort' ) {
+					return;
+				}
+				this.fetchRequest = null;
+				this.setState( {
+					resolvingRedirect: false,
+					editingUrl: true,
+				} );
+			}
+		);
+	};
 
 	static getDerivedStateFromProps( nextProps, state ) {
 		if ( ! nextProps.isSelected && state.interactive ) {
@@ -51,8 +100,14 @@ class PinterestEdit extends Component {
 		}
 
 		const { editedUrl: url } = this.state;
-		this.setState( { editingUrl: false } );
+
 		this.props.setAttributes( { url } );
+		this.setState( { editingUrl: false } );
+
+		if ( PINIT_URL_REGEX.test( url ) ) {
+			this.setState( { resolvingRedirect: true } );
+			this.resolveRedirect();
+		}
 	};
 
 	/**
@@ -63,7 +118,16 @@ class PinterestEdit extends Component {
 	render() {
 		const { attributes, className } = this.props;
 		const { url } = attributes;
-		const { editedUrl, interactive, editingUrl } = this.state;
+		const { editedUrl, interactive, editingUrl, resolvingRedirect } = this.state;
+
+		if ( resolvingRedirect ) {
+			return (
+				<div className="wp-block-embed is-loading">
+					<Spinner />
+					<p>{ __( 'Embedding…' ) }</p>
+				</div>
+			);
+		}
 
 		const type = pinType( url );
 		const html = `<a data-pin-do='${ type }' href='${ url }'></a>`;
