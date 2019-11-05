@@ -181,11 +181,7 @@ add_shortcode( 'vimeo', 'vimeo_shortcode' );
  * @return string The filtered HTML.
  */
 function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
-	if (
-		( class_exists( 'Jetpack_AMP_Support' ) && ! Jetpack_AMP_Support::is_amp_request() )
-		||
-		'vimeo' !== $shortcode_tag
-	) {
+	if ( 'vimeo' !== $shortcode_tag || ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
 		return $html;
 	}
 
