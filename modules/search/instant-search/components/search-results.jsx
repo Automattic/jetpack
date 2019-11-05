@@ -55,7 +55,7 @@ class SearchResults extends Component {
 
 	renderEmptyResults( { showText = false } = {} ) {
 		return (
-			<div className="jetpack-instant-search__search-results">
+			<div className="jetpack-instant-search__search-results" role="listitem">
 				{ showText ? (
 					<div>
 						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), this.props.query ) }</h3>
@@ -78,10 +78,13 @@ class SearchResults extends Component {
 		}
 
 		return (
-			<div
+			<main
+				aria-hidden={ this.props.isLoading === true }
+				aria-live="polite"
 				className={ `jetpack-instant-search__search-results ${
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
+				role="list"
 			>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ this.getSearchTitle() }
@@ -91,7 +94,9 @@ class SearchResults extends Component {
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ results.map( this.renderResult ) }
+				<ol className="jetpack-instant-search__search-results-list">
+					{ results.map( this.renderResult ) }
+				</ol>
 				{ this.props.hasNextPage && (
 					<ScrollButton
 						enableLoadOnScroll={ this.props.enableLoadOnScroll }
@@ -99,7 +104,7 @@ class SearchResults extends Component {
 						onLoadNextPage={ this.props.onLoadNextPage }
 					/>
 				) }
-			</div>
+			</main>
 		);
 	}
 }
