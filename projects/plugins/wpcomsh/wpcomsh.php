@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.50
+ * Version: 2.4.51
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.50' );
+define( 'WPCOMSH_VERSION', '2.4.51' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -146,7 +146,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'another-wordpress-classifieds-plugin/awpcp.php' => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'broken-link-checker/broken-link-checker.php' => '"broken-link-checker" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'leads/leads.php' => '"leads" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'mycred/mycred.php' => '"mycred" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'native-ads-adnow/adnow-widget.php' => '"native-ads-now" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'ol_scrapes/ol_scrapes.php' => '"ol_scrapes" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'page-visit-counter/page_visit_counter.php' => '"page-visit-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
@@ -192,7 +191,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'facetwp-manipulator/facetwp-manipulator.php' => '"facetwp-manipulator" is not supported on WordPress.com.',
 		'fast-velocity-minify/fvm.php' => '"fast-velocity-minify" is not supported on WordPress.com.',
 		'nginx-helper/nginx-helper.php' => '"nginx-helper" is not supported on WordPress.com.',
-		'popup-builder/popup-builder.php' => '"popup-builder" is not supported on WordPress.com.',
 		'porn-embed/Porn-Embed.php' => '"porn-embed" is not supported on WordPress.com.',
 		'really-simple-ssl/rlrsssl-really-simple-ssl.php' => '"really-simple-ssl" is not supported on WordPress.com.',
 		'robo-gallery/robogallery.php' => '"robo-gallery" is not supported on WordPress.com.',
@@ -206,14 +204,11 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'wp-monero-miner-pro/monero-miner-pro.php' => '"wp-monero-miner-pro" is not supported on WordPress.com.',
 		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wp-optimize-by-xtraffic/wp-optimize-by-xtraffic.php' => '"wp-optimize-by-xtraffic" is not supported on WordPress.com.',
-		'wp-phpmyadmin-extension/index.php' => '"wp-phpmyadmin-extension" is not supported on WordPress.com.',
 		'wpematico/wpematico.php' => '"wpematico" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php' => '"zapp-proxy-server" is not supported on WordPress.com.',
 		'propellerads-official/propeller-ads.php' => '"propellerads-official" is not supported on WordPress.com.',
 		'p3/p3.php' => '"p3" is not supported on WordPress.com.',
-		'yellow-pencil-visual-theme-customizer/yellow-pencil.php' => '"yellow-pencil-visual-theme-customizer" is not supported on WordPress.com.',
 		'yuzo-related-post/yuzo_related_post.php' => '"yuzo-related-post" is not supported on WordPress.com.',
-		'mapsvg/mapsvg.php' => '"mapsvg" is not supported on WordPress.com.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
