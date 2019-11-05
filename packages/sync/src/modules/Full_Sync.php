@@ -41,6 +41,22 @@ class Full_Sync extends Module {
 	const FULL_SYNC_TIMEOUT = 3600;
 
 	/**
+	 *
+	 * Remaining Items to enqueue.
+	 *
+	 * @var int
+	 */
+	private $remaining_items_to_enqueue = 0;
+
+	/**
+	 *
+	 * Per each module: total items to send, how many have been enqueued, the last object_id enqueued
+	 *
+	 * @var array
+	 */
+	private $enqueue_status;
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -180,8 +196,26 @@ class Full_Sync extends Module {
 		if ( ! $this->attempt_enqueue_lock() ) {
 			return;
 		}
-		$this->continue_enqueuing_with_lock( $configs, $enqueue_status );
+
+		$this->enqueue_status = $enqueue_status ? $enqueue_status : $this->get_enqueue_status();
+		$this->continue_enqueuing_with_lock( $configs );
+		$this->set_enqueue_status( $this->enqueue_status );
+
 		$this->remove_enqueue_lock();
+	}
+
+	/**
+	 *
+	 * Get Available Full Sync queue slots.
+	 *
+	 * @return int
+	 */
+	public function get_available_queue_slots() {
+		// If full sync queue is full, don't enqueue more items.
+		$max_queue_size_full_sync = Settings::get_setting( 'max_queue_size_full_sync' );
+		$full_sync_queue          = new Queue( 'full_sync' );
+
+		return $max_queue_size_full_sync - $full_sync_queue->size();
 	}
 
 	/**
@@ -190,70 +224,32 @@ class Full_Sync extends Module {
 	 * @access public
 	 *
 	 * @param array $configs Full sync configuration for all sync modules.
-	 * @param array $enqueue_status Current status of the queue, indexed by sync modules.
 	 */
-	public function continue_enqueuing_with_lock( $configs = null, $enqueue_status = null ) {
+	public function continue_enqueuing_with_lock( $configs = null ) {
 		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
 
-		// If full sync queue is full, don't enqueue more items.
-		$max_queue_size_full_sync = Settings::get_setting( 'max_queue_size_full_sync' );
-		$full_sync_queue          = new Queue( 'full_sync' );
+		$this->remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $this->get_available_queue_slots() );
 
-		$available_queue_slots = $max_queue_size_full_sync - $full_sync_queue->size();
-
-		if ( $available_queue_slots <= 0 ) {
+		if ( $this->remaining_items_to_enqueue <= 0 ) {
 			return;
-		} else {
-			$remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
 		}
 
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
 
-		if ( ! $enqueue_status ) {
-			$enqueue_status = $this->get_enqueue_status();
-		}
-
 		$modules           = Modules::get_modules();
 		$modules_processed = 0;
 		foreach ( $modules as $module ) {
-			$module_name = $module->name();
-
-			// Skip module if not configured for this sync or module is done.
-			if ( ! isset( $configs[ $module_name ] )
-				|| // No module config.
-					! $configs[ $module_name ]
-				|| // No enqueue status.
-					! $enqueue_status[ $module_name ]
-				|| // Finished enqueuing this module.
-					true === $enqueue_status[ $module_name ][2] ) {
-				$modules_processed ++;
-				continue;
-			}
-
-			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
-
-			$enqueue_status[ $module_name ][2] = $next_enqueue_state;
-
-			// If items were processed, subtract them from the limit.
-			if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-				$enqueue_status[ $module_name ][1] += $items_enqueued;
-				$remaining_items_to_enqueue        -= $items_enqueued;
-			}
-
-			if ( true === $next_enqueue_state ) {
-				$modules_processed ++;
-			}
+			$modules_processed += $this->enqueue_module( $module, $configs[ $module->name() ], $this->enqueue_status[ $module->name() ], $this->remaining_items_to_enqueue );
 			// Stop processing if we've reached our limit of items to enqueue.
-			if ( 0 >= $remaining_items_to_enqueue ) {
+
+			if ( 0 >= $this->remaining_items_to_enqueue ) {
 				break;
 			}
 		}
-
-		$this->set_enqueue_status( $enqueue_status );
 
 		if ( count( $modules ) > $modules_processed ) {
 			return;
@@ -275,6 +271,42 @@ class Full_Sync extends Module {
 		 * @param array  $range    Range of the sync items, containing min and max IDs for some item types.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
+	}
+
+	/**
+	 * Enqueue Full Sync Actions for the given module.
+	 *
+	 * @param Object $module The module to Enqueue.
+	 * @param array  $config The Full sync configuration for the module.
+	 * @param array  $status The Full sync enqueue status for the module.
+	 *
+	 * @return int
+	 */
+	public function enqueue_module( $module, $config, $status ) {
+		// Skip module if not configured for this sync or module is done.
+		if ( ! isset( $config )
+			 || // No module config.
+			 ! $config
+			 || // No enqueue status.
+			 ! $status
+			 || // Finished enqueuing this module.
+			 true === $status[2] ) {
+			return 1;
+		}
+
+		list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $config, $this->remaining_items_to_enqueue, $status[2] );
+
+		$status[2] = $next_enqueue_state;
+
+		// If items were processed, subtract them from the limit.
+		if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
+			$status[1]                        += $items_enqueued;
+			$this->remaining_items_to_enqueue -= $items_enqueued;
+		}
+
+		$this->enqueue_status[ $module->name() ] = $status;
+
+		return true === $next_enqueue_state ? 1 : 0;
 	}
 
 	/**
