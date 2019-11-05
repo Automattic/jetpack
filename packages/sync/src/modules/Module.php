@@ -318,7 +318,7 @@ abstract class Module {
 	}
 
 	/**
-	 * In most cases the total of items that we enqueue will always stays the same.
+	 * In most cases the total of items that we enqueue will always stay the same.
 	 * Since the items are ordered using the primary key which auto increments.
 	 *
 	 * @param array $previous_enqueue_status Arr
