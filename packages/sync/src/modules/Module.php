@@ -326,7 +326,7 @@ abstract class Module {
 	 * @return int Return the previous total
 	 */
 	public function recalculate_total( $previous_enqueue_status ) {
-		return $previous_enqueue_status[0]; // the previous total
+		return $previous_enqueue_status[0]; // The previous total.
 	}
 
 	/**
