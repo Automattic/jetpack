@@ -9,6 +9,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 */
 	public function tearDown() {
 		unset( $GLOBALS['content_width'] );
+		parent::tearDown();
 	}
 
 	/**
@@ -279,8 +280,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * Tests that the Vimeo shortcode filter produces the right HTML.
 	 *
 	 * @dataProvider get_vimeo_shortcode_data
-	 * @covers Jetpack_AMP_Vimeo_Shortcode::filter_shortcode()
-	 * @covers Jetpack_AMP_Vimeo_Shortcode::render_vimeo()
+	 * @covers ::amp_vimeo_shortcode()
+	 * @covers ::jetpack_get_amp_vimeo_dimensions()
+	 * @covers ::jetpack_render_amp_vimeo()
 	 *
 	 * @param string $html The html passed to the filter.
 	 * @param string $shortcode_tag The tag (name) of the shortcode, like 'vimeo'.
