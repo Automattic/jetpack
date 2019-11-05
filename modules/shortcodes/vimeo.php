@@ -196,9 +196,20 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 		$video_id = $attr['id'];
 	}
 
+	if ( empty( $video_id ) ) {
+		return '';
+	}
+
 	list( $width, $height ) = jetpack_get_amp_vimeo_dimensions( $attr );
-	return jetpack_render_amp_vimeo( compact( 'video_id', 'width', 'height' ) );
+	return sprintf(
+		'<amp-vimeo data-videoid="%s" layout="responsive" width="%s" height="%s"></amp-vimeo>',
+		esc_attr( $video_id ),
+		esc_attr( $width ),
+		esc_attr( $height )
+	);
 }
+
+add_filter( 'do_shortcode_tag', 'amp_vimeo_shortcode', 10, 3 );
 
 /**
  * Gets the width and height of the AMP [vimeo] shortcode.
@@ -221,27 +232,6 @@ function jetpack_get_amp_vimeo_dimensions( $attr ) {
 
 	return array( $width, $height );
 }
-
-/**
- * Renders the Vimeo shortcode as AMP.
- *
- * @param array $args The arguments.
- * @return string The rendered HTML.
- */
-function jetpack_render_amp_vimeo( $args ) {
-	if ( empty( $args['video_id'] ) ) {
-		return '';
-	}
-
-	return sprintf(
-		'<amp-vimeo data-videoid="%s" layout="responsive" width="%s" height="%s"></amp-vimeo>',
-		esc_attr( $args['video_id'] ),
-		esc_attr( $args['width'] ),
-		esc_attr( $args['height'] )
-	);
-}
-
-add_filter( 'do_shortcode_tag', 'amp_vimeo_shortcode', 10, 3 );
 
 /**
  * Callback to modify output of embedded Vimeo video using Jetpack's shortcode.
