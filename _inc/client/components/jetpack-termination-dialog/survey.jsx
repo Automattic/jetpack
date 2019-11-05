@@ -29,7 +29,7 @@ const answers = [
 ];
 
 class JetpackTerminationDialogSurvey extends Component {
-	static PropTypes = {
+	static propTypes = {
 		onSurveyAnswerChange: PropTypes.func.isRequired,
 		surveyAnswerId: PropTypes.string,
 		surveyAnswerText: PropTypes.string,

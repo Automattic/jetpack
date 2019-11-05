@@ -9,8 +9,9 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
-import { getSiteBenefits } from 'state/site';
+import { getSiteBenefits, getSiteID, getSitePlan } from 'state/site';
 import { isDevVersion } from 'state/initial-state';
+import { submitSurvey as submitSurveyAction } from 'state/survey/actions';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -76,6 +77,7 @@ class JetpackTerminationDialog extends Component {
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array,
+		submitSurvey: PropTypes.func,
 		terminateJetpack: PropTypes.func.isRequired,
 	};
 
@@ -86,15 +88,22 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	handleContinueClick = () => {
+		const { location, purpose } = this.props;
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_continue_click', {
+			location,
+			purpose,
+		} );
 		this.setState( { step: JetpackTerminationDialog.SURVEY_STEP } );
 	};
 
 	handleTerminationClick = () => {
-		const { location, purpose, terminateJetpack } = this.props;
+		const { location, purpose, siteId, sitePlan, submitSurvey, terminateJetpack } = this.props;
+		const { surveyAnswerId, surveyAnswerText } = this.state;
 		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', {
 			location,
 			purpose,
 		} );
+		submitSurvey( siteId, sitePlan, surveyAnswerId, surveyAnswerText, location );
 		terminateJetpack();
 	};
 
@@ -143,13 +152,18 @@ class JetpackTerminationDialog extends Component {
 
 	renderPrimaryButton() {
 		const { purpose } = this.props;
-		const { step } = this.state;
+		const { step, surveyAnswerId } = this.state;
 		return step === JetpackTerminationDialog.FEATURE_STEP ? (
 			<Button primary onClick={ this.handleContinueClick }>
 				{ __( 'Continue' ) }
 			</Button>
 		) : (
-			<Button scary primary onClick={ this.handleTerminationClick }>
+			<Button
+				scary
+				primary
+				onClick={ this.handleTerminationClick }
+				disabled={ null === surveyAnswerId }
+			>
 				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
 			</Button>
 		);
@@ -198,7 +212,14 @@ class JetpackTerminationDialog extends Component {
 	}
 }
 
-export default connect( state => ( {
-	isDevVersion: isDevVersion( state ),
-	siteBenefits: getSiteBenefits( state ),
-} ) )( JetpackTerminationDialog );
+export default connect(
+	state => ( {
+		isDevVersion: isDevVersion( state ),
+		siteBenefits: getSiteBenefits( state ),
+		siteId: getSiteID( state ),
+		sitePlan: getSitePlan( state ),
+	} ),
+	{
+		submitSurvey: submitSurveyAction,
+	}
+)( JetpackTerminationDialog );
