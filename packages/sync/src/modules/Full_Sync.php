@@ -193,10 +193,15 @@ class Full_Sync extends Module {
 	 * @param array $enqueue_status Current status of the queue, indexed by sync modules.
 	 */
 	public function continue_enqueuing( $configs = null, $enqueue_status = null ) {
+		if ( ! $this->is_started() ) {
+			return;
+		}
 		if ( ! $this->attempt_enqueue_lock() ) {
 			return;
 		}
-
+		if ( ! $this->get_status_option( 'queue_finished' ) ) {
+			return;
+		}
 		$this->enqueue_status = $enqueue_status ? $enqueue_status : $this->get_enqueue_status();
 		$this->continue_enqueuing_with_lock( $configs );
 		$this->set_enqueue_status( $this->enqueue_status );
@@ -256,10 +261,6 @@ class Full_Sync extends Module {
 	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function continue_enqueuing_with_lock( $configs = null ) {
-		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
-			return;
-		}
-
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
