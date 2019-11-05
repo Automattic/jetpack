@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Settings;
 use Automattic\Jetpack\Sync\Queue_Buffer;
 use Automattic\Jetpack\Sync\Replicastore;
 
@@ -315,7 +316,7 @@ abstract class Module {
 					'id'    => microtime( true ),
 					'value' => [
 						$action_name,
-						$ids,
+						[ $ids, $previous_interval_end ],
 						get_current_user_id(),
 						microtime( true ),
 						Settings::is_importing(),

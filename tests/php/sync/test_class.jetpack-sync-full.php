@@ -281,19 +281,24 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_send_immediately_skips_queue() {
+		$posts_count = 100;
 		// TODO
 		// $this->markTestIncomplete();
 		// Settings::get_setting( 'full_sync_send_immediately' )
 		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
 
-		$this->full_sync->start();
-		$this->sender->do_full_sync();
-		$this->sender->do_full_sync();
-		$this->sender->do_full_sync();
+		$post_ids = $this->factory->post->create_many( $posts_count );
+
+		$this->full_sync->start( ['posts' =>  true ] );
+		$this->full_sync->continue_enqueuing();
+		// $this->sender->do_full_sync(); should not be necessary
 
 		// make an assertion
-
-
+		$status = $this->full_sync->get_enqueue_status();
+		// list( $total, $queued, $finished ) = $status['term_relationships'];
+		// print_r($status);
+		// print_r( $this->server_event_storage->get_all_events( '') );
+		$this->assertEquals( $posts_count, count( $this->server_replica_storage->get_posts() ) );
 	}
 
 	function test_full_sync_sends_all_term_relationships() {
