@@ -209,8 +209,6 @@ class Full_Sync extends Module {
 			$remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $available_queue_slots );
 		}
 
-		$listener = Listener::get_instance();
-
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
@@ -234,14 +232,6 @@ class Full_Sync extends Module {
 					true === $enqueue_status[ $module_name ][2] ) {
 				$modules_processed ++;
 				continue;
-			}
-
-			/*
-			* Periodically check the size of the queue, and disable adding to it if
-			* it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
-			*/
-			if ( ! $listener->can_add_to_queue( $full_sync_queue ) ) {
-				return;
 			}
 
 			list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module_name ], $remaining_items_to_enqueue, $enqueue_status[ $module_name ][2] );
