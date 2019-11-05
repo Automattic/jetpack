@@ -318,3 +318,10 @@ $plan-features-sidebar-width: 272px;
 .slashed-price__price {
 	color: #a7aaad;
 }
+
+.plans-section__radio-toggle {
+	// min-width: 150px;
+	display: inline-grid;
+	grid-template-rows: auto auto;
+	grid-template-columns: 16px 150px;
+}

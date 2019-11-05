@@ -10,6 +10,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { AccentedCard, AccentedCardHeader, AccentedCardBody } from './accented-card';
 import PlanGrid from './plan-grid';
+import Button from 'components/button';
 import QuerySite from 'components/data/query-site';
 import Gridicon from 'components/gridicon';
 import { getAvailablePlans } from 'state/site/reducer';
@@ -96,14 +97,63 @@ export class Plans extends React.Component {
 										<div className="plans-section__body">
 											<p>
 												{ __(
-													'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
-													{ components: { a: <a href="https://jetpack.com/upgrade/backup/" /> } } // TODO: does this link need to open a new tab and have that icon?
+													'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{ext/}}{{/a}}',
+													{
+														components: {
+															a: <a href="https://jetpack.com/upgrade/backup/" />,
+															ext: (
+																<>
+																	<span>
+																		<Gridicon icon="external" size="12" />
+																	</span>
+																</>
+															),
+														},
+													} // TODO: does this link need to open a new tab and have that icon?
 												) }
-												<span>
-													<Gridicon icon="external" size="12" />
-												</span>
 											</p>
 											<h4>Backup options:</h4>
+											<div
+												style={ {
+													display: 'flex',
+													flexDirection: 'row',
+													justifyContent: 'center',
+												} }
+											>
+												<div className="plans-section__radio-toggle">
+													<div
+														style={ {
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+														} }
+													>
+														<input style={ { gridColumn: 1, gridRow: 1 } } type="radio" />
+													</div>
+													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
+														Daily Backups
+													</div>
+													<div style={ { gridColumn: 2, gridRow: 2 } }>12 - 9 / year</div>
+												</div>
+												<div className="plans-section__radio-toggle">
+													<div
+														style={ {
+															display: 'flex',
+															justifyContent: 'center',
+															alignItems: 'center',
+														} }
+													>
+														<input style={ { gridColumn: 1, gridRow: 1 } } type="radio" />
+													</div>
+													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
+														Real-Time Backups
+													</div>
+													<div style={ { gridColumn: 2, gridRow: 2 } }>12 - 9 / year</div>
+												</div>
+											</div>
+											<div style={ { textAlign: 'center' } }>
+												<Button primary>{ __( 'Upgrade to Real-Time Backups' ) }</Button>
+											</div>
 										</div>
 									}
 								</AccentedCardBody>
