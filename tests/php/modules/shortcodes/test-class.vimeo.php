@@ -244,9 +244,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 			'not_a_vimeo_shortcode'      => array(
 				'<amp-youtube></amp-youtube>',
 				'youtube',
-				array(
-					'id' => '62245'
-				),
+				array( 'id' => '62245' ),
 				null,
 			),
 			'empty_attr_array'           => array(
@@ -258,9 +256,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 			'no_width_or_height_in_attr' => array(
 				'<div>Initial shortcode</div>',
 				'vimeo',
-				array(
-					'id' => '24246'
-				),
+				array( 'id' => '24246' ),
 				'<amp-vimeo data-videoid="24246" layout="responsive" width="600" height="338"></amp-vimeo>'
 			),
 			'normal_attributes_present'  => array(

@@ -198,7 +198,7 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 
 	list( $width, $height ) = jetpack_get_amp_vimeo_dimensions( $attr );
 	return sprintf(
-		'<amp-vimeo data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-vimeo>',
+		'<amp-vimeo data-videoid="%s" layout="responsive" width="%s" height="%s"></amp-vimeo>',
 		esc_attr( $video_id ),
 		esc_attr( $width ),
 		esc_attr( $height )
