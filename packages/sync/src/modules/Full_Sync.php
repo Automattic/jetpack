@@ -240,19 +240,25 @@ class Full_Sync extends Module {
 		$modules_processed = 0;
 		foreach ( $modules as $module ) {
 			if ( 0 >= $this->remaining_items_to_enqueue ) {
-				break;
+				return;
 			}
 			$modules_processed += $this->enqueue_module( $module, $configs, $this->enqueue_status[ $module->name() ], $this->remaining_items_to_enqueue );
 			// Stop processing if we've reached our limit of items to enqueue.
 		}
 
-		if ( count( $modules ) > $modules_processed ) {
-			return;
+		if ( count( $modules ) === $modules_processed ) {
+			$this->queue_full_sync_end( $configs );
 		}
+	}
 
-		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
-		$this->update_status_option( 'queue_finished', time(), true );
-
+	/**
+	 * Enqueue 'jetpack_full_sync_end' and update 'queue_finished' status.
+	 *
+	 * @access public
+	 *
+	 * @param array $configs Full sync configuration for all sync modules.
+	 */
+	public function queue_full_sync_end( $configs ) {
 		$range = $this->get_content_range( $configs );
 
 		/**
@@ -266,8 +272,10 @@ class Full_Sync extends Module {
 		 * @param array  $range    Range of the sync items, containing min and max IDs for some item types.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
-	}
 
+		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
+		$this->update_status_option( 'queue_finished', time(), true );
+	}
 	/**
 	 * Enqueue Full Sync Actions for the given module.
 	 *
