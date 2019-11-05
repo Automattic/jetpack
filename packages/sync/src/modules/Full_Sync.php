@@ -219,6 +219,36 @@ class Full_Sync extends Module {
 	}
 
 	/**
+	 * Get Modules that are configured to Full Sync and haven't finished enqueuing
+	 *
+	 * @param array $configs Full sync configuration for all sync modules.
+	 *
+	 * @return array
+	 */
+	public function get_remaining_modules_to_enqueue( $configs ) {
+		return array_filter(
+			Modules::get_modules(),
+			function ( $module ) use ( $configs ) {
+				// Skip module if not configured for this sync or module is done.
+				if ( ! isset( $configs[ $module->name() ] ) ) {
+					return false;
+				}
+				if ( ! $configs[ $module->name() ] ) {
+					return false;
+				}
+				if ( ! isset( $this->enqueue_status[ $module->name() ] ) ) {
+					return false;
+				}
+				if ( true === $this->enqueue_status[ $module->name() ][2] ) {
+					return false;
+				}
+
+				return true;
+			}
+		);
+	}
+
+	/**
 	 * Enqueue the next items to sync.
 	 *
 	 * @access public
@@ -236,19 +266,15 @@ class Full_Sync extends Module {
 
 		$this->remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $this->get_available_queue_slots() );
 
-		$modules           = Modules::get_modules();
-		$modules_processed = 0;
-		foreach ( $modules as $module ) {
+		foreach ( $this->get_remaining_modules_to_enqueue( $configs ) as $module ) {
 			if ( 0 >= $this->remaining_items_to_enqueue ) {
 				return;
 			}
-			$modules_processed += $this->enqueue_module( $module, $configs, $this->enqueue_status[ $module->name() ], $this->remaining_items_to_enqueue );
+			$this->enqueue_module( $module, $configs[ $module->name() ] );
 			// Stop processing if we've reached our limit of items to enqueue.
 		}
 
-		if ( count( $modules ) === $modules_processed ) {
-			$this->queue_full_sync_end( $configs );
-		}
+		$this->queue_full_sync_end( $configs );
 	}
 
 	/**
@@ -280,34 +306,20 @@ class Full_Sync extends Module {
 	 * Enqueue Full Sync Actions for the given module.
 	 *
 	 * @param Object $module The module to Enqueue.
-	 * @param array  $configs The Full sync configuration for all modules.
-	 * @param array  $status The Full sync enqueue status for the module.
+	 * @param array  $config The Full sync configuration for the modules.
 	 *
 	 * @return int
 	 */
-	public function enqueue_module( $module, $configs, $status ) {
-		// Skip module if not configured for this sync or module is done.
-		if ( ! isset( $configs[ $module->name() ] )
-			 || // No module config.
-			 ! $configs[ $module->name() ]
-			 || // No enqueue status.
-			 ! $status
-			 || // Finished enqueuing this module.
-			 true === $status[2] ) {
-			return 1;
-		}
+	public function enqueue_module( $module, $config ) {
+		list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $config, $this->remaining_items_to_enqueue, $this->enqueue_status[ $module->name() ][2] );
 
-		list( $items_enqueued, $next_enqueue_state ) = $module->enqueue_full_sync_actions( $configs[ $module->name() ], $this->remaining_items_to_enqueue, $status[2] );
-
-		$status[2] = $next_enqueue_state;
+		$this->enqueue_status[ $module->name() ][2] = $next_enqueue_state;
 
 		// If items were processed, subtract them from the limit.
 		if ( ! is_null( $items_enqueued ) && $items_enqueued > 0 ) {
-			$status[1]                        += $items_enqueued;
-			$this->remaining_items_to_enqueue -= $items_enqueued;
+			$this->enqueue_status[ $module->name() ][1] += $items_enqueued;
+			$this->remaining_items_to_enqueue           -= $items_enqueued;
 		}
-
-		$this->enqueue_status[ $module->name() ] = $status;
 
 		return true === $next_enqueue_state ? 1 : 0;
 	}
