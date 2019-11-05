@@ -1130,6 +1130,13 @@ class Defaults {
 	public static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue.
 
 	/**
+	 * Should we skip the queue and send full sync items immediately?
+	 *
+	 * @var bool Send full sync items immediately.
+	 */
+	public static $default_full_sync_send_immediately = true; // TODO should be false by default
+
+	/**
 	 * Defaul for time between syncing callables.
 	 *
 	 * @var int Number of seconds.

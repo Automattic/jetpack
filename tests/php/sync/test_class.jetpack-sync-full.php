@@ -280,6 +280,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
+	function test_full_sync_send_immediately_skips_queue() {
+		// TODO
+		$this->markTestIncomplete();
+		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
+	}
+
 	function test_full_sync_sends_all_term_relationships() {
 		global $wpdb;
 		$this->sender->reset_data();
