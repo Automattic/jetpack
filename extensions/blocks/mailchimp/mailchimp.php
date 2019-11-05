@@ -88,6 +88,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					method="post"
 					id="mailchimp_form"
 					target="_top"
+					on="submit-success:AMP.setState( { mailing_list_status: 'subscribed' } )"
 				<?php endif; ?>
 			>
 				<p>
