@@ -177,6 +177,22 @@ class Full_Sync extends Module {
 	 * @param array $enqueue_status Current status of the queue, indexed by sync modules.
 	 */
 	public function continue_enqueuing( $configs = null, $enqueue_status = null ) {
+		if ( ! $this->attempt_enqueue_lock() ) {
+			return;
+		}
+		$this->continue_enqueuing_with_lock( $configs, $enqueue_status );
+		$this->remove_enqueue_lock();
+	}
+
+	/**
+	 * Enqueue the next items to sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $configs Full sync configuration for all sync modules.
+	 * @param array $enqueue_status Current status of the queue, indexed by sync modules.
+	 */
+	public function continue_enqueuing_with_lock( $configs = null, $enqueue_status = null ) {
 		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
@@ -709,5 +725,58 @@ class Full_Sync extends Module {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Prefix of the blog lock transient.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const ENQUEUE_LOCK_TRANSIENT_PREFIX = 'jp_sync_enqueue_lock_';
+	/**
+	 * Lifetime of the blog lock transient.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const ENQUEUE_LOCK_TRANSIENT_EXPIRY = 15; // Seconds.
+
+	/**
+	 * Attempt to lock enqueueing when the server receives concurrent requests from the same blog.
+	 *
+	 * @access public
+	 *
+	 * @param int $expiry  enqueue transient lifetime.
+	 * @return boolean True if succeeded, false otherwise.
+	 */
+	public function attempt_enqueue_lock( $expiry = self::ENQUEUE_LOCK_TRANSIENT_EXPIRY ) {
+		$transient_name = $this->get_concurrent_enqueue_transient_name();
+		$locked_time    = get_site_transient( $transient_name );
+		if ( $locked_time ) {
+			return false;
+		}
+		set_site_transient( $transient_name, microtime( true ), $expiry );
+		return true;
+	}
+	/**
+	 * Retrieve the enqueue lock transient name for the current blog.
+	 *
+	 * @access public
+	 *
+	 * @return string Name of the blog lock transient.
+	 */
+	private function get_concurrent_enqueue_transient_name() {
+		return self::ENQUEUE_LOCK_TRANSIENT_PREFIX . get_current_blog_id();
+	}
+	/**
+	 * Remove the enqueue lock.
+	 *
+	 * @access public
+	 */
+	public function remove_enqueue_lock() {
+		delete_site_transient( $this->get_concurrent_enqueue_transient_name() );
 	}
 }
