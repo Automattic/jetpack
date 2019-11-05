@@ -189,6 +189,7 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 		return $html;
 	}
 
+	$video_id = null;
 	if ( isset( $attr[0] ) ) {
 		$video_id = jetpack_shortcode_get_vimeo_id( $attr );
 	} elseif ( isset( $attr['id'] ) ) {
