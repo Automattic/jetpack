@@ -307,7 +307,7 @@ class Full_Sync extends Module {
 	/**
 	 * Enqueue Full Sync Actions for the given module.
 	 *
-	 * @param Object $module The module to Enqueue.
+	 * @param Automattic\Jetpack\Sync\Module $module The module to Enqueue.
 	 * @param array  $config The Full sync configuration for the modules.
 	 *
 	 * @return int
