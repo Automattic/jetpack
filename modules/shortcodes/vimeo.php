@@ -233,14 +233,11 @@ function jetpack_render_amp_vimeo( $args ) {
 		return '';
 	}
 
-	return Jetpack_AMP_Support::build_tag(
-		'amp-vimeo',
-		array(
-			'data-videoid' => $args['video_id'],
-			'layout'       => 'responsive',
-			'width'        => $args['width'],
-			'height'       => $args['height'],
-		)
+	return sprintf(
+		'<amp-vimeo data-videoid="%s" layout="responsive" width="%s" height="%s"></amp-vimeo>',
+		esc_attr( $args['video_id'] ),
+		esc_attr( $args['width'] ),
+		esc_attr( $args['height'] )
 	);
 }
 
