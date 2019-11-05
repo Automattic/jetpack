@@ -41,6 +41,7 @@ class XMLRPC_Connector {
 			$methods,
 			array(
 				'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
+				'jetpack.remoteAuthorize'    => array( $this, 'remote_authorize' ),
 			)
 		);
 	}
@@ -55,6 +56,18 @@ class XMLRPC_Connector {
 	 */
 	public function verify_registration( $registration_data ) {
 		return $this->output( $this->connection->handle_registration( $registration_data ) );
+	}
+
+	/**
+	 * Handles user authorization.
+	 *
+	 * @param array $request The request array.
+	 *
+	 * @return array|\IXR_Error Returns an array containing 'result'=>'authorized' on success.
+	 *                          Returns an IXR_Error on failure.
+	 */
+	public function remote_authorize( $request ) {
+		return $this->output( $this->connection->handle_authorization( $request ) );
 	}
 
 	/**

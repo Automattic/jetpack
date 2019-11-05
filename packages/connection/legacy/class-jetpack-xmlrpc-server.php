@@ -209,61 +209,7 @@ class Jetpack_XMLRPC_Server {
 	 * @param array $request the request.
 	 */
 	public function remote_authorize( $request ) {
-		$user = get_user_by( 'id', $request['state'] );
-
-		/**
-		 * Happens on various request handling events in the Jetpack XMLRPC server.
-		 * The action combines several types of events:
-		 *    - remote_authorize
-		 *    - remote_provision
-		 *    - get_user.
-		 *
-		 * @since 8.0.0
-		 *
-		 * @param String  $action the action name, i.e., 'remote_authorize'.
-		 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
-		 * @param Array   $parameters extra parameters from the event.
-		 * @param WP_User $user the acting user.
-		 */
-		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'begin', array(), $user );
-
-		foreach ( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
-			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
-				return $this->error(
-					new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ),
-					'remote_authorize'
-				);
-			}
-		}
-
-		if ( ! $user ) {
-			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ), 'remote_authorize' );
-		}
-
-		if ( $this->connection->is_active() && $this->connection->is_user_connected( $request['state'] ) ) {
-			return $this->error( new Jetpack_Error( 'already_connected', 'User already connected.', 400 ), 'remote_authorize' );
-		}
-
-		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
-
-		if ( is_a( $verified, 'IXR_Error' ) ) {
-			return $this->error( $verified, 'remote_authorize' );
-		}
-
-		wp_set_current_user( $request['state'] );
-
-		$result = $this->connection->authorize( $request );
-
-		if ( is_wp_error( $result ) ) {
-			return $this->error( $result, 'remote_authorize' );
-		}
-
-		// This action is documented in class.jetpack-xmlrpc-server.php.
-		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'success' );
-
-		return array(
-			'result' => $result,
-		);
+		return $this->connection->handle_authorization( $request );
 	}
 
 	/**

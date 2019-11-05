@@ -1477,10 +1477,93 @@ class Manager {
 
 	/**
 	 * Responds to a WordPress.com call to authorize the current user.
-	 * Should be changed to protected.
+	 *
+	 * @param array $request The user authorization request data.
+	 * @return array|\IXR_Error Returns an array containing 'result'=>'authorized' on success.
+	 *                          Returns an IXR_Error on failure.
 	 */
-	public function handle_authorization() {
+	public function handle_authorization( $request ) {
+		$user = isset( $request['state'] ) ? get_user_by( 'id', $request['state'] ) : null;
 
+		/**
+		 * Happens on various request handling events in the Jetpack XMLRPC server.
+		 * The action combines several types of events:
+		 *    - remote_authorize
+		 *    - remote_provision
+		 *    - get_user.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param String  $action the action name, i.e., 'remote_authorize'.
+		 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
+		 * @param Array   $parameters extra parameters from the event.
+		 * @param WP_User $user the acting user.
+		 */
+		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'begin', array(), $user );
+
+		$return_error = function( \WP_Error $error ) use ( $user ) {
+			// This action is documented in class-manager.php.
+			do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'fail', $error, $user );
+
+			return $this->convert_to_ixr_error( $error );
+		};
+
+		foreach ( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
+			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
+				return $return_error( new \WP_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ) );
+			}
+		}
+
+		if ( ! $user ) {
+			return $return_error( new \WP_Error( 'user_unknown', 'User not found.', 404 ) );
+		}
+
+		if ( $this->is_active() && $this->is_user_connected( $request['state'] ) ) {
+			return $return_error( new \WP_Error( 'already_connected', 'User already connected.', 400 ) );
+		}
+
+		$verified = $this->verify_secrets( 'authorize', $request['secret'], $request['state'] );
+
+		if ( is_wp_error( $verified ) ) {
+			return $return_error( $verified );
+		}
+
+		wp_set_current_user( $request['state'] );
+
+		$client_server = new \Jetpack_Client_Server();
+		$result        = $client_server->authorize( $request );
+
+		if ( is_wp_error( $result ) ) {
+			return $return_error( $result );
+		}
+
+		// This action is documented in class-manager.php.
+		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'success' );
+
+		return array(
+			'result' => $result,
+		);
+	}
+
+	/**
+	 * Converts a WP_Error object to an \IXR_Error object.
+	 *
+	 * @param \WP_Error|\IXR_Error $error A WP_Error object.
+	 * @return \IXR_Error
+	 */
+	private function convert_to_ixr_error( $error ) {
+		if ( is_wp_error( $error ) ) {
+			$code = $error->get_error_data();
+			if ( ! $code ) {
+				$code = -10520;
+			}
+			$message = sprintf( 'Jetpack: [%s] %s', $error->get_error_code(), $error->get_error_message() );
+			return new \IXR_Error( $code, $message );
+		}
+
+		if ( is_a( $error, 'IXR_Error' ) ) {
+			return $error;
+		}
 	}
 
 	/**

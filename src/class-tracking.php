@@ -104,7 +104,7 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
 	 * @param \WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_begin( $action, $user ) {
@@ -116,7 +116,7 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param string   $action Type of secret (one of 'register', 'authorize', 'publicize').
 	 * @param \WP_User $user The user object.
 	 */
 	public function jetpack_verify_secrets_success( $action, $user ) {
@@ -128,8 +128,8 @@ class Tracking {
 	 *
 	 * @access public
 	 *
-	 * @param string $action Type of secret (one of 'register', 'authorize', 'publicize').
-	 * @param \WP_User $user The user object.
+	 * @param string    $action Type of secret (one of 'register', 'authorize', 'publicize').
+	 * @param \WP_User  $user The user object.
 	 * @param \WP_Error $error Error object.
 	 */
 	public function jetpack_verify_secrets_fail( $action, $user, $error ) {
