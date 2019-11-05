@@ -199,9 +199,20 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 		return '';
 	}
 
-	$aspect_ratio   = 0.5625;
+	list( $width, $height ) = jetpack_get_amp_vimeo_dimensions( $attr );
+	return jetpack_render_amp_vimeo( compact( 'video_id', 'width', 'height' ) );
+}
+
+/**
+ * Gets the width and height of the AMP [vimeo] shortcode.
+ *
+ * @param array $attr The shortcode attributes.
+ * @return array The dimensions, width at index 0, and height at index 1.
+ */
+function jetpack_get_amp_vimeo_dimensions( $attr ) {
 	$default_width  = 600;
 	$default_height = 338;
+	$aspect_ratio   = $default_width / $default_height;
 
 	if ( ! empty( $GLOBALS['content_width'] ) ) {
 		$width  = $GLOBALS['content_width'];
@@ -211,7 +222,7 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 		$height = isset( $attr['height'] ) ? $attr['height'] : $default_height;
 	}
 
-	return jetpack_render_amp_vimeo( compact( 'video_id', 'width', 'height' ) );
+	return array( $width, $height );
 }
 
 /**
