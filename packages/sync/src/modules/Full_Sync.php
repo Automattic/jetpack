@@ -266,14 +266,12 @@ class Full_Sync extends Module {
 
 		$this->remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $this->get_available_queue_slots() );
 
+		$finished = true;
 		foreach ( $this->get_remaining_modules_to_enqueue( $configs ) as $module ) {
-			if ( 0 >= $this->remaining_items_to_enqueue ) {
+			if ( 0 >= $this->remaining_items_to_enqueue || ! $finished ) {
 				return;
 			}
 			$finished = $this->enqueue_module( $module, $configs[ $module->name() ] );
-			if ( ! $finished ) {
-				return;
-			}
 		}
 
 		$this->queue_full_sync_end( $configs );
@@ -308,7 +306,7 @@ class Full_Sync extends Module {
 	 * Enqueue Full Sync Actions for the given module.
 	 *
 	 * @param Automattic\Jetpack\Sync\Module $module The module to Enqueue.
-	 * @param array  $config The Full sync configuration for the modules.
+	 * @param array                          $config The Full sync configuration for the modules.
 	 *
 	 * @return int
 	 */
