@@ -400,7 +400,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// 28
 		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 		// ceil(28/4) = 7
-		$total_items = intval( ceil( $original_number_of_term_relationships  / $sync_item_size ) );
+		$total_items = intval( ceil( $original_number_of_term_relationships / $sync_item_size ) );
 
 		$this->full_sync->start( array( 'term_relationships' => true ) );
 		$this->sender->do_full_sync(); // empty the queue since – "full_sync_start" takes one item in the queue
