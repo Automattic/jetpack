@@ -8,17 +8,11 @@
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-abtest.git",
-                "reference": "26ab3b6142873fe8af01e542fdbeeef5e93364bb"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/26ab3b6142873fe8af01e542fdbeeef5e93364bb",
-                "reference": "26ab3b6142873fe8af01e542fdbeeef5e93364bb",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/abtest",
+                "reference": "12961c7db66932cb32e313c708f57c4550b53797"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -34,26 +28,27 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Provides an interface to the WP.com A/B tests.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "7591eef916ff7f16b6ab0f8e16ca5c3b9326eefa"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/7591eef916ff7f16b6ab0f8e16ca5c3b9326eefa",
-                "reference": "7591eef916ff7f16b6ab0f8e16ca5c3b9326eefa",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/assets",
+                "reference": "ac1e5e6549c82465b6cad22bae247c263df75285"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -77,21 +72,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Asset management utilities for Jetpack ecosystem packages"
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "20f68cb4ab4cecf69aa758e1e7ad799b30f7783e"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/20f68cb4ab4cecf69aa758e1e7ad799b30f7783e",
-                "reference": "20f68cb4ab4cecf69aa758e1e7ad799b30f7783e",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/autoloader",
+                "reference": "605c349de203cf2ad42dec0bfdd95a2cb48abd12"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -117,15 +109,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Creates a custom autoloader for a plugin or theme."
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-add/jetpack-backups-helper-apis",
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
-                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
+                "reference": "98e2a8bde5604aa0d4b6f128afca878e6959242a"
             },
             "type": "library",
             "autoload": {
@@ -139,21 +134,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tools to assist with backing up Jetpack sites."
+            "description": "Tools to assist with backing up Jetpack sites.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-compat.git",
-                "reference": "f7d54cb958134fa5f52d66e88ed61382bf00afcc"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-compat/zipball/f7d54cb958134fa5f52d66e88ed61382bf00afcc",
-                "reference": "f7d54cb958134fa5f52d66e88ed61382bf00afcc",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/compat",
+                "reference": "c00196f04c77d932758dc3b2cc81b74735d3c0d8"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -177,21 +169,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Compatibility layer with previous versions of Jetpack"
+            "description": "Compatibility layer with previous versions of Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "50ab068c0e3b025d9a524cb1c7bdfb80e5092503"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/50ab068c0e3b025d9a524cb1c7bdfb80e5092503",
-                "reference": "50ab068c0e3b025d9a524cb1c7bdfb80e5092503",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/connection",
+                "reference": "fcf22fbd302b5affeb9afe878833126aeb7e6302"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -222,21 +211,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything needed to connect to the Jetpack infrastructure"
+            "description": "Everything needed to connect to the Jetpack infrastructure",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "7e7b8c290daf0053272af9aa9dee3810c50f5d7b"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/7e7b8c290daf0053272af9aa9dee3810c50f5d7b",
-                "reference": "7e7b8c290daf0053272af9aa9dee3810c50f5d7b",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/constants",
+                "reference": "6dd6608ded5000013e567edd9d56915c634f53c5"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -256,21 +242,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for defining constants in a more testable way."
+            "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-error.git",
-                "reference": "c6b3e427e5d19a2c472a73720b54e9e55b05e465"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-error/zipball/c6b3e427e5d19a2c472a73720b54e9e55b05e465",
-                "reference": "c6b3e427e5d19a2c472a73720b54e9e55b05e465",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/error",
+                "reference": "fd52e6e110a62f2eed1225f3f6e8f81f24b7d77f"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -290,21 +273,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack Error - a wrapper around WP_Error."
+            "description": "Jetpack Error - a wrapper around WP_Error.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "1b59f74379b4853c9a8d87a587dbd51fa095f8f1"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/1b59f74379b4853c9a8d87a587dbd51fa095f8f1",
-                "reference": "1b59f74379b4853c9a8d87a587dbd51fa095f8f1",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/jitm",
+                "reference": "06044b61a680d86f3725df8602612f9705bd8fb6"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -334,21 +314,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Just in time messages for Jetpack"
+            "description": "Just in time messages for Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "2712436239b3fa0c856e6b6fbc729521068831db"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/2712436239b3fa0c856e6b6fbc729521068831db",
-                "reference": "2712436239b3fa0c856e6b6fbc729521068831db",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/logo",
+                "reference": "4e5cf2894241089214723a17a5ecd65e9bae4bff"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -369,21 +346,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack"
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-options.git",
-                "reference": "0069f365b4bbfb8fc05400ec5e593aa78aedd103"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-options/zipball/0069f365b4bbfb8fc05400ec5e593aa78aedd103",
-                "reference": "0069f365b4bbfb8fc05400ec5e593aa78aedd103",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/options",
+                "reference": "d54232f1a863345fa24584a28b89fa9d22705643"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -401,21 +375,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options."
+            "description": "A wrapper for wp-options to manage specific Jetpack options.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-roles.git",
-                "reference": "9baecd0b78cddb557989a8a01667949d786c8709"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-roles/zipball/9baecd0b78cddb557989a8a01667949d786c8709",
-                "reference": "9baecd0b78cddb557989a8a01667949d786c8709",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/roles",
+                "reference": "efa36b4961b5271fe8e1e781bc38dd83b8a657ac"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -436,21 +407,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities, related with user roles and capabilities."
+            "description": "Utilities, related with user roles and capabilities.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "5483b894f97d5e46e233a952ba408717490aca8e"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/5483b894f97d5e46e233a952ba408717490aca8e",
-                "reference": "5483b894f97d5e46e233a952ba408717490aca8e",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/status",
+                "reference": "3341d51628318a46e8d5f260903db9d402da8936"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -471,21 +439,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "66db56e42f5e206292ae9bba8ed55ac07a2d4b01"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/66db56e42f5e206292ae9bba8ed55ac07a2d4b01",
-                "reference": "66db56e42f5e206292ae9bba8ed55ac07a2d4b01",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/sync",
+                "reference": "fd63c2d081149823030ab7a9a8b1dbdbb04afdf8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -501,26 +466,21 @@
                     "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
-            "time": "2019-11-01T20:42:09+00:00"
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-terms-of-service.git",
-                "reference": "174854d2d5406e1ba928cf7ee8613a7a7acca053"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-terms-of-service/zipball/174854d2d5406e1ba928cf7ee8613a7a7acca053",
-                "reference": "174854d2d5406e1ba928cf7ee8613a7a7acca053",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/terms-of-service",
+                "reference": "d1d8c13c9786792a3ebb3a76a883f810c64b404a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -546,21 +506,18 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything need to manage the terms of service state"
+            "description": "Everything need to manage the terms of service state",
+            "transport-options": {
+                "symlink": true
+            }
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-tracking.git",
-                "reference": "204d4690a8a06a1aeaf2fe888fa04a1b13cdeced"
-            },
+            "version": "dev-update/phpcs-changed-lines-only-3",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-tracking/zipball/204d4690a8a06a1aeaf2fe888fa04a1b13cdeced",
-                "reference": "204d4690a8a06a1aeaf2fe888fa04a1b13cdeced",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/tracking",
+                "reference": "1142ea0d23cb78a2bf45b6209d3a7fa5623fc1eb"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -588,7 +545,10 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tracking for Jetpack"
+            "description": "Tracking for Jetpack",
+            "transport-options": {
+                "symlink": true
+            }
         }
     ],
     "packages-dev": [
