@@ -12,6 +12,7 @@ import { h, Component, Fragment } from 'preact';
 import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
+import { RESULT_FORMAT_MINIMAL } from '../lib/constants';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -38,12 +39,12 @@ class SearchResults extends Component {
 
 	renderEmptyResults( { showText = false } = {} ) {
 		return (
-			<div className="jetpack-instant-search__search-results" role="listitem">
-				{ showText ? (
+			<div className="jetpack-instant-search__search-results">
+				{ showText && (
 					<div>
 						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), this.props.query ) }</h3>
 					</div>
-				) : null }
+				) }
 			</div>
 		);
 	}
@@ -72,26 +73,29 @@ class SearchResults extends Component {
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ this.getSearchTitle() }
 				</p>
-				<div
-					className={ `jetpack-instant-search__search-results jetpack-instant-search__is-format-${
-						this.props.resultFormat
-					}${ this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : '' }` }
-				>
-					{ hasCorrectedQuery && (
-						<p className="jetpack-instant-search__search-results-unused-query">
-							{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
-						</p>
-					) }
-					{ results.map( ( result, index ) => (
-						<SearchResult
-							index={ index }
-							locale={ this.props.locale }
-							query={ this.props.query }
-							result={ result }
-							resultFormat={ this.props.resultFormat }
-						/>
-					) ) }
-				</div>
+				{ hasCorrectedQuery && (
+					<p className="jetpack-instant-search__search-results-unused-query">
+						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
+					</p>
+				) }
+				{ results && (
+					<ol
+						className={ `jetpack-instant-search__search-results jetpack-instant-search__is-format-${ this
+							.props.resultFormat || RESULT_FORMAT_MINIMAL }${
+							this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+						}` }
+					>
+						{ results.map( ( result, index ) => (
+							<SearchResult
+								index={ index }
+								locale={ this.props.locale }
+								query={ this.props.query }
+								result={ result }
+								resultFormat={ this.props.resultFormat }
+							/>
+						) ) }
+					</ol>
+				) }
 				<div className="jetpack-instant-search__search-pagination">
 					{ this.props.hasNextPage && (
 						<ScrollButton

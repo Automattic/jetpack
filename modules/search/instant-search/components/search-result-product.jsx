@@ -23,7 +23,7 @@ class SearchResultProduct extends Component {
 			: fields[ 'image.url.raw' ];
 
 		return (
-			<div className="jetpack-instant-search__result-product">
+			<li className="jetpack-instant-search__result-product">
 				<h3>
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
@@ -55,7 +55,7 @@ class SearchResultProduct extends Component {
 				) }
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
-			</div>
+			</li>
 		);
 	}
 }
