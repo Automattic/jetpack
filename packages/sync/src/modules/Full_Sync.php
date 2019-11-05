@@ -199,7 +199,7 @@ class Full_Sync extends Module {
 		if ( ! $this->attempt_enqueue_lock() ) {
 			return;
 		}
-		if ( ! $this->get_status_option( 'queue_finished' ) ) {
+		if ( $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
 		$this->enqueue_status = $enqueue_status ? $enqueue_status : $this->get_enqueue_status();
