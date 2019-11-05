@@ -368,7 +368,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	/**
 	 * This tests tries to test the accuracy of the total that gets stored in the enqueue status.
-	 * Since term relationships are not enqueued with an autoincromenting primary key.
+	 * Since term relationships are not enqueued with an autoincrementing primary key.
 	 *
 	 */
 	function test_full_sync_enqueue_older_post_add_term_relationships() {
