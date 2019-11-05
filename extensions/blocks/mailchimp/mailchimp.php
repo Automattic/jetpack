@@ -73,6 +73,9 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	$amp_form_action = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
 	$is_amp_request  = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 
+	$mailchimp_interests    = apply_filters( 'jetpack_mailchimp_interests', null );
+	$mailchimp_merge_fields = apply_filters( 'jetpack_mailchimp_merge_fields', null );
+
 	ob_start();
 	?>
 
@@ -97,6 +100,24 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						name="email"
 					/>
 				</p>
+				<?php if ( $mailchimp_interests ) : ?>
+					<?php foreach ( is_array( $mailchimp_interests ) ? $mailchimp_interests : array( $mailchimp_interests ) as $interest ) : ?>
+						<input
+							name="interests[<?php echo esc_attr( $interest ); ?>]"
+							type="hidden"
+							value=1
+						/>
+					<?php endforeach; ?>
+				<?php endif; ?>
+				<?php if ( $mailchimp_merge_fields ) : ?>
+					<?php foreach ( $mailchimp_merge_fields as $field_name => $field_value ) : ?>
+						<input
+							name="merge_fields[<?php echo esc_attr( $field_name ); ?>]"
+							type="hidden"
+							value="<?php echo esc_attr( $field_value ); ?>"
+						/>
+					<?php endforeach; ?>
+				<?php endif; ?>
 				<p>
 					<button type="submit" class="components-button is-button is-primary" style="<?php echo esc_attr( $button_styles ); ?>">
 						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
