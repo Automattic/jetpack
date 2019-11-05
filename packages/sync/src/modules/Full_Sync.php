@@ -230,25 +230,20 @@ class Full_Sync extends Module {
 			return;
 		}
 
-		$this->remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $this->get_available_queue_slots() );
-
-		if ( $this->remaining_items_to_enqueue <= 0 ) {
-			return;
-		}
-
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
 
+		$this->remaining_items_to_enqueue = min( Settings::get_setting( 'max_enqueue_full_sync' ), $this->get_available_queue_slots() );
+
 		$modules           = Modules::get_modules();
 		$modules_processed = 0;
 		foreach ( $modules as $module ) {
-			$modules_processed += $this->enqueue_module( $module, $configs, $this->enqueue_status[ $module->name() ], $this->remaining_items_to_enqueue );
-			// Stop processing if we've reached our limit of items to enqueue.
-
 			if ( 0 >= $this->remaining_items_to_enqueue ) {
 				break;
 			}
+			$modules_processed += $this->enqueue_module( $module, $configs, $this->enqueue_status[ $module->name() ], $this->remaining_items_to_enqueue );
+			// Stop processing if we've reached our limit of items to enqueue.
 		}
 
 		if ( count( $modules ) > $modules_processed ) {
