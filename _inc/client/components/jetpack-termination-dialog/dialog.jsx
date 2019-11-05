@@ -15,7 +15,8 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
-import JetpackTerminationDialogFeatures from 'components/jetpack-termination-dialog/features';
+import JetpackTerminationDialogFeatures from './features';
+import JetpackTerminationDialogSurvey from './survey';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
 import Spinner from 'components/spinner';
@@ -66,6 +67,9 @@ function mapBenefitDataToViewData( benefit ) {
  */
 
 class JetpackTerminationDialog extends Component {
+	static FEATURE_STEP = 'FEATURE_STEP';
+	static SURVEY_STEP = 'SURVEY_STEP';
+
 	static propTypes = {
 		closeDialog: PropTypes.func.isRequired,
 		isDevVersion: PropTypes.bool,
@@ -73,6 +77,16 @@ class JetpackTerminationDialog extends Component {
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array,
 		terminateJetpack: PropTypes.func.isRequired,
+	};
+
+	state = {
+		step: JetpackTerminationDialog.FEATURE_STEP,
+		surveyAnswerId: null,
+		surveyAnswerText: '',
+	};
+
+	handleContinueClick = () => {
+		this.setState( { step: JetpackTerminationDialog.SURVEY_STEP } );
 	};
 
 	handleTerminationClick = () => {
@@ -93,6 +107,13 @@ class JetpackTerminationDialog extends Component {
 		closeDialog();
 	};
 
+	handleSurveyAnswerChange = ( surveyAnswerId, surveyAnswerText ) => {
+		this.setState( {
+			surveyAnswerId,
+			surveyAnswerText,
+		} );
+	};
+
 	renderFeatures() {
 		const { isDevSite: siteIsDev, purpose, siteBenefits } = this.props;
 
@@ -109,8 +130,34 @@ class JetpackTerminationDialog extends Component {
 		);
 	}
 
+	renderSurvey() {
+		const { surveyAnswerId, surveyAnswerText } = this.state;
+		return (
+			<JetpackTerminationDialogSurvey
+				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
+				surveyAnswerId={ surveyAnswerId }
+				surveyAnswerText={ surveyAnswerText }
+			/>
+		);
+	}
+
+	renderPrimaryButton() {
+		const { purpose } = this.props;
+		const { step } = this.state;
+		step === JetpackTerminationDialog.FEATURE_STEP ? (
+			<Button primary onClick={ this.handleContinueClick }>
+				{ __( 'Continue' ) }
+			</Button>
+		) : (
+			<Button scary primary onClick={ this.handleTerminationClick }>
+				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
+			</Button>
+		);
+	}
+
 	render() {
 		const { purpose, location } = this.props;
+		const { step } = this.state;
 
 		return (
 			<div className="jetpack-termination-dialog">
@@ -130,7 +177,9 @@ class JetpackTerminationDialog extends Component {
 						) }
 					</div>
 				</Card>
-				{ this.renderFeatures() }
+				{ step === JetpackTerminationDialog.FEATURE_STEP
+					? this.renderFeatures()
+					: this.renderSurvey() }
 				<Card>
 					<div className="jetpack-termination-dialog__button-row">
 						<p>
