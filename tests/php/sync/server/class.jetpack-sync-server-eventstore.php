@@ -26,21 +26,23 @@ class Jetpack_Sync_Server_Eventstore {
 	function get_all_events( $action_name = null, $blog_id = null ) {
 		$blog_id = isset( $blog_id ) ? $blog_id : get_current_blog_id();
 
+		if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
+			return [];
+		}
+
 		if ( $action_name ) {
-			$events = array();
-			if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
-				return $events;
-			}
+			$events = [];
 
 			foreach ( $this->events[ $blog_id ] as $event ) {
 				if ( $event->action === $action_name ) {
 					$events[] = $event;
 				}
 			}
+
 			return $events;
 		}
 
-		return isset( $this->events[ $blog_id ] ) ? $this->events[ $blog_id ] : [];
+		return $this->events[ $blog_id ];
 	}
 
 	function get_most_recent_event( $action_name = null, $blog_id = null ) {
