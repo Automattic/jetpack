@@ -140,10 +140,12 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	renderSurvey() {
+		const { purpose } = this.props;
 		const { surveyAnswerId, surveyAnswerText } = this.state;
 		return (
 			<JetpackTerminationDialogSurvey
 				onSurveyAnswerChange={ this.handleSurveyAnswerChange }
+				purpose={ purpose }
 				surveyAnswerId={ surveyAnswerId }
 				surveyAnswerText={ surveyAnswerText }
 			/>

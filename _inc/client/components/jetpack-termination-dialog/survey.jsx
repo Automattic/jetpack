@@ -31,9 +31,17 @@ const answers = [
 class JetpackTerminationDialogSurvey extends Component {
 	static propTypes = {
 		onSurveyAnswerChange: PropTypes.func.isRequired,
+		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		surveyAnswerId: PropTypes.string,
 		surveyAnswerText: PropTypes.string,
 	};
+
+	getQuestion() {
+		const { purpose } = this.props;
+		return 'disconnect' === purpose
+			? __( "Please let us know why you're disconnecting Jetpack" )
+			: __( "Please let us know why you're disabling Jetpack" );
+	}
 
 	render() {
 		const { onSurveyAnswerChange, surveyAnswerId, surveyAnswerText } = this.props;
@@ -42,7 +50,7 @@ class JetpackTerminationDialogSurvey extends Component {
 			<Card className="jetpack-disconnect-dialog__survey">
 				<MultiChoiceQuestion
 					answers={ answers }
-					question={ __( "Please let us know why you're disabling Jetpack" ) }
+					question={ this.getQuestion() }
 					subHeader={ __( 'Your feedback will help us improve the product.' ) }
 					onAnswerChange={ onSurveyAnswerChange }
 					selectedAnswerId={ surveyAnswerId }
