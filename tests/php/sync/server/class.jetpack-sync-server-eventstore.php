@@ -40,7 +40,7 @@ class Jetpack_Sync_Server_Eventstore {
 			return $events;
 		}
 
-		return $this->events[ $blog_id ];
+		return isset( $this->events[ $blog_id ] ) ? $this->events[ $blog_id ] : [];
 	}
 
 	function get_most_recent_event( $action_name = null, $blog_id = null ) {
@@ -54,6 +54,6 @@ class Jetpack_Sync_Server_Eventstore {
 	}
 
 	function reset() {
-		$this->events[ get_current_blog_id() ] = array();
+		$this->events[ get_current_blog_id() ] = [];
 	}
 }
