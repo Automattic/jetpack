@@ -1289,9 +1289,7 @@ class Manager {
 					400
 				)
 			);
-		}
-
-		if ( self::SECRETS_MISSING === $stored_secrets ) {
+		} elseif ( self::SECRETS_MISSING === $stored_secrets ) {
 			$error = $return_error(
 				new \WP_Error(
 					'verify_secrets_missing',
@@ -1337,7 +1335,7 @@ class Manager {
 		}
 
 		// Something went wrong during the checks, returning the error.
-		if ( null !== $error ) {
+		if ( ! empty( $error ) ) {
 			return $error;
 		}
 
