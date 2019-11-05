@@ -270,8 +270,10 @@ class Full_Sync extends Module {
 			if ( 0 >= $this->remaining_items_to_enqueue ) {
 				return;
 			}
-			$this->enqueue_module( $module, $configs[ $module->name() ] );
-			// Stop processing if we've reached our limit of items to enqueue.
+			$finished = $this->enqueue_module( $module, $configs[ $module->name() ] );
+			if ( ! $finished ) {
+				return;
+			}
 		}
 
 		$this->queue_full_sync_end( $configs );
