@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
+use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Queue_Buffer;
 use Automattic\Jetpack\Sync\Replicastore;
 
 /**
@@ -256,6 +258,83 @@ abstract class Module {
 		if ( $wpdb->last_error ) {
 			// return the values that were passed in so all these chunks get retried.
 			return array( $max_items_to_enqueue, $state );
+		}
+
+		return array( $chunk_count, true );
+	}
+
+	/**
+	 * Immediately send all items of a sync type as an action.
+	 *
+	 * @access protected
+	 *
+	 * @param string  $action_name          Name of the action.
+	 * @param string  $table_name           Name of the database table.
+	 * @param string  $id_field             Name of the ID field in the database.
+	 * @param string  $where_sql            The SQL WHERE clause to filter to the desired items.
+	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue in the same time.
+	 * @param boolean $state                Whether enqueueing has finished.
+	 * @return array Array, containing the number of chunks and TRUE, indicating enqueueing has finished.
+	 */
+	protected function send_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $max_duration, $state ) {
+		global $wpdb;
+
+		if ( ! $where_sql ) {
+			$where_sql = '1 = 1';
+		}
+
+		$items_per_page        = 100;
+		$page                  = 1;
+		$chunk_count           = 0;
+		$previous_interval_end = $state ? $state : '~0';
+		$listener              = Listener::get_instance();
+		$starttime             = microtime( true );
+
+		// Count down from max_id to min_id so we get newest posts/comments/etc first.
+		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
+			// $listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
+			// do the sending
+			$sender = Sender::get_instance();
+
+			// compose the thing to be sent
+			$buffer_items = [
+				(object) [
+					'id'    => microtime( true ),
+					'value' => [
+						$action_name,
+						$ids,
+						get_current_user_id(),
+						microtime( true ),
+						Settings::is_importing(),
+					],
+				],
+			];
+
+			$buffer = new Queue_Buffer( 'immediate-send', $buffer_items );
+			list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $sender->get_items_to_send( $buffer, true );
+
+			// send
+			Settings::set_is_sending( true );
+			error_log( 'sending' );
+			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $sender->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
+			Settings::set_is_sending( false );
+
+			if ( microtime( true ) - $starttime >= $max_duration ) {
+				$last_chunk = end( $remaining_items );
+				return array( 0, end( $ids ) );
+			}
+
+			$chunk_count += count( $chunked_ids );
+			$page++;
+			// The $ids are ordered in descending order.
+			$previous_interval_end = end( $ids );
+
+		}
+
+		if ( $wpdb->last_error ) {
+			// return the values that were passed in so all these chunks get retried.
+			return array( $max_items_to_send, $state );
 		}
 
 		return array( $chunk_count, true );
