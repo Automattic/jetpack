@@ -191,5 +191,5 @@ export function setFilterQuery( filterKey, filterValue ) {
 
 export function getResultFormatQuery() {
 	const query = getQuery();
-	return 'result_format' in query;
+	return query.result_format;
 }

@@ -11,6 +11,7 @@ import { h, Component } from 'preact';
 import SearchResultMinimal from './search-result-minimal';
 import SearchResultProduct from './search-result-product';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
+import { RESULT_FORMAT_PRODUCT } from '../lib/constants';
 
 class SearchResult extends Component {
 	componentDidMount() {
@@ -36,7 +37,7 @@ class SearchResult extends Component {
 	};
 
 	render() {
-		if ( this.props.resultFormat === 'product' ) {
+		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
 			return <SearchResultProduct { ...this.props } />;
 		}
 
