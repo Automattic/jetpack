@@ -195,10 +195,6 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 		$video_id = $attr['id'];
 	}
 
-	if ( empty( $video_id ) ) {
-		return '';
-	}
-
 	list( $width, $height ) = jetpack_get_amp_vimeo_dimensions( $attr );
 	return jetpack_render_amp_vimeo( compact( 'video_id', 'width', 'height' ) );
 }
@@ -212,7 +208,7 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 function jetpack_get_amp_vimeo_dimensions( $attr ) {
 	$default_width  = 600;
 	$default_height = 338;
-	$aspect_ratio   = $default_width / $default_height;
+	$aspect_ratio   = $default_height / $default_width;
 
 	if ( ! empty( $GLOBALS['content_width'] ) ) {
 		$width  = $GLOBALS['content_width'];
@@ -232,20 +228,8 @@ function jetpack_get_amp_vimeo_dimensions( $attr ) {
  * @return string The rendered HTML.
  */
 function jetpack_render_amp_vimeo( $args ) {
-	$args = wp_parse_args(
-		$args,
-		array( 'video_id' => false )
-	);
-
 	if ( empty( $args['video_id'] ) ) {
-		return Jetpack_AMP_Support::build_tag(
-			'a',
-			array(
-				'href'  => esc_url( $args['url'] ),
-				'class' => 'amp-wp-embed-fallback',
-			),
-			esc_html( $args['url'] )
-		);
+		return '';
 	}
 
 	return Jetpack_AMP_Support::build_tag(
