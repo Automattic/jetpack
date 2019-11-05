@@ -177,17 +177,17 @@ class Term_Relationships extends Module {
 	/**
 	 * Use to calculate the new total.
 	 *
-	 * @param array $previous_enqueue_status
+	 * @param array $previous_enqueue_status List containing total, enqueued item count, and last enqueued object.
 	 *
 	 * @return int The number of items that we should be sending.
 	 */
 	public function recalculate_total( $previous_enqueue_status ) {
 
-		list( $previous_total, $previously_enqueued_item_count, $previous_enqueue_state ) = $previous_enqueue_status;
+		list( $previous_total, $previously_enqueued_item_count, $last_enqueue_object ) = $previous_enqueue_status;
 		if ( ! is_array( $previous_enqueue_status[2] ) ) {
 			return $previous_total;
 		}
-		$count = $this->count_remaining_items( $previous_enqueue_state );
+		$count = $this->count_remaining_items( $last_enqueue_object );
 
 		return (int) ceil( $count / Settings::get_setting( 'term_relationships_full_sync_item_size' ) ) + $previously_enqueued_item_count;
 	}

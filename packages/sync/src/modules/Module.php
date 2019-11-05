@@ -321,7 +321,7 @@ abstract class Module {
 	 * In most cases the total of items that we enqueue will always stay the same.
 	 * Since the items are ordered using the primary key which auto increments.
 	 *
-	 * @param array $previous_enqueue_status Arr
+	 * @param array $previous_enqueue_status List containing total, enqueued item count, and last enqueued object.
 	 *
 	 * @return int Return the previous total
 	 */
