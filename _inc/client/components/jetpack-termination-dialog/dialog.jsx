@@ -144,7 +144,7 @@ class JetpackTerminationDialog extends Component {
 	renderPrimaryButton() {
 		const { purpose } = this.props;
 		const { step } = this.state;
-		step === JetpackTerminationDialog.FEATURE_STEP ? (
+		return step === JetpackTerminationDialog.FEATURE_STEP ? (
 			<Button primary onClick={ this.handleContinueClick }>
 				{ __( 'Continue' ) }
 			</Button>
@@ -189,9 +189,7 @@ class JetpackTerminationDialog extends Component {
 						</p>
 						<div className="jetpack-termination-dialog__button-row-buttons">
 							<Button onClick={ this.handleDialogCloseClick }>{ __( 'Cancel' ) }</Button>
-							<Button scary primary onClick={ this.handleTerminationClick }>
-								{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
-							</Button>
+							{ this.renderPrimaryButton() }
 						</div>
 					</div>
 				</Card>
