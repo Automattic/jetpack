@@ -296,8 +296,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// make an assertion
 		$status = $this->full_sync->get_enqueue_status();
 		// list( $total, $queued, $finished ) = $status['term_relationships'];
-		// print_r($status);
-		// print_r( $this->server_event_storage->get_all_events( '') );
+		print_r( $status );
+		print_r( $this->server_event_storage->get_all_events() );
+		print_r( $this->server_replica_storage->get_posts() );
 		$this->assertEquals( $posts_count, count( $this->server_replica_storage->get_posts() ) );
 	}
 
