@@ -195,7 +195,7 @@ class Term_Relationships extends Module {
 	/**
 	 * Helper function that counts the remaining items given the last object enqueued.
 	 *
-	 * @param array $last_object_enqueued Array containing the place where we last left of.
+	 * @param array $last_object_enqueued Array containing the place where we last left off.
 	 *
 	 * @return int The number of term relationships that are left to enqueue.
 	 */
