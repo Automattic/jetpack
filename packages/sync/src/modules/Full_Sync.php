@@ -241,11 +241,10 @@ class Full_Sync extends Module {
 				if ( ! $configs[ $module->name() ] ) {
 					return false;
 				}
-				if ( ! isset( $this->enqueue_status[ $module->name() ] ) ) {
-					return false;
-				}
-				if ( true === $this->enqueue_status[ $module->name() ][2] ) {
-					return false;
+				if ( isset( $this->enqueue_status[ $module->name() ] ) ) {
+					if ( true === $this->enqueue_status[ $module->name() ][2] ) {
+						return false;
+					}
 				}
 
 				return true;
