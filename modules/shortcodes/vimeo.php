@@ -175,7 +175,7 @@ add_shortcode( 'vimeo', 'vimeo_shortcode' );
 /**
  * Filters the Vimeo shortcode to be AMP-compatible.
  *
- * @param string $html The video player HTML.
+ * @param string $html The shortcode HTML.
  * @param string $shortcode_tag The shortcode's tag (name).
  * @param array  $attr The attributes of the shortcode.
  * @return string The filtered HTML.
