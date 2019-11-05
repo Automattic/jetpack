@@ -107,14 +107,14 @@ echo Copying the built plugin to the shared volume
 docker exec --user root $WPCLI mkdir -p /var/www/html/wp-content/mu-plugins
 docker cp ./build/wpcomsh $WPCLI:/var/www/html/wp-content/mu-plugins/wpcomsh/
 
-echo \"Fixing\" Permissions
+echo \"Fixing\" Permissions for WP-CLI
 docker exec --user root $WPCLI chown -R www-data:www-data /var/www/html
 
 if [ "$1" = "private" ]; then
-  echo Kicking off Private Site tests
+  echo Setting the site to Private
   docker exec $WPCLI /bin/sh /usr/local/bin/ci-init-cli.sh private
 else
-  echo Kicking off Public Site tests
+  echo Setting the site to Public
   docker exec $WPCLI /bin/sh /usr/local/bin/ci-init-cli.sh
 fi
 
@@ -146,6 +146,9 @@ SUBSCRIBER_AUTH_COOKIE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER
 echo SUBSCRIBER_AUTH_COOKIE is ${SUBSCRIBER_AUTH_COOKIE};
 SUBSCRIBER_RESTAPI_NONCE=`docker exec -it $WPCLI wp eval --user="${SUBSCRIBER_USER_ID}" "echo wp_create_nonce( 'wp_rest' );"`;
 echo SUBSCRIBER_RESTAPI_NONCE is ${SUBSCRIBER_RESTAPI_NONCE};
+
+echo \"Fixing\" Permissions for WP
+docker exec --user root $WP chown -R www-data:www-data /var/www/html
 
 JEST=`docker create \
   --name ${PROJECT}_jest \
