@@ -198,7 +198,7 @@ function amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
 
 	list( $width, $height ) = jetpack_get_amp_vimeo_dimensions( $attr );
 	return sprintf(
-		'<amp-vimeo data-videoid="%s" layout="responsive" width="%s" height="%s"></amp-vimeo>',
+		'<amp-vimeo data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-vimeo>',
 		esc_attr( $video_id ),
 		esc_attr( $width ),
 		esc_attr( $height )
@@ -226,7 +226,7 @@ function jetpack_get_amp_vimeo_dimensions( $attr ) {
 		$height = isset( $attr['height'] ) ? $attr['height'] : $default_height;
 	}
 
-	return array( $width, $height );
+	return array( absint( $width ), absint( $height ) );
 }
 
 /**
