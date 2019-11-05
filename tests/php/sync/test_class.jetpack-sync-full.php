@@ -265,6 +265,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
+		echo "\nGot full sync terms event\n";
+		print_r($event);
 		$second_batch_terms = $event->args['terms'];
 		$previous_interval_end = $event->args['previous_end'];
 		$this->assertEquals( intval( $previous_interval_end ), $last_term->term_taxonomy_id );
@@ -281,6 +283,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_send_immediately_skips_queue() {
+		$this->markTestIncomplete();
 		$posts_count = 100;
 		// TODO
 		// $this->markTestIncomplete();
