@@ -127,9 +127,24 @@ abstract class Module {
 	 * @param array   $config               Full sync configuration for this sync module.
 	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
 	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
+	 * @return array  Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
+		// In subclasses, return the number of actions enqueued, and next module state (true == done).
+		return array( null, true );
+	}
+
+	/**
+	 * Immediately send the module actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_duration         Maximum duration of processing.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array  Number of actions sent, and next module state.
+	 */
+	public function send_full_sync_actions( $config, $max_duration, $state ) {
 		// In subclasses, return the number of actions enqueued, and next module state (true == done).
 		return array( null, true );
 	}
@@ -272,7 +287,7 @@ abstract class Module {
 	 * @param string  $table_name           Name of the database table.
 	 * @param string  $id_field             Name of the ID field in the database.
 	 * @param string  $where_sql            The SQL WHERE clause to filter to the desired items.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue in the same time.
+	 * @param int     $max_duration          Maximum duration of processing time.
 	 * @param boolean $state                Whether enqueueing has finished.
 	 * @return array Array, containing the number of chunks and TRUE, indicating enqueueing has finished.
 	 */
@@ -285,19 +300,16 @@ abstract class Module {
 
 		$items_per_page        = 100;
 		$page                  = 1;
-		$chunk_count           = 0;
 		$previous_interval_end = $state ? $state : '~0';
-		$listener              = Listener::get_instance();
 		$starttime             = microtime( true );
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
-			// $listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
-			// do the sending
+
 			$sender = Sender::get_instance();
 
-			// compose the thing to be sent
+			// Compose the data to be sent.
 			$buffer_items = [
 				(object) [
 					'id'    => microtime( true ),
@@ -314,9 +326,7 @@ abstract class Module {
 			$buffer = new Queue_Buffer( 'immediate-send', $buffer_items );
 			list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $sender->get_items_to_send( $buffer, true );
 
-			// send
 			Settings::set_is_sending( true );
-			error_log( 'sending' );
 			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $sender->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
 			Settings::set_is_sending( false );
 
@@ -325,19 +335,17 @@ abstract class Module {
 				return array( 0, end( $ids ) );
 			}
 
-			$chunk_count += count( $chunked_ids );
 			$page++;
 			// The $ids are ordered in descending order.
 			$previous_interval_end = end( $ids );
-
 		}
 
 		if ( $wpdb->last_error ) {
 			// return the values that were passed in so all these chunks get retried.
-			return array( $max_items_to_send, $state );
+			return array( $page - 1, $state );
 		}
 
-		return array( $chunk_count, true );
+		return array( $page - 1, true );
 	}
 
 	/**

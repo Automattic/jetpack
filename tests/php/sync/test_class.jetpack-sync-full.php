@@ -282,8 +282,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_send_immediately_skips_queue() {
 		// TODO
-		$this->markTestIncomplete();
+		// $this->markTestIncomplete();
+		// Settings::get_setting( 'full_sync_send_immediately' )
 		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+		$this->sender->do_full_sync();
+
+		// make an assertion
+
+
 	}
 
 	function test_full_sync_sends_all_term_relationships() {
