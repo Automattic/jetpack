@@ -46,26 +46,11 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
-		$plugin_defaults = array(
-			'title'  => '',
-			'url'    => '',
-			'nonce'  => '',
-			'plugin' => '',
-			'api'    => '',
-		);
-		$skins = array(
-			new Plugin_Upgrader_Skin( $plugin_defaults ),
-			new Automatic_Upgrader_Skin( $plugin_defaults ),
-			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
-			new Bulk_Plugin_Upgrader_Skin( $plugin_defaults ),
-		);
-		foreach ( $skins as $skin ) {
-			$this->update_bulk_plugins( $skin );
-			$this->sender->do_sync();
-			$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
-			$this->assertEquals(  'the/the.php', $updated_plugin->args[0][0]['slug'] );
-			$this->server_event_storage->reset();
-		}
+		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
+		$this->sender->do_sync();
+		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
+		$this->assertEquals(  'the/the.php', $updated_plugin->args[0][0]['slug'] );
+		$this->server_event_storage->reset();
 	}
 
 	public function test_updating_a_plugin_error_is_synced() {
