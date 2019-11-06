@@ -193,7 +193,9 @@ export class Plans extends React.Component {
 													</div>
 												</div>
 											</div>
-											<div style={ { textAlign: 'center' } }>
+											<div
+												style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }
+											>
 												<a
 													href={ this.upgradeLinks[ this.state.selectedBackupType ] }
 													type="button"
