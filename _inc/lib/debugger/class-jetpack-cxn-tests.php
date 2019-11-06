@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -335,7 +335,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
 
-		$testsite_url = Connection_Manager::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+		$testsite_url = Connection_Utils::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
 		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
 
