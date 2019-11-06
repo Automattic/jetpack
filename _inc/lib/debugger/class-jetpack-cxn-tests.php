@@ -361,7 +361,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'<a target="_blank" rel="noopener noreferrer" href="%s">Visit the Jetpack.com debug page</a> for more information or <a target="_blank" rel="noopener noreferrer" href="https://jetpack.com/contact-support/">contact support</a>.',
 					'jetpack'
 				),
-				esc_url( add_query_arg( 'url', urlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
+				esc_url( add_query_arg( 'url', rawurlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
 			),
 			array(
 				'a' => array(
