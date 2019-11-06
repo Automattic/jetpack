@@ -897,7 +897,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_force_sync_callabled_on_plugin_update() {
+	function test_force_sync_callable_on_plugin_update() {
 		// fake the cron so that we really prevent the callables from being called
 		Settings::$is_doing_cron = true;
 
