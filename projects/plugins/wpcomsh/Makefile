@@ -1,7 +1,7 @@
-NAME				:= wpcomsh
-SHELL 				:= /bin/bash
-UNAME 				:= $(shell uname -s)
-REQUIRED_BINS 		:= zip git rsync composer
+NAME          := wpcomsh
+SHELL         := /bin/bash
+UNAME         := $(shell uname -s)
+REQUIRED_BINS := zip git rsync composer
 
 ## check required bins can be found in $PATH
 $(foreach bin,$(REQUIRED_BINS),\
@@ -17,6 +17,9 @@ MAKEFILE   := $(abspath $(lastword $(MAKEFILE_LIST)))
 BUILD_SRC  := $(dir $(MAKEFILE))
 BUILD_DST  := $(addsuffix build, $(dir $(MAKEFILE)))
 BUILD_FILE := $(NAME).$(VERSION_STRING).zip
+
+## get version from wpcomsh.php
+PLUGIN_VERSION_STRING = $(shell awk '/[^[:graph:]]Version/{print $$NF}' $(BUILD_SRC)/wpcomsh.php)
 
 ## git related vars
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -35,13 +38,34 @@ else
 	@ $(MAKE) checkandblockonfail
 endif
 
+checkbeforetag:
+	@ $(MAKE) check
+	@ $(MAKE) checktagandblockonfail
+
 checkandblockonfail: git.fetch
+ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/dev/null ; echo $$?)),0)
+	$(error local branch not in sync with remote, need to git push/pull)
+endif
+
 ifneq ($(GIT_STATUS), clean)
 	$(error un-committed changes detected in working tree)
 endif
 
-ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/dev/null ; echo $$?)), 0)
-	$(error local branch not in sync with remote, need to git push/pull)
+checktagandblockonfail: git.fetch
+ifneq ($(GIT_BRANCH), master)
+	$(error make tag only supports tagging master)
+endif
+
+ifneq ($(strip $(shell awk '/define\([[:space:]]*\047WPCOMSH_VERSION.*\)/{print}' $(BUILD_SRC)/wpcomsh.php | grep -q $(PLUGIN_VERSION_STRING) 2>/dev/null; echo $$?)), 0)
+	$(error defined WPCOMSH_VERSION does not match plugin version `$(PLUGIN_VERSION_STRING)`)
+endif
+
+ifneq ($(strip $(shell git ls-remote --exit-code $(GIT_REMOTE_NAME) refs/tags/v$(PLUGIN_VERSION_STRING) > /dev/null 2>&1; echo $$?)), 2)
+	$(error tag `v$(PLUGIN_VERSION_STRING)` already exists)
+endif
+
+ifeq ($(strip $(shell git rev-parse --exit-code v$(PLUGIN_VERSION_STRING) 2>/dev/null ; echo $$?)), 0)
+	$(error local tag v$(PLUGIN_VERSION_STRING) exits. Did you forget to push the tag ? 'git push $(GIT_REMOTE_NAME) v$(PLUGIN_VERSION_STRING)' )
 endif
 
 $(BUILD_DST)/$(BUILD_FILE): $(BUILD_DST)/$(NAME)
@@ -79,6 +103,19 @@ $(BUILD_DST):
 ## build
 build: check $(BUILD_DST)/$(BUILD_FILE)
 
+## tag
+PUSH_TAG?=false
+tag: checkbeforetag
+	$(shell git tag v$(PLUGIN_VERSION_STRING))
+	@ echo "tag v$(PLUGIN_VERSION_STRING) added."
+	@ echo $(PUSH_TAG)
+ifeq ($(PUSH_TAG), true)
+	$(shell git push $(GIT_REMOTE_NAME) v$(PLUGIN_VERSION_STRING))
+	@ echo "tag pushed to $(GIT_REMOTE_NAME)."
+else
+	@ echo "run 'git push $(GIT_REMOTE_NAME) v$(PLUGIN_VERSION_STRING)' before creating the release"
+endif
+
 ## CI & other testing
 test-public-access: clean build
 	/bin/sh ./bin/ci-init-access-tests.sh
@@ -100,4 +137,4 @@ clean: $(BUILD_DST)
 	@ echo "removing $(BUILD_DST)"
 	@ rm -rf $(BUILD_DST)
 
-.PHONY: check git.fetch submodules release clean
+.PHONY: check git.fetch submodules release clean checkbeforetag checktagandblockonfail
