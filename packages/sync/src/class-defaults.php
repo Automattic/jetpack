@@ -1134,7 +1134,7 @@ class Defaults {
 	 *
 	 * @var bool Send full sync items immediately.
 	 */
-	public static $default_full_sync_send_immediately = true; // TODO should be false by default
+	public static $default_full_sync_send_immediately = false;
 
 	/**
 	 * Defaul for time between syncing callables.
