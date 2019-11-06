@@ -94,7 +94,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Update the version number in [wpcomsh.php#L5](https://github.com/Automattic/wpcomsh/blob/master/wpcomsh.php#L5), [wpcomsh.php#L11](https://github.com/Automattic/wpcomsh/blob/master/wpcomsh.php#L11), and in [package.json#L3](https://github.com/Automattic/wpcomsh/blob/4f5340d473a022c28cb1ca5f1b69bf971a8f8724/package.json#L3)
 - Wait for the PR to be approved and merged
 - Checkout latest `master`
-- Add a new tag with the new version e.g. `git tag v1.0.0 && git push origin v1.0.0`
+- Tag the release with `make tag` 
 - Build a new release locally with `make build`. The build will be `./build/wpcomsh.{vesion}.zip`
 - [Draft a new release](https://github.com/Automattic/wpcomsh/releases) and add the build as an asset. Note the build asset in this [example](https://github.com/Automattic/wpcomsh/releases/tag/v2.3.50).
 - Publish release

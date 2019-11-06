@@ -18,7 +18,7 @@ BUILD_SRC  := $(dir $(MAKEFILE))
 BUILD_DST  := $(addsuffix build, $(dir $(MAKEFILE)))
 BUILD_FILE := $(NAME).$(VERSION_STRING).zip
 
-## get version from wpcomsh.php
+## get version from wpcomsh.php for tagging
 PLUGIN_VERSION_STRING = $(shell awk '/[^[:graph:]]Version/{print $$NF}' $(BUILD_SRC)/wpcomsh.php)
 
 ## git related vars
@@ -104,12 +104,12 @@ $(BUILD_DST):
 build: check $(BUILD_DST)/$(BUILD_FILE)
 
 ## tag
-PUSH_TAG?=false
+PUSH_RELEASE_TAG?=true
 tag: checkbeforetag
 	$(shell git tag v$(PLUGIN_VERSION_STRING))
 	@ echo "tag v$(PLUGIN_VERSION_STRING) added."
 	@ echo $(PUSH_TAG)
-ifeq ($(PUSH_TAG), true)
+ifeq ($(PUSH_RELEASE_TAG), true)
 	$(shell git push $(GIT_REMOTE_NAME) v$(PLUGIN_VERSION_STRING))
 	@ echo "tag pushed to $(GIT_REMOTE_NAME)."
 else
