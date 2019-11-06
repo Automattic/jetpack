@@ -114,6 +114,37 @@ function runJSLinter( toLintFiles ) {
 }
 
 /**
+ * Run phpcs-changed.
+ *
+ * @param {Array} phpFilesToCheck Array of PHP files changed.
+ */
+function runPHPCSChanged( phpFilesToCheck ) {
+	let phpChangedFail, phpFileChangedResult;
+	spawnSync( 'composer', [ 'install' ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( phpFilesToCheck.length > 0 ) {
+		process.env.PHPCS = 'vendor/bin/phpcs';
+
+		phpFilesToCheck.forEach( function( file ) {
+			phpFileChangedResult = spawnSync( 'vendor/bin/phpcs-changed', [ '--git', file ], {
+				env: process.env,
+				shell: true,
+				stdio: 'inherit',
+			} );
+			if ( phpFileChangedResult && phpFileChangedResult.status ) {
+				phpChangedFail = true;
+			}
+		} );
+
+		if ( phpChangedFail ) {
+			checkFailed();
+		}
+	}
+}
+
+/**
  * Exit
  *
  * @param {Number} exitCodePassed Shell exit code.
@@ -199,4 +230,5 @@ if ( phpcsResult && phpcsResult.status ) {
 	exit( 1 );
 }
 
+runPHPCSChanged( phpFiles );
 exit( exitCode );
