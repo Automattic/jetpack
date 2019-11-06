@@ -18,14 +18,15 @@ function SlashedPrice() {
 	return (
 		<div className="slashed-price__container" style={ { marginRight: '14px' } }>
 			<div className="slashed-price__slash"></div>
+			{ /* TODO: get this from an API or calculate, currently unsure where to get this */ }
 			<div className="slashed-price__price">{ '$15-25' }</div>
 		</div>
 	);
 }
 
-function PlanPriceDisplay() {
-	// TODO: actually connect price
-	// const { price } = props;
+function PlanPriceDisplay( props ) {
+	const { dailyPrice, yearlyPrice } = props;
+	const perYearPriceRange = `${ dailyPrice }-${ yearlyPrice } /year`;
 
 	return (
 		<div
@@ -38,7 +39,7 @@ function PlanPriceDisplay() {
 		>
 			<SlashedPrice />
 			<div className="plans-price__container">
-				<span className="plans-price__span">{ '$12-$16 /year' }</span>
+				<span className="plans-price__span">{ perYearPriceRange }</span>
 			</div>
 		</div>
 	);
@@ -80,7 +81,10 @@ export class Plans extends React.Component {
 				<h3>{ __( 'Jetpack Backup' ) }</h3>
 				{ // TODO: make sitePlans dynamic
 				sitePlans && (
-					<PlanPriceDisplay price={ sitePlans[ 'daily-backup' ].price[ this.state.period ] } />
+					<PlanPriceDisplay
+						dailyPrice={ sitePlans[ 'daily-backup' ].price[ this.state.period ].text }
+						yearlyPrice={ sitePlans[ 'realtime-backup' ].price[ this.state.period ].amount }
+					/>
 				) }
 			</div>
 		);
@@ -91,6 +95,7 @@ export class Plans extends React.Component {
 	}
 
 	render() {
+		const { sitePlans } = this.props;
 		// TODO: remove
 		// const planType = 'is-backup-daily-plan';
 		// const className = classNames(
@@ -158,7 +163,10 @@ export class Plans extends React.Component {
 													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
 														{ __( 'Daily Backups' ) }
 													</div>
-													<div style={ { gridColumn: 2, gridRow: 2 } }>12 - 9 / year</div>
+													<div style={ { gridColumn: 2, gridRow: 2 } }>
+														{ sitePlans &&
+															`${ sitePlans[ 'daily-backup' ].price[ this.state.period ].text } /year` }
+													</div>
 												</div>
 												<div className="plans-section__radio-toggle">
 													<div
@@ -179,7 +187,10 @@ export class Plans extends React.Component {
 													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
 														{ __( 'Real-Time Backups' ) }
 													</div>
-													<div style={ { gridColumn: 2, gridRow: 2 } }>12 - 9 / year</div>
+													<div style={ { gridColumn: 2, gridRow: 2 } }>
+														{ sitePlans &&
+															`${ sitePlans[ 'realtime-backup' ].price[ this.state.period ].text } /year` }
+													</div>
 												</div>
 											</div>
 											<div style={ { textAlign: 'center' } }>
@@ -211,38 +222,38 @@ export default connect( state => {
 		fakedSitePlans[ 'daily-backup' ] = {
 			price: {
 				yearly: {
-					html: '<abbr title="United States Dollars">$</abbr>39',
-					text: '$39',
-					amount: 39,
+					html: '<abbr title="United States Dollars">$</abbr>12',
+					text: '$12',
+					amount: 12,
 					symbol: '$',
-					per: '<abbr title="United States Dollars">$</abbr>39 per year',
+					per: '<abbr title="United States Dollars">$</abbr>12 per year',
 				},
-				monthly: {
-					html: '<abbr title="United States Dollars">$</abbr>3.50',
-					text: '$3.50',
-					amount: 3.5,
-					symbol: '$',
-					per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
-				},
+				// monthly: {
+				// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
+				// 	text: '$3.50',
+				// 	amount: 3.5,
+				// 	symbol: '$',
+				// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
+				// },
 			},
 			features: [],
 		};
 		fakedSitePlans[ 'realtime-backup' ] = {
 			price: {
 				yearly: {
-					html: '<abbr title="United States Dollars">$</abbr>39',
-					text: '$39',
-					amount: 39,
+					html: '<abbr title="United States Dollars">$</abbr>16',
+					text: '$16',
+					amount: 16,
 					symbol: '$',
-					per: '<abbr title="United States Dollars">$</abbr>39 per year',
+					per: '<abbr title="United States Dollars">$</abbr>16 per year',
 				},
-				monthly: {
-					html: '<abbr title="United States Dollars">$</abbr>3.50',
-					text: '$3.50',
-					amount: 3.5,
-					symbol: '$',
-					per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
-				},
+				// monthly: {
+				// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
+				// 	text: '$3.50',
+				// 	amount: 3.5,
+				// 	symbol: '$',
+				// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
+				// },
 			},
 			features: [],
 		};
