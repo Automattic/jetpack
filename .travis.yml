@@ -17,7 +17,7 @@ php:
 env:
   # Global variable is re-defined in matrix-include -list
   global:
-  - WP_TRAVISCI=phpunit --debug
+  - WP_TRAVISCI=phpunit
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
