@@ -268,7 +268,7 @@ class Full_Sync extends Module {
 
 		$finished = true;
 		foreach ( $this->get_remaining_modules_to_enqueue( $configs ) as $module ) {
-			if ( 0 >= $this->remaining_items_to_enqueue || ! $finished ) {
+			if ( 0 >= $this->remaining_items_to_enqueue || true !== $finished ) {
 				return;
 			}
 			$finished = $this->enqueue_module( $module, $configs[ $module->name() ] );
