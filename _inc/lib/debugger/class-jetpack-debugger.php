@@ -77,7 +77,6 @@ class Jetpack_Debugger {
 	 * Handles output to the browser for the in-plugin debugger.
 	 */
 	public static function jetpack_debug_display_handler() {
-		global $wp_version;
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jetpack' ) );
 		}
@@ -230,11 +229,8 @@ class Jetpack_Debugger {
 				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
 				<?php
 				/**
-				 * Offload to new WordPress debug data in WP 5.2+
-				 *
-				 * @todo remove fallback when 5.2 is the minimum supported.
+				 * Offload to new WordPress debug data.
 				 */
-				if ( version_compare( $wp_version, '5.2-alpha', '>=' ) ) {
 					echo sprintf(
 						wp_kses(
 							/* translators: URL for Jetpack support. URL for WordPress's Site Health */
@@ -244,18 +240,6 @@ class Jetpack_Debugger {
 						esc_url( $support_url ),
 						esc_url( admin_url() . 'site-health.php?tab=debug' )
 					);
-					$hide_debug = true;
-				} else { // Versions before 5.2, fallback.
-					echo sprintf(
-						wp_kses(
-							/* translators: URL for Jetpack support. */
-							__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						esc_url( $support_url )
-					);
-					$hide_debug = false;
-				}
 				?>
 						</p>
 				<hr />
