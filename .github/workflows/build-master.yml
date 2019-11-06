@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Jetpack
         uses: actions/checkout@master
       - name: Build production version
-        uses: automattic/action-jetpack-build-to-branch@testing
+        uses: automattic/action-jetpack-build-to-branch@master
         with:
           branch_pull: 'master'
           branch_push: 'master-built'
