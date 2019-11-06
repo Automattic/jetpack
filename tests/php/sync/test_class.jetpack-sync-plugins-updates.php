@@ -85,43 +85,20 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_error_in_bulk_is_synced() {
-		$plugin_defaults = array(
-			'title'  => '',
-			'url'    => '',
-			'nonce'  => '',
-			'plugin' => '',
-			'api'    => '',
-		);
-		$skins = array(
-			new Plugin_Upgrader_Skin( $plugin_defaults ),
-			new Automatic_Upgrader_Skin( $plugin_defaults ),
-			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
-			new Bulk_Plugin_Upgrader_Skin( $plugin_defaults ),
-		);
-		foreach ( $skins as $skin ) {
-			$this->set_error();
-			$this->update_bulk_plugins( $skin );
-			$this->remove_error();
-			$this->sender->do_sync();
-			$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
-			$this->assertEquals(  'the/the.php', $updated_plugin->args[0]['slug'], get_class( $skin ) . ' Wasn\'t able to sync failed login attempt' );
-			$this->server_event_storage->reset();
-		}
+		$this->set_error();
+		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
+		$this->remove_error();
+		$this->sender->do_sync();
+		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
+		$this->assertEquals(  'the/the.php', $updated_plugin->args[0]['slug'], 'Silent_Upgrader_Skin Wasn\'t able to sync failed login attempt' );
+		$this->server_event_storage->reset();
 	}
 
 	function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
-		$plugin_defaults = array(
-			'title'  => '',
-			'url'    => '',
-			'nonce'  => '',
-			'plugin' => '',
-			'api'    => '',
-		);
-
 		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 
 		$this->set_error();
-		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( $plugin_defaults ) );
+		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
 		$this->remove_error();
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
@@ -130,16 +107,8 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_with_autoupdate_constant_results_in_proper_state() {
-		$plugin_defaults = array(
-			'title'  => '',
-			'url'    => '',
-			'nonce'  => '',
-			'plugin' => '',
-			'api'    => '',
-		);
-
 		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
-		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( $plugin_defaults ) );
+		$this->update_bulk_plugins( new Silent_Upgrader_Skin() );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 		$this->assertTrue( $updated_plugin->args[1]['is_autoupdate'] );
