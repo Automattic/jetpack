@@ -45,6 +45,35 @@ function PlanPriceDisplay( props ) {
 	);
 }
 
+function PlanRadioButton( props ) {
+	const { checked, onChange, planName, radioValue, planPrice } = props;
+
+	return (
+		<div className="plans-section__radio-toggle">
+			<div
+				style={ {
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+				} }
+			>
+				<input
+					style={ { gridColumn: 1, gridRow: 1 } }
+					type="radio"
+					value={ radioValue }
+					checked={ checked }
+					onChange={ onChange }
+				/>
+			</div>
+			<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>{ planName }</div>
+			<div style={ { gridColumn: 2, gridRow: 2 } }>
+				{ /* TODO: how to I18N this? */ }
+				{ planPrice && `${ planPrice } /year` }
+			</div>
+		</div>
+	);
+}
+
 export class Plans extends React.Component {
 	upgradeLinks = {
 		'real-time': 'https://wordpress.com/jetpack/connect/pro',
@@ -79,8 +108,7 @@ export class Plans extends React.Component {
 				} }
 			>
 				<h3>{ __( 'Jetpack Backup' ) }</h3>
-				{ // TODO: make sitePlans dynamic
-				sitePlans && (
+				{ sitePlans && (
 					<PlanPriceDisplay
 						dailyPrice={ sitePlans[ 'daily-backup' ].price[ this.state.period ].text }
 						yearlyPrice={ sitePlans[ 'realtime-backup' ].price[ this.state.period ].amount }
@@ -144,54 +172,25 @@ export class Plans extends React.Component {
 													justifyContent: 'center',
 												} }
 											>
-												<div className="plans-section__radio-toggle">
-													<div
-														style={ {
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-														} }
-													>
-														<input
-															style={ { gridColumn: 1, gridRow: 1 } }
-															type="radio"
-															value="daily"
-															checked={ 'daily' === this.state.selectedBackupType }
-															onChange={ this.handleBackupTypeSelectionChange }
-														/>
-													</div>
-													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
-														{ __( 'Daily Backups' ) }
-													</div>
-													<div style={ { gridColumn: 2, gridRow: 2 } }>
-														{ sitePlans &&
-															`${ sitePlans[ 'daily-backup' ].price[ this.state.period ].text } /year` }
-													</div>
-												</div>
-												<div className="plans-section__radio-toggle">
-													<div
-														style={ {
-															display: 'flex',
-															justifyContent: 'center',
-															alignItems: 'center',
-														} }
-													>
-														<input
-															style={ { gridColumn: 1, gridRow: 1 } }
-															type="radio"
-															value="real-time"
-															checked={ 'real-time' === this.state.selectedBackupType }
-															onChange={ this.handleBackupTypeSelectionChange }
-														/>
-													</div>
-													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
-														{ __( 'Real-Time Backups' ) }
-													</div>
-													<div style={ { gridColumn: 2, gridRow: 2 } }>
-														{ sitePlans &&
-															`${ sitePlans[ 'realtime-backup' ].price[ this.state.period ].text } /year` }
-													</div>
-												</div>
+												<PlanRadioButton
+													planName={ __( 'Daily Backups' ) }
+													radioValue={ 'daily' }
+													planPrice={
+														sitePlans && sitePlans[ 'daily-backup' ].price[ this.state.period ].text
+													}
+													checked={ 'daily' === this.state.selectedBackupType }
+													onChange={ this.handleBackupTypeSelectionChange }
+												/>
+												<PlanRadioButton
+													planName={ __( 'Real-Time Backups' ) }
+													radioValue={ 'real-time' }
+													planPrice={
+														sitePlans &&
+														sitePlans[ 'realtime-backup' ].price[ this.state.period ].text
+													}
+													checked={ 'real-time' === this.state.selectedBackupType }
+													onChange={ this.handleBackupTypeSelectionChange }
+												/>
 											</div>
 											<div
 												style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }
