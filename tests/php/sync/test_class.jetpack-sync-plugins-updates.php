@@ -2,10 +2,8 @@
 
 use Automattic\Jetpack\Constants;
 
-if ( ! class_exists( 'WP_Test_Jetpack_Sync_Plugins' ) ) {
-	$sync_dir        = dirname( __FILE__ );
-	require_once $sync_dir . '/test_class.jetpack-sync-plugins.php';
-}
+require_once dirname( __FILE__ ) . '/test_class.jetpack-sync-plugins.php';
+require_once dirname( __FILE__ ) . '/class.silent-upgrader-skin.php';
 
 /**
  * Testing CRUD on Plugins
@@ -39,15 +37,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_a_plugin_is_synced() {
-		$plugin_defaults = array(
-			'title'  => '',
-			'url'    => '',
-			'nonce'  => '',
-			'plugin' => '',
-			'api'    => '',
-		);
-
-		$this->update_the_plugin( new Silent_Upgrade_Skin( $plugin_defaults ) );
+		$this->update_the_plugin( new Silent_Upgrader_Skin() );
 		$this->sender->do_sync();
 		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 

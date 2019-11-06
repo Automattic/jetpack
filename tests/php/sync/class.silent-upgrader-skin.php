@@ -1,6 +1,6 @@
 <?php
 
-class Silent_Upgrade_Skin extends WP_Upgrader_Skin {
+class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 
 	/**
 	 * @param array $args

@@ -405,7 +405,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	private function install_theme( $slug ) {
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		require_once __DIR__ . 'class.silent-upgrade-skin.php';
+		require_once __DIR__ . '/class.silent-upgrader-skin.php';
 
 		$api = themes_api(
 			'theme_information',
@@ -418,7 +418,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			wp_die( $api );
 		}
 
-		$upgrader = new Theme_Upgrader( new Silent_Upgrade_Skin() );
+		$upgrader = new Theme_Upgrader( new Silent_Upgrader_Skin() );
 		$upgrader->install( $api->download_link );
 	}
 }
