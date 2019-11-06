@@ -31,8 +31,6 @@ class Jetpack_Recipes {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
-
-		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
 	}
 
 	/**
