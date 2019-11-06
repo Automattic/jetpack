@@ -7,14 +7,6 @@ if ( ! class_exists( 'WP_Test_Jetpack_Sync_Plugins' ) ) {
 	require_once $sync_dir . '/test_class.jetpack-sync-plugins.php';
 }
 
-class Silent_Upgrade_Skin extends Automatic_Upgrader_Skin {
-	/**
-	 * @return array
-	 */
-	public function feedback() {
-	}
-}
-
 /**
  * Testing CRUD on Plugins
  */
