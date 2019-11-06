@@ -1229,8 +1229,9 @@ class Manager {
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
 	 * @param int    $user_id  The user ID of the owner of the secret.
+	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
-	protected function verify_secrets( $action, $secret_1, $user_id ) {
+	public function verify_secrets( $action, $secret_1, $user_id ) {
 		$allowed_actions = array( 'register', 'authorize', 'publicize' );
 		if ( ! in_array( $action, $allowed_actions, true ) ) {
 			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
@@ -1266,8 +1267,9 @@ class Manager {
 		$stored_secrets = $this->get_secrets( $action, $user_id );
 		$this->delete_secrets( $action, $user_id );
 
+		$error = null;
 		if ( empty( $secret_1 ) ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secret_1_missing',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
@@ -1276,7 +1278,7 @@ class Manager {
 				)
 			);
 		} elseif ( ! is_string( $secret_1 ) ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secret_1_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
@@ -1286,7 +1288,7 @@ class Manager {
 			);
 		} elseif ( empty( $user_id ) ) {
 			// $user_id is passed around during registration as "state".
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'state_missing',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
@@ -1295,18 +1297,16 @@ class Manager {
 				)
 			);
 		} elseif ( ! ctype_digit( (string) $user_id ) ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
-					'verify_secret_1_malformed',
+					'state_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
 					400
 				)
 			);
-		}
-
-		if ( self::SECRETS_MISSING === $stored_secrets ) {
-			return $return_error(
+		} elseif ( self::SECRETS_MISSING === $stored_secrets ) {
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secrets_missing',
 					__( 'Verification secrets not found', 'jetpack' ),
@@ -1314,7 +1314,7 @@ class Manager {
 				)
 			);
 		} elseif ( self::SECRETS_EXPIRED === $stored_secrets ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secrets_expired',
 					__( 'Verification took too long', 'jetpack' ),
@@ -1322,7 +1322,7 @@ class Manager {
 				)
 			);
 		} elseif ( ! $stored_secrets ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secrets_empty',
 					__( 'Verification secrets are empty', 'jetpack' ),
@@ -1331,9 +1331,9 @@ class Manager {
 			);
 		} elseif ( is_wp_error( $stored_secrets ) ) {
 			$stored_secrets->add_data( 400 );
-			return $return_error( $stored_secrets );
+			$error = $return_error( $stored_secrets );
 		} elseif ( empty( $stored_secrets['secret_1'] ) || empty( $stored_secrets['secret_2'] ) || empty( $stored_secrets['exp'] ) ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secrets_incomplete',
 					__( 'Verification secrets are incomplete', 'jetpack' ),
@@ -1341,13 +1341,18 @@ class Manager {
 				)
 			);
 		} elseif ( ! hash_equals( $secret_1, $stored_secrets['secret_1'] ) ) {
-			return $return_error(
+			$error = $return_error(
 				new \WP_Error(
 					'verify_secrets_mismatch',
 					__( 'Secret mismatch', 'jetpack' ),
 					400
 				)
 			);
+		}
+
+		// Something went wrong during the checks, returning the error.
+		if ( ! empty( $error ) ) {
+			return $error;
 		}
 
 		/**
