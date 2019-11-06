@@ -1,4 +1,4 @@
-name: Build production to master-built
+name: Build production to try/test-action
 on:
   push:
     branches:
