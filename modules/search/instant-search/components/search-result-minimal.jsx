@@ -121,11 +121,7 @@ class SearchResultMinimal extends Component {
 					} ) }
 				</span>
 				<h3 className="jetpack-instant-search__result-title">
-					<PostTypeIcon
-						postType={ fields.post_type }
-						shortcodeTypes={ fields.shortcode_types }
-						imageCount={ fields[ 'has.image' ] }
-					/>
+					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						className="jetpack-instant-search__result-minimal-title"
