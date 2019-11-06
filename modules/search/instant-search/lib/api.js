@@ -4,6 +4,8 @@
 import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
+import stringify from 'fast-json-stable-stringify';
+import Cache from 'cache';
 
 /**
  * Internal dependencies
@@ -11,6 +13,7 @@ import { flatten } from 'q-flat';
 import { getFilterKeys } from './query-string';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
+const apiCache = new Cache( 300 * 1000 ); //5 min TTL fully in memory cache
 
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
@@ -118,6 +121,12 @@ function buildFilterObject( filterQuery ) {
 }
 
 export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
+	const key = stringify( Array.from( arguments ) );
+	const cachedVal = apiCache.get( key );
+	if ( cachedVal ) {
+		return cachedVal;
+	}
+
 	let fields = [
 		'date',
 		'permalink.url.raw',
@@ -150,7 +159,9 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
 	).then( response => {
-		return response.json();
+		const json = response.json();
+		apiCache.put( key, json );
+		return json;
 	} );
 	//TODO: handle errors and fallback to a longer term cache - network connectivity for mobile
 	//TODO: store cache data in the browser - esp for mobile
