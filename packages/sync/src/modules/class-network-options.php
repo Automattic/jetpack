@@ -126,6 +126,28 @@ class Network_Options extends Module {
 	}
 
 	/**
+	 * Send the network options actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_duration         Maximum duration of processing.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
+	public function send_full_sync_actions( $config, $max_duration, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! is_multisite() ) {
+			return array( null, true );
+		}
+
+		// we call this instead of do_action when sending immediately.
+		$this->send_action( 'jetpack_full_sync_network_options', [ true ] );
+
+		// The number of actions enqueued, and next module state (true == done).
+		return array( 1, true );
+	}
+
+	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public

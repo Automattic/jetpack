@@ -145,7 +145,7 @@ abstract class Module {
 	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
 	 * @return array  Number of actions sent, and next module state.
 	 */
-	public function send_full_sync_actions( $config, $max_duration, $state ) {
+	public function send_full_sync_actions( $config, $max_duration, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// In subclasses, return the number of actions enqueued, and next module state (true == done).
 		return array( null, true );
 	}
@@ -308,31 +308,9 @@ abstract class Module {
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
 
-			$sender = Sender::get_instance();
-
-			// Compose the data to be sent.
-			$buffer_items = [
-				(object) [
-					'id'    => microtime( true ),
-					'value' => [
-						$action_name,
-						[ $ids, $previous_interval_end ],
-						get_current_user_id(),
-						microtime( true ),
-						Settings::is_importing(),
-					],
-				],
-			];
-
-			$buffer = new Queue_Buffer( 'immediate-send', $buffer_items );
-			list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $sender->get_items_to_send( $buffer, true );
-
-			Settings::set_is_sending( true );
-			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $sender->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
-			Settings::set_is_sending( false );
+			$this->send_action( $action_name, [ $ids, $previous_interval_end ] );
 
 			if ( microtime( true ) - $starttime >= $max_duration ) {
-				$last_chunk = end( $remaining_items );
 				return array( 0, end( $ids ) );
 			}
 
@@ -347,6 +325,47 @@ abstract class Module {
 		}
 
 		return array( $page - 1, true );
+	}
+
+	/**
+	 * Immediately sends a single item without firing or enqueuing it
+	 *
+	 * @param string $action_name The action.
+	 * @param array  $data The data associated with the action.
+	 */
+	protected function send_action( $action_name, $data ) {
+		$sender = Sender::get_instance();
+
+		// Compose the data to be sent.
+		$items_to_send = $this->create_action_to_send( $action_name, $data );
+		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $sender->get_items_to_send( $items_to_send, true ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		Settings::set_is_sending( true );
+		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $sender->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
+		Settings::set_is_sending( false );
+
+		return $processed_item_ids;
+	}
+
+	/**
+	 * Create an synthetic action for direct sending to WPCOM during full sync (for example)
+	 *
+	 * @access protected
+	 *
+	 * @param string $action_name The action.
+	 * @param array  $data The data associated with the action.
+	 * @return array An array of synthetic sync actions keyed by current microtime(true)
+	 */
+	private function create_action_to_send( $action_name, $data ) {
+		return [
+			microtime( true ) => [
+				$action_name,
+				$data,
+				get_current_user_id(),
+				microtime( true ),
+				Settings::is_importing(),
+			],
+		];
 	}
 
 	/**

@@ -349,16 +349,16 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue buffer object.
-	 * @param boolean                              $encode Whether to encode the items.
+	 * @param (array|Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or indexed array object.
+	 * @param boolean                                      $encode Whether to encode the items.
 	 * @return array Sync items to send.
 	 */
-	public function get_items_to_send( $buffer, $encode = true ) {
+	public function get_items_to_send( $buffer_or_items, $encode = true ) {
 		// Track how long we've been processing so we can avoid request timeouts.
 		$start_time    = microtime( true );
 		$upload_size   = 0;
 		$items_to_send = array();
-		$items         = $buffer->get_items();
+		$items         = is_array( $buffer_or_items ) ? $buffer_or_items : $buffer_or_items->get_items();
 		// Set up current screen to avoid errors rendering content.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';

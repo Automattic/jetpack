@@ -618,6 +618,22 @@ class Users extends Module {
 	}
 
 	/**
+	 * Send the users actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param int     $max_duration         Maximum duration of processing.
+	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @return array Number of actions enqueued, and next module state.
+	 */
+	public function send_full_sync_actions( $config, $max_duration, $state ) {
+		global $wpdb;
+
+		return $this->send_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ), $max_duration, $state );
+	}
+
+	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public
