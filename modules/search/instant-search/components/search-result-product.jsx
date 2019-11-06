@@ -12,7 +12,6 @@ import SearchResultComments from './search-result-comments';
 
 class SearchResultProduct extends Component {
 	render() {
-		//console.log( this.props.result );
 		const { result_type, fields, highlight } = this.props.result;
 		if ( result_type !== 'post' ) {
 			return null;
