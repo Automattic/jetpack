@@ -5,42 +5,12 @@
  * @package jetpack
  */
 
-/** Ensure the Jetpack_Debug_Data class is available. It should be via the library loaded, but defense is good. */
-require_once 'class-jetpack-debug-data.php';
-
 /**
  * Class Jetpack_Debugger
  *
  * A namespacing class for functionality related to the legacy in-plugin diagnostic tooling.
  */
 class Jetpack_Debugger {
-
-	/**
-	 * Determine the active plan and normalize it for the debugger results.
-	 *
-	 * @return string The plan slug prepended with "JetpackPlan"
-	 */
-	private static function what_jetpack_plan() {
-		// Specifically not deprecating this function since it modifies the output of the Jetpack_Debug_Data::what_jetpack_plan return.
-		return 'JetpackPlan' . Jetpack_Debug_Data::what_jetpack_plan();
-	}
-
-	/**
-	 * Convert seconds to human readable time.
-	 *
-	 * A dedication function instead of using Core functionality to allow for output in seconds.
-	 *
-	 * @deprecated 7.3.0
-	 *
-	 * @param int $seconds Number of seconds to convert to human time.
-	 *
-	 * @return string Human readable time.
-	 */
-	public static function seconds_to_time( $seconds ) {
-		_deprecated_function( 'Jetpack_Debugger::seconds_to_time', 'Jetpack 7.3.0', 'Jeptack_Debug_Data::seconds_to_time' );
-		return Jetpack_Debug_Data::seconds_to_time( $seconds );
-	}
-
 	/**
 	 * Returns 30 for use with a filter.
 	 *
@@ -58,6 +28,8 @@ class Jetpack_Debugger {
 
 	/**
 	 * Disconnect Jetpack and redirect user to connection flow.
+	 *
+	 * Used in class.jetpack-admin.php.
 	 */
 	public static function disconnect_and_redirect() {
 		if ( ! ( isset( $_GET['nonce'] ) && wp_verify_nonce( $_GET['nonce'], 'jp_disconnect' ) ) ) {
