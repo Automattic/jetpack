@@ -251,7 +251,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 				'<div>Initial shortcode</div>',
 				'vimeo',
 				array(),
-				'',
+				null,
 			),
 			'no_width_or_height_in_attr' => array(
 				'<div>Initial shortcode</div>',
@@ -277,7 +277,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_vimeo_shortcode_data
 	 * @covers ::amp_vimeo_shortcode()
-	 * @covers ::jetpack_get_amp_vimeo_dimensions()
+	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 *
 	 * @param string $html The html passed to the filter.
 	 * @param string $shortcode_tag The tag (name) of the shortcode, like 'vimeo'.
@@ -292,7 +292,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 			$expected = $html;
 		}
 
-		$this->assertEquals( $expected, amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) );
+		$this->assertEquals( $expected, jetpack_amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) );
 	}
 
 	/**
@@ -310,13 +310,11 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			'<amp-vimeo data-videoid="' . $video_id .'" layout="responsive" width="' . $content_width . '" height="' . $expected_height .'"></amp-vimeo>',
-			amp_vimeo_shortcode(
+			jetpack_amp_vimeo_shortcode(
 				'<div><span>Initial shortcode</span></div>',
 				'vimeo',
 				array(
-					'id'     => $video_id,
-					'width'  => '1000',
-					'height' => '600',
+					'id' => $video_id,
 				)
 			)
 		);
@@ -333,7 +331,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			$initial_shortcode_markup,
-			amp_vimeo_shortcode(
+			jetpack_amp_vimeo_shortcode(
 				$initial_shortcode_markup,
 				'vimeo',
 				array(
@@ -346,7 +344,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Gets the testing data for jetpack_get_amp_vimeo_dimensions().
+	 * Gets the testing data for jetpack_shortcode_get_vimeo_dimensions().
 	 *
 	 * @return array The testing data.
 	 */
@@ -358,7 +356,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 			),
 			'only_width'                  => array(
 				array( 'width' => 800 ),
-				array( 800, 338 ),
+				array( 800, 450 ),
 			),
 			'only_height'                 => array(
 				array( 'height' => 400 ),
@@ -382,34 +380,31 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests jetpack_get_amp_vimeo_dimensions, when there is no global $content_width.
+	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is no global $content_width.
 	 *
 	 * @dataProvider get_vimeo_dimensions_data
-	 * @covers ::jetpack_get_amp_vimeo_dimensions()
+	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 *
 	* @param array $attr The shortcode attributes.
 	* @param array $expected The expected dimensions.
 	 */
-	function test_jetpack_get_amp_vimeo_dimensions_no_global_content_width( $attr, $expected ) {
+	function test_jetpack_shortcode_get_vimeo_dimensions_no_global_content_width( $attr, $expected ) {
 		unset( $GLOBALS['content_width'] );
-		$this->assertEquals( $expected, jetpack_get_amp_vimeo_dimensions( $attr ) );
+		$this->assertEquals( $expected, jetpack_shortcode_get_vimeo_dimensions( $attr ) );
 	}
 
 	/**
-	 * Tests jetpack_get_amp_vimeo_dimensions, when there is a global $content_width.
+	 * Tests jetpack_shortcode_get_vimeo_dimensions, when there is a global $content_width.
 	 *
-	 * @dataProvider get_vimeo_dimensions_data
-	 * @covers ::jetpack_get_amp_vimeo_dimensions()
-	 *
-	* @param array $attr The shortcode attributes.
+	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 */
-	function test_jetpack_get_amp_vimeo_dimensions_with_global_content_width( $attr ) {
+	function test_jetpack_shortcode_get_vimeo_dimensions_with_global_content_width() {
 		$width                    = 500;
-		$height                   = 282;
+		$height                   = 281;
 		$GLOBALS['content_width'] = $width;
 		$this->assertEquals(
 			array( $width, $height ),
-			jetpack_get_amp_vimeo_dimensions( $attr )
+			jetpack_shortcode_get_vimeo_dimensions( array() )
 		);
 	}
 }
