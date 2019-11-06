@@ -284,7 +284,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @param array  $attr The shortcode attributes.
 	 * @param string $expected The expected return value.
 	 */
-	public function test_amp_vimeo_shortcode( $html, $shortcode_tag, $attr, $expected ) {
+	public function test_jetpack_amp_vimeo_shortcode( $html, $shortcode_tag, $attr, $expected ) {
 		unset( $GLOBALS['content_width'] );
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
@@ -298,9 +298,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	/**
 	 * Tests the Vimeo shortcode filter when there is a global $content_width value.
 	 *
-	 * @covers ::amp_vimeo_shortcode()
+	 * @covers ::jetpack_amp_vimeo_shortcode()
 	 */
-	public function test_amp_vimeo_shortcode_global_content_width() {
+	public function test_jetpack_amp_vimeo_shortcode_global_content_width() {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$video_id                 = '624432';
@@ -323,9 +323,9 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	/**
 	 * Tests that the Vimeo shortcode filter does not filter the markup on non-AMP endpoints.
 	 *
-	 * @covers ::amp_vimeo_shortcode()
+	 * @covers ::jetpack_amp_vimeo_shortcode()
 	 */
-	public function test_amp_vimeo_shortcode_non_amp() {
+	public function test_jetpack_amp_vimeo_shortcode_non_amp() {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
 		$initial_shortcode_markup = '<div><span>Shortcode here</span></div>';
 
