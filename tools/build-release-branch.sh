@@ -81,17 +81,43 @@ function modify_svnignore {
 	git commit .svnignore -m "Updated .svnignore"
 }
 
+# Normalizes a version string to desired length.
+# First arg is input string, second is minimum number of points.
+function normalize_version_number {
+	TARGET_LENGTH="${2:-2}"
+	VERSION_ARRAY=()
+	VERSION_APPEND=$(echo $1 | cut -d'-' -f 2)
+	VERSION_RAW=$(echo $1 | cut -d'-' -f 1)
+	IFS='.' read -ra VERSION_PARTS <<< "$VERSION_RAW"
+	for i in "${VERSION_PARTS[@]}"; do
+		VERSION_ARRAY+=( "$i" )
+	done
+	while [ "${#VERSION_ARRAY[@]}" -lt "$TARGET_LENGTH" ]; do
+		VERSION_ARRAY+=( "0" )
+	done
+	NORMALIZED_VERSION=$(IFS=. ; echo "${VERSION_ARRAY[*]}")
+	if [ -n "$VERSION_APPEND" ]; then
+		NORMALIZED_VERSION="${NORMALIZED_VERSION}-${VERSION_APPEND}"
+	fi
+}
+
 # This function will create a new set of release branches.
 # The branch formats will be branch-x.x (unbuilt version) and branch-x-x-built (built)
 # These branches will be created off of master.
 function create_new_release_branches {
 
 	# Prompt for version number.
-	read -p "What version are you releasing? Please write in x.x syntax. Example: 4.9 - " version
+	read -p "What version are you releasing? Example: 4.9 - " version
+
+	# Save target versions
+	normalize_version_number $version
+	TARGET_VERSION=$NORMALIZED_VERSION
+	normalize_version_number $version 3
+	NPM_TARGET_VERSION=$NORMALIZED_VERSION
 
 	# Declare the new branch names.
-	NEW_UNBUILT_BRANCH="branch-$version"
-	NEW_BUILT_BRANCH="branch-$version-built"
+	NEW_UNBUILT_BRANCH="branch-$TARGET_VERSION"
+	NEW_BUILT_BRANCH="branch-$TARGET_VERSION-built"
 
 	# Check if branch already exists, if not, create new branch named "branch-x.x"
 	if [[ -n $( git branch -r | grep "$NEW_UNBUILT_BRANCH" ) ]]; then
@@ -107,7 +133,23 @@ function create_new_release_branches {
 		# Create new branch, push to repo
 		git checkout -b $NEW_UNBUILT_BRANCH
 
-		git push -u origin $NEW_UNBUILT_BRANCH
+		# Updates file target version.
+		read -n1 -p "Would you like to update the version number in files to $TARGET_VERSION? [y/N]" reply
+		if [[ 'y' == $reply || 'Y' == $reply ]]; then
+			# Replace all file contents.
+			sed -r -i "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php
+			sed -r -i "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
+			sed -r -i "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json
+
+			# Commit changed files.
+			git commit -m "update version" jetpack.php package.json
+
+			echo ""
+			echo "Updated version in jetpack.php and package.json"
+			echo ""
+		fi
+
+		# git push -u origin $NEW_UNBUILT_BRANCH
 		echo ""
 		echo "$NEW_UNBUILT_BRANCH created."
 		echo ""
@@ -130,7 +172,7 @@ function create_new_release_branches {
 
 			git checkout $NEW_UNBUILT_BRANCH
 
-			git push -u origin $NEW_BUILT_BRANCH
+			# git push -u origin $NEW_BUILT_BRANCH
 
 			# Script will continue on to actually build the plugin onto this new branch...
 		else
@@ -255,7 +297,7 @@ cd TMP_REMOTE_BUILT_VERSION
 echo "Finally, Committing and Pushing"
 git add .
 git commit -am 'New build'
-git push origin $BUILD_TARGET
+# git push origin $BUILD_TARGET
 echo "Done! Branch $BUILD_TARGET has been updated."
 
 echo "Cleaning up the mess"
