@@ -203,7 +203,7 @@ class Full_Sync extends Module {
 			return;
 		}
 		$this->enqueue_status = $enqueue_status ? $enqueue_status : $this->get_enqueue_status();
-		$this->continue_enqueuing_with_lock( $configs );
+		$this->_continue_enqueuing( $configs );
 		$this->set_enqueue_status( $this->enqueue_status );
 
 		$this->remove_enqueue_lock();
@@ -259,7 +259,7 @@ class Full_Sync extends Module {
 	 *
 	 * @param array $configs Full sync configuration for all sync modules.
 	 */
-	public function continue_enqueuing_with_lock( $configs = null ) {
+	private function _continue_enqueuing( $configs = null ) {
 		if ( ! $configs ) {
 			$configs = $this->get_config();
 		}
