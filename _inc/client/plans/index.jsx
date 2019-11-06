@@ -10,7 +10,6 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { AccentedCard, AccentedCardHeader, AccentedCardBody } from './accented-card';
 import PlanGrid from './plan-grid';
-import Button from 'components/button';
 import QuerySite from 'components/data/query-site';
 import Gridicon from 'components/gridicon';
 import { getAvailablePlans } from 'state/site/reducer';
@@ -46,9 +45,25 @@ function PlanPriceDisplay() {
 }
 
 export class Plans extends React.Component {
-	state = {
-		period: 'yearly',
+	upgradeLinks = {
+		'real-time': 'https://wordpress.com/jetpack/connect/pro',
+		daily: 'https://wordpress.com/jetpack/connect/premium',
 	};
+
+	upgradeTitles = {
+		'real-time': __( 'Upgrade to Real-Time Backups' ),
+		daily: 'Upgrade to Daily Backups',
+	};
+
+	constructor() {
+		super();
+		this.state = {
+			period: 'yearly',
+			selectedBackupType: 'real-time',
+		};
+
+		this.handleBackupTypeSelectionChange = this.handleBackupTypeSelectionChange.bind( this );
+	}
 
 	renderHeaderContent() {
 		const { sitePlans } = this.props;
@@ -69,6 +84,10 @@ export class Plans extends React.Component {
 				) }
 			</div>
 		);
+	}
+
+	handleBackupTypeSelectionChange( event ) {
+		this.setState( { selectedBackupType: event.target.value } );
 	}
 
 	render() {
@@ -128,10 +147,16 @@ export class Plans extends React.Component {
 															alignItems: 'center',
 														} }
 													>
-														<input style={ { gridColumn: 1, gridRow: 1 } } type="radio" />
+														<input
+															style={ { gridColumn: 1, gridRow: 1 } }
+															type="radio"
+															value="daily"
+															checked={ 'daily' === this.state.selectedBackupType }
+															onChange={ this.handleBackupTypeSelectionChange }
+														/>
 													</div>
 													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
-														Daily Backups
+														{ __( 'Daily Backups' ) }
 													</div>
 													<div style={ { gridColumn: 2, gridRow: 2 } }>12 - 9 / year</div>
 												</div>
@@ -143,16 +168,28 @@ export class Plans extends React.Component {
 															alignItems: 'center',
 														} }
 													>
-														<input style={ { gridColumn: 1, gridRow: 1 } } type="radio" />
+														<input
+															style={ { gridColumn: 1, gridRow: 1 } }
+															type="radio"
+															value="real-time"
+															checked={ 'real-time' === this.state.selectedBackupType }
+															onChange={ this.handleBackupTypeSelectionChange }
+														/>
 													</div>
 													<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>
-														Real-Time Backups
+														{ __( 'Real-Time Backups' ) }
 													</div>
 													<div style={ { gridColumn: 2, gridRow: 2 } }>12 - 9 / year</div>
 												</div>
 											</div>
 											<div style={ { textAlign: 'center' } }>
-												<Button primary>{ __( 'Upgrade to Real-Time Backups' ) }</Button>
+												<a
+													href={ this.upgradeLinks[ this.state.selectedBackupType ] }
+													type="button"
+													class="dops-button is-primary"
+												>
+													{ this.upgradeTitles[ this.state.selectedBackupType ] }
+												</a>
 											</div>
 										</div>
 									}
