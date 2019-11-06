@@ -281,6 +281,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_send_immediately_skips_queue() {
+		$this->full_sync->reset_data();
+
 		// $this->markTestIncomplete();
 		$posts_count = 100;
 		// TODO
@@ -288,7 +290,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// Settings::get_setting( 'full_sync_send_immediately' )
 		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
 
-		$post_ids = $this->factory->post->create_many( $posts_count );
+		$this->factory->post->create_many( $posts_count );
 
 		$this->full_sync->start( ['posts' =>  true ] );
 		$this->full_sync->continue_enqueuing();
