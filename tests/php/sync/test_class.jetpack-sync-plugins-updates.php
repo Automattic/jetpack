@@ -6,6 +6,15 @@ if ( ! class_exists( 'WP_Test_Jetpack_Sync_Plugins' ) ) {
 	$sync_dir        = dirname( __FILE__ );
 	require_once $sync_dir . '/test_class.jetpack-sync-plugins.php';
 }
+
+class Silent_Upgrade_Skin extends Automatic_Upgrader_Skin {
+	/**
+	 * @return array
+	 */
+	public function feedback() {
+	}
+}
+
 /**
  * Testing CRUD on Plugins
  */
@@ -15,15 +24,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 		parent::setUp();
 
 		require ABSPATH . 'wp-includes/version.php';
-
-		if (
-			version_compare( $wp_version, '4.9.0', '<' )
-			&& defined( 'PHP_VERSION_ID' )
-			&& PHP_VERSION_ID >= 70200
-		) {
-			$this->markTestIncomplete( "Right now this doesn't work on PHP 7.2 with WordPress < 4.9" );
-		}
-
 		$this->server_event_storage->reset();
 	}
 
@@ -55,19 +55,12 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 			'api'    => '',
 		);
 
-		$skins = array(
-			new Plugin_Upgrader_Skin( $plugin_defaults ),
-			new Automatic_Upgrader_Skin( $plugin_defaults ),
-			new WP_Ajax_Upgrader_Skin( $plugin_defaults ),
-		);
-		foreach( $skins as $skin ) {
-			$this->update_the_plugin( $skin );
-			$this->sender->do_sync();
-			$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
+		$this->update_the_plugin( new Silent_Upgrade_Skin( $plugin_defaults ) );
+		$this->sender->do_sync();
+		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
 
-			$this->assertEquals( 'the/the.php', $updated_plugin->args[0][0]['slug'] );
-			$this->server_event_storage->reset();
-		}
+		$this->assertEquals( 'the/the.php', $updated_plugin->args[0][0]['slug'] );
+		$this->server_event_storage->reset();
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
