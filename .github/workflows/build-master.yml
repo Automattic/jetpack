@@ -1,8 +1,8 @@
-name: Build production to try/test-action
+name: Build production to master-built
 on:
   push:
     branches:
-      - try/test-action
+      - master
 
 jobs:
   build_master_job:
@@ -14,6 +14,6 @@ jobs:
       - name: Build production version
         uses: automattic/action-jetpack-build-to-branch@testing
         with:
-          branch_pull: 'try/test-action'
-          branch_push: 'try/test-action-built'
+          branch_pull: 'master'
+          branch_push: 'master-built'
           commit_message: 'Automated production build from master'
