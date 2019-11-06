@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -625,6 +626,18 @@ class Manager {
 		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
+	}
+
+	/**
+	 * Connects the user with a specified ID to a WordPress.com user using the
+	 * remote login flow.
+	 *
+	 * @access public
+	 *
+	 * @param Integer $user_id the user identifier.
+	 */
+	public function connect_user( $user_id = null ) {
+		wp_redirect( $this->api_url( 'authenticate' ) );
 	}
 
 	/**
@@ -1382,18 +1395,85 @@ class Manager {
 
 	/**
 	 * Builds a URL to the Jetpack connection auth page.
-	 * This needs rethinking.
 	 *
-	 * @param bool        $raw If true, URL will not be escaped.
-	 * @param bool|string $redirect If true, will redirect back to Jetpack wp-admin landing page after connection.
-	 *                              If string, will be a custom redirect.
-	 * @param bool|string $from If not false, adds 'from=$from' param to the connect URL.
-	 * @param bool        $register If true, will generate a register URL regardless of the existing token, since 4.9.0.
-	 *
+	 * @param WP_User $user (optional) defaults to the current logged in user.
 	 * @return string Connect URL
 	 */
-	public function build_connect_url( $raw, $redirect, $from, $register ) {
-		return array( $raw, $redirect, $from, $register );
+	public function build_connect_url( $user = null ) {
+
+		if ( empty( $user ) ) {
+			$user = wp_get_current_user();
+		}
+
+		$roles       = new Roles();
+		$role        = $roles->translate_user_to_role( $user );
+		$signed_role = $this->sign_role( $role );
+
+		/**
+		 * Filter the URL to redirect the user back to when the authentication process
+		 * is complete.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param string $redirect_url Defaults to the site URL.
+		 */
+		$redirect = apply_filters( 'jetpack_connect_redirect_url', esc_url_raw( site_url() ) );
+
+		$secrets = $this->generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
+
+		/**
+		 * Filter the type of authorization.
+		 * 'calypso' completes authorization on wordpress.com/jetpack/connect
+		 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
+		 *
+		 * @since 4.3.3
+		 *
+		 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
+		 */
+		$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+
+		/**
+		 * Filters the user connection request data for additional property addition.
+		 *
+		 * @since 8.8.0
+		 *
+		 * @param Array $request_data request data.
+		 */
+		$body = apply_filters(
+			'jetpack_connect_request_body',
+			array(
+				'response_type' => 'code',
+				'client_id'     => \Jetpack_Options::get_option( 'id' ),
+				'redirect_uri'  => add_query_arg(
+					array(
+						'action'   => 'authorize',
+						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+						'redirect' => rawurlencode( $redirect ),
+					),
+					esc_url( admin_url( 'admin.php?page=jetpack' ) )
+				),
+				'state'         => $user->ID,
+				'scope'         => $signed_role,
+				'user_email'    => $user->user_email,
+				'user_login'    => $user->user_login,
+				'is_active'     => $this->is_active(),
+				'jp_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
+				'auth_type'     => $auth_type,
+				'secret'        => $secrets['secret_1'],
+				'blogname'      => get_option( 'blogname' ),
+				'site_url'      => site_url(),
+				'home_url'      => home_url(),
+				'site_icon'     => get_site_icon_url(),
+				'site_lang'     => get_locale(),
+				'site_created'  => $this->get_assumed_site_creation_date(),
+			)
+		);
+
+		$body = $this->apply_activation_source_to_args( urlencode_deep( $body ) );
+
+		$api_url = $this->api_url( 'authorize' );
+
+		return add_query_arg( $body, $api_url );
 	}
 
 	/**

@@ -27,6 +27,18 @@ class ManagerTest extends TestCase {
 				);
 
 		$this->apply_filters = $builder->build();
+
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+				->setName( 'wp_redirect' )
+				->setFunction(
+					function( $url ) {
+						$this->arguments_stack['wp_redirect'] [] = [ $url ];
+						return true;
+					}
+				);
+
+		$this->wp_redirect = $builder->build();
 	}
 
 	public function tearDown() {
@@ -72,6 +84,19 @@ class ManagerTest extends TestCase {
 			'https://jetpack.wordpress.com/jetpack.another_thing/1/',
 			$this->manager->api_url( 'another_thing/' )
 		);
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Connection\Manager::connect_user
+	 */
+	public function test_connect_user() {
+		$this->apply_filters->enable();
+		$this->wp_redirect->enable();
+
+		$this->manager->connect_user( 1 );
+
+		$this->assertNotEmpty( $this->arguments_stack['wp_redirect'] );
+		$this->assertEquals( $this->manager->api_url( 'authenticate' ),  $this->arguments_stack['wp_redirect'][0][0] );
 	}
 
 	/**
