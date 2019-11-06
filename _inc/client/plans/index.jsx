@@ -8,71 +8,12 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { AccentedCard, AccentedCardHeader, AccentedCardBody } from './accented-card';
+import { AccentedCard } from './accented-card';
+import { PlanPriceDisplay, PlanRadioButton } from './components';
 import PlanGrid from './plan-grid';
 import QuerySite from 'components/data/query-site';
 import Gridicon from 'components/gridicon';
 import { getAvailablePlans } from 'state/site/reducer';
-
-function SlashedPrice() {
-	return (
-		<div className="slashed-price__container" style={ { marginRight: '14px' } }>
-			<div className="slashed-price__slash"></div>
-			{ /* TODO: get this from an API or calculate, currently unsure where to get this */ }
-			<div className="slashed-price__price">{ '$15-25' }</div>
-		</div>
-	);
-}
-
-function PlanPriceDisplay( props ) {
-	const { dailyPrice, yearlyPrice } = props;
-	const perYearPriceRange = `${ dailyPrice }-${ yearlyPrice } /year`;
-
-	return (
-		<div
-			style={ {
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-				alignContent: 'center',
-			} }
-		>
-			<SlashedPrice />
-			<div className="plans-price__container">
-				<span className="plans-price__span">{ perYearPriceRange }</span>
-			</div>
-		</div>
-	);
-}
-
-function PlanRadioButton( props ) {
-	const { checked, onChange, planName, radioValue, planPrice } = props;
-
-	return (
-		<div className="plans-section__radio-toggle">
-			<div
-				style={ {
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-				} }
-			>
-				<input
-					style={ { gridColumn: 1, gridRow: 1 } }
-					type="radio"
-					value={ radioValue }
-					checked={ checked }
-					onChange={ onChange }
-				/>
-			</div>
-			<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>{ planName }</div>
-			<div style={ { gridColumn: 2, gridRow: 2 } }>
-				{ /* TODO: how to I18N this? */ }
-				{ planPrice && `${ planPrice } /year` }
-			</div>
-		</div>
-	);
-}
 
 export class Plans extends React.Component {
 	upgradeLinks = {
@@ -118,20 +59,71 @@ export class Plans extends React.Component {
 		);
 	}
 
+	renderBodyContent() {
+		const { sitePlans } = this.props;
+
+		return (
+			<div className="plans-section__body">
+				<p>
+					{ __(
+						'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{ext/}}{{/a}}',
+						{
+							components: {
+								a: <a href="https://jetpack.com/upgrade/backup/" />,
+								ext: (
+									<>
+										<span>
+											<Gridicon icon="external" size="12" />
+										</span>
+									</>
+								),
+							},
+						} // TODO: make icon color change with link
+					) }
+				</p>
+				<h4>Backup options:</h4>
+				<div
+					style={ {
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center',
+					} }
+				>
+					<PlanRadioButton
+						planName={ __( 'Daily Backups' ) }
+						radioValue={ 'daily' }
+						planPrice={ sitePlans && sitePlans[ 'daily-backup' ].price[ this.state.period ].text }
+						checked={ 'daily' === this.state.selectedBackupType }
+						onChange={ this.handleBackupTypeSelectionChange }
+					/>
+					<PlanRadioButton
+						planName={ __( 'Real-Time Backups' ) }
+						radioValue={ 'real-time' }
+						planPrice={
+							sitePlans && sitePlans[ 'realtime-backup' ].price[ this.state.period ].text
+						}
+						checked={ 'real-time' === this.state.selectedBackupType }
+						onChange={ this.handleBackupTypeSelectionChange }
+					/>
+				</div>
+				<div style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }>
+					<a
+						href={ this.upgradeLinks[ this.state.selectedBackupType ] }
+						type="button"
+						class="dops-button is-primary"
+					>
+						{ this.upgradeTitles[ this.state.selectedBackupType ] }
+					</a>
+				</div>
+			</div>
+		);
+	}
+
 	handleBackupTypeSelectionChange( event ) {
 		this.setState( { selectedBackupType: event.target.value } );
 	}
 
 	render() {
-		const { sitePlans } = this.props;
-		// TODO: remove
-		// const planType = 'is-backup-daily-plan';
-		// const className = classNames(
-		// 	'plan-features__table-item',
-		// 	'is-header',
-		// 	'has-border-top',
-		// 	`is-${ planType }-plan`
-		// );
 		return (
 			<>
 				<QuerySite />
@@ -142,71 +134,8 @@ export class Plans extends React.Component {
 				<div style={ { display: 'flex', justifyContent: 'center', marginBottom: '10px' } }>
 					<AccentedCard>
 						{ {
-							header: <AccentedCardHeader>{ this.renderHeaderContent() }</AccentedCardHeader>,
-							body: (
-								<AccentedCardBody>
-									{
-										<div className="plans-section__body">
-											<p>
-												{ __(
-													'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{ext/}}{{/a}}',
-													{
-														components: {
-															a: <a href="https://jetpack.com/upgrade/backup/" />,
-															ext: (
-																<>
-																	<span>
-																		<Gridicon icon="external" size="12" />
-																	</span>
-																</>
-															),
-														},
-													} // TODO: does this link need to open a new tab and have that icon?
-												) }
-											</p>
-											<h4>Backup options:</h4>
-											<div
-												style={ {
-													display: 'flex',
-													flexDirection: 'row',
-													justifyContent: 'center',
-												} }
-											>
-												<PlanRadioButton
-													planName={ __( 'Daily Backups' ) }
-													radioValue={ 'daily' }
-													planPrice={
-														sitePlans && sitePlans[ 'daily-backup' ].price[ this.state.period ].text
-													}
-													checked={ 'daily' === this.state.selectedBackupType }
-													onChange={ this.handleBackupTypeSelectionChange }
-												/>
-												<PlanRadioButton
-													planName={ __( 'Real-Time Backups' ) }
-													radioValue={ 'real-time' }
-													planPrice={
-														sitePlans &&
-														sitePlans[ 'realtime-backup' ].price[ this.state.period ].text
-													}
-													checked={ 'real-time' === this.state.selectedBackupType }
-													onChange={ this.handleBackupTypeSelectionChange }
-												/>
-											</div>
-											<div
-												style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }
-											>
-												<a
-													href={ this.upgradeLinks[ this.state.selectedBackupType ] }
-													type="button"
-													class="dops-button is-primary"
-												>
-													{ this.upgradeTitles[ this.state.selectedBackupType ] }
-												</a>
-											</div>
-										</div>
-									}
-								</AccentedCardBody>
-							),
+							header: this.renderHeaderContent(),
+							body: this.renderBodyContent(),
 						} }
 					</AccentedCard>
 				</div>
@@ -217,10 +146,15 @@ export class Plans extends React.Component {
 }
 
 export default connect( state => {
-	const fakedSitePlans = getAvailablePlans( state );
-	// TODO: this is faked data; remove before releasing
-	if ( fakedSitePlans ) {
-		fakedSitePlans[ 'daily-backup' ] = {
+	return {
+		// TODO: remove faked data before releasing
+		sitePlans: addFakedSitePlans( getAvailablePlans( state ) ),
+	};
+} )( Plans );
+
+function addFakedSitePlans( sitePlans ) {
+	if ( sitePlans ) {
+		sitePlans[ 'daily-backup' ] = {
 			price: {
 				yearly: {
 					html: '<abbr title="United States Dollars">$</abbr>12',
@@ -239,7 +173,7 @@ export default connect( state => {
 			},
 			features: [],
 		};
-		fakedSitePlans[ 'realtime-backup' ] = {
+		sitePlans[ 'realtime-backup' ] = {
 			price: {
 				yearly: {
 					html: '<abbr title="United States Dollars">$</abbr>16',
@@ -259,9 +193,5 @@ export default connect( state => {
 			features: [],
 		};
 	}
-
-	return {
-		// sitePlans: getAvailablePlans( state ),
-		sitePlans: fakedSitePlans,
-	};
-} )( Plans );
+	return sitePlans;
+}

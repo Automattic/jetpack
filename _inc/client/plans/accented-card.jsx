@@ -18,13 +18,4 @@ const AccentedCard = props => {
 	);
 };
 
-const AccentedCardHeader = props => props.children;
-const AccentedCardBody = props => props.children;
-
-// TODO: change to work with children
-// PlanCard.PropTypes = {
-// 	header: PropTypes.objectOf( PlanCardHeader ).isRequired,
-// 	body: PropTypes.objectOf( PlanCardBody ).isRequired,
-// };
-
-export { AccentedCard, AccentedCardHeader, AccentedCardBody };
+export { AccentedCard };
