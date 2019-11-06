@@ -43,10 +43,7 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "./packages/*",
-			"options": {
-				"symlink": true
-			}
+			"url": "./packages/*"
 		}
 	],
 	"autoload": {
