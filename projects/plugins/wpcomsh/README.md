@@ -1,4 +1,4 @@
-# WordPress.com Site Helper
+# WordPress.com Site Helper MINOR DIFF
 
 With the help of this mu-plugin, a Pressable site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
 
