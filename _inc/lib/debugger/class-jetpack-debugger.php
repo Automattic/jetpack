@@ -47,9 +47,12 @@ class Jetpack_Debugger {
 	 * To allow time for WP.com to run upstream testing, this function exists to increase the http_request_timeout value
 	 * to 30.
 	 *
+	 * @deprecated 8.0.0
+	 *
 	 * @return int 30
 	 */
 	public static function jetpack_increase_timeout() {
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Jetpack_Cxn_Tests::increase_timeout' );
 		return 30; // seconds.
 	}
 
