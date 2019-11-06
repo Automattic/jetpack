@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e62f97da2c3b8f8c02947f3ce846481e",
+    "content-hash": "1f8b9dd12c3724488f0fc0f02b72b926",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -113,17 +113,11 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-backup.git",
-                "reference": "d35cdad589f12548d13bb7893e2ec1efcc4505f6"
-            },
+            "version": "dev-add/jetpack-backups-helper-apis",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/d35cdad589f12548d13bb7893e2ec1efcc4505f6",
-                "reference": "d35cdad589f12548d13bb7893e2ec1efcc4505f6",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/backup",
+                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
             },
             "type": "library",
             "autoload": {
@@ -134,12 +128,10 @@
                     "Automattic\\Jetpack\\Backup\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tools to assist with backing up Jetpack sites.",
-            "time": "2019-10-29T12:17:20+00:00"
+            "description": "Tools to assist with backing up Jetpack sites."
         },
         {
             "name": "automattic/jetpack-compat",
@@ -782,25 +774,24 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "2.2.7-beta-1",
+            "version": "v1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9"
+                "reference": "bb7e513c7fcad503623064f240c8c76ce4891f3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/333988bd9caccc5a73578860949f0e2f268b91a9",
-                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/bb7e513c7fcad503623064f240c8c76ce4891f3a",
+                "reference": "bb7e513c7fcad503623064f240c8c76ce4891f3a",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1"
+                "php": "^7.0"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
                 "limedeck/phpunit-detailed-printer": "^3.1",
-                "phpstan/phpstan": "^0.11.12",
                 "phpunit/phpunit": "^6.4",
                 "sirbrillig/phpcs-import-detection": "^1.1.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.1.3",
@@ -813,13 +804,7 @@
             "autoload": {
                 "psr-4": {
                     "PhpcsChanged\\": "PhpcsChanged/"
-                },
-                "files": [
-                    "PhpcsChanged/Cli.php",
-                    "PhpcsChanged/SvnWorkflow.php",
-                    "PhpcsChanged/GitWorkflow.php",
-                    "PhpcsChanged/functions.php"
-                ]
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -832,7 +817,7 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
-            "time": "2019-10-29T16:28:21+00:00"
+            "time": "2018-11-19T21:11:44+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
@@ -996,8 +981,7 @@
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-backup": 20,
-        "sirbrillig/phpcs-changed": 20
+        "automattic/jetpack-backup": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
