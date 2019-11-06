@@ -149,7 +149,7 @@ function create_new_release_branches {
 			echo ""
 		fi
 
-		# git push -u origin $NEW_UNBUILT_BRANCH
+		git push -u origin $NEW_UNBUILT_BRANCH
 		echo ""
 		echo "$NEW_UNBUILT_BRANCH created."
 		echo ""
@@ -172,7 +172,7 @@ function create_new_release_branches {
 
 			git checkout $NEW_UNBUILT_BRANCH
 
-			# git push -u origin $NEW_BUILT_BRANCH
+			git push -u origin $NEW_BUILT_BRANCH
 
 			# Script will continue on to actually build the plugin onto this new branch...
 		else
@@ -297,7 +297,7 @@ cd TMP_REMOTE_BUILT_VERSION
 echo "Finally, Committing and Pushing"
 git add .
 git commit -am 'New build'
-# git push origin $BUILD_TARGET
+git push origin $BUILD_TARGET
 echo "Done! Branch $BUILD_TARGET has been updated."
 
 echo "Cleaning up the mess"
