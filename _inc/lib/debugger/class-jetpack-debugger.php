@@ -85,19 +85,6 @@ class Jetpack_Debugger {
 			? 'https://jetpack.com/contact-support/beta-group/'
 			: 'https://jetpack.com/contact-support/';
 
-		$data       = Jetpack_Debug_Data::debug_data();
-		$debug_info = '';
-		foreach ( $data as $datum ) {
-			$debug_info .= $datum['label'] . ': ' . $datum['value'] . "\r\n";
-		}
-
-		$debug_info .= "\r\n" . esc_html( 'PHP_VERSION: ' . PHP_VERSION );
-		$debug_info .= "\r\n" . esc_html( 'WORDPRESS_VERSION: ' . $GLOBALS['wp_version'] );
-		$debug_info .= "\r\n" . esc_html( 'SITE_URL: ' . site_url() );
-		$debug_info .= "\r\n" . esc_html( 'HOME_URL: ' . home_url() );
-
-		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
-
 		$cxntests = new Jetpack_Cxn_Tests();
 		?>
 		<div class="wrap">
@@ -107,8 +94,6 @@ class Jetpack_Debugger {
 					<?php
 					if ( $cxntests->pass() ) {
 						echo '<div class="jetpack-tests-succeed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
-						$debug_info .= "All tests passed.\r\n";
-						$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 					} else {
 						$failures = $cxntests->list_fails();
 						foreach ( $failures as $fail ) {
@@ -126,10 +111,6 @@ class Jetpack_Debugger {
 								)
 							) . '</p>';
 							echo '</div>';
-
-							$debug_info .= "FAILED TESTS!\r\n";
-							$debug_info .= $fail['name'] . ': ' . $fail['message'] . "\r\n";
-							$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 						}
 					}
 					?>
@@ -294,18 +275,6 @@ class Jetpack_Debugger {
 				}
 				?>
 			</div>
-		<hr />
-			<?php
-			if ( ! $hide_debug ) {
-				?>
-			<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
-			<div id="debug_info_div">
-				<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
-				<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
-			</div>
-				<?php
-			}
-			?>
 		</div>
 		<?php
 	}
