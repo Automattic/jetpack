@@ -277,7 +277,6 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 *
 	 * @dataProvider get_vimeo_shortcode_data
 	 * @covers ::amp_vimeo_shortcode()
-	 * @covers ::jetpack_shortcode_get_vimeo_dimensions()
 	 *
 	 * @param string $html The html passed to the filter.
 	 * @param string $shortcode_tag The tag (name) of the shortcode, like 'vimeo'.
