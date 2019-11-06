@@ -15,7 +15,8 @@ class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 		$this->options = wp_parse_args( $args, $defaults );
 	}
 
-	public function feedback( $string ) {
+	public function feedback( $string, ...$args ) {
+
 	}
 
 	public function header() {
