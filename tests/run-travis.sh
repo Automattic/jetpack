@@ -84,7 +84,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
 	if [ "$WP_BRANCH" == "master" ]; then
 		# Test multi WP in addition to single, but only in master branch mode.
-		if WP_MULTISITE=1 $WP_TRAVISCI --debug -c tests/php.multisite.xml; then
+		if WP_MULTISITE=1 $WP_TRAVISCI -c tests/php.multisite.xml; then
 			# Everything is fine
 			:
 		else
