@@ -104,7 +104,6 @@ $(BUILD_DST):
 build: check $(BUILD_DST)/$(BUILD_FILE)
 
 ## tag
-PUSH_RELEASE_TAG?=true
 tag: checkbeforetag
 	$(shell git tag v$(PLUGIN_VERSION_STRING))
 	@ echo "tag v$(PLUGIN_VERSION_STRING) added."
