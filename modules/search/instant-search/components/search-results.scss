@@ -13,6 +13,12 @@
 		color: inherit;
 		padding: 0;
 	}
+
+	// Accessibility improvement for VoiceOVer
+	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
+	li:before {
+		content: '\200B';
+	}
 }
 
 .jetpack-instant-search__search-results-real-query {
@@ -29,16 +35,4 @@
 
 .jetpack-instant-search__result-comments {
 	padding-left: 10px;
-}
-
-.jetpack-instant-search__search-results-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-
-	// Accessibility improvement for VoiceOVer
-	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
-	li:before {
-		content: '\200B';
-	}
 }
