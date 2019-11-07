@@ -16,6 +16,7 @@ import {
 	SORT_DIRECTION_ASC,
 	SORT_DIRECTION_DESC,
 	RESULT_FORMAT_MINIMAL,
+	RESULT_FORMAT_PRODUCT,
 } from './constants';
 import { getSortOption } from './sort';
 
@@ -195,6 +196,12 @@ export function setFilterQuery( filterKey, filterValue ) {
 }
 
 export function getResultFormatQuery() {
+	const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 	const query = getQuery();
-	return query.result_format ? query.result_format : RESULT_FORMAT_MINIMAL;
+
+	if ( knownResultFormats.includes( query.result_format ) ) {
+		return query.result_format;
+	}
+
+	return RESULT_FORMAT_MINIMAL;
 }
