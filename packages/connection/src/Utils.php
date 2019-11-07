@@ -1,8 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * The Jetpack Connection package Utils class file.
  *
- * @package jetpack-connection
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\Connection;
