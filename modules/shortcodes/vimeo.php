@@ -185,12 +185,24 @@ function vimeo_shortcode( $atts ) {
 		$url = add_query_arg( 'loop', 1, $url );
 	}
 
-	$html = sprintf(
-		'<div class="embed-vimeo" style="text-align: center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>',
-		esc_url( $url ),
-		esc_attr( $width ),
-		esc_attr( $height )
-	);
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
+		$html = sprintf(
+			'<amp-vimeo data-videoid="%1$s" layout="responsive" width="%2$d" height="%3$d"></amp-vimeo>',
+			esc_attr( $attr['id'] ),
+			absint( $width ),
+			absint( $height )
+		);
+	} else {
+		$html = sprintf(
+			'<div class="embed-vimeo" style="text-align: center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>',
+			esc_url( $url ),
+			esc_attr( $width ),
+			esc_attr( $height )
+		);
+	}
 
 	/**
 	 * Filter the Vimeo player HTML.
@@ -206,40 +218,6 @@ function vimeo_shortcode( $atts ) {
 	return $html;
 }
 add_shortcode( 'vimeo', 'vimeo_shortcode' );
-
-/**
- * Filters the Vimeo shortcode to be AMP-compatible.
- *
- * @param string $html          The shortcode HTML.
- * @param string $shortcode_tag The shortcode's tag (name).
- * @param array  $attr          The attributes of the shortcode.
- *
- * @return string The filtered HTML.
- */
-function jetpack_amp_vimeo_shortcode( $html, $shortcode_tag, $attr ) {
-	if (
-		'vimeo' !== $shortcode_tag
-		|| ! class_exists( 'Jetpack_AMP_Support' )
-		|| ! Jetpack_AMP_Support::is_amp_request()
-	) {
-		return $html;
-	}
-
-	$video_id = ( ! empty( $attr['id'] ) ? $attr['id'] : jetpack_shortcode_get_vimeo_id( $attr ) );
-	if ( empty( $video_id ) ) {
-		return $html;
-	}
-
-	list( $width, $height ) = jetpack_shortcode_get_vimeo_dimensions( $attr );
-
-	return sprintf(
-		'<amp-vimeo data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-vimeo>',
-		esc_attr( $video_id ),
-		absint( $width ),
-		absint( $height )
-	);
-}
-add_filter( 'do_shortcode_tag', 'jetpack_amp_vimeo_shortcode', 10, 3 );
 
 /**
  * Callback to modify output of embedded Vimeo video using Jetpack's shortcode.
