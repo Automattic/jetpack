@@ -47,7 +47,7 @@ export const settings = {
 
 	edit,
 
-	save: ( { attributes } ) => {
+	save: ( { attributes, className } ) => {
 		const { url } = attributes;
 
 		const type = pinType( url );
@@ -56,7 +56,11 @@ export const settings = {
 			return null;
 		}
 
-		return <a data-pin-do={ pinType( url ) } href={ url } />;
+		return (
+			<div className={ className }>
+				<a data-pin-do={ pinType( url ) } href={ url } />
+			</div>
+		);
 	},
 
 	transforms: {
