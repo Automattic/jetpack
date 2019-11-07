@@ -78,8 +78,7 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function is_development_mode() {
-		$status = new Status();
-		return $status->is_development_mode();
+		return ( new Status() )->is_development_mode();
 	}
 
 	/**

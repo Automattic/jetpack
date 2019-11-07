@@ -4,6 +4,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\JITM;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Status;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -931,7 +932,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'isStaging'    => Jetpack::is_staging_site(),
 				'isRegistered' => Jetpack::connection()->is_registered(),
 				'devMode'      => array(
-					'isActive' => Jetpack::is_development_mode(),
+					'isActive' => ( new Status() )->is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),

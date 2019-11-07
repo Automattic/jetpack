@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Status;
+
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  *
@@ -196,7 +199,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			if (
 				isset( $modules[ $slug ]['requires_connection'] )
 				&& $modules[ $slug ]['requires_connection']
-				&& Jetpack::is_development_mode()
+				&& ( new Status() )->is_development_mode()
 			) {
 				$modules[ $slug ]['activated'] = false;
 			}
@@ -363,7 +366,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if (
 				isset( $module['requires_connection'] )
 				&& $module['requires_connection']
-				&& Jetpack::is_development_mode()
+				&& ( new Status() )->is_development_mode()
 			) {
 				$module['activated'] = false;
 			}
