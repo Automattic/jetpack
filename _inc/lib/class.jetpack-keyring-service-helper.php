@@ -53,7 +53,10 @@ class Jetpack_Keyring_Service_Helper {
 	public static function add_sharing_menu() {
 		global $submenu;
 
-		if ( ! is_array( $submenu['options-general.php'] ) ) {
+		if (
+			! isset( $submenu['options-general.php'] )
+			|| ! is_array( $submenu['options-general.php'] )
+		) {
 			return;
 		}
 
