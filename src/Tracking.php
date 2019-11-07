@@ -15,18 +15,19 @@ class Tracking {
 	private $tracking;
 	/**
 	 * Prevents the Tracking from being intialized more then once.
+	 *
 	 * @var bool
 	 */
 	private $initalized = false;
 
-	function init() {
+	public function init() {
 		if ( $this->initalized ) {
 			return;
 		}
 		$this->initalized = true;
-		$this->tracking = new Tracks( 'jetpack' );
+		$this->tracking   = new Tracks( 'jetpack' );
 
-		// For tracking stuff via js/ajax
+		// For tracking stuff via js/ajax.
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'jetpack_activate_module' ), 1, 1 );
@@ -34,12 +35,15 @@ class Tracking {
 		add_action( 'jetpack_user_authorized', array( $this, 'jetpack_user_authorized' ) );
 		add_action( 'wp_login_failed', array( $this, 'wp_login_failed' ) );
 
+		// Tracking XMLRPC server events.
+		add_action( 'jetpack_xmlrpc_server_event', array( $this, 'jetpack_xmlrpc_server_event' ), 10, 4 );
+
 		// Track that we've begun verifying the previously generated secret.
 		add_action( 'jetpack_verify_secrets_begin', array( $this, 'jetpack_verify_secrets_begin' ), 10, 2 );
 		add_action( 'jetpack_verify_secrets_success', array( $this, 'jetpack_verify_secrets_success' ), 10, 2 );
 		add_action( 'jetpack_verify_secrets_fail', array( $this, 'jetpack_verify_secrets_fail' ), 10, 3 );
 
-		// Universal ajax callback for all tracking events triggered via js
+		// Universal ajax callback for all tracking events triggered via js.
 		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'wp_ajax_jetpack_tracks' ) );
 
 		add_action( 'jetpack_verify_api_authorization_request_error_double_encode', array( $this, 'jetpack_verify_api_authorization_request_error_double_encode' ) );
@@ -181,6 +185,44 @@ class Tracking {
 		$this->tracking->record_user_event( 'jpc_register_success', array(
 			'from' => $from
 		) );
+	}
+
+	/**
+	 * Handles the jetpack_xmlrpc_server_event action that combines several types of events that
+	 * happen during request serving.
+	 *
+	 * @param String                   $action the action name, i.e., 'remote_authorize'.
+	 * @param String                   $stage  the execution stage, can be 'begin', 'success', 'error', etc.
+	 * @param Array|WP_Error|IXR_Error $parameters (optional) extra parameters to be passed to the tracked action.
+	 * @param WP_User                  $user (optional) the acting user.
+	 */
+	public function jetpack_xmlrpc_server_event( $action, $stage, $parameters = null, $user = null ) {
+
+		if ( is_wp_error( $parameters ) ) {
+			$this->tracking->record_user_event(
+				'jpc_' . $action . '_' . $stage,
+				array(
+					'error_code'    => $parameters->get_error_code(),
+					'error_message' => $parameters->get_error_message(),
+				),
+				$user
+			);
+		} elseif ( is_a( $parameters, '\\IXR_Error' ) ) {
+			$this->tracking->record_user_event(
+				'jpc_' . $action . '_' . $stage,
+				array(
+					'error_code'    => $parameters->code,
+					'error_message' => $parameters->message,
+				),
+				$user
+			);
+		} elseif ( null === $user && null === $parameters ) {
+			$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage );
+		} elseif ( null === $user ) {
+			$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage, $parameters );
+		} else {
+			$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage, $parameters, $user );
+		}
 	}
 
 	/**
