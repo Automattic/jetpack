@@ -20,6 +20,8 @@ import {
 } from './constants';
 import { getSortOption } from './sort';
 
+const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
+
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
 }
@@ -196,7 +198,6 @@ export function setFilterQuery( filterKey, filterValue ) {
 }
 
 export function getResultFormatQuery() {
-	const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 	const query = getQuery();
 
 	if ( knownResultFormats.includes( query.result_format ) ) {

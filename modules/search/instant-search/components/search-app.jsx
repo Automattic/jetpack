@@ -205,7 +205,6 @@ class SearchApp extends Component {
 	}
 
 	render() {
-		const resultFormat = getResultFormatQuery();
 		return (
 			<Fragment>
 				{ this.renderWidgets() }
@@ -219,7 +218,7 @@ class SearchApp extends Component {
 							locale={ this.props.options.locale }
 							query={ getSearchQuery() }
 							response={ this.state.response }
-							resultFormat={ resultFormat }
+							resultFormat={ getResultFormatQuery() }
 							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 						/>,
 						document.querySelector( this.props.themeOptions.resultsSelector )
