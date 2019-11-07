@@ -130,28 +130,30 @@ function SingleProductBackupBody( props ) {
 			</p>
 
 			<h4>{ __( 'Backup options:' ) }</h4>
-			<div
-				style={ {
-					display: 'flex',
-					flexDirection: 'row',
-					justifyContent: 'center',
-				} }
-			>
-				<PlanRadioButton
-					planName={ __( 'Daily Backups' ) }
-					radioValue={ 'daily' }
-					planPrice={ sitePlans && sitePlans[ 'daily-backup' ].price.yearly.text }
-					checked={ 'daily' === selectedBackupType }
-					onChange={ handleSelectedBackupTypeChange }
-				/>
-				<PlanRadioButton
-					planName={ __( 'Real-Time Backups' ) }
-					radioValue={ 'real-time' }
-					planPrice={ sitePlans && sitePlans[ 'realtime-backup' ].price.yearly.text }
-					checked={ 'real-time' === selectedBackupType }
-					onChange={ handleSelectedBackupTypeChange }
-				/>
-			</div>
+			{ sitePlans && (
+				<div
+					style={ {
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center',
+					} }
+				>
+					<PlanRadioButton
+						planName={ __( 'Daily Backups' ) }
+						radioValue={ 'daily' }
+						planPrice={ sitePlans[ 'daily-backup' ].price.yearly.text }
+						checked={ 'daily' === selectedBackupType }
+						onChange={ handleSelectedBackupTypeChange }
+					/>
+					<PlanRadioButton
+						planName={ __( 'Real-Time Backups' ) }
+						radioValue={ 'real-time' }
+						planPrice={ sitePlans[ 'realtime-backup' ].price.yearly.text }
+						checked={ 'real-time' === selectedBackupType }
+						onChange={ handleSelectedBackupTypeChange }
+					/>
+				</div>
+			) }
 
 			<div style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }>
 				<Button href={ upgradeLinks[ selectedBackupType ] } primary>
