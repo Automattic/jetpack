@@ -421,6 +421,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_enqueue_term_relationships() {
+		// TODO: works only on queue mode, immediate mode doesn't have queue limits
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		global $wpdb;
 
 		// how many items are we allowed to enqueue on a single request/continue_enqueuing
@@ -480,6 +483,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
+		// TODO: works only on queue mode, immediate mode doesn't have queue limits
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		$post_id = $this->factory->post->create();
 
 		$terms = array();
