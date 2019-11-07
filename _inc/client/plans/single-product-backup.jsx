@@ -19,7 +19,7 @@ export function SingleProductBackup( props ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 
 	return (
-		<>
+		<React.Fragment>
 			<h1 className="plans-section__header">{ __( 'Single Products' ) }</h1>
 			<h2 className="plans-section__subheader">
 				{ __( "Just looking for backups? We've got you covered." ) }
@@ -39,7 +39,7 @@ export function SingleProductBackup( props ) {
 					} }
 				</AccentedCard>
 			</div>
-		</>
+		</React.Fragment>
 	);
 }
 
