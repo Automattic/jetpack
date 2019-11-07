@@ -250,8 +250,10 @@ class Jetpack_Network {
 
 		if ( is_string( $args ) ) {
 			$name = $args;
-		} else {
+		} else if ( is_array( $args ) ) {
 			$name = $args['name'];
+		} else {
+			return $url;
 		}
 
 		switch ( $name ) {

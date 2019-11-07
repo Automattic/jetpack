@@ -97,8 +97,7 @@ class Test_Jetpack_JITM extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'apply_filters' )
 			->setFunction(
-				function() {
-					$current_args = func_get_args();
+				function( ...$current_args ) {
 					foreach ( $this->mocked_filters as $filter ) {
 						if ( array_slice( $filter, 0, -1 ) === $current_args ) {
 							return array_pop( $filter );
@@ -140,9 +139,8 @@ class Test_Jetpack_JITM extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'do_action' )
-			->setFunction( function() {
+			->setFunction( function( ...$args ) {
 				global $actions;
-				$args = func_get_args();
 				$name = array_shift( $args );
 
 				if ( is_null( $actions ) ) {

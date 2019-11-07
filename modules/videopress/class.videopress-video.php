@@ -314,7 +314,7 @@ class VideoPress_Video {
 	 * @return bool|string host component of the URL, or false if none found
 	 */
 	public static function hostname( $url ) {
-		return parse_url( esc_url_raw( $url ), PHP_URL_HOST );
+		return wp_parse_url( esc_url_raw( $url ), PHP_URL_HOST );
 	}
 
 

@@ -1,5 +1,8 @@
 .jp-related-posts-i2 {
+	
 	&__row {
+		margin-left: -10px;
+		margin-right: -10px;
 		display: flex;
 		margin-top: 1.5rem;
 
@@ -66,7 +69,9 @@
 /* List view */
 
 .jp-relatedposts-i2[data-layout='list'] {
+	
 	.jp-related-posts-i2__row {
+		margin: 0;
 		margin-top: 0;
 		display: block;
 	}

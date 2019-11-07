@@ -25,4 +25,5 @@ export const settings = {
 	},
 	edit,
 	save,
+	example: mapSettings.example,
 };

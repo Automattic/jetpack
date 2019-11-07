@@ -172,22 +172,20 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				continue;
 			}
 
-			// Display a short list of recent posts for this author
-
+			// Display a short list of recent posts for this author.
 			if ( $r->have_posts() ) {
 				echo '<ul>';
 
 				while ( $r->have_posts() ) {
 					$r->the_post();
-					echo '<li><a href="' . get_permalink() . '">';
 
-					if ( get_the_title() ) {
-						echo get_the_title();
-					} else {
-						echo get_the_ID();
-					}
-
-					echo '</a></li>';
+					printf(
+						'<li><a href="%1$s" title="%2$s"%3$s>%4$s</a></li>',
+						esc_url( get_permalink() ),
+						esc_attr( wp_kses( get_the_title(), array() ) ),
+						( get_queried_object_id() === get_the_ID() ? ' aria-current="page"' : '' ),
+						esc_html( wp_kses( get_the_title(), array() ) )
+					);
 				}
 
 				echo '</ul>';

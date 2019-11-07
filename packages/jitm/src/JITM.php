@@ -1,4 +1,9 @@
 <?php
+/**
+ * Jetpack's JITM class.
+ *
+ * @package automattic/jetpack-jitm
+ */
 
 namespace Automattic\Jetpack;
 
@@ -16,7 +21,7 @@ use Automattic\Jetpack\Connection\Manager;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.0';
+	const PACKAGE_VERSION = '1.0'; // TODO: Keep in sync with version specified in composer.json.
 
 	/**
 	 * Tracking object.
@@ -34,6 +39,11 @@ class JITM {
 		$this->tracking = new Tracking();
 	}
 
+	/**
+	 * Determines if JITMs are enabled.
+	 *
+	 * @return bool Enable JITMs.
+	 */
 	public function register() {
 		/**
 		 * Filter to turn off all just in time messages
@@ -55,7 +65,7 @@ class JITM {
 	 *
 	 * @return string The Jetpack emblem
 	 */
-	function get_emblem() {
+	public function get_emblem() {
 		$jetpack_logo = new Jetpack_Logo();
 		return '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
 	}
@@ -67,22 +77,23 @@ class JITM {
 	 *
 	 * @uses Jetpack_Autoupdate::get_possible_failures()
 	 *
-	 * @param object $screen
+	 * @param \WP_Screen $screen WP Core's screen object.
 	 */
-	function prepare_jitms( $screen ) {
+	public function prepare_jitms( $screen ) {
 		if ( ! in_array(
 			$screen->id,
 			array(
 				'jetpack_page_stats',
 				'jetpack_page_akismet-key-config',
 				'admin_page_jetpack_modules',
-			)
+			),
+			true
 		) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
 
-			// Not really a JITM. Don't know where else to put this :)
+			// Not really a JITM. Don't know where else to put this :) .
 			add_action( 'admin_notices', array( $this, 'delete_user_update_connection_owner_notice' ) );
 		}
 	}
@@ -90,11 +101,11 @@ class JITM {
 	/**
 	 * A special filter for WooCommerce, to set a message based on local state.
 	 *
-	 * @param $message string The current message
+	 * @param string $content The current message.
 	 *
-	 * @return array The new message
+	 * @return array The new message.
 	 */
-	static function jitm_woocommerce_services_msg( $content ) {
+	public static function jitm_woocommerce_services_msg( $content ) {
 		if ( ! function_exists( 'wc_get_base_location' ) ) {
 			return $content;
 		}
@@ -118,11 +129,9 @@ class JITM {
 	/**
 	 * A special filter for WooCommerce Call To Action button
 	 *
-	 * @param $CTA string The existing CTA
-	 *
 	 * @return string The new CTA
 	 */
-	static function jitm_jetpack_woo_services_install( $CTA ) {
+	public static function jitm_jetpack_woo_services_install() {
 		return wp_nonce_url(
 			add_query_arg(
 				array(
@@ -135,13 +144,11 @@ class JITM {
 	}
 
 	/**
-	 * A special filter for WooCommerce Call To Action button
-	 *
-	 * @param $CTA string The existing CTA
+	 * A special filter for WooCommerce Call To Action button.
 	 *
 	 * @return string The new CTA
 	 */
-	static function jitm_jetpack_woo_services_activate( $CTA ) {
+	public static function jitm_jetpack_woo_services_activate() {
 		return wp_nonce_url(
 			add_query_arg(
 				array(
@@ -157,8 +164,15 @@ class JITM {
 	 * This is an entire admin notice dedicated to messaging and handling of the case where a user is trying to delete
 	 * the connection owner.
 	 */
-	function delete_user_update_connection_owner_notice() {
+	public function delete_user_update_connection_owner_notice() {
 		global $current_screen;
+
+		/*
+		 * phpcs:disable WordPress.Security.NonceVerification.Recommended
+		 *
+		 * This function is firing within wp-admin and checks (below) if it is in the midst of a deletion on the users
+		 * page. Nonce will be already checked by WordPress, so we do not need to check ourselves.
+		 */
 
 		if ( ! isset( $current_screen->base ) || 'users' !== $current_screen->base ) {
 			return;
@@ -168,7 +182,7 @@ class JITM {
 			return;
 		}
 
-		// Get connection owner or bail
+		// Get connection owner or bail.
 		$connection_manager  = new Manager();
 		$connection_owner_id = $connection_manager->get_connection_owner_id();
 		if ( ! $connection_owner_id ) {
@@ -183,13 +197,16 @@ class JITM {
 		} elseif ( isset( $_REQUEST['user'] ) ) {
 			$user_ids_to_delete[] = $_REQUEST['user'];
 		}
-		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete );
+
+		// phpcs:enable
+
+		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete, true );
 		if ( ! $deleting_connection_owner ) {
 			return;
 		}
 
 		// Bail if they're trying to delete themselves to avoid confusion.
-		if ( $connection_owner_id == get_current_user_id() ) {
+		if ( get_current_user_id() === $connection_owner_id ) {
 			return;
 		}
 
@@ -200,12 +217,14 @@ class JITM {
 
 		$connection_manager = new Manager();
 		$connected_admins   = $connection_manager->get_connected_users( 'jetpack_disconnect' );
+		$user               = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
 		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';
 		echo '<p>' . sprintf(
+			/* translators: WordPress User, if available. */
 			esc_html__( 'Warning! You are about to delete the Jetpack connection owner (%s) for this site, which may cause some of your Jetpack features to stop working.', 'jetpack' ),
-			is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : ''
+			esc_html( $user )
 		) . '</p>';
 
 		if ( ! empty( $connected_admins ) && count( $connected_admins ) > 1 ) {
@@ -245,10 +264,10 @@ class JITM {
 
 						$.ajax( {
 							type        : "POST",
-							url         : "<?php echo get_rest_url() . 'jetpack/v4/connection/owner'; ?>",
+							url         : "<?php echo esc_url( get_rest_url() . 'jetpack/v4/connection/owner' ); ?>",
 							data        : formData,
 							headers     : {
-								'X-WP-Nonce': "<?php echo wp_create_nonce( 'wp_rest' ); ?>",
+								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
 							},
 							success: function() {
 								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack' ); ?>";
@@ -275,6 +294,7 @@ class JITM {
 		echo '<p>';
 		printf(
 			wp_kses(
+				/* translators: URL to Jetpack support doc regarding the primary user. */
 				__( "<a href='%s' target='_blank' rel='noopener noreferrer'>Learn more</a> about the connection owner and what will break if you do not have one.", 'jetpack' ),
 				array(
 					'a' => array(
@@ -290,6 +310,7 @@ class JITM {
 		echo '<p>';
 		printf(
 			wp_kses(
+				/* translators: URL to contact Jetpack support. */
 				__( 'As always, feel free to <a href="%s" target="_blank" rel="noopener noreferrer">contact our support team</a> if you have any questions.', 'jetpack' ),
 				array(
 					'a' => array(
@@ -306,18 +327,21 @@ class JITM {
 	}
 
 	/**
-	 * Injects the dom to show a JITM inside of
+	 * Injects the dom to show a JITM inside of wp-admin.
 	 */
-	function ajax_message() {
+	public function ajax_message() {
+		if ( ! is_admin() ) {
+			return;
+		}
 		$message_path   = $this->get_message_path();
-		$query_string   = _http_build_query( $_GET, '', ',' );
+		$query_string   = _http_build_query( $_GET, '', ',' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
 		?>
 		<div class="jetpack-jitm-message"
-			 data-nonce="<?php echo wp_create_nonce( 'wp_rest' ); ?>"
-			 data-message-path="<?php echo esc_attr( $message_path ); ?>"
-			 data-query="<?php echo urlencode_deep( $query_string ); ?>"
-			 data-redirect="<?php echo urlencode_deep( $current_screen ); ?>"
+			data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+			data-message-path="<?php echo esc_attr( $message_path ); ?>"
+			data-query="<?php echo urlencode_deep( $query_string ); ?>"
+			data-redirect="<?php echo urlencode_deep( $current_screen ); ?>"
 		></div>
 		<?php
 	}
@@ -327,7 +351,7 @@ class JITM {
 	 *
 	 * @return string The message path
 	 */
-	function get_message_path() {
+	public function get_message_path() {
 		$screen = get_current_screen();
 
 		return 'wp:' . $screen->id . ':' . current_filter();
@@ -336,7 +360,7 @@ class JITM {
 	/**
 	 * Function to enqueue jitm css and js
 	 */
-	function jitm_enqueue_files() {
+	public function jitm_enqueue_files() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
@@ -353,7 +377,7 @@ class JITM {
 			'jetpack-jitm-new',
 			Assets::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
 			array( 'jquery' ),
-			self::PACKAGE_VERSION, // TODO: Keep in sync with version specified in composer.json
+			self::PACKAGE_VERSION,
 			true
 		);
 		wp_localize_script(
@@ -369,14 +393,14 @@ class JITM {
 	}
 
 	/**
-	 * Dismisses a JITM feature class so that it will no longer be shown
+	 * Dismisses a JITM feature class so that it will no longer be shown.
 	 *
-	 * @param $id string The id of the JITM that was dismissed
-	 * @param $feature_class string The feature class of the JITM that was dismissed
+	 * @param string $id The id of the JITM that was dismissed.
+	 * @param string $feature_class The feature class of the JITM that was dismissed.
 	 *
-	 * @return bool Always true
+	 * @return bool Always true.
 	 */
-	function dismiss( $id, $feature_class ) {
+	public function dismiss( $id, $feature_class ) {
 		$this->tracking->record_user_event(
 			'jitm_dismiss_client',
 			array(
@@ -419,26 +443,20 @@ class JITM {
 	/**
 	 * Asks the wpcom API for the current message to display keyed on query string and message path
 	 *
-	 * @param $message_path string The message path to ask for
-	 * @param $query string The query string originally from the front end
+	 * @param string $message_path The message path to ask for.
+	 * @param string $query The query string originally from the front end.
 	 *
 	 * @return array The JITM's to show, or an empty array if there is nothing to show
 	 */
-	function get_messages( $message_path, $query ) {
-		// custom filters go here
-		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
-		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
-		add_filter(
-			'jitm_jetpack_woo_services_activate',
-			array(
-				'Jetpack_JITM',
-				'jitm_jetpack_woo_services_activate',
-			)
-		);
+	public function get_messages( $message_path, $query ) {
+		// Custom filters go here.
+		add_filter( 'jitm_woocommerce_services_msg', array( $this, 'jitm_woocommerce_services_msg' ) );
+		add_filter( 'jitm_jetpack_woo_services_install', array( $this, 'jitm_jetpack_woo_services_install' ) );
+		add_filter( 'jitm_jetpack_woo_services_activate', array( $this, 'jitm_jetpack_woo_services_activate' ) );
 
 		$user = wp_get_current_user();
 
-		// unauthenticated or invalid requests just bail
+		// Unauthenticated or invalid requests just bail.
 		if ( ! $user ) {
 			return array();
 		}
@@ -446,7 +464,7 @@ class JITM {
 		$user_roles = implode( ',', $user->roles );
 		$site_id    = \Jetpack_Options::get_option( 'id' );
 
-		// build our jitm request
+		// Build our jitm request.
 		$path = add_query_arg(
 			array(
 				'external_user_id' => urlencode_deep( $user->ID ),
@@ -458,10 +476,10 @@ class JITM {
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
 		);
 
-		// attempt to get from cache
+		// Attempt to get from cache.
 		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
-		// if something is in the cache and it was put in the cache after the last sync we care about, use it
+		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
 
 		/** This filter is documented in class.jetpack.php */
@@ -476,7 +494,7 @@ class JITM {
 			$from_cache = false;
 		}
 
-		// otherwise, ask again
+		// Otherwise, ask again.
 		if ( ! $from_cache ) {
 			$wpcom_response = Client::wpcom_json_api_request_as_blog(
 				$path,
@@ -502,8 +520,8 @@ class JITM {
 
 			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
 
-			// do not cache if expiration is 0 or we're not using the cache
-			if ( 0 != $expiration && $use_cache ) {
+			// Do not cache if expiration is 0 or we're not using the cache.
+			if ( 0 !== $expiration && $use_cache ) {
 				$envelopes['last_response_time'] = time();
 
 				set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
@@ -526,7 +544,7 @@ class JITM {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
-			// if the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed
+			// If the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed.
 			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
@@ -550,8 +568,9 @@ class JITM {
 			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
 				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 			}
-			// Get affiliate code and add it to the array of URL parameters
-			if ( '' !== ( $aff = \Jetpack_Affiliate::init()->get_affiliate_code() ) ) {
+			// Get affiliate code and add it to the array of URL parameters.
+			$aff = \Jetpack_Affiliate::init()->get_affiliate_code();
+			if ( '' !== $aff ) {
 				$url_params['aff'] = $aff;
 			}
 
@@ -559,17 +578,20 @@ class JITM {
 
 			$envelope->jitm_stats_url = \Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			// $CTA is not valid per PHPCS, but it is part of the return from WordPress.com, so allowing.
 			if ( $envelope->CTA->hook ) {
 				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url );
 				unset( $envelope->CTA->hook );
 			}
+			// phpcs:enable
 
 			if ( isset( $envelope->content->hook ) ) {
 				$envelope->content = apply_filters( 'jitm_' . $envelope->content->hook, $envelope->content );
 				unset( $envelope->content->hook );
 			}
 
-			// no point in showing an empty message
+			// No point in showing an empty message.
 			if ( empty( $envelope->content->message ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;

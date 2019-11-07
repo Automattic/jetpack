@@ -1,22 +1,37 @@
 <?php
+/**
+ * Utility functions to generate data synced to wpcom
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
-/*
+
+/**
  * Utility functions to generate data synced to wpcom
  */
-
 class Functions {
 	const HTTPS_CHECK_OPTION_PREFIX = 'jetpack_sync_https_history_';
 	const HTTPS_CHECK_HISTORY       = 5;
 
+	/**
+	 * Return array of Jetpack modules.
+	 *
+	 * @return array
+	 */
 	public static function get_modules() {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 
 		return \Jetpack_Admin::init()->get_modules();
 	}
 
+	/**
+	 * Return array of taxonomies registered on the site.
+	 *
+	 * @return array
+	 */
 	public static function get_taxonomies() {
 		global $wp_taxonomies;
 		$wp_taxonomies_without_callbacks = array();
@@ -24,13 +39,16 @@ class Functions {
 			$sanitized_taxonomy = self::sanitize_taxonomy( $taxonomy );
 			if ( ! empty( $sanitized_taxonomy ) ) {
 				$wp_taxonomies_without_callbacks[ $taxonomy_name ] = $sanitized_taxonomy;
-			} else {
-				error_log( 'Jetpack: Encountered a recusive taxonomy:' . $taxonomy_name );
 			}
 		}
 		return $wp_taxonomies_without_callbacks;
 	}
 
+	/**
+	 * Return array of registered shortcodes.
+	 *
+	 * @return array
+	 */
 	public static function get_shortcodes() {
 		global $shortcode_tags;
 		return array_keys( $shortcode_tags );
@@ -38,6 +56,10 @@ class Functions {
 
 	/**
 	 * Removes any callback data since we will not be able to process it on our side anyways.
+	 *
+	 * @param \WP_Taxonomy $taxonomy \WP_Taxonomy item.
+	 *
+	 * @return mixed|null
 	 */
 	public static function sanitize_taxonomy( $taxonomy ) {
 
@@ -50,22 +72,27 @@ class Functions {
 		}
 		// Remove any meta_box_cb if they are not the default wp ones.
 		if ( isset( $cloned_taxonomy->meta_box_cb ) &&
-			 ! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ) ) ) {
+			! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ), true ) ) {
 			$cloned_taxonomy->meta_box_cb = null;
 		}
-		// Remove update call back
+		// Remove update call back.
 		if ( isset( $cloned_taxonomy->update_count_callback ) &&
-			 ! is_null( $cloned_taxonomy->update_count_callback ) ) {
+			! is_null( $cloned_taxonomy->update_count_callback ) ) {
 			$cloned_taxonomy->update_count_callback = null;
 		}
 		// Remove rest_controller_class if it something other then the default.
 		if ( isset( $cloned_taxonomy->rest_controller_class ) &&
-			 'WP_REST_Terms_Controller' !== $cloned_taxonomy->rest_controller_class ) {
+			'WP_REST_Terms_Controller' !== $cloned_taxonomy->rest_controller_class ) {
 			$cloned_taxonomy->rest_controller_class = null;
 		}
 		return $cloned_taxonomy;
 	}
 
+	/**
+	 * Return array of registered post types.
+	 *
+	 * @return array
+	 */
 	public static function get_post_types() {
 		global $wp_post_types;
 
@@ -74,13 +101,18 @@ class Functions {
 			$sanitized_post_type = self::sanitize_post_type( $post_type );
 			if ( ! empty( $sanitized_post_type ) ) {
 				$post_types_without_callbacks[ $post_type_name ] = $sanitized_post_type;
-			} else {
-				error_log( 'Jetpack: Encountered a recusive post_type:' . $post_type_name );
 			}
 		}
 		return $post_types_without_callbacks;
 	}
 
+	/**
+	 * Sanitizes by cloning post type object.
+	 *
+	 * @param object $post_type \WP_Post_Type.
+	 *
+	 * @return object
+	 */
 	public static function sanitize_post_type( $post_type ) {
 		// Lets clone the post type object instead of modifing the global one.
 		$sanitized_post_type = array();
@@ -92,6 +124,14 @@ class Functions {
 		return (object) $sanitized_post_type;
 	}
 
+	/**
+	 * Return information about a synced post type.
+	 *
+	 * @param array  $sanitized_post_type Array of args used in constructing \WP_Post_Type.
+	 * @param string $post_type Post type name.
+	 *
+	 * @return object \WP_Post_Type
+	 */
 	public static function expand_synced_post_type( $sanitized_post_type, $post_type ) {
 		$post_type        = sanitize_key( $post_type );
 		$post_type_object = new \WP_Post_Type( $post_type, $sanitized_post_type );
@@ -102,12 +142,24 @@ class Functions {
 		return (object) $post_type_object;
 	}
 
+	/**
+	 * Returns site's post_type_features.
+	 *
+	 * @return array
+	 */
 	public static function get_post_type_features() {
 		global $_wp_post_type_features;
 
 		return $_wp_post_type_features;
 	}
 
+	/**
+	 * Return hosting provider.
+	 *
+	 * Uses a set of known constants, classes, or functions to help determine the hosting platform.
+	 *
+	 * @return string Hosting provider.
+	 */
 	public static function get_hosting_provider() {
 		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
 			return 'gd-managed-wp';
@@ -127,11 +179,21 @@ class Functions {
 		return 'unknown';
 	}
 
+	/**
+	 * Return array of allowed REST API post types.
+	 *
+	 * @return array Array of allowed post types.
+	 */
 	public static function rest_api_allowed_post_types() {
 		/** This filter is already documented in class.json-api-endpoints.php */
 		return apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
 	}
 
+	/**
+	 * Return array of allowed REST API public metadata.
+	 *
+	 * @return array Array of allowed metadata.
+	 */
 	public static function rest_api_allowed_public_metadata() {
 		/** This filter is documented in json-endpoints/class.wpcom-json-api-post-endpoint.php */
 		return apply_filters( 'rest_api_allowed_public_metadata', array() );
@@ -149,7 +211,7 @@ class Functions {
 		}
 		$updater = new \WP_Automatic_Updater();
 
-		return (bool) strval( $updater->is_vcs_checkout( $context = ABSPATH ) );
+		return (bool) strval( $updater->is_vcs_checkout( ABSPATH ) );
 	}
 
 	/**
@@ -188,10 +250,11 @@ class Functions {
 	 * Helper function that is used when getting home or siteurl values. Decides
 	 * whether to get the raw or filtered value.
 	 *
+	 * @param string $url_type URL to get, home or siteurl.
 	 * @return string
 	 */
 	public static function get_raw_or_filtered_url( $url_type ) {
-		$url_function = ( 'home' == $url_type )
+		$url_function = ( 'home' === $url_type )
 			? 'home_url'
 			: 'site_url';
 
@@ -209,6 +272,11 @@ class Functions {
 		return self::get_protocol_normalized_url( $url_function, $url );
 	}
 
+	/**
+	 * Return the escaped home_url.
+	 *
+	 * @return string
+	 */
 	public static function home_url() {
 		$url = self::get_raw_or_filtered_url( 'home' );
 
@@ -222,6 +290,11 @@ class Functions {
 		return esc_url_raw( apply_filters( 'jetpack_sync_home_url', $url ) );
 	}
 
+	/**
+	 * Return the escaped siteurl.
+	 *
+	 * @return string
+	 */
 	public static function site_url() {
 		$url = self::get_raw_or_filtered_url( 'siteurl' );
 
@@ -235,10 +308,22 @@ class Functions {
 		return esc_url_raw( apply_filters( 'jetpack_sync_site_url', $url ) );
 	}
 
+	/**
+	 * Return main site URL with a normalized protocol.
+	 *
+	 * @return string
+	 */
 	public static function main_network_site_url() {
 		return self::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
 	}
 
+	/**
+	 * Return URL with a normalized protocol.
+	 *
+	 * @param callable $callable Function to retrieve URL option.
+	 * @param string   $new_value URL Protocol to set URLs to.
+	 * @return string Normalized URL.
+	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
 		$option_key = self::HTTPS_CHECK_OPTION_PREFIX . $callable;
 
@@ -254,19 +339,26 @@ class Functions {
 		$scheme_history   = get_option( $option_key, array() );
 		$scheme_history[] = $scheme;
 
-		// Limit length to self::HTTPS_CHECK_HISTORY
+		// Limit length to self::HTTPS_CHECK_HISTORY.
 		$scheme_history = array_slice( $scheme_history, ( self::HTTPS_CHECK_HISTORY * -1 ) );
 
 		update_option( $option_key, $scheme_history );
 
-		$forced_scheme = in_array( 'https', $scheme_history ) ? 'https' : 'http';
+		$forced_scheme = in_array( 'https', $scheme_history, true ) ? 'https' : 'http';
 
 		return set_url_scheme( $new_value, $forced_scheme );
 	}
 
+	/**
+	 * Return URL from option or PHP constant.
+	 *
+	 * @param string $option_name (e.g. 'home').
+	 *
+	 * @return mixed|null URL.
+	 */
 	public static function get_raw_url( $option_name ) {
 		$value    = null;
-		$constant = ( 'home' == $option_name )
+		$constant = ( 'home' === $option_name )
 			? 'WP_HOME'
 			: 'WP_SITEURL';
 
@@ -283,6 +375,13 @@ class Functions {
 		return $value;
 	}
 
+	/**
+	 * Normalize domains by removing www unless declared in the site's option.
+	 *
+	 * @param string   $option Option value from the site.
+	 * @param callable $url_function Function retrieving the URL to normalize.
+	 * @return mixed|string URL.
+	 */
 	public static function normalize_www_in_url( $option, $url_function ) {
 		$url        = wp_parse_url( call_user_func( $url_function ) );
 		$option_url = wp_parse_url( get_option( $option ) );
@@ -291,12 +390,12 @@ class Functions {
 			return $url;
 		}
 
-		if ( $url['host'] === "www.{$option_url[ 'host' ]}" ) {
-			// remove www if not present in option URL
+		if ( "www.{$option_url[ 'host' ]}" === $url['host'] ) {
+			// remove www if not present in option URL.
 			$url['host'] = $option_url['host'];
 		}
-		if ( $option_url['host'] === "www.{$url[ 'host' ]}" ) {
-			// add www if present in option URL
+		if ( "www.{$url[ 'host' ]}" === $option_url['host'] ) {
+			// add www if present in option URL.
 			$url['host'] = $option_url['host'];
 		}
 
@@ -312,6 +411,11 @@ class Functions {
 		return $normalized_url;
 	}
 
+	/**
+	 * Return filtered value of get_plugins.
+	 *
+	 * @return mixed|void
+	 */
 	public static function get_plugins() {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -325,10 +429,11 @@ class Functions {
 	 * Get custom action link tags that the plugin is using
 	 * Ref: https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
 	 *
+	 * @param string $plugin_file_singular Particular plugin.
 	 * @return array of plugin action links (key: link name value: url)
 	 */
 	public static function get_plugins_action_links( $plugin_file_singular = null ) {
-		// Some sites may have DOM disabled in PHP fail early
+		// Some sites may have DOM disabled in PHP fail early.
 		if ( ! class_exists( 'DOMDocument' ) ) {
 			return array();
 		}
@@ -342,16 +447,32 @@ class Functions {
 		return array();
 	}
 
+	/**
+	 * Return the WP version as defined in the $wp_version global.
+	 *
+	 * @return string
+	 */
 	public static function wp_version() {
 		global $wp_version;
 		return $wp_version;
 	}
 
+	/**
+	 * Return site icon url used on the site.
+	 *
+	 * @param int $size Size of requested icon in pixels.
+	 * @return mixed|string|void
+	 */
 	public static function site_icon_url( $size = 512 ) {
 		$site_icon = get_site_icon_url( $size );
 		return $site_icon ? $site_icon : get_option( 'jetpack_site_icon_url' );
 	}
 
+	/**
+	 * Return roles registered on the site.
+	 *
+	 * @return array
+	 */
 	public static function roles() {
 		$wp_roles = wp_roles();
 		return $wp_roles->roles;
@@ -364,6 +485,9 @@ class Functions {
 	 * 1. Check if `timezone_string` is set and return it.
 	 * 2. Check if `gmt_offset` is set, formats UTC-offset from it and return it.
 	 * 3. Default to "UTC+0" if nothing is set.
+	 *
+	 * Note: This function is specifically not using wp_timezone() to keep consistency with
+	 * the existing formatting of the timezone string.
 	 *
 	 * @return string
 	 */

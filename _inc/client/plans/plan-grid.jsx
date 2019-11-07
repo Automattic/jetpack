@@ -35,7 +35,7 @@ class PlanGrid extends React.Component {
 
 	handlePeriodChange( newPeriod ) {
 		if ( newPeriod === this.state.period ) {
-			return false;
+			return null;
 		}
 
 		return () => {
@@ -46,6 +46,16 @@ class PlanGrid extends React.Component {
 
 			this.setState( {
 				period: newPeriod,
+			} );
+		};
+	}
+
+	handleSeeFeaturesClick( planType ) {
+		return () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'see-all-features-link',
+				feature: 'plans-grid',
+				extra: planType,
 			} );
 		};
 	}
@@ -114,6 +124,7 @@ class PlanGrid extends React.Component {
 				<ButtonGroup>
 					{ map( periods, ( periodLabel, periodName ) => (
 						<Button
+							key={ 'plan-period-button-' + periodName }
 							primary={ periodName === period }
 							onClick={ this.handlePeriodChange( periodName ) }
 							compact
@@ -329,7 +340,12 @@ class PlanGrid extends React.Component {
 					key={ 'bottom-' + planType }
 					className="plan-features__table-item is-bottom-buttons has-border-bottom"
 				>
-					<Button href={ this.props.plansLearnMoreUpgradeUrl }>{ plan.strings.see_all }</Button>
+					<Button
+						href={ this.props.plansLearnMoreUpgradeUrl }
+						onClick={ this.handleSeeFeaturesClick( planType ) }
+					>
+						{ plan.strings.see_all }
+					</Button>
 				</td>
 			);
 		} );

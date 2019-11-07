@@ -27,7 +27,7 @@ You should expect to get no red `FAILED` check messages. If there happens to be 
 
 We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `yarn build` or `yarn`).
 
-We recommend usage of [nvm](https://www.npmjs.com/package/nvm) for managing different Node versions on the same environment.
+We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing different Node versions on the same environment.
 
 **Note:** If you have previously run the Jetpack build tasks (e.g. `yarn build`), and didn't come back to it for a long time, you can
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.

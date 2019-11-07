@@ -1,5 +1,5 @@
 <?php
-
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -10,8 +10,9 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
+use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 
 /*
 Options:
@@ -567,10 +568,7 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		if ( self::jetpack_tos_agreed() ) {
-			$tracking = new Automattic\Jetpack\Plugin\Tracking();
-			add_action( 'init', array( $tracking, 'init' ) );
-		}
+		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' )  );
 
 		add_filter(
 			'jetpack_connection_secret_generator',
@@ -726,6 +724,22 @@ class Jetpack {
 		 * Load some scripts asynchronously.
 		 */
 		add_action( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 3 );
+	}
+	/**
+	 * Runs after all the plugins have loaded but before init.
+	 */
+	function after_plugins_loaded() {
+
+		$terms_of_service = new Terms_Of_Service();
+		$tracking = new Plugin_Tracking();
+		if ( $terms_of_service->has_agreed() ) {
+			add_action( 'init', array( $tracking, 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+		}
 	}
 
 	/**
@@ -3141,7 +3155,7 @@ p {
 			return array( 'wp-cli', null );
 		}
 
-		$referer = parse_url( $referer_url );
+		$referer = wp_parse_url( $referer_url );
 
 		$source_type  = 'unknown';
 		$source_query = null;
@@ -3150,8 +3164,8 @@ p {
 			return array( $source_type, $source_query );
 		}
 
-		$plugins_path         = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
-		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
+		$plugins_path         = wp_parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
+		$plugins_install_path = wp_parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
 
 		if ( isset( $referer['query'] ) ) {
 			parse_str( $referer['query'], $query_parts );
@@ -3323,16 +3337,17 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
+		$terms_of_service = new Terms_Of_Service();
 		// The user has agreed to the TOS at some point by now.
-		Jetpack_Options::update_option( 'tos_agreed', true );
+		$terms_of_service->agree();
 
 		// Let's get some testing in beta versions and such.
 		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
 			// Before attempting to connect, let's make sure that the domains are viable.
 			$domains_to_check = array_unique(
 				array(
-					'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
-					'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
+					'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+					'homeurl' => wp_parse_url( get_home_url(), PHP_URL_HOST ),
 				)
 			);
 			foreach ( $domains_to_check as $domain ) {
@@ -5537,8 +5552,10 @@ endif;
 
 	/**
 	 * Helper method for multicall XMLRPC.
+	 *
+	 * @param ...$args Args for the async_call.
 	 */
-	public static function xmlrpc_async_call() {
+	public static function xmlrpc_async_call( ...$args ) {
 		global $blog_id;
 		static $clients = array();
 
@@ -5551,8 +5568,6 @@ endif;
 			}
 			add_action( 'shutdown', array( 'Jetpack', 'xmlrpc_async_call' ) );
 		}
-
-		$args = func_get_args();
 
 		if ( ! empty( $args[0] ) ) {
 			call_user_func_array( array( $clients[ $client_blog_id ], 'addCall' ), $args );
@@ -5583,7 +5598,7 @@ endif;
 	public static function staticize_subdomain( $url ) {
 
 		// Extract hostname from URL
-		$host = parse_url( $url, PHP_URL_HOST );
+		$host = wp_parse_url( $url, PHP_URL_HOST );
 
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
@@ -5637,7 +5652,7 @@ endif;
 			return $url;
 		}
 
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 		$url        = strtok( $url, '?' );
 		$url        = "$url?{$_SERVER['QUERY_STRING']}";
 		if ( ! empty( $parsed_url['query'] ) ) {
@@ -5981,9 +5996,13 @@ endif;
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			$local_options = self::get_sync_error_idc_option();
-			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
-				$is_valid = true;
+			// Ensure all values are set.
+			if ( isset( $sync_error['home'] ) && isset ( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
+				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+					$is_valid = true;
+				}
 			}
+
 		}
 
 		/**
@@ -6346,7 +6365,7 @@ endif;
 	public static function absolutize_css_urls( $css, $css_file_url ) {
 		$pattern = '#url\((?P<path>[^)]*)\)#i';
 		$css_dir = dirname( $css_file_url );
-		$p       = parse_url( $css_dir );
+		$p       = wp_parse_url( $css_dir );
 		$domain  = sprintf(
 			'%1$s//%2$s%3$s%4$s',
 			isset( $p['scheme'] ) ? "{$p['scheme']}:" : '',
@@ -6934,7 +6953,11 @@ endif;
 	 * Will return true if a user has clicked to register, or is already connected.
 	 */
 	public static function jetpack_tos_agreed() {
-		return Jetpack_Options::get_option( 'tos_agreed' ) || self::is_active();
+		_deprecated_function( 'Jetpack::jetpack_tos_agreed', 'Jetpack 7.9.0', '\Automattic\Jetpack\Terms_Of_Service->has_agreed' );
+
+		$terms_of_service = new Terms_Of_Service();
+		return $terms_of_service->has_agreed();
+
 	}
 
 	/**
@@ -7041,7 +7064,14 @@ endif;
 		}
 	}
 
-	function is_active_and_not_development_mode( $maybe ) {
+	/**
+	 * Checks if a Jetpack site is both active and not in development.
+	 *
+	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Jetpack::is_development_mode`.
+	 *
+	 * @return bool True if Jetpack is active and not in development.
+	 */
+	public static function is_active_and_not_development_mode() {
 		if ( ! self::is_active() || self::is_development_mode() ) {
 			return false;
 		}

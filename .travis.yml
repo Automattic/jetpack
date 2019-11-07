@@ -12,6 +12,7 @@ php:
 - "7.0"
 - "7.2"
 - "7.3"
+# 7.4 can not be included here until 5.3 is the "previous" version of WP.
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -27,6 +28,7 @@ env:
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 matrix:
+  fast_finish: true
   include:
   - if: branch !~ /(^branch-.*-built)/
     name: "JavaScript & CSS lint"
@@ -40,6 +42,11 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
+  - php: "nightly"
+    name: "PHP Nightly"
+  - php: "7.4snapshot"
+    env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
+    # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
   - php: "7.0"
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
@@ -51,8 +58,7 @@ matrix:
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
     script:
-    - find $(pwd)/tests/e2e/specs/*.js > ~/.jest-e2e-tests
-    - yarn test-e2e --runInBand --verbose --runTestsByPath $(cat ~/.jest-e2e-tests )
+    - yarn test-e2e --runInBand --verbose
     addons:
       apt:
         packages:
@@ -60,8 +66,10 @@ matrix:
           # This is required to run new chrome on old trusty
           - libnss3
 
+
   allow_failures:
     - name: "E2E tests"
+    - name: "PHP Nightly"
 
 cache:
   directories:
@@ -85,7 +93,7 @@ git:
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - composer install
+  - composer install --ignore-platform-reqs
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh

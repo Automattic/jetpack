@@ -130,7 +130,14 @@ class MailchimpSubscribeEdit extends Component {
 	render = () => {
 		const { attributes, className, notices, noticeUI, setAttributes } = this.props;
 		const { audition, connected, connectURL } = this.state;
-		const { emailPlaceholder, consentText, processingLabel, successLabel, errorLabel } = attributes;
+		const {
+			emailPlaceholder,
+			consentText,
+			processingLabel,
+			successLabel,
+			errorLabel,
+			preview,
+		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp_';
 		const waiting = (
 			<Placeholder icon={ icon } notices={ notices }>
@@ -220,13 +227,16 @@ class MailchimpSubscribeEdit extends Component {
 				) }
 			</div>
 		);
+		const previewUI = blockContent;
+
 		return (
 			<Fragment>
 				{ noticeUI }
-				{ connected === API_STATE_LOADING && waiting }
-				{ connected === API_STATE_NOTCONNECTED && placeholder }
-				{ connected === API_STATE_CONNECTED && inspectorControls }
-				{ connected === API_STATE_CONNECTED && blockContent }
+				{ preview && previewUI }
+				{ ! preview && connected === API_STATE_LOADING && waiting }
+				{ ! preview && connected === API_STATE_NOTCONNECTED && placeholder }
+				{ ! preview && connected === API_STATE_CONNECTED && inspectorControls }
+				{ ! preview && connected === API_STATE_CONNECTED && blockContent }
 			</Fragment>
 		);
 	};

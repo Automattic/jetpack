@@ -79,8 +79,7 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
-	function __construct() {
-		$args = func_get_args();
+	function __construct( ...$args ) {
 		call_user_func_array( array( $this, 'setup_inputs' ), $args );
 	}
 
@@ -96,7 +95,7 @@ class WPCOM_JSON_API {
 			$this->url = $url;
 		}
 
-		$parsed = parse_url( $this->url );
+		$parsed = wp_parse_url( $this->url );
 		if ( ! empty( $parsed['path'] ) ) {
 			$this->path = $parsed['path'];
 		}

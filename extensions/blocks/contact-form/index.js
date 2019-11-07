@@ -56,6 +56,18 @@ export const settings = {
 			type: 'string',
 			default: null,
 		},
+		customThankyou: {
+			type: 'string',
+			default: '',
+		},
+		customThankyouMessage: {
+			type: 'string',
+			default: '',
+		},
+		customThankyouRedirect: {
+			type: 'string',
+			default: '',
+		},
 
 		// Deprecated
 		has_form_settings_set: {
@@ -70,6 +82,40 @@ export const settings = {
 
 	edit: JetpackContactForm,
 	save: () => <InnerBlocks.Content />,
+	example: {
+		attributes: {
+			hasFormSettingsSet: true,
+			submitButtonText: __( 'Submit', 'jetpack' ),
+		},
+		innerBlocks: [
+			{
+				name: 'jetpack/field-name',
+				attributes: {
+					label: __( 'Name', 'jetpack' ),
+					required: true,
+				},
+			},
+			{
+				name: 'jetpack/field-email',
+				attributes: {
+					label: __( 'Email', 'jetpack' ),
+					required: true,
+				},
+			},
+			{
+				name: 'jetpack/field-url',
+				attributes: {
+					label: __( 'Website', 'jetpack' ),
+				},
+			},
+			{
+				name: 'jetpack/field-textarea',
+				attributes: {
+					label: __( 'Message', 'jetpack' ),
+				},
+			},
+		],
+	},
 	deprecated: [
 		{
 			attributes: {
@@ -101,7 +147,10 @@ export const settings = {
 
 			isEligible: attr => {
 				// when the deprecated, snake_case values are default, no need to migrate
-				if ( ! attr.has_form_settings_set && attr.submit_button_text === 'Submit' ) {
+				if (
+					! attr.has_form_settings_set &&
+					( ! attr.submit_button_text || attr.submit_button_text === 'Submit' )
+				) {
 					return false;
 				}
 				return true;

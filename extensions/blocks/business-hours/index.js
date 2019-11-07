@@ -16,6 +16,62 @@ import renderMaterialIcon from '../../shared/render-material-icon';
  * Block Registrations:
  */
 
+const defaultDays = [
+	{
+		name: 'Sun',
+		hours: [], // Closed by default
+	},
+	{
+		name: 'Mon',
+		hours: [
+			{
+				opening: '09:00',
+				closing: '17:00',
+			},
+		],
+	},
+	{
+		name: 'Tue',
+		hours: [
+			{
+				opening: '09:00',
+				closing: '17:00',
+			},
+		],
+	},
+	{
+		name: 'Wed',
+		hours: [
+			{
+				opening: '09:00',
+				closing: '17:00',
+			},
+		],
+	},
+	{
+		name: 'Thu',
+		hours: [
+			{
+				opening: '09:00',
+				closing: '17:00',
+			},
+		],
+	},
+	{
+		name: 'Fri',
+		hours: [
+			{
+				opening: '09:00',
+				closing: '17:00',
+			},
+		],
+	},
+	{
+		name: 'Sat',
+		hours: [], // Closed by default
+	},
+];
+
 export const name = 'business-hours';
 
 export const icon = renderMaterialIcon(
@@ -38,65 +94,17 @@ export const settings = {
 	attributes: {
 		days: {
 			type: 'array',
-			default: [
-				{
-					name: 'Sun',
-					hours: [], // Closed by default
-				},
-				{
-					name: 'Mon',
-					hours: [
-						{
-							opening: '09:00',
-							closing: '17:00',
-						},
-					],
-				},
-				{
-					name: 'Tue',
-					hours: [
-						{
-							opening: '09:00',
-							closing: '17:00',
-						},
-					],
-				},
-				{
-					name: 'Wed',
-					hours: [
-						{
-							opening: '09:00',
-							closing: '17:00',
-						},
-					],
-				},
-				{
-					name: 'Thu',
-					hours: [
-						{
-							opening: '09:00',
-							closing: '17:00',
-						},
-					],
-				},
-				{
-					name: 'Fri',
-					hours: [
-						{
-							opening: '09:00',
-							closing: '17:00',
-						},
-					],
-				},
-				{
-					name: 'Sat',
-					hours: [], // Closed by default
-				},
-			],
+			default: defaultDays,
 		},
 	},
 
 	edit: props => <BusinessHours { ...props } />,
 
 	save: () => null,
+
+	example: {
+		attributes: {
+			days: defaultDays,
+		},
+	},
 };

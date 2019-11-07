@@ -13,6 +13,7 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
+bin/phpcs-changed.sh
 bin/phpcs-whitelist.js
 bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
@@ -32,6 +33,7 @@ vendor/squizlabs
 vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
 vendor/automattic/**/tests/
+vendor/automattic/**/.gitattributes
 vendor/automattic/**/README.md
 vendor/automattic/**/phpunit.xml
 vendor/automattic/**/phpunit.xml.dist

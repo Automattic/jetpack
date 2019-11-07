@@ -50,6 +50,9 @@ export const settings = {
 	},
 	edit,
 	save,
+	example: {
+		attributes: {},
+	},
 	deprecated: [
 		{
 			attributes: {

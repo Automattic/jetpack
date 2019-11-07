@@ -9,6 +9,17 @@
 	<rule ref="WordPress-Extra" />
 	<rule ref="VariableAnalysis" />
 
+	<!-- Elevate undefined variables to an Error instead of a Warning. -->
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
+		<type>error</type>
+	</rule>
+
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<properties>
+			<property name="allowWordPressPassByRefFunctions" value="true" />
+		</properties>
+	</rule>
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array" value="jetpack" />

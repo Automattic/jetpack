@@ -1019,13 +1019,13 @@ class Jetpack_Photon {
 	 * @return bool
 	 */
 	protected static function validate_image_url( $url ) {
-		$parsed_url = @parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 
 		if ( ! $parsed_url ) {
 			return false;
 		}
 
-		// Parse URL and ensure needed keys exist, since the array returned by `parse_url` only includes the URL components it finds.
+		// Parse URL and ensure needed keys exist, since the array returned by `wp_parse_url` only includes the URL components it finds.
 		$url_info = wp_parse_args(
 			$parsed_url,
 			array(
@@ -1221,8 +1221,8 @@ class Jetpack_Photon {
 				'_inc/build/photon/photon.min.js',
 				'modules/photon/photon.js'
 			),
-			array( 'wp-dom-ready' ),
-			20190901,
+			array(),
+			20191001,
 			true
 		);
 	}

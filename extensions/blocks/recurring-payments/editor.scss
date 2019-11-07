@@ -1,4 +1,5 @@
 @import './view.scss';
+@import '../../shared/styles/gutenberg-colors.scss';
 @import '../../shared/styles/gutenberg-variables.scss';
 
 .wp-block-jetpack-recurring-payments {
@@ -39,7 +40,6 @@
 	}
 
 	.membership-button {
-		
 		&__add-amount {
 			margin-right: 4px;
 		}
@@ -56,7 +56,7 @@
 		&__field-button {
 			margin-right: 4px;
 		}
-	
+
 		&__field-currency {
 			width: 30%;
 		}
@@ -77,8 +77,23 @@
 		}
 	}
 
+	&.disclaimer-only {
+		box-sizing: content-box;
+		font-size: 13px;
+		margin: 0 -14px;
+		padding: 14px;
+		text-align: center;
+		transform: translateY( 14px );
+
+		// Use opacity to work in various editor styles.
+		background: $dark-opacity-light-200;
+
+		.is-dark-theme & {
+			background: $light-opacity-light-200;
+		}
+	}
+
 	.wp-block-jetpack-membership-button_notification {
 		display: block;
 	}
-
 }

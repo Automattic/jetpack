@@ -7,11 +7,24 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Terms_Of_Service;
+
 /**
  * The Tracking class, used to record events in wpcom
  */
 class Tracking {
+	/**
+	 * Slug of the product that we are tracking.
+	 *
+	 * @var string
+	 */
 	private $product_name;
+
+	/**
+	 * Connection manager object.
+	 *
+	 * @var Object
+	 */
 	private $connection;
 
 	/**
@@ -20,7 +33,7 @@ class Tracking {
 	 * @param String                                $product_name the slug of the product that we are tracking.
 	 * @param Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
 	 */
-	function __construct( $product_name = 'jetpack', $connection = null ) {
+	public function __construct( $product_name = 'jetpack', $connection = null ) {
 		$this->product_name = $product_name;
 		$this->connection   = $connection;
 		if ( is_null( $this->connection ) ) {
@@ -29,7 +42,10 @@ class Tracking {
 		}
 	}
 
-	function enqueue_tracks_scripts() {
+	/**
+	 * Enqueue script necessary for tracking.
+	 */
+	public function enqueue_tracks_scripts() {
 		wp_enqueue_script( 'jptracks', plugins_url( '_inc/lib/tracks/tracks-ajax.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION, true );
 		wp_localize_script(
 			'jptracks',
@@ -41,7 +57,14 @@ class Tracking {
 		);
 	}
 
-	function record_user_event( $event_type, $data = array(), $user = null ) {
+	/**
+	 * Send an event in Tracks.
+	 *
+	 * @param string $event_type Type of the event.
+	 * @param array  $data       Data to send with the event.
+	 * @param mixed  $user       username, user_id, or WP_user object.
+	 */
+	public function record_user_event( $event_type, $data = array(), $user = null ) {
 		if ( ! $user ) {
 			$user = wp_get_current_user();
 		}
@@ -53,8 +76,8 @@ class Tracking {
 		$data['blog_url'] = $site_url;
 		$data['blog_id']  = \Jetpack_Options::get_option( 'id' );
 
-		// Top level events should not be namespaced
-		if ( '_aliasUser' != $event_type ) {
+		// Top level events should not be namespaced.
+		if ( '_aliasUser' !== $event_type ) {
 			$event_type = $this->product_name . '_' . $event_type;
 		}
 
@@ -66,17 +89,22 @@ class Tracking {
 	/**
 	 * Record an event in Tracks - this is the preferred way to record events from PHP.
 	 *
-	 * @param mixed  $identity username, user_id, or WP_user object
-	 * @param string $event_name The name of the event
-	 * @param array  $properties Custom properties to send with the event
-	 * @param int    $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
+	 * @param mixed  $user                   username, user_id, or WP_user object.
+	 * @param string $event_name             The name of the event.
+	 * @param array  $properties             Custom properties to send with the event.
+	 * @param int    $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
 	 *
 	 * @return bool true for success | \WP_Error if the event pixel could not be fired
 	 */
-	function tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+	public function tracks_record_event( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 
 		// We don't want to track user events during unit tests/CI runs.
 		if ( $user instanceof \WP_User && 'wptests_capabilities' === $user->cap_key ) {
+			return false;
+		}
+		$terms_of_service = new Terms_Of_Service();
+		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
+		if ( ! $terms_of_service->has_agreed() ) {
 			return false;
 		}
 
@@ -93,14 +121,14 @@ class Tracking {
 	 * Procedurally build a Tracks Event Object.
 	 * NOTE: Use this only when the simpler Automattic\Jetpack\Tracking->jetpack_tracks_record_event() function won't work for you.
 	 *
-	 * @param $identity WP_user object
-	 * @param string                  $event_name The name of the event
-	 * @param array                   $properties Custom properties to send with the event
-	 * @param int                     $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred
+	 * @param WP_user $user                   WP_user object.
+	 * @param string  $event_name             The name of the event.
+	 * @param array   $properties             Custom properties to send with the event.
+	 * @param int     $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
 	 *
 	 * @return \Jetpack_Tracks_Event|\WP_Error
 	 */
-	function tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
+	private function tracks_build_event_obj( $user, $event_name, $properties = array(), $event_timestamp_millis = false ) {
 		$identity = $this->tracks_get_identity( $user->ID );
 
 		$properties['user_lang'] = $user->get( 'WPLANG' );
@@ -109,7 +137,7 @@ class Tracking {
 			'blog_lang' => isset( $properties['blog_lang'] ) ? $properties['blog_lang'] : get_bloginfo( 'language' ),
 		);
 
-		$timestamp        = ( $event_timestamp_millis !== false ) ? $event_timestamp_millis : round( microtime( true ) * 1000 );
+		$timestamp        = ( false !== $event_timestamp_millis ) ? $event_timestamp_millis : round( microtime( true ) * 1000 );
 		$timestamp_string = is_string( $timestamp ) ? $timestamp : number_format( $timestamp, 0, '', '' );
 
 		return new \Jetpack_Tracks_Event(
@@ -128,13 +156,13 @@ class Tracking {
 	/**
 	 * Get the identity to send to tracks.
 	 *
-	 * @param int $user_id The user id of the local user
+	 * @param int $user_id The user id of the local user.
 	 *
 	 * @return array $identity
 	 */
-	function tracks_get_identity( $user_id ) {
+	public function tracks_get_identity( $user_id ) {
 
-		// Meta is set, and user is still connected.  Use WPCOM ID
+		// Meta is set, and user is still connected.  Use WPCOM ID.
 		$wpcom_id = get_user_meta( $user_id, 'jetpack_tracks_wpcom_id', true );
 		if ( $wpcom_id && $this->connection->is_user_connected( $user_id ) ) {
 			return array(

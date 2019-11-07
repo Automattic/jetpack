@@ -44,8 +44,13 @@
 	/**
 	 * Check both when page loads, and when IS is triggered.
 	 */
-	if ( typeof window !== 'undefined' ) {
-		window.wp.domReady( restore_dims );
+	if ( typeof window !== 'undefined' && typeof document !== 'undefined' ) {
+		// `DOMContentLoaded` may fire before the script has a chance to run
+		if ( document.readyState === 'loading' ) {
+			document.addEventListener( 'DOMContentLoaded', restore_dims );
+		} else {
+			restore_dims();
+		}
 	}
 
 	document.body.addEventListener( 'post-load', restore_dims );

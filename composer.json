@@ -8,34 +8,38 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"ext-openssl": "*",
 		"ext-fileinfo": "*",
 		"ext-json": "*",
+		"ext-openssl": "*",
 		"automattic/jetpack-abtest": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-backup": "@dev",
+		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-tracking": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-compat": "@dev"
+		"automattic/jetpack-terms-of-service": "@dev",
+		"automattic/jetpack-tracking": "@dev"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
-		"wp-coding-standards/wpcs": "2.1.1",
+		"phpcompatibility/phpcompatibility-wp": "2.1.0",
+		"sirbrillig/phpcs-changed": "2.2.7-beta-1@dev",
 		"sirbrillig/phpcs-variable-analysis": "2.7.0",
-		"phpcompatibility/phpcompatibility-wp": "2.1.0"
+		"wp-coding-standards/wpcs": "2.1.1"
 	},
 	"scripts": {
-		"php:compatibility": "composer install && vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
-		"php:lint": "composer install && vendor/bin/phpcs -p -s",
-		"php:autofix": "composer install && vendor/bin/phpcbf",
-		"php:lint:errors": "composer install && vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
+		"php:compatibility": "composer install --ignore-platform-reqs && vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
+		"php:lint": "composer install --ignore-platform-reqs && vendor/bin/phpcs -p -s",
+		"php:autofix": "composer install --ignore-platform-reqs && vendor/bin/phpcbf",
+		"php:lint:errors": "composer install --ignore-platform-reqs && vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
+		"php:changed": "composer install && bin/phpcs-changed.sh"
 	},
 	"repositories": [
 		{
@@ -49,5 +53,8 @@
 		]
 	},
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"config": {
+		"sort-packages": true
+	}
 }

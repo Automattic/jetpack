@@ -189,6 +189,8 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
 		}
 
+		$number_of_items = absint( $args[ 'number_of_items' ] );
+
 		$queue = new Queue( $queue_name );
 
 		if ( 0 === $queue->size() ) {
@@ -200,13 +202,15 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		// try to give ourselves as much time as possible
 		set_time_limit( 0 );
 
-		// let's delete the checkin state
-		if ( $args['force'] ) {
-			$queue->unlock();
+		if ( $args['pop'] ) {
+			$buffer = new Queue_Buffer( 'pop', $queue->pop( $number_of_items ) );
+		} else {
+			// let's delete the checkin state
+			if ( $args['force'] ) {
+				$queue->unlock();
+			}
+			$buffer = $this->get_buffer( $queue, $number_of_items );
 		}
-
-		$buffer = $this->get_buffer( $queue, $args[ 'number_of_items' ] );
-
 		// Check that the $buffer is not checkout out already
 		if ( is_wp_error( $buffer ) ) {
 			return new WP_Error( 'buffer_open', "We couldn't get the buffer it is currently checked out", 400 );
