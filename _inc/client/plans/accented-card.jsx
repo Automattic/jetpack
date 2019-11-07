@@ -3,6 +3,8 @@
  */
 import React from 'react';
 
+import './accented-card.scss';
+
 const AccentedCard = props => {
 	const { header, body } = props.children;
 
