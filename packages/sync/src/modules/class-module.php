@@ -333,7 +333,7 @@ abstract class Module {
 	 * @param string $action_name The action.
 	 * @param array  $data The data associated with the action.
 	 */
-	protected function send_action( $action_name, $data ) {
+	public function send_action( $action_name, $data ) {
 		$sender = Sender::get_instance();
 
 		// Compose the data to be sent.
