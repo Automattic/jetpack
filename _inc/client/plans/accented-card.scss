@@ -12,10 +12,8 @@
 		font-size: 17px;
 	}
 
-	// TODO: this should be in a more generic place somehow
-	&.is-backup-daily-plan {
-		border-bottom: solid 2px $blue-medium;
-	}
+	// TODO: make the color dynamic via a prop or something
+	border-bottom: solid 2px $blue-medium;
 }
 
 .accented-card__body {
