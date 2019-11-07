@@ -11,7 +11,7 @@ import { AccentedCard } from './accented-card';
 import Gridicon from 'components/gridicon';
 
 export function SingleProductBackup( props ) {
-	const { sitePlans } = props;
+	const { sitePlans, siteRawUrl } = props;
 
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 
@@ -30,6 +30,7 @@ export function SingleProductBackup( props ) {
 								selectedBackupType={ selectedBackupType }
 								setSelectedBackupType={ setSelectedBackupType }
 								sitePlans={ sitePlans }
+								siteRawUrl={ siteRawUrl }
 							/>
 						),
 					} }
@@ -94,11 +95,11 @@ function SlashedPrice() {
 }
 
 function SingleProductBackupBody( props ) {
-	const { selectedBackupType, setSelectedBackupType, sitePlans } = props;
+	const { selectedBackupType, setSelectedBackupType, sitePlans, siteRawUrl } = props;
 
 	const upgradeLinks = {
-		'real-time': 'https://wordpress.com/jetpack/connect/pro',
-		daily: 'https://wordpress.com/jetpack/connect/premium',
+		'real-time': `https://wordpress.com/checkout/${ siteRawUrl }/professional`,
+		daily: `https://wordpress.com/checkout/${ siteRawUrl }/premium`,
 	};
 
 	const upgradeTitles = {

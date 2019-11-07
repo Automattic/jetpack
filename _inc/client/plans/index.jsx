@@ -11,17 +11,18 @@ import { get } from 'lodash';
 import PlanGrid from './plan-grid';
 import { SingleProductBackup } from './single-product-backup';
 import QuerySite from 'components/data/query-site';
+import { getSiteRawUrl } from 'state/initial-state';
 import { getAvailablePlans, getSitePlan } from 'state/site';
 
 export class Plans extends React.Component {
 	render() {
-		const { sitePlans } = this.props;
+		const { sitePlans, siteRawUrl } = this.props;
 
 		return (
 			<>
 				<QuerySite />
 				{ 'jetpack_free' === get( this.props.sitePlan, 'product_slug', 'jetpack_free' ) &&
-					sitePlans && <SingleProductBackup sitePlans={ sitePlans } /> }
+					sitePlans && <SingleProductBackup sitePlans={ sitePlans } siteRawUrl={ siteRawUrl } /> }
 				<PlanGrid />
 			</>
 		);
@@ -33,6 +34,7 @@ export default connect( state => {
 		// TODO: remove faked data before releasing
 		sitePlan: getSitePlan( state ),
 		sitePlans: addFakedSitePlans( getAvailablePlans( state ) ),
+		siteRawUrl: getSiteRawUrl( state ),
 	};
 } )( Plans );
 
