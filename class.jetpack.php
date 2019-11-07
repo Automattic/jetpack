@@ -1551,9 +1551,14 @@ class Jetpack {
 	}
 
 	/**
-	 * Is Jetpack in development (offline) mode?
+	 * Deprecated: Is Jetpack in development (offline) mode?
 	 *
-	 * @deprecated since 8.0
+	 * This static method is being left here intentionally without the use of _deprecated_function(), as other plugins
+	 * and themes still use it, and we do not want to flood them with notices.
+	 *
+	 * Please use Automattic\Jetpack\Status()->is_development_mode() instead.
+	 *
+	 * @deprecated since 8.0.
 	 */
 	public static function is_development_mode() {
 		return ( new Status() )->is_development_mode();
