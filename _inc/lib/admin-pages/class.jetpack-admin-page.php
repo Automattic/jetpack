@@ -161,9 +161,8 @@ abstract class Jetpack_Admin_Page {
 	 * @return array
 	 */
 	function check_plan_deactivate_modules( $page ) {
-		$status = new Status();
 		if (
-			$status->is_development_mode()
+			( new Status() )->is_development_mode()
 			|| ! in_array(
 				$page->base,
 				array(
@@ -359,10 +358,9 @@ abstract class Jetpack_Admin_Page {
 	 * Note that the Jetpack Dashboard may append additional links to that list.
 	 */
 	public static function render_footer() {
-		$status = new Status();
 		$admin_url = admin_url( 'admin.php?page=jetpack' );
 
-		$is_dev_mode_or_connected = Jetpack::is_active() || $status->is_development_mode();
+		$is_dev_mode_or_connected = Jetpack::is_active() || ( new Status() )->is_development_mode();
 
 		$privacy_url = ( $is_dev_mode_or_connected )
 			? $admin_url . '#/privacy'

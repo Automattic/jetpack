@@ -37,8 +37,7 @@ function sharedaddy_loaded() {
  * @return string Sharing config URL
  */
 function jetpack_sharedaddy_configuration_url() {
-	$status = new Status();
-	if ( $status->is_development_mode() || Jetpack::is_staging_site() || ! Jetpack::is_user_connected() ) {
+	if ( ( new Status() )->is_development_mode() || Jetpack::is_staging_site() || ! Jetpack::is_user_connected() ) {
 		return admin_url( 'options-general.php?page=sharing' );
 	}
 

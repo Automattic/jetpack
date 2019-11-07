@@ -53,8 +53,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
-		$status = new Status();
-		if ( $status->is_development_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
 			if ( current_user_can( 'jetpack_admin_page' ) ) {
 				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
@@ -68,8 +67,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		$status = new Status();
-		if ( ( $status->is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
+		if ( ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
@@ -150,8 +148,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
-		$status = new Status();
-		$is_development_mode = $status->is_development_mode();
+		$is_development_mode = ( new Status() )->is_development_mode();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.deps.json';
 		$script_dependencies = file_exists( $script_deps_path )
 			? json_decode( file_get_contents( $script_deps_path ) )
@@ -183,7 +180,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		$moduleListEndpoint = new Jetpack_Core_API_Module_List_Endpoint();
 		$modules = $moduleListEndpoint->get_modules();
-		$status = new Status();
 
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
@@ -240,7 +236,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isActive'  => Jetpack::is_active(),
 				'isStaging' => Jetpack::is_staging_site(),
 				'devMode'   => array(
-					'isActive' => $status->is_development_mode(),
+					'isActive' => ( new Status() )->is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),

@@ -292,10 +292,9 @@ class Jetpack_Debugger {
 					</div>
 				<?php endif; ?>
 				<?php
-				$status = new Status();
 				if (
 					current_user_can( 'jetpack_manage_modules' )
-					&& ( $status->is_development_mode() || Jetpack::is_active() )
+					&& ( ( new Status() )->is_development_mode() || Jetpack::is_active() )
 				) {
 					printf(
 						wp_kses(

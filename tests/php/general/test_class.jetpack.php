@@ -586,16 +586,14 @@ EXPECTED;
 	}
 
 	function test_is_development_mode_filter() {
-		$status = new Status();
 		add_filter( 'jetpack_development_mode', '__return_true' );
-		$this->assertTrue( $status->is_development_mode() );
+		$this->assertTrue( ( new Status() )->is_development_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
 	function test_is_development_mode_bool() {
-		$status = new Status();
 		add_filter( 'jetpack_development_mode', '__return_zero' );
-		$this->assertFalse( $status->is_development_mode() );
+		$this->assertFalse( ( new Status() )->is_development_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_zero' );
 	}
 

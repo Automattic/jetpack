@@ -74,11 +74,10 @@ class Jetpack_Admin {
 	// presentation like description, name, configuration url, etc.
 	function get_modules() {
 		include_once JETPACK__PLUGIN_DIR . 'modules/module-info.php';
-		$status = new Status();
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || $status->is_development_mode();
+		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_development_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -199,8 +198,7 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		$status = new Status();
-		if ( $status->is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
 			if ( ! Jetpack::is_active() ) {

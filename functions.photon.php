@@ -33,8 +33,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		 *
 		 * @param bool false Result of Automattic\Jetpack\Status->is_development_mode().
 		 */
-		$status = new Status();
-		if ( true === apply_filters( 'jetpack_photon_development_mode', $status->is_development_mode() ) ) {
+		if ( true === apply_filters( 'jetpack_photon_development_mode', ( new Status() )->is_development_mode() ) ) {
 			return $image_url;
 		}
 	}

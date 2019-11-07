@@ -269,8 +269,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$display_filters = false;
 
-		$status = new Status();
-		if ( $status->is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			echo $args['before_widget'];
 			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
 				<div class="jetpack-search-sort-wrapper">

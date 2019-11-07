@@ -144,11 +144,10 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		}
 
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			$status = new Status();
 			/**
 			 * If Jetpack is not active or in development mode, we don't want to update widget data.
 			 */
-			if ( ! Jetpack::is_active() && ! $status->is_development_mode() ) {
+			if ( ! Jetpack::is_active() && ! ( new Status() )->is_development_mode() ) {
 				return false;
 			}
 

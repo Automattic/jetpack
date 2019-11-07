@@ -23,8 +23,7 @@ class Jetpack_Affiliate {
 	private static $instance = null;
 
 	private function __construct() {
-		$status = new Status();
-		if ( $status->is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			return;
 		}
 	}

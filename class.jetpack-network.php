@@ -433,8 +433,7 @@ class Jetpack_Network {
 			return;
 		}
 
-		$status = new Status();
-		if ( $status->is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			return;
 		}
 
@@ -545,8 +544,7 @@ class Jetpack_Network {
 		restore_current_blog();
 
 		// If we are in dev mode, just show the notice and bail.
-		$status = new Status();
-		if ( $status->is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			Jetpack::show_development_mode_notice();
 			return;
 		}
