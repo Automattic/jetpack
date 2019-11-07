@@ -11,9 +11,11 @@ import Cache from 'cache';
  * Internal dependencies
  */
 import { getFilterKeys } from './query-string';
+import { FIVE_MINUTES_IN_MILLISECONDS } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
-const apiCache = new Cache( 300 * 1000 ); //5 min TTL fully in memory cache
+// Cache contents evicted after 5 minutes (TTL)
+const apiCache = new Cache( FIVE_MINUTES_IN_MILLISECONDS );
 
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
