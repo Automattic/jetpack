@@ -21,6 +21,7 @@ import {
 	getFilterQuery,
 	getSearchQuery,
 	getSortQuery,
+	getResultFormatQuery,
 	hasFilter,
 	restorePreviousHref,
 } from '../lib/query-string';
@@ -28,24 +29,37 @@ import { removeChildren, hideElements, hideChildren, showChildren } from '../lib
 
 class SearchApp extends Component {
 	static defaultProps = {
-		resultFormat: 'minimal',
 		widgets: [],
 	};
 
 	constructor() {
 		super( ...arguments );
 		this.input = createRef();
-		this.state = { isLoading: false, response: {}, requestId: 0, showResults: false };
+		this.state = {
+			isLoading: false,
+			response: {},
+			requestId: 0,
+			showResults: false,
+		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
 	}
 
 	componentDidMount() {
-		this.getResults( getSearchQuery(), getFilterQuery(), this.props.initialSort, null );
+		this.getResults(
+			getSearchQuery(),
+			getFilterQuery(),
+			this.props.initialSort,
+			getResultFormatQuery(),
+			null
+		);
+
 		this.getResults.flush();
+
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
 		}
+
 		if ( this.props.grabFocus ) {
 			this.input.current.focus();
 		}
@@ -53,6 +67,7 @@ class SearchApp extends Component {
 		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 	}
+
 	componentWillUnmount() {
 		window.removeEventListener( 'popstate', this.onChangeQueryString );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
@@ -101,7 +116,13 @@ class SearchApp extends Component {
 		} else {
 			this.hideResults();
 		}
-		this.getResults( getSearchQuery(), getFilterQuery(), getSortQuery(), null );
+		this.getResults(
+			getSearchQuery(),
+			getFilterQuery(),
+			getSortQuery(),
+			getResultFormatQuery(),
+			null
+		);
 	};
 
 	loadNextPage = () => {
@@ -110,11 +131,12 @@ class SearchApp extends Component {
 				getSearchQuery(),
 				getFilterQuery(),
 				getSortQuery(),
+				getResultFormatQuery(),
 				this.state.response.page_handle
 			);
 	};
 
-	getResults = ( query, filter, sort, pageHandle ) => {
+	getResults = ( query, filter, sort, resultFormat, pageHandle ) => {
 		const requestId = this.state.requestId + 1;
 
 		this.setState( { requestId, isLoading: true }, () => {
@@ -124,7 +146,7 @@ class SearchApp extends Component {
 				filter,
 				pageHandle,
 				query,
-				resultFormat: this.props.options.resultFormat,
+				resultFormat,
 				siteId: this.props.options.siteId,
 				sort,
 			} ).then( newResponse => {
@@ -162,6 +184,7 @@ class SearchApp extends Component {
 			/>
 		) );
 	}
+
 	renderSearchForms() {
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.searchFormSelector )
@@ -195,7 +218,7 @@ class SearchApp extends Component {
 							locale={ this.props.options.locale }
 							query={ getSearchQuery() }
 							response={ this.state.response }
-							resultFormat={ this.props.options.resultFormat }
+							resultFormat={ getResultFormatQuery() }
 							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 						/>,
 						document.querySelector( this.props.themeOptions.resultsSelector )

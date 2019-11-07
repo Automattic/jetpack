@@ -118,30 +118,28 @@ function buildFilterObject( filterQuery ) {
 }
 
 export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
-	let fields = [];
-	let highlight_fields = [];
+	let fields = [
+		'date',
+		'permalink.url.raw',
+		'tag.name.default',
+		'category.name.default',
+		'post_type',
+		'has.image',
+		'shortcode_types',
+	];
+	const highlightFields = [ 'title', 'content', 'comments' ];
+
 	switch ( resultFormat ) {
 		case 'engagement':
 		case 'product':
-		case 'minimal':
-		default:
-			highlight_fields = [ 'title', 'content', 'comments' ];
-			fields = [
-				'date',
-				'permalink.url.raw',
-				'tag.name.default',
-				'category.name.default',
-				'post_type',
-				'has.image',
-				'shortcode_types',
-			];
+			fields = fields.concat( [ 'image.url.raw', 'wc.price' ] );
 	}
 
 	const queryString = encode(
 		flatten( {
 			aggregations,
 			fields,
-			highlight_fields,
+			highlight_fields: highlightFields,
 			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
 			sort,

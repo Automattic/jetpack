@@ -11,8 +11,16 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from './constants';
+import {
+	SERVER_OBJECT_NAME,
+	SORT_DIRECTION_ASC,
+	SORT_DIRECTION_DESC,
+	RESULT_FORMAT_MINIMAL,
+	RESULT_FORMAT_PRODUCT,
+} from './constants';
 import { getSortOption } from './sort';
+
+const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
@@ -187,4 +195,14 @@ export function setFilterQuery( filterKey, filterValue ) {
 	const query = getQuery();
 	query[ filterKey ] = filterValue;
 	pushQueryString( encode( query ) );
+}
+
+export function getResultFormatQuery() {
+	const query = getQuery();
+
+	if ( knownResultFormats.includes( query.result_format ) ) {
+		return query.result_format;
+	}
+
+	return RESULT_FORMAT_MINIMAL;
 }
