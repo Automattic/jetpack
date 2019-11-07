@@ -368,11 +368,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_send_immediately_skips_queue() {
-		$this->full_sync->reset_data();
-
-		$posts_count = 100;
 		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
 
+		$posts_count = 100;
 		$this->factory->post->create_many( $posts_count );
 
 		$this->full_sync->start( ['posts' =>  true ] );
