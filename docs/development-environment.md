@@ -1,6 +1,6 @@
 # Development Environment
 
-The javascript and CSS components of this plugin's admin interface need to be built in order to get the runtime bundle (`_inc/build/admin.js`)
+The JavaScript and CSS components of this plugin's admin interface need to be built in order to get the run time bundle (`_inc/build/admin.js`)
 
 ## Before moving forward
 
@@ -45,7 +45,7 @@ $ yarn distclean
 	$ git clone git@github.com:Automattic/jetpack.git
 	$ cd jetpack
 	```
- You'll need to have a public SSH key setup with Github, which is more secure than saving your password in yor keychain.
+ You'll need to have a public SSH key setup with GitHub, which is more secure than saving your password in your keychain.
  There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
 
 3. [Install Composer](#installing-composer).
@@ -63,7 +63,7 @@ $ yarn distclean
 
 ## Development build
 
-The development build will create a build without minifying or deduping code. It will also install dependencies for you, so you don't need to `yarn` before it.
+The development build will create a build without minifying or de-duping code. It will also install dependencies for you, so you don't need to `yarn` before it.
 
 ```
 $ yarn build
@@ -72,7 +72,7 @@ $ yarn build
 ## Development build with changes monitoring (watch)
 
 You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-Instead of `yarn build` you'd use `yarn watch`. `yarn watch` will fully build Jetpack and update the React-powered admin and CSS/Saas.
+Instead of `yarn build` you'd use `yarn watch`. `yarn watch` will fully build Jetpack and update the React-powered admin and CSS/SASS.
 
 ```
 $ yarn watch
@@ -80,7 +80,7 @@ $ yarn watch
 
 ## Production build
 
-The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching sourcemap and language files.
+The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files.
 
 ```
 $ NODE_ENV=production yarn build-client
@@ -104,7 +104,7 @@ Set the database information for your testing DB in the file `/tmp/wordpress-dev
 
 To run tests on your machine, you can run `phpunit` while in the Jetpack directory.
 
-To run Woocommerce integration tests, you'll need the woocommerce plugin installed alongside Jetpack (in `../woocommerce`), and you can run:
+To run WooCommerce integration tests, you'll need the WooCommerce plugin installed alongside Jetpack (in `../woocommerce`), and you can run:
 
 ```
 JETPACK_TEST_WOOCOMMERCE=1 phpunit
@@ -234,7 +234,7 @@ $ yarn php:compatibility .
 
 `yarn lint` will check syntax and style in the following JavaScript pieces:
 
-* All the frontend JavaScript that Jetpack relies on.
+* All the front end JavaScript that Jetpack relies on.
 * All the JavaScript present in the Admin Page Single Page App for Jetpack.
 
 ```sh
@@ -265,7 +265,7 @@ By default, WordPress loads minified versions of Jetpack's JS files. If you want
 
 ### WP-CLI
 
-Jetpack CLI is a command line interface for Jetpack, extending off of wp-cli for WordPress. You can easily modify your installation of Jetpack with a just a few simple commands. All you need is SSH access and a basic understanding of command line tools.
+Jetpack CLI is a command line interface for Jetpack, extending off of WP-CLI for WordPress. You can easily modify your installation of Jetpack with a just a few simple commands. All you need is SSH access and a basic understanding of command line tools.
 
 Usage:
 
