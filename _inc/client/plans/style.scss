@@ -319,8 +319,7 @@ $plan-features-sidebar-width: 272px;
 	color: #a7aaad;
 }
 
-.plans-section__radio-toggle {
-	// min-width: 150px;
+.plan-radio-button__container {
 	display: inline-grid;
 	grid-template-rows: auto auto;
 	grid-template-columns: auto 150px;

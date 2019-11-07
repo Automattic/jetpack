@@ -165,9 +165,15 @@ export function PlanRadioButton( props ) {
 	const { checked, onChange, planName, radioValue, planPrice } = props;
 
 	return (
-		<div className="plans-section__radio-toggle">
+		<div className="plan-radio-button__container">
 			<div style={ { gridColumn: 1, gridRow: 1 } }>
-				<input type="radio" value={ radioValue } checked={ checked } onChange={ onChange } />
+				<input
+					type="radio"
+					style={ { marginRight: '10px' } }
+					value={ radioValue }
+					checked={ checked }
+					onChange={ onChange }
+				/>
 			</div>
 			<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>{ planName }</div>
 			<div style={ { gridColumn: 2, gridRow: 2 } }>
