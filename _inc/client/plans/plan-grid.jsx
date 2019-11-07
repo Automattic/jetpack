@@ -195,34 +195,8 @@ class PlanGrid extends React.Component {
 				return item;
 			} );
 
-		// TODO: test parity with the below code
-		// reduce the .features member to only the highlighted features.
-		// const featuredPlans = reduce(
-		// 	this.props.plans,
-		// 	( plans, plan, key ) => {
-		// 		// ignore the free plan
-		// 		if ( 'free' === key ) {
-		// 			return plans;
-		// 		}
-		// 		const highlights = plan.highlight;
-		// 		plan.features = reduce(
-		// 			plan.features,
-		// 			( highlightedFeatures, feature ) => {
-		// 				if ( includes( highlights, feature.id ) ) {
-		// 					highlightedFeatures.push( feature );
-		// 				}
-		// 				return highlightedFeatures;
-		// 			},
-		// 			[]
-		// 		);
-		// 		plans[ key ] = plan;
-		// 		return plans;
-		// 	},
-		// 	{}
-		// );
-
-		this.featuredPlans = [ 'business', 'premium', 'personal' ].map(
-			planType => featuredPlans.find( item => item.planType === planType ) // todo: more robust
+		this.featuredPlans = [ 'business', 'premium', 'personal' ].map( planType =>
+			featuredPlans.find( item => item.planType === planType )
 		);
 		return this.featuredPlans;
 	}
@@ -375,16 +349,6 @@ class PlanGrid extends React.Component {
 		return maxBy( this.getPlans(), ( { plan } ) => {
 			plan.features.length;
 		} );
-
-		// TODO: test equivalency to this
-		// return reduce(
-		// 	this.getPlans(),
-		// 	( longest, properties ) => {
-		// 		const currentFeatures = Object.keys( properties.features );
-		// 		return currentFeatures.length > longest.length ? currentFeatures : longest;
-		// 	},
-		// 	[]
-		// );
 	}
 
 	/**
