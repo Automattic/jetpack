@@ -590,6 +590,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_previous_interval_end_for_users() {
+		// TODO: works only on queue mode, immediate mode doesn't have queue limits
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		for ( $i = 0; $i < 45; $i += 1 ) {
