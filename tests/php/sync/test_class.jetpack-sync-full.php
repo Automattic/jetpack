@@ -4,6 +4,7 @@ use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Defaults;
 
 function jetpack_foo_full_sync_callable() {
 	return 'the value';
@@ -21,7 +22,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
+		Settings::reset_data();
+
 		$this->full_sync = Modules::get_module( 'full-sync' );
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
 	}
 
 	function test_enqueues_sync_start_action() {
@@ -140,7 +145,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	 */
 	function test_send_immediate_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
 		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled();
+		$this->factory->post->create();
+		$this->full_sync->start();
+
+		// if we start again, it should reset the queue back to its original state,
+		// plus a "full_sync_cancelled" action
+		$this->full_sync->start();
+
+		$this->sender->do_full_sync();
+
+		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
+
+		$this->assertTrue( $cancelled_event !== false );
 	}
 
 	function test_full_sync_lock_has_one_hour_timeout() {
