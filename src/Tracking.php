@@ -196,33 +196,21 @@ class Tracking {
 	 * @param Array|WP_Error|IXR_Error $parameters (optional) extra parameters to be passed to the tracked action.
 	 * @param WP_User                  $user (optional) the acting user.
 	 */
-	public function jetpack_xmlrpc_server_event( $action, $stage, $parameters = null, $user = null ) {
+	public function jetpack_xmlrpc_server_event( $action, $stage, $parameters = array(), $user = null ) {
 
 		if ( is_wp_error( $parameters ) ) {
-			$this->tracking->record_user_event(
-				'jpc_' . $action . '_' . $stage,
-				array(
-					'error_code'    => $parameters->get_error_code(),
-					'error_message' => $parameters->get_error_message(),
-				),
-				$user
+			$parameters = array(
+				'error_code'    => $parameters->get_error_code(),
+				'error_message' => $parameters->get_error_message(),
 			);
 		} elseif ( is_a( $parameters, '\\IXR_Error' ) ) {
-			$this->tracking->record_user_event(
-				'jpc_' . $action . '_' . $stage,
-				array(
-					'error_code'    => $parameters->code,
-					'error_message' => $parameters->message,
-				),
-				$user
+			$parameters = array(
+				'error_code'    => $parameters->code,
+				'error_message' => $parameters->message,
 			);
-		} elseif ( null === $user && null === $parameters ) {
-			$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage );
-		} elseif ( null === $user ) {
-			$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage, $parameters );
-		} else {
-			$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage, $parameters, $user );
 		}
+
+		$this->tracking->record_user_event( 'jpc_' . $action . '_' . $stage, $parameters, $user );
 	}
 
 	/**

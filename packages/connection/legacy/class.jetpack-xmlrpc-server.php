@@ -217,6 +217,8 @@ class Jetpack_XMLRPC_Server {
 		 *    - remote_provision
 		 *    - get_user.
 		 *
+		 * @since 8.0.0
+		 *
 		 * @param String  $action the action name, i.e., 'remote_authorize'.
 		 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
 		 * @param Array   $parameters extra parameters from the event.
