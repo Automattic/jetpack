@@ -34,7 +34,15 @@ class PinterestEdit extends Component {
 	componentDidMount() {
 		const { resolvingRedirect } = this.state;
 
+		// Check if we need to resolve a pin.it URL immediately.
 		if ( resolvingRedirect ) {
+			this.resolveRedirect();
+		}
+	}
+
+	componentDidUpdate( prevProps, prevState ) {
+		// Check if a pin.it URL has been entered, so we need to resolve it.
+		if ( ! prevState.resolvingRedirect && this.state.resolvingRedirect ) {
 			this.resolveRedirect();
 		}
 	}
@@ -105,8 +113,10 @@ class PinterestEdit extends Component {
 		this.setState( { editingUrl: false } );
 
 		if ( PINIT_URL_REGEX.test( url ) ) {
+			// Setting the `resolvingRedirect` state here, then waiting for `componentDidUpdate()` to
+			// be called before actually resolving it ensures that the `editedUrl` state has also been
+			// updated before resolveRedirect() is called.
 			this.setState( { resolvingRedirect: true } );
-			this.resolveRedirect();
 		}
 	};
 
