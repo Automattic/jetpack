@@ -79,20 +79,14 @@ export function PlanPriceDisplay( props ) {
 				alignContent: 'center',
 			} }
 		>
-			<SlashedPrice />
+			<div className="slashed-price__container" style={ { marginRight: '14px' } }>
+				<div className="slashed-price__slash"></div>
+				{ /* TODO: get this from an API or calculate, currently unsure how to get this increased price */ }
+				<div className="slashed-price__price">{ '$15-25' }</div>
+			</div>
 			<div className="plans-price__container">
 				<span className="plans-price__span">{ perYearPriceRange }</span>
 			</div>
-		</div>
-	);
-}
-
-function SlashedPrice() {
-	return (
-		<div className="slashed-price__container" style={ { marginRight: '14px' } }>
-			<div className="slashed-price__slash"></div>
-			{ /* TODO: get this from an API or calculate, currently unsure how to get this increased price */ }
-			<div className="slashed-price__price">{ '$15-25' }</div>
 		</div>
 	);
 }
