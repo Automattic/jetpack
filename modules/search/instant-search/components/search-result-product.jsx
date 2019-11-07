@@ -22,7 +22,7 @@ class SearchResultProduct extends Component {
 			: fields[ 'image.url.raw' ];
 
 		return (
-			<li className="jetpack-instant-search__result-product">
+			<li className="jetpack-instant-search__search-result-product">
 				<h3>
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
@@ -35,20 +35,20 @@ class SearchResultProduct extends Component {
 				</h3>
 				{ firstImage && (
 					<img
-						className="jetpack-instant-search__result-product-img"
+						className="jetpack-instant-search__search-result-product-img"
 						src={ `//${ firstImage }` }
 						alt=""
 					/>
 				) }
 				<div
-					className="jetpack-instant-search__result-product-content"
+					className="jetpack-instant-search__search-result-product-content"
 					//eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: highlight.content.join( ' ... ' ),
 					} }
 				/>
 				{ fields[ 'wc.price' ] && (
-					<div className="jetpack-instant-search__result-product-price">
+					<div className="jetpack-instant-search__search-result-product-price">
 						{ fields[ 'wc.price' ].toFixed( 2 ) }
 					</div>
 				) }

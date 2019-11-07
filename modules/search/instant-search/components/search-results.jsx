@@ -12,7 +12,6 @@ import { h, Component } from 'preact';
 import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
-import { RESULT_FORMAT_MINIMAL } from '../lib/constants';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -79,10 +78,9 @@ class SearchResults extends Component {
 				) }
 				{ results && (
 					<ol
-						className={ `jetpack-instant-search__search-results-list jetpack-instant-search__is-format-${ this
-							.props.resultFormat || RESULT_FORMAT_MINIMAL }${
-							this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
-						}` }
+						className={ `jetpack-instant-search__search-results-list is-format-${
+							this.props.resultFormat
+						}${ this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : '' }` }
 					>
 						{ results.map( ( result, index ) => (
 							<SearchResult

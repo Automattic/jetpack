@@ -1,6 +1,6 @@
 .jetpack-instant-search__search-results {
 	padding: 0.125em 2em;
-	margin: 1em auto;
+	margin: 0 auto;
 	position: relative;
 	max-width: 1080px;
 	min-height: 400px;
@@ -32,7 +32,7 @@
 
 .jetpack-instant-search__search-results-list {
 	list-style: none;
-	margin: 0;
+	margin: 1em 0 0 0;
 	padding: 0;
 
 	// Accessibility improvement for VoiceOVer

@@ -45,12 +45,14 @@ class SearchResultMinimal extends Component {
 		const cats = this.getCategories();
 		const noTags = tags.length === 0 && cats.length === 0;
 		return (
-			<div className="jetpack-instant-search__result-minimal-content">
-				{ noTags && <div className="jetpack-instant-search__result-minimal-path">{ path }</div> }
+			<div className="jetpack-instant-search__search-result-minimal-content">
+				{ noTags && (
+					<div className="jetpack-instant-search__search-result-minimal-path">{ path }</div>
+				) }
 				{ tags.length !== 0 && (
-					<div className="jetpack-instant-search__result-minimal-tags">
+					<div className="jetpack-instant-search__search-result-minimal-tags">
 						{ tags.map( tag => (
-							<span className="jetpack-instant-search__result-minimal-tag">
+							<span className="jetpack-instant-search__search-result-minimal-tag">
 								<Gridicon icon="tag" size={ this.getIconSize() } />
 								{ tag }
 							</span>
@@ -58,9 +60,9 @@ class SearchResultMinimal extends Component {
 					</div>
 				) }
 				{ cats.length !== 0 && (
-					<div className="jetpack-instant-search__result-minimal-cats">
+					<div className="jetpack-instant-search__search-result-minimal-cats">
 						{ cats.map( cat => (
-							<span className="jetpack-instant-search__result-minimal-cat">
+							<span className="jetpack-instant-search__search-result-minimal-cat">
 								<Gridicon icon="folder" size={ this.getIconSize() } />
 								{ cat }
 							</span>
@@ -74,7 +76,7 @@ class SearchResultMinimal extends Component {
 	renderMatchingContent() {
 		return (
 			<div
-				className="jetpack-instant-search__result-minimal-content"
+				className="jetpack-instant-search__search-result-minimal-content"
 				//eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={ {
 					__html: this.props.result.highlight.content.join( ' ... ' ),
@@ -91,17 +93,17 @@ class SearchResultMinimal extends Component {
 		}
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 		return (
-			<li className="jetpack-instant-search__result-minimal">
-				<span className="jetpack-instant-search__result-minimal-date">
+			<li className="jetpack-instant-search__search-result-minimal">
+				<span className="jetpack-instant-search__search-result-minimal-date">
 					{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
 						dateStyle: 'short',
 					} ) }
 				</span>
-				<h3 className="jetpack-instant-search__result-title">
+				<h3 className="jetpack-instant-search__search-result-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						className="jetpack-instant-search__result-minimal-title"
+						className="jetpack-instant-search__search-result-minimal-title"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 						onClick={ this.onClick }
