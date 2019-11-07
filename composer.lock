@@ -4,21 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1f8b9dd12c3724488f0fc0f02b72b926",
+    "content-hash": "21563cd640c7c78b80c675c14e9fb52d",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-abtest.git",
-                "reference": "26ab3b6142873fe8af01e542fdbeeef5e93364bb"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-abtest/zipball/26ab3b6142873fe8af01e542fdbeeef5e93364bb",
-                "reference": "26ab3b6142873fe8af01e542fdbeeef5e93364bb",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/abtest",
+                "reference": "b873be98786907a49ac5cd21836167f662212aa0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -34,26 +28,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Provides an interface to the WP.com A/B tests.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "Provides an interface to the WP.com A/B tests."
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-assets.git",
-                "reference": "7591eef916ff7f16b6ab0f8e16ca5c3b9326eefa"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/7591eef916ff7f16b6ab0f8e16ca5c3b9326eefa",
-                "reference": "7591eef916ff7f16b6ab0f8e16ca5c3b9326eefa",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/assets",
+                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -68,26 +60,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Asset management utilities for Jetpack ecosystem packages",
-            "time": "2019-10-28T14:59:10+00:00"
+            "description": "Asset management utilities for Jetpack ecosystem packages"
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "20f68cb4ab4cecf69aa758e1e7ad799b30f7783e"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/20f68cb4ab4cecf69aa758e1e7ad799b30f7783e",
-                "reference": "20f68cb4ab4cecf69aa758e1e7ad799b30f7783e",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/autoloader",
+                "reference": "43bb413915e6aad7e4a088490cb76d72df22a8fb"
             },
             "require": {
                 "composer-plugin-api": "^1.1"
@@ -104,16 +94,20 @@
                     "Automattic\\Jetpack\\Autoloader\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Creates a custom autoloader for a plugin or theme.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-add/jetpack-backups-helper-apis",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
@@ -135,17 +129,11 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-compat.git",
-                "reference": "f7d54cb958134fa5f52d66e88ed61382bf00afcc"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-compat/zipball/f7d54cb958134fa5f52d66e88ed61382bf00afcc",
-                "reference": "f7d54cb958134fa5f52d66e88ed61382bf00afcc",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/compat",
+                "reference": "2138cbc8b0b1aecb290608b5d82e873c7330aac5"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -160,26 +148,24 @@
                     "legacy"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Compatibility layer with previous versions of Jetpack",
-            "time": "2019-10-29T17:29:54+00:00"
+            "description": "Compatibility layer with previous versions of Jetpack"
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "50ab068c0e3b025d9a524cb1c7bdfb80e5092503"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/50ab068c0e3b025d9a524cb1c7bdfb80e5092503",
-                "reference": "50ab068c0e3b025d9a524cb1c7bdfb80e5092503",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/connection",
+                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -201,26 +187,24 @@
                     "legacy"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything needed to connect to the Jetpack infrastructure",
-            "time": "2019-10-30T21:11:45+00:00"
+            "description": "Everything needed to connect to the Jetpack infrastructure"
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "7e7b8c290daf0053272af9aa9dee3810c50f5d7b"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/7e7b8c290daf0053272af9aa9dee3810c50f5d7b",
-                "reference": "7e7b8c290daf0053272af9aa9dee3810c50f5d7b",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/constants",
+                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -231,26 +215,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for defining constants in a more testable way.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "A wrapper for defining constants in a more testable way."
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-error.git",
-                "reference": "c6b3e427e5d19a2c472a73720b54e9e55b05e465"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-error/zipball/c6b3e427e5d19a2c472a73720b54e9e55b05e465",
-                "reference": "c6b3e427e5d19a2c472a73720b54e9e55b05e465",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/error",
+                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
@@ -261,26 +243,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Jetpack Error - a wrapper around WP_Error.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "Jetpack Error - a wrapper around WP_Error."
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "1b59f74379b4853c9a8d87a587dbd51fa095f8f1"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/1b59f74379b4853c9a8d87a587dbd51fa095f8f1",
-                "reference": "1b59f74379b4853c9a8d87a587dbd51fa095f8f1",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/jitm",
+                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -301,26 +281,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Just in time messages for Jetpack",
-            "time": "2019-10-31T17:46:51+00:00"
+            "description": "Just in time messages for Jetpack"
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "2712436239b3fa0c856e6b6fbc729521068831db"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/2712436239b3fa0c856e6b6fbc729521068831db",
-                "reference": "2712436239b3fa0c856e6b6fbc729521068831db",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/logo",
+                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -332,26 +310,24 @@
                     "Automattic\\Jetpack\\Assets\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A logo for Jetpack",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "A logo for Jetpack"
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-options.git",
-                "reference": "0069f365b4bbfb8fc05400ec5e593aa78aedd103"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-options/zipball/0069f365b4bbfb8fc05400ec5e593aa78aedd103",
-                "reference": "0069f365b4bbfb8fc05400ec5e593aa78aedd103",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/options",
+                "reference": "78220bf7d3c1a3a5ed4edb77462e84982b3c408f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -366,26 +342,18 @@
                     "legacy"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options.",
-            "time": "2019-10-29T17:29:54+00:00"
+            "description": "A wrapper for wp-options to manage specific Jetpack options."
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-roles.git",
-                "reference": "9baecd0b78cddb557989a8a01667949d786c8709"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-roles/zipball/9baecd0b78cddb557989a8a01667949d786c8709",
-                "reference": "9baecd0b78cddb557989a8a01667949d786c8709",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/roles",
+                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -397,26 +365,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities, related with user roles and capabilities.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "Utilities, related with user roles and capabilities."
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "5483b894f97d5e46e233a952ba408717490aca8e"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/5483b894f97d5e46e233a952ba408717490aca8e",
-                "reference": "5483b894f97d5e46e233a952ba408717490aca8e",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/status",
+                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -428,26 +394,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
-            "time": "2019-10-25T21:19:03+00:00"
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall."
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "66db56e42f5e206292ae9bba8ed55ac07a2d4b01"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/66db56e42f5e206292ae9bba8ed55ac07a2d4b01",
-                "reference": "66db56e42f5e206292ae9bba8ed55ac07a2d4b01",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/sync",
+                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -463,26 +427,18 @@
                     "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything needed to allow syncing to the WP.com infrastructure.",
-            "time": "2019-11-01T20:42:09+00:00"
+            "description": "Everything needed to allow syncing to the WP.com infrastructure."
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-terms-of-service.git",
-                "reference": "174854d2d5406e1ba928cf7ee8613a7a7acca053"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-terms-of-service/zipball/174854d2d5406e1ba928cf7ee8613a7a7acca053",
-                "reference": "174854d2d5406e1ba928cf7ee8613a7a7acca053",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/terms-of-service",
+                "reference": "6f53f2987be1c025edcd7820759df50c134065e6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -499,26 +455,24 @@
                     "Automattic\\Jetpack\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything need to manage the terms of service state",
-            "time": "2019-10-22T06:37:51+00:00"
+            "description": "Everything need to manage the terms of service state"
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-tracking.git",
-                "reference": "204d4690a8a06a1aeaf2fe888fa04a1b13cdeced"
-            },
+            "version": "dev-fix/composer.json",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-tracking/zipball/204d4690a8a06a1aeaf2fe888fa04a1b13cdeced",
-                "reference": "204d4690a8a06a1aeaf2fe888fa04a1b13cdeced",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/tracking",
+                "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -537,12 +491,16 @@
                     "legacy"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tracking for Jetpack",
-            "time": "2019-10-29T17:29:54+00:00"
+            "description": "Tracking for Jetpack"
         }
     ],
     "packages-dev": [
@@ -968,27 +926,27 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-abtest": 20,
+        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-backup": 20,
+        "automattic/jetpack-compat": 20,
         "automattic/jetpack-connection": 20,
-        "automattic/jetpack-options": 20,
-        "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
-        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-options": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-tracking": 20,
-        "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-compat": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-backup": 20
+        "automattic/jetpack-tracking": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "ext-openssl": "*",
         "ext-fileinfo": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "platform-dev": []
 }
