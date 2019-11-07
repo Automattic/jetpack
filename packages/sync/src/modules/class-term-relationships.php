@@ -139,6 +139,54 @@ class Term_Relationships extends Module {
 	}
 
 	/**
+	 * Send the term_relationships actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array   $config Full sync configuration for this sync module.
+	 * @param int     $max_duration Maximum duration of processing.
+	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 *
+	 * @return array Number of actions enqueued, and next module state.
+	 */
+	public function send_full_sync_actions( $config, $max_duration, $state ) {
+		global $wpdb;
+
+		$items_per_page = 100;
+		$page           = 1;
+
+		$last_object_enqueued = $state ? $state : array(
+			'object_id'        => self::MAX_INT,
+			'term_taxonomy_id' => self::MAX_INT,
+		);
+
+		$starttime = microtime( true );
+
+		// Count down from max_id to min_id so we get newest posts/comments/etc first.
+		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], $items_per_page ), ARRAY_A ) ) {
+
+			$this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $last_object_enqueued ] );
+
+			if ( microtime( true ) - $starttime >= $max_duration ) {
+				return array( 0, end( $objects ) );
+			}
+
+			$page ++;
+			// The $ids are ordered in descending order.
+			$last_object_enqueued = end( $objects );
+		}
+
+		if ( $wpdb->last_error ) {
+			// return the values that were passed in so all these chunks get retried.
+			return array( $page - 1, $last_object_enqueued );
+		}
+
+		return array( $page - 1, true );
+	}
+
+	/**
 	 *
 	 * Enqueue all $items within `jetpack_full_sync_term_relationships` actions.
 	 *
