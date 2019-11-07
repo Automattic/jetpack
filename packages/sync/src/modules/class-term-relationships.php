@@ -144,12 +144,12 @@ class Term_Relationships extends Module {
 	 * @access public
 	 *
 	 * @param array   $config Full sync configuration for this sync module.
-	 * @param int     $max_duration Maximum duration of processing.
+	 * @param int     $send_until Maximum duration of processing.
 	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
 	 *
 	 * @return array Number of actions enqueued, and next module state.
 	 */
-	public function send_full_sync_actions( $config, $max_duration, $state ) {
+	public function send_full_sync_actions( $config, $send_until, $state ) {
 		global $wpdb;
 
 		$items_per_page = 100;
@@ -160,8 +160,6 @@ class Term_Relationships extends Module {
 			'term_taxonomy_id' => self::MAX_INT,
 		);
 
-		$starttime = microtime( true );
-
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
@@ -169,7 +167,7 @@ class Term_Relationships extends Module {
 
 			$this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $last_object_enqueued ] );
 
-			if ( microtime( true ) - $starttime >= $max_duration ) {
+			if ( microtime( true ) >= $send_until ) {
 				return array( 0, end( $objects ) );
 			}
 

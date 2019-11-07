@@ -1137,6 +1137,13 @@ class Defaults {
 	public static $default_full_sync_send_immediately = false;
 
 	/**
+	 * Default max time sending in immediately mode.
+	 *
+	 * @var float Number of Seconds
+	 */
+	public static $default_full_sync_send_immediately_duration = 30;
+
+	/**
 	 * Defaul for time between syncing callables.
 	 *
 	 * @var int Number of seconds.

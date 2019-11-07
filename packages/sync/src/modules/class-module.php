@@ -139,12 +139,13 @@ abstract class Module {
 	 *
 	 * @access public
 	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_duration         Maximum duration of processing.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @param array   $config Full sync configuration for this sync module.
+	 * @param float   $send_until timestamp until we want this request to send full sync events
+	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 *
 	 * @return array  Number of actions sent, and next module state.
 	 */
-	public function send_full_sync_actions( $config, $max_duration, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// In subclasses, return the number of actions enqueued, and next module state (true == done).
 		return array( null, true );
 	}
@@ -283,15 +284,16 @@ abstract class Module {
 	 *
 	 * @access protected
 	 *
-	 * @param string  $action_name          Name of the action.
-	 * @param string  $table_name           Name of the database table.
-	 * @param string  $id_field             Name of the ID field in the database.
-	 * @param string  $where_sql            The SQL WHERE clause to filter to the desired items.
-	 * @param int     $max_duration          Maximum duration of processing time.
-	 * @param boolean $state                Whether enqueueing has finished.
+	 * @param string  $action_name Name of the action.
+	 * @param string  $table_name Name of the database table.
+	 * @param string  $id_field Name of the ID field in the database.
+	 * @param string  $where_sql The SQL WHERE clause to filter to the desired items.
+	 * @param float   $send_until timestamp until we want this request to send full sync events
+	 * @param boolean $state Whether enqueueing has finished.
+	 *
 	 * @return array Array, containing the number of chunks and TRUE, indicating enqueueing has finished.
 	 */
-	protected function send_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $max_duration, $state ) {
+	protected function send_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $send_until, $state ) {
 		global $wpdb;
 
 		if ( ! $where_sql ) {
@@ -301,7 +303,6 @@ abstract class Module {
 		$items_per_page        = 100;
 		$page                  = 1;
 		$previous_interval_end = $state ? $state : '~0';
-		$starttime             = microtime( true );
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -309,7 +310,7 @@ abstract class Module {
 
 			$this->send_action( $action_name, [ $ids, $previous_interval_end ] );
 
-			if ( microtime( true ) - $starttime >= $max_duration ) {
+			if ( microtime( true ) >= $send_until ) {
 				return array( 0, end( $ids ) );
 			}
 

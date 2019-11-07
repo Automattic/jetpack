@@ -247,13 +247,14 @@ class WooCommerce extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_duration         Maximum duration of processing.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @param array   $config Full sync configuration for this sync module.
+	 * @param int     $send_until Maximum duration of processing.
+	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 *
 	 * @return array Number of actions enqueued, and next module state.
 	 */
-	public function send_full_sync_actions( $config, $max_duration, $state ) {
-		return $this->send_all_ids_as_action( 'jetpack_full_sync_woocommerce_order_items', $this->order_item_table_name, 'order_item_id', $this->get_where_sql( $config ), $max_duration, $state );
+	public function send_full_sync_actions( $config, $send_until, $state ) {
+		return $this->send_all_ids_as_action( 'jetpack_full_sync_woocommerce_order_items', $this->order_item_table_name, 'order_item_id', $this->get_where_sql( $config ), $send_until, $state );
 	}
 
 	/**
