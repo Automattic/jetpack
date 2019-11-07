@@ -11,6 +11,8 @@ import { AccentedCard } from './accented-card';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 
+import './single-product-backup.scss';
+
 export function SingleProductBackup( props ) {
 	const { sitePlans, siteRawUrl } = props;
 

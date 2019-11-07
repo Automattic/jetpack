@@ -1,0 +1,66 @@
+@import '../scss/variables/_colors.scss';
+
+.plans-section__header {
+	color: #23282d;
+	text-align: center;
+	font-family: Roboto, sans-serif;
+	font-weight: normal;
+	font-size: 22pt;
+}
+
+.plans-section__subheader {
+	color: #747474;
+	text-align: center;
+	font-family: Roboto, sans-serif;
+	font-weight: normal;
+	font-size: 14pt;
+}
+
+.plans-section__body {
+	h4 {
+		font-size: 14px;
+		color: #747474;
+		border-bottom: solid 2px #e6e6e6;
+	}
+
+	.gridicons-external {
+		fill: #0073aa;
+	}
+}
+
+.plans-price__container {
+	height: 50px;
+	line-height: 50px;
+	text-align: center;
+}
+
+.plans-price__span {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal;
+}
+
+.slashed-price__container {
+	position: relative;
+	display: inline-block;
+	line-height: 50px;
+}
+
+.slashed-price__slash {
+	position: relative;
+	width: 100%;
+	height: 0;
+	border-top: 2px solid $blue-medium;
+	transform: rotate( -16deg );
+	top: 27px;
+}
+
+.slashed-price__price {
+	color: #a7aaad;
+}
+
+.plan-radio-button__container {
+	display: inline-grid;
+	grid-template-rows: auto auto;
+	grid-template-columns: auto 150px;
+}
