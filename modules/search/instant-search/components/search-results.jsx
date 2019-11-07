@@ -4,7 +4,7 @@
  * External dependencies
  */
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { h, Component, Fragment } from 'preact';
+import { h, Component } from 'preact';
 
 /**
  * Internal dependencies
@@ -68,7 +68,6 @@ class SearchResults extends Component {
 				className={ `jetpack-instant-search__search-results ${
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
-				role="list"
 			>
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ this.getSearchTitle() }
@@ -80,7 +79,7 @@ class SearchResults extends Component {
 				) }
 				{ results && (
 					<ol
-						className={ `jetpack-instant-search__search-results jetpack-instant-search__is-format-${ this
+						className={ `jetpack-instant-search__search-results-list jetpack-instant-search__is-format-${ this
 							.props.resultFormat || RESULT_FORMAT_MINIMAL }${
 							this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 						}` }
