@@ -26,7 +26,6 @@ import {
 	restorePreviousHref,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
-import { RESULT_FORMAT_MINIMAL } from '../lib/constants';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -41,7 +40,6 @@ class SearchApp extends Component {
 			response: {},
 			requestId: 0,
 			showResults: false,
-			resultFormat: RESULT_FORMAT_MINIMAL,
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
@@ -141,7 +139,7 @@ class SearchApp extends Component {
 	getResults = ( query, filter, sort, resultFormat, pageHandle ) => {
 		const requestId = this.state.requestId + 1;
 
-		this.setState( { requestId, isLoading: true, resultFormat }, () => {
+		this.setState( { requestId, isLoading: true }, () => {
 			search( {
 				// Skip aggregations when requesting for paged results
 				aggregations: !! pageHandle ? {} : this.props.aggregations,
@@ -186,6 +184,7 @@ class SearchApp extends Component {
 			/>
 		) );
 	}
+
 	renderSearchForms() {
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.searchFormSelector )
@@ -206,6 +205,7 @@ class SearchApp extends Component {
 	}
 
 	render() {
+		const resultFormat = getResultFormatQuery();
 		return (
 			<Fragment>
 				{ this.renderWidgets() }
@@ -219,7 +219,7 @@ class SearchApp extends Component {
 							locale={ this.props.options.locale }
 							query={ getSearchQuery() }
 							response={ this.state.response }
-							resultFormat={ this.state.resultFormat }
+							resultFormat={ resultFormat }
 							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 						/>,
 						document.querySelector( this.props.themeOptions.resultsSelector )
