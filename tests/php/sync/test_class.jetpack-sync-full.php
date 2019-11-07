@@ -1422,6 +1422,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
+		// Queue mode only
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
 		$keep_post_id = $this->factory->post->create();
@@ -1441,6 +1444,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_comments() {
+		// Queue mode only
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
 		$post_id     = $this->factory->post->create();
@@ -1460,6 +1466,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_users() {
+		// Queue mode only
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		$user_counts = count_users();
 		$existing_user_count = $user_counts['total_users'];
 
@@ -1510,6 +1519,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
+		// Queue mode only
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		$this->sender->set_dequeue_max_bytes( 1250 ); // process 0.00125MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
