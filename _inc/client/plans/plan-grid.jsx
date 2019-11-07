@@ -187,10 +187,10 @@ class PlanGrid extends React.Component {
 			plan,
 			planType,
 		} ) )
-			.filter( item => 'free' !== item.planType )
+			.filter( item => ! [ 'free', 'daily-backup', 'realtime-backup' ].includes( item.planType ) )
 			.map( item => {
 				item.plan.features = item.plan.features.filter( feature =>
-					includes( item.plan.highlights, feature.id )
+					includes( item.plan.highlight, feature.id )
 				);
 				return item;
 			} );
@@ -346,9 +346,8 @@ class PlanGrid extends React.Component {
 	 * @return {array} longest features list
 	 */
 	getLongestFeaturesList() {
-		return maxBy( this.getPlans(), ( { plan } ) => {
-			plan.features.length;
-		} );
+		const planWithLongestFeatures = maxBy( this.getPlans(), ( { plan } ) => plan.features.length );
+		return planWithLongestFeatures.plan.features;
 	}
 
 	/**
