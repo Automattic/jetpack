@@ -4822,7 +4822,7 @@ endif;
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts' );
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::fix_url_for_bad_hosts' );
 		return Connection_Utils::fix_url_for_bad_hosts( $url );
 	}
 
