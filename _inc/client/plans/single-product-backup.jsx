@@ -9,7 +9,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { AccentedCard } from './accented-card';
 import Button from 'components/button';
-import Gridicon from 'components/gridicon';
+import ExternalLink from 'components/external-link';
 
 export function SingleProductBackup( props ) {
 	const { sitePlans, siteRawUrl } = props;
@@ -116,16 +116,11 @@ function SingleProductBackupBody( props ) {
 		<div className="plans-section__body">
 			<p>
 				{ __(
-					'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{ext/}}{{/a}}',
+					'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{ExternalLink}}Which one do I need?{{/ExternalLink}}',
 					{
 						components: {
-							a: <a href="https://jetpack.com/upgrade/backup/" />,
-							ext: (
-								<>
-									<span>
-										<Gridicon icon="external" size="12" />
-									</span>
-								</>
+							ExternalLink: (
+								<ExternalLink href="https://jetpack.com/upgrade/backup/" icon iconSize={ 12 } />
 							),
 						},
 					} // TODO: make icon color change with link
