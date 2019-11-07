@@ -1747,14 +1747,19 @@ EOT;
 	 * @return null
 	 */
 	public function rest_register_related_posts() {
-		register_rest_field( 'post',
-			'jetpack-related-posts',
-			array(
-				'get_callback' => array( $this, 'rest_get_related_posts' ),
-				'update_callback' => null,
-				'schema'          => null,
-			)
-		);
+		/** This filter is already documented in class.json-api-endpoints.php */
+		$post_types = apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) );
+		foreach ( $post_types as $post_type ) {
+			register_rest_field(
+				$post_type,
+				'jetpack-related-posts',
+				array(
+					'get_callback'    => array( $this, 'rest_get_related_posts' ),
+					'update_callback' => null,
+					'schema'          => null,
+				)
+			);
+		}
 	}
 
 	/**

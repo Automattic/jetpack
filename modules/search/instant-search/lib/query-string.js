@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import 'url-polyfill';
 import { decode, encode } from 'qss';
 // NOTE: We only import the get package here for to reduced bundle size.
 //       Do not import the entire lodash library!
@@ -18,19 +19,20 @@ function getQuery() {
 }
 
 function pushQueryString( queryString ) {
-	// NOTE: This erases location.pathname
 	if ( history.pushState ) {
-		const newUrl = queryString
-			? `${ window.location.protocol }//${ window.location.host }?${ queryString }`
-			: `${ window.location.protocol }//${ window.location.host }${ window.location.pathname }`;
-		window.history.pushState( { path: newUrl }, '', newUrl );
+		const url = new window.URL( window.location.href );
+		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
+			url.href = window[ SERVER_OBJECT_NAME ].homeUrl;
+		}
+		url.search = queryString;
+		window.history.pushState( null, null, url.toString() );
 		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
 
 export function restorePreviousHref( initialHref ) {
 	if ( history.pushState ) {
-		window.history.pushState( { href: initialHref }, '', initialHref );
+		window.history.pushState( null, null, initialHref );
 		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }

@@ -119,7 +119,7 @@ body,
 	}
 
 	div.wp-menu-image.svg {
-		filter: brightness(0.6);
+		filter: brightness(0.4);
 	}
 
 	li a:hover div.wp-menu-image.svg,
@@ -174,7 +174,7 @@ body,
 }
 
 #calypso-sidebar-header {
-	border-bottom: 1px solid $muriel-gray-50;
+	border-bottom: 1px solid $gray-darken-20;
 	position: fixed;
 	top: 47px;
 	left: 0;

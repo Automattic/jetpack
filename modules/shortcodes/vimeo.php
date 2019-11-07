@@ -37,6 +37,99 @@ function jetpack_shortcode_get_vimeo_id( $atts ) {
 }
 
 /**
+ * Get video dimensions.
+ *
+ * @since 8.0.0
+ *
+ * @param array $attr     The attributes of the shortcode.
+ * @param array $old_attr Optional array of attributes from the old shortcode format.
+ *
+ * @return array Width and height.
+ */
+function jetpack_shortcode_get_vimeo_dimensions( $attr, $old_attr = array() ) {
+	global $content_width;
+
+	$default_width  = 600;
+	$default_height = 338;
+	$aspect_ratio   = $default_height / $default_width;
+	$width          = ( ! empty( $attr['width'] ) ? absint( $attr['width'] ) : $default_width );
+	$height         = ( ! empty( $attr['height'] ) ? absint( $attr['height'] ) : $default_height );
+
+	/*
+	 * Support w and h argument as fallbacks.
+	 */
+	if (
+		$default_width === $width
+		&& ! empty( $old_attr['w'] )
+	) {
+		$width = absint( $old_attr['w'] );
+
+		if (
+			$default_width === $width
+			&& empty( $old_attr['h'] )
+		) {
+			$height = round( $width * $aspect_ratio );
+		}
+	}
+
+	if (
+		$default_height === $height
+		&& ! empty( $old_attr['h'] )
+	) {
+		$height = absint( $old_attr['h'] );
+
+		if ( empty( $old_attr['w'] ) ) {
+			$width = round( $height * $aspect_ratio );
+		}
+	}
+
+	/*
+	 * If we have a content width defined, let it be the new default.
+	 */
+	if (
+		$default_width === $width
+		&& ! empty( $content_width )
+	) {
+		$width = absint( $content_width );
+	}
+
+	/*
+	 * If we have a custom width, we need a custom height as well
+	 * to maintain aspect ratio.
+	 */
+	if (
+		$default_width !== $width
+		&& $default_height === $height
+	) {
+		$height = round( ( $width / 640 ) * 360 );
+	}
+
+	/**
+	 * Filter the Vimeo player width.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 3.4.0
+	 *
+	 * @param int $width Width of the Vimeo player in pixels.
+	 */
+	$width = (int) apply_filters( 'vimeo_width', $width );
+
+	/**
+	 * Filter the Vimeo player height.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 3.4.0
+	 *
+	 * @param int $height Height of the Vimeo player in pixels.
+	 */
+	$height = (int) apply_filters( 'vimeo_height', $height );
+
+	return array( $width, $height );
+}
+
+/**
  * Convert a Vimeo shortcode into an embed code.
  *
  * @param array $atts An array of shortcode attributes.
@@ -44,8 +137,6 @@ function jetpack_shortcode_get_vimeo_id( $atts ) {
  * @return string The embed code for the Vimeo video.
  */
 function vimeo_shortcode( $atts ) {
-	global $content_width;
-
 	$attr = array_map(
 		'intval',
 		shortcode_atts(
@@ -73,62 +164,7 @@ function vimeo_shortcode( $atts ) {
 	$params = str_replace( array( '&amp;', '&#038;' ), '&', $params );
 	parse_str( $params, $args );
 
-	$width  = intval( $attr['width'] );
-	$height = intval( $attr['height'] );
-
-	// Support w and h argument as fallback.
-	if ( empty( $width ) && isset( $args['w'] ) ) {
-		$width = intval( $args['w'] );
-
-		if ( empty( $height ) && ! isset( $args['h'] ) ) {
-			// The case where w=300 is specified without h=200, otherwise $height
-			// will always equal the default of 300, no matter what w was set to.
-			$height = round( ( $width / 640 ) * 360 );
-		}
-	}
-
-	if ( empty( $height ) && isset( $args['h'] ) ) {
-		$height = (int) $args['h'];
-
-		if ( ! isset( $args['w'] ) ) {
-			$width = round( ( $height / 360 ) * 640 );
-		}
-	}
-
-	if ( ! $width && ! empty( $content_width ) ) {
-		$width = absint( $content_width );
-	}
-
-	// If setting the width with content_width has failed, defaulting.
-	if ( ! $width ) {
-		$width = 640;
-	}
-
-	if ( ! $height ) {
-		$height = round( ( $width / 640 ) * 360 );
-	}
-
-	/**
-	 * Filter the Vimeo player width.
-	 *
-	 * @module shortcodes
-	 *
-	 * @since 3.4.0
-	 *
-	 * @param int $width Width of the Vimeo player in pixels.
-	 */
-	$width = (int) apply_filters( 'vimeo_width', $width );
-
-	/**
-	 * Filter the Vimeo player height.
-	 *
-	 * @module shortcodes
-	 *
-	 * @since 3.4.0
-	 *
-	 * @param int $height Height of the Vimeo player in pixels.
-	 */
-	$height = (int) apply_filters( 'vimeo_height', $height );
+	list( $width, $height ) = jetpack_shortcode_get_vimeo_dimensions( $attr, $args );
 
 	$url = esc_url( 'https://player.vimeo.com/video/' . $attr['id'] );
 
@@ -149,12 +185,24 @@ function vimeo_shortcode( $atts ) {
 		$url = add_query_arg( 'loop', 1, $url );
 	}
 
-	$html = sprintf(
-		'<div class="embed-vimeo" style="text-align: center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>',
-		esc_url( $url ),
-		esc_attr( $width ),
-		esc_attr( $height )
-	);
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
+		$html = sprintf(
+			'<amp-vimeo data-videoid="%1$s" layout="responsive" width="%2$d" height="%3$d"></amp-vimeo>',
+			esc_attr( $attr['id'] ),
+			absint( $width ),
+			absint( $height )
+		);
+	} else {
+		$html = sprintf(
+			'<div class="embed-vimeo" style="text-align: center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>',
+			esc_url( $url ),
+			esc_attr( $width ),
+			esc_attr( $height )
+		);
+	}
 
 	/**
 	 * Filter the Vimeo player HTML.
@@ -169,7 +217,6 @@ function vimeo_shortcode( $atts ) {
 
 	return $html;
 }
-
 add_shortcode( 'vimeo', 'vimeo_shortcode' );
 
 /**

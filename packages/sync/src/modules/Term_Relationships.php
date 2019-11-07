@@ -103,9 +103,9 @@ class Term_Relationships extends Module {
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $last_object_enqueued ) {
 		global $wpdb;
 		$term_relationships_full_sync_item_size = Settings::get_setting( 'term_relationships_full_sync_item_size' );
-		$limit                         = min( $max_items_to_enqueue * $term_relationships_full_sync_item_size, self::QUERY_LIMIT );
-		$items_enqueued_count          = 0;
-		$last_object_enqueued          = $last_object_enqueued ? $last_object_enqueued : array(
+		$limit                                  = min( $max_items_to_enqueue * $term_relationships_full_sync_item_size, self::QUERY_LIMIT );
+		$items_enqueued_count                   = 0;
+		$last_object_enqueued                   = $last_object_enqueued ? $last_object_enqueued : array(
 			'object_id'        => self::MAX_INT,
 			'term_taxonomy_id' => self::MAX_INT,
 		);
@@ -128,6 +128,13 @@ class Term_Relationships extends Module {
 			$items_enqueued_count += count( $items );
 			$limit                 = min( $limit - $objects_count, self::QUERY_LIMIT );
 		}
+
+		// We need to do this extra check in case $max_items_to_enqueue * $term_relationships_full_sync_item_size == relationships objects left.
+		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], 1 ) );
+		if ( intval( $count ) === 0 ) {
+			return array( $items_enqueued_count, true );
+		}
+
 		return array( $items_enqueued_count, $last_object_enqueued );
 	}
 

@@ -568,81 +568,28 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * The 'authorize' and 'register' actions have additional error codes
 	 *
-	 * Possible values for action are `authorize`, `publicize` and `register`.
-	 *
 	 * state_missing: a state ( user id ) was not supplied
 	 * state_malformed: state is not the correct data type
 	 * invalid_state: supplied state does not match the stored state
 	 *
-	 * @param array $params action parameters.
-	 * @return \WP_Error|string secret_2 on success, WP_Error( error_code => error_code, error_message => error description, error_data => status code ) on failure
+	 * @param array $params action An array of 3 parameters:
+	 *     [0]: string action. Possible values are `authorize`, `publicize` and `register`.
+	 *     [1]: string secret_1.
+	 *     [2]: int state.
+	 * @return \IXR_Error|string IXR_Error on failure, secret_2 on success.
 	 */
 	public function verify_action( $params ) {
-		$action                    = $params[0];
-		$verify_secret             = $params[1];
-		$state                     = isset( $params[2] ) ? $params[2] : '';
-		$user                      = get_user_by( 'id', $state );
-		$tracks_failure_event_name = '';
+		$action        = isset( $params[0] ) ? $params[0] : '';
+		$verify_secret = isset( $params[1] ) ? $params[1] : '';
+		$state         = isset( $params[2] ) ? $params[2] : '';
 
-		if ( 'authorize' === $action ) {
-			$tracks_failure_event_name = 'jpc_verify_authorize_fail';
-			$this->tracking->record_user_event( 'jpc_verify_authorize_begin', array(), $user );
-		}
-		if ( 'publicize' === $action ) {
-			// This action is used on a response from a direct XML-RPC done from WordPress.com.
-			$tracks_failure_event_name = 'jpc_verify_publicize_fail';
-			$this->tracking->record_user_event( 'jpc_verify_publicize_begin', array(), $user );
-		}
-		if ( 'register' === $action ) {
-			$tracks_failure_event_name = 'jpc_verify_register_fail';
-			$this->tracking->record_user_event( 'jpc_verify_register_begin', array(), $user );
+		$result = $this->connection->verify_secrets( $action, $verify_secret, $state );
+
+		if ( is_wp_error( $result ) ) {
+			return $this->error( $result );
 		}
 
-		if ( empty( $verify_secret ) ) {
-			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ), $tracks_failure_event_name, $user );
-		} elseif ( ! is_string( $verify_secret ) ) {
-			return $this->error( new Jetpack_Error( 'verify_secret_1_malformed', sprintf( 'The required "%s" parameter is malformed.', 'secret_1' ), 400 ), $tracks_failure_event_name, $user );
-		} elseif ( empty( $state ) ) {
-			return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ), $tracks_failure_event_name, $user );
-		} elseif ( ! ctype_digit( $state ) ) {
-			return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ), $tracks_failure_event_name, $user );
-		}
-
-		$secrets = Jetpack::get_secrets( $action, $state );
-
-		if ( ! $secrets ) {
-			Jetpack::delete_secrets( $action, $state );
-			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ), $tracks_failure_event_name, $user );
-		}
-
-		if ( is_wp_error( $secrets ) ) {
-			Jetpack::delete_secrets( $action, $state );
-			return $this->error( new Jetpack_Error( $secrets->get_error_code(), $secrets->get_error_message(), 400 ), $tracks_failure_event_name, $user );
-		}
-
-		if ( empty( $secrets['secret_1'] ) || empty( $secrets['secret_2'] ) || empty( $secrets['exp'] ) ) {
-			Jetpack::delete_secrets( $action, $state );
-			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ), $tracks_failure_event_name, $user );
-		}
-
-		if ( ! hash_equals( $verify_secret, $secrets['secret_1'] ) ) {
-			Jetpack::delete_secrets( $action, $state );
-			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ), $tracks_failure_event_name, $user );
-		}
-
-		Jetpack::delete_secrets( $action, $state );
-
-		if ( 'authorize' === $action ) {
-			$this->tracking->record_user_event( 'jpc_verify_authorize_success', array(), $user );
-		}
-		if ( 'publicize' === $action ) {
-			$this->tracking->record_user_event( 'jpc_verify_publicize_success', array(), $user );
-		}
-		if ( 'register' === $action ) {
-			$this->tracking->record_user_event( 'jpc_verify_register_success', array(), $user );
-		}
-
-		return $secrets['secret_2'];
+		return $result;
 	}
 
 	/**

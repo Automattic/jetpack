@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93e0b67a67cc488d8765306b24ccd75c",
+    "content-hash": "21563cd640c7c78b80c675c14e9fb52d",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
@@ -41,7 +41,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -73,7 +73,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -106,8 +106,30 @@
             "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
+            "name": "automattic/jetpack-backup",
+            "version": "dev-fix/composer.json",
+            "dist": {
+                "type": "path",
+                "url": "./packages/backup",
+                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Backup\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to assist with backing up Jetpack sites."
+        },
+        {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -139,7 +161,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -178,7 +200,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -206,7 +228,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -234,7 +256,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -272,7 +294,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -301,7 +323,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -327,7 +349,7 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -356,7 +378,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -385,7 +407,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -412,12 +434,11 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "6f53f2987be1c025edcd7820759df50c134065e6",
-                "shasum": null
+                "reference": "6f53f2987be1c025edcd7820759df50c134065e6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -447,11 +468,11 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "dev-fix/composer.json",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
+                "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -609,16 +630,16 @@
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie.git",
-                "reference": "94b2388c4fe99e9e2ef0772e280fa0eafa1d0603"
+                "reference": "b862bc32f7e860d0b164b199bd995e690b4b191c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/94b2388c4fe99e9e2ef0772e280fa0eafa1d0603",
-                "reference": "94b2388c4fe99e9e2ef0772e280fa0eafa1d0603",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/b862bc32f7e860d0b164b199bd995e690b4b191c",
+                "reference": "b862bc32f7e860d0b164b199bd995e690b4b191c",
                 "shasum": ""
             },
             "require": {
@@ -657,7 +678,7 @@
                 "polyfill",
                 "standards"
             ],
-            "time": "2019-10-16T21:41:26+00:00"
+            "time": "2019-11-04T15:17:54+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-wp",
@@ -806,16 +827,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.1",
+            "version": "3.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "82cd0f854ceca17731d6d019c7098e3755c45060"
+                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/82cd0f854ceca17731d6d019c7098e3755c45060",
-                "reference": "82cd0f854ceca17731d6d019c7098e3755c45060",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
+                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
                 "shasum": ""
             },
             "require": {
@@ -853,7 +874,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-10-16T21:14:26+00:00"
+            "time": "2019-10-28T04:36:32+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -905,26 +926,27 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-abtest": 20,
+        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-backup": 20,
+        "automattic/jetpack-compat": 20,
         "automattic/jetpack-connection": 20,
-        "automattic/jetpack-options": 20,
-        "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
-        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-options": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-tracking": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-compat": 20
+        "automattic/jetpack-tracking": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "ext-openssl": "*",
         "ext-fileinfo": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "platform-dev": []
 }

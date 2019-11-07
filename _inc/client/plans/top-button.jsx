@@ -12,11 +12,8 @@ import analytics from 'lib/analytics';
 
 export default class TopButton extends React.Component {
 	clickHandler = () => {
-		const { planType, isActivePlan, productSlug } = this.props;
+		const { planType, productSlug } = this.props;
 
-		if ( ! isActivePlan ) {
-			return;
-		}
 		analytics.tracks.recordJetpackClick( {
 			target: `upgrade-${ planType }`,
 			type: 'upgrade',
