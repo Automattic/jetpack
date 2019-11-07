@@ -157,7 +157,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 			if ( '' !== $instance['hours'] ) {
 				printf(
-					'<div class="confit-hours" itemprop="openingHours"></div>',
+					'<div class="confit-hours" itemprop="openingHours">%s</div>',
 					str_replace( "\n", '<br/>', esc_html( $instance['hours'] ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 			}
