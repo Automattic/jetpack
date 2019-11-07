@@ -17,8 +17,10 @@ export function SingleProductBackup( props ) {
 
 	return (
 		<>
-			<h1 className="plans-section__header">Single Products</h1>
-			<h2 className="plans-section__subheader">Just looking for backups? We've got you covered.</h2>
+			<h1 className="plans-section__header">{ __( 'Single Products' ) }</h1>
+			<h2 className="plans-section__subheader">
+				{ __( "Just looking for backups? We've got you covered." ) }
+			</h2>
 			<div style={ { display: 'flex', justifyContent: 'center', marginBottom: '10px' } }>
 				<AccentedCard>
 					{ {
@@ -52,7 +54,7 @@ function SingleProductBackupHeader( props ) {
 			<h3>{ __( 'Jetpack Backup' ) }</h3>
 			{ sitePlans && (
 				<PlanPriceDisplay
-					dailyPrice={ sitePlans[ 'daily-backup' ].price.yearly.text }
+					monthlyPrice={ sitePlans[ 'daily-backup' ].price.yearly.text }
 					yearlyPrice={ sitePlans[ 'realtime-backup' ].price.yearly.amount }
 				/>
 			) }
@@ -61,8 +63,8 @@ function SingleProductBackupHeader( props ) {
 }
 
 export function PlanPriceDisplay( props ) {
-	const { dailyPrice, yearlyPrice } = props;
-	const perYearPriceRange = `${ dailyPrice }-${ yearlyPrice } /year`;
+	const { monthlyPrice, yearlyPrice } = props;
+	const perYearPriceRange = `${ monthlyPrice }-${ yearlyPrice } /year`;
 
 	return (
 		<div
@@ -128,7 +130,7 @@ function SingleProductBackupBody( props ) {
 				) }
 			</p>
 
-			<h4>Backup options:</h4>
+			<h4>{ __( 'Backup options:' ) }</h4>
 			<div
 				style={ {
 					display: 'flex',

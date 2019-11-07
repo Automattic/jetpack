@@ -9,7 +9,7 @@ const AccentedCard = props => {
 	return (
 		<div className="accented-card">
 			<div className={ 'accented-card__header' }>{ header }</div>
-			<div className="accented-card__body">{ body }</div>
+			<div className={ 'accented-card__body' }>{ body }</div>
 		</div>
 	);
 };
