@@ -61,16 +61,6 @@ class JITM {
 	}
 
 	/**
-	 * Get's the Jetpack emblem
-	 *
-	 * @return string The Jetpack emblem
-	 */
-	public function get_emblem() {
-		$jetpack_logo = new Jetpack_Logo();
-		return '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
-	}
-
-	/**
 	 * Prepare actions according to screen and post type.
 	 *
 	 * @since 3.8.2
