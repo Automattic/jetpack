@@ -105,6 +105,11 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @since 3.9
 	 */
 	public function test_replace_url_with_iframe_in_the_content() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'Embeds are handled by core on WordPress.com. See D27860-code' );
+			return;
+		}
+
 		global $post;
 
 		$video_id = '141358';
@@ -269,6 +274,12 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @param string $expected The expected return value.
 	 */
 	public function test_jetpack_amp_vimeo_shortcode( $attr, $expected ) {
+		// Test AMP version. On AMP views, we only show a link.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
 		unset( $GLOBALS['content_width'] );
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
@@ -279,6 +290,12 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * Tests the Vimeo shortcode filter in an AMP view when there is a global $content_width value.
 	 */
 	public function test_jetpack_amp_vimeo_shortcode_global_content_width() {
+		// Test AMP version. On AMP views, we only show a link.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$video_id                 = '624432';
