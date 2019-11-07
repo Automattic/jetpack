@@ -8,6 +8,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { AccentedCard } from './accented-card';
+import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 
 export function SingleProductBackup( props ) {
@@ -156,9 +157,9 @@ function SingleProductBackupBody( props ) {
 			</div>
 
 			<div style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }>
-				<a href={ upgradeLinks[ selectedBackupType ] } type="button" class="dops-button is-primary">
+				<Button href={ upgradeLinks[ selectedBackupType ] } primary>
 					{ upgradeTitles[ selectedBackupType ] }
-				</a>
+				</Button>
 			</div>
 		</div>
 	);
