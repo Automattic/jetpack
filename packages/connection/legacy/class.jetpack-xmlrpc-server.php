@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
@@ -291,7 +292,7 @@ class Jetpack_XMLRPC_Server {
 		$nonce = sanitize_text_field( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		$api_url  = Jetpack::fix_url_for_bad_hosts(
+		$api_url  = Connection_Utils::fix_url_for_bad_hosts(
 			$this->connection->api_url( 'partner_provision_nonce_check' )
 		);
 		$response = Client::_wp_remote_request(

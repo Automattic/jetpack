@@ -5,6 +5,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -3533,7 +3534,7 @@ p {
 			$args       = array();
 			$connection = self::connection();
 			Client::_wp_remote_request(
-				self::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
+				Connection_Utils::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
 				$args,
 				true
 			);
@@ -4816,23 +4817,13 @@ endif;
 	}
 
 	/**
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts() instead.
+     *
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		if ( 0 !== strpos( $url, 'https://' ) ) {
-			return $url;
-		}
-
-		switch ( JETPACK_CLIENT__HTTPS ) {
-			case 'ALWAYS':
-				return $url;
-			case 'NEVER':
-				return set_url_scheme( $url, 'http' );
-			// default : case 'AUTO' :
-		}
-
-		// we now return the unmodified SSL URL by default, as a security precaution
-		return $url;
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::fix_url_for_bad_hosts' );
+		return Connection_Utils::fix_url_for_bad_hosts( $url );
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
