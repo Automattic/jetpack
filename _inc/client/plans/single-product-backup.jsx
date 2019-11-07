@@ -104,7 +104,7 @@ function SingleProductBackupBody( props ) {
 
 	const upgradeTitles = {
 		'real-time': __( 'Upgrade to Real-Time Backups' ),
-		daily: 'Upgrade to Daily Backups',
+		daily: __( 'Upgrade to Daily Backups' ),
 	};
 
 	function handleSelectedBackupTypeChange( event ) {
