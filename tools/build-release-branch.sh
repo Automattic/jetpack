@@ -81,26 +81,6 @@ function modify_svnignore {
 	git commit .svnignore -m "Updated .svnignore"
 }
 
-# Normalizes a version string to desired length.
-# First arg is input string, second is minimum number of points.
-function normalize_version_number {
-	TARGET_LENGTH="${2:-2}"
-	VERSION_ARRAY=()
-	VERSION_APPEND=$(echo $1 | cut -d'-' -f 2)
-	VERSION_RAW=$(echo $1 | cut -d'-' -f 1)
-	IFS='.' read -ra VERSION_PARTS <<< "$VERSION_RAW"
-	for i in "${VERSION_PARTS[@]}"; do
-		VERSION_ARRAY+=( "$i" )
-	done
-	while [ "${#VERSION_ARRAY[@]}" -lt "$TARGET_LENGTH" ]; do
-		VERSION_ARRAY+=( "0" )
-	done
-	NORMALIZED_VERSION=$(IFS=. ; echo "${VERSION_ARRAY[*]}")
-	if [ -n "$VERSION_APPEND" ]; then
-		NORMALIZED_VERSION="${NORMALIZED_VERSION}-${VERSION_APPEND}"
-	fi
-}
-
 # This function will create a new set of release branches.
 # The branch formats will be branch-x.x (unbuilt version) and branch-x-x-built (built)
 # These branches will be created off of master.
@@ -109,13 +89,8 @@ function create_new_release_branches {
 	# Prompt for version number.
 	read -p "What version are you releasing? Example: 4.9 - " version
 
-	# Save target versions
-	normalize_version_number $version
-	TARGET_VERSION=$NORMALIZED_VERSION
-	normalize_version_number $version 3
-	NPM_TARGET_VERSION=$NORMALIZED_VERSION
-
 	# Declare the new branch names.
+	TARGET_VERSION=$(./tools/version-update.sh -v $version -n)
 	NEW_UNBUILT_BRANCH="branch-$TARGET_VERSION"
 	NEW_BUILT_BRANCH="branch-$TARGET_VERSION-built"
 
@@ -128,26 +103,13 @@ function create_new_release_branches {
 		echo "Creating new unbuilt branch $NEW_UNBUILT_BRANCH from current master branch..."
 		echo ""
 		# reset --hard to remote master in case they have local commits in their repo
-		git checkout master && git pull && git reset --hard origin/master
+		# git checkout master && git pull && git reset --hard origin/master
 
 		# Create new branch, push to repo
 		git checkout -b $NEW_UNBUILT_BRANCH
 
-		# Updates file target version.
-		read -n1 -p "Would you like to update the version number in files to $TARGET_VERSION? [y/N]" reply
-		if [[ 'y' == $reply || 'Y' == $reply ]]; then
-			# Replace all file contents.
-			sed -r -i "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php
-			sed -r -i "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
-			sed -r -i "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json
-
-			# Commit changed files.
-			git commit -m "update version" jetpack.php package.json
-
-			echo ""
-			echo "Updated version in jetpack.php and package.json"
-			echo ""
-		fi
+		./tools/version-update.sh -v $TARGET_VERSION
+		exit
 
 		git push -u origin $NEW_UNBUILT_BRANCH
 		echo ""
@@ -196,11 +158,11 @@ TMP_REMOTE_BUILT_VERSION="/tmp/jetpack"
 TMP_LOCAL_BUILT_VERSION="/tmp/jetpack2"
 
 # Make sure we don't have uncommitted changes.
-if [[ -n $( git status -s --porcelain ) ]]; then
-	echo "Uncommitted changes found."
-	echo "Please deal with them and try again clean."
-	exit 1
-fi
+# if [[ -n $( git status -s --porcelain ) ]]; then
+# 	echo "Uncommitted changes found."
+# 	echo "Please deal with them and try again clean."
+# 	exit 1
+# fi
 
 # Check the command
 if [[ 'new' == $COMMAND || '-n' == $COMMAND ]]; then
