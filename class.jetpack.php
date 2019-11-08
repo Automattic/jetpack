@@ -4634,16 +4634,19 @@ endif;
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		add_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
 		if ( $iframe ) {
 			add_filter( 'jetpack_api_url', array( __CLASS__, 'filter_connect_api_iframe_url' ) );
 		}
 
 		$c8n = self::connection();
-		$url = $c8n->build_connect_url( wp_get_current_user() );
+		$url = $c8n->build_connect_url( wp_get_current_user(), $redirect );
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		remove_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
+
 		if ( $iframe ) {
 			remove_filter( 'jetpack_api_url', array( __CLASS__, 'filter_connect_api_iframe_url' ) );
 		}
@@ -4651,6 +4654,12 @@ endif;
 		return $url;
 	}
 
+	/**
+	 * Filters the connection URL parameter array.
+	 *
+	 * @param Array $args default URL parameters used by the package.
+	 * @return Array the modified URL arguments array.
+	 */
 	public static function filter_connect_request_body( $args ) {
 		if (
 			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
@@ -4682,6 +4691,25 @@ endif;
 		return $args;
 	}
 
+	/**
+	 * Filters the URL that will process the connection data. It can be different from the URL
+	 * that we send the user to after everything is done.
+	 *
+	 * @param String $processing_url the default redirect URL used by the package.
+	 * @return String the modified URL.
+	 */
+	public static function filter_connect_processing_url( $processing_url ) {
+		$processing_url = admin_url( 'admin.php?page=jetpack' ); // Making PHPCS happy.
+		return $processing_url;
+	}
+
+	/**
+	 * Filters the redirection URL that is used for connect requests. The redirect
+	 * URL should return the user back to the Jetpack console.
+	 *
+	 * @param String $redirect the default redirect URL used by the package.
+	 * @return String the modified URL.
+	 */
 	public static function filter_connect_redirect_url( $redirect ) {
 		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
 		$redirect           = $redirect
@@ -4695,6 +4723,14 @@ endif;
 		return $redirect;
 	}
 
+	/**
+	 * Filters the API URL that is used for connect requests. The method
+	 * intercepts only the authorize URL and replaces it with another if needed.
+	 *
+	 * @param String $api_url the default redirect API URL used by the package.
+	 * @param String $relative_url the path of the URL that's being used.
+	 * @return String the modified URL.
+	 */
 	public static function filter_connect_api_iframe_url( $api_url, $relative_url ) {
 
 		// Short-circuit on anything that is not related to connect requests.
@@ -4704,7 +4740,7 @@ endif;
 
 		$c8n = self::connection();
 
-		return $c8n->api_url( 'authorize_iframe');
+		return $c8n->api_url( 'authorize_iframe' );
 	}
 
 	/**

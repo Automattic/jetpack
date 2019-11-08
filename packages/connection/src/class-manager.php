@@ -1397,9 +1397,10 @@ class Manager {
 	 * Builds a URL to the Jetpack connection auth page.
 	 *
 	 * @param WP_User $user (optional) defaults to the current logged in user.
-	 * @return string Connect URL
+	 * @param String  $redirect (optional) a redirect URL to use instead of the default.
+	 * @return string Connect URL.
 	 */
-	public function build_connect_url( $user = null ) {
+	public function build_connect_url( $user = null, $redirect = null ) {
 
 		if ( empty( $user ) ) {
 			$user = wp_get_current_user();
@@ -1410,6 +1411,16 @@ class Manager {
 		$signed_role = $this->sign_role( $role );
 
 		/**
+		 * Filter the URL of the first time the user gets redirected back to your site for connection
+		 * data processing.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param string $redirect_url Defaults to the site admin URL.
+		 */
+		$processing_url = apply_filters( 'jetpack_connect_processing_url', admin_url( 'admin.php' ) );
+
+		/**
 		 * Filter the URL to redirect the user back to when the authentication process
 		 * is complete.
 		 *
@@ -1417,7 +1428,7 @@ class Manager {
 		 *
 		 * @param string $redirect_url Defaults to the site URL.
 		 */
-		$redirect = apply_filters( 'jetpack_connect_redirect_url', esc_url_raw( site_url() ) );
+		$redirect = apply_filters( 'jetpack_connect_redirect_url', $redirect );
 
 		$secrets = $this->generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
 
@@ -1435,7 +1446,7 @@ class Manager {
 		/**
 		 * Filters the user connection request data for additional property addition.
 		 *
-		 * @since 8.8.0
+		 * @since 8.0.0
 		 *
 		 * @param Array $request_data request data.
 		 */
@@ -1450,7 +1461,7 @@ class Manager {
 						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
 						'redirect' => rawurlencode( $redirect ),
 					),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) )
+					esc_url( $processing_url )
 				),
 				'state'         => $user->ID,
 				'scope'         => $signed_role,
