@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Shortcodes: ensure Vimeo videos can be displayed properly when using the AMP plugin.
 
 **Bug fixes**
 
