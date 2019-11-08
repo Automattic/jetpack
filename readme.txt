@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major enhancements**
 
-*
+* Block Editor: new Pinterest block allowing you to easily embed boards, profiles, and pins.
 
 **Enhancements**
 

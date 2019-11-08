@@ -1,6 +1,12 @@
 ## 8.0
 
+### Blocks
 
+#### Pinterest
+
+This release introduces **a new Pinterest block**. This block allows you to insert various Pinterest links (pins, boards, profiles) that will be automatically converted into a Pinterest embed in your posts.
+
+To test this, try adding various Pinterest URLs (short and long), and see that they are displayed properly in the editor and on the front-end of your site.
 
 ### Others
 
