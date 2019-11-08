@@ -338,27 +338,7 @@ abstract class Module {
 	 */
 	public function send_action( $action_name, $data ) {
 		$sender = Sender::get_instance();
-
-		// Compose the data to be sent.
-		$action_to_send = $this->create_action_to_send( $action_name, $data );
-
-		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $sender->get_items_to_send( $action_to_send, true ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		Settings::set_is_sending( true );
-		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $sender->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
-		Settings::set_is_sending( false );
-
-		/**
-		 * Allows us to keep track of all the actions that have been sent.
-		 * Allows us to calculate the progress of specific actions.
-		 *
-		 * @param array $processed_actions The actions that we send successfully.
-		 *
-		 * @since 4.2.0
-		 */
-		do_action( 'jetpack_sync_processed_actions', $action_to_send );
-
-		return $processed_item_ids;
+		return $sender->send_action( $action_name, $data );
 	}
 
 	/**
