@@ -242,18 +242,18 @@ class Callables extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param array   $config Full sync configuration for this sync module.
-	 * @param int     $send_until Maximum duration of processing.
-	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 * @param array $config Full sync configuration for this sync module.
+	 * @param int   $send_until Maximum duration of processing.
+	 * @param array $status Module Full Sync Status.
 	 *
-	 * @return array Number of actions enqueued, and next module state.
+	 * @return array Module Full Sync Status.
 	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function send_full_sync_actions( $config, $send_until, $status ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
 		$this->send_action( 'jetpack_full_sync_callables', [ true ] );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return array( 1, true );
+		return [ 1, 1, true ];
 	}
 
 	/**
