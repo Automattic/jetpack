@@ -554,6 +554,7 @@ $sync_settings_response = array(
 	'max_enqueue_full_sync'    => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
 	'max_queue_size_full_sync' => '(int|bool=false) Maximum queue size that full sync is allowed to use',
 	'full_sync_send_immediately' => '(bool) Skip the queue, send right away for full sync',
+	'full_sync_send_immediately_duration' =>  '(float) Max full sync duration on immediate mode',
 	'sync_via_cron'            => '(int|bool=false) Set to 1 or true to avoid using cron for sync.',
 	'cron_sync_time_limit'	   => '(int|bool=false) Limit cron jobs to number of seconds',
 	'enqueue_wait_time'        => '(int|bool=false) Wait time in seconds between attempting to continue a full sync, via requests',
