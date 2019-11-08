@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { includes, map, maxBy } from 'lodash';
+import { includes, map, reduce } from 'lodash';
 
 /**
  * Internal dependencies
@@ -115,8 +115,8 @@ class PlanGrid extends React.Component {
 	renderPlanPeriodToggle() {
 		const { period } = this.state;
 		const periods = {
-			monthly: __( 'Monthly Billing' ),
-			yearly: __( 'Yearly Billing' ),
+			monthly: __( 'Monthly' ),
+			yearly: __( 'Yearly' ),
 		};
 
 		return (
@@ -182,23 +182,33 @@ class PlanGrid extends React.Component {
 		if ( this.featuredPlans ) {
 			return this.featuredPlans;
 		}
-
-		const featuredPlans = map( this.props.plans, ( plan, planType ) => ( {
-			plan,
-			planType,
-		} ) )
-			.filter( item => ! [ 'free', 'daily-backup', 'realtime-backup' ].includes( item.planType ) )
-			.map( item => {
-				item.plan.features = item.plan.features.filter( feature =>
-					includes( item.plan.highlight, feature.id )
+		// reduce the .features member to only the highlighted features.
+		const featuredPlans = reduce(
+			this.props.plans,
+			( plans, plan, key ) => {
+				// ignore the free plan
+				if ( 'free' === key ) {
+					return plans;
+				}
+				const highlights = plan.highlight;
+				plan.features = reduce(
+					plan.features,
+					( highlightedFeatures, feature ) => {
+						if ( includes( highlights, feature.id ) ) {
+							highlightedFeatures.push( feature );
+						}
+						return highlightedFeatures;
+					},
+					[]
 				);
-				return item;
-			} );
-
-		this.featuredPlans = [ 'business', 'premium', 'personal' ].map( planType =>
-			featuredPlans.find( item => item.planType === planType )
+				plans[ key ] = plan;
+				return plans;
+			},
+			{}
 		);
-		return this.featuredPlans;
+
+		this.featuredPlans = featuredPlans;
+		return featuredPlans;
 	}
 
 	/**
@@ -206,15 +216,15 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} needed <td> headers
 	 */
 	renderPlanHeaders() {
-		return map( this.getPlans(), ( { plan, planType } ) => {
+		return map( this.getPlans(), ( plan, type ) => {
 			const className = classNames(
 				'plan-features__table-item',
 				'is-header',
 				'has-border-top',
-				`is-${ planType }-plan`
+				`is-${ type }-plan`
 			);
 			return (
-				<td key={ 'plan-header-' + planType } className={ className }>
+				<td key={ 'plan-header-' + type } className={ className }>
 					<header className="plan-features__header">
 						<h3 className="plan-features__header-title">{ plan.short_name }</h3>
 						<div className="plan-features__description">{ plan.tagline }</div>
@@ -229,25 +239,25 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} needed <td>s for prices
 	 */
 	renderPrices() {
-		return map( this.getPlans(), ( { plan, planType } ) => {
+		return map( this.getPlans(), ( plan, type ) => {
 			const className = classNames( 'plan-features__table-item', 'plan-price' );
 
-			if ( this.isCurrentPlanType( planType ) ) {
+			if ( this.isCurrentPlanType( type ) ) {
 				return (
-					<td key={ 'price-' + planType } className={ className }>
+					<td key={ 'price-' + type } className={ className }>
 						{ plan.strings.current }
 					</td>
 				);
 			}
 			// don't show prices for a lower plan
-			if ( ! this.shouldRenderButton( planType ) ) {
-				return <td key={ 'price-' + planType } className={ className } />;
+			if ( ! this.shouldRenderButton( type ) ) {
+				return <td key={ 'price-' + type } className={ className } />;
 			}
 			// using dangerouslySetInnerHTML because formatting localized
 			// currencies is best left to our server and it includes the <abbr> element
 			/*eslint-disable react/no-danger*/
 			return (
-				<td key={ 'price-' + planType } className={ className }>
+				<td key={ 'price-' + type } className={ className }>
 					<span
 						className="plan-price__yearly"
 						dangerouslySetInnerHTML={ { __html: plan.price[ this.state.period ].per } }
@@ -275,7 +285,7 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
-		return map( this.getPlans(), ( { plan, planType } ) => {
+		return map( this.getPlans(), ( plan, planType ) => {
 			const { siteRawUrl, plansUpgradeUrl, sitePlan } = this.props;
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const buttonText = isActivePlan ? plan.strings.manage : plan.strings.upgrade;
@@ -310,7 +320,7 @@ class PlanGrid extends React.Component {
 		// if we're upgraded, step it up a level
 		if ( this.isUpgraded() ) {
 			const currentPlanType = this.getCurrentPlanType();
-			const planKeys = Object.keys( this.getPlans().map( ( { planType: type } ) => type ) );
+			const planKeys = Object.keys( this.getPlans() );
 			const currentPlanIndex = planKeys.indexOf( currentPlanType );
 			// want the next one
 			return planKeys.indexOf( planType ) === planKeys.indexOf( planKeys[ currentPlanIndex + 1 ] );
@@ -324,7 +334,7 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderBottomButtons() {
-		return map( this.getPlans(), ( { plan, planType } ) => {
+		return map( this.getPlans(), ( plan, planType ) => {
 			return (
 				<td
 					key={ 'bottom-' + planType }
@@ -346,8 +356,14 @@ class PlanGrid extends React.Component {
 	 * @return {array} longest features list
 	 */
 	getLongestFeaturesList() {
-		const planWithLongestFeatures = maxBy( this.getPlans(), ( { plan } ) => plan.features.length );
-		return planWithLongestFeatures.plan.features;
+		return reduce(
+			this.getPlans(),
+			( longest, properties ) => {
+				const currentFeatures = Object.keys( properties.features );
+				return currentFeatures.length > longest.length ? currentFeatures : longest;
+			},
+			[]
+		);
 	}
 
 	/**
@@ -370,9 +386,9 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} some <td> elements for the row
 	 */
 	renderPlanFeatureColumns( rowIndex ) {
-		return map( this.getPlans(), ( { plan, planType } ) => {
+		return map( this.getPlans(), ( properties, planType ) => {
 			const key = planType + '-row-' + rowIndex;
-			const feature = plan.features[ rowIndex ];
+			const feature = properties.features[ rowIndex ];
 			const backupFeatureIds = [ 'backups', 'malware-scan', 'real-time-backups' ];
 			const hideBackupFeature =
 				! this.props.showBackups && feature && includes( backupFeatureIds, feature.id );
