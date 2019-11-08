@@ -47,7 +47,6 @@ class Settings {
 		'comment_meta_whitelist'                 => true,
 		'max_enqueue_full_sync'                  => true,
 		'max_queue_size_full_sync'               => true,
-		'full_sync_send_immediately'             => true,
 		'sync_via_cron'                          => true,
 		'cron_sync_time_limit'                   => true,
 		'known_importers'                        => true,
