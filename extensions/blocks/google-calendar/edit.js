@@ -10,6 +10,7 @@ import { BlockControls, BlockIcon } from '@wordpress/editor';
  * Internal dependencies
  */
 import { icon } from '.';
+import { isMobile } from '../../../_inc/client/lib/viewport';
 
 class GoogleCalendarEdit extends Component {
 	constructor() {
@@ -63,7 +64,9 @@ class GoogleCalendarEdit extends Component {
 		const { url } = attributes;
 		const { editedUrl, interactive, editingUrl } = this.state;
 
-		const html = `<iframe src="${ url }" frameborder="0" width="100%" height="500"></iframe>`;
+		const height = isMobile() ? '300' : '500';
+
+		const html = `<iframe src="${ url }" frameborder="0" width="100%" height=${ height }></iframe>`;
 
 		const controls = (
 			<BlockControls>
