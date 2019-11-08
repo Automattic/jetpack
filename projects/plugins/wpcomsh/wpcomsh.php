@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.51
+ * Version: 2.4.52
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.51' );
+define( 'WPCOMSH_VERSION', '2.4.52' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -983,3 +983,38 @@ function wpcomsh_no_wpcom_nameserver_pressable_a_record() {
 	}
 }
 add_action( 'admin_notices', 'wpcomsh_no_wpcom_nameserver_pressable_a_record' );
+
+function wpcomsh_display_disk_space_usage() {
+	$at_site_info_file = sys_get_temp_dir() . '/.at-site-info';
+
+	if ( ! is_file( $at_site_info_file ) ) {
+		return;
+	}
+
+	$site_info_json = file_get_contents( $at_site_info_file );
+
+	if ( empty( $site_info_json ) ) {
+		return;
+	}
+
+	$site_info = json_decode( $site_info_json, true );
+	if ( empty( $site_info ) || empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
+		return;
+	}
+
+	$space_used = $site_info['space_used'];
+	$space_quota = $site_info['space_quota'];
+
+	$message = sprintf(
+		__(
+			'You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%).'
+		),
+		size_format( $space_used, 1 ),
+		size_format( $space_quota, 1 ),
+		number_format_i18n( ( $space_used / $space_quota ) * 100.0 )
+	);
+
+	echo "<p>$message</p>";
+}
+
+add_action( 'pre-upload-ui', 'wpcomsh_display_disk_space_usage' );

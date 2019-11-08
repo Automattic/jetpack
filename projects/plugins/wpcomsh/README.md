@@ -197,6 +197,14 @@ If a site has the `a8c-fse-is-eligible` site option, the site is eligible for Fu
 
 On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
 
+### Notification if site is using old Pressable IPs
+
+If not using WordPress.com nameservers and site pointed to old Pressable IPs show a notice in `wp-admin/` saying that site will stop working if they don't update to the new IPs (which are shown in the notice).
+
+### Media Library used space
+
+Shows space used (e.g. `250MB of 100GB`) in Media library.
+
 ### Logging
 
 WPCOMSH provides a hook to log arbitrary information in our Kibana instance.
