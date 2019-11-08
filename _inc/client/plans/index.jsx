@@ -51,15 +51,7 @@ function addFakedSitePlans( sitePlans ) {
 						symbol: '$',
 						per: '<abbr title="United States Dollars">$</abbr>12 per year',
 					},
-					// monthly: {
-					// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
-					// 	text: '$3.50',
-					// 	amount: 3.5,
-					// 	symbol: '$',
-					// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
-					// },
 				},
-				features: [],
 			},
 			'realtime-backup': {
 				price: {
@@ -70,15 +62,7 @@ function addFakedSitePlans( sitePlans ) {
 						symbol: '$',
 						per: '<abbr title="United States Dollars">$</abbr>16 per year',
 					},
-					// monthly: {
-					// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
-					// 	text: '$3.50',
-					// 	amount: 3.5,
-					// 	symbol: '$',
-					// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
-					// },
 				},
-				features: [],
 			},
 		} );
 	}
