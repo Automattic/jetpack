@@ -140,14 +140,14 @@ abstract class Module {
 	 * @access public
 	 *
 	 * @param array   $config Full sync configuration for this sync module.
-	 * @param float   $send_until timestamp until we want this request to send full sync events
+	 * @param float   $send_until timestamp until we want this request to send full sync events.
 	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
 	 *
 	 * @return array  Number of actions sent, and next module state.
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// In subclasses, return the number of actions enqueued, and next module state (true == done).
-		return array( null, true );
+		// In subclasses, return the number of actions sent, and next module state (true == done).
+		return [ 0, 0, 1 ];
 	}
 
 	/**
@@ -288,43 +288,46 @@ abstract class Module {
 	 * @param string  $table_name Name of the database table.
 	 * @param string  $id_field Name of the ID field in the database.
 	 * @param string  $where_sql The SQL WHERE clause to filter to the desired items.
-	 * @param float   $send_until timestamp until we want this request to send full sync events
-	 * @param boolean $state Whether enqueueing has finished.
+	 * @param float   $send_until timestamp until we want this request to send full sync events.
+	 * @param boolean $status the current module full sync status.
 	 *
-	 * @return array Array, containing the number of chunks and TRUE, indicating enqueueing has finished.
+	 * @return array Status, the module full sync status updated.
 	 */
-	protected function send_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $send_until, $state ) {
+	protected function send_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $send_until, $status ) {
 		global $wpdb;
 
 		if ( ! $where_sql ) {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page        = 100;
-		$page                  = 1;
-		$previous_interval_end = $state ? $state : '~0';
+		$items_per_page = 100;
+
+		if ( empty( $status[2] ) ) {
+			$status[2] = '~0';
+		}
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$status[2]} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
+			$result = $this->send_action( $action_name, [ $ids, $status[2] ] );
 
-			$this->send_action( $action_name, [ $ids, $previous_interval_end ] );
+			if ( is_wp_error( $result ) ) {
+				return $status;
+			}
+			// The $ids are ordered in descending order.
+			$status[2]  = end( $ids );
+			$status[1] += count( $ids );
 
 			if ( microtime( true ) >= $send_until ) {
-				return array( 0, end( $ids ) );
+				return $status;
 			}
-
-			$page++;
-			// The $ids are ordered in descending order.
-			$previous_interval_end = end( $ids );
 		}
 
-		if ( $wpdb->last_error ) {
-			// return the values that were passed in so all these chunks get retried.
-			return array( $page - 1, $state );
+		if ( ! $wpdb->last_error ) {
+			$status[2] = true;
 		}
 
-		return array( $page - 1, true );
+		return $status;
 	}
 
 	/**

@@ -145,43 +145,44 @@ class Term_Relationships extends Module {
 	 *
 	 * @param array   $config Full sync configuration for this sync module.
 	 * @param int     $send_until Maximum duration of processing.
-	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 * @param boolean $status Full sync status for this module.
 	 *
-	 * @return array Number of actions enqueued, and next module state.
+	 * @return array Full sync status for this module.
 	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) {
+	public function send_full_sync_actions( $config, $send_until, $status ) {
 		global $wpdb;
 
 		$items_per_page = 100;
-		$page           = 1;
 
-		$last_object_enqueued = $state ? $state : array(
-			'object_id'        => self::MAX_INT,
-			'term_taxonomy_id' => self::MAX_INT,
-		);
+		if ( empty( $status[2] ) ) {
+			$status[2] = [
+				'object_id'        => self::MAX_INT,
+				'term_taxonomy_id' => self::MAX_INT,
+			];
+		}
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $status[2]['object_id'], $status[2]['term_taxonomy_id'], $status[2]['object_id'], $items_per_page ), ARRAY_A ) ) {
+			$result = $this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $status[2] ] );
 
-		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $last_object_enqueued['object_id'], $last_object_enqueued['term_taxonomy_id'], $last_object_enqueued['object_id'], $items_per_page ), ARRAY_A ) ) {
-
-			$this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $last_object_enqueued ] );
+			if ( is_wp_error( $result ) || $wpdb->last_error ) {
+				return $status;
+			}
+			// The $ids are ordered in descending order.
+			$status[2]  = end( $objects );
+			$status[1] += count( $objects );
 
 			if ( microtime( true ) >= $send_until ) {
-				return array( 0, end( $objects ) );
+				return $status;
 			}
-
-			$page ++;
-			// The $ids are ordered in descending order.
-			$last_object_enqueued = end( $objects );
 		}
 
-		if ( $wpdb->last_error ) {
-			// return the values that were passed in so all these chunks get retried.
-			return array( $page - 1, $last_object_enqueued );
+		if ( ! $wpdb->last_error ) {
+			$status[2] = true;
 		}
 
-		return array( $page - 1, true );
+		return $status;
 	}
 
 	/**
