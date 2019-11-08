@@ -105,7 +105,7 @@ function SingleProductBackupBody( props ) {
 								<ExternalLink href="https://jetpack.com/upgrade/backup/" icon iconSize={ 12 } />
 							),
 						},
-					} // TODO: make icon color change with link
+					}
 				) }
 			</p>
 
