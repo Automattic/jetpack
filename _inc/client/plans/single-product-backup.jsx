@@ -24,7 +24,7 @@ export function SingleProductBackup( props ) {
 			<h2 className="plans-section__subheader">
 				{ __( "Just looking for backups? We've got you covered." ) }
 			</h2>
-			<div style={ { display: 'flex', justifyContent: 'center', marginBottom: '10px' } }>
+			<div className="single-product-backup__accented-card-container">
 				<AccentedCard>
 					{ {
 						header: <SingleProductBackupHeader sitePlans={ sitePlans } />,
@@ -47,14 +47,7 @@ function SingleProductBackupHeader( props ) {
 	const { sitePlans } = props;
 
 	return (
-		<div
-			style={ {
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-				alignContent: 'center',
-			} }
-		>
+		<div className="single-product-backup__header-container">
 			<h3>{ __( 'Jetpack Backup' ) }</h3>
 			{ sitePlans && (
 				<PlanPriceDisplay
@@ -71,15 +64,8 @@ export function PlanPriceDisplay( props ) {
 	const perYearPriceRange = `${ monthlyPrice }-${ yearlyPrice } /year`;
 
 	return (
-		<div
-			style={ {
-				display: 'flex',
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-				alignContent: 'center',
-			} }
-		>
-			<div className="slashed-price__container" style={ { marginRight: '14px' } }>
+		<div className="single-product-backup__plan-price-display-container">
+			<div className="slashed-price__container">
 				<div className="slashed-price__slash"></div>
 				{ /* TODO: get this from an API or calculate, currently unsure how to get this increased price */ }
 				<div className="slashed-price__price">{ '$15-25' }</div>
@@ -125,13 +111,7 @@ function SingleProductBackupBody( props ) {
 
 			<h4>{ __( 'Backup options:' ) }</h4>
 			{ sitePlans && (
-				<div
-					style={ {
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'center',
-					} }
-				>
+				<div className="single-product-backup__radio-buttons-container">
 					<PlanRadioButton
 						planName={ __( 'Daily Backups' ) }
 						radioValue={ 'daily' }
@@ -149,7 +129,7 @@ function SingleProductBackupBody( props ) {
 				</div>
 			) }
 
-			<div style={ { textAlign: 'center', marginTop: '23px', marginBottom: '10px' } }>
+			<div className="single-product-backup__upgrade-button-container">
 				<Button href={ upgradeLinks[ selectedBackupType ] } primary>
 					{ upgradeTitles[ selectedBackupType ] }
 				</Button>
@@ -163,17 +143,17 @@ export function PlanRadioButton( props ) {
 
 	return (
 		<div className="plan-radio-button__container">
-			<div style={ { gridColumn: 1, gridRow: 1 } }>
+			<div className="plan-radio-button__radio-input-wrapper">
 				<input
 					type="radio"
-					style={ { marginRight: '10px' } }
+					className="plan-radio-button__input"
 					value={ radioValue }
 					checked={ checked }
 					onChange={ onChange }
 				/>
 			</div>
-			<div style={ { gridColumn: 2, gridRow: 1, fontWeight: 'bold' } }>{ planName }</div>
-			<div style={ { gridColumn: 2, gridRow: 2 } }>
+			<div className="plan-radio-button__plan-name">{ planName }</div>
+			<div className="plan-radio-button__plan-price">
 				{ /* TODO: how to I18N this? */ }
 				{ planPrice && `${ planPrice } /year` }
 			</div>

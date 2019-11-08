@@ -44,6 +44,7 @@
 	position: relative;
 	display: inline-block;
 	line-height: 50px;
+	margin-right: 14px;
 }
 
 .slashed-price__slash {
@@ -63,4 +64,56 @@
 	display: inline-grid;
 	grid-template-rows: auto auto;
 	grid-template-columns: auto 150px;
+}
+
+.single-product-backup__accented-card-container {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 10px;
+}
+
+.single-product-backup__header-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-content: center;
+}
+
+.single-product-backup__plan-price-display-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-content: center;
+}
+
+.single-product-backup__radio-buttons-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.single-product-backup__upgrade-button-container {
+	text-align: center;
+	margin-top: 23px;
+	margin-bottom: 10px;
+}
+
+.plan-radio-button__input {
+	margin-right: '10px';
+}
+
+.plan-radio-button__radio-input-wrapper {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+.plan-radio-button__plan-name {
+	grid-column: 2;
+	grid-row: 1;
+	font-weight: bold;
+}
+
+.plan-radio-button__plan-price {
+	grid-column: 2;
+	grid-row: 2;
 }
