@@ -149,11 +149,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		$is_development_mode = ( new Status() )->is_development_mode();
-		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.deps.json';
-		$script_dependencies = file_exists( $script_deps_path )
-			? json_decode( file_get_contents( $script_deps_path ) )
-			: array();
-		$script_dependencies[] = 'wp-polyfill';
+		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
+		$script_dependencies = array( 'wp-polyfill' );
+		if ( file_exists( $script_deps_path ) ) {
+			$asset_manifest      = include $script_deps_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
 		if ( Jetpack::is_active() || $is_development_mode ) {
 			wp_enqueue_script(
 				'react-plugin',

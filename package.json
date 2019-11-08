@@ -75,11 +75,10 @@
 		}
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "4.1.0",
+		"@automattic/calypso-build": "5.0.1",
 		"@automattic/calypso-color-schemes": "1.0.0",
 		"@automattic/custom-colors-loader": "automattic/custom-colors-loader",
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/wordpress-external-dependencies-plugin": "1.0.0",
 		"@babel/core": "7.4.0",
 		"@babel/preset-env": "7.6.0",
 		"@babel/register": "7.4.4",
@@ -136,6 +135,7 @@
 		"page": "1.7.1",
 		"photon": "2.1.0",
 		"plugin-error": "1.0.1",
+		"postcss-custom-properties": "9.0.2",
 		"preact": "10.0.1",
 		"prop-types": "15.7.2",
 		"q-flat": "1.0.7",
@@ -166,6 +166,7 @@
 		"@slack/web-api": "5.3.0",
 		"@wordpress/components": "8.0.0",
 		"@wordpress/core-data": "2.4.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "2.0.0",
 		"@wordpress/e2e-test-utils": "2.2.0",
 		"@wordpress/editor": "9.4.0",
 		"@wordpress/eslint-plugin": "2.3.0",
