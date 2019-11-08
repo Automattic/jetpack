@@ -21,8 +21,9 @@ export class Plans extends React.Component {
 		return (
 			<>
 				<QuerySite />
-				{ 'jetpack_free' === get( this.props.sitePlan, 'product_slug', 'jetpack_free' ) &&
-					sitePlans && <SingleProductBackup sitePlans={ sitePlans } siteRawUrl={ siteRawUrl } /> }
+				{ 'jetpack_free' === get( this.props.sitePlan, 'product_slug' ) && sitePlans && (
+					<SingleProductBackup sitePlans={ sitePlans } siteRawUrl={ siteRawUrl } />
+				) }
 				<PlanGrid />
 			</>
 		);
@@ -40,44 +41,46 @@ export default connect( state => {
 
 function addFakedSitePlans( sitePlans ) {
 	if ( sitePlans ) {
-		sitePlans[ 'daily-backup' ] = {
-			price: {
-				yearly: {
-					html: '<abbr title="United States Dollars">$</abbr>12',
-					text: '$12',
-					amount: 12,
-					symbol: '$',
-					per: '<abbr title="United States Dollars">$</abbr>12 per year',
+		return Object.assign( {}, sitePlans, {
+			'daily-backup': {
+				price: {
+					yearly: {
+						html: '<abbr title="United States Dollars">$</abbr>12',
+						text: '$12',
+						amount: 12,
+						symbol: '$',
+						per: '<abbr title="United States Dollars">$</abbr>12 per year',
+					},
+					// monthly: {
+					// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
+					// 	text: '$3.50',
+					// 	amount: 3.5,
+					// 	symbol: '$',
+					// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
+					// },
 				},
-				// monthly: {
-				// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
-				// 	text: '$3.50',
-				// 	amount: 3.5,
-				// 	symbol: '$',
-				// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
-				// },
+				features: [],
 			},
-			features: [],
-		};
-		sitePlans[ 'realtime-backup' ] = {
-			price: {
-				yearly: {
-					html: '<abbr title="United States Dollars">$</abbr>16',
-					text: '$16',
-					amount: 16,
-					symbol: '$',
-					per: '<abbr title="United States Dollars">$</abbr>16 per year',
+			'realtime-backup': {
+				price: {
+					yearly: {
+						html: '<abbr title="United States Dollars">$</abbr>16',
+						text: '$16',
+						amount: 16,
+						symbol: '$',
+						per: '<abbr title="United States Dollars">$</abbr>16 per year',
+					},
+					// monthly: {
+					// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
+					// 	text: '$3.50',
+					// 	amount: 3.5,
+					// 	symbol: '$',
+					// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
+					// },
 				},
-				// monthly: {
-				// 	html: '<abbr title="United States Dollars">$</abbr>3.50',
-				// 	text: '$3.50',
-				// 	amount: 3.5,
-				// 	symbol: '$',
-				// 	per: '<abbr title="United States Dollars">$</abbr>3.50 per month',
-				// },
+				features: [],
 			},
-			features: [],
-		};
+		} );
 	}
 	return sitePlans;
 }
