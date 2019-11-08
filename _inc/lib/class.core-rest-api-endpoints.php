@@ -81,6 +81,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback'            => __CLASS__ . '::get_plans',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
 
+        ) );
+
+		register_rest_route( 'jetpack/v4', 'products', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_products',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+
 		) );
 
 		register_rest_route( 'jetpack/v4', 'marketing/survey', array(
@@ -502,7 +509,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $data;
-	}
+    }
+
+    public static function get_products( $request ) {
+        $wpcom_request = Client::wpcom_json_api_request_as_user(
+            '/products?_locale=' . get_user_locale(),
+            'v1.1',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			),
+	        null,
+	        'rest'
+        );
+
+	    $body = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+	    if ( 200 === wp_remote_retrieve_response_code( $wpcom_request ) ) {
+		    $data = $body;
+	    } else {
+		    // something went wrong so we'll just return the response without caching
+		    return $body;
+	    }
+
+	    return $data;
+    }
 
 	public static function submit_survey( $request ) {
 
