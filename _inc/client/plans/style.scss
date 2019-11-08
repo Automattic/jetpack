@@ -194,7 +194,7 @@ $plan-features-sidebar-width: 272px;
 	display: inline-block;
 	margin-left: 10px;
 	color: $gray;
-}
+ }
 
 .plan-price {
 	padding-top: 15px;
@@ -242,7 +242,7 @@ $plan-features-sidebar-width: 272px;
 	}
 
 	@include breakpoint( "<660px" ) {
-		display: none;
+		 display: none;
 	}
 }
 
