@@ -544,6 +544,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return array();
 		}
 
+		$fake_jitm_message = json_decode( <<<ENDJSON
+		{
+			"content": {
+			  "message": "Protect your site before making major changes.",
+			  "icon": "<div class=\"jp-emblem\"><svg id=\"jetpack-logo__icon\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\" viewBox=\"0 0 32 32\"><path fill=\"#00BE28\" d=\"M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z\"/></svg></div>",
+			  "list": [],
+			  "description": "Back up your theme, plugins, and content with Jetpack.",
+			  "classes": ""
+			},
+			"CTA": {
+			  "message": "Enable Backups",
+			  "hook": "",
+			  "newWindow": true,
+			  "primary": true
+			},
+			"template": "default",
+			"ttl": 300,
+			"id": "backup-updates",
+			"feature_class": "vaultpress",
+			"expires": 3628800,
+			"max_dismissal": 2,
+			"activate_module": null,
+			"url": "https://jetpack.com/redirect/?source=jitm-backup-updates&site=goldsounds2.ngrok.io&u=1",
+			"jitm_stats_url": "https://pixel.wp.com/g.gif?v=wpcom2&rand=a814e31aaefec80018811503ee5e6c30&x_jetpack-jitm=backup-updates"
+		  }
+ENDJSON
+		);
+
+		return [ $fake_jitm_message ];
+
 		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
 	}
 

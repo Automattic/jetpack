@@ -1,4 +1,61 @@
 jQuery( document ).ready( function( $ ) {
+	function renderJITMBody( envelope ) {
+		var html = '';
+		html += '<div class="jitm-banner__icon-plan">' + envelope.content.icon + '</div>';
+		html += '<div class="jitm-banner__content">';
+		html += '<div class="jitm-banner__info">';
+		html += '<div class="jitm-banner__title">' + envelope.content.message + '</div>';
+		if ( envelope.content.description && envelope.content.description !== '' ) {
+			html += '<div class="jitm-banner__description">' + envelope.content.description;
+			if ( envelope.content.list.length > 0 ) {
+				html += '<ul class="banner__list">';
+				for ( var i = 0; i < envelope.content.list.length; i++ ) {
+					var text = envelope.content.list[ i ].item;
+
+					if ( envelope.content.list[ i ].url ) {
+						text =
+							'<a href="' +
+							envelope.content.list[ i ].url +
+							'" target="_blank" rel="noopener noreferrer" data-module="' +
+							envelope.feature_class +
+							'" data-jptracks-name="nudge_item_click" data-jptracks-prop="jitm-' +
+							envelope.id +
+							'">' +
+							text +
+							'</a>';
+					}
+
+					html +=
+						'<li>' +
+						'<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g>' +
+						'<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg>' +
+						text +
+						'</li>';
+				}
+			}
+			html += '</div>';
+		}
+		html += '</div>';
+		return html;
+	}
+
+	function renderJITMActivateModule( envelope ) {
+		var html = '';
+		if ( envelope.activate_module ) {
+			html += '<div class="jitm-banner__action" id="jitm-banner__activate">';
+			html +=
+				'<a href="#" data-module="' +
+				envelope.activate_module +
+				'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
+				envelope.id +
+				'-activate_module">' +
+				window.jitm_config.activate_module_text +
+				'</a>';
+			html += '</div>';
+		}
+		return html;
+	}
+
 	var templates = {
 		default: function( envelope ) {
 			var html =
@@ -9,53 +66,9 @@ jQuery( document ).ready( function( $ ) {
 				'" data-stats_url="' +
 				envelope.jitm_stats_url +
 				'">';
-			html += '<div class="jitm-banner__icon-plan">' + envelope.content.icon + '</div>';
-			html += '<div class="jitm-banner__content">';
-			html += '<div class="jitm-banner__info">';
-			html += '<div class="jitm-banner__title">' + envelope.content.message + '</div>';
-			if ( envelope.content.description && envelope.content.description !== '' ) {
-				html += '<div class="jitm-banner__description">' + envelope.content.description;
-				if ( envelope.content.list.length > 0 ) {
-					html += '<ul class="banner__list">';
-					for ( var i = 0; i < envelope.content.list.length; i++ ) {
-						var text = envelope.content.list[ i ].item;
+			html += renderJITMBody( envelope );
+			html += renderJITMActivateModule( envelope );
 
-						if ( envelope.content.list[ i ].url ) {
-							text =
-								'<a href="' +
-								envelope.content.list[ i ].url +
-								'" target="_blank" rel="noopener noreferrer" data-module="' +
-								envelope.feature_class +
-								'" data-jptracks-name="nudge_item_click" data-jptracks-prop="jitm-' +
-								envelope.id +
-								'">' +
-								text +
-								'</a>';
-						}
-
-						html +=
-							'<li>' +
-							'<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g>' +
-							'<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg>' +
-							text +
-							'</li>';
-					}
-				}
-				html += '</div>';
-			}
-			html += '</div>';
-			if ( envelope.activate_module ) {
-				html += '<div class="jitm-banner__action" id="jitm-banner__activate">';
-				html +=
-					'<a href="#" data-module="' +
-					envelope.activate_module +
-					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
-					envelope.id +
-					'-activate_module">' +
-					window.jitm_config.activate_module_text +
-					'</a>';
-				html += '</div>';
-			}
 			if ( envelope.CTA.message ) {
 				var ctaClasses = 'jitm-button is-compact jptracks';
 				if ( envelope.CTA.primary && null === envelope.activate_module ) {
@@ -90,12 +103,15 @@ jQuery( document ).ready( function( $ ) {
 
 			return $( html );
 		},
+		bodyOnly: function( envelope ) {
+			return renderJITMBody( envelope );
+		},
 	};
 
 	var setJITMContent = function( $el, response, redirect ) {
 		var template;
 
-		var render = function( $my_template ) {
+		var dismiss = function( $my_template ) {
 			return function( e ) {
 				e.preventDefault();
 
@@ -122,7 +138,7 @@ jQuery( document ).ready( function( $ ) {
 		response.url = response.url + '&redirect=' + redirect;
 
 		var $template = templates[ template ]( response );
-		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
+		$template.find( '.jitm-banner__dismiss' ).click( dismiss( $template ) );
 
 		if ( $( '#jp-admin-notices' ).length > 0 ) {
 			// Add to Jetpack notices within the Jetpack settings app.
@@ -139,6 +155,38 @@ jQuery( document ).ready( function( $ ) {
 			// Replace placeholder div on other pages.
 			$el.replaceWith( $template );
 		}
+
+		// TODO: eliminate view stat for notice if it's inside a `display: none` element (maybe check element dimensions in viewport?)
+
+		// hack to display these notices in Gutenberg
+		var noticeBody = templates[ 'bodyOnly' ]( response );
+		wp.data.dispatch( 'core/notices' ).createNotice(
+			'info', // Can be one of: success, info, warning, error.
+			noticeBody, // Raw HTML string to display - see __unstableHTML below
+			{
+				id: response.id, //assigning an ID prevents the notice from being added repeatedly
+				isDismissible: true, // Whether the user can dismiss the notice.
+				__unstableHTML: true,
+				// Any actions the user can perform.
+				actions: [
+					{
+						url: response.url,
+						label: response.CTA.message,
+					},
+				],
+				onRemove: function() {
+					console.log( 'dismissing notice' );
+					$.ajax( {
+						url: window.jitm_config.api_root + 'jetpack/v4/jitm',
+						method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
+						data: {
+							id: response.id,
+							feature_class: response.feature_class,
+						},
+					} );
+				},
+			}
+		);
 
 		// Handle Module activation button if it exists.
 		$template.find( '#jitm-banner__activate a' ).click( function() {
