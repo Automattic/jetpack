@@ -4,14 +4,9 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 
-/**
- * Internal dependencies
- */
-import './editor.scss';
-
 class GoogleCalendarEdit extends Component {
 	/**
-	 * Write the block editor UI.
+	 * Render a preview of the Google Calendar embed.
 	 *
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
