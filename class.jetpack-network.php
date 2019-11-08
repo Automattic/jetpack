@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
@@ -471,7 +472,7 @@ class Jetpack_Network {
 	 */
 	public function filter_register_user_token( $token ) {
 		$is_master_user = ! Jetpack::is_active();
-		Jetpack::update_user_token(
+		Connection_Utils::update_user_token(
 			get_current_user_id(),
 			sprintf( '%s.%d', $token->secret, get_current_user_id() ),
 			$is_master_user
