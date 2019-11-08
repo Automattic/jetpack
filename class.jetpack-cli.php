@@ -1946,7 +1946,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 			} elseif ( false === stripos( $block_list, $slug ) ) {
 				$new_block_list         = json_decode( $block_list );
 				$new_block_list->beta[] = $slug;
-				if ( ! $wp_filesystem->put_contents( $block_list_path, wp_json_encode( $new_block_list ) ) ) {
+
+				// Format the JSON to match our coding standards.
+				$new_block_list_formatted = wp_json_encode( $new_block_list, JSON_PRETTY_PRINT ) . "\n";
+				$new_block_list_formatted = preg_replace_callback(
+					// Find all occurrences of multiples of 4 spaces a the start of the line.
+					'/^((?:    )+)/m',
+					function ( $matches ) {
+						// Replace each occurrence of 4 spaces with a tab character.
+						return str_repeat( "\t", substr_count( $matches[0], '    ' ) );
+					},
+					$new_block_list_formatted
+				);
+
+				if ( ! $wp_filesystem->put_contents( $block_list_path, $new_block_list_formatted ) ) {
 					/* translators: %s is the path to the file with the block list */
 					WP_CLI::error( sprintf( esc_html__( 'Error writing new %s', 'jetpack' ), $block_list_path ) );
 				}
