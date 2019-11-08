@@ -17,7 +17,7 @@ class GoogleCalendarEdit extends Component {
 		super( ...arguments );
 
 		this.state = {
-			editedUrl: this.props.attributes.url || '',
+			editedEmbed: this.props.attributes.url || '',
 			editingUrl: false,
 			interactive: false,
 		};
@@ -48,7 +48,7 @@ class GoogleCalendarEdit extends Component {
 			event.preventDefault();
 		}
 
-		const { editedUrl: url } = this.state;
+		const { editedEmbed: url } = this.state;
 
 		this.props.setAttributes( { url } );
 		this.setState( { editingUrl: false } );
@@ -62,11 +62,11 @@ class GoogleCalendarEdit extends Component {
 	render() {
 		const { attributes, className } = this.props;
 		const { url } = attributes;
-		const { editedUrl, interactive, editingUrl } = this.state;
+		const { editedEmbed, interactive, editingUrl } = this.state;
 
 		const height = isMobile() ? '300' : '500';
 
-		const html = `<iframe src="${ url }" frameborder="0" width="100%" height=${ height }></iframe>`;
+		const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" width="100%" height=${ height }></iframe>`;
 
 		const controls = (
 			<BlockControls>
@@ -91,12 +91,12 @@ class GoogleCalendarEdit extends Component {
 					>
 						<form onSubmit={ this.setUrl }>
 							<input
-								type="url"
-								value={ editedUrl }
+								type="text"
+								value={ editedEmbed }
 								className="components-placeholder__input"
-								aria-label={ __( 'Google Calendar URL', 'jetpack' ) }
-								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
+								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
+								placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
+								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
 							/>
 							<Button isLarge type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }

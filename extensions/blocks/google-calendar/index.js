@@ -3,11 +3,20 @@
  */
 import { __ } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
  */
 import edit from './edit';
+import { extractAttributesFromIframe } from './utils';
+
+const url_regex_string = 's*https?://calendar.google.com/';
+export const URL_REGEX = new RegExp( `^${ url_regex_string }`, 'i' );
+export const IFRAME_REGEX = new RegExp(
+	`<iframe((?:\\s+\\w+=(['"]).*?\\2)*)\\s+src=(["'])(${ url_regex_string }.*?)\\3((?:\\s+\\w+=(['"]).*?\\6)*)`,
+	'i'
+);
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
@@ -35,18 +44,50 @@ export const settings = {
 		html: false,
 	},
 
+	attributes: {
+		url: {
+			type: 'string',
+		},
+		width: {
+			type: 'integer',
+			default: 800,
+		},
+		height: {
+			type: 'integer',
+			default: 600,
+		},
+	},
+
 	edit,
 
-	/* @TODO Write the block editor output */
 	save: () => null,
 
 	transforms: {
-		from: [],
+		from: [
+			{
+				type: 'raw',
+				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
+				transform: node => {
+					return createBlock( 'jetpack/google-calendar', {
+						url: node.textContent.trim(),
+					} );
+				},
+			},
+			{
+				type: 'raw',
+				isMatch: node => node.nodeName === 'FIGURE' && IFRAME_REGEX.test( node.innerHTML ),
+				transform: node => {
+					const { url, width, height } = extractAttributesFromIframe( node.innerHTML.trim() );
+					return createBlock( 'jetpack/google-calendar', { url, width, height } );
+				},
+			},
+		],
 	},
 
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			url:
+				'https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York',
 		},
 	},
 };
