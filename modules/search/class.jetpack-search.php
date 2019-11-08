@@ -490,6 +490,11 @@ class Jetpack_Search {
 		if ( is_wp_error( $request ) ) {
 			return $request;
 		}
+		$response_code = wp_remote_retrieve_response_code( $request );
+
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
 
@@ -842,6 +847,17 @@ class Jetpack_Search {
 		}
 
 		return $sanitized_post_types;
+	}
+
+	/**
+	 * Initialize widgets for the Search module.
+	 *
+	 * @module search
+	 */
+	public function action__widgets_init() {
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
+
+		register_widget( 'Jetpack_Search_Widget_Filters' );
 	}
 
 	/**
