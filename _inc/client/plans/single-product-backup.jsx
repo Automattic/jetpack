@@ -7,7 +7,6 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { AccentedCard } from './accented-card';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 
@@ -25,19 +24,19 @@ export function SingleProductBackup( props ) {
 				{ __( "Just looking for backups? We've got you covered." ) }
 			</h2>
 			<div className="single-product-backup__accented-card-container">
-				<AccentedCard>
-					{ {
-						header: <SingleProductBackupHeader sitePlans={ sitePlans } />,
-						body: (
-							<SingleProductBackupBody
-								selectedBackupType={ selectedBackupType }
-								setSelectedBackupType={ setSelectedBackupType }
-								sitePlans={ sitePlans }
-								siteRawUrl={ siteRawUrl }
-							/>
-						),
-					} }
-				</AccentedCard>
+				<div className="single-product-backup__accented-card">
+					<div className={ 'single-product-backup__accented-card__header' }>
+						<SingleProductBackupHeader sitePlans={ sitePlans } />
+					</div>
+					<div className={ 'single-product-backup__accented-card__body' }>
+						<SingleProductBackupBody
+							selectedBackupType={ selectedBackupType }
+							setSelectedBackupType={ setSelectedBackupType }
+							sitePlans={ sitePlans }
+							siteRawUrl={ siteRawUrl }
+						/>
+					</div>
+				</div>
 			</div>
 		</React.Fragment>
 	);
