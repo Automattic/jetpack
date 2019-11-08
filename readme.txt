@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Support Tools: improve the reliability of the tools on slower sites.
 
 **Improved compatibility**
 
