@@ -342,27 +342,6 @@ abstract class Module {
 	}
 
 	/**
-	 * Create an synthetic action for direct sending to WPCOM during full sync (for example)
-	 *
-	 * @access protected
-	 *
-	 * @param string $action_name The action.
-	 * @param array  $data The data associated with the action.
-	 * @return array An array of synthetic sync actions keyed by current microtime(true)
-	 */
-	private function create_action_to_send( $action_name, $data ) {
-		return [
-			microtime( true ) => [
-				$action_name,
-				$data,
-				get_current_user_id(),
-				microtime( true ),
-				Settings::is_importing(),
-			],
-		];
-	}
-
-	/**
 	 * Retrieve chunk IDs with previous interval end.
 	 *
 	 * @access protected
