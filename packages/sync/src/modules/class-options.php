@@ -151,7 +151,7 @@ class Options extends Module {
 		$this->send_action( 'jetpack_full_sync_options', [ true ] );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return array( 1, true );
+		return [ 1, 1, true ];
 	}
 
 	/**

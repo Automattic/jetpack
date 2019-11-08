@@ -512,7 +512,7 @@ class Themes extends Module {
 		$this->send_action( 'jetpack_full_sync_theme_data', [ true ] );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return array( 1, true );
+		return [ 1, 1, true ];
 	}
 
 	/**
