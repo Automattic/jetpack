@@ -311,7 +311,12 @@ export const SettingsCard = props => {
 	return (
 		getModuleOverridenBanner() || (
 			<form className="jp-form-settings-card" onSubmit={ ! isSaving ? props.onSubmit : undefined }>
-				<SectionHeader label={ header }>
+				<SectionHeader
+					label={ header }
+					devModeWarning={
+						props.isDevMode && module && module.requires_connection && module.available_in_dev_mode
+					}
+				>
 					{ ! props.hideButton && (
 						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 							{ isSaving

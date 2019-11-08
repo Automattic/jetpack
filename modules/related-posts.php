@@ -6,6 +6,7 @@
  * Sort Order: 29
  * Recommendation Order: 9
  * Requires Connection: Yes
+ * Available in Development Mode: Yes
  * Auto Activate: No
  * Module Tags: Recommended
  * Feature: Engagement

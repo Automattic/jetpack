@@ -24,7 +24,10 @@ import {
 	UNLINK_USER_SUCCESS,
 	MOCK_SWITCH_USER_PERMISSIONS,
 } from 'state/action-types';
-import { getModulesThatRequireConnection } from 'state/modules';
+import {
+	getModulesThatRequireConnection,
+	getModulesThatAreAvailableInDevMode,
+} from 'state/modules';
 
 export const status = (
 	state = { siteConnected: window.Initial_State.connectionStatus },
@@ -269,7 +272,7 @@ export function requiresConnection( state, slug ) {
  * @return {boolean} True if site is in dev mode and module requires connection. False otherwise.
  */
 export function isUnavailableInDevMode( state, module ) {
-	return isDevMode( state ) && requiresConnection( state, module );
+	return isDevMode( state ) && ! includes( getModulesThatAreAvailableInDevMode( state ), module );
 }
 
 /**

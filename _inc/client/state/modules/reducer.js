@@ -235,6 +235,20 @@ export function getModulesThatRequireConnection( state ) {
 }
 
 /**
+ * Returns an array of modules that require connection.
+ *
+ * The module's header comments indicates if it requires connection or not.
+ *
+ * @param  {Object} state   Global state tree
+ * @return {Array}          Array of modules that require connection.
+ */
+export function getModulesThatAreAvailableInDevMode( state ) {
+	return Object.keys( state.jetpack.modules.items ).filter(
+		module_slug => state.jetpack.modules.items[ module_slug ].available_in_dev_mode
+	);
+}
+
+/**
  * Check that the module list includes at least one of these modules.
  *
  * @param  {Object} state   Global state tree

@@ -199,7 +199,7 @@ class Jetpack_Admin {
 		}
 
 		if ( ( new Status() )->is_development_mode() ) {
-			return ! ( $module['requires_connection'] );
+			return $module['available_in_dev_mode'];
 		} else {
 			if ( ! Jetpack::is_active() ) {
 				return false;

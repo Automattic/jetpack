@@ -54,13 +54,12 @@ class RelatedPostsComponent extends React.Component {
 	};
 
 	render() {
-		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
-			unavailableInDevMode = this.props.isUnavailableInDevMode( 'related-posts' );
+		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' );
+
 		return (
 			<SettingsCard { ...this.props } hideButton module="related-posts">
 				<SettingsGroup
 					hasChild
-					disableInDevMode
 					module={ this.props.getModule( 'related-posts' ) }
 					support={ {
 						text: __(
@@ -89,7 +88,6 @@ class RelatedPostsComponent extends React.Component {
 					</p>
 					<ModuleToggle
 						slug="related-posts"
-						disabled={ unavailableInDevMode }
 						activated={ isRelatedPostsActive }
 						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 						toggleModule={ this.props.toggleModuleNow }
@@ -103,7 +101,6 @@ class RelatedPostsComponent extends React.Component {
 							checked={ this.state.show_headline }
 							disabled={
 								! isRelatedPostsActive ||
-								unavailableInDevMode ||
 								this.props.isSavingAnyOption( [ 'related-posts', 'show_headline' ] )
 							}
 							onChange={ this.handleShowHeadlineToggleChange }
@@ -116,7 +113,6 @@ class RelatedPostsComponent extends React.Component {
 							checked={ this.state.show_thumbnails }
 							disabled={
 								! isRelatedPostsActive ||
-								unavailableInDevMode ||
 								this.props.isSavingAnyOption( [ 'related-posts', 'show_thumbnails' ] )
 							}
 							onChange={ this.handleShowThumbnailsToggleChange }
@@ -180,7 +176,7 @@ class RelatedPostsComponent extends React.Component {
 						) }
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'related-posts' ) && isRelatedPostsActive && (
+				{ isRelatedPostsActive && (
 					<Card
 						compact
 						className="jp-settings-card__configure-link"

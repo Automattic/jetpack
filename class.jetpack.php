@@ -1838,8 +1838,8 @@ class Jetpack {
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
 				}
-				// If the module requires a connection, but we're in local mode, don't include it.
-				if ( $modules_data[ $module ]['requires_connection'] ) {
+				// If the module cannot be used in dev mode, don't include it.
+				if ( ! $modules_data[ $module ]['available_in_dev_mode'] ) {
 					continue;
 				}
 			}
@@ -2459,6 +2459,7 @@ class Jetpack {
 			'deactivate'                => 'Deactivate',
 			'free'                      => 'Free',
 			'requires_connection'       => 'Requires Connection',
+			'available_in_dev_mode'     => 'Available in Development Mode',
 			'auto_activate'             => 'Auto Activate',
 			'module_tags'               => 'Module Tags',
 			'feature'                   => 'Feature',
@@ -2478,6 +2479,11 @@ class Jetpack {
 		$mod['deactivate']           = empty( $mod['deactivate'] );
 		$mod['free']                 = empty( $mod['free'] );
 		$mod['requires_connection']  = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		if ( $mod['requires_connection'] ) {
+			$mod['available_in_dev_mode'] = ( empty( $mod['available_in_dev_mode'] ) || 'No' == $mod['available_in_dev_mode'] ) ? false : true;
+		} else {
+			$mod['available_in_dev_mode'] = true;
+		}
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
 			$mod['auto_activate'] = 'No';
@@ -2970,8 +2976,8 @@ class Jetpack {
 				return false;
 			}
 
-			// If we're not connected but in development mode, make sure the module doesn't require a connection
-			if ( $is_development_mode && $module_data['requires_connection'] ) {
+			// If we're in development mode, make sure the module is compatible.
+			if ( $is_development_mode && ! $module_data['available_in_dev_mode'] ) {
 				return false;
 			}
 		}

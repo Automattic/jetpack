@@ -194,12 +194,12 @@ class Jetpack_Core_API_Module_List_Endpoint {
 
 		$modules = Jetpack_Admin::init()->get_modules();
 		foreach ( $modules as $slug => $properties ) {
-			$modules[ $slug ]['options'] =
-				Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $slug );
+			$modules[ $slug ]['options'] = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $slug );
+
 			if (
-				isset( $modules[ $slug ]['requires_connection'] )
-				&& $modules[ $slug ]['requires_connection']
-				&& ( new Status() )->is_development_mode()
+				( new Status() )->is_development_mode()
+			&&
+				! $modules[ $slug ]['available_in_dev_mode']
 			) {
 				$modules[ $slug ]['activated'] = false;
 			}
@@ -364,9 +364,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$module['options'] = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $request['slug'] );
 
 			if (
-				isset( $module['requires_connection'] )
-				&& $module['requires_connection']
-				&& ( new Status() )->is_development_mode()
+				( new Status() )->is_development_mode()
+			&&
+				! $module['available_in_dev_mode']
 			) {
 				$module['activated'] = false;
 			}
