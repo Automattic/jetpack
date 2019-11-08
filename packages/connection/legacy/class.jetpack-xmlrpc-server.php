@@ -12,7 +12,6 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Tracking;
 
 /**
  * Just a sack of functions.  Not actually an IXR_Server
@@ -33,13 +32,6 @@ class Jetpack_XMLRPC_Server {
 	public $user = null;
 
 	/**
-	 * The tracking manager object.
-	 *
-	 * @var Automattic\Jetpack\Tracking
-	 */
-	private $tracking;
-
-	/**
 	 * The connection manager object.
 	 *
 	 * @var Automattic\Jetpack\Connection\Manager
@@ -53,7 +45,6 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function __construct( $manager = null ) {
 		$this->connection = is_null( $manager ) ? new Connection_Manager() : $manager;
-		$this->tracking   = new Tracking( 'jetpack', $manager );
 	}
 
 	/**
@@ -173,7 +164,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'Invalid user identifier.', 'jetpack' ),
 					400
 				),
-				'jpc_get_user_fail'
+				'get_user'
 			);
 		}
 
@@ -186,7 +177,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'User not found.', 'jetpack' ),
 					404
 				),
-				'jpc_get_user_fail'
+				'get_user'
 			);
 		}
 
@@ -219,26 +210,44 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function remote_authorize( $request ) {
 		$user = get_user_by( 'id', $request['state'] );
-		$this->tracking->record_user_event( 'jpc_remote_authorize_begin', array(), $user );
+
+		/**
+		 * Happens on various request handling events in the Jetpack XMLRPC server.
+		 * The action combines several types of events:
+		 *    - remote_authorize
+		 *    - remote_provision
+		 *    - get_user.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param String  $action the action name, i.e., 'remote_authorize'.
+		 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
+		 * @param Array   $parameters extra parameters from the event.
+		 * @param WP_User $user the acting user.
+		 */
+		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'begin', array(), $user );
 
 		foreach ( array( 'secret', 'state', 'redirect_uri', 'code' ) as $required ) {
 			if ( ! isset( $request[ $required ] ) || empty( $request[ $required ] ) ) {
-				return $this->error( new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ), 'jpc_remote_authorize_fail' );
+				return $this->error(
+					new Jetpack_Error( 'missing_parameter', 'One or more parameters is missing from the request.', 400 ),
+					'remote_authorize'
+				);
 			}
 		}
 
 		if ( ! $user ) {
-			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ), 'jpc_remote_authorize_fail' );
+			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ), 'remote_authorize' );
 		}
 
 		if ( $this->connection->is_active() && $this->connection->is_user_connected( $request['state'] ) ) {
-			return $this->error( new Jetpack_Error( 'already_connected', 'User already connected.', 400 ), 'jpc_remote_authorize_fail' );
+			return $this->error( new Jetpack_Error( 'already_connected', 'User already connected.', 400 ), 'remote_authorize' );
 		}
 
 		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
 
 		if ( is_a( $verified, 'IXR_Error' ) ) {
-			return $this->error( $verified, 'jpc_remote_authorize_fail' );
+			return $this->error( $verified, 'remote_authorize' );
 		}
 
 		wp_set_current_user( $request['state'] );
@@ -247,10 +256,11 @@ class Jetpack_XMLRPC_Server {
 		$result        = $client_server->authorize( $request );
 
 		if ( is_wp_error( $result ) ) {
-			return $this->error( $result, 'jpc_remote_authorize_fail' );
+			return $this->error( $result, 'remote_authorize' );
 		}
 
-		$this->tracking->record_user_event( 'jpc_remote_authorize_success' );
+		// This action is documented in class.jetpack-xmlrpc-server.php.
+		do_action( 'jetpack_xmlrpc_server_event', 'remote_authorize', 'success' );
 
 		return array(
 			'result' => $result,
@@ -266,16 +276,20 @@ class Jetpack_XMLRPC_Server {
 	 * @return \WP_Error|array
 	 */
 	public function remote_register( $request ) {
-		$this->tracking->record_user_event( 'jpc_remote_register_begin', array() );
+		// This action is documented in class.jetpack-xmlrpc-server.php.
+		do_action( 'jetpack_xmlrpc_server_event', 'remote_register', 'begin', array() );
 
 		$user = $this->fetch_and_verify_local_user( $request );
 
 		if ( ! $user ) {
-			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_register_fail' );
+			return $this->error(
+				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ),
+				'remote_register'
+			);
 		}
 
 		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
-			return $this->error( $user, 'jpc_remote_register_fail' );
+			return $this->error( $user, 'remote_register' );
 		}
 
 		if ( empty( $request['nonce'] ) ) {
@@ -285,7 +299,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'The required "nonce" parameter is missing.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_register_fail'
+				'remote_register'
 			);
 		}
 
@@ -311,7 +325,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'There was an issue validating this request.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_register_fail'
+				'remote_register'
 			);
 		}
 
@@ -322,7 +336,7 @@ class Jetpack_XMLRPC_Server {
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
 			if ( is_wp_error( $registered ) ) {
-				return $this->error( $registered, 'jpc_remote_register_fail' );
+				return $this->error( $registered, 'remote_register' );
 			} elseif ( ! $registered ) {
 				return $this->error(
 					new Jetpack_Error(
@@ -330,12 +344,13 @@ class Jetpack_XMLRPC_Server {
 						__( 'There was an unspecified error registering the site', 'jetpack' ),
 						400
 					),
-					'jpc_remote_register_fail'
+					'remote_register'
 				);
 			}
 		}
 
-		$this->tracking->record_user_event( 'jpc_remote_register_success' );
+		// This action is documented in class.jetpack-xmlrpc-server.php.
+		do_action( 'jetpack_xmlrpc_server_event', 'remote_register', 'success' );
 
 		return array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
@@ -354,11 +369,14 @@ class Jetpack_XMLRPC_Server {
 		$user = $this->fetch_and_verify_local_user( $request );
 
 		if ( ! $user ) {
-			return $this->error( new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ), 'jpc_remote_provision_fail' );
+			return $this->error(
+				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ),
+				'remote_provision'
+			);
 		}
 
 		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
-			return $this->error( $user, 'jpc_remote_provision_fail' );
+			return $this->error( $user, 'remote_provision' );
 		}
 
 		$site_icon = get_site_icon_url();
@@ -422,7 +440,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'Jetpack is already connected.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_connect_fail'
+				'remote_connect'
 			);
 		}
 
@@ -435,7 +453,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'Valid user is required.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_connect_fail'
+				'remote_connect'
 			);
 		}
 
@@ -446,7 +464,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'A non-empty nonce must be supplied.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_connect_fail'
+				'remote_connect'
 			);
 		}
 
@@ -469,7 +487,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'Failed to fetch user token from WordPress.com.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_connect_fail'
+				'remote_connect'
 			);
 		}
 		$token = sanitize_text_field( $token );
@@ -494,7 +512,7 @@ class Jetpack_XMLRPC_Server {
 					__( 'The required "local_user" parameter is missing.', 'jetpack' ),
 					400
 				),
-				'jpc_remote_provision_fail'
+				'remote_provision'
 			);
 		}
 
@@ -521,37 +539,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $user;
-	}
-
-	/**
-	 * Track an error.
-	 *
-	 * @param string               $name  Event name.
-	 * @param \WP_Error|\IXR_Error $error The error object.
-	 * @param \WP_User             $user  The user object.
-	 */
-	private function tracks_record_error( $name, $error, $user = null ) {
-		if ( is_wp_error( $error ) ) {
-			$this->tracking->record_user_event(
-				$name,
-				array(
-					'error_code'    => $error->get_error_code(),
-					'error_message' => $error->get_error_message(),
-				),
-				$user
-			);
-		} elseif ( is_a( $error, '\\IXR_Error' ) ) {
-			$this->tracking->record_user_event(
-				$name,
-				array(
-					'error_code'    => $error->code,
-					'error_message' => $error->message,
-				),
-				$user
-			);
-		}
-
-		return $error;
 	}
 
 	/**
@@ -620,14 +607,14 @@ class Jetpack_XMLRPC_Server {
 	 * Returns the current error as an \IXR_Error
 	 *
 	 * @param \WP_Error|\IXR_Error $error             The error object, optional.
-	 * @param string               $tracks_event_name The event name.
+	 * @param string               $event_name The event name.
 	 * @param \WP_User             $user              The user object.
 	 * @return bool|\IXR_Error
 	 */
-	public function error( $error = null, $tracks_event_name = null, $user = null ) {
-		// Record using Tracks.
-		if ( null !== $tracks_event_name ) {
-			$this->tracks_record_error( $tracks_event_name, $error, $user );
+	public function error( $error = null, $event_name = null, $user = null ) {
+		if ( null !== $event_name ) {
+			// This action is documented in class.jetpack-xmlrpc-server.php.
+			do_action( 'jetpack_xmlrpc_server_event', $event_name, 'fail', $error, $user );
 		}
 
 		if ( ! is_null( $error ) ) {
