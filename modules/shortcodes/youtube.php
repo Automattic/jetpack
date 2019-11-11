@@ -181,87 +181,16 @@ function youtube_id( $url ) {
 	$url = youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 
-	$qargs = array();
-	if ( ! empty( $url['query'] ) ) {
-		wp_parse_str( $url['query'], $qargs );
-	} else {
+	$qargs = jetpack_shortcode_youtube_query_args( $url );
+	if ( empty( $qargs ) ) {
 		return false;
 	}
 
-	$fargs = array();
-	if ( ! empty( $url['fragment'] ) ) {
-		wp_parse_str( $url['fragment'], $fargs );
-	}
-
-	$qargs = array_merge( $fargs, $qargs );
-
-	// calculate the width and height, taking content_width into consideration.
-	global $content_width;
-
-	$input_w = ( isset( $qargs['w'] ) && intval( $qargs['w'] ) ) ? intval( $qargs['w'] ) : 0;
-	$input_h = ( isset( $qargs['h'] ) && intval( $qargs['h'] ) ) ? intval( $qargs['h'] ) : 0;
-
-	// If we have $content_width, use it.
-	if ( ! empty( $content_width ) ) {
-		$default_width = $content_width;
-	} else {
-		// Otherwise get default width from the old, now deprecated embed_size_w option.
-		$default_width = get_option( 'embed_size_w' );
-	}
-
-	// If we don't know those 2 values use a hardcoded width.
-	if ( empty( $default_width ) ) {
-		$default_width = 640;
-	}
-
-	if ( $input_w > 0 && $input_h > 0 ) {
-		$w = $input_w;
-		$h = $input_h;
-	} elseif ( 0 === $input_w && 0 === $input_h ) {
-		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) {
-			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		} else {
-			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-			$h = ceil( ( $w / 16 ) * 9 );
-		}
-	} elseif ( $input_w > 0 ) {
-		$w = $input_w;
-		$h = ceil( ( $w / 16 ) * 9 );
-	} else {
-		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) {
-			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		} else {
-			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-			$h = $input_h;
-		}
-	}
-
-	/**
-	 * Filter the YouTube player width.
-	 *
-	 * @module shortcodes
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param int $w Width of the YouTube player in pixels.
-	 */
-	$w = (int) apply_filters( 'youtube_width', $w );
-
-	/**
-	 * Filter the YouTube player height.
-	 *
-	 * @module shortcodes
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param int $h Height of the YouTube player in pixels.
-	 */
-	$h = (int) apply_filters( 'youtube_height', $h );
-
-	$rel    = ( isset( $qargs['rel'] ) && '0' === $qargs['rel'] ) ? 0 : 1;
-	$search = ( isset( $qargs['showsearch'] ) && '1' === $qargs['showsearch'] ) ? 1 : 0;
-	$info   = ( isset( $qargs['showinfo'] ) && '0' === $qargs['showinfo'] ) ? 0 : 1;
-	$iv     = ( isset( $qargs['iv_load_policy'] ) && '3' === $qargs['iv_load_policy'] ) ? 3 : 1;
+	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $qargs );
+	$rel           = ( isset( $qargs['rel'] ) && '0' === $qargs['rel'] ) ? 0 : 1;
+	$search        = ( isset( $qargs['showsearch'] ) && '1' === $qargs['showsearch'] ) ? 1 : 0;
+	$info          = ( isset( $qargs['showinfo'] ) && '0' === $qargs['showinfo'] ) ? 0 : 1;
+	$iv            = ( isset( $qargs['iv_load_policy'] ) && '3' === $qargs['iv_load_policy'] ) ? 3 : 1;
 
 	$fmt = ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) ? '&fmt=' . (int) $qargs['fmt'] : '';
 
@@ -366,14 +295,201 @@ function youtube_id( $url ) {
 }
 
 /**
+ * Gets the query args present in the YouTube shortcode URL.
+ *
+ * @since 8.0.0
+ *
+ * @param string $url The URL of the shortcode.
+ *
+ * @return array|false The query args of the URL, or false.
+ */
+function jetpack_shortcode_youtube_query_args( $url ) {
+	$qargs = array();
+	if ( ! empty( $url['query'] ) ) {
+		wp_parse_str( $url['query'], $qargs );
+	} else {
+		return false;
+	}
+
+	$fargs = array();
+	if ( ! empty( $url['fragment'] ) ) {
+		wp_parse_str( $url['fragment'], $fargs );
+	}
+
+	return array_merge( $fargs, $qargs );
+}
+
+/**
  * Display the Youtube shortcode.
  *
  * @param array $atts Shortcode attributes.
+ *
+ * @return string The rendered shortcode.
  */
 function youtube_shortcode( $atts ) {
-	return youtube_id( ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts ) );
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
+		return jetpack_amp_youtube_shortcode( $atts );
+	} else {
+		return youtube_id( ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts ) );
+	}
 }
 add_shortcode( 'youtube', 'youtube_shortcode' );
+
+/**
+ * Renders the [youtube] shortcode as an AMP component.
+ *
+ * @since 8.0.0
+ *
+ * @param array $atts The shortcode attributes.
+ *
+ * @return string The AMP-compatible rendered shortcode.
+ */
+function jetpack_amp_youtube_shortcode( $atts ) {
+	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
+	if ( empty( $url ) ) {
+		return '';
+	}
+
+	$video_id = get_amp_youtube_id_from_url( $url );
+	if ( empty( $video_id ) ) {
+		return sprintf(
+			'<a href="%s" class="amp-wp-embed-fallback">',
+			esc_url( $url )
+		);
+	}
+
+	$sanitized_url          = youtube_sanitize_url( $url );
+	$parsed_url             = wp_parse_url( $sanitized_url );
+	$query_args             = jetpack_shortcode_youtube_query_args( $parsed_url );
+	list( $width, $height ) = jetpack_shortcode_youtube_dimensions( $query_args );
+	return sprintf(
+		'<amp-youtube data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-youtube>',
+		esc_attr( $video_id ),
+		absint( $width ),
+		absint( $height )
+	);
+}
+
+/**
+ * Gets the dimensions of the [youtube] shortcode.
+ *
+ * Calculates the width and height, taking $content_width into consideration.
+ *
+ * @since 8.0.0
+ *
+ * @param array $query_args The query args of the URL.
+ *
+ * @return array The width and height of the shortcode.
+ */
+function jetpack_shortcode_youtube_dimensions( $query_args ) {
+	global $content_width;
+
+	$input_w = ( isset( $query_args['w'] ) && intval( $query_args['w'] ) ) ? intval( $query_args['w'] ) : 0;
+	$input_h = ( isset( $query_args['h'] ) && intval( $query_args['h'] ) ) ? intval( $query_args['h'] ) : 0;
+
+	// If we have $content_width, use it.
+	if ( ! empty( $content_width ) ) {
+		$default_width = $content_width;
+	} else {
+		// Otherwise get default width from the old, now deprecated embed_size_w option.
+		$default_width = get_option( 'embed_size_w' );
+	}
+
+	// If we don't know those 2 values use a hardcoded width.
+	if ( empty( $default_width ) ) {
+		$default_width = 640;
+	}
+
+	if ( $input_w > 0 && $input_h > 0 ) {
+		$w = $input_w;
+		$h = $input_h;
+	} elseif ( 0 === $input_w && 0 === $input_h ) {
+		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
+		} else {
+			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+			$h = ceil( ( $w / 16 ) * 9 );
+		}
+	} elseif ( $input_w > 0 ) {
+		$w = $input_w;
+		$h = ceil( ( $w / 16 ) * 9 );
+	} else {
+		if ( isset( $query_args['fmt'] ) && intval( $query_args['fmt'] ) ) {
+			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
+		} else {
+			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+			$h = $input_h;
+		}
+	}
+
+	/**
+	 * Filter the YouTube player width.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $w Width of the YouTube player in pixels.
+	 */
+	$w = (int) apply_filters( 'youtube_width', $w );
+
+	/**
+	 * Filter the YouTube player height.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 1.1.0
+	 *
+	 * @param int $h Height of the YouTube player in pixels.
+	 */
+	$h = (int) apply_filters( 'youtube_height', $h );
+
+	return array( $w, $h );
+}
+
+/**
+ * Gets the video ID from the URL.
+ *
+ * @since 8.0.0
+ *
+ * @param string $url The YouTube URL.
+ *
+ * @return string|bool The video ID based on that URL, or false.
+ */
+function get_amp_youtube_id_from_url( $url ) {
+	$video_id       = false;
+	$parsed_url     = wp_parse_url( $url );
+	$short_url_host = 'youtu.be'; // youtu.be/{id}.
+
+	if ( isset( $parsed_url['host'] ) && substr( $parsed_url['host'], -strlen( $short_url_host ) ) === $short_url_host ) {
+		$parts = explode( '/', $parsed_url['path'] );
+		if ( ! empty( $parts ) ) {
+			$video_id = $parts[1];
+		}
+	} elseif ( isset( $parsed_url['query'] ) ) {
+		// The query looks like ?v=<id> or ?list=<id>.
+		parse_str( $parsed_url['query'], $query_args );
+		if ( isset( $query_args['v'] ) ) {
+			$video_id = $query_args['v'];
+			if ( false !== strpos( $video_id, '?' ) ) {
+				$video_id = strtok( $video_id, '?' );
+			}
+		}
+	}
+
+	if ( empty( $video_id ) && isset( $parts[1], $parts[2] ) ) {
+		/* The path looks like /(v|e|embed)/{id} */
+		$parts = explode( '/', $parsed_url['path'] );
+		if ( in_array( $parts[1], [ 'v', 'e', 'embed' ], true ) ) {
+			$video_id = $parts[2];
+		}
+	}
+
+	return $video_id;
+}
 
 /**
  * For bare URLs on their own line of the form
