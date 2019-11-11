@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 					'fragment' => 'foo=infragment',
 				),
 				array( 'foo' => 'inquery' )
-			)
+			),
 		);
 	}
 
