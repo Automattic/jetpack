@@ -323,6 +323,12 @@ class JITM {
 		if ( ! is_admin() ) {
 			return;
 		}
+
+		// do not display on Gutenberg pages.
+		if ( $this->is_gutenberg_page() ) {
+			return;
+		}
+
 		$message_path   = $this->get_message_path();
 		$query_string   = _http_build_query( $_GET, '', ',' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
@@ -351,6 +357,9 @@ class JITM {
 	 * Function to enqueue jitm css and js
 	 */
 	public function jitm_enqueue_files() {
+		if ( $this->is_gutenberg_page() ) {
+			return;
+		}
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
@@ -614,5 +623,15 @@ class JITM {
 		}
 
 		return $envelopes;
+	}
+
+	/**
+	 * Is the current page a block editor page?
+	 *
+	 * @since 8.0.0
+	 */
+	private function is_gutenberg_page() {
+		$current_screen = get_current_screen();
+		return ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() );
 	}
 }
