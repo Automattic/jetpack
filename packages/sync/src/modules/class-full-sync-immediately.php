@@ -212,8 +212,6 @@ class Full_Sync_Immediately extends Module {
 	 *
 	 * @access private
 	 *
-	 * @param array $config Full sync configuration for this all sync modules.
-	 *
 	 * @return array Array of range (min ID, max ID, total items) for all content types.
 	 */
 	private function get_content_range() {
@@ -281,10 +279,11 @@ class Full_Sync_Immediately extends Module {
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		$status = [];
 		foreach ( $full_sync_config as $name => $config ) {
+			$module          = Modules::get_module( $name );
 			$status[ $name ] = array(
-				'total'     => 1,   // Total.
+				'total'     => $module->total( $full_sync_config ),   // Total.
 				'sent'      => 0,             // Sent.
-				'last_sent' => 999999999,    // Current state.
+				'last_sent' => $module->get_initial_last_sent(),    // Current state.
 				'finished'  => false,
 			);
 		}

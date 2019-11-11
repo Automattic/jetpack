@@ -539,4 +539,41 @@ abstract class Module {
 
 		return $results;
 	}
+
+	/**
+	 * Return the max id_field.
+	 *
+	 * @return int
+	 */
+	public function get_max_id() {
+		global $wpdb;
+		$table = $wpdb->{$this->table_name()};
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $wpdb->get_var( "SELECT MAX({$this->id_field()}) FROM $table" );
+	}
+
+	/**
+	 * Returns a bigger int than the biggest object ID.
+	 *
+	 * @return int
+	 */
+	public function get_initial_last_sent() {
+		return $this->get_max_id() + 1;
+	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @return int total
+	 */
+	public function total() {
+		global $wpdb;
+		$table = $wpdb->{$this->table_name()};
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $table" );
+		// TODO: add where sql that considers blacklist and full sync config.
+	}
+
 }
