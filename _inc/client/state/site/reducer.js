@@ -129,10 +129,17 @@ export function isFetchingSiteBenefits( state ) {
 }
 
 /**
+<<<<<<< HEAD
  * Returns true if currently requesting products. Otherwise false.
  *
  * @param  {Object}  state Global state tree
  * @return {Boolean}       Whether products are being requested
+=======
+ * Returns true if currently requesting site benefits. Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether benefits are being requested
+>>>>>>> Add QueryProducts data component and corresponding Redux and rest API calls
  */
 export function isFetchingProducts( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingProducts;
