@@ -96,7 +96,7 @@ class Full_Sync_Immediately extends Module {
 			[
 				'started'  => time(),
 				'config'   => $full_sync_config,
-				'progress' => $this->get_initial_progress(),
+				'progress' => $this->get_initial_progress( $full_sync_config ),
 			]
 		);
 
@@ -216,8 +216,9 @@ class Full_Sync_Immediately extends Module {
 	 *
 	 * @return array Array of range (min ID, max ID, total items) for all content types.
 	 */
-	private function get_content_range( $config ) {
-		$range = array();
+	private function get_content_range() {
+		$range  = [];
+		$config = $this->get_status()['config'];
 		// Only when we are sending the whole range do we want to send also the range.
 		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
 			$range['posts'] = $this->get_range( 'posts' );
@@ -303,22 +304,6 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Get the value of a full sync status option.
-	 *
-	 * @access private
-	 *
-	 * @param string $name Name of the option.
-	 *
-	 * @return mixed Option value.
-	 */
-	private function get_status_option( $name ) {
-		$status = $this->get_status();
-		$value  = $status[ $name ];
-
-		return is_numeric( $value ) ? intval( $value ) : $value;
-	}
-
-	/**
 	 * Enqueue the next items to sync.
 	 *
 	 * @access public
@@ -326,19 +311,17 @@ class Full_Sync_Immediately extends Module {
 	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function continue_enqueuing( $configs = null ) {
-		$this->continue_sending( $configs );
+		$this->continue_sending();
 	}
 
 	/**
 	 * Continue sending.
 	 *
 	 * @access public
-	 *
-	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function continue_sending() {
 		// TODO Lock.
-		if ( ! $this->is_started() || $this->get_status_option( 'queue_finished' ) ) {
+		if ( ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
@@ -351,8 +334,6 @@ class Full_Sync_Immediately extends Module {
 	 * Immediately send the next items to full sync.
 	 *
 	 * @access public
-	 *
-	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function send() {
 		$config = $this->get_status()['config'];
@@ -404,7 +385,7 @@ class Full_Sync_Immediately extends Module {
 					return false;
 				}
 				if ( isset( $status['progress'][ $module->name() ]['finished'] ) ) {
-					if ( true === $status[ $module->name() ]['finished'] ) {
+					if ( true === $status['progress'][ $module->name() ]['finished'] ) {
 						return false;
 					}
 				}
@@ -435,6 +416,6 @@ class Full_Sync_Immediately extends Module {
 		do_action( 'jetpack_full_sync_end', '', $range );
 
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
-		$this->update_status_option( [ 'finished' => time() ] );
+		$this->update_status( [ 'finished' => time() ] );
 	}
 }

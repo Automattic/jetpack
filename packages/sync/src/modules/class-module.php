@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions.
@@ -302,21 +301,21 @@ abstract class Module {
 
 		$items_per_page = 100;
 
-		if ( empty( $status[2] ) ) {
-			$status[2] = '~0';
+		if ( empty( $status['last_sent'] ) ) {
+			$status['last_sent'] = '~0';
 		}
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$status[2]} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
-			$result = $this->send_action( $action_name, [ $ids, $status[2] ] );
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$status['last_sent']} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
+			$result = $this->send_action( $action_name, [ $ids, $status['last_sent'] ] );
 
 			if ( is_wp_error( $result ) ) {
 				return $status;
 			}
 			// The $ids are ordered in descending order.
-			$status[2]  = end( $ids );
-			$status[1] += count( $ids );
+			$status['last_sent'] = end( $ids );
+			$status['sent']      = $status['sent'] + count( $ids );
 
 			if ( microtime( true ) >= $send_until ) {
 				return $status;
@@ -324,7 +323,7 @@ abstract class Module {
 		}
 
 		if ( ! $wpdb->last_error ) {
-			$status[2] = true;
+			$status['finished'] = true;
 		}
 
 		return $status;
