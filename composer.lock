@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca5dc29f5b87977456fc0becbfd73c2d",
+    "content-hash": "ef915606b01e8daa01376c9cce623abd",
     "packages": [
         {
             "name": "automattic/jetpack-logo",
-            "version": "v1.1.2",
+            "version": "v1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "2712436239b3fa0c856e6b6fbc729521068831db"
+                "reference": "7da178a529f772cddfd0bbf1775eb30a852739c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/2712436239b3fa0c856e6b6fbc729521068831db",
-                "reference": "2712436239b3fa0c856e6b6fbc729521068831db",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/7da178a529f772cddfd0bbf1775eb30a852739c2",
+                "reference": "7da178a529f772cddfd0bbf1775eb30a852739c2",
                 "shasum": ""
             },
             "require-dev": {
@@ -26,16 +26,16 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Assets\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack",
-            "time": "2019-10-25T21:19:03+00:00"
+            "time": "2019-11-08T21:16:05+00:00"
         }
     ],
     "packages-dev": [
