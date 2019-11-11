@@ -353,7 +353,7 @@ function jetpack_amp_youtube_shortcode( $atts ) {
 		return '';
 	}
 
-	$video_id = get_amp_youtube_id_from_url( $url );
+	$video_id = jetpack_get_youtube_id( $url );
 	if ( empty( $video_id ) ) {
 		return sprintf(
 			'<a href="%s" class="amp-wp-embed-fallback">',
@@ -448,47 +448,6 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	$h = (int) apply_filters( 'youtube_height', $h );
 
 	return array( $w, $h );
-}
-
-/**
- * Gets the video ID from the URL.
- *
- * @since 8.0.0
- *
- * @param string $url The YouTube URL.
- *
- * @return string|bool The video ID based on that URL, or false.
- */
-function get_amp_youtube_id_from_url( $url ) {
-	$video_id       = false;
-	$parsed_url     = wp_parse_url( $url );
-	$short_url_host = 'youtu.be'; // youtu.be/{id}.
-
-	if ( isset( $parsed_url['host'] ) && substr( $parsed_url['host'], -strlen( $short_url_host ) ) === $short_url_host ) {
-		$parts = explode( '/', $parsed_url['path'] );
-		if ( ! empty( $parts ) ) {
-			$video_id = $parts[1];
-		}
-	} elseif ( isset( $parsed_url['query'] ) ) {
-		// The query looks like ?v=<id> or ?list=<id>.
-		parse_str( $parsed_url['query'], $query_args );
-		if ( isset( $query_args['v'] ) ) {
-			$video_id = $query_args['v'];
-			if ( false !== strpos( $video_id, '?' ) ) {
-				$video_id = strtok( $video_id, '?' );
-			}
-		}
-	}
-
-	if ( empty( $video_id ) && isset( $parts[1], $parts[2] ) ) {
-		/* The path looks like /(v|e|embed)/{id} */
-		$parts = explode( '/', $parsed_url['path'] );
-		if ( in_array( $parts[1], [ 'v', 'e', 'embed' ], true ) ) {
-			$video_id = $parts[2];
-		}
-	}
-
-	return $video_id;
 }
 
 /**

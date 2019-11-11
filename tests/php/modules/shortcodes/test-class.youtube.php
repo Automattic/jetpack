@@ -236,47 +236,4 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		$GLOBALS['content_width'] = self::CONTENT_WIDTH;
 		$this->assertEquals( $expected, jetpack_shortcode_youtube_dimensions( $query_args ) );
 	}
-
-	/**
-	 * Gets the test data for get_amp_youtube_id_from_url().
-	 *
-	 * @return array[] The test data.
-	 */
-	public function get_amp_video_id_shortcode_data() {
-		return array(
-			'v_query_arg'                 => array(
-				'https://www.youtube.com/watch?v=WVbQ-oro7FQ',
-				'WVbQ-oro7FQ',
-			),
-			'v_query_arg_with_other_args' => array(
-				'https://www.youtube.com/watch?v=_Oh12ROTQCE&w=640&h=385',
-				'_Oh12ROTQCE',
-			),
-			'wrong_query_arg_e'           => array(
-				'https://www.youtube.com/watch?e=WVbQ-oro7FQ',
-				false,
-			),
-			'short_youtube_url'           => array(
-				'https://youtu.be/gbS6_xOABTWo',
-				'gbS6_xOABTWo',
-			),
-			'non_youtube_url'             => array(
-				'https://www.vimeo.com/watch?e=WVbQ-oro7FQ',
-				false,
-			),
-		);
-	}
-
-	/**
-	 * Test get_amp_youtube_id_from_url.
-	 *
-	 * @dataProvider get_amp_video_id_shortcode_data
-	 * @covers ::get_amp_youtube_id_from_url
-	 *
-	 * @param string   $url The URL to pass as an argument.
-	 * @param int|bool $expected The expected return value.
-	 */
-	public function test_get_amp_youtube_id_from_url( $url, $expected ) {
-		$this->assertEquals( $expected, get_amp_youtube_id_from_url( $url ) );
-	}
 }
