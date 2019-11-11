@@ -151,7 +151,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		return array(
 			'no_attributes'           => array(
 				array(),
-				'<a href="" class="amp-wp-embed-fallback">',
+				'',
 			),
 			'url_at_0_index'          => array(
 				array( 0 => 'https://www.youtube.com/watch?v=SVRiktFlWxI' ),
