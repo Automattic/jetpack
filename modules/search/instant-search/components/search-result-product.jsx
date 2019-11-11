@@ -9,6 +9,7 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import SearchResultComments from './search-result-comments';
+import PhotonImage from './photon-image';
 
 class SearchResultProduct extends Component {
 	render() {
@@ -34,7 +35,7 @@ class SearchResultProduct extends Component {
 					/>
 				</h3>
 				{ firstImage && (
-					<img
+					<PhotonImage
 						className="jetpack-instant-search__search-result-product-img"
 						src={ `//${ firstImage }` }
 						alt=""

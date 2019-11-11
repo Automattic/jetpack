@@ -30,7 +30,8 @@ const sharedWebpackConfig = {
 	devtool: isDevelopment ? 'source-map' : false,
 };
 
-// We export two configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
+// We export two main configuration files: One for admin.js, and one for static.jsx. The latter produces pre-rendered HTML.
+// The third configuration file is for Jetpack Search's Preact app.
 module.exports = [
 	{
 		...sharedWebpackConfig,
