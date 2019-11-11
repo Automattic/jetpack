@@ -89,7 +89,7 @@ class Full_Sync_Immediately extends Module {
 		}
 
 		if ( ! is_array( $full_sync_config ) ) {
-			$full_sync_config = Defaults::$default_full_sync_modules;
+			$full_sync_config = Defaults::$default_full_sync_config;
 		}
 
 		$this->update_status(

@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Sync;
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Sync\Functions;
 
 /**
  * Just some defaults that we share with the server.
@@ -1190,4 +1189,23 @@ class Defaults {
 	 * @var int 1 for true.
 	 */
 	public static $default_full_sync_sender_enabled = 1; // Should send full sync items.
+
+	/**
+	 * Default Full Sync config
+	 *
+	 * @var array list of module names.
+	 */
+	public static $default_full_sync_config = [
+		'constants'          => 1,
+		'functions'          => 1,
+		'options'            => 1,
+		'updates'            => 1,
+		'themes'             => 1,
+		'users'              => 1,
+		'terms'              => 1,
+		'posts'              => 1,
+		'comments'           => 1,
+		'term_relationships' => 1,
+	];
+
 }
