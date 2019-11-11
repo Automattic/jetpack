@@ -20,6 +20,9 @@ import {
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
+	JETPACK_PRODUCTS_FETCH,
+	JETPACK_PRODUCTS_FETCH_RECEIVE,
+	JETPACK_PRODUCTS_FETCH_FAIL,
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
@@ -32,6 +35,8 @@ export const data = ( state = {}, action ) => {
 			return merge( {}, state, { site: { features: action.siteFeatures } } );
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return merge( {}, state, { sitePlans: action.plans } );
+		case JETPACK_PRODUCTS_FETCH_RECEIVE:
+			return merge( {}, state, { products: action.products } );
 		default:
 			return state;
 	}
@@ -59,6 +64,10 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSitePlans: true,
 			} );
+		case JETPACK_PRODUCTS_FETCH:
+			return assign( {}, state, {
+				isFetchingProducts: true,
+			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
@@ -79,6 +88,11 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSitePlans: false,
 			} );
+		case JETPACK_PRODUCTS_FETCH_RECEIVE:
+		case JETPACK_PRODUCTS_FETCH_FAIL:
+			return assign( {}, state, {
+				isFetchingProducts: false,
+			} );
 
 		default:
 			return state;
@@ -92,7 +106,6 @@ export const reducer = combineReducers( {
 
 /**
  * Returns true if currently requesting site data. Otherwise false.
- * otherwise.
  *
  * @param  {Object}  state Global state tree
  * @return {Boolean}       Whether site data is being requested
@@ -105,8 +118,24 @@ export function isFetchingSiteData( state ) {
 	);
 }
 
+/**
+ * Returns true if currently requesting site benefits. Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether benefits are being requested
+ */
 export function isFetchingSiteBenefits( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingSiteBenefits;
+}
+
+/**
+ * Returns true if currently requesting site benefits. Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether benefits are being requested
+ */
+export function isFetchingProducts( state ) {
+	return !! state.jetpack.siteData.requests.isFetchingProducts;
 }
 
 /**
@@ -147,6 +176,15 @@ export function getActiveFeatures( state ) {
 
 export function getAvailablePlans( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePlans' ] );
+}
+
+/**
+ * Returns all wpcom products
+ * @param  {Object}  state Global state tree
+ * @return {Object}  Products
+ */
+export function getAllProducts( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'products' ] );
 }
 
 export function getSiteID( state ) {
