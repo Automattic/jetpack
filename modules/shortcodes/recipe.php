@@ -457,8 +457,8 @@ class Jetpack_Recipes {
 				$listtype              = 'ol';
 				break;
 			case 'ingredients':
-				$list_item_replacement = '<li class="jetpack-recipe-ingredient" itemprop="recipeIngredient">${1}</li>';
-				$itemprop              = ' itemprop="recipeIngredient" class="p-ingredient ingredient"';
+				$list_item_replacement = '<li class="jetpack-recipe-ingredient p-ingredient ingredient" itemprop="recipeIngredient">${1}</li>';
+				$itemprop              = '';
 				$listtype              = 'ul';
 				break;
 			case 'nutrition':
