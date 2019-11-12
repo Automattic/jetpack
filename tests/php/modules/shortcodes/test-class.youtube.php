@@ -161,6 +161,10 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 				array( 0 => 'https://youtu.be/gS6_xOABTWo' ),
 				'<amp-youtube data-videoid="gS6_xOABTWo" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-youtube>',
 			),
+			'url_without_id'          => array(
+				array( 0 => 'https://youtube.com' ),
+				'<a href="https://youtube.com" class="amp-wp-embed-fallback"></a>',
+			),
 			'with_v_query_param'      => array(
 				array( 0 => 'https://www.youtube.com/watch?v=WVbQ-oro7FQ' ),
 				'<amp-youtube data-videoid="WVbQ-oro7FQ" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-youtube>',
