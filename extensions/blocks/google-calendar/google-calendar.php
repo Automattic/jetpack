@@ -34,9 +34,17 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_google_calendar_block_load_assets( $attr ) {
-	return <<<EOT
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return <<<EOT
+<div class="wp-block-jetpack-google-calendar">
+	<amp-iframe src="${attr['url']}" frameborder="0" style="border:0" scrolling="no" width="${attr['width']}" height="${attr['height']}" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe>
+</div>
+EOT;
+	} else {
+		return <<<EOT
 <div class="wp-block-jetpack-google-calendar">
 	<iframe src="${attr['url']}" frameborder="0" style="border:0" scrolling="no" width="${attr['width']}" height="${attr['height']}"></iframe>
 </div>
 EOT;
+	}
 }
