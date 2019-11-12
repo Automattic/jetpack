@@ -21,14 +21,10 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $test_posts_count = 20;
 	private $test_comments_count = 11;
 
-	public static function setUpBeforeClass() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		parent::setUpBeforeClass();
-	}
-
 	public function setUp() {
 		parent::setUp();
 		Settings::reset_data();
+		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
 
 		$this->full_sync = Modules::get_module( 'full-sync' );
 
@@ -60,7 +56,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_start_action_without_post_sends_empty_range() {
-//		TODO: WHAT's the empty thing?
+//		TODO: WHAT's the $empty thing?
 //		$this->full_sync->start();
 //		$this->sender->do_full_sync();
 //		$start_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
@@ -265,8 +261,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		// The first event is for full sync start.
 		$this->full_sync->start( array( 'terms' => true ) );
-
-		$this->full_sync->continue_sending();
+		$this->sender->do_full_sync();
 
 		$event                 = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_terms' );
 		$previous_interval_end = $event->args['previous_end'];
@@ -282,7 +277,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create_many( $posts_count );
 
 		$this->full_sync->start( [ 'posts' => true ] );
-		$this->full_sync->continue_sending();
+		$this->sender->do_full_sync();
 		// $this->sender->do_full_sync() is not necessary!
 
 		$this->assertEquals( $posts_count, count( $this->server_replica_storage->get_posts() ) );
@@ -306,9 +301,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start( array( 'term_relationships' => true ) );
 		$this->sender->do_full_sync();
-		$this->full_sync->continue_sending();
-		$this->sender->do_full_sync();
-
 
 		$replica_number_of_term_relationships = count( $this->server_replica_storage->get_term_relationships() );
 		$this->assertEquals( $original_number_of_term_relationships, $replica_number_of_term_relationships );
@@ -390,10 +382,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		// The first event is for full sync start.
 		$this->full_sync->start( array( 'users' => true ) );
-		$this->full_sync->continue_sending();
+		$this->sender->do_full_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_full_sync_users' );
-		l($events);
 		$previous_interval_end = $events[0]->args['previous_end'];
 
 		// The first batch has the previous_min_is not set.
