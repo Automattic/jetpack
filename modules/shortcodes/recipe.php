@@ -147,15 +147,15 @@ class Jetpack_Recipes {
 			array(
 				'title'       => '', // string.
 				'servings'    => '', // intval.
-				'time'        => '', // string.
+				'time'        => '', // strtotime-compatible time description.
 				'difficulty'  => '', // string.
-				'print'       => '', // string.
+				'print'       => '', // URL for external print version.
 				'source'      => '', // string.
-				'sourceurl'   => '', // string.
-				'image'       => '', // string.
+				'sourceurl'   => '', // URL string. Only used if source set.
+				'image'       => '', // URL or attachment ID.
 				'description' => '', // string.
-				'cooktime'    => '', // string.
-				'preptime'    => '', // string.
+				'cooktime'    => '', // strtotime-compatible time description.
+				'preptime'    => '', // strtotime-compatible time description.
 				'rating'      => '', // string.
 			),
 			$atts,
