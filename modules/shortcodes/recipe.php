@@ -229,17 +229,6 @@ class Jetpack_Recipes {
 				);
 			}
 
-			if ( '' !== $atts['rating'] ) {
-				$html .= sprintf(
-					'<li class="jetpack-recipe-rating">
-						<strong>%1$s: </strong>
-						<span itemprop="contentRating">%2$s</span>
-					</li>',
-					esc_html_x( 'Rating', 'recipe', 'jetpack' ),
-					esc_html( $atts['rating'] )
-				);
-			}
-
 			if ( '' !== $atts['source'] ) {
 				$html .= sprintf(
 					'<li class="jetpack-recipe-source"><strong>%1$s: </strong>',
