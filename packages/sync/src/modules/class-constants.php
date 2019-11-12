@@ -148,7 +148,7 @@ class Constants extends Module {
 		$this->send_action( 'jetpack_full_sync_constants', [ true ] );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 1, 1, true ];
+		return [ 'finished' => true ];
 	}
 
 	/**

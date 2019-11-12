@@ -253,7 +253,7 @@ class Callables extends Module {
 		$this->send_action( 'jetpack_full_sync_callables', [ true ] );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 1, 1, true ];
+		return [ 'finished' => true ];
 	}
 
 	/**
