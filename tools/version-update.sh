@@ -109,7 +109,7 @@ if [[ 'y' != $reply && 'Y' != $reply ]]; then
 fi
 
 # Commit changed files.
-git commit -m "update version" jetpack.php package.json
+git commit -m "updated version to ${TARGET_VERSION}" jetpack.php package.json
 commit_status=$?
 echo ""
 if [ $commit_status -eq 0 ]; then
