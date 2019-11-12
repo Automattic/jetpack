@@ -103,7 +103,7 @@ function create_new_release_branches {
 		echo "Creating new unbuilt branch $NEW_UNBUILT_BRANCH from current master branch..."
 		echo ""
 		# reset --hard to remote master in case they have local commits in their repo
-		# git checkout master && git pull && git reset --hard origin/master
+		git checkout master && git pull && git reset --hard origin/master
 
 		# Create new branch, push to repo
 		git checkout -b $NEW_UNBUILT_BRANCH
@@ -158,11 +158,11 @@ TMP_REMOTE_BUILT_VERSION="/tmp/jetpack"
 TMP_LOCAL_BUILT_VERSION="/tmp/jetpack2"
 
 # Make sure we don't have uncommitted changes.
-# if [[ -n $( git status -s --porcelain ) ]]; then
-# 	echo "Uncommitted changes found."
-# 	echo "Please deal with them and try again clean."
-# 	exit 1
-# fi
+if [[ -n $( git status -s --porcelain ) ]]; then
+	echo "Uncommitted changes found."
+	echo "Please deal with them and try again clean."
+	exit 1
+fi
 
 # Check the command
 if [[ 'new' == $COMMAND || '-n' == $COMMAND ]]; then
