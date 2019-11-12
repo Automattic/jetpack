@@ -360,4 +360,14 @@ class Options extends Module {
 
 		return $args;
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @return int total
+	 */
+	public function total() {
+		return 1;
+	}
+
 }

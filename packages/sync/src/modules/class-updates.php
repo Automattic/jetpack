@@ -512,4 +512,14 @@ class Updates extends Module {
 	public function reset_data() {
 		delete_option( self::UPDATES_CHECKSUM_OPTION_NAME );
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @return int total
+	 */
+	public function total() {
+		return 1;
+	}
+
 }

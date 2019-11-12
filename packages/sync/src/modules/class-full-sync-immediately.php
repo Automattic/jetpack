@@ -281,10 +281,9 @@ class Full_Sync_Immediately extends Module {
 		foreach ( $full_sync_config as $name => $config ) {
 			$module          = Modules::get_module( $name );
 			$status[ $name ] = array(
-				'total'     => $module->total( $full_sync_config ),   // Total.
-				'sent'      => 0,             // Sent.
-				'last_sent' => $module->get_initial_last_sent(),    // Current state.
-				'finished'  => false,
+				'total'    => $module->total( $full_sync_config ),   // Total.
+				'sent'     => 0,             // Sent.
+				'finished' => false,
 			);
 		}
 
@@ -299,7 +298,7 @@ class Full_Sync_Immediately extends Module {
 	 * @param array $actions Actions that have been processed on the server.
 	 */
 	public function update_sent_progress_action( $actions ) {
-		l( $actions );
+		// l( $actions );
 	}
 
 	/**

@@ -841,4 +841,14 @@ class Themes extends Module {
 	private function is_theme_switch() {
 		return did_action( 'after_switch_theme' );
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @return int total
+	 */
+	public function total() {
+		return 1;
+	}
+
 }

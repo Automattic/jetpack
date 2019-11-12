@@ -112,18 +112,19 @@ class Constants extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param array   $config               Full sync configuration for this sync module.
+	 * @param array   $config Full sync configuration for this sync module.
 	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
+	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 *
 	 * @return array Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		/**
 		 * Tells the client to sync all constants to the server
 		 *
-		 * @since 4.2.0
-		 *
 		 * @param boolean Whether to expand constants (should always be true)
+		 *
+		 * @since 4.2.0
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
 
@@ -156,6 +157,7 @@ class Constants extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
+	 *
 	 * @return array Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -199,10 +201,10 @@ class Constants extends Module {
 				/**
 				 * Tells the client to sync a constant to the server
 				 *
-				 * @since 4.2.0
-				 *
 				 * @param string The name of the constant
 				 * @param mixed The value of the constant
+				 *
+				 * @since 4.2.0
 				 */
 				do_action( 'jetpack_sync_constant', $name, $value );
 				$constants_checksums[ $name ] = $checksum;
@@ -223,6 +225,7 @@ class Constants extends Module {
 	 */
 	public function get_all_constants() {
 		$constants_whitelist = $this->get_constants_whitelist();
+
 		return array_combine(
 			$constants_whitelist,
 			array_map( array( $this, 'get_constant' ), $constants_whitelist )
@@ -236,6 +239,7 @@ class Constants extends Module {
 	 * @access private
 	 *
 	 * @param string $constant Constant name.
+	 *
 	 * @return mixed Return value of the constant.
 	 */
 	private function get_constant( $constant ) {
@@ -250,6 +254,7 @@ class Constants extends Module {
 	 * @access public
 	 *
 	 * @param array $args The hook parameters.
+	 *
 	 * @return array $args The hook parameters.
 	 */
 	public function expand_constants( $args ) {
@@ -260,8 +265,19 @@ class Constants extends Module {
 				$constants_checksums[ $name ] = $this->get_check_sum( $value );
 			}
 			update_option( self::CONSTANTS_CHECKSUM_OPTION_NAME, $constants_checksums );
+
 			return $constants;
 		}
+
 		return $args;
+	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @return int total
+	 */
+	public function total() {
+		return 1;
 	}
 }
