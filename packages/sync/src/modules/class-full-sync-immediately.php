@@ -163,7 +163,7 @@ class Full_Sync_Immediately extends Module {
 		$default = [
 			'started'  => false,
 			'finished' => false,
-			'status'   => [],
+			'progress' => [],
 			'config'   => [],
 		];
 
@@ -299,17 +299,6 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function update_sent_progress_action( $actions ) {
 		// l( $actions );
-	}
-
-	/**
-	 * Enqueue the next items to sync.
-	 *
-	 * @access public
-	 *
-	 * @param array $configs Full sync configuration for all sync modules.
-	 */
-	public function continue_enqueuing( $configs = null ) {
-		$this->continue_sending();
 	}
 
 	/**

@@ -257,6 +257,10 @@ class Sender {
 		if ( ! Modules::get_module( 'full-sync' ) ) {
 			return;
 		}
+		if ( Settings::get_setting( 'full_sync_send_immediately' ) ) {
+			Modules::get_module( 'full-sync' )->continue_sending();
+			return;
+		}
 		$this->continue_full_sync_enqueue();
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
 	}
