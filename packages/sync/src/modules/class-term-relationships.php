@@ -143,9 +143,9 @@ class Term_Relationships extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param array   $config Full sync configuration for this sync module.
-	 * @param int     $send_until Maximum duration of processing.
-	 * @param boolean $status Full sync status for this module.
+	 * @param array $config Full sync configuration for this sync module.
+	 * @param int   $send_until Maximum duration of processing.
+	 * @param array $status Full sync status for this module.
 	 *
 	 * @return array Full sync status for this module.
 	 */
@@ -154,8 +154,8 @@ class Term_Relationships extends Module {
 
 		$items_per_page = 100;
 
-		if ( empty( $status[2] ) ) {
-			$status[2] = [
+		if ( empty( $status['last_sent'] ) ) {
+			$status['last_sent'] = [
 				'object_id'        => self::MAX_INT,
 				'term_taxonomy_id' => self::MAX_INT,
 			];
@@ -163,15 +163,15 @@ class Term_Relationships extends Module {
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $status[2]['object_id'], $status[2]['term_taxonomy_id'], $status[2]['object_id'], $items_per_page ), ARRAY_A ) ) {
-			$result = $this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $status[2] ] );
+		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $status['last_sent']['object_id'], $status['last_sent']['term_taxonomy_id'], $status['last_sent']['object_id'], $items_per_page ), ARRAY_A ) ) {
+			$result = $this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $status['last_sent'] ] );
 
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				return $status;
 			}
 			// The $ids are ordered in descending order.
-			$status[2]  = end( $objects );
-			$status[1] += count( $objects );
+			$status['last_sent'] = end( $objects );
+			$status['sent']     += count( $objects );
 
 			if ( microtime( true ) >= $send_until ) {
 				return $status;
@@ -179,7 +179,7 @@ class Term_Relationships extends Module {
 		}
 
 		if ( ! $wpdb->last_error ) {
-			$status[2] = true;
+			$status['finished'] = true;
 		}
 
 		return $status;
