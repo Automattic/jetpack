@@ -257,6 +257,9 @@ class Sender {
 		if ( ! Modules::get_module( 'full-sync' ) ) {
 			return;
 		}
+		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
+			return;
+		}
 		if ( Settings::get_setting( 'full_sync_send_immediately' ) ) {
 			Modules::get_module( 'full-sync' )->continue_sending();
 			return;
@@ -530,6 +533,9 @@ class Sender {
 	 * @return Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
 	 */
 	public function send_action( $action_name, $data ) {
+		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
+			return [];
+		}
 
 		// Compose the data to be sent.
 		$action_to_send = $this->create_action_to_send( $action_name, $data );
