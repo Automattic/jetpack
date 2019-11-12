@@ -630,6 +630,15 @@ class Jetpack_Recipes {
 				)
 			);
 		}
+
+		// Check if it's an absolute or relative URL, and return if not.
+		if (
+			0 !== strpos( $src, '/' )
+			&& false === filter_var( $src, FILTER_VALIDATE_URL )
+		) {
+			return '';
+		}
+
 		return sprintf(
 			'<img class="jetpack-recipe-image u-photo" itemprop="image" src="%1$s" />',
 			esc_url( $src )
