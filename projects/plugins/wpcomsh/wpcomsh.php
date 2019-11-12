@@ -1024,3 +1024,8 @@ add_action( 'pre-upload-ui', 'wpcomsh_display_disk_space_usage' );
  * This is not needed on Atomic since we use Photon for dynamic image work.
  */
 add_filter( 'big_image_size_threshold', '__return_false' );
+
+/**
+ * WordPress 5.3 adds periodic admin email verification, disable it for WordPress.com on Atomic
+ */
+add_filter( 'admin_email_check_interval', '__return_zero' );
