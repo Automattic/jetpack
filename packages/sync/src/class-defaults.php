@@ -1133,7 +1133,7 @@ class Defaults {
 	 *
 	 * @var bool Send full sync items immediately.
 	 */
-	public static $default_full_sync_send_immediately = false;
+	public static $default_full_sync_send_immediately = true;
 
 	/**
 	 * Default max time sending in immediately mode.
