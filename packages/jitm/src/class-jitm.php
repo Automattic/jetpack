@@ -631,7 +631,7 @@ class JITM {
 	 * @since 8.0.0
 	 */
 	private function is_gutenberg_page() {
-		$current_screen = get_current_screen();
+		$current_screen = \get_current_screen();
 		return ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() );
 	}
 }
