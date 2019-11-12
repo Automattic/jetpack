@@ -82,6 +82,10 @@ class Full_Sync_Immediately extends Module {
 			$full_sync_config = Defaults::$default_full_sync_config;
 		}
 
+		if ( isset( $full_sync_config['users'] ) && 'initial' === $full_sync_config['users'] ) {
+			$full_sync_config['users'] = Modules::get_module( 'users' )->get_initial_sync_user_config();
+		}
+
 		$this->update_status(
 			[
 				'started'  => time(),
@@ -89,10 +93,6 @@ class Full_Sync_Immediately extends Module {
 				'progress' => $this->get_initial_progress( $full_sync_config ),
 			]
 		);
-
-		if ( isset( $full_sync_config['users'] ) && 'initial' === $full_sync_config['users'] ) {
-			$full_sync_config['users'] = Modules::get_module( 'users' )->get_initial_sync_user_config();
-		}
 
 		$range = $this->get_content_range( $full_sync_config );
 		/**
@@ -279,7 +279,6 @@ class Full_Sync_Immediately extends Module {
 
 		return $status;
 	}
-
 
 	/**
 	 * Continue sending.
