@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { getCurrencyDefaults } from '@automattic/format-currency';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -12,6 +12,64 @@ import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 
 import './single-product-backup.scss';
+
+export function SingleProductBackup( props ) {
+	const { products, siteRawUrl } = props;
+
+	const backupPlanPrices = {
+		jetpack_backup_daily: {
+			monthly: products.jetpack_backup_daily_monthly.cost,
+			yearly: products.jetpack_backup_daily.cost,
+		},
+		jetpack_backup_realtime: {
+			monthly: products.jetpack_backup_realtime_monthly.cost,
+			yearly: products.jetpack_backup_realtime.cost,
+		},
+	};
+
+	const currencySymbol = getCurrencyDefaults( products.jetpack_backup_daily.currency_code ).symbol;
+
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+
+	return (
+		<React.Fragment>
+			<h1 className="plans-section__header">{ __( 'Single Products' ) }</h1>
+			<h2 className="plans-section__subheader">
+				{ __( "Just looking for backups? We've got you covered." ) }
+			</h2>
+			<div className="single-product-backup__accented-card-container">
+				<div className="single-product-backup__accented-card">
+					<div className={ 'single-product-backup__accented-card__header' }>
+						<SingleProductBackupHeader
+							currencySymbol={ currencySymbol }
+							backupPlanPrices={ backupPlanPrices }
+						/>
+					</div>
+					<div className={ 'single-product-backup__accented-card__body' }>
+						<SingleProductBackupBody
+							currencySymbol={ currencySymbol }
+							selectedBackupType={ selectedBackupType }
+							setSelectedBackupType={ setSelectedBackupType }
+							backupPlanPrices={ backupPlanPrices }
+							siteRawUrl={ siteRawUrl }
+						/>
+					</div>
+				</div>
+			</div>
+		</React.Fragment>
+	);
+}
+
+function SingleProductBackupHeader( props ) {
+	const { currencySymbol, backupPlanPrices } = props;
+
+	return (
+		<div className="single-product-backup__header-container">
+			<h3>{ __( 'Jetpack Backup' ) }</h3>
+			<PlanPriceDisplay currencySymbol={ currencySymbol } backupPlanPrices={ backupPlanPrices } />
+		</div>
+	);
+}
 
 export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 	const dailyBackupYearlyPrice = backupPlanPrices.jetpack_backup_daily.yearly;
@@ -52,7 +110,7 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 				</div>
 			</div>
 			<div className="plans-price__container">
-				<span className="plans-price__price-range">{ perYearPriceRange }</span>
+				<span className="plans-price__span">{ perYearPriceRange }</span>
 			</div>
 		</div>
 	);
@@ -84,14 +142,6 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 
 // eslint-disable-next-line no-unused-vars
 class SingleProductBackupBody extends React.Component {
-	static propTypes = {
-		backupPlanPrices: PropTypes.object,
-		currencySymbol: PropTypes.string,
-		setSelectedBackupType: PropTypes.func,
-		selectedBackupType: PropTypes.string,
-		upgradeLinks: PropTypes.object,
-	};
-
 	handleSelectedBackupTypeChange = event => {
 		this.props.setSelectedBackupType( event.target.value );
 	};

@@ -10,20 +10,20 @@
 	text-align: center;
 }
 
-.plans-price__price-range {
+.plans-price__span {
 	display: inline-block;
 	vertical-align: middle;
 	line-height: normal;
 }
 
-.discounted-price__container {
+.slashed-price__container {
 	position: relative;
 	display: inline-block;
 	line-height: 50px;
 	margin-right: 14px;
 }
 
-.discounted-price__slash {
+.slashed-price__slash {
 	position: relative;
 	width: 100%;
 	height: 0;
@@ -32,7 +32,7 @@
 	top: 27px;
 }
 
-.discounted-price__price {
+.slashed-price__price {
 	color: #a7aaad;
 }
 
