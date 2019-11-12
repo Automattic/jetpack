@@ -8,7 +8,6 @@ wp-admin
 config
 WordPress.com
 Jetpack-CLI
-a12s
 PHPUnit
 xdebug
 MailDev
@@ -76,6 +75,7 @@ JETPACK_DEV_DEBUG
 jetpack_development_mode
 admin.php
 wp_localize_script
+Automatticians
  - docker/README.md
 php-debug
 pathMappings
@@ -109,3 +109,5 @@ GPLv2
  - docs/translations.md
 translate.wordpress.org.
 WordPress.com.
+ - docs/development-environment-cli-support.md
+php

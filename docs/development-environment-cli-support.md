@@ -16,7 +16,7 @@ You need GIT for contributing to Jetpack.
 
 **n** is a node version manager. Similar and alternative to **nvm**.
 
-### Command is available: PHP
+### Command is available: php
 
 PHP is needed all around the build process for Jetpack bundles.
 
