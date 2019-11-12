@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_exists() {
 		$this->assertEquals( shortcode_exists( 'recipe' ), true );
@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_preptime() {
 		$content = '[recipe preptime="30 min"]';
@@ -49,7 +49,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_cooktime() {
 		$content = '[recipe cooktime="2 hours 30 min"]';
@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_rating() {
 		$content = '[recipe rating="2 stars"]';
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_empty_src() {
 		$content = '[recipe image=""]';
@@ -91,7 +91,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_invalid_src() {
 		$content = '[recipe image="test"]';
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_invalid_attachment() {
 		$content = '[recipe image="-100"]';
@@ -119,7 +119,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_valid_attachment() {
 		// Create a mock attachment.
@@ -144,7 +144,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_src() {
 		$content = '[recipe image="https://example.com"]';
@@ -158,7 +158,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_location_move() {
 		$content = '[recipe image="https://example.com"][recipe-image][/recipe]';
@@ -172,7 +172,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_empty() {
 		$content = '[recipe-image]';
@@ -186,7 +186,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_empty_attr() {
 		$content = '[recipe-image image=""]';
@@ -200,7 +200,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_src() {
 
@@ -215,7 +215,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_src_attr() {
 
@@ -230,7 +230,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_invalid_attachment() {
 		$content = '[recipe-image -100]';
@@ -244,7 +244,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_invalid_attachment_attr() {
 		$content = '[recipe-image image="-100"]';
@@ -258,7 +258,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment() {
 		// Create a mock attachment.
@@ -283,7 +283,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment_attr() {
 		// Create a mock attachment.
@@ -308,7 +308,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 *
 	 * @covers ::recipe_shortcode
 	 *
-	 * @since 7.9.0
+	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_nutrition() {
 		$content = <<<EOT
