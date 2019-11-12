@@ -1,3 +1,11 @@
+$break-small: 600px;
+$grid-size-large: 16px;
+
+@mixin break-small() {
+	@media ( min-width: #{ ( $break-small ) } ) {
+		@content;
+	}
+}
 @import './components/gridicon/style.scss';
 @import './components/search-results.scss';
 @import './components/search-filters.scss';
@@ -9,3 +17,5 @@
 .jetpack-instant-search__is-loading {
 	opacity: 0.2;
 }
+
+
