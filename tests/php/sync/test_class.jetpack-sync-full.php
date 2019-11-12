@@ -4,11 +4,6 @@ use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
-use Automattic\Jetpack\Sync\Defaults;
-
-function jetpack_foo_full_sync_callable() {
-	return 'the value';
-}
 
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
@@ -23,6 +18,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 		Settings::reset_data();
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 
 		$this->full_sync = Modules::get_module( 'full-sync' );
 		$this->server_replica_storage->reset();
@@ -52,14 +48,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $range['comments']->max ) );
 		$this->assertTrue( isset( $range['comments']->min ) );
 		$this->assertTrue( isset( $range['comments']->count ) );
-	}
-
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_sync_start_action() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_enqueues_sync_start_action();
 	}
 
 	function test_enqueues_sync_start_action_without_post_sends_empty_range() {
@@ -96,14 +84,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_sync_start_action_without_post_sends_empty_range() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_enqueues_sync_start_action_without_post_sends_empty_range();
-	}
-
 	// this only applies to the test replicastore - in production we overlay data
 	function test_sync_start_resets_storage() {
 		$this->factory->post->create();
@@ -123,7 +103,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 		$this->factory->post->create();
 		$this->full_sync->start();
 
@@ -134,28 +113,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 
 		$this->assertEquals( $initial_full_sync_queue_size + 1, $this->sender->get_full_sync_queue()->size() );
-		$this->sender->do_full_sync();
-
-		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
-
-		$this->assertTrue( $cancelled_event !== false );
-	}
-
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		// TODO send_with_lock needs to have a limit of somesort before we can test this, if not it finishes before we can cancel
-		$this->markTestSkipped( 'TODO: remove when ready' );
-
-		$this->factory->post->create();
-		$this->full_sync->start();
-
-		// if we start again, it should reset the queue back to its original state,
-		// plus a "full_sync_cancelled" action
-		$this->full_sync->start();
-
 		$this->sender->do_full_sync();
 
 		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
@@ -179,14 +136,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 
 		$this->assertEquals( 2, $this->started_sync_count );
-	}
-
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_lock_has_one_hour_timeout() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_lock_has_one_hour_timeout();
 	}
 
 	function count_full_sync_start() {
@@ -215,14 +164,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $posts_event === false );
 	}
 
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_can_select_modules() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_can_select_modules();
-	}
-
 	function test_full_sync_sends_wp_version() {
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
@@ -232,14 +173,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		global $wp_version;
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
-	}
-
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_sends_wp_version() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_sends_wp_version();
 	}
 
 	function test_sync_post_filtered_content_was_filtered_when_syncing_all() {
@@ -261,14 +194,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
 	}
 
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_sync_post_filtered_content_was_filtered_when_syncing_all() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_sync_post_filtered_content_was_filtered_when_syncing_all();
-	}
-
 	function foo_shortcode() {
 		return 'bar';
 	}
@@ -286,14 +211,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$comments = $this->server_replica_storage->get_comments();
 		$this->assertEquals( 11, count( $comments ) );
-	}
-
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_sends_all_comments() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_sends_all_comments();
 	}
 
 	function test_full_sync_sends_all_terms() {
@@ -319,17 +236,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $NUMBER_OF_TERMS_TO_CREATE + 1, count( $terms ) ); // 11 + 1 (for uncategorized term)
 	}
 
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_sends_all_terms() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_sends_all_terms();
-	}
-
 	function test_full_sync_sends_all_terms_with_previous_interval_end() {
-		// TODO: works only on queue mode, immediate mode doesn't have queue limits
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		for ( $i = 0; $i < 25; $i += 1 ) {
@@ -373,19 +280,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->reset_data();
 	}
 
-	function test_full_sync_send_immediately_skips_queue() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-
-		$posts_count = 100;
-		$this->factory->post->create_many( $posts_count );
-
-		$this->full_sync->start( ['posts' =>  true ] );
-		$this->full_sync->continue_enqueuing();
-		// $this->sender->do_full_sync() is not necessary!
-
-		$this->assertEquals( $posts_count, count( $this->server_replica_storage->get_posts() ) );
-	}
-
 	function test_full_sync_sends_all_term_relationships() {
 		global $wpdb;
 		$this->sender->reset_data();
@@ -412,18 +306,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $original_number_of_term_relationships, $replica_number_of_term_relationships );
 	}
 
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_sends_all_term_relationships() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_sends_all_term_relationships();
-	}
-
 	function test_full_sync_enqueue_term_relationships() {
-		// TODO: works only on queue mode, immediate mode doesn't have queue limits
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
-
 		global $wpdb;
 
 		// how many items are we allowed to enqueue on a single request/continue_enqueuing
@@ -483,9 +366,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
-		// TODO: works only on queue mode, immediate mode doesn't have queue limits
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
-
 		$post_id = $this->factory->post->create();
 
 		$terms = array();
@@ -581,18 +461,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $user->data->user_pass ) );
 	}
 
-	/**
-	 * This should also pass in immediate mode
-	 */
-	function test_send_immediate_full_sync_sends_all_users() {
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
-		$this->test_full_sync_sends_all_users();
-	}
-
 	function test_full_sync_sends_previous_interval_end_for_users() {
-		// TODO: works only on queue mode, immediate mode doesn't have queue limits
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
-
 		Settings::update_settings( array( 'max_queue_size_full_sync' => 1, 'max_enqueue_full_sync' => 10 ) );
 
 		for ( $i = 0; $i < 45; $i += 1 ) {
@@ -1422,8 +1291,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
-		// Queue mode only
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
@@ -1444,8 +1311,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_comments() {
-		// Queue mode only
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
@@ -1466,8 +1331,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_users() {
-		// Queue mode only
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 
 		$user_counts = count_users();
 		$existing_user_count = $user_counts['total_users'];
@@ -1519,8 +1382,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
-		// Queue mode only
-		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
 
 		$this->sender->set_dequeue_max_bytes( 1250 ); // process 0.00125MB of items at a time
 
