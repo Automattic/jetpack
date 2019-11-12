@@ -467,7 +467,7 @@ class Jetpack_Recipes {
 				$listtype              = 'ul';
 				break;
 			case 'nutrition':
-				$list_item_replacement = '<li class="jetpack-recipe-nutrition">${1}</li>';
+				$list_item_replacement = '<li class="jetpack-recipe-nutrition nutrition">${1}</li>';
 				$itemprop              = ' itemprop="nutrition"';
 				$listtype              = 'ul';
 				break;
