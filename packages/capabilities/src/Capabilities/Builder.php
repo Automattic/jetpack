@@ -5,23 +5,24 @@ namespace Automattic\Jetpack\Capabilities;
 use \Automattic\Jetpack\Capabilities;
 
 class Builder {
-	// public $name;
-	// public $available;
+	public $capability;
 
-	function __construct() {
-		$this->capabilities = new Capabilities();
+	function create_capability( $name ) {
+		$this->capability = new Capability( $name );
+		return $this;
 	}
-	static function create() {
-		return new Builder();
+
+	function get_capability() {
+		return $this->capability;
 	}
 
 	function require_wp_role( $wp_role ) {
-		$this->capabilities->add_rule( new WPRoleRule( $wp_role ) );
+		$this->capability->add_rule( new WPRoleRule( $wp_role ) );
 		return $this;
 	}
 
 	function require_wp_capability( $wp_capability ) {
-		$this->capabilities->add_rule( new WPCapabilityRule( $wp_capability ) );
+		$this->capability->add_rule( new WPCapabilityRule( $wp_capability ) );
 		return $this;
 	}
 
@@ -30,7 +31,14 @@ class Builder {
 	 * specifies the minimum plan required in required to perform the action
 	 */
 	function require_minimum_jetpack_plan( $jetpack_plan_level ) {
-		// $this->capabilities->add_rule( new PlanRule( $wp_role ) );
+		$this->capability->add_rule( new PlanRule( $wp_role ) );
 		return $this;
+	}
+
+	/**
+	 * Register a capability globally
+	 */
+	function register() {
+		Capabilities::register( $capability );
 	}
 }

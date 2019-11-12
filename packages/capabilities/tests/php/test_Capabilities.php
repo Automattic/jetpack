@@ -4,33 +4,53 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Capabilities;
 use phpmock\functions\FunctionProvider;
-use phpmock\Mock;
-use phpmock\MockBuilder;
-use PHPUnit\Framework\TestCase;
+// use phpmock\Mock;
+// use phpmock\MockBuilder;
+// use PHPUnit\Framework\TestCase;
+
+// just for fun...
+const JETPACK_BUSINESS_PLAN_SLUG = 'jetpack_business';
 
 class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
+	var $builder;
+
 	public function setUp() {
+		$this->builder = new Capabilities\Builder();
 	}
 
 	public function tearDown() {
-		Mock::disableAll();
-		\Mockery::close();
+		// Mock::disableAll();
+		// \Mockery::close();
 	}
 
 	public function test_get_capability() {
-		// Capabilities::register( new Capability( 'jetpack.backup.restore' ) );
 
-		$builder = new Capabilities\Builder();
-
-		$builder->create( 'jetpack.backup.restore' )
+		$capability = $this->builder
+			->create_capability( 'jetpack.backup.restore' )
 			->require_wp_role( 'administrator' )
 			->require_wp_capability( 'administrator' )
-			->require_minimum_jetpack_plan( JETPACK_BUSINESS_PLAN_SLUG );
+			// ->require_minimum_jetpack_plan( JETPACK_BUSINESS_PLAN_SLUG )
+			->get_capability();
+
+		// no admin privilege
+		$this->assertFalse( $capability->test() );
 
 		$this->setUserRole( 'administrator' );
 
-		$cap = Capabilities::get( 'jetpack.backup.restore' );
-		$this->assertTrue( $cap->available );
+		// has admin privilege
+		$this->assertTrue( $capability->test() );
+	}
+
+	public function test_capability_has_details() {
+
+	}
+
+	/**
+	 * Utility functions
+	 */
+	private function setUserRole( $role ) {
+		$user = wp_get_current_user(); // new \WP_User( $user_id );
+		$user->set_role( $role );
 	}
 
 	// public function test_jitm_disabled_by_filter() {

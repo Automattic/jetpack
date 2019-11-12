@@ -14,7 +14,9 @@
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
 		"php-mock/php-mock": "^2.1",
-		"mockery/mockery": "^1.2"
+		"mockery/mockery": "^1.2",
+		"wp-phpunit/wp-phpunit": "^5.2",
+		"roots/wordpress": "^5.2"
 	},
 	"autoload": {
 		"psr-4": {

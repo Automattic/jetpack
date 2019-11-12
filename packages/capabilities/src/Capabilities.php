@@ -7,17 +7,18 @@ use \Automattic\Jetpack\Capabilities\Capability;
 const JETPACK_BUSINESS_PLAN_SLUG = 'jetpack_business';
 
 class Capabilities {
-	private $rules;
+	private $capabilities;
 
 	function __construct() {
-		$this->rules = [];
+		$this->capabilities = [];
 	}
 
 	static function get( $name ) {
-		return new Capability( $name, true );
+		return new Capability( $name, $this );
 	}
 
-	public function add_rule( $rule ) {
-		$this->rules[] = $rule;
+	public function register( $capability ) {
+		// TODO check for clashes?
+		$this->capabilities[ $capability->name ] = $capability;
 	}
 }
