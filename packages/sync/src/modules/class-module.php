@@ -547,9 +547,6 @@ abstract class Module {
 	 */
 	public function total() {
 		global $wpdb;
-		if ( empty( $this->table_name() ) ) {
-			l( get_class( $this ) . '   ' . $this->table_name() );
-		}
 		$table = $wpdb->{$this->table_name()};
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
