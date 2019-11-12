@@ -127,9 +127,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$posts_full_sync_actions = Modules::get_module( 'posts' )->get_full_sync_actions();
 		$posts_event             = $this->server_event_storage->get_most_recent_event( $posts_full_sync_actions[0] );
 
-		$this->assertTrue( $start_event !== false );
-		$this->assertTrue( $options_event !== false );
-		$this->assertTrue( $posts_event === false );
+		$this->assertNotFalse( $start_event );
+		$this->assertNotFalse( $options_event );
+		$this->assertFalse( $posts_event );
 	}
 
 	function test_full_sync_sends_wp_version() {
