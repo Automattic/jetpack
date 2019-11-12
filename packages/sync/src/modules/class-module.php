@@ -283,12 +283,12 @@ abstract class Module {
 	 *
 	 * @access protected
 	 *
-	 * @param string  $action_name Name of the action.
-	 * @param string  $table_name Name of the database table.
-	 * @param string  $id_field Name of the ID field in the database.
-	 * @param string  $where_sql The SQL WHERE clause to filter to the desired items.
-	 * @param float   $send_until timestamp until we want this request to send full sync events.
-	 * @param boolean $status the current module full sync status.
+	 * @param string $action_name Name of the action.
+	 * @param string $table_name Name of the database table.
+	 * @param string $id_field Name of the ID field in the database.
+	 * @param string $where_sql The SQL WHERE clause to filter to the desired items.
+	 * @param float  $send_until timestamp until we want this request to send full sync events.
+	 * @param array  $status the current module full sync status.
 	 *
 	 * @return array Status, the module full sync status updated.
 	 */
@@ -299,7 +299,7 @@ abstract class Module {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page = 100;
+		$items_per_page = Settings::get_setting( 'full_sync_max_objects' )[ $table_name ];
 
 		if ( empty( $status['last_sent'] ) ) {
 			$status['last_sent'] = '~0';

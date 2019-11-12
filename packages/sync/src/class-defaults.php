@@ -1208,4 +1208,29 @@ class Defaults {
 		'term_relationships' => 1,
 	];
 
+	/**
+	 * Default Full Sync max objects to send on a single action.
+	 *
+	 * @var array list of module => max.
+	 */
+	public static $default_full_sync_max_objects = [
+		'constants'          => 100,
+		'functions'          => 100,
+		'options'            => 100,
+		'updates'            => 100,
+		'themes'             => 100,
+		'users'              => 20,
+		'terms'              => 100,
+		'posts'              => 10,
+		'comments'           => 50,
+		'term_relationships' => 200,
+	];
+
+	/**
+	 * Default Full Sync max actions to send on a single request.
+	 *
+	 * @var int list of module names.
+	 */
+	public static $default_full_sync_max_actions = 100;
+
 }

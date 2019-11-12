@@ -75,9 +75,6 @@ class Full_Sync_Immediately extends Module {
 	 * @return bool Always returns true at success.
 	 */
 	public function start( $full_sync_config = null ) {
-		// Remove all evidence of previous full sync items and status.
-		$this->reset_data();
-
 		// There was a full sync in progress.
 		if ( $this->is_started() && ! $this->is_finished() ) {
 			/**
@@ -87,6 +84,9 @@ class Full_Sync_Immediately extends Module {
 			 */
 			do_action( 'jetpack_full_sync_cancelled' );
 		}
+
+		// Remove all evidence of previous full sync items and status.
+		$this->reset_data();
 
 		if ( ! is_array( $full_sync_config ) ) {
 			$full_sync_config = Defaults::$default_full_sync_config;
