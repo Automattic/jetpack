@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use Automattic\Jetpack\Status;
+
 /**
  * This class introduces routines to get an affiliate code, that might be obtained from:
  * - an `jetpack_affiliate_code` option in the WP database
@@ -21,7 +23,7 @@ class Jetpack_Affiliate {
 	private static $instance = null;
 
 	private function __construct() {
-		if ( Jetpack::is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			return;
 		}
 	}

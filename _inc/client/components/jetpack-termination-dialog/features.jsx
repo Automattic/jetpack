@@ -112,8 +112,9 @@ class JetpackTerminationDialogFeatures extends Component {
 								: 'jetpack-termination-dialog__features-list'
 						}
 					>
-						{ siteBenefits.map( ( { title, description, amount, gridIcon } ) => (
+						{ siteBenefits.map( ( { amount, description, name, gridIcon, title } ) => (
 							<SingleFeature
+								key={ name }
 								amount={ amount }
 								description={ description }
 								gridIcon={ gridIcon }

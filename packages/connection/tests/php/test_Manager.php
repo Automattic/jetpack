@@ -9,10 +9,24 @@ use PHPUnit\Framework\TestCase;
 use Automattic\Jetpack\Constants;
 
 class ManagerTest extends TestCase {
+
+	protected $arguments_stack = [];
+
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
 		                      ->setMethods( [ 'get_access_token' ] )
 		                      ->getMock();
+
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+				->setName( 'apply_filters' )
+				->setFunction(
+					function( $filter_name, $return_value ) {
+						return $return_value;
+					}
+				);
+
+		$this->apply_filters = $builder->build();
 	}
 
 	public function tearDown() {
@@ -48,6 +62,8 @@ class ManagerTest extends TestCase {
 	}
 
 	public function test_api_url_defaults() {
+		$this->apply_filters->enable();
+
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
 			$this->manager->api_url( 'something' )
@@ -58,7 +74,14 @@ class ManagerTest extends TestCase {
 		);
 	}
 
-	public function test_api_url_uses_constants() {
+	/**
+	 * Testing the ability of the api_url method to follow set constants and filters.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::api_url
+	 */
+	public function test_api_url_uses_constants_and_filters() {
+		$this->apply_filters->enable();
+
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
 		$this->assertEquals(
 			'https://example.com/api/base.something/1/',
@@ -70,6 +93,39 @@ class ManagerTest extends TestCase {
 		$this->assertEquals(
 			'https://example.com/api/another.something/99/',
 			$this->manager->api_url( 'something' )
+		);
+
+		$this->apply_filters->disable();
+
+		// Getting a new special mock just for this occasion.
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+				->setName( 'apply_filters' )
+				->setFunction(
+					function( $filter_name, $return_value ) {
+						$this->arguments_stack[ $filter_name ] [] = func_get_args();
+						return 'completely overwrite';
+					}
+				);
+
+		$builder->build()->enable();
+
+		$this->assertEquals(
+			'completely overwrite',
+			$this->manager->api_url( 'something' )
+		);
+
+		// The jetpack_api_url argument stack should not be empty, making sure the filter was
+		// called with a proper name and arguments.
+		$call_arguments = array_pop( $this->arguments_stack['jetpack_api_url'] );
+		$this->assertEquals( 'something', $call_arguments[2] );
+		$this->assertEquals(
+			Constants::get_constant( 'JETPACK__API_BASE' ),
+			$call_arguments[3]
+		);
+		$this->assertEquals(
+			'/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/',
+			$call_arguments[4]
 		);
 	}
 
@@ -102,6 +158,7 @@ class ManagerTest extends TestCase {
 
 		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
 	}
+
 
 	/**
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected

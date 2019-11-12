@@ -119,22 +119,26 @@ function runJSLinter( toLintFiles ) {
  * @param {Array} phpFilesToCheck Array of PHP files changed.
  */
 function runPHPCSChanged( phpFilesToCheck ) {
-	let phpChangedResult;
+	let phpChangedFail, phpFileChangedResult;
+	spawnSync( 'composer', [ 'install' ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
 	if ( phpFilesToCheck.length > 0 ) {
-		phpChangedResult = spawnSync( 'composer', [ 'php:changed' ], {
-			shell: true,
-			stdio: 'pipe',
-			encoding: 'utf-8',
-		} );
-	}
+		process.env.PHPCS = 'vendor/bin/phpcs';
 
-	if ( phpChangedResult && phpChangedResult.stdout ) {
-		let phpChangedResultText;
-		phpChangedResultText = phpChangedResult.stdout.toString().split( '\n' );
-		phpChangedResultText.shift();
-		phpChangedResultText = phpChangedResultText.toString().slice( 0, -1 );
-		if ( phpChangedResultText ) {
-			console.log( JSON.stringify( JSON.parse( phpChangedResultText ), null, 2 ) );
+		phpFilesToCheck.forEach( function( file ) {
+			phpFileChangedResult = spawnSync( 'vendor/bin/phpcs-changed', [ '--git', file ], {
+				env: process.env,
+				shell: true,
+				stdio: 'inherit',
+			} );
+			if ( phpFileChangedResult && phpFileChangedResult.status ) {
+				phpChangedFail = true;
+			}
+		} );
+
+		if ( phpChangedFail ) {
 			checkFailed();
 		}
 	}
@@ -227,5 +231,4 @@ if ( phpcsResult && phpcsResult.status ) {
 }
 
 runPHPCSChanged( phpFiles );
-
 exit( exitCode );

@@ -9,6 +9,7 @@ import { Fragment } from '@wordpress/element';
  * Internal dependencies
  */
 import './editor.scss';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
 
@@ -19,6 +20,11 @@ const exampleDescription = __(
 	'Markdown is a text formatting syntax that is converted into HTML. You can _emphasize_ text or **make it strong** with just a few characters.',
 	'jetpack'
 );
+
+const supportLink =
+	isSimpleSite() || isAtomicSite()
+		? 'https://en.support.wordpress.com/markdown-quick-reference/'
+		: 'https://jetpack.com/support/jetpack-blocks/markdown-block/';
 
 export const settings = {
 	title: __( 'Markdown', 'jetpack' ),
@@ -31,9 +37,7 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
-			<ExternalLink href="https://en.support.wordpress.com/markdown-quick-reference/">
-				{ __( 'Support reference', 'jetpack' ) }
-			</ExternalLink>
+			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
 

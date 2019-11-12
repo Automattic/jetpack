@@ -29,7 +29,7 @@ export const settings = {
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'feedback', 'block search term', 'jetpack' ),
-		_x( 'contact', 'block search term', 'jetpack' ),
+		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
 	category: 'jetpack',
 	supports: {

@@ -127,6 +127,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $allow_upload_token_auth = false;
 
+	/**
+	 * @var bool Set to true if the endpoint should require auth from a Rewind auth token.
+	 */
+	public $require_rewind_auth = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'                 => false,
@@ -194,6 +199,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
 		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
 		$this->allow_upload_token_auth    = (bool) $args['allow_upload_token_auth'];
+		$this->require_rewind_auth        = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
 
 		$this->version = $args['version'];
 

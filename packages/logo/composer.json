@@ -9,9 +9,9 @@
 		"php-mock/php-mock": "^2.1"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\Assets\\": "src/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"scripts": {
 		"phpunit": [
