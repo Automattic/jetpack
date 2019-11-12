@@ -88,20 +88,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $cancelled_event !== false );
 	}
 
-	function test_send_immediate_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
-		$this->factory->post->create();
-		$this->full_sync->start();
-
-		// if we start again, it should send a "full_sync_cancelled" action
-		$this->full_sync->start();
-
-		$this->sender->do_full_sync();
-
-		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
-
-		$this->assertTrue( $cancelled_event !== false );
-	}
-
 	function test_full_sync_lock_has_one_hour_timeout() {
 		$this->started_sync_count = 0;
 
