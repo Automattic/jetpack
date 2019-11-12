@@ -179,7 +179,7 @@ class Jetpack_Recipes {
 
 		// Print the recipe title if exists.
 		if ( '' !== $atts['title'] ) {
-			$html .= '<h3 class="p-name jetpack-recipe-title" itemprop="name">' . esc_html( $atts['title'] ) . '</h3>';
+			$html .= '<h3 class="p-name jetpack-recipe-title fn" itemprop="name">' . esc_html( $atts['title'] ) . '</h3>';
 		}
 
 		// Print the recipe meta if exists.
@@ -595,7 +595,7 @@ class Jetpack_Recipes {
 
 		return sprintf(
 			'<li class="jetpack-recipe-%3$s">
-				<time itemprop="%4$s" datetime="%5$s"><strong>%1$s: </strong>%2$s</time>
+				<time itemprop="%4$s" datetime="%5$s"><strong>%1$s:</strong> <span class="%3$s">%2$s</span></time>
 			</li>',
 			esc_html( $title ),
 			esc_html( $time_str ),
@@ -625,7 +625,7 @@ class Jetpack_Recipes {
 				'full',
 				false,
 				array(
-					'class'    => 'jetpack-recipe-image u-photo',
+					'class'    => 'jetpack-recipe-image u-photo photo',
 					'itemprop' => 'image',
 				)
 			);
@@ -640,7 +640,7 @@ class Jetpack_Recipes {
 		}
 
 		return sprintf(
-			'<img class="jetpack-recipe-image u-photo" itemprop="image" src="%1$s" />',
+			'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="%1$s" />',
 			esc_url( $src )
 		);
 	}

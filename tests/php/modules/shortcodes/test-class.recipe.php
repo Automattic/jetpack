@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe preptime="30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time: </strong>30 min</time>', $shortcode_content );
+		$this->assertContains( '<time itemprop="prepTime" datetime="P0DT0H30M0S"><strong>Prep Time:</strong> <span class="preptime">30 min</span></time>', $shortcode_content );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe cooktime="2 hours 30 min"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time: </strong>2 hours 30 min</time>', $shortcode_content );
+		$this->assertContains( '<time itemprop="cookTime" datetime="P0DT2H30M0S"><strong>Cook Time:</strong> <span class="cooktime">2 hours 30 min</span></time>', $shortcode_content );
 	}
 
 	/**
@@ -136,7 +136,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe image="' . $attachment_id . '"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo" alt="" itemprop="image" />', $shortcode_content );
+		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
 	}
 
 	/**
@@ -150,7 +150,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe image="https://example.com"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
 	}
 
 	/**
@@ -207,7 +207,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image https://example.com]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
 	}
 
 	/**
@@ -222,7 +222,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image image="https://example.com"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img class="jetpack-recipe-image u-photo" itemprop="image" src="https://example.com" />', $shortcode_content );
+		$this->assertContains( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
 	}
 
 	/**
@@ -275,7 +275,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image ' . $attachment_id . ']';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo" alt="" itemprop="image" />', $shortcode_content );
+		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
 	}
 
 	/**
@@ -300,7 +300,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		$content = '[recipe-image image="' . $attachment_id . '"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo" alt="" itemprop="image" />', $shortcode_content );
+		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />', $shortcode_content );
 	}
 
 	/**
