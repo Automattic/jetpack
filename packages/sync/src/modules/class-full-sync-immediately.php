@@ -56,16 +56,6 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Initialize the module in the sender.
-	 *
-	 * @access public
-	 */
-	public function init_before_send() {
-		// This is triggered after actions have been processed on the server.
-		add_action( 'jetpack_sync_processed_actions', array( $this, 'update_sent_progress_action' ) );
-	}
-
-	/**
 	 * Start a full sync.
 	 *
 	 * @access public
@@ -290,16 +280,6 @@ class Full_Sync_Immediately extends Module {
 		return $status;
 	}
 
-	/**
-	 * Update the progress after sync modules actions have been processed on the server.
-	 *
-	 * @access public
-	 *
-	 * @param array $actions Actions that have been processed on the server.
-	 */
-	public function update_sent_progress_action( $actions ) {
-		// l( $actions );
-	}
 
 	/**
 	 * Continue sending.
