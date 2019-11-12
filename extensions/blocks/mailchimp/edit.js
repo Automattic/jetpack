@@ -21,6 +21,7 @@ import { Fragment, Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { icon } from '.';
+import MailchimpGroups from './mailchimp-groups';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -133,10 +134,12 @@ class MailchimpSubscribeEdit extends Component {
 		const {
 			emailPlaceholder,
 			consentText,
+			interests,
 			processingLabel,
 			successLabel,
 			errorLabel,
 			preview,
+			signupLocation,
 		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp_';
 		const waiting = (
@@ -188,6 +191,22 @@ class MailchimpSubscribeEdit extends Component {
 						label={ __( 'Error text', 'jetpack' ) }
 						value={ errorLabel }
 						onChange={ this.updateErrorText }
+					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Mailchimp Groups', 'jetpack' ) }>
+					<MailchimpGroups
+						interests={ interests }
+						onChange={ ( id, checked ) =>
+							setAttributes( { interests: { ...interests, [ id ]: checked } } )
+						}
+					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Merge Fields', 'jetpack' ) }>
+					<TextControl
+						label={ __( 'Signup Location', 'jetpack' ) }
+						placeholder={ __( 'website' ) }
+						value={ signupLocation }
+						onChange={ value => setAttributes( { signupLocation: value } ) }
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>

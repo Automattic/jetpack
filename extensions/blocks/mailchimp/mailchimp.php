@@ -41,6 +41,8 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
 		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
+		'interests'        => [],
+		'signupLocation'   => '',
 	);
 	foreach ( $defaults as $id => $default ) {
 		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
@@ -97,6 +99,20 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						name="email"
 					/>
 				</p>
+				<?php foreach ( array_keys( $values['interests'] ) as $interest ) : ?>
+					<input
+						name="interests[<?php echo esc_attr( $interest ); ?>]"
+						type="hidden"
+						value=1
+					/>
+				<?php endforeach; ?>
+				<?php if ( $values['signupLocation'] ) : ?>
+					<input
+						name="merge_fields[signupLocation]"
+						type="hidden"
+						value="<?php echo esc_attr( $values['signupLocation'] ); ?>"
+					/>
+				<?php endif; ?>
 				<p>
 					<button type="submit" class="components-button is-button is-primary" style="<?php echo esc_attr( $button_styles ); ?>">
 						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
