@@ -87,6 +87,20 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Verify that the recipe shortcode does not output an image with an invalid source string.
+	 *
+	 * @covers ::recipe_shortcode
+	 *
+	 * @since 7.9.0
+	 */
+	public function test_shortcodes_recipe_image_invalid_src() {
+		$content = '[recipe image="test"]';
+
+		$shortcode_content = do_shortcode( $content );
+		$this->assertNotContains( '<img', $shortcode_content );
+	}
+
+	/**
 	 * Verify that the recipe shortcode does not output an image with an invalid attachment ID.
 	 *
 	 * @covers ::recipe_shortcode
@@ -308,5 +322,30 @@ EOT;
 		$this->assertContains( 'itemprop="nutrition"', $shortcode_content );
 		$this->assertContains( '<li class="jetpack-recipe-nutrition">food 100%</li>', $shortcode_content );
 		$this->assertContains( '<li class="jetpack-recipe-nutrition">taste 500mg</li>', $shortcode_content );
+	}
+
+	/**
+	 * Verify that the recipe shortcode allows needed content via KSES.
+	 *
+	 * @covers ::recipe_shortcode
+	 *
+	 * @since 8.0.0
+	 */
+	public function test_shortcodes_recipe_kses_content() {
+		$tags = <<<EOT
+<ol itemprop="" datetime=""></ol>
+<ul itemprop="" datetime="">
+	<li itemprop="" datetime=""></li>
+</ul>
+<img itemprop="" datetime="" />
+<p itemprop="" datetime=""></p>
+<h3 itemprop="" datetime=""></h3>
+<time itemprop="" datetime=""></time>
+<span itemprop="" datetime=""></span>
+<div itemscope="" itemtype=""></div>
+EOT;
+
+		$shortcode_content = do_shortcode( "[recipe]\n$tags\n[/recipe]" );
+		$this->assertContains( $tags, $shortcode_content );
 	}
 }
