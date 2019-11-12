@@ -95,9 +95,9 @@ if [[ 'y' != $reply && 'Y' != $reply ]]; then
 fi
 
 # Replace all file contents.
-sed -r -i "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php
-sed -r -i "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
-sed -r -i "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json
+sed -E -i "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php
+sed -E -i "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
+sed -E -i "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json
 
 git --no-pager diff HEAD jetpack.php package.json
 echo ""
