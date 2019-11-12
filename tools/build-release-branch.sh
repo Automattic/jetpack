@@ -175,6 +175,12 @@ elif [[ 'update' = $COMMAND || '-u' = $COMMAND ]]; then
 	else
 		UPDATE_BUILT_BRANCH=$2
 	fi
+
+	# Ask if they want to update the file versions.
+	read -p "Do you want to update the version in files? [y/N]" reply
+	if [[ 'y' == $reply || 'Y' == $reply ]]; then
+		./tools/version-update.sh
+	fi
 else
 	usage
 fi
