@@ -81,11 +81,11 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Gets the test data for jetpack_shortcode_youtube_query_args().
+	 * Gets the test data for jetpack_shortcode_youtube_args().
 	 *
 	 * @return array[] The test data.
 	 */
-	public function get_youtube_query_args_data() {
+	public function get_youtube_args_data() {
 		return array(
 			'empty_url'                        => array(
 				array(),
@@ -126,16 +126,16 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test jetpack_shortcode_youtube_query_args.
+	 * Test jetpack_shortcode_youtube_args.
 	 *
-	 * @dataProvider get_youtube_query_args_data
-	 * @covers ::jetpack_shortcode_youtube_query_args
+	 * @dataProvider get_youtube_args_data
+	 * @covers ::jetpack_shortcode_youtube_args
 	 *
 	 * @param array      $url The parsed URL in which to look for query args.
 	 * @param array|bool $expected The expected return value of the tested function.
 	 */
-	public function test_jetpack_shortcode_youtube_query_args( $url, $expected ) {
-		$this->assertEquals( $expected, jetpack_shortcode_youtube_query_args( $url ) );
+	public function test_jetpack_shortcode_youtube_args( $url, $expected ) {
+		$this->assertEquals( $expected, jetpack_shortcode_youtube_args( $url ) );
 	}
 
 	/**

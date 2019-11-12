@@ -181,30 +181,30 @@ function youtube_id( $url ) {
 	$url = youtube_sanitize_url( $url );
 	$url = wp_parse_url( $url );
 
-	$qargs = jetpack_shortcode_youtube_query_args( $url );
-	if ( empty( $qargs ) ) {
+	$args = jetpack_shortcode_youtube_args( $url );
+	if ( empty( $args ) ) {
 		return false;
 	}
 
-	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $qargs );
-	$rel           = ( isset( $qargs['rel'] ) && '0' === $qargs['rel'] ) ? 0 : 1;
-	$search        = ( isset( $qargs['showsearch'] ) && '1' === $qargs['showsearch'] ) ? 1 : 0;
-	$info          = ( isset( $qargs['showinfo'] ) && '0' === $qargs['showinfo'] ) ? 0 : 1;
-	$iv            = ( isset( $qargs['iv_load_policy'] ) && '3' === $qargs['iv_load_policy'] ) ? 3 : 1;
+	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $args );
+	$rel           = ( isset( $args['rel'] ) && '0' === $args['rel'] ) ? 0 : 1;
+	$search        = ( isset( $args['showsearch'] ) && '1' === $args['showsearch'] ) ? 1 : 0;
+	$info          = ( isset( $args['showinfo'] ) && '0' === $args['showinfo'] ) ? 0 : 1;
+	$iv            = ( isset( $args['iv_load_policy'] ) && '3' === $args['iv_load_policy'] ) ? 3 : 1;
 
-	$fmt = ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) ? '&fmt=' . (int) $qargs['fmt'] : '';
+	$fmt = ( isset( $args['fmt'] ) && intval( $args['fmt'] ) ) ? '&fmt=' . (int) $args['fmt'] : '';
 
-	if ( ! isset( $qargs['autohide'] ) || ( $qargs['autohide'] < 0 || 2 < $qargs['autohide'] ) ) {
+	if ( ! isset( $args['autohide'] ) || ( $args['autohide'] < 0 || 2 < $args['autohide'] ) ) {
 		$autohide = '&autohide=2';
 	} else {
-		$autohide = '&autohide=' . absint( $qargs['autohide'] );
+		$autohide = '&autohide=' . absint( $args['autohide'] );
 	}
 
 	$start = 0;
-	if ( isset( $qargs['start'] ) ) {
-		$start = intval( $qargs['start'] );
-	} elseif ( isset( $qargs['t'] ) ) {
-		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $qargs['t'] );
+	if ( isset( $args['start'] ) ) {
+		$start = intval( $args['start'] );
+	} elseif ( isset( $args['t'] ) ) {
+		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
 		foreach ( $time_pieces as $time_piece ) {
 			$int = (int) $time_piece;
@@ -223,17 +223,17 @@ function youtube_id( $url ) {
 	}
 
 	$start = $start ? '&start=' . $start : '';
-	$end   = ( isset( $qargs['end'] ) && intval( $qargs['end'] ) ) ? '&end=' . (int) $qargs['end'] : '';
-	$hd    = ( isset( $qargs['hd'] ) && intval( $qargs['hd'] ) ) ? '&hd=' . (int) $qargs['hd'] : '';
+	$end   = ( isset( $args['end'] ) && intval( $args['end'] ) ) ? '&end=' . (int) $args['end'] : '';
+	$hd    = ( isset( $args['hd'] ) && intval( $args['hd'] ) ) ? '&hd=' . (int) $args['hd'] : '';
 
-	$vq = ( isset( $qargs['vq'] ) && in_array( $qargs['vq'], array( 'hd720', 'hd1080' ), true ) ) ? '&vq=' . $qargs['vq'] : '';
+	$vq = ( isset( $args['vq'] ) && in_array( $args['vq'], array( 'hd720', 'hd1080' ), true ) ) ? '&vq=' . $args['vq'] : '';
 
-	$cc      = ( isset( $qargs['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
-	$cc_lang = ( isset( $qargs['cc_lang_pref'] ) ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $qargs['cc_lang_pref'] ) : '';
+	$cc      = ( isset( $args['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
+	$cc_lang = ( isset( $args['cc_lang_pref'] ) ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $args['cc_lang_pref'] ) : '';
 
-	$wmode = ( isset( $qargs['wmode'] ) && in_array( strtolower( $qargs['wmode'] ), array( 'opaque', 'window', 'transparent' ), true ) ) ? $qargs['wmode'] : 'transparent';
+	$wmode = ( isset( $args['wmode'] ) && in_array( strtolower( $args['wmode'] ), array( 'opaque', 'window', 'transparent' ), true ) ) ? $args['wmode'] : 'transparent';
 
-	$theme = ( isset( $qargs['theme'] ) && in_array( strtolower( $qargs['theme'] ), array( 'dark', 'light' ), true ) ) ? '&theme=' . $qargs['theme'] : '';
+	$theme = ( isset( $args['theme'] ) && in_array( strtolower( $args['theme'] ), array( 'dark', 'light' ), true ) ) ? '&theme=' . $args['theme'] : '';
 
 	$autoplay = '';
 	/**
@@ -245,13 +245,13 @@ function youtube_id( $url ) {
 	 *
 	 * @param bool false Enable autoplay for YouTube videos.
 	 */
-	if ( apply_filters( 'jetpack_youtube_allow_autoplay', false ) && isset( $qargs['autoplay'] ) ) {
-		$autoplay = '&autoplay=' . (int) $qargs['autoplay'];
+	if ( apply_filters( 'jetpack_youtube_allow_autoplay', false ) && isset( $args['autoplay'] ) ) {
+		$autoplay = '&autoplay=' . (int) $args['autoplay'];
 	}
 
 	if (
 		( isset( $url['path'] ) && '/videoseries' === $url['path'] )
-		|| isset( $qargs['list'] )
+		|| isset( $args['list'] )
 	) {
 		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
 	} else {
@@ -261,8 +261,8 @@ function youtube_id( $url ) {
 	// Let's do some alignment wonder in a span, unless we're producing a feed.
 	if ( ! is_feed() ) {
 		$alignmentcss = 'text-align:center;';
-		if ( isset( $qargs['align'] ) ) {
-			switch ( $qargs['align'] ) {
+		if ( isset( $args['align'] ) ) {
+			switch ( $args['align'] ) {
 				case 'left':
 					$alignmentcss = "float:left; width:{$w}px; height:{$h}px; margin-right:10px; margin-bottom: 10px;";
 					break;
@@ -295,7 +295,7 @@ function youtube_id( $url ) {
 }
 
 /**
- * Gets the query args present in the YouTube shortcode URL.
+ * Gets the args present in the YouTube shortcode URL.
  *
  * @since 8.0.0
  *
@@ -303,7 +303,7 @@ function youtube_id( $url ) {
  *
  * @return array|false The query args of the URL, or false.
  */
-function jetpack_shortcode_youtube_query_args( $url ) {
+function jetpack_shortcode_youtube_args( $url ) {
 	$qargs = array();
 	if ( ! empty( $url['query'] ) ) {
 		wp_parse_str( $url['query'], $qargs );
@@ -360,8 +360,8 @@ function jetpack_amp_youtube_shortcode( $url ) {
 
 	$sanitized_url          = youtube_sanitize_url( $url );
 	$parsed_url             = wp_parse_url( $sanitized_url );
-	$query_args             = jetpack_shortcode_youtube_query_args( $parsed_url );
-	list( $width, $height ) = jetpack_shortcode_youtube_dimensions( $query_args );
+	$args                   = jetpack_shortcode_youtube_args( $parsed_url );
+	list( $width, $height ) = jetpack_shortcode_youtube_dimensions( $args );
 	return sprintf(
 		'<amp-youtube data-videoid="%s" layout="responsive" width="%d" height="%d"></amp-youtube>',
 		esc_attr( $video_id ),
