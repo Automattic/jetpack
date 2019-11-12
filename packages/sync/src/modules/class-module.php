@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions.
@@ -299,7 +300,7 @@ abstract class Module {
 			$where_sql = '1 = 1';
 		}
 
-		$items_per_page = Settings::get_setting( 'full_sync_max_objects' )[ $table_name ];
+		$items_per_page = Settings::get_setting( 'full_sync_max_objects' )[ $this->name() ];
 
 		if ( empty( $status['last_sent'] ) ) {
 			$status['last_sent'] = '~0';
