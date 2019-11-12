@@ -327,13 +327,15 @@ function jetpack_shortcode_youtube_query_args( $url ) {
  * @return string The rendered shortcode.
  */
 function youtube_shortcode( $atts ) {
+	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
+
 	if (
 		class_exists( 'Jetpack_AMP_Support' )
 		&& Jetpack_AMP_Support::is_amp_request()
 	) {
-		return jetpack_amp_youtube_shortcode( $atts );
+		return jetpack_amp_youtube_shortcode( $url );
 	} else {
-		return youtube_id( ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts ) );
+		return youtube_id( $url );
 	}
 }
 add_shortcode( 'youtube', 'youtube_shortcode' );
@@ -343,16 +345,11 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  *
  * @since 8.0.0
  *
- * @param array $atts The shortcode attributes.
+ * @param string $url The YouTube URL.
  *
  * @return string The AMP-compatible rendered shortcode.
  */
-function jetpack_amp_youtube_shortcode( $atts ) {
-	$url = ( isset( $atts[0] ) ) ? ltrim( $atts[0], '=' ) : shortcode_new_to_old_params( $atts );
-	if ( empty( $url ) ) {
-		return '';
-	}
-
+function jetpack_amp_youtube_shortcode( $url ) {
 	$video_id = jetpack_get_youtube_id( $url );
 	if ( empty( $video_id ) ) {
 		return sprintf(

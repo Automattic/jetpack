@@ -149,36 +149,36 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		$GLOBALS['content_width'] = $width;
 
 		return array(
-			'no_attributes'           => array(
-				array(),
+			'no_url'                  => array(
 				'',
+				'<a href="" class="amp-wp-embed-fallback"></a>',
 			),
-			'url_at_0_index'          => array(
-				array( 0 => 'https://www.youtube.com/watch?v=SVRiktFlWxI' ),
+			'valid_url'               => array(
+				'https://www.youtube.com/watch?v=SVRiktFlWxI',
 				'<amp-youtube data-videoid="SVRiktFlWxI" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-youtube>',
 			),
 			'short_youtube_url'       => array(
-				array( 0 => 'https://youtu.be/gS6_xOABTWo' ),
+				'https://youtu.be/gS6_xOABTWo',
 				'<amp-youtube data-videoid="gS6_xOABTWo" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-youtube>',
 			),
 			'url_without_id'          => array(
-				array( 0 => 'https://youtube.com' ),
+				'https://youtube.com',
 				'<a href="https://youtube.com" class="amp-wp-embed-fallback"></a>',
 			),
 			'with_v_query_param'      => array(
-				array( 0 => 'https://www.youtube.com/watch?v=WVbQ-oro7FQ' ),
+				'https://www.youtube.com/watch?v=WVbQ-oro7FQ',
 				'<amp-youtube data-videoid="WVbQ-oro7FQ" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-youtube>',
 			),
 			'only_width_in_url'       => array(
-				array( 0 => 'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&w=850"' ),
+				'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&w=850"',
 				'<amp-youtube data-videoid="SVRiktFlWxI" layout="responsive" width="850" height="479"></amp-youtube>',
 			),
 			'only_height_in_url'      => array(
-				array( 0 => 'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&h=550"' ),
+				'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&h=550"',
 				'<amp-youtube data-videoid="SVRiktFlWxI" layout="responsive" width="' . $width . '" height="550"></amp-youtube>',
 			),
 			'width_and_height_in_url' => array(
-				array( 0 => 'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&w=600&h=400"' ),
+				'youtube="https://www.youtube.com/watch?v=SVRiktFlWxI&w=600&h=400"',
 				'<amp-youtube data-videoid="SVRiktFlWxI" layout="responsive" width="600" height="400"></amp-youtube>',
 			),
 		);
