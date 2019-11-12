@@ -175,7 +175,7 @@ function youtube_id( $url ) {
 	$id = jetpack_get_youtube_id( $url );
 
 	if ( ! $id ) {
-		return '<!--YouTube Error: bad URL entered-->';
+		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: bad URL entered', 'jetpack' ) );
 	}
 
 	$url = youtube_sanitize_url( $url );
@@ -183,7 +183,7 @@ function youtube_id( $url ) {
 
 	$args = jetpack_shortcode_youtube_args( $url );
 	if ( empty( $args ) ) {
-		return false;
+		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: empty URL args', 'jetpack' ) );
 	}
 
 	list( $w, $h ) = jetpack_shortcode_youtube_dimensions( $args );
