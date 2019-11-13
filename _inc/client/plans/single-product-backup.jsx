@@ -115,7 +115,7 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 				</div>
 			</div>
 			<div className="plans-price__container">
-				<span className="plans-price__span">{ perYearPriceRange }</span>
+				<span className="plans-price__price-range">{ perYearPriceRange }</span>
 			</div>
 		</div>
 	);
