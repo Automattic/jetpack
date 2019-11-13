@@ -92,6 +92,8 @@ class Jetpack_Subscriptions {
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
+
+		add_action( 'rest_api_init', array( $this, 'register_sub_check_rest_field' ) );
 	}
 
 	/**
@@ -146,6 +148,76 @@ class Jetpack_Subscriptions {
 				<?php _e( 'Don&#8217;t send this to subscribers', 'jetpack' ); ?>
 			</div>
 		<?php endif;
+	}
+
+	/**
+	 * Add subscription post_meta to the REST API Post response.
+	 * Only when the jetpack_allow_per_post_subscriptions filter is in use.
+	 * This controls the checkbox displayed in the Jetpack sidebar, in the block editor.
+	 *
+	 * @since 8.0.0
+	 *
+	 * @uses register_rest_field
+	 */
+	public function register_sub_check_rest_field() {
+		if (
+			/** This filter is documented in modules/subscriptions.php */
+			! apply_filters( 'jetpack_allow_per_post_subscriptions', false )
+		) {
+			return;
+		}
+
+		if (
+			has_filter( 'jetpack_subscriptions_exclude_these_categories' )
+			|| has_filter( 'jetpack_subscriptions_include_only_these_categories' )
+		) {
+			return;
+		}
+
+		// Subscriptions only support posts for now.
+		$post_type = 'post';
+
+		register_rest_field(
+			$post_type,
+			'jetpack_dont_email_post_to_subs',
+			array(
+				'get_callback'    => function( $post ) {
+					$disable_subscribe_value = get_post_meta(
+						$post['id'],
+						'_jetpack_dont_email_post_to_subs',
+						true
+					);
+
+					return $disable_subscribe_value;
+				},
+				'update_callback' => function( $disable_subscribe_value, $post ) {
+					$updated = update_post_meta(
+						$post['id'],
+						'_jetpack_dont_email_post_to_subs',
+						$disable_subscribe_value
+					);
+
+					if ( false === $updated ) {
+						return new WP_Error(
+							'jetpack_subscription_disable_failed',
+							__( 'Failed to change the Subscription status of this post.', 'jetpack' ),
+							array( 'status' => 500 )
+						);
+					}
+					return true;
+				},
+				'schema'          => array(
+					'description' => __( 'Don’t send this to subscribers', 'jetpack' ),
+					'type'        => 'integer',
+				),
+			)
+		);
+
+		/**
+		 * Ensures all public internal post-types support `subscriptions`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'jetpack-post-subscriptions' );
 	}
 
 	/**
