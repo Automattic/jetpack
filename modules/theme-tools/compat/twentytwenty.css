@@ -74,6 +74,10 @@
  * Sharing & Related Posts
  */
 
+.entry-content #jp-relatedposts {
+	margin: 1em auto;
+}
+
 .entry-content div.sharedaddy h3.sd-title,
 .entry-content h3.sd-title,
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline {
