@@ -93,6 +93,9 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 		}
 	);
 
+	const full_daily_backup_yearly_cost = backupPlanPrices.jetpack_backup_daily.monthly * 12;
+	const full_realtime_backup_yearly_cost = backupPlanPrices.jetpack_backup_realtime.monthly * 12;
+
 	return (
 		<div className="single-product-backup__header-price">
 			<div className="discounted-price__container">
