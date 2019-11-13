@@ -15,7 +15,7 @@ import ExternalLink from 'components/external-link';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { products, siteRawUrl } ) {
+export function SingleProductBackup( { products, upgradeLinks } ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 
 	const backupPlanPrices = {
@@ -52,7 +52,7 @@ export function SingleProductBackup( { products, siteRawUrl } ) {
 							currencySymbol={ currencySymbol }
 							selectedBackupType={ selectedBackupType }
 							setSelectedBackupType={ setSelectedBackupType }
-							siteRawUrl={ siteRawUrl }
+							upgradeLinks={ upgradeLinks }
 						/>
 					</div>
 				</div>
