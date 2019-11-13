@@ -30,11 +30,8 @@ class Capabilities {
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 	public static function register( $capability ) {
-		// TODO check for clashes?
 		self::$capabilities[ $capability->name ] = $capability;
 	}
-
-	// public static function register_caps()
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 	public static function user_has_cap( $allcaps, $caps, $args, $user ) {
@@ -49,6 +46,4 @@ class Capabilities {
 	}
 }
 
-// add_action( 'admin_init', '\Automattic\Jetpack\Capabilities', 'register_caps' );
 add_filter( 'user_has_cap', [ '\Automattic\Jetpack\Capabilities', 'user_has_cap' ], 10, 4 );
-// add_filter( 'map_meta_cap', [ '\Automattic\Jetpack\Capabilities', 'map_meta_cap' ], 10, 4 );
