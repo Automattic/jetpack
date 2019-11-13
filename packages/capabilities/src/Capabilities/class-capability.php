@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Capabilities;
 
+use Automattic\Jetpack\Capabilities;
+
 // TODO: should this be called "AggregateRule"?
 // phpcs:ignore Squiz.Commenting.ClassComment.Missing
 class Capability implements Rule {
@@ -42,5 +44,10 @@ class Capability implements Rule {
 			$permission->add_permission( $rule->check() );
 		}
 		return $permission;
+	}
+
+	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+	public function register() {
+		Capabilities::register( $this );
 	}
 }

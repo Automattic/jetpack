@@ -19,13 +19,21 @@ class Builder {
 	public $capability;
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-	public function create_capability( $name ) {
+	public function create( $name ) {
 		$this->capability = new Capability( $name );
 		return $this;
 	}
 
+	/**
+	 * Register a capability globally
+	 */
+	public function register() {
+		$this->capability->register();
+		return $this;
+	}
+
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-	public function get_capability() {
+	public function get() {
 		return $this->capability;
 	}
 
@@ -57,12 +65,5 @@ class Builder {
 	 */
 	public function require_minimum_jetpack_plan( $jetpack_plan_level ) {
 		return $this->add_rule( new JetpackPlanRule( $jetpack_plan_level ) );
-	}
-
-	/**
-	 * Register a capability globally
-	 */
-	public function register() {
-		Capabilities::register( $this->capability );
 	}
 }

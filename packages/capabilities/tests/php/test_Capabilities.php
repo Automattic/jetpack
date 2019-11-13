@@ -18,13 +18,13 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 		\Mockery::close();
 	}
 
-	public function test_get_capability() {
+	public function test_get() {
 
 		$capability = $this->builder
-			->create_capability( 'jetpack.backup.restore' )
+			->create( 'jetpack.backup.restore' )
 			->require_wp_role( 'administrator' )
 			->require_wp_capability( 'administrator' )
-			->get_capability();
+			->get();
 
 		// no admin privilege
 		$this->assertFalse( $capability->check()->granted() );
@@ -37,10 +37,10 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 
 	public function test_capability_has_details() {
 		$capability = $this->builder
-			->create_capability( 'jetpack.backup.restore' )
+			->create( 'jetpack.backup.restore' )
 			->require_wp_role( 'administrator' )
 			->require_wp_capability( 'administrator' )
-			->get_capability();
+			->get();
 
 		// response should have a "granted" method
 		$this->assertFalse( $capability->check()->granted() );
@@ -48,9 +48,9 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 
 	public function test_jetpack_plan_rule() {
 		$capability = $this->builder
-			->create_capability( 'jetpack.backup.restore' )
+			->create( 'jetpack.backup.restore' )
 			->require_minimum_jetpack_plan( 'a_nice_plan' )
-			->get_capability();
+			->get();
 
 		// expected plan
 		$this->mockJetpackPlan( 'a_nice_plan' );
@@ -61,6 +61,15 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 		$this->mockJetpackPlan( 'some_other_plan' );
 
 		$this->assertFalse( $capability->check()->granted() );
+	}
+
+	public function test_builder_registers_capability() {
+		$capability = $this->builder
+			->create( 'jetpack.test' )
+			->register()
+			->get();
+
+		$this->assertSame( $capability, \Automattic\Jetpack\Capabilities::get( 'jetpack.test' ) );
 	}
 
 	/**
