@@ -17,11 +17,11 @@ class QueryProducts extends Component {
 	};
 
 	static defaultProps = {
-		isFetchingSiteBenefitsData: false,
+		isFetchingProducts: false,
 	};
 
 	componentDidMount() {
-		if ( ! this.props.isFetchingSiteBenefits ) {
+		if ( ! this.props.isFetchingProducts ) {
 			this.props.fetchProducts();
 		}
 	}

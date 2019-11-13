@@ -129,7 +129,7 @@ export function isFetchingSiteBenefits( state ) {
 }
 
 /**
- * Returns true if currently requesting site benefits. Otherwise false.
+ * Returns true if currently requesting products. Otherwise false.
  *
  * @param  {Object}  state Global state tree
  * @return {Boolean}       Whether benefits are being requested
