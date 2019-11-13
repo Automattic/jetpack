@@ -196,7 +196,7 @@ class Jetpack_Subscriptions {
 				},
 				'update_callback' => function( $disable_subscribe_value, $post ) {
 					$updated = update_post_meta(
-						$post['id'],
+						$post->ID,
 						'_jetpack_dont_email_post_to_subs',
 						$disable_subscribe_value
 					);
