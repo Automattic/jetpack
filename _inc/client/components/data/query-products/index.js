@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { isDevMode } from 'state/connection';
 import { fetchProducts, isFetchingProducts } from 'state/site';
 
 class QueryProducts extends Component {
@@ -22,7 +21,7 @@ class QueryProducts extends Component {
 	};
 
 	componentDidMount() {
-		if ( ! this.props.isDevMode && ! this.props.isFetchingSiteBenefits ) {
+		if ( ! this.props.isFetchingSiteBenefits ) {
 			this.props.fetchProducts();
 		}
 	}
@@ -34,7 +33,6 @@ class QueryProducts extends Component {
 
 export default connect(
 	state => ( {
-		isDevMode: isDevMode( state ),
 		isFetchingProducts: isFetchingProducts( state ),
 	} ),
 	dispatch => ( {
