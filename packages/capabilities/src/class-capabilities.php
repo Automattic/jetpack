@@ -1,15 +1,18 @@
 <?php
+/**
+ * Top level object for registering and fetching named capabilities, e.g. 'jetpack.backups.restore'
+ *
+ * @package automattic/jetpack-capabilities
+ */
 
 namespace Automattic\Jetpack;
 
 use \Automattic\Jetpack\Capabilities\Capability;
 
-const JETPACK_BUSINESS_PLAN_SLUG = 'jetpack_business';
-
 class Capabilities {
 	private $capabilities;
 
-	function __construct() {
+	public function __construct() {
 		$this->capabilities = [];
 	}
 
