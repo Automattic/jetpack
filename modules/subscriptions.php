@@ -94,6 +94,7 @@ class Jetpack_Subscriptions {
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 
 		add_action( 'rest_api_init', array( $this, 'register_sub_check_rest_field' ) );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_extension' ) );
 	}
 
 	/**
@@ -218,6 +219,29 @@ class Jetpack_Subscriptions {
 		 * This feature support flag is used by the REST API and Gutenberg.
 		 */
 		add_post_type_support( $post_type, 'jetpack-post-subscriptions' );
+	}
+
+	/**
+	 * Register the block extension so it can be displayed in the editor.
+	 *
+	 * @since 8.0.0
+	 */
+	public function register_gutenberg_extension() {
+		if (
+			/** This filter is documented in modules/subscriptions.php */
+			! apply_filters( 'jetpack_allow_per_post_subscriptions', false )
+		) {
+			return;
+		}
+
+		if (
+			has_filter( 'jetpack_subscriptions_exclude_these_categories' )
+			|| has_filter( 'jetpack_subscriptions_include_only_these_categories' )
+		) {
+			return;
+		}
+
+		Jetpack_Gutenberg::set_extension_available( 'jetpack/subscriptions-toggle' );
 	}
 
 	/**
