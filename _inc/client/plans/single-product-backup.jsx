@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { translate as __ } from 'i18n-calypso';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -15,21 +16,21 @@ import './single-product-backup.scss';
 
 export function SingleProductBackup( props ) {
 	const { products, siteRawUrl } = props;
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 
 	const backupPlanPrices = {
 		jetpack_backup_daily: {
-			monthly: products.jetpack_backup_daily_monthly.cost,
-			yearly: products.jetpack_backup_daily.cost,
+			monthly: get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' ),
+			yearly: get( products, [ 'jetpack_backup_daily', 'cost' ], '' ),
 		},
 		jetpack_backup_realtime: {
-			monthly: products.jetpack_backup_realtime_monthly.cost,
-			yearly: products.jetpack_backup_realtime.cost,
+			monthly: get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' ),
+			yearly: get( products, [ 'jetpack_backup_realtime', 'cost' ], '' ),
 		},
 	};
 
-	const currencySymbol = getCurrencyDefaults( products.jetpack_backup_daily.currency_code ).symbol;
-
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+	const currency_code = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
+	const currencySymbol = getCurrencyDefaults( currency_code ).symbol;
 
 	return (
 		<React.Fragment>
