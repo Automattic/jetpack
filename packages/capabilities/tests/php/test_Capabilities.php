@@ -5,11 +5,12 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Capabilities;
 use phpmock\functions\FunctionProvider;
 
-class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
+class Test_Jetpack_Capabilities_Base extends \WP_UnitTestCase {
 	var $builder;
 	var $current_product_slug;
 
 	public function setUp() {
+		\Automattic\Jetpack\Capabilities::clear();
 		$this->builder = new Capabilities\Builder();
 		$this->setUserRole( 'editor' );
 	}
@@ -18,34 +19,53 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 		\Mockery::close();
 	}
 
-	public function test_get() {
+	/**
+	 * Utility functions
+	 */
+	protected function setUserRole( $role ) {
+		$user = wp_get_current_user();
+		$user->set_role( $role );
+	}
 
+	protected function addUserCapability( $cap ) {
+		$user = wp_get_current_user();
+		$user->add_cap( $cap );
+	}
+}
+
+/**
+ * Test registering and getting capabilities
+ */
+class Test_Jetpack_Capabilities_Global extends Test_Jetpack_Capabilities_Base {
+	public function test_register_capability() {
+		$cap = new Capabilities\Capability( 'foo' );
+		\Automattic\Jetpack\Capabilities::register( $cap );
+
+		$this->assertSame( $cap, \Automattic\Jetpack\Capabilities::get( 'foo' ) );
+	}
+
+	public function test_map_meta_cap_wraps_jetpack_capabilities() {
+		// let's create a capability we don't comply with... yet
 		$capability = $this->builder
 			->create( 'jetpack.backup.restore' )
 			->require_wp_role( 'administrator' )
-			->require_wp_capability( 'administrator' )
-			->get();
+			->register()->get();
 
-		// no admin privilege
+		// quick assertion to make sure it's false
 		$this->assertFalse( $capability->check()->granted() );
 
+		// oh look! it's part of WP's caps now
+		$this->assertFalse( current_user_can( 'jetpack.backup.restore' ) );
+
+		// now let's comply
 		$this->setUserRole( 'administrator' );
 
 		// has admin privilege
-		$this->assertTrue( $capability->check()->granted() );
+		$this->assertTrue( current_user_can( 'jetpack.backup.restore' ) );
 	}
+}
 
-	public function test_capability_has_details() {
-		$capability = $this->builder
-			->create( 'jetpack.backup.restore' )
-			->require_wp_role( 'administrator' )
-			->require_wp_capability( 'administrator' )
-			->get();
-
-		// response should have a "granted" method
-		$this->assertFalse( $capability->check()->granted() );
-	}
-
+class Test_Jetpack_Capabilities_Jetpack_Plan extends Test_Jetpack_Capabilities_Base {
 	public function test_jetpack_plan_rule() {
 		$capability = $this->builder
 			->create( 'jetpack.backup.restore' )
@@ -63,23 +83,6 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 		$this->assertFalse( $capability->check()->granted() );
 	}
 
-	public function test_builder_registers_capability() {
-		$capability = $this->builder
-			->create( 'jetpack.test' )
-			->register()
-			->get();
-
-		$this->assertSame( $capability, \Automattic\Jetpack\Capabilities::get( 'jetpack.test' ) );
-	}
-
-	/**
-	 * Utility functions
-	 */
-	private function setUserRole( $role ) {
-		$user = wp_get_current_user(); // new \WP_User( $user_id );
-		$user->set_role( $role );
-	}
-
 	private function mockJetpackPlan( $product_slug ) {
 		$this->current_product_slug = $product_slug;
 
@@ -91,5 +94,50 @@ class Test_Jetpack_Capabilities extends \WP_UnitTestCase {
 			->andReturnUsing( function() {
 				return [ 'product_slug' => $this->current_product_slug ];
 			} );
+	}
+}
+
+class Test_Jetpack_Capabilities_WP_Role extends Test_Jetpack_Capabilities_Base {
+	public function test_check_role() {
+		$capability = $this->builder
+			->create( 'jetpack.backup.restore' )
+			->require_wp_role( 'administrator' )
+			->get();
+
+		// no admin privilege
+		$this->assertFalse( $capability->check()->granted() );
+
+		$this->setUserRole( 'administrator' );
+
+		// has admin privilege
+		$this->assertTrue( $capability->check()->granted() );
+	}
+}
+
+class Test_Jetpack_Capabilities_WP_Capability extends Test_Jetpack_Capabilities_Base {
+	public function test_check_capability() {
+		$capability = $this->builder
+			->create( 'jetpack.backup.restore' )
+			->require_wp_capability( 'do_a_thing' )
+			->get();
+
+		// no admin privilege
+		$this->assertFalse( $capability->check()->granted() );
+
+		$this->addUserCapability( 'do_a_thing' );
+
+		// has admin privilege
+		$this->assertTrue( $capability->check()->granted() );
+	}
+}
+
+class Test_Jetpack_Capabilities_Builder extends Test_Jetpack_Capabilities_Base {
+	public function test_builder_registers_capability() {
+		$capability = $this->builder
+			->create( 'jetpack.test' )
+			->register()
+			->get();
+
+		$this->assertSame( $capability, \Automattic\Jetpack\Capabilities::get( 'jetpack.test' ) );
 	}
 }

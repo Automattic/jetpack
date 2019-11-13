@@ -25,6 +25,7 @@ class WPCapabilityRule implements Rule {
 	public function check( ...$args ) {
 		// TODO: this kind of additional argument isn't supported yet - not sure how to pass this through.
 		$object_id = isset( $args['object_id'] ) ? $args['object_id'] : null;
+		echo 'Checking if user can ' . $this->wp_capability . "\n";
 		if ( current_user_can( $this->wp_capability, $object_id ) ) {
 			return new PermissionGranted();
 		}
