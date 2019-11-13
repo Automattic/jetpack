@@ -506,7 +506,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $data;
-    }
+	}
 
 	/**
 	 * Gets the WP.com products that are in use on wpcom.
