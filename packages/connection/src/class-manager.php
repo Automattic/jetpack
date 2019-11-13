@@ -1400,7 +1400,7 @@ class Manager {
 	 * @param String  $redirect (optional) a redirect URL to use instead of the default.
 	 * @return string Connect URL.
 	 */
-	public function build_connect_url( $user = null, $redirect = null ) {
+	public function get_authorization_url( $user = null, $redirect = null ) {
 
 		if ( empty( $user ) ) {
 			$user = wp_get_current_user();
