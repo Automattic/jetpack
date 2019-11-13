@@ -5046,13 +5046,12 @@ endif;
 	 * Note these tokens are unique per call, NOT static per site for connecting.
 	 *
 	 * @since 2.6
+	 * @param String  $action  The action name.
+	 * @param Integer $user_id The user identifier.
+	 * @param Integer $exp     Expiration time in seconds.
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		if ( false === $user_id ) {
-			$user_id = get_current_user_id();
-		}
-
 		return self::connection()->generate_secrets( $action, $user_id, $exp );
 	}
 

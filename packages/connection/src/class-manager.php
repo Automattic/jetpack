@@ -1136,6 +1136,10 @@ class Manager {
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
 	public function generate_secrets( $action, $user_id = false, $exp = 600 ) {
+		if ( false === $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
 		$callable = $this->get_secret_callable();
 
 		$secrets = \Jetpack_Options::get_raw_option(
