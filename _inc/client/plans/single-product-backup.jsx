@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { getCurrencyDefaults } from '@automattic/format-currency';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -48,10 +49,10 @@ export function SingleProductBackup( props ) {
 					</div>
 					<div className="single-product-backup__accented-card__body">
 						<SingleProductBackupBody
+							backupPlanPrices={ backupPlanPrices }
 							currencySymbol={ currencySymbol }
 							selectedBackupType={ selectedBackupType }
 							setSelectedBackupType={ setSelectedBackupType }
-							backupPlanPrices={ backupPlanPrices }
 							siteRawUrl={ siteRawUrl }
 						/>
 					</div>
