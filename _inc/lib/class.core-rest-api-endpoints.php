@@ -80,21 +80,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => __CLASS__ . '::get_plans',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
-
-        ) );
+		) );
 
 		register_rest_route( 'jetpack/v4', 'products', array(
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => __CLASS__ . '::get_products',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
-
 		) );
 
 		register_rest_route( 'jetpack/v4', 'marketing/survey', array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => __CLASS__ . '::submit_survey',
 			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
-
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
@@ -509,32 +506,41 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $data;
-    }
+	}
 
-    public static function get_products( $request ) {
-        $wpcom_request = Client::wpcom_json_api_request_as_user(
-            '/products?_locale=' . get_user_locale(),
-            'v1.1',
+	/**
+	 * Gets the products that are in use on wpcom.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return object A JSON object of wpcom products if the request was sucessful, or an error code otherwise.
+	 */
+	public static function get_products( $request ) {
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/products?_locale=' . get_user_locale(),
+			'v1.1',
 			array(
 				'method'  => 'GET',
 				'headers' => array(
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
 			),
-	        null,
-	        'rest'
-        );
+			null,
+			'rest'
+		);
 
-	    $body = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-	    if ( 200 === wp_remote_retrieve_response_code( $wpcom_request ) ) {
-		    $data = $body;
-	    } else {
-		    // something went wrong so we'll just return the response without caching
-		    return $body;
-	    }
-
-	    return $data;
-    }
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			// something went wrong so we'll just return the response without caching.
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
 
 	public static function submit_survey( $request ) {
 
