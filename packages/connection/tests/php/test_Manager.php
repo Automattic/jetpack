@@ -96,7 +96,7 @@ class ManagerTest extends TestCase {
 		$this->manager->connect_user( 1 );
 
 		$this->assertNotEmpty( $this->arguments_stack['wp_redirect'] );
-		$this->assertEquals( $this->manager->api_url( 'authenticate' ),  $this->arguments_stack['wp_redirect'][0][0] );
+		$this->assertEquals( $this->manager->api_url( 'authenticate' ), $this->arguments_stack['wp_redirect'][0][0] );
 	}
 
 	/**
