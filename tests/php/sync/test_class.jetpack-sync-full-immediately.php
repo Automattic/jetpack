@@ -810,7 +810,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->full_sync->start();
 
-		l($this->full_sync_start_config);
 		$this->assertEquals( $standard_config, $this->full_sync_start_config );
 
 		$custom_config = array( 'posts' => $post_ids );
