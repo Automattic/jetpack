@@ -230,17 +230,7 @@ class Jetpack_Subscriptions {
 	 * @since 8.0.0
 	 */
 	public function register_gutenberg_extension() {
-		if (
-			/** This filter is documented in modules/subscriptions.php */
-			! apply_filters( 'jetpack_allow_per_post_subscriptions', false )
-		) {
-			return;
-		}
-
-		if (
-			has_filter( 'jetpack_subscriptions_exclude_these_categories' )
-			|| has_filter( 'jetpack_subscriptions_include_only_these_categories' )
-		) {
+		if ( ! $this->should_show_subscription_toggle() ) {
 			return;
 		}
 
