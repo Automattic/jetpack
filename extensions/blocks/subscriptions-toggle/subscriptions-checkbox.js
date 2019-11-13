@@ -16,7 +16,7 @@ const SubscriptionsCheckbox = ( { isPostExcludedFromSubs, editPost } ) => (
 	<PostTypeSupportCheck supportKeys="jetpack-post-subscriptions">
 		<JetpackSubscriptionsPanel>
 			<CheckboxControl
-				label={ __( 'Don’t send this to subscribers', 'jetpack' ) }
+				label={ __( 'Don’t send this post to subscribers.', 'jetpack' ) }
 				checked={ isPostExcludedFromSubs }
 				onChange={ value => {
 					editPost( { jetpack_dont_email_post_to_subs: value } );
