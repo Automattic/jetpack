@@ -492,7 +492,7 @@ class Jetpack_XMLRPC_Server {
 		}
 		$token = sanitize_text_field( $token );
 
-		Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
+		Connection_Utils::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
 
 		$this->do_post_authorization();
 

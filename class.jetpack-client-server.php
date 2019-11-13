@@ -134,7 +134,7 @@ class Jetpack_Client_Server {
 
 		$is_master_user = ! Jetpack::is_active();
 
-		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+		Connection_Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
 
 		if ( ! $is_master_user ) {
 			Jetpack::state( 'message', 'linked' );

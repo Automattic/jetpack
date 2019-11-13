@@ -2123,26 +2123,18 @@ class Jetpack {
 	}
 
 	/**
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::update_user_token() instead.
+	 *
 	 * Enters a user token into the user_tokens option
 	 *
-	 * @param int    $user_id
-	 * @param string $token
-	 * return bool
+	 * @param int    $user_id The user id.
+	 * @param string $token The user token.
+	 * @param bool   $is_master_user Whether the user is the master user.
+	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		// not designed for concurrent updates
-		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
-		if ( ! is_array( $user_tokens ) ) {
-			$user_tokens = array();
-		}
-		$user_tokens[ $user_id ] = $token;
-		if ( $is_master_user ) {
-			$master_user = $user_id;
-			$options     = compact( 'user_tokens', 'master_user' );
-		} else {
-			$options = compact( 'user_tokens' );
-		}
-		return Jetpack_Options::update_options( $options );
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::update_user_token' );
+		return Connection_Utils::update_user_token( $user_id, $token, $is_master_user );
 	}
 
 	/**
@@ -4818,7 +4810,7 @@ endif;
 
 	/**
 	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts() instead.
-     *
+	 *
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
