@@ -75,6 +75,9 @@
  */
 
 .entry-content #jp-relatedposts {
+	margin-left  : -100px;
+	margin-right : -100px;
+	max-width    : 1024px;
 	margin: 1em auto;
 }
 
