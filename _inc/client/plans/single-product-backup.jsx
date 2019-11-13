@@ -39,13 +39,13 @@ export function SingleProductBackup( props ) {
 			</h2>
 			<div className="single-product-backup__accented-card-container">
 				<div className="single-product-backup__accented-card">
-					<div className={ 'single-product-backup__accented-card__header' }>
+					<div className="single-product-backup__accented-card__header">
 						<SingleProductBackupHeader
 							currencySymbol={ currencySymbol }
 							backupPlanPrices={ backupPlanPrices }
 						/>
 					</div>
-					<div className={ 'single-product-backup__accented-card__body' }>
+					<div className="single-product-backup__accented-card__body">
 						<SingleProductBackupBody
 							currencySymbol={ currencySymbol }
 							selectedBackupType={ selectedBackupType }
