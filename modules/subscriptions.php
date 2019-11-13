@@ -112,11 +112,14 @@ class Jetpack_Subscriptions {
 		);
 	}
 
-	/*
-	 * Disable Subscribe on Single Post
-	 * Register post meta
+	/**
+	 * Check whether a subscription toggle should be displayed in the editor.
+	 *
+	 * @since 8.0.0
+	 *
+	 * @return bool
 	 */
-	function subscription_post_page_metabox() {
+	private function should_show_subscription_toggle() {
 		if (
 			/**
 			 * Filter whether or not to show the per-post subscription option.
@@ -127,12 +130,22 @@ class Jetpack_Subscriptions {
 			 *
 			 * @param bool true = show checkbox option on all new posts | false = hide the option.
 			 */
-			 ! apply_filters( 'jetpack_allow_per_post_subscriptions', false ) )
-		{
-			return;
+			! apply_filters( 'jetpack_allow_per_post_subscriptions', false )
+			|| has_filter( 'jetpack_subscriptions_exclude_these_categories' )
+			|| has_filter( 'jetpack_subscriptions_include_only_these_categories' )
+		) {
+			return false;
 		}
 
-		if ( has_filter( 'jetpack_subscriptions_exclude_these_categories' ) || has_filter( 'jetpack_subscriptions_include_only_these_categories' ) ) {
+		return true;
+	}
+
+	/**
+	 * Disable Subscribe on Single Post
+	 * Register post meta
+	 */
+	public function subscription_post_page_metabox() {
+		if ( ! $this->should_show_subscription_toggle() ) {
 			return;
 		}
 
@@ -161,17 +174,7 @@ class Jetpack_Subscriptions {
 	 * @uses register_rest_field
 	 */
 	public function register_sub_check_rest_field() {
-		if (
-			/** This filter is documented in modules/subscriptions.php */
-			! apply_filters( 'jetpack_allow_per_post_subscriptions', false )
-		) {
-			return;
-		}
-
-		if (
-			has_filter( 'jetpack_subscriptions_exclude_these_categories' )
-			|| has_filter( 'jetpack_subscriptions_include_only_these_categories' )
-		) {
+		if ( ! $this->should_show_subscription_toggle() ) {
 			return;
 		}
 
