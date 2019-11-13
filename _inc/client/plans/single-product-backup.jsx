@@ -15,8 +15,7 @@ import ExternalLink from 'components/external-link';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( props ) {
-	const { products, siteRawUrl } = props;
+export function SingleProductBackup( { products, siteRawUrl } ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 
 	const backupPlanPrices = {
@@ -62,9 +61,7 @@ export function SingleProductBackup( props ) {
 	);
 }
 
-function SingleProductBackupHeader( props ) {
-	const { currencySymbol, backupPlanPrices } = props;
-
+function SingleProductBackupHeader( { currencySymbol, backupPlanPrices } ) {
 	return (
 		<div className="single-product-backup__header-container">
 			<h3>{ __( 'Jetpack Backup' ) }</h3>
