@@ -212,7 +212,7 @@ class Jetpack_Subscriptions {
 				},
 				'schema'          => array(
 					'description' => __( 'Don’t send this to subscribers', 'jetpack' ),
-					'type'        => 'integer',
+					'type'        => 'boolean',
 				),
 			)
 		);
