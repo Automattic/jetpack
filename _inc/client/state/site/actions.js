@@ -75,13 +75,13 @@ export const fetchProducts = () => {
 			.then( products => {
 				dispatch( {
 					type: JETPACK_PRODUCTS_FETCH_RECEIVE,
-					products: products,
+					products,
 				} );
 			} )
 			.catch( error => {
 				dispatch( {
 					type: JETPACK_PRODUCTS_FETCH_FAIL,
-					error: error,
+					error,
 				} );
 			} );
 	};
