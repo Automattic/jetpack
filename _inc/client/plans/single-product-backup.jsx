@@ -38,7 +38,7 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 			<h2 className="plans-section__subheader">
 				{ __( "Just looking for backups? We've got you covered." ) }
 			</h2>
-			<div className="single-product-backup__accented-card-container">
+			<div className="plans-section__single-product">
 				<div className="single-product-backup__accented-card">
 					<div className="single-product-backup__accented-card-header">
 						<SingleProductBackupHeader
