@@ -513,7 +513,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
-	 * @return object A JSON object of wpcom products if the request was sucessful, or an error code otherwise.
+	 * @return string|WP_Error A JSON object of wpcom products if the request was successful, or a WP_Error otherwise.
 	 */
 	public static function get_products( $request ) {
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
