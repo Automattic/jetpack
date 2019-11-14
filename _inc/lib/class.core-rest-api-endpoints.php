@@ -786,7 +786,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_jetpack_connect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 
 	}
 
