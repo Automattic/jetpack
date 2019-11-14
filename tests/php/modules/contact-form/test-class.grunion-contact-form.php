@@ -68,7 +68,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 *
 	 * Tests that the submission as a whole will produce something in the
 	 * database when required information is provided
@@ -92,7 +92,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 *
 	 * Tests that the submission as a whole will produce something in the
 	 * database when some labels are provided
@@ -134,7 +134,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 *
 	 * Tests that the submission will store the subject when specified
 	 */
@@ -156,7 +156,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_will_store_subject_with_token_replaced_from_name_and_text_field() {
 		// Fill field values
@@ -183,7 +183,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_will_store_subject_with_token_replaced_from_radio_button_field() {
 		// Fill field values
@@ -209,7 +209,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_will_store_subject_with_token_replaced_from_dropdown_field() {
 		// Fill field values
@@ -235,7 +235,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_will_store_fields_and_their_values_to_post_content() {
 		// Fill field values
@@ -268,7 +268,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_will_store_fields_and_their_values_to_email_meta() {
 		// Fill field values
@@ -308,7 +308,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_sends_correct_single_email() {
 		// Fill field values
@@ -346,7 +346,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_sends_correct_multiple_email() {
 		// Fill field values
@@ -372,7 +372,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_fails_if_spam_marked_with_WP_Error() {
 		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'pre_test_process_submission_fails_if_spam_marked_with_WP_Error' ), 11 ); // Run after akismet filter
@@ -390,7 +390,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_wont_send_spam_if_marked_as_spam_with_true() {
 		add_filter( 'jetpack_contact_form_is_spam', '__return_true', 11 ); // Run after akismet filter
@@ -408,7 +408,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers ::Grunion_Contact_Form::process_submission
 	 */
 	public function test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam() {
 		add_filter( 'jetpack_contact_form_is_spam', '__return_true' , 11 ); // Run after akismet filter
@@ -458,7 +458,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 * @covers ::Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_token_left_intact_when_no_matching_field() {
 		$plugin = Grunion_Contact_Form_Plugin::init();
@@ -472,7 +472,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 * @covers ::Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_replaced_with_empty_string_when_no_value_in_field() {
 		$plugin = Grunion_Contact_Form_Plugin::init();
@@ -486,7 +486,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 * @covers ::Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_whose_name_has_whitespace() {
 		$plugin = Grunion_Contact_Form_Plugin::init();
@@ -500,7 +500,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 * @covers ::Grunion_Contact_Form_Plugin::replace_tokens_with_input
 	 */
 	public function test_token_with_curly_brackets_can_be_replaced() {
 		$plugin = Grunion_Contact_Form_Plugin::init();
@@ -514,7 +514,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::parse_contact_field
+	 * @covers ::Grunion_Contact_Form::parse_contact_field
 	 */
 	public function test_parse_contact_field_keeps_string_unchaned_when_no_escaping_necesssary() {
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
@@ -852,7 +852,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::parse_contact_field
+	 * @covers ::Grunion_Contact_Form::parse_contact_field
 	 */
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
 		global $wp_version;
@@ -1315,9 +1315,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author jaswrks
-	 * @covers Grunion_Contact_Form::personal_data_exporter
-	 * @covers Grunion_Contact_Form::personal_data_post_ids_by_email
-	 * @covers Grunion_Contact_Form::personal_data_search_filter
+	 * @covers ::Grunion_Contact_Form::personal_data_exporter
+	 * @covers ::Grunion_Contact_Form::personal_data_post_ids_by_email
+	 * @covers ::Grunion_Contact_Form::personal_data_search_filter
 	 */
 	public function test_personal_data_exporter() {
 		$this->add_field_values( array(
@@ -1364,9 +1364,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author jaswrks
-	 * @covers Grunion_Contact_Form::personal_data_eraser
-	 * @covers Grunion_Contact_Form::personal_data_post_ids_by_email
-	 * @covers Grunion_Contact_Form::personal_data_search_filter
+	 * @covers ::Grunion_Contact_Form::personal_data_eraser
+	 * @covers ::Grunion_Contact_Form::personal_data_post_ids_by_email
+	 * @covers ::Grunion_Contact_Form::personal_data_search_filter
 	 */
 	public function test_personal_data_eraser() {
 		$this->add_field_values( array(

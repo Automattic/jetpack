@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 
 	/**
 	 * @author nylen
-	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
+	 * @covers ::WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
 	 */
 	public function test_get_term_feed_url_pretty_permalinks() {
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 
 	/**
 	 * @author nylen
-	 * @covers WPCOM_JSON_API_Get_Taxonomy_Endpoint
+	 * @covers ::WPCOM_JSON_API_Get_Taxonomy_Endpoint
 	 * @group json-api
 	 */
 	public function test_get_term_feed_url_ugly_permalinks() {

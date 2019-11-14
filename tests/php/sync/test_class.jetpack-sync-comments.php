@@ -395,7 +395,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$comment_sync_module = Modules::get_module( "comments" );
 
 		$comment_id = $this->comment_ids[0];
-		
+
 		// get the synced object
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
 		$synced_comment = $event->args[1];
@@ -411,7 +411,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Sync\Modules\Comments::get_whitelisted_comment_types()
+	 * @covers ::Automattic\Jetpack\Sync\Modules\Comments::get_whitelisted_comment_types()
 	 */
 	public function test_allows_custom_comment_types() {
 		$comments_sync_module = Modules::get_module( 'comments' );

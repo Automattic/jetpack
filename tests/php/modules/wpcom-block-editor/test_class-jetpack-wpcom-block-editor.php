@@ -7,7 +7,7 @@ require_once dirname( __FILE__ ) . '/../../../../modules/wpcom-block-editor/clas
 /**
  * Class WP_Test_Jetpack_WPCOM_Block_Editor.
  *
- * @covers Jetpack_WPCOM_Block_Editor
+ * @covers ::Jetpack_WPCOM_Block_Editor
  */
 class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	/**
