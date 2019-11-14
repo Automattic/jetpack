@@ -509,7 +509,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Gets the products that are in use on wpcom.
+	 * Gets the WP.com products that are in use on wpcom.
+	 * Similar to the WP.com plans that we currently in user on WPCOM.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
