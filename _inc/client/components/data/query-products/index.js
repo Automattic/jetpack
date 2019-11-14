@@ -13,7 +13,6 @@ import { fetchProducts, isFetchingProducts } from 'state/site';
 class QueryProducts extends Component {
 	static propTypes = {
 		isFetchingProducts: PropTypes.bool,
-		isDevMode: PropTypes.bool,
 	};
 
 	static defaultProps = {
