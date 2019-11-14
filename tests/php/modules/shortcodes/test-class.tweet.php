@@ -193,6 +193,10 @@ BODY;
 				'[tweet ' . $tweet_id . ' width=300]',
 				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="300" height="' . $default_height .'"></amp-twitter>',
 			),
+			'0_width_in_attributes' => array(
+				'[tweet ' . $tweet_id . ' width=0]',
+				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+			),
 			'id_as_part_of_url'     => array(
 				'[tweet https://twitter.com/jetpack/status/' . $tweet_id . ']',
 				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
@@ -208,10 +212,10 @@ BODY;
 	 * Test the AMP-compatible [tweet] shortcode on an AMP endpoint.
 	 *
 	 * @dataProvider get_tweet_amp_data
-	 *
 	 * @since 8.0.0
 	 *
-	 * @param string $shortcode_content
+	 * @param string $shortcode_content The shortcode, like [tweet 1234].
+	 * @param string $expected The expected return value of the function.
 	 */
 	public function test_shortcodes_tweet_amp( $shortcode_content, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -219,11 +223,12 @@ BODY;
 	}
 
 	/**
-	 * Test that the AMP-compatible [tweet] shortcode logic doesn't run on a non-AMP endpoint.
+	 * Test that the AMP [tweet] shortcode logic doesn't run on a non-AMP endpoint.
 	 *
 	 * @dataProvider get_tweet_amp_data
-	 *
 	 * @since 8.0.0
+	 *
+	 * @param string $shortcode_content The shortcode as entered in the editor.
 	 */
 	public function test_shortcodes_tweet_non_amp( $shortcode_content ) {
 		add_filter( 'jetpack_is_amp_request', '__return_false' );
