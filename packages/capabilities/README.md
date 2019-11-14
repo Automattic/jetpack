@@ -13,9 +13,9 @@ As an example, let's imagine a product that lets the user fire a catapult.
 First, we create our capability:
 
 ```php
-$capability = new \Jetpack\Capabilities\Capability( 'catapult.fire' );
-$capability->add_rule( new WPRoleRule( 'catapulter' ) );
-$capability->register(); // registers in the \Jetpack\Capabilities class
+$rule = new \Jetpack\Capabilities\AllRule(); // this rule only grants permission if all the sub-rules are granted
+$rule->add_rule( new WPRoleRule( 'catapulter' ) );
+$rule->register( 'catapult.fire' ); // registers in the \Jetpack\Capabilities class
 ```
 
 Then elsewhere we fetch it:
@@ -37,9 +37,9 @@ Of course, this is a little clunky, so we made some shorthand, like the capabili
 
 ```php
 ( new Capabilities\Builder() )
-	->create( 'catapult.fire' )
+	->create()
 	->require_wp_role( 'catapulter' )
-	->register();
+	->register( 'catapult.fire' );
 ```
 
 and nice invocation patterns:
@@ -62,4 +62,4 @@ fire_the_catapult();
 
 ### Usage
 
-Instantiating the JITM Manager will facilitate the display of JITM messages in wp-admin
+TODO
