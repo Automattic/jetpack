@@ -2,10 +2,6 @@
 	padding: 0.125em 0;
 	margin: 0;
 	position: relative;
-
-	@include break-small {
-		margin: 1em 0;
-	}
 }
 
 .jetpack-instant-search__search-result-minimal h3 {
