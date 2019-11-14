@@ -31,7 +31,15 @@
 	font-size: 0.85em;
 
 	@include break-small {
-		float: right;
+		margin: 0.25em 0;
+	}
+}
+
+.jetpack-instant-search__search-result-minimal-header {
+	@include break-small {
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-between;
 	}
 }
 

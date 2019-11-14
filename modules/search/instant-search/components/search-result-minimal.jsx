@@ -94,21 +94,23 @@ class SearchResultMinimal extends Component {
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 		return (
 			<li className="jetpack-instant-search__search-result-minimal">
-				<span className="jetpack-instant-search__search-result-minimal-date">
-					{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
-						dateStyle: 'short',
-					} ) }
-				</span>
-				<h3 className="jetpack-instant-search__search-result-title">
-					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
-					<a
-						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						className="jetpack-instant-search__search-result-minimal-title"
-						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ { __html: highlight.title } }
-						onClick={ this.onClick }
-					/>
-				</h3>
+				<div className="jetpack-instant-search__search-result-minimal-header">
+					<span className="jetpack-instant-search__search-result-minimal-date">
+						{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
+							dateStyle: 'short',
+						} ) }
+					</span>
+					<h3 className="jetpack-instant-search__search-result-title">
+						<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
+						<a
+							href={ `//${ fields[ 'permalink.url.raw' ] }` }
+							className="jetpack-instant-search__search-result-minimal-title"
+							//eslint-disable-next-line react/no-danger
+							dangerouslySetInnerHTML={ { __html: highlight.title } }
+							onClick={ this.onClick }
+						/>
+					</h3>
+				</div>
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
 				<SearchResultComments comments={ highlight && highlight.comments } />
 			</li>
