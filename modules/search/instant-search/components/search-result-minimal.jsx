@@ -92,14 +92,18 @@ class SearchResultMinimal extends Component {
 			return null;
 		}
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
+		const resultDate = new Date( fields.date.split( ' ' )[ 0 ] );
 		return (
 			<li className="jetpack-instant-search__search-result-minimal">
 				<div className="jetpack-instant-search__search-result-minimal-header">
-					<span className="jetpack-instant-search__search-result-minimal-date">
-						{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
+					<time
+						className="jetpack-instant-search__search-result-minimal-date"
+						datetime={ resultDate.toISOString() }
+					>
+						{ resultDate.toLocaleDateString( locale, {
 							dateStyle: 'short',
 						} ) }
-					</span>
+					</time>
 					<h3 className="jetpack-instant-search__search-result-title">
 						<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 						<a
