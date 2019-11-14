@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -29,6 +30,13 @@ class Full_Sync_Immediately extends Module {
 	 * @var string
 	 */
 	const STATUS_OPTION = 'jetpack_sync_full_status';
+
+	/**
+	 * Sync Lock name.
+	 *
+	 * @var string
+	 */
+	const LOCK_NAME = 'full_sync';
 
 	/**
 	 * Sync module name.
@@ -122,7 +130,7 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function reset_data() {
 		$this->clear_status();
-		// TODO remove Lock.
+		Lock::remove_lock( self::LOCK_NAME );
 	}
 
 	/**
@@ -290,13 +298,13 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function continue_sending() {
 		// TODO Lock.
-		if ( ! $this->is_started() || $this->get_status()['finished'] ) {
+		if ( ! Lock::attempt_lock( self::LOCK_NAME ) || ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
 		$this->send();
 
-		// TODO UnLock.
+		Lock::remove_lock( self::LOCK_NAME );
 	} // Seconds.
 
 	/**
