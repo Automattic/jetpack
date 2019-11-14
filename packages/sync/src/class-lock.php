@@ -39,7 +39,7 @@ class Lock {
 	 *
 	 * @return boolean True if succeeded, false otherwise.
 	 */
-	public static function attempt_lock( $name, $expiry = self::LOCK_TRANSIENT_EXPIRY ) {
+	public static function attempt( $name, $expiry = self::LOCK_TRANSIENT_EXPIRY ) {
 		$name        = self::LOCK_PREFIX . $name;
 		$locked_time = get_option( $name );
 		if ( $locked_time ) {
@@ -59,7 +59,7 @@ class Lock {
 	 *
 	 * @param string $name lock name.
 	 */
-	public static function remove_lock( $name ) {
+	public static function remove( $name ) {
 		delete_option( self::LOCK_PREFIX . $name );
 	}
 }
