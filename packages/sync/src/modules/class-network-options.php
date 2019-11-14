@@ -145,7 +145,7 @@ class Network_Options extends Module {
 		$this->send_action( 'jetpack_full_sync_network_options', [ true ] );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 1, 1, true ];
+		return [ 'finished' => true ];
 	}
 
 	/**
