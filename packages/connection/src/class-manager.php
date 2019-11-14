@@ -634,10 +634,29 @@ class Manager {
 	 *
 	 * @access public
 	 *
-	 * @param Integer $user_id the user identifier.
+	 * @param Integer $user_id (optional) the user identifier, defaults to current user.
+	 * @param String  $redirect_url the URL to redirect the user to for processing, defaults to
+	 *                              admin_url().
+	 * @return Bool|WP_Error
 	 */
-	public function connect_user( $user_id = null ) {
-		wp_redirect( $this->api_url( 'authenticate' ) );
+	public function connect_user( $user_id = null, $redirect_url = null ) {
+		$user = null;
+		if ( null === $user_id ) {
+			$user = wp_get_current_user();
+		} else {
+			$user = get_user_by( 'ID', $user_id );
+		}
+
+		if ( empty( $user ) ) {
+			return new \WP_Error( 'user_not_found', 'Attempting to connect a non-existent user.' );
+		}
+
+		if ( null === $redirect_url ) {
+			$redirect_url = admin_url();
+		}
+
+		// Using wp_redirect intentionally because we're redirecting outside.
+		return wp_redirect( $this->get_authorization_url( $user ) ); // phpcs:ignore WordPress.Security.SafeRedirect
 	}
 
 	/**
@@ -1421,7 +1440,7 @@ class Manager {
 		$processing_url = apply_filters( 'jetpack_connect_processing_url', admin_url( 'admin.php' ) );
 
 		/**
-		 * Filter the URL to redirect the user back to when the authentication process
+		 * Filter the URL to redirect the user back to when the authorization process
 		 * is complete.
 		 *
 		 * @since 8.0.0

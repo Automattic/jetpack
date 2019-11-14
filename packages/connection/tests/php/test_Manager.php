@@ -87,19 +87,6 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Connection\Manager::connect_user
-	 */
-	public function test_connect_user() {
-		$this->apply_filters->enable();
-		$this->wp_redirect->enable();
-
-		$this->manager->connect_user( 1 );
-
-		$this->assertNotEmpty( $this->arguments_stack['wp_redirect'] );
-		$this->assertEquals( $this->manager->api_url( 'authenticate' ), $this->arguments_stack['wp_redirect'][0][0] );
-	}
-
-	/**
 	 * Testing the ability of the api_url method to follow set constants and filters.
 	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::api_url
