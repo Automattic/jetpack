@@ -1449,7 +1449,7 @@ class Manager {
 		 */
 		$redirect = apply_filters( 'jetpack_connect_redirect_url', $redirect );
 
-		$secrets = $this->generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
+		$secrets = $this->generate_secrets( 'authorize', $user->ID, 2 * HOUR_IN_SECONDS );
 
 		/**
 		 * Filter the type of authorization.
