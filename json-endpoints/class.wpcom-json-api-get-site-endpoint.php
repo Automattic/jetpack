@@ -231,11 +231,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$has_user_access = $this->has_user_access();
 
 		if ( ! $has_user_access && ! $has_blog_access ) {
-			// Users without user or blog access, only return `$no_member_fields`.
+			// Public access without user or blog auth, only return `$no_member_fields`.
 			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
 		} elseif ( $has_user_access && ! current_user_can( 'edit_posts' ) ) {
 			// Subscriber level user, don't return site options.
-			$response_keys = array_diff( $response_keys, [ 'options' ] );
+			$response_keys = array_diff( $response_keys, array( 'options' ) );
 		}
 
 		return $this->render_response_keys( $response_keys );
