@@ -3961,12 +3961,12 @@ p {
 	 * 4 - redirect to https://wordpress.com/start/jetpack-connect
 	 * 5 - user logs in with WP.com account
 	 * 6 - remote request to this site's xmlrpc.php with action remoteAuthorize, Jetpack_XMLRPC_Server->remote_authorize
-	 *		- Jetpack_Client_Server::authorize()
+	 *		- Manager::authorize()
 	 *		- Jetpack_Client_Server::get_token()
 	 *		- GET https://jetpack.wordpress.com/jetpack.token/1/ with
 	 *        client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
 	 *			- which responds with access_token, token_type, scope
-	 *		- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
+	 *		- Manager::authorize() stores jetpack_options: user_token => access_token.$user_id
 	 *		- Jetpack::activate_default_modules()
 	 *     		- Deactivates deprecated plugins
 	 *     		- Activates all default modules
