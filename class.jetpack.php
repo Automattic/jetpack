@@ -726,6 +726,11 @@ class Jetpack {
 		 * Load some scripts asynchronously.
 		 */
 		add_action( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 3 );
+
+		// Actions for Manager::authorize().
+		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
+		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
+		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ) );
 	}
 	/**
 	 * Runs after all the plugins have loaded but before init.
@@ -3956,12 +3961,12 @@ p {
 	 * 4 - redirect to https://wordpress.com/start/jetpack-connect
 	 * 5 - user logs in with WP.com account
 	 * 6 - remote request to this site's xmlrpc.php with action remoteAuthorize, Jetpack_XMLRPC_Server->remote_authorize
-	 *		- Jetpack_Client_Server::authorize()
+	 *		- Manager::authorize()
 	 *		- Jetpack_Client_Server::get_token()
 	 *		- GET https://jetpack.wordpress.com/jetpack.token/1/ with
 	 *        client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
 	 *			- which responds with access_token, token_type, scope
-	 *		- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
+	 *		- Manager::authorize() stores jetpack_options: user_token => access_token.$user_id
 	 *		- Jetpack::activate_default_modules()
 	 *     		- Deactivates deprecated plugins
 	 *     		- Activates all default modules
@@ -4711,6 +4716,70 @@ endif;
 		$api_url = $iframe ? $connection->api_url( 'authorize_iframe' ) : $connection->api_url( 'authorize' );
 
 		return add_query_arg( $args, $api_url );
+	}
+
+	/**
+	 * This action fires at the beginning of the Manager::authorize method.
+	 */
+	public static function authorize_starting() {
+		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
+		// Checking if site has been active/connected previously before recording unique connection.
+		if ( ! $jetpack_unique_connection ) {
+			// jetpack_unique_connection option has never been set.
+			$jetpack_unique_connection = array(
+				'connected'    => 0,
+				'disconnected' => 0,
+				'version'      => '3.6.1',
+			);
+
+			update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
+
+			// Track unique connection.
+			$jetpack = self::init();
+
+			$jetpack->stat( 'connections', 'unique-connection' );
+			$jetpack->do_stats( 'server_side' );
+		}
+
+		// Increment number of times connected.
+		$jetpack_unique_connection['connected'] += 1;
+		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+	}
+
+	/**
+	 * This action fires at the end of the Manager::authorize method when a secondary user is
+	 * linked.
+	 */
+	public static function authorize_ending_linked() {
+		// Don't activate anything since we are just connecting a user.
+		self::state( 'message', 'linked' );
+	}
+
+	/**
+	 * This action fires at the end of the Manager::authorize method when the master user is
+	 * authorized.
+	 *
+	 * @param array $data The request data.
+	 */
+	public static function authorize_ending_authorized( $data ) {
+		// If this site has been through the Jetpack Onboarding flow, delete the onboarding token.
+		self::invalidate_onboarding_token();
+
+		// If redirect_uri is SSO, ensure SSO module is enabled.
+		parse_str( wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
+
+		/** This filter is documented in class.jetpack-cli.php */
+		$jetpack_start_enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
+
+		$activate_sso = (
+			isset( $redirect_options['action'] ) &&
+			'jetpack-sso' === $redirect_options['action'] &&
+			$jetpack_start_enable_sso
+		);
+
+		$do_redirect_on_error = ( 'client' === $data['auth_type'] );
+
+		self::handle_post_authorization_actions( $activate_sso, $do_redirect_on_error );
 	}
 
 	/**
