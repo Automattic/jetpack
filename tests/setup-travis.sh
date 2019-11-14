@@ -5,7 +5,7 @@ if [ "$WP_TRAVISCI" != "phpunit" ]; then
 	exit 0;
 fi
 
-phpenv config-rm xdebug.ini
+# phpenv config-rm xdebug.ini
 
 # Configure PHP and PHPUnit environment
 if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
