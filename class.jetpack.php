@@ -731,7 +731,13 @@ class Jetpack {
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ) );
+
+		// Filters for the Manager::get_token() urls and request body.
+		add_filter( 'jetpack_token_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
+		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 	}
+
 	/**
 	 * Runs after all the plugins have loaded but before init.
 	 */
@@ -3962,7 +3968,7 @@ p {
 	 * 5 - user logs in with WP.com account
 	 * 6 - remote request to this site's xmlrpc.php with action remoteAuthorize, Jetpack_XMLRPC_Server->remote_authorize
 	 *		- Manager::authorize()
-	 *		- Jetpack_Client_Server::get_token()
+	 *		- Manager::get_token()
 	 *		- GET https://jetpack.wordpress.com/jetpack.token/1/ with
 	 *        client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
 	 *			- which responds with access_token, token_type, scope
@@ -5256,6 +5262,25 @@ endif;
 	 * @return Array amended properties.
 	 */
 	public static function filter_register_request_body( $properties ) {
+		$tracking        = new Tracking();
+		$tracks_identity = $tracking->tracks_get_identity( get_current_user_id() );
+
+		return array_merge(
+			$properties,
+			array(
+				'_ui' => $tracks_identity['_ui'],
+				'_ut' => $tracks_identity['_ut'],
+			)
+		);
+	}
+
+	/**
+	 * Filters the token request body to include tracking properties.
+	 *
+	 * @param Array $properties
+	 * @return Array amended properties.
+	 */
+	public static function filter_token_request_body( $properties ) {
 		$tracking        = new Tracking();
 		$tracks_identity = $tracking->tracks_get_identity( get_current_user_id() );
 
