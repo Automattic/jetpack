@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Backup;
  * to assist with backing up Jetpack Sites.
  */
 class Helper_Script_Manager {
-
+	const A_TEST         = 'a test change';
 	const TEMP_DIRECTORY = 'jetpack-temp';
 	const HELPER_HEADER  = "<?php /* Jetpack Backup Helper Script */\n";
 	const EXPIRY_TIME    = 8 * 3600; // 8 hours
