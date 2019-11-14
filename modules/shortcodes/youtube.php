@@ -354,6 +354,7 @@ function jetpack_amp_youtube_shortcode( $url ) {
 	if ( empty( $video_id ) ) {
 		return sprintf(
 			'<a href="%s" class="amp-wp-embed-fallback">%s</a>',
+			esc_url( $url ),
 			esc_url( $url )
 		);
 	}

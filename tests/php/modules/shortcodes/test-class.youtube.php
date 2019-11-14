@@ -163,7 +163,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 			),
 			'url_without_id'          => array(
 				'https://youtube.com',
-				'<a href="https://youtube.com" class="amp-wp-embed-fallback"></a>',
+				'<a href="https://youtube.com" class="amp-wp-embed-fallback">https://youtube.com</a>',
 			),
 			'with_v_query_param'      => array(
 				'https://www.youtube.com/watch?v=WVbQ-oro7FQ',
@@ -190,12 +190,12 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 * @dataProvider get_amp_youtube_data
 	 * @covers ::jetpack_amp_youtube_shortcode
 	 *
-	 * @param array  $attr The shortcode attributes.
+	 * @param array  $url The shortcode URL.
 	 * @param string $expected The expected shortcode returned from the function.
 	 */
-	public function test_jetpack_amp_youtube_shortcode( $attr, $expected ) {
+	public function test_jetpack_amp_youtube_shortcode( $url, $expected ) {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$this->assertEquals( $expected, jetpack_amp_youtube_shortcode( $attr ) );
+		$this->assertEquals( $expected, jetpack_amp_youtube_shortcode( $url ) );
 	}
 
 	/**
