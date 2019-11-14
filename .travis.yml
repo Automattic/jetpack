@@ -61,7 +61,6 @@ matrix:
     - yarn && yarn build
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
-    - php --ini
     script:
     - yarn test-e2e --runInBand --verbose
     addons:
@@ -100,8 +99,15 @@ before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - ./tests/setup-travis.sh
+  # Code Climate code coverage setup.
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
 script: ./tests/run-travis.sh
+
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 sudo: false
 
@@ -123,9 +129,6 @@ notifications:
        - beau@automattic.com
        # Encrypted Slack notification address
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
 
 addons:
   code_climate:
