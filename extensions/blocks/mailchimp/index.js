@@ -52,8 +52,8 @@ export const settings = {
 			),
 		},
 		interests: {
-			type: 'object',
-			default: {},
+			type: 'array',
+			default: [],
 		},
 		processingLabel: {
 			type: 'string',

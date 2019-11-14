@@ -30,15 +30,15 @@ class MailchimpGroups extends Component {
 		const { interests, onChange } = this.props;
 		return ( interest_categories || [] ).map( interest_category => (
 			<Fragment>
-				<h1>{ interest_category.title }</h1>
-				{ interest_category.interests.map( interest => (
-					<CheckboxControl
-						label={ interest.name }
-						value={ interest.id }
-						checked={ interests[ interest.id ] }
-						onChange={ checked => onChange( interest.id, checked ) }
-					/>
-				) ) }
+				{ interest_categories &&
+					interest_category.interests.map( interest => (
+						<CheckboxControl
+							label={ interest.name }
+							value={ interest.id }
+							checked={ interests.indexOf( interest.id ) > -1 }
+							onChange={ checked => onChange( interest.id, checked ) }
+						/>
+					) ) }
 			</Fragment>
 		) );
 	};
@@ -47,6 +47,6 @@ class MailchimpGroups extends Component {
 export default MailchimpGroups;
 
 MailchimpGroups.defaultProps = {
-	interests: {},
+	interests: [],
 	onChange: () => null,
 };

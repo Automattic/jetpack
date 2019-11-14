@@ -99,17 +99,19 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						name="email"
 					/>
 				</p>
-				<?php foreach ( array_keys( $values['interests'] ) as $interest ) : ?>
+				<?php foreach ( $values['interests'] as $interest ) : ?>
 					<input
 						name="interests[<?php echo esc_attr( $interest ); ?>]"
 						type="hidden"
+						class="mc-submit-param"
 						value=1
 					/>
 				<?php endforeach; ?>
 				<?php if ( $values['signupLocation'] ) : ?>
 					<input
-						name="merge_fields[signupLocation]"
+						name="merge_fields[SIGNUP]"
 						type="hidden"
+						class="mc-submit-param"
 						value="<?php echo esc_attr( $values['signupLocation'] ); ?>"
 					/>
 				<?php endif; ?>

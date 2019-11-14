@@ -196,9 +196,13 @@ class MailchimpSubscribeEdit extends Component {
 				<PanelBody title={ __( 'Mailchimp Groups', 'jetpack' ) }>
 					<MailchimpGroups
 						interests={ interests }
-						onChange={ ( id, checked ) =>
-							setAttributes( { interests: { ...interests, [ id ]: checked } } )
-						}
+						onChange={ ( id, checked ) => {
+							setAttributes( {
+								interests: [ ...new Set( [ ...interests, id ] ) ].filter( item =>
+									item === id && ! checked ? false : item
+								),
+							} );
+						} }
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Merge Fields', 'jetpack' ) }>
