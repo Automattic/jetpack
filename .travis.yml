@@ -61,6 +61,7 @@ matrix:
     - yarn && yarn build
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
+    - php --ini
     script:
     - yarn test-e2e --runInBand --verbose
     addons:
