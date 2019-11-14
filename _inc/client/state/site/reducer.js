@@ -132,7 +132,7 @@ export function isFetchingSiteBenefits( state ) {
  * Returns true if currently requesting products. Otherwise false.
  *
  * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether benefits are being requested
+ * @return {Boolean}       Whether products are being requested
  */
 export function isFetchingProducts( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingProducts;
