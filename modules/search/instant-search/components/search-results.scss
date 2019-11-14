@@ -6,6 +6,10 @@
 	min-height: 400px;
 	text-align: left;
 
+	@include break-small {
+		padding: 0;
+	}
+
 	mark {
 		background-color: #ffc;
 		font-weight: bold;
@@ -15,8 +19,7 @@
 }
 
 .jetpack-instant-search__search-results-real-query {
-	font-size: 1.5em;
-	text-decoration: bold;
+	font-size: 1.25em;
 }
 
 .jetpack-instant-search__search-results-unused-query,
