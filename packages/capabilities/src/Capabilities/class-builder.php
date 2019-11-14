@@ -12,34 +12,42 @@ use \Automattic\Jetpack\Capabilities;
 // phpcs:ignore Squiz.Commenting.ClassComment.Missing
 class Builder {
 	/**
-	 * The capability object under construction
+	 * The aggregate object under construction
 	 *
-	 * @var Capability capability
+	 * @var AggregateRule aggregate_rule
 	 */
-	public $capability;
+	public $aggregate_rule;
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-	public function create( $name ) {
-		$this->capability = new Capability( $name );
+	public function create() {
+		$this->aggregate_rule = new AllRule();
+		return $this;
+	}
+
+	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+	public function create_any() {
+		$this->aggregate_rule = new AtLeastOneRule();
 		return $this;
 	}
 
 	/**
 	 * Register a capability globally
+	 *
+	 * @param string $name the name used to register and look up the capability.
 	 */
-	public function register() {
-		$this->capability->register();
+	public function register( $name ) {
+		$this->aggregate_rule->register( $name );
 		return $this;
 	}
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 	public function get() {
-		return $this->capability;
+		return $this->aggregate_rule;
 	}
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 	public function add_rule( Rule $rule ) {
-		$this->capability->add_rule( $rule );
+		$this->aggregate_rule->add_rule( $rule );
 		return $this;
 	}
 
@@ -65,5 +73,44 @@ class Builder {
 	 */
 	public function require_minimum_jetpack_plan( $jetpack_plan_level ) {
 		return $this->add_rule( new JetpackPlanRule( $jetpack_plan_level ) );
+	}
+
+	/**
+	 * Adapter for legacy 'supports' API
+	 *
+	 * @param string $jetpack_plan_supports The slug of the feature we are checking support for.
+	 */
+	public function require_jetpack_plan_supports( $jetpack_plan_supports ) {
+		return $this->add_rule( new JetpackPlanSupportsRule( $jetpack_plan_supports ) );
+	}
+
+	/**
+	 * Requires that the output of running a certain filter is a certain value
+	 *
+	 * @param string $filter_name The name of the filter to apply.
+	 * @param mixed  $required_value The value that is required for the rule to pass.
+	 */
+	public function require_filter( $filter_name, $required_value ) {
+		return $this->add_rule( new WPFilterRule( $filter_name, $required_value ) );
+	}
+
+	/**
+	 * Requires that Jetpack is connected
+	 */
+	public function require_jetpack_is_active() {
+		return $this->add_rule( new JetpackActiveRule() );
+	}
+
+	/**
+	 * Allows chaining optional inner dependencies together
+	 *
+	 * @param function $callback A function reference to call back with the nested builder.
+	 */
+	public function require_any( $callback ) {
+		$builder = new Builder();
+		$this->add_rule( $builder->create_any()->get() );
+		// the callback adds nested rules to the object created above.
+		$callback( $builder );
+		return $this;
 	}
 }

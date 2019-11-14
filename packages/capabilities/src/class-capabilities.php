@@ -29,8 +29,18 @@ class Capabilities {
 	}
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-	public static function register( $capability ) {
-		self::$capabilities[ $capability->name ] = $capability;
+	public static function granted( $name ) {
+		return isset( self::$capabilities[ $name ] ) ? self::$capabilities[ $name ]->check()->granted() : false;
+	}
+
+	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+	public static function build( $name ) {
+		return ( new Capabilities\Builder() )->create()->register( $name );
+	}
+
+	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+	public static function register( $capability, $name ) {
+		self::$capabilities[ $name ] = $capability;
 	}
 
 	// phpcs:ignore Squiz.Commenting.FunctionComment.Missing

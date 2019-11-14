@@ -309,11 +309,7 @@ class Jetpack_Memberships {
 		}
 
 		// For Jetpack sites.
-		return Jetpack::is_active() && (
-			/** This filter is documented in class.jetpack-gutenberg.php */
-			! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) || // Remove when the default becomes `true`.
-			Jetpack_Plan::supports( 'recurring-payments' )
-		);
+		return current_user_can( 'jetpack.recurring-payments.enabled' );
 	}
 
 	/**
