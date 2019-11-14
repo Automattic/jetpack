@@ -179,11 +179,11 @@ export function getAvailablePlans( state ) {
 }
 
 /**
- * Returns all wpcom products
+ * Returns wpcom products that are relevant to Jetpack
  * @param  {Object}  state Global state tree
  * @return {Object}  Products
  */
-export function getAllProducts( state ) {
+export function getProducts( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'products' ] );
 }
 
