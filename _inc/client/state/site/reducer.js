@@ -179,19 +179,11 @@ export function getAvailablePlans( state ) {
 }
 
 /**
-<<<<<<< HEAD
  * Returns wpcom products that are relevant to Jetpack
  * @param  {Object}  state Global state tree
  * @return {Object}  Products
  */
 export function getProducts( state ) {
-=======
- * Returns all wpcom products
- * @param  {Object}  state Global state tree
- * @return {Object}  Products
- */
-export function getAllProducts( state ) {
->>>>>>> Add QueryProducts data component and corresponding Redux and rest API calls
 	return get( state.jetpack.siteData, [ 'data', 'products' ] );
 }
 
