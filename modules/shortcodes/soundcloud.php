@@ -116,6 +116,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 		&& isset( $options['url'] )
 		&& 'api.soundcloud.com' !== wp_parse_url( $options['url'], PHP_URL_HOST )
 	) {
+		// Defer to oEmbed if an oEmbeddable URL is provided.
 		return $wp_embed->shortcode( $options, $options['url'] );
 	}
 
