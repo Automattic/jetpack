@@ -80,6 +80,9 @@ class Full_Sync_Immediately extends Module {
 
 		if ( ! is_array( $full_sync_config ) ) {
 			$full_sync_config = Defaults::$default_full_sync_config;
+			if ( is_multisite() ) {
+				$full_sync_config['network_options'] = 1;
+			}
 		}
 
 		if ( isset( $full_sync_config['users'] ) && 'initial' === $full_sync_config['users'] ) {

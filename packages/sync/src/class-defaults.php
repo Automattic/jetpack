@@ -1199,7 +1199,6 @@ class Defaults {
 		'constants'          => 1,
 		'functions'          => 1,
 		'options'            => 1,
-		'network_options'    => 1,
 		'updates'            => 1,
 		'themes'             => 1,
 		'users'              => 1,
