@@ -637,7 +637,7 @@ class Manager {
 	 * @param Integer $user_id (optional) the user identifier, defaults to current user.
 	 * @param String  $redirect_url the URL to redirect the user to for processing, defaults to
 	 *                              admin_url().
-	 * @return Bool|WP_Error
+	 * @return WP_Error only in case of a failed user lookup.
 	 */
 	public function connect_user( $user_id = null, $redirect_url = null ) {
 		$user = null;
@@ -656,7 +656,8 @@ class Manager {
 		}
 
 		// Using wp_redirect intentionally because we're redirecting outside.
-		return wp_redirect( $this->get_authorization_url( $user ) ); // phpcs:ignore WordPress.Security.SafeRedirect
+		wp_redirect( $this->get_authorization_url( $user ) ); // phpcs:ignore WordPress.Security.SafeRedirect
+		exit();
 	}
 
 	/**
