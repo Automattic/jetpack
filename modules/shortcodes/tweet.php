@@ -80,6 +80,18 @@ class Jetpack_Tweet {
 			}
 		}
 
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$initial_width = absint( $attr['width'] );
+			$width         = ! empty( $initial_width ) ? $initial_width : 600;
+			$height        = 480;
+			return sprintf(
+				'<amp-twitter data-tweetid="%1$s" layout="responsive" width="%2$d" height="%3$d"></amp-twitter>',
+				esc_attr( $tweet_id ),
+				absint( $width ),
+				absint( $height )
+			);
+		}
+
 		/*
 		 * Fetch tweet.
 		 *

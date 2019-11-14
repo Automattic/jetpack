@@ -169,4 +169,64 @@ BODY;
 		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
 		// Not testing here for actual URL because wp_oembed_get might return a shortened Twitter URL with t.co domain
 	}
+
+	/**
+	 * Gets the test data for test_shortcodes_tweet_amp().
+	 *
+	 * @return array The test data.
+	 */
+	public function get_tweet_amp_data() {
+		$tweet_id       = 95234262;
+		$default_height = 480;
+		$default_width  = 600;
+
+		return array(
+			'no_attributes'         => array(
+				'[tweet]',
+				'<!-- Invalid tweet id -->',
+			),
+			'id_in_attributes'      => array(
+				'[tweet ' . $tweet_id . ']',
+				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+			),
+			'width_in_attributes'   => array(
+				'[tweet ' . $tweet_id . ' width=300]',
+				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="300" height="' . $default_height .'"></amp-twitter>',
+			),
+			'id_as_part_of_url'     => array(
+				'[tweet https://twitter.com/jetpack/status/' . $tweet_id . ']',
+				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+			),
+			'id_in_tweet_attribute' => array(
+				'[tweet tweet=' . $tweet_id . ']',
+				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+			),
+		);
+	}
+
+	/**
+	 * Test the AMP-compatible [tweet] shortcode on an AMP endpoint.
+	 *
+	 * @dataProvider get_tweet_amp_data
+	 *
+	 * @since 8.0.0
+	 *
+	 * @param string $shortcode_content
+	 */
+	public function test_shortcodes_tweet_amp( $shortcode_content, $expected ) {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
+	}
+
+	/**
+	 * Test that the AMP-compatible [tweet] shortcode logic doesn't run on a non-AMP endpoint.
+	 *
+	 * @dataProvider get_tweet_amp_data
+	 *
+	 * @since 8.0.0
+	 */
+	public function test_shortcodes_tweet_non_amp( $shortcode_content ) {
+		add_filter( 'jetpack_is_amp_request', '__return_false' );
+		$this->assertNotContains( 'amp-twitter', do_shortcode( $shortcode_content ) );
+	}
 }
