@@ -46,7 +46,7 @@ class Terms_Of_Service {
 		 *
 		 * @since 7.9.0
 		 */
-		do_action( 'jetpack_reject_to_terms_of_service' );
+		do_action( 'jetpack_reject_terms_of_service' );
 	}
 
 	/**
@@ -60,15 +60,11 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	public function has_agreed() {
-		if ( ! $this->get_raw_has_agreed() ) {
-			return false;
-		}
-
 		if ( $this->is_development_mode() ) {
 			return false;
 		}
 
-		return $this->is_active();
+		return $this->get_raw_has_agreed() || $this->is_active();
 	}
 
 	/**
@@ -88,8 +84,7 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function is_active() {
-		$manager = new Manager();
-		return $manager->is_active();
+		return ( new Manager() )->is_active();
 	}
 
 	/**
@@ -99,7 +94,7 @@ class Terms_Of_Service {
 	 * @return bool
 	 */
 	protected function get_raw_has_agreed() {
-		return \Jetpack_Options::get_option( self::OPTION_NAME );
+		return \Jetpack_Options::get_option( self::OPTION_NAME, false );
 	}
 
 	/**
