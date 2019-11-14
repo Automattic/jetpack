@@ -49,4 +49,25 @@
 
 input[type='radio'].plan-radio-button__input {
 	margin-top: 0px;
+	white-space: pre-wrap;
+}
+
+.single-product-backup__accented-card {
+	max-width: 518px;
+	min-height: 313px;
+	background-color: #fff;
+	border: solid 1px #e6e6e6;
+}
+
+.single-product-backup__accented-card-header {
+	padding: 15px;
+	border-bottom: solid 2px $blue-medium;
+}
+
+.single-product-backup__header-title {
+	font-size: 17px;
+}
+
+.single-product-backup__accented-card-body {
+	padding: 15px;
 }

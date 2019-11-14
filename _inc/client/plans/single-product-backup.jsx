@@ -64,7 +64,7 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 function SingleProductBackupHeader( { currencySymbol, backupPlanPrices } ) {
 	return (
 		<div className="single-product-backup__header-container">
-			<h3>{ __( 'Jetpack Backup' ) }</h3>
+			<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
 			<PlanPriceDisplay currencySymbol={ currencySymbol } backupPlanPrices={ backupPlanPrices } />
 		</div>
 	);
