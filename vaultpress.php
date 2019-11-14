@@ -486,16 +486,50 @@ class VaultPress {
 		return $this->_server_url;
 	}
 
-	// show message if plugin is activated but not connected to VaultPress
-	function connect_notice() {
-		if ( isset( $_GET['page'] ) && 'vaultpress' == $_GET['page'] )
-			return;
+	/**
+	 * Show message if plugin is activated but not connected to VaultPress.
+	 */
+	public function connect_notice() {
+		$screen = get_current_screen();
 
-		$message = sprintf(
-			__( 'You must enter your registration key before VaultPress can back up and secure your site. <a href="%1$s">Register&nbsp;VaultPress</a>', 'vaultpress' ),
-			admin_url( 'admin.php?page=vaultpress' )
-		);
-		$this->ui_message( $message, 'notice', __( 'VaultPress needs your attention!', 'vaultpress' ) );
+		/*
+		 * Do not display any error message if we don't have any info about the page.
+		 */
+		if ( is_null( $screen ) ) {
+			return;
+		}
+
+		/*
+		 * Only display errors on specific pages:
+		 * - the main dashboard.
+		 * - the Jetpack dashboard.
+		 * - the plugins screen.
+		 */
+		if (
+			in_array(
+				$screen->id,
+				array(
+					'dashboard',
+					'toplevel_page_jetpack',
+					'plugins',
+				),
+				true
+			)
+		) {
+			$message = sprintf(
+				wp_kses(
+					/* Translators: placeholder is a link to the VaultPress settings page. */
+					__( 'You must enter your registration key before VaultPress can back up and secure your site. <a href="%1$s">Register VaultPress</a>', 'vaultpress' ),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				),
+				admin_url( 'admin.php?page=vaultpress' )
+			);
+			$this->ui_message( $message, 'notice', __( 'VaultPress needs your attention!', 'vaultpress' ) );
+		}
 	}
 
 	// show message after activation
@@ -516,16 +550,53 @@ class VaultPress {
 		$this->delete_option( 'activated' );
 	}
 
-	function error_notice() {
+	/**
+	 * Display an error notice when something is wrong with our VaultPress installation.
+	 */
+	public function error_notice() {
 		$error_message = $this->get_option( 'connection_error_message' );
 
-		// link to the VaultPress page if we're not already there
-		if ( !isset( $_GET['page'] ) || 'vaultpress' != $_GET['page'] ) {
-			$error_message .= ' ' . sprintf( '<a href="%s">%s</a>', admin_url( 'admin.php?page=vaultpress' ), __( 'Visit&nbsp;the&nbsp;VaultPress&nbsp;page' , 'vaultpress') );
+		// link to the VaultPress page if we're not already there.
+		if (
+			! isset( $_GET['page'] )
+			|| 'vaultpress' != $_GET['page']
+		) {
+			$error_message .= sprintf(
+				' <a href="%s">%s</a>',
+				admin_url( 'admin.php?page=vaultpress' ),
+				esc_html__( 'Visit the VaultPress page', 'vaultpress' )
+			);
 		}
 
 		$screen = get_current_screen();
-		if ( !in_array( $screen->id, array( 'about', 'about-user', 'about-network' ) ) && !empty( $error_message ) ) {
+
+		/*
+		 * Do not display any error message if we don't have a message,
+		 * or have no info about the page.
+		 */
+		if ( is_null( $screen ) || empty( $error_message ) ) {
+			return;
+		}
+
+		/*
+		 * Only display errors on specific pages:
+		 * - the main dashboard.
+		 * - the VaultPress and Jetpack dashboards.
+		 * - the plugins screen.
+		 */
+		if (
+			in_array(
+				$screen->id,
+				array(
+					'dashboard',
+					'toplevel_page_jetpack',
+					'jetpack_page_vaultpress',
+					'toplevel_page_vaultpress',
+					'plugins',
+				),
+				true
+			)
+		) {
 			$this->ui_message( $error_message, 'error' );
 		}
 	}
