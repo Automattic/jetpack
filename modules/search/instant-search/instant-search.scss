@@ -6,6 +6,7 @@ $grid-size-large: 16px;
 		@content;
 	}
 }
+
 @import './components/gridicon/style.scss';
 @import './components/search-results.scss';
 @import './components/search-filters.scss';
