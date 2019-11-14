@@ -533,7 +533,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( 200 === $response_code ) {
 			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		} else {
-			// something went wrong so we'll just return the response without caching.
+			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
