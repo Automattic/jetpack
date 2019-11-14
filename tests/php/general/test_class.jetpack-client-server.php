@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 			->setMethods( array( 'do_exit' ) )
 			->getMock();
 
-		$result = $client_server->authorize();
+		$result = Jetpack::connection()->authorize();
 
 		$this->assertNotEquals( 'no_role', $result->get_error_code() );
 		$this->assertNotEquals( 'no_cap', $result->get_error_code() );
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 			->setMethods( array( 'do_exit' ) )
 			->getMock();
 
-		$result = $client_server->authorize();
+		$result = Jetpack::connection()->authorize();
 
 		$this->assertEquals( 'no_role', $result->get_error_code() );
 	}
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 			->setMethods( array( 'do_exit' ) )
 			->getMock();
 
-		$result = $client_server->authorize( array( 'error' => 'test_error' ) );
+		$result = Jetpack::connection()->authorize( array( 'error' => 'test_error' ) );
 
 		$this->assertEquals( 'test_error', $result->get_error_code() );
 	}

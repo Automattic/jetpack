@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
@@ -24,7 +25,10 @@ class Jetpack_Client_Server {
 		check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
 		$tracking = new Tracking();
-		$result   = $this->authorize( $data );
+
+		$manager = new Connection_Manager();
+		$result  = $manager->authorize( $data );
+
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
 
@@ -59,109 +63,13 @@ class Jetpack_Client_Server {
 		$this->do_exit();
 	}
 
+	/*
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Manager::authorize() instead.
+	 */
 	function authorize( $data = array() ) {
-		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
-
-		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
-		// Checking if site has been active/connected previously before recording unique connection
-		if ( ! $jetpack_unique_connection ) {
-			// jetpack_unique_connection option has never been set
-			$jetpack_unique_connection = array(
-				'connected'    => 0,
-				'disconnected' => 0,
-				'version'      => '3.6.1',
-			);
-
-			update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
-
-			// track unique connection
-			$jetpack = $this->get_jetpack();
-
-			$jetpack->stat( 'connections', 'unique-connection' );
-			$jetpack->do_stats( 'server_side' );
-		}
-
-		// increment number of times connected
-		$jetpack_unique_connection['connected'] += 1;
-		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
-
-		$roles = new Roles();
-		$role  = $roles->translate_current_user_to_role();
-
-		if ( ! $role ) {
-			return new Jetpack_Error( 'no_role', 'Invalid request.', 400 );
-		}
-
-		$cap = $roles->translate_role_to_cap( $role );
-		if ( ! $cap ) {
-			return new Jetpack_Error( 'no_cap', 'Invalid request.', 400 );
-		}
-
-		if ( ! empty( $data['error'] ) ) {
-			return new Jetpack_Error( $data['error'], 'Error included in the request.', 400 );
-		}
-
-		if ( ! isset( $data['state'] ) ) {
-			return new Jetpack_Error( 'no_state', 'Request must include state.', 400 );
-		}
-
-		if ( ! ctype_digit( $data['state'] ) ) {
-			return new Jetpack_Error( $data['error'], 'State must be an integer.', 400 );
-		}
-
-		$current_user_id = get_current_user_id();
-		if ( $current_user_id != $data['state'] ) {
-			return new Jetpack_Error( 'wrong_state', 'State does not match current user.', 400 );
-		}
-
-		if ( empty( $data['code'] ) ) {
-			return new Jetpack_Error( 'no_code', 'Request must include an authorization code.', 400 );
-		}
-
-		$token = $this->get_token( $data );
-
-		if ( is_wp_error( $token ) ) {
-			$code = $token->get_error_code();
-			if ( empty( $code ) ) {
-				$code = 'invalid_token';
-			}
-			return new Jetpack_Error( $code, $token->get_error_message(), 400 );
-		}
-
-		if ( ! $token ) {
-			return new Jetpack_Error( 'no_token', 'Error generating token.', 400 );
-		}
-
-		$is_master_user = ! Jetpack::is_active();
-
-		Connection_Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
-
-		if ( ! $is_master_user ) {
-			Jetpack::state( 'message', 'linked' );
-			// Don't activate anything since we are just connecting a user.
-			return 'linked';
-		}
-
-		// If this site has been through the Jetpack Onboarding flow, delete the onboarding token
-		Jetpack::invalidate_onboarding_token();
-
-		// If redirect_uri is SSO, ensure SSO module is enabled
-		parse_str( wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
-
-		/** This filter is documented in class.jetpack-cli.php */
-		$jetpack_start_enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
-
-		$activate_sso = (
-			isset( $redirect_options['action'] ) &&
-			'jetpack-sso' === $redirect_options['action'] &&
-			$jetpack_start_enable_sso
-		);
-
-		$do_redirect_on_error = ( 'client' === $data['auth_type'] );
-
-		Jetpack::handle_post_authorization_actions( $activate_sso, $do_redirect_on_error );
-
-		return 'authorized';
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Manager::authorize' );
+		$manager = new Connection_Manager();
+		return $manager->authorize( $data );
 	}
 
 	public static function deactivate_plugin( $probable_file, $probable_title ) {

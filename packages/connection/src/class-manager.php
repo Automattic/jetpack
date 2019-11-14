@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -1394,6 +1395,95 @@ class Manager {
 	 */
 	public function build_connect_url( $raw, $redirect, $from, $register ) {
 		return array( $raw, $redirect, $from, $register );
+	}
+
+	/**
+	 * Authorizes the user by obtaining and storing the user token.
+	 *
+	 * @param array $data The request data.
+	 * @return string|\WP_Error Returns a string on success.
+	 *                          Returns a \WP_Error on failure.
+	 */
+	public function authorize( $data = array() ) {
+		/**
+		 * Action fired when user authorization starts.
+		 *
+		 * @since 8.0.0
+		 */
+		do_action( 'jetpack_authorize_starting' );
+
+		$roles = new Roles();
+		$role  = $roles->translate_current_user_to_role();
+
+		if ( ! $role ) {
+			return new \WP_Error( 'no_role', 'Invalid request.', 400 );
+		}
+
+		$cap = $roles->translate_role_to_cap( $role );
+		if ( ! $cap ) {
+			return new \WP_Error( 'no_cap', 'Invalid request.', 400 );
+		}
+
+		if ( ! empty( $data['error'] ) ) {
+			return new \WP_Error( $data['error'], 'Error included in the request.', 400 );
+		}
+
+		if ( ! isset( $data['state'] ) ) {
+			return new \WP_Error( 'no_state', 'Request must include state.', 400 );
+		}
+
+		if ( ! ctype_digit( $data['state'] ) ) {
+			return new \WP_Error( $data['error'], 'State must be an integer.', 400 );
+		}
+
+		$current_user_id = get_current_user_id();
+		if ( $current_user_id !== (int) $data['state'] ) {
+			return new \WP_Error( 'wrong_state', 'State does not match current user.', 400 );
+		}
+
+		if ( empty( $data['code'] ) ) {
+			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
+		}
+
+		$client_server = new \Jetpack_Client_Server();
+		$token         = $client_server->get_token( $data );
+
+		if ( is_wp_error( $token ) ) {
+			$code = $token->get_error_code();
+			if ( empty( $code ) ) {
+				$code = 'invalid_token';
+			}
+			return new \WP_Error( $code, $token->get_error_message(), 400 );
+		}
+
+		if ( ! $token ) {
+			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
+		}
+
+		$is_master_user = ! $this->is_active();
+
+		Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+
+		if ( ! $is_master_user ) {
+			/**
+			 * Action fired when a secondary user has been authorized.
+			 *
+			 * @since 8.0.0
+			 */
+			do_action( 'jetpack_authorize_ending_linked' );
+			return 'linked';
+		}
+
+		/**
+		 * Action fired when the master user has been authorized.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param array $data The request data.
+		 */
+		do_action( 'jetpack_authorize_ending_authorized', $data );
+
+		return 'authorized';
 	}
 
 	/**
