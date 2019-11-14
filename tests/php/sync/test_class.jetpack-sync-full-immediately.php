@@ -369,17 +369,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
-
-		// let's register a listener that asserts that only our intended users get enqueued
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_full_sync_users', array( $this, 'record_full_synced_users' ) );
-
 		$this->full_sync->start();
-
-		// let's make sure we've only enqueued users from the current blog too
-		$this->assertTrue( in_array( $added_mu_blog_user_id, $this->synced_user_ids ) );
-		$this->assertTrue( in_array( $user_id, $this->synced_user_ids ) );
-		$this->assertFalse( in_array( $mu_blog_user_id, $this->synced_user_ids ) );
-
 		$this->sender->do_full_sync();
 
 		// admin user, our current-blog-created user and our "added" user
