@@ -385,14 +385,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->synced_user_ids = null;
 
 		$this->full_sync->start();
-
-		// first user should be synced, as it's a member of both
-		$this->assertTrue( in_array( $added_mu_blog_user_id, $this->synced_user_ids ) );
-		// second should NOT be synced, as it's only a member of original blog
-		$this->assertFalse( in_array( $user_id, $this->synced_user_ids ) );
-		// third should be synced, as it's a member of created blog
-		$this->assertTrue( in_array( $mu_blog_user_id, $this->synced_user_ids ) );
-
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
