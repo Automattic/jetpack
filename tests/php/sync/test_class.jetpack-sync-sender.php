@@ -261,10 +261,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
 		if ( Settings::get_setting( 'full_sync_send_immediately' ) ) {
-			$this->assertEquals( $this->listener->get_full_sync_queue()->id, $full_sync_event->queue );
-
-		} else {
 			$this->assertEquals( 'immediate-send', $full_sync_event->queue );
+		} else {
+			$this->assertEquals( $this->listener->get_full_sync_queue()->id, $full_sync_event->queue );
 		}
 
 		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
