@@ -44,7 +44,7 @@ class Terms_Of_Service {
 		/**
 		 * Acton fired when the master user has revoked their agreement to the terms of service.
 		 *
-		 * @since 7.9.0
+		 * @since 7.9.1
 		 */
 		do_action( 'jetpack_reject_terms_of_service' );
 	}
