@@ -9,8 +9,8 @@ import './single-product-backup.scss';
 export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 	const perYearPriceRange = `${ currencySymbol }${ backupPlanPrices.jetpack_backup_daily.yearly }-${ backupPlanPrices.jetpack_backup_realtime.yearly } /year`;
 
-	const full_daily_backup_yearly_cost = backupPlanPrices.jetpack_backup_daily.monthly * 12;
-	const full_realtime_backup_yearly_cost = backupPlanPrices.jetpack_backup_realtime.monthly * 12;
+	const fullDailyBackupYearlyCost = backupPlanPrices.jetpack_backup_daily.monthly * 12;
+	const fullRealtimeBackupYearlyCost = backupPlanPrices.jetpack_backup_realtime.monthly * 12;
 
 	return (
 		<div className="single-product-backup__plan-price-display-container">
@@ -20,8 +20,8 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 					{ __( '%(currencySymbol)s%(lowPrice)s-%(highPrice)s', {
 						args: {
 							currencySymbol,
-							lowPrice: full_daily_backup_yearly_cost,
-							highPrice: full_realtime_backup_yearly_cost,
+							lowPrice: fullDailyBackupYearlyCost,
+							highPrice: fullRealtimeBackupYearlyCost,
 						},
 						comment:
 							"Describes how much a plan will cost per year. %(currencySymbol) is the currency symbol of the user's locale (e.g. $). %(planPrice) is the cost of a plan (e.g. 20).",
