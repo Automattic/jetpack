@@ -7,7 +7,17 @@ import { translate as __ } from 'i18n-calypso';
 import './single-product-backup.scss';
 
 export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
-	const perYearPriceRange = `${ currencySymbol }${ backupPlanPrices.jetpack_backup_daily.yearly }-${ backupPlanPrices.jetpack_backup_realtime.yearly } /year`;
+	const perYearPriceRange = __(
+		'%(currencySymbol)s%(dailyBackupYearlyPrice)s-%(realtimeBackupYearlyPrice)s /year',
+		{
+			args: {
+				currencySymbol,
+				dailyBackupYearlyPrice: backupPlanPrices.jetpack_backup_daily.yearly,
+				realtimeBackupYearlyPrice: backupPlanPrices.jetpack_backup_realtime.yearly,
+			},
+			comment: 'Shows a range of prices, such as $12-15 /year',
+		}
+	);
 
 	const fullDailyBackupYearlyCost = backupPlanPrices.jetpack_backup_daily.monthly * 12;
 	const fullRealtimeBackupYearlyCost = backupPlanPrices.jetpack_backup_realtime.monthly * 12;
