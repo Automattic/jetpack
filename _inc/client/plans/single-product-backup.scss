@@ -1,9 +1,9 @@
-.plan-radio-button__input {
-	margin-left: -20px !important;
+.plan-radio-button__label {
+	display: flex;
+}
 
-	@media ( max-width: 782px ) {
-		margin-left: -30px !important;
-	}
+input[type='radio'].plan-radio-button__input {
+	margin-top: 0px;
 }
 
 .plan-radio-button__label {
