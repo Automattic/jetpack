@@ -130,7 +130,7 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function reset_data() {
 		$this->clear_status();
-		( new Lock() )->remove_lock( self::LOCK_NAME );
+		( new Lock() )->remove( self::LOCK_NAME );
 	}
 
 	/**
@@ -297,13 +297,13 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function continue_sending() {
-		if ( ! ( new Lock() )->attempt_lock( self::LOCK_NAME ) || ! $this->is_started() || $this->get_status()['finished'] ) {
+		if ( ! ( new Lock() )->attempt( self::LOCK_NAME ) || ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
 		$this->send();
 
-		( new Lock() )->remove_lock( self::LOCK_NAME );
+		( new Lock() )->remove( self::LOCK_NAME );
 	} // Seconds.
 
 	/**
