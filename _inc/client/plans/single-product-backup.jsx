@@ -111,7 +111,7 @@ class SingleProductBackupBody extends React.Component {
 					) }
 				</p>
 
-				<h4>{ __( 'Backup options:' ) }</h4>
+				<h4 className="single-product-backup__options-header">{ __( 'Backup options:' ) }</h4>
 				<div className="single-product-backup__radio-buttons-container">
 					{ backupOptions.map( option => (
 						<PlanRadioButton
