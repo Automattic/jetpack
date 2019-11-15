@@ -16,7 +16,7 @@ import {
 } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/editor';
+import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies

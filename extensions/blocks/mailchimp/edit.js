@@ -14,7 +14,7 @@ import {
 	TextControl,
 	withNotices,
 } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**

@@ -22,7 +22,7 @@ import {
 	BlockControls,
 	InspectorControls,
 	PanelColorSettings,
-} from '@wordpress/editor';
+} from '@wordpress/block-editor';
 
 /**
  * Internal dependencies

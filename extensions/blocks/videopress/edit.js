@@ -22,7 +22,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
-} from '@wordpress/editor';
+} from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
