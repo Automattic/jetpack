@@ -110,7 +110,6 @@ class SingleProductBackupBody extends React.Component {
 						}
 					) }
 				</p>
-
 				<h4 className="single-product-backup__options-header">{ __( 'Backup options:' ) }</h4>
 				<div className="single-product-backup__radio-buttons-container">
 					{ backupOptions.map( option => (
@@ -124,12 +123,15 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
-
-				<div className="single-product-backup__upgrade-button-container">
-					<Button href={ upgradeLinks[ selectedBackupType ] } primary>
-						{ upgradeTitles[ selectedBackupType ] }
-					</Button>
-				</div>
+				{ upgradeLinks &&
+					upgradeLinks[ selectedBackupType ] &&
+					upgradeTitles[ selectedBackupType ] && (
+						<div className="single-product-backup__upgrade-button-container">
+							<Button href={ upgradeLinks[ selectedBackupType ] } primary>
+								{ upgradeTitles[ selectedBackupType ] }
+							</Button>
+						</div>
+					) }
 			</React.Fragment>
 		);
 	}
