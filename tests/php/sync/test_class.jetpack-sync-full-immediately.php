@@ -292,8 +292,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$previous_interval_end = $event->args['previous_end'];
 
 		$this->assertEquals( $previous_interval_end, array(
-			'object_id'        => 999999999,
-			'term_taxonomy_id' => 999999999,
+			'object_id'        => Modules\Term_Relationships::MAX_INT,
+			'term_taxonomy_id' => Modules\Term_Relationships::MAX_INT,
 		) );
 	}
 
