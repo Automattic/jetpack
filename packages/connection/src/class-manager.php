@@ -739,6 +739,20 @@ class Manager {
 	}
 
 	/**
+	 * Returns the Jetpack XMLRPC WordPress.com API endpoint URL.
+	 *
+	 * @return String XMLRPC API URL.
+	 */
+	public function xmlrpc_api_url() {
+		$base = preg_replace(
+			'#(https?://[^?/]+)(/?.*)?$#',
+			'\\1',
+			Constants::get_constant( 'JETPACK__API_BASE' )
+		);
+		return untrailingslashit( $base ) . '/xmlrpc.php';
+	}
+
+	/**
 	 * Attempts Jetpack registration which sets up the site for connection. Should
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
