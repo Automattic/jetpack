@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Image CDN: expand number of images using the new subdomain determination function.
 * Support Tools: improve the reliability of the tools on slower sites.
 
 **Improved compatibility**
