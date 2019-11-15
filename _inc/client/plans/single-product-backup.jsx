@@ -29,7 +29,7 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 	);
 
 	return (
-		<div className="single-product-backup__plan-price-display-container">
+		<div className="single-product-backup__header-price">
 			<div className="discounted-price__container">
 				<div className="discounted-price__slash"></div>
 				<div className="discounted-price__price">
