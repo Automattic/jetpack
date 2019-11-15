@@ -92,9 +92,6 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 		}
 	);
 
-	const full_daily_backup_yearly_cost = backupPlanPrices.jetpack_backup_daily.monthly * 12;
-	const full_realtime_backup_yearly_cost = backupPlanPrices.jetpack_backup_realtime.monthly * 12;
-
 	return (
 		<div className="single-product-backup__header-price">
 			<div className="discounted-price__container">
@@ -144,6 +141,14 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 
 // eslint-disable-next-line no-unused-vars
 class SingleProductBackupBody extends React.Component {
+	static propTypes = {
+		backupPlanPrices: PropTypes.object,
+		currencySymbol: PropTypes.string,
+		setSelectedBackupType: PropTypes.func,
+		selectedBackupType: PropTypes.string,
+		upgradeLinks: PropTypes.object,
+	};
+
 	handleSelectedBackupTypeChange = event => {
 		this.props.setSelectedBackupType( event.target.value );
 	};
