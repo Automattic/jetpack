@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* General: As WordPress 5.3 is now available, Jetpack now requires WordPress 5.2.
 * Shortcodes: ensure Vimeo videos can be displayed properly when using the AMP plugin.
 
 **Bug fixes**
