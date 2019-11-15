@@ -28,4 +28,23 @@ class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
 		Lock::remove( 'test' );
 		$this->assertTrue( Lock::attempt( 'test' ) );
 	}
+
+	/**
+	 * Test two locks with different name
+	 */
+	public function test_two_locks_different_name() {
+		$this->assertTrue( Lock::attempt( 'test' ) );
+		$this->assertTrue( Lock::attempt( 'test2' ) );
+	}
+
+	/**
+	 * Test two locks with different name remove one lock
+	 */
+	public function test_two_locks_different_name_remove_one_lock() {
+		$this->assertTrue( Lock::attempt( 'test' ) );
+		$this->assertTrue( Lock::attempt( 'test2' ) );
+		Lock::remove( 'test' );
+		$this->assertFalse( Lock::attempt( 'test2' ) );
+		$this->assertTrue( Lock::attempt( 'test' ) );
+	}
 }
