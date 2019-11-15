@@ -176,13 +176,13 @@ class Full_Sync extends Module {
 	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function continue_enqueuing( $configs = null ) {
-		if ( ! $this->is_started() || ! Lock::attempt( self::ENQUEUE_LOCK_NAME ) || $this->get_status_option( 'queue_finished' ) ) {
+		if ( ! $this->is_started() || ! ( new Lock() )->attempt( self::ENQUEUE_LOCK_NAME ) || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
 
 		$this->enqueue( $configs );
 
-		Lock::remove( self::ENQUEUE_LOCK_NAME );
+		( new Lock() )->remove( self::ENQUEUE_LOCK_NAME );
 	}
 
 	/**
@@ -570,7 +570,7 @@ class Full_Sync extends Module {
 	public function reset_data() {
 		$this->clear_status();
 		$this->delete_config();
-		Lock::remove( self::ENQUEUE_LOCK_NAME );
+		( new Lock() )->remove( self::ENQUEUE_LOCK_NAME );
 
 		$listener = Listener::get_instance();
 		$listener->get_full_sync_queue()->reset();
