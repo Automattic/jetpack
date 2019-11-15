@@ -101,16 +101,16 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_get_token() {
-		$author_id = $this->factory->user->create( array(
-			'role' => 'administrator',
-		) );
+		$author_id = $this->factory->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
 		wp_set_current_user( $author_id );
 
-		$client_server = new Jetpack_Client_Server;
+		$return_value = Jetpack::connection()->get_token( 'test' );
 
-		$return_value = $client_server->get_token( 'test' );
-
-		$this->assertInstanceOf( 'Jetpack_Error', $return_value );
+		$this->assertInstanceOf( 'WP_Error', $return_value );
 	}
 
 }

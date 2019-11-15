@@ -1414,6 +1414,150 @@ class Manager {
 	}
 
 	/**
+	 * Obtains the auth token.
+	 *
+	 * @param array $data The request data.
+	 * @return object|\WP_Error Returns the auth token on success.
+	 *                          Returns a \WP_Error on failure.
+	 */
+	public function get_token( $data ) {
+		$roles = new Roles();
+		$role  = $roles->translate_current_user_to_role();
+
+		if ( ! $role ) {
+			return new \WP_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
+		}
+
+		$client_secret = $this->get_access_token();
+		if ( ! $client_secret ) {
+			return new \WP_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
+		}
+
+		/**
+		 * Filter the URL of the first time the user gets redirected back to your site for connection
+		 * data processing.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param string $redirect_url Defaults to the site admin URL.
+		 */
+		$processing_url = apply_filters( 'jetpack_token_processing_url', admin_url( 'admin.php' ) );
+
+		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
+
+		/**
+		* Filter the URL to redirect the user back to when the authentication process
+		* is complete.
+		*
+		* @since 8.0.0
+		*
+		* @param string $redirect_url Defaults to the site URL.
+		*/
+		$redirect = apply_filters( 'jetpack_token_redirect_url', $redirect );
+
+		$redirect_uri = ( 'calypso' === $data['auth_type'] )
+			? $data['redirect_uri']
+			: add_query_arg(
+				array(
+					'action'   => 'authorize',
+					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+					'redirect' => $redirect ? rawurlencode( $redirect ) : false,
+				),
+				esc_url( $processing_url )
+			);
+
+		/**
+		 * Filters the token request data.
+		 *
+		 * @since 8.0.0
+		 *
+		 * @param Array $request_data request data.
+		 */
+		$body = apply_filters(
+			'jetpack_token_request_body',
+			array(
+				'client_id'     => \Jetpack_Options::get_option( 'id' ),
+				'client_secret' => $client_secret->secret,
+				'grant_type'    => 'authorization_code',
+				'code'          => $data['code'],
+				'redirect_uri'  => $redirect_uri,
+			)
+		);
+
+		$args = array(
+			'method'  => 'POST',
+			'body'    => $body,
+			'headers' => array(
+				'Accept' => 'application/json',
+			),
+		);
+
+		$response = Client::_wp_remote_request( Utils::fix_url_for_bad_hosts( $this->api_url( 'token' ) ), $args );
+
+		if ( is_wp_error( $response ) ) {
+			return new \WP_Error( 'token_http_request_failed', $response->get_error_message() );
+		}
+
+		$code   = wp_remote_retrieve_response_code( $response );
+		$entity = wp_remote_retrieve_body( $response );
+
+		if ( $entity ) {
+			$json = json_decode( $entity );
+		} else {
+			$json = false;
+		}
+
+		if ( 200 !== $code || ! empty( $json->error ) ) {
+			if ( empty( $json->error ) ) {
+				return new \WP_Error( 'unknown', '', $code );
+			}
+
+			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+
+			return new \WP_Error( (string) $json->error, $error_description, $code );
+		}
+
+		if ( empty( $json->access_token ) || ! is_scalar( $json->access_token ) ) {
+			return new \WP_Error( 'access_token', '', $code );
+		}
+
+		if ( empty( $json->token_type ) || 'X_JETPACK' !== strtoupper( $json->token_type ) ) {
+			return new \WP_Error( 'token_type', '', $code );
+		}
+
+		if ( empty( $json->scope ) ) {
+			return new \WP_Error( 'scope', 'No Scope', $code );
+		}
+
+		@list( $role, $hmac ) = explode( ':', $json->scope );
+		if ( empty( $role ) || empty( $hmac ) ) {
+			return new \WP_Error( 'scope', 'Malformed Scope', $code );
+		}
+
+		if ( $this->sign_role( $role ) !== $json->scope ) {
+			return new \WP_Error( 'scope', 'Invalid Scope', $code );
+		}
+
+		$cap = $roles->translate_role_to_cap( $role );
+		if ( ! $cap ) {
+			return new \WP_Error( 'scope', 'No Cap', $code );
+		}
+
+		if ( ! current_user_can( $cap ) ) {
+			return new \WP_Error( 'scope', 'current_user_cannot', $code );
+		}
+
+		/**
+		 * Fires after user has successfully received an auth token.
+		 *
+		 * @since 3.9.0
+		 */
+		do_action( 'jetpack_user_authorized' );
+
+		return (string) $json->access_token;
+	}
+
+	/**
 	 * Builds a URL to the Jetpack connection auth page.
 	 *
 	 * @param WP_User $user (optional) defaults to the current logged in user.
@@ -1555,8 +1699,7 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$client_server = new \Jetpack_Client_Server();
-		$token         = $client_server->get_token( $data );
+		$token = $this->get_token( $data );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
