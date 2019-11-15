@@ -25,13 +25,13 @@ class Term_Relationships extends Module {
 	const QUERY_LIMIT = 1000;
 
 	/**
-	 * Max mysql integer
+	 * Max value for a signed INT in MySQL - https://dev.mysql.com/doc/refman/8.0/en/integer-types.html
 	 *
 	 * @access public
 	 *
 	 * @const int
 	 */
-	const MAX_INT = 999999999;
+	const MAX_INT = 2147483647;
 
 	/**
 	 * Sync module name.
