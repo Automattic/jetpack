@@ -67,15 +67,9 @@ class SingleProductBackupBody extends React.Component {
 		upgradeLinks: PropTypes.object,
 	};
 
-	constructor() {
-		super();
-
-		this.handleSelectedBackupTypeChange = this.handleSelectedBackupTypeChange.bind( this );
-	}
-
-	handleSelectedBackupTypeChange( event ) {
+	handleSelectedBackupTypeChange = event => {
 		this.props.setSelectedBackupType( event.target.value );
-	}
+	};
 
 	render() {
 		const { currencySymbol, backupPlanPrices, selectedBackupType, upgradeLinks } = this.props;
