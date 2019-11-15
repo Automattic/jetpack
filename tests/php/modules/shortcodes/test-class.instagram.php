@@ -267,7 +267,7 @@ BODY;
 			),
 			'non_instagram_url'              => array(
 				'[instagram url=' . $wrong_url_with_id . ']',
-				'<a href="' . $wrong_url_with_id . '" class="amp-wp-embed-feedback">' . $wrong_url_with_id . '</a>',
+				'<a href="' . $wrong_url_with_id . '" class="amp-wp-embed-fallback">' . $wrong_url_with_id . '</a>',
 			),
 			'url_value_as_attribute'         => array(
 				'[instagram url=' . $url_with_id . ']',
