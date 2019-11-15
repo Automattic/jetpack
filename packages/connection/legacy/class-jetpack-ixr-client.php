@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * A Jetpack implementation of the WordPress core IXR client.
@@ -31,8 +32,10 @@ class Jetpack_IXR_Client extends IXR_Client {
 	 * @param int         $timeout The connection timeout, in seconds.
 	 */
 	public function __construct( $args = array(), $path = false, $port = 80, $timeout = 15 ) {
+		$connection = new Manager();
+
 		$defaults = array(
-			'url'     => Jetpack::xmlrpc_api_url(),
+			'url'     => $connection->xmlrpc_api_url(),
 			'user_id' => 0,
 		);
 
@@ -96,7 +99,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 	 *
 	 * @param int    $fault_code   Fault code.
 	 * @param string $fault_string Fault string.
-	 * @return Jetpack_Error Error object.
+	 * @return WP_Error Error object.
 	 */
 	public function get_jetpack_error( $fault_code = null, $fault_string = null ) {
 		if ( is_null( $fault_code ) ) {
@@ -111,9 +114,9 @@ class Jetpack_IXR_Client extends IXR_Client {
 			$code    = $match[1];
 			$message = $match[2];
 			$status  = $fault_code;
-			return new Jetpack_Error( $code, $message, $status );
+			return new \WP_Error( $code, $message, $status );
 		}
 
-		return new Jetpack_Error( "IXR_{$fault_code}", $fault_string );
+		return new \WP_Error( "IXR_{$fault_code}", $fault_string );
 	}
 }
