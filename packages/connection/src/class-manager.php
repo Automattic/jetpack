@@ -1699,8 +1699,7 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$client_server = new \Jetpack_Client_Server();
-		$token         = $client_server->get_token( $data );
+		$token = $this->get_token( $data );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
