@@ -108,6 +108,7 @@ class SingleProductBackupBody extends React.Component {
 				<div className="single-product-backup__radio-buttons-container">
 					{ backupOptions.map( option => (
 						<PlanRadioButton
+							key={ option.type }
 							checked={ option.type === selectedBackupType }
 							currencySymbol={ currencySymbol }
 							planName={ option.name }
