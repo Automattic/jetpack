@@ -716,4 +716,4 @@ class Jetpack_IDC {
 	}
 }
 
-add_filter( 'plugins_loaded', array( 'Jetpack_IDC', 'init' ) );
+add_action( 'plugins_loaded', array( 'Jetpack_IDC', 'init' ) );
