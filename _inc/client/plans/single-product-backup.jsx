@@ -99,7 +99,7 @@ class SingleProductBackupBody extends React.Component {
 		];
 
 		return (
-			<div className="single_product_backup__body">
+			<React.Fragment>
 				<p>
 					{ __(
 						'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
@@ -130,7 +130,7 @@ class SingleProductBackupBody extends React.Component {
 						{ upgradeTitles[ selectedBackupType ] }
 					</Button>
 				</div>
-			</div>
+			</React.Fragment>
 		);
 	}
 }
