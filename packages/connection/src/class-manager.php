@@ -1268,7 +1268,7 @@ class Manager {
 	}
 
 	/**
-	 * Tells wpcom to disconnect the site and clear all tokens from cached site.
+	 * Tells WordPress.com to disconnect the site and clear all tokens from cached site.
 	 */
 	public function disconnect_site_wpcom() {
 		$xml = new \Jetpack_IXR_Client();
