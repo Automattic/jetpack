@@ -35,7 +35,7 @@ class Lock {
 	 * @access public
 	 *
 	 * @param string $name lock name.
-	 * @param int    $expiry lock lifetime.
+	 * @param int    $expiry lock duration in seconds.
 	 *
 	 * @return boolean True if succeeded, false otherwise.
 	 */
