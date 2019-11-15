@@ -740,7 +740,7 @@ class Jetpack {
 			/**
 			 * Initialize tracking right after the user agrees to the terms of service.
 			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+			add_action( 'jetpack_reject_terms_of_service', array( $tracking, 'init' ) );
 		}
 	}
 
