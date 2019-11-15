@@ -151,6 +151,15 @@ function dailymotion_shortcode( $atts ) {
 		$width = $height / 334 * 425;
 	}
 
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return sprintf(
+			'<amp-dailymotion data-videoid="%1$s" layout="responsive" width="%2$d" height="%3$d"></amp-dailymotion>',
+			esc_attr( $id ),
+			absint( $width ),
+			absint( $height )
+		);
+	}
+
 	/**
 	 * Let's add parameters if needed.
 	 *
