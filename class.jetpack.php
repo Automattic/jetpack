@@ -4636,16 +4636,86 @@ endif;
 	}
 
 	public static function build_authorize_url( $redirect = false, $iframe = false ) {
-		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
-			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+
+		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
+		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		add_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
+
+		if ( $iframe ) {
+			add_filter( 'jetpack_api_url', array( __CLASS__, 'filter_connect_api_iframe_url' ), 10, 2 );
 		}
 
-		$roles       = new Roles();
-		$role        = $roles->translate_current_user_to_role();
-		$signed_role = self::connection()->sign_role( $role );
+		$c8n = self::connection();
+		$url = $c8n->get_authorization_url( wp_get_current_user(), $redirect );
 
-		$user = wp_get_current_user();
+		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
+		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
+		remove_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
+		if ( $iframe ) {
+			remove_filter( 'jetpack_api_url', array( __CLASS__, 'filter_connect_api_iframe_url' ) );
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Filters the connection URL parameter array.
+	 *
+	 * @param Array $args default URL parameters used by the package.
+	 * @return Array the modified URL arguments array.
+	 */
+	public static function filter_connect_request_body( $args ) {
+		if (
+			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
+			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
+		) {
+			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
+				? $gp_locale->slug
+				: '';
+		}
+
+		$tracking        = new Tracking();
+		$tracks_identity = $tracking->tracks_get_identity( $args['state'] );
+
+		$args = array_merge(
+			$args,
+			array(
+				'_ui' => $tracks_identity['_ui'],
+				'_ut' => $tracks_identity['_ut'],
+			)
+		);
+
+		$calypso_env = self::get_calypso_env();
+
+		if ( ! empty( $calypso_env ) ) {
+			$args['calypso_env'] = $calypso_env;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Filters the URL that will process the connection data. It can be different from the URL
+	 * that we send the user to after everything is done.
+	 *
+	 * @param String $processing_url the default redirect URL used by the package.
+	 * @return String the modified URL.
+	 */
+	public static function filter_connect_processing_url( $processing_url ) {
+		$processing_url = admin_url( 'admin.php?page=jetpack' ); // Making PHPCS happy.
+		return $processing_url;
+	}
+
+	/**
+	 * Filters the redirection URL that is used for connect requests. The redirect
+	 * URL should return the user back to the Jetpack console.
+	 *
+	 * @param String $redirect the default redirect URL used by the package.
+	 * @return String the modified URL.
+	 */
+	public static function filter_connect_redirect_url( $redirect ) {
 		$jetpack_admin_page = esc_url_raw( admin_url( 'admin.php?page=jetpack' ) );
 		$redirect           = $redirect
 			? wp_validate_redirect( esc_url_raw( $redirect ), $jetpack_admin_page )
@@ -4655,67 +4725,27 @@ endif;
 			$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 		}
 
-		$secrets = self::generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
+		return $redirect;
+	}
 
-		/**
-		 * Filter the type of authorization.
-		 * 'calypso' completes authorization on wordpress.com/jetpack/connect
-		 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
-		 *
-		 * @since 4.3.3
-		 *
-		 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
-		 */
-		$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+	/**
+	 * Filters the API URL that is used for connect requests. The method
+	 * intercepts only the authorize URL and replaces it with another if needed.
+	 *
+	 * @param String $api_url the default redirect API URL used by the package.
+	 * @param String $relative_url the path of the URL that's being used.
+	 * @return String the modified URL.
+	 */
+	public static function filter_connect_api_iframe_url( $api_url, $relative_url ) {
 
-		$tracks          = new Tracking();
-		$tracks_identity = $tracks->tracks_get_identity( get_current_user_id() );
-
-		$args = urlencode_deep(
-			array(
-				'response_type' => 'code',
-				'client_id'     => Jetpack_Options::get_option( 'id' ),
-				'redirect_uri'  => add_query_arg(
-					array(
-						'action'   => 'authorize',
-						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-						'redirect' => urlencode( $redirect ),
-					),
-					esc_url( admin_url( 'admin.php?page=jetpack' ) )
-				),
-				'state'         => $user->ID,
-				'scope'         => $signed_role,
-				'user_email'    => $user->user_email,
-				'user_login'    => $user->user_login,
-				'is_active'     => self::is_active(),
-				'jp_version'    => JETPACK__VERSION,
-				'auth_type'     => $auth_type,
-				'secret'        => $secrets['secret_1'],
-				'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
-				'blogname'      => get_option( 'blogname' ),
-				'site_url'      => site_url(),
-				'home_url'      => home_url(),
-				'site_icon'     => get_site_icon_url(),
-				'site_lang'     => get_locale(),
-				'_ui'           => $tracks_identity['_ui'],
-				'_ut'           => $tracks_identity['_ut'],
-				'site_created'  => self::connection()->get_assumed_site_creation_date(),
-			)
-		);
-
-		self::apply_activation_source_to_args( $args );
-
-		$connection = self::connection();
-
-		$calypso_env = self::get_calypso_env();
-
-		if ( ! empty( $calypso_env ) ) {
-			$args['calypso_env'] = $calypso_env;
+		// Short-circuit on anything that is not related to connect requests.
+		if ( 'authorize' !== $relative_url ) {
+			return $api_url;
 		}
 
-		$api_url = $iframe ? $connection->api_url( 'authorize_iframe' ) : $connection->api_url( 'authorize' );
+		$c8n = self::connection();
 
-		return add_query_arg( $args, $api_url );
+		return $c8n->api_url( 'authorize_iframe' );
 	}
 
 	/**
