@@ -99,7 +99,7 @@ class SingleProductBackupBody extends React.Component {
 		];
 
 		return (
-			<div className="plans-section__body">
+			<div className="single_product_backup__body">
 				<p>
 					{ __(
 						'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
