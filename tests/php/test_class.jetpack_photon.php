@@ -101,7 +101,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::instance
+	 * @covers Jetpack_Photon::instance
 	 * @since 3.2
 	 */
 	public function test_photon_instance() {
@@ -110,7 +110,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::instance
+	 * @covers Jetpack_Photon::instance
 	 * @since 3.2
 	 */
 	public function test_photon_instance_singleton() {
@@ -121,7 +121,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_empty() {
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_a_tags_without_images() {
@@ -156,7 +156,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_empty_a_tag() {
@@ -167,7 +167,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_extra_attributes() {
@@ -178,7 +178,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_minimum_multiple_with_links() {
@@ -189,7 +189,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_minimum_multiple() {
@@ -200,7 +200,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_minimum() {
@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 * @since 3.2
 	 */
 	public function test_photon_parse_images_from_html_multiline() {
@@ -222,7 +222,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author ccprog
-	 * @covers ::Jetpack_Photon::parse_images_from_html
+	 * @covers Jetpack_Photon::parse_images_from_html
 	 */
 	public function test_photon_parse_images_from_html_src_attribute() {
 		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'src-attribute.html' );
@@ -232,7 +232,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Jetpack_Photon::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_photon_parse_dimensions_from_filename_no_dimensions() {
@@ -243,7 +243,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Jetpack_Photon::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_photon_parse_dimensions_from_filename_no_dimensions_letter() {
@@ -254,7 +254,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Jetpack_Photon::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_photon_parse_dimensions_from_filename_invalid_dimensions() {
@@ -265,7 +265,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Jetpack_Photon::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_photon_parse_dimensions_from_filename_valid_dimensions() {
@@ -276,7 +276,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Jetpack_Photon::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
 	public function test_photon_parse_dimensions_from_filename_valid_large_dimensions() {
@@ -287,7 +287,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_full_size_dimensions() {
@@ -305,7 +305,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_large_size_dimensions() {
@@ -326,7 +326,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author emilyatmobtown
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 */
 	public function test_photon_return_medium_large_size_dimensions() {
 		global $content_width;
@@ -346,7 +346,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_soft_defined_size_dimensions() {
@@ -367,7 +367,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_soft_undefined_size_dimensions() {
@@ -388,7 +388,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_soft_undefined_zero_size_dimensions() {
@@ -409,7 +409,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_hard_defined_size_dimensions() {
@@ -430,7 +430,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_hard_undefined_size_dimensions() {
@@ -451,7 +451,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_hard_undefined_zero_size_dimensions() {
@@ -472,7 +472,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_soft_defined_after_upload_size_dimensions() {
@@ -494,7 +494,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_soft_undefined_after_upload_size_dimensions() {
@@ -516,7 +516,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_soft_undefined_zero_after_upload_size_dimensions() {
@@ -538,7 +538,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_hard_defined_after_upload_size_dimensions() {
@@ -560,7 +560,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_hard_undefined_after_upload_size_dimensions() {
@@ -582,7 +582,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_jetpack_hard_undefined_zero_after_upload_size_dimensions() {
@@ -604,7 +604,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.8.2
 	 */
 	public function test_photon_return_custom_size_array_dimensions() {
@@ -625,7 +625,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_custom_size_array_dimensions_larger_than_original() {
@@ -646,7 +646,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author dereksmart
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_jetpack_soft_defined_size_dimensions_no_meta() {
@@ -667,7 +667,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_jetpack_soft_oversized() {
@@ -689,7 +689,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author dereksmart
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_jetpack_soft_undefined_size_dimensions_no_meta() {
@@ -710,7 +710,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_jetpack_soft_oversized_after_upload() {
@@ -732,7 +732,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author dereksmart
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_jetpack_hard_defined_size_dimensions_no_meta() {
@@ -753,7 +753,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author dereksmart
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_jetpack_hard_undefined_size_dimensions_no_meta() {
@@ -774,7 +774,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author dereksmart
-	 * @covers ::Jetpack_Photon::filter_image_downsize
+	 * @covers Jetpack_Photon::filter_image_downsize
 	 * @since 3.9.0
 	 */
 	public function test_photon_return_custom_size_array_dimensions_no_meta() {
@@ -795,7 +795,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author ebinnion
-	 * @covers ::Jetpack_Photon::filter_the_content
+	 * @covers Jetpack_Photon::filter_the_content
 	 * @since 5.6.0
 	 */
 	public function test_photon_filter_the_content_does_not_remove_width_height_when_both_known() {
@@ -814,7 +814,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author ebinnion
-	 * @covers ::Jetpack_Photon::filter_the_content
+	 * @covers Jetpack_Photon::filter_the_content
 	 * @since 5.6.0
 	 */
 	public function test_photon_filter_the_content_does_not_have_width_height_when_at_least_one_not_known() {
@@ -829,7 +829,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author ebinnion
-	 * @covers ::Jetpack_Photon::filter_the_content
+	 * @covers Jetpack_Photon::filter_the_content
 	 * @dataProvider photon_attributes_when_filtered_data_provider
 	 * @since 5.6.0
 	 */
@@ -920,7 +920,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author westonruter
-	 * @covers ::Jetpack_Photon::filter_the_content
+	 * @covers Jetpack_Photon::filter_the_content
 	 * @dataProvider photon_attributes_when_amp_response
 	 * @since 7.6.0
 	 *
@@ -957,8 +957,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * @author westonruter
-	 * @covers ::Jetpack_Photon::filter_the_content
-	 * @covers ::Jetpack_AMP_Support::filter_photon_post_image_args_for_stories
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Jetpack_AMP_Support::filter_photon_post_image_args_for_stories
 	 * @since 7.6.0
 	 */
 	public function test_photon_filter_the_content_for_amp_story() {
@@ -1054,7 +1054,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
-	 * @covers ::Jetpack_Photon::strip_image_dimensions_maybe
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
 	 */
 	public function test_photon_strip_image_dimensions_maybe_ignores_external_files() {
 		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
@@ -1063,7 +1063,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
-	 * @covers ::Jetpack_Photon::strip_image_dimensions_maybe
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
 	 */
 	public function test_photon_strip_image_dimensions_maybe_strips_resized_string() {
 		$orig_filename = '2004-07-22-DSC_0007.jpg';

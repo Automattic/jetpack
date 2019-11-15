@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Constructor does not throw a fatal error.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::__construct
+	 * @covers Jetpack_Sitemap_Librarian::__construct
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -31,7 +31,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Getting an unset row returns null.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::read_sitemap_data
+	 * @covers Jetpack_Sitemap_Librarian::read_sitemap_data
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Deleting an unset row returns false.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::delete_sitemap_data
+	 * @covers Jetpack_Sitemap_Librarian::delete_sitemap_data
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Deleting a set row returns true.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::delete_sitemap_data
+	 * @covers Jetpack_Sitemap_Librarian::delete_sitemap_data
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Getting a set row is the identity(ish).
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::store_sitemap_data
+	 * @covers Jetpack_Sitemap_Librarian::store_sitemap_data
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Setting the same name/type twice overwrites old data.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::store_sitemap_data
+	 * @covers Jetpack_Sitemap_Librarian::store_sitemap_data
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_set_then_set_overwrites_data() {
@@ -118,7 +118,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Getting the text of a set row is the identity.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::get_sitemap_text
+	 * @covers Jetpack_Sitemap_Librarian::get_sitemap_text
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -139,7 +139,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	/**
 	 * Delete contiguously named rows.
 	 *
-	 * @covers ::Jetpack_Sitemap_Librarian::delete_numbered_sitemap_rows_after
+	 * @covers Jetpack_Sitemap_Librarian::delete_numbered_sitemap_rows_after
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */

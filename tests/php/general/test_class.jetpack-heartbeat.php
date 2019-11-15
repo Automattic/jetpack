@@ -3,7 +3,7 @@
 class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 
 	/**
-	 * @covers ::Jetpack_Heartbeat::init
+	 * @covers Jetpack_Heartbeat::init
 	 * @since 3.9.0
 	 */
 	public function test_init() {
@@ -15,7 +15,7 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::Jetpack_Heartbeat::cron_exec
+	 * @covers Jetpack_Heartbeat::cron_exec
 	 * @since 3.9.0
 	 */
 	public function test_cron_exec() {
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::Jetpack_Heartbeat::generate_stats_array
+	 * @covers Jetpack_Heartbeat::generate_stats_array
 	 * @since 3.9.0
 	 */
 	public function test_generate_stats_array() {
@@ -47,7 +47,7 @@ class WP_Test_Jetpack_Heartbeat extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::Jetpack_Heartbeat::jetpack_xmlrpc_methods
+	 * @covers Jetpack_Heartbeat::jetpack_xmlrpc_methods
 	 * @since 3.9.0
 	 */
 	public function test_jetpack_xmlrpc_methods() {

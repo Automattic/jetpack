@@ -4,7 +4,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
- * @covers ::Jetpack_Data
+ * @covers Jetpack_Data
  */
 class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	const STORED  = '12345.67890';

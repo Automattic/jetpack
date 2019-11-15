@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Presentations::presentation_shortcode
+	 * @covers Presentations::presentation_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_presentations_presentation_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Presentations::slide_shortcode
+	 * @covers Presentations::slide_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_presentations_slide_exists() {
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Shortcodes_Presentations extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Presentations::presentation_shortcode
+	 * @covers Presentations::presentation_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_presentations_presentation() {

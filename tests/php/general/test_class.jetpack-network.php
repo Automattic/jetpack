@@ -12,7 +12,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack_Network::get_url
+	 * @covers Jetpack_Network::get_url
 	 * @since 3.2
 	 */
 	public function test_get_url_returns_correct_string_for_network_admin_page() {
@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack_Network::get_url
+	 * @covers Jetpack_Network::get_url
 	 * @since 3.2
 	 */
 	public function test_get_url_returns_null_for_invalid_input() {
@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack_Network::get_url
+	 * @covers Jetpack_Network::get_url
 	 * @since 3.2
 	 */
 	public function test_get_url_returns_correct_string_for_subsiteregister() {
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack_Network::get_url
+	 * @covers Jetpack_Network::get_url
 	 * @since 3.2
 	 */
 	public function test_get_url_returns_null_for_underspecified_subsiteregister() {
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack_Network::get_url
+	 * @covers Jetpack_Network::get_url
 	 * @since 3.2
 	 */
 	public function test_get_url_returns_correct_string_for_subsitedisconnect() {
@@ -80,7 +80,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack_Network::get_url
+	 * @covers Jetpack_Network::get_url
 	 * @since 3.2
 	 */
 	public function test_get_url_returns_null_for_underspecified_subsitedisconnect() {
@@ -103,7 +103,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author igmoweb
-	 * @covers ::Jetpack_Options::is_network_option
+	 * @covers Jetpack_Options::is_network_option
 	 * @since 4.8
 	 */
 	public function test_is_network_option() {
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author igmoweb
-	 * @covers ::Jetpack_Options::update_option
+	 * @covers Jetpack_Options::update_option
 	 * @since 4.8
 	 */
 	public function test_update_file_data_network_options() {
@@ -135,7 +135,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author igmoweb
-	 * @covers ::Jetpack_Options::get_option_and_ensure_autoload
+	 * @covers Jetpack_Options::get_option_and_ensure_autoload
 	 * @since 4.8
 	 */
 	public function test_delete_file_data_network_options() {
@@ -147,7 +147,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
 	 * @author igmoweb
-	 * @covers ::Jetpack_Options::delete_option
+	 * @covers Jetpack_Options::delete_option
 	 * @since 4.8
 	 */
 	public function test_get_network_option_and_ensure_autoload() {

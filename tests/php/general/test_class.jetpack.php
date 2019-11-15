@@ -43,7 +43,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author blobaugh
-	 * @covers ::Jetpack::init
+	 * @covers Jetpack::init
 	 * @since 2.3.3
 	 */
 	public function test_init() {
@@ -52,7 +52,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack::sort_modules
+	 * @covers Jetpack::sort_modules
 	 * @since 3.2
 	 */
 	public function test_sort_modules_with_equal_sort_values() {
@@ -67,7 +67,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author enkrates
-	 * @covers ::Jetpack::sort_modules
+	 * @covers Jetpack::sort_modules
 	 * @since 3.2
 	 */
 	public function test_sort_modules_with_different_sort_values() {
@@ -84,7 +84,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
 	 * @author georgestephanis
-	 * @covers ::Jetpack::absolutize_css_urls
+	 * @covers Jetpack::absolutize_css_urls
 	 */
 	public function test_absolutize_css_urls_properly_handles_use_cases() {
 
@@ -139,7 +139,7 @@ EXPECTED;
 
 	/**
 	 * @author  kraftbj
-	 * @covers ::Jetpack::is_staging_site
+	 * @covers Jetpack::is_staging_site
 	 * @since  3.9.0
 	 */
 	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
@@ -183,7 +183,7 @@ EXPECTED;
 
 	/*
 	 * @author tonykova
-	 * @covers ::Jetpack::implode_frontend_css
+	 * @covers Jetpack::implode_frontend_css
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
 		global $wp_styles;
@@ -216,7 +216,7 @@ EXPECTED;
 
 	/**
 	 * @author tonykova
-	 * @covers ::Jetpack::implode_frontend_css
+	 * @covers Jetpack::implode_frontend_css
 	 * @since 3.2.0
 	 */
 	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
@@ -244,7 +244,7 @@ EXPECTED;
 
 	/**
 	 * @author georgestephanis
-	 * @covers ::Jetpack::dns_prefetch
+	 * @covers Jetpack::dns_prefetch
 	 * @since 3.3.0
 	 */
 	public function test_dns_prefetch() {
@@ -677,7 +677,7 @@ EXPECTED;
 	 * The generate_secrets method should return and store the secret.
 	 *
 	 * @author zinigor
-	 * @covers ::Jetpack::generate_secrets
+	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_stores_secrets() {
 		$secret = Jetpack::generate_secrets( 'name' );
@@ -689,7 +689,7 @@ EXPECTED;
 	 * The generate_secrets method should return the same secret after calling generate several times.
 	 *
 	 * @author zinigor
-	 * @covers ::Jetpack::generate_secrets
+	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_does_not_regenerate_secrets() {
 		$secret = Jetpack::generate_secrets( 'name' );
@@ -705,7 +705,7 @@ EXPECTED;
 	 * The generate_secrets method should work with filters on wp_generate_password.
 	 *
 	 * @author zinigor
-	 * @covers ::Jetpack::generate_secrets
+	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_works_with_filters() {
 		add_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
@@ -723,7 +723,7 @@ EXPECTED;
 	 * The generate_secrets method should work with long strings.
 	 *
 	 * @author zinigor
-	 * @covers ::Jetpack::generate_secrets
+	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_works_with_long_strings() {
 		add_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
@@ -739,7 +739,7 @@ EXPECTED;
 	 * The get_secrets method should return an error for unknown secrets
 	 *
 	 * @author roccotripaldi
-	 * @covers ::Jetpack::generate_secrets
+	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_returns_error_for_unknown_secrets() {
 		Jetpack::generate_secrets( 'name' );
@@ -756,7 +756,7 @@ EXPECTED;
 	 * The get_secrets method should return an error for expired secrets
 	 *
 	 * @author roccotripaldi
-	 * @covers ::Jetpack::generate_secrets
+	 * @covers Jetpack::generate_secrets
 	 */
 	function test_generate_secrets_returns_error_for_expired_secrets() {
 		Jetpack::generate_secrets( 'name', get_current_user_id(), -600 );
@@ -791,7 +791,7 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers ::Jetpack::get_assumed_site_creation_date()
+	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_user_earliest() {
 		$user_id = $this->factory->user->create( array(
@@ -811,7 +811,7 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers ::Jetpack::get_assumed_site_creation_date()
+	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_post_earliest() {
 		$user_id = $this->factory->user->create( array(
@@ -831,7 +831,7 @@ EXPECTED;
 
 	/**
 	 * @author tyxla
-	 * @covers ::Jetpack::get_assumed_site_creation_date()
+	 * @covers Jetpack::get_assumed_site_creation_date()
 	 */
 	function test_get_assumed_site_creation_date_only_admins() {
 		$admin_id = $this->factory->user->create( array(

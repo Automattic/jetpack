@@ -23,7 +23,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Client_Server::authorize
+	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_role_cap() {
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Client_Server::authorize
+	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_no_role() {
@@ -64,7 +64,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Client_Server::authorize
+	 * @covers Jetpack_Client_Server::authorize
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_data_error() {
@@ -84,7 +84,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Client_Server::deactivate_plugin
+	 * @covers Jetpack_Client_Server::deactivate_plugin
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_deactivate_plugin() {
@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers ::Jetpack_Client_Server::get_token
+	 * @covers Jetpack_Client_Server::get_token
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_get_token() {

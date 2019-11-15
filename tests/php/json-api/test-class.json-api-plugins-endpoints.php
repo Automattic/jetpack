@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 
 	/**
 	 * @author lezama
-	 * @covers ::Jetpack_JSON_API_Plugins_Modify_Endpoint
+	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 * @group external-http
 	 */
 	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers ::Jetpack_API_Plugins_Install_Endpoint
+	 * @covers Jetpack_API_Plugins_Install_Endpoint
 	 * @group external-http
 	 */
 	public function test_Jetpack_API_Plugins_Install_Endpoint() {
