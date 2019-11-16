@@ -154,9 +154,6 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @return array The test data.
 	 */
 	public function get_dailymotion_amp_data() {
-		global $content_width;
-		$content_width = self::CONTENT_WIDTH;
-
 		$id             = 26423151;
 		$default_height = 471;
 
@@ -202,6 +199,9 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @param string $expected The expected return value of the function.
 	 */
 	public function test_shortcodes_dailymotion_amp( $shortcode_content, $expected ) {
+		global $content_width;
+		$content_width = self::CONTENT_WIDTH;
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
 	}
