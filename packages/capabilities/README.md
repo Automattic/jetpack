@@ -21,15 +21,17 @@ $rule->register( 'catapult.fire' ); // registers in the \Jetpack\Capabilities cl
 Then elsewhere we fetch it:
 
 ```php
-$capability = \Jetpack\Capabilities::get( 'catapult.fire' );
+$rule = \Jetpack\Capabilities::get( 'catapult.fire' );
 ```
 
-Then we can check it:
+Then we can check it - a rule has a `check()` method that always returns a `Permission` object that describes if permission was granted, and optionally provides additional information on things the user can do to gain that permission.
 
 ```php
-$permission = $capability->check();
+$permission = $rule->check();
 if ( $permission->granted() ) {
 	fire_the_catapult();
+} else {
+	wp_die( $permission->message() );
 }
 ```
 
