@@ -82,7 +82,7 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 	);
 }
 
-export class SingleProductBackupBody extends React.Component {
+class SingleProductBackupBody extends React.Component {
 	static propTypes = {
 		backupPlanPrices: PropTypes.object,
 		currencySymbol: PropTypes.string,
