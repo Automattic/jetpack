@@ -155,6 +155,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 			window.location.reload( true );
 		},
+		// eslint-disable-next-line no-unused-vars
 		handleConnectionError: function( error ) {
 			jetpackConnectButton.isRegistering = false;
 			jetpackConnectButton.handleOriginalFlow();
