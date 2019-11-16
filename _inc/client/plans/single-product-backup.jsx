@@ -82,6 +82,7 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 	);
 }
 
+// eslint-disable-next-line no-unused-vars
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
 		backupPlanPrices: PropTypes.object,
