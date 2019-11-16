@@ -1,6 +1,6 @@
 # Jetpack packages for Development
 
-These Composer packages offer a unified codebase that we will share among projects under the Jetpack brand.
+These Composer packages offer a unified code base that we will share among projects under the Jetpack brand.
 
 ## Installing Composer
 
