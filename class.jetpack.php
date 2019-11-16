@@ -5126,11 +5126,11 @@ endif;
 	/**
 	 * Returns the Jetpack XML-RPC API
 	 *
+	 * @deprecated 8.0 Use Connection_Manager instead.
 	 * @return string
 	 */
 	public static function xmlrpc_api_url() {
-		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', JETPACK__API_BASE );
-		return untrailingslashit( $base ) . '/xmlrpc.php';
+		return self::connection()->xmlrpc_api_url();
 	}
 
 	public static function connection() {

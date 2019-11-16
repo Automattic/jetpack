@@ -42,6 +42,10 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
+  - if: branch !~ /(^branch-.*-built)/
+    name: "Spell check Markdown files"
+    language: node_js
+    env: WP_TRAVISCI="yarn test-spelling"
   - php: "nightly"
     name: "PHP Nightly"
   - php: "7.4snapshot"
@@ -70,6 +74,7 @@ matrix:
   allow_failures:
     - name: "E2E tests"
     - name: "PHP Nightly"
+    - name: "Spell check Markdown files"
 
 cache:
   directories:

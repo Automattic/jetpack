@@ -212,14 +212,6 @@ class Listener {
 		$queue = $this->get_full_sync_queue();
 
 		/*
-		 * Periodically check the size of the queue, and disable adding to it if
-		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
-		 */
-		if ( ! $this->can_add_to_queue( $queue ) ) {
-			return;
-		}
-
-		/*
 		 * If we add any items to the queue, we should try to ensure that our script
 		 * can't be killed before they are sent.
 		 */
