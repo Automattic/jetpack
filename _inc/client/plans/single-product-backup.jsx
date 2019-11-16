@@ -58,7 +58,31 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 	);
 }
 
-class SingleProductBackupBody extends React.Component {
+function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioValue, planPrice } ) {
+	return (
+		<label className="plan-radio-button__label">
+			<input
+				type="radio"
+				className="plan-radio-button__input"
+				value={ radioValue }
+				checked={ checked }
+				onChange={ onChange }
+			/>
+			{ planName }
+			<br />
+			{ __( '%(currencySymbol)s%(planPrice)s /year', {
+				args: {
+					currencySymbol: currencySymbol,
+					planPrice: planPrice,
+				},
+				comment:
+					"Describes how much a plan will cost per year. %(currencySymbol) is the currency symbol of the user's locale (e.g. $). %(planPrice) is the cost of a plan (e.g. 20).",
+			} ) }
+		</label>
+	);
+}
+
+export class SingleProductBackupBody extends React.Component {
 	static propTypes = {
 		backupPlanPrices: PropTypes.object,
 		currencySymbol: PropTypes.string,
@@ -99,7 +123,14 @@ class SingleProductBackupBody extends React.Component {
 						'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
 						{
 							components: {
-								a: <ExternalLink href="https://jetpack.com/upgrade/backup/" icon iconSize={ 12 } />,
+								a: (
+									<ExternalLink
+										target="_blank"
+										href="https://jetpack.com/upgrade/backup/"
+										icon
+										iconSize={ 12 }
+									/>
+								),
 							},
 						}
 					) }
@@ -130,35 +161,4 @@ class SingleProductBackupBody extends React.Component {
 			</React.Fragment>
 		);
 	}
-}
-
-export function PlanRadioButton( {
-	checked,
-	currencySymbol,
-	onChange,
-	planName,
-	radioValue,
-	planPrice,
-} ) {
-	return (
-		<label className="plan-radio-button__label">
-			<input
-				type="radio"
-				className="plan-radio-button__input"
-				value={ radioValue }
-				checked={ checked }
-				onChange={ onChange }
-			/>
-			{ planName }
-			<br />
-			{ __( '%(currencySymbol)s%(planPrice)s /year', {
-				args: {
-					currencySymbol: currencySymbol,
-					planPrice: planPrice,
-				},
-				comment:
-					"Describes how much a plan will cost per year. %(currencySymbol) is the currency symbol of the user's locale (e.g. $). %(planPrice) is the cost of a plan (e.g. 20).",
-			} ) }
-		</label>
-	);
 }
