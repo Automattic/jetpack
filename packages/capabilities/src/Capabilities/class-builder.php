@@ -101,6 +101,10 @@ class Builder {
 		return $this->add_rule( new JetpackActiveRule() );
 	}
 
+	public function require_any_blog_sticker( $stickers ) {
+		return $this->add_rule( new BlogStickersRule( $stickers ) );
+	}
+
 	/**
 	 * Allows chaining optional inner dependencies together
 	 *

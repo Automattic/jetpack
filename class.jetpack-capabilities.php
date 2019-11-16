@@ -16,13 +16,19 @@ class Jetpack_Capabilities {
 		self::build( 'jetpack_activate_modules' )
 			->require_wp_capability( 'manage_options' );
 
-		self::build( 'jetpack.recurring-payments.enabled' )
-			->require_jetpack_is_active()
-			->require_any( function( $builder ) {
-				$builder
-					->require_jetpack_plan_supports( 'recurring-payments' )
-					->require_filter( 'jetpack_block_editor_enable_upgrade_nudge', true );
-			} );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::build( 'jetpack.recurring-payments.enabled' )
+				->require_any_blog_sticker( [ 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ] );
+		} else {
+			self::build( 'jetpack.recurring-payments.enabled' )
+				->require_jetpack_is_active()
+				->require_any( function( $builder ) {
+					$builder
+						->require_jetpack_plan_supports( 'recurring-payments' )
+						->require_filter( 'jetpack_block_editor_enable_upgrade_nudge', true );
+				} );
+		}
+
 	}
 
 	/**

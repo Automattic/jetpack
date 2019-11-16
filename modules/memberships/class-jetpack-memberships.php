@@ -6,6 +6,8 @@
  * @since      7.3.0
  */
 
+use \Automattic\Jetpack\Capabilities;
+
 /**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
@@ -302,14 +304,8 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
-		// For WPCOM sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = get_current_blog_id();
-			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-
-		// For Jetpack sites.
-		return current_user_can( 'jetpack.recurring-payments.enabled' );
+		return Capabilities::granted( 'jetpack.recurring-payments.enabled' );
+		// return current_user_can( 'jetpack.recurring-payments.enabled' );
 	}
 
 	/**

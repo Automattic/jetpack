@@ -3,7 +3,8 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Capabilities;
-use phpmock\functions\FunctionProvider;
+use phpmock\Mock;
+use phpmock\MockBuilder;
 
 class Test_Jetpack_Capabilities_Base extends \WP_UnitTestCase {
 	var $builder;
@@ -17,6 +18,7 @@ class Test_Jetpack_Capabilities_Base extends \WP_UnitTestCase {
 	}
 
 	public function tearDown() {
+		Mock::disableAll();
 		\Mockery::close();
 	}
 
@@ -199,8 +201,8 @@ class Test_Jetpack_Capabilities_WP_Filter extends Test_Jetpack_Capabilities_Base
 	}
 }
 
-class Test_Jetpack_Capabilities_JetpackActive extends Test_Jetpack_Capabilities_Base {
-	public function test_check_filter() {
+class Test_Jetpack_Capabilities_JetpackActiveRule extends Test_Jetpack_Capabilities_Base {
+	public function test_check_jetpack_is_active() {
 		$capability = $this->builder
 			->create( 'foo.bar' )
 			->require_jetpack_is_active()
@@ -228,6 +230,34 @@ class Test_Jetpack_Capabilities_JetpackActive extends Test_Jetpack_Capabilities_
 			->andReturnUsing( function() {
 				return $this->current_is_active;
 			} );
+	}
+}
+
+class Test_Jetpack_Capabilities_BlogStickersRule extends Test_Jetpack_Capabilities_Base {
+	public function test_check_has_blog_sticker() {
+		$capability = $this->builder
+			->create( 'foo.bar' )
+			->require_any_blog_sticker( [ 'expected_sticker' ] )
+			->get();
+
+		$current_blog_stickers = [ 'not_expected_sticker' ];
+
+		// mock the has_blog_sticker function
+		$builder = new MockBuilder();
+		$builder->setNamespace( 'Automattic\Jetpack\Capabilities' )
+			->setName( 'has_any_blog_stickers' )
+			->setFunction( function( $stickers, $blog_id ) use ( &$current_blog_stickers ) {
+				return ! empty( array_intersect( $stickers, $current_blog_stickers ) );
+			} );
+		$builder->build()->enable();
+
+		// does not have sticker
+		$this->assertFalse( $capability->check()->granted() );
+
+		$current_blog_stickers[] = 'expected_sticker';
+
+		// has sticker
+		$this->assertTrue( $capability->check()->granted() );
 	}
 }
 

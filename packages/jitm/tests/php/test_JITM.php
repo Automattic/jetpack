@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\JITM;
-use phpmock\functions\FunctionProvider;
 use phpmock\Mock;
 use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
