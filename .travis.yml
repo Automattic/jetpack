@@ -51,6 +51,18 @@ matrix:
   - php: "7.4snapshot"
     env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
     # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
+
+  # Code Climate code coverage.
+  - php: "7.3"
+    name: "Code Coverage"
+    env: WP_TRAVISCI="phpdbg -qrr phpunit --coverage-clover clover.xml"
+    before_script:
+      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - chmod +x ./cc-test-reporter
+      - ./cc-test-reporter before-build
+    after_script:
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
   - php: "7.0"
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
@@ -75,6 +87,7 @@ matrix:
     - name: "E2E tests"
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
+    - name: "Code Coverage"
 
 cache:
   directories:
@@ -99,15 +112,8 @@ before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - ./tests/setup-travis.sh
-  # Code Climate code coverage setup.
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
 
 script: ./tests/run-travis.sh
-
-after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 sudo: false
 
