@@ -2,6 +2,20 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.9.1 =
+
+* Release date: November 19, 2019
+* Release post: https://wp.me/p1moTy-lHA
+
+**Bug fixes**
+
+* Verification Tools: avoid PHP warnings when using plugins to modify the WordPress admin menu.
+* Widgets: ensure opening hours can be displayed properly in the Contact Info Widget.
+
+**Improved compatibility**
+
+* Twenty Twenty: ensure that Related Posts and Jetpack Blocks are displayed nicely in the new default theme.
+
 = 7.9 =
 
 * Release date: November 5, 2019
