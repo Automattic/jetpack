@@ -151,13 +151,73 @@
 
 /* Related Posts */
 
+.entry-content #jp-relatedposts {
+	max-width: 120rem;
+	margin: 1em auto;
+	width: calc(100% - 4rem);
+}
+
+@media (min-width: 700px) {
+	.entry-content #jp-relatedposts {
+		width: calc(100% - 8rem);
+	}
+}
+
+#jp-relatedposts .jp-relatedposts-grid {
+	display: flex;
+	flex-grow: 1;
+	flex-basis: 0;
+	justify-content: space-between;
+	box-sizing: border-box;
+}
+
+#jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post,
+#jp-relatedposts .jp-relatedposts-post {
+	width: calc(33% - 2rem);
+	margin-left: 0;
+	margin-right: 0;
+}
+
+@media only screen and (max-width: 640px) {
+	#jp-relatedposts .jp-relatedposts-grid {
+		flex-direction: column;
+	}
+
+	#jp-relatedposts .jp-relatedposts-items .jp-relatedposts-post,
+	#jp-relatedposts .jp-relatedposts-post {
+		width: 100%;
+	}
+}
+
+#jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post  {
+	padding-right: 0;
+}
+
 #jp-relatedposts#jp-relatedposts .jp-relatedposts-items p,
 #jp-relatedposts#jp-relatedposts .jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
 	font-size: inherit;
 	line-height: 1.5;
 }
 
+#jp-relatedposts .jp-relatedposts-items-visual {
+	margin-right: 0;
+}
+
+#jp-relatedposts .jp-relatedposts-items-visual .jp-relatedposts-post img.jp-relatedposts-post-img {
+	width: 100%;
+}
+
+/**
+ * Blocks
+ */
+
 /* Related Posts Block */
 .jp-related-posts-i2__post li {
 	margin: 0;
+}
+
+/* GIF Block */
+.wp-block-jetpack-gif {
+	/* !important because the gif block styles are loaded in the footer after this file */
+	margin: 1em auto !important;
 }
