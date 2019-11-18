@@ -81,14 +81,14 @@ export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 	const fullRealtimeBackupYearlyCost = realtimeBackupMonthlyPrice * 12;
 
 	const perYearPriceRange = __(
-		'%(currencySymbol)s%(dailyBackupYearlyPrice)s-%(realtimeBackupYearlyPrice)s /year',
+		'%(currencySymbol)s%(dailyBackupYearlyPrice)s-%(realtimeBackupYearlyPrice)s per year',
 		{
 			args: {
 				currencySymbol,
 				dailyBackupYearlyPrice,
 				realtimeBackupYearlyPrice,
 			},
-			comment: 'Shows a range of prices, such as $12-15 /year',
+			comment: 'Shows a range of prices, such as $12-15 per year',
 		}
 	);
 
@@ -127,7 +127,7 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 			/>
 			{ planName }
 			<br />
-			{ __( '%(currencySymbol)s%(planPrice)s /year', {
+			{ __( '%(currencySymbol)s%(planPrice)s per year', {
 				args: {
 					currencySymbol: currencySymbol,
 					planPrice: planPrice,
