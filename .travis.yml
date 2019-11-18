@@ -55,11 +55,13 @@ matrix:
   # Code Climate code coverage.
   - php: "7.3"
     name: "Code Coverage"
-    env: WP_TRAVISCI="phpdbg -qrr vendor/bin/phpunit --coverage-clover clover.xml"
     before_script:
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
+      - composer install
+      - composer global require "phpunit/phpunit=5.7.*" --no-suggest
+    script: phpdbg -qrr phpunit --coverage-clover clover.xml
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
