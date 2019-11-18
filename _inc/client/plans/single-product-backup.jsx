@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { getCurrencyDefaults } from '@automattic/format-currency';
 import { translate as __ } from 'i18n-calypso';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -12,6 +14,61 @@ import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 
 import './single-product-backup.scss';
+
+export function SingleProductBackup( { products, upgradeLinks } ) {
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+
+	const backupPlanPrices = {
+		jetpack_backup_daily: {
+			monthly: get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' ),
+			yearly: get( products, [ 'jetpack_backup_daily', 'cost' ], '' ),
+		},
+		jetpack_backup_realtime: {
+			monthly: get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' ),
+			yearly: get( products, [ 'jetpack_backup_realtime', 'cost' ], '' ),
+		},
+	};
+
+	const currency_code = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
+	const currencySymbol = getCurrencyDefaults( currency_code ).symbol;
+
+	return (
+		<React.Fragment>
+			<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
+			<h2 className="plans-section__subheader">
+				{ __( "Just looking for backups? We've got you covered." ) }
+			</h2>
+			<div className="plans-section__single-product">
+				<div className="single-product-backup__accented-card">
+					<div className="single-product-backup__accented-card-header">
+						<SingleProductBackupHeader
+							currencySymbol={ currencySymbol }
+							backupPlanPrices={ backupPlanPrices }
+						/>
+					</div>
+					<div className="single-product-backup__accented-card-body">
+						<SingleProductBackupBody
+							backupPlanPrices={ backupPlanPrices }
+							currencySymbol={ currencySymbol }
+							selectedBackupType={ selectedBackupType }
+							setSelectedBackupType={ setSelectedBackupType }
+							upgradeLinks={ upgradeLinks }
+						/>
+					</div>
+				</div>
+			</div>
+		</React.Fragment>
+	);
+}
+
+function SingleProductBackupHeader( { currencySymbol, backupPlanPrices } ) {
+	return (
+		<div className="single-product-backup__header-container">
+			<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+			<PlanPriceDisplay currencySymbol={ currencySymbol } backupPlanPrices={ backupPlanPrices } />
+		</div>
+	);
+}
 
 export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
 	const dailyBackupYearlyPrice = backupPlanPrices.jetpack_backup_daily.yearly;
