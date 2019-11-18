@@ -106,7 +106,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Verification Tools: avoid PHP warnings when using plugins to modify the WordPress admin menu.
 * Widgets: ensure opening hours can be displayed properly in the Contact Info Widget.
 
-**Major enhancements**
+**Improved compatibility**
+
+* Twenty Twenty: ensure that Related Posts and Jetpack Blocks are displayed nicely in the new default theme.
+
 
 = 7.9 =
 
