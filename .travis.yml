@@ -61,8 +61,8 @@ matrix:
       - ./cc-test-reporter before-build
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
       - composer install
-      - composer global require "phpunit/phpunit=5.7.*" --no-suggest
-    script: phpdbg -qrr phpunit --coverage-clover clover.xml
+      - composer require "phpunit/phpunit=5.7.*" --no-suggest
+    script: phpdbg -qrr vendor/bin/phpunit --coverage-clover clover.xml
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
