@@ -207,7 +207,17 @@
 	width: 100%;
 }
 
+/**
+ * Blocks
+ */
+
 /* Related Posts Block */
 .jp-related-posts-i2__post li {
 	margin: 0;
+}
+
+/* GIF Block */
+.wp-block-jetpack-gif {
+	/* !important because the gif block styles are loaded in the footer after this file */
+	margin: 1em auto !important;
 }
