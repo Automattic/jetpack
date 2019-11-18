@@ -42,6 +42,8 @@ class Jetpack_WPCOM_Block_Editor {
 
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ), 9 );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_styles' ), 9 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 	}
 
@@ -297,16 +299,6 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		$src_styles = $debug
-			? '//widgets.wp.com/wpcom-block-editor/common.css?minify=false'
-			: '//widgets.wp.com/wpcom-block-editor/common.min.css';
-		wp_enqueue_style(
-			'wpcom-block-editor-styles',
-			$src_styles,
-			array(),
-			$version
-		);
-
 		if ( $this->is_iframed_block_editor() ) {
 			$src_calypso_iframe_bridge = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
@@ -331,6 +323,24 @@ class Jetpack_WPCOM_Block_Editor {
 				true
 			);
 		}
+	}
+
+	/**
+	 * Enqueue WP.com block editor common styles.
+	 */
+	public function enqueue_styles() {
+		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$version = gmdate( 'Ymd' );
+
+		$src_styles = $debug
+			? '//widgets.wp.com/wpcom-block-editor/common.css?minify=false'
+			: '//widgets.wp.com/wpcom-block-editor/common.min.css';
+		wp_enqueue_style(
+			'wpcom-block-editor-styles',
+			$src_styles,
+			array(),
+			$version
+		);
 	}
 
 	/**
