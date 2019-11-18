@@ -60,9 +60,9 @@ matrix:
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
-      - composer install
-      - composer require "phpunit/phpunit=5.7.*" --no-suggest
-    script: phpdbg -qrr vendor/bin/phpunit --coverage-clover clover.xml
+      - export PLUGIN_SLUG=$(basename $(pwd))
+      - ./tests/setup-travis.sh
+    script: phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover clover.xml
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
