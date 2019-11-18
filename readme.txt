@@ -98,8 +98,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 7.9.1 =
 
-* Release date: November 18, 2019
-* Release post: https://wp.me/p1moTy-lzt
+* Release date: November 19, 2019
+* Release post: https://wp.me/p1moTy-lHA
 
 **Bug fixes**
 
