@@ -55,6 +55,7 @@ matrix:
   # Code Climate code coverage.
   - php: "7.3"
     name: "Code Coverage"
+    env: PHPUNIT_COMMAND_OVERRIDE="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover clover.xml"
     before_script:
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
@@ -62,7 +63,7 @@ matrix:
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
-    script: phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover clover.xml
+    # script: phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover clover.xml
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
