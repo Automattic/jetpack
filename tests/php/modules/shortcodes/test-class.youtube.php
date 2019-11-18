@@ -194,6 +194,11 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 * @param string $expected The expected shortcode returned from the function.
 	 */
 	public function test_jetpack_amp_youtube_shortcode( $url, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$this->assertEquals( $expected, jetpack_amp_youtube_shortcode( $url ) );
 	}
