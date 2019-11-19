@@ -3221,12 +3221,29 @@ p {
 
 		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
 
-		$content   = wp_kses_post( $post_content );
+		$content = wp_kses_post( $post_content );
+
+		// Remove the hidden elements from the modal content.
+		$dom_doc = new DOMDocument();
+
+		$old_libxml_disable_entity_loader = libxml_disable_entity_loader( true );
+		$old_libxml_use_internal_errors   = libxml_use_internal_errors( true );
+		@$dom_doc->loadHTML( '<?xml encoding="utf-8" ?>' . $content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		libxml_use_internal_errors( $old_libxml_use_internal_errors );
+		libxml_disable_entity_loader( $old_libxml_disable_entity_loader );
+
+		$selector = new DOMXPath( $dom_doc );
+		foreach ( $selector->query( '//*[contains(@class, "hide-in-jetpack")]' ) as $el ) {
+			$el->parentNode->removeChild( $el );
+		}
+
+		$post_content = $dom_doc->saveHTML();
+
 		$image_src = esc_url( $post_image_src );
 		$link      = esc_url( $post_link );
 
 		$post_array = array(
-			'release_post_content' => $content,
+			'release_post_content' => $post_content,
 			'release_post_image'   => $image_src,
 			'release_post_link'    => $link,
 		);
@@ -3252,7 +3269,7 @@ p {
 		$release_post_src = add_query_arg(
 			array(
 				'order_by' => 'date',
-				'tag'      => JETPACK__VERSION,
+				'tag'      => JETPACK__VERSION . '+show_modal',
 				'number'   => '1',
 			),
 			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'
