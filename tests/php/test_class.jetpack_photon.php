@@ -856,6 +856,38 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		}
 	}
 
+	/**
+	 * Checks that Photon ignores data-width and data-height attributes when parsing the attributes.
+	 *
+	 * @author mmtr
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 8.0.0
+	 */
+	public function test_photon_filter_the_content_ignores_data_width_and_data_height_attributes() {
+		$sample_html      = '<img src="http://example.com/test.png" data-width="100px" data-height="200px" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertArrayHasKey( 'height', $attributes );
+	}
+
+	/**
+	 * Checks that Photon parses correctly the width and height attributes when they are not preceded by a space.
+	 *
+	 * @author mmtr
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 8.0.0
+	 */
+	public function test_photon_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
+		$sample_html      = '<img src="http://example.com/test.png"width="100px"height="200px" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+
+		$this->assertEquals( 100, $attributes['width']['value'] );
+		$this->assertEquals( 200, $attributes['height']['value'] );
+	}
+
 	public function photon_attributes_when_filtered_data_provider() {
 		$assert_details = function ( $details ) {
 			$this->assertInternalType( 'array', $details );
