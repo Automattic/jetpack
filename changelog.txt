@@ -2,6 +2,81 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 7.9 =
+
+* Release date: November 5, 2019
+* Release post: https://wp.me/p1moTy-lzt
+
+**Major enhancements**
+
+* Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
+* Block Editor: add new post-submission settings to the Form block.
+* Twenty Twenty: Ensure full compatibility with the upcoming default theme.
+
+**Enhancements**
+
+* Admin Page: update icons for security settings.
+* Backup: support for Jetpack Backup functionality with simpler configuration.
+* Block Editor: provide block previews for Jetpack blocks.
+* Block Editor: add image size option to the Slideshow block.
+* Block Editor: improve the display of opening hours when using the Business Hours block.
+* CLI: no longer return exit code 1 if trying to disconnect a site that's already disconnected.
+* Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
+* Connection flow: add plan billing period toggle.
+* Contact Form: synchronize form data with WordPress.com when submitting a form via the Form block.
+* Dashboard: update styles for visual parity with the WordPress.com dashboard.
+* Dashboard: improve performance of the Jetpack dashboard when the plugin is not connected to WordPress.com yet.
+* Dashboard: add new plans' information to Plans pages.
+* Dashboard: update design to better integrate with the updated design of the WordPress dashboard in WordPress 5.3.
+* Dashboard: improve experience for site owners looking to disconnect their site from WordPress.com.
+* Debug: provide additional information in Tools > Site Health when a site's connection to WordPress.com is broken.
+* Performance: modernize various parts of the code to use PHP 5.6+ functionality.
+* Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
+* Related Posts: remove nofollow attribute from links.
+* Related Posts: add Posts to the REST API response for all post types that support them.
+* Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
+* Search: continued work on upcoming Instant Search features.
+* Shortcodes: add support for tab sizing to Gist shortcodes and embeds.
+* Social Networks: update Facebook logo to match new color.
+* Sync: improve reliability of the information synchronized back to your site when connecting to WordPress.com.
+* Tiled Galleries: ensure that color profile information is retained for all images in Tiled Galleries.
+* Widgets: add aria-current attribute to links when on same page.
+* WordAds: improve speed & resource use of Ads' loading scripts.
+
+**Improved compatibility**
+
+* AMP: ensure that one can use the Slideshow and the MailChimp blocks when using the AMP plugin.
+* AMP: support the new Dev mode for Notifications and Stats features.
+* Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
+* Blocks: ensure that all blocks display well in the editor when using WordPress 5.3.
+* Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
+* Dashboard Notices: ensure that all notices redirect to the right page, including on WooCommerce dashboard pages.
+* General: use new functionality available in WordPress 5.3.
+* PHP: resolve deprecation warnings in anticipation of PHP 7.4.
+* Related Posts: avoid conflicts with other plugins adding elements below the post content, especially when the AMP plugin is active on the site.
+* SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
+* Widgets: update deprecated option in the Facebook Page Plugin widget.
+* WordPress.com REST API: ensure compatibility with WordPress 5.3.
+
+**Bug fixes**
+
+* Admin Page: remove Jetpack dashboard link for registered users (non admins) when the site is not connected to WordPress.com.
+* Admin Page: translate empty Stats chart's message.
+* Admin Page: change default settings tab depending on your role.
+* Admin Page: do not display Composing header for editors.
+* Block Editor: ensure that the Ad block is compatible with dark themes.
+* Contact Form: revise the email validation function to include length limit.
+* Debug: reduce instances when an inconclusive response would result in an error.
+* Geo-Location: fix spacing for RSS geo-location namespaces.
+* Image CDN: remove wp-dom-ready dependency to improve performance on the frontend.
+* Search: add hooks for when Search falls back to using the local database.
+* Site Logo: ensure that the right stylesheet is loaded depending on your site's language.
+* Site Verification Tools: ensure that you can connect your site to Google Search Console even when Publicize is disabled.
+* Sync: prevent a PHP Notice in some cases where a post isn't actually a post.
+* Widgets: ensure that the Google Maps API key in the Contact Info widget can be set to only work on your domain.
+* Widgets: fix timeout issues that may sometimes occur in the GoodReads widget when user has added lots of books to their account.
+* WordPress.com REST API: better site preview support for sites using WordPress in a subdirectory.
+
 = 7.8 =
 
 * Release date: October 1, 2019
