@@ -199,6 +199,11 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @param string $expected The expected return value of the function.
 	 */
 	public function test_shortcodes_dailymotion_amp( $shortcode_content, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
 		global $content_width;
 		$content_width = self::CONTENT_WIDTH;
 
