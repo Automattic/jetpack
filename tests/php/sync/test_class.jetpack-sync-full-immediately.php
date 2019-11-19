@@ -219,7 +219,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$previous_interval_end = $event->args['previous_end'];
 		// The first batch has the previous_min_is not set.
 		// We user ~0 to denote that the previous min id unknown.
-		$this->assertEquals( $previous_interval_end, '~0' );
+		$this->assertEquals( '~0', $previous_interval_end );
 
 		$this->full_sync->reset_data();
 	}
