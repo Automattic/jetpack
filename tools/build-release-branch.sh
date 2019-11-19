@@ -91,8 +91,14 @@ function create_new_release_branches {
 
 	# Declare the new branch names.
 	TARGET_VERSION=$(./tools/version-update.sh -v $version -n)
-	NEW_UNBUILT_BRANCH="branch-$TARGET_VERSION"
-	NEW_BUILT_BRANCH="branch-$TARGET_VERSION-built"
+	if [[ $TARGET_VERSION =~ "-" ]]; then
+		NUMERIC_VERSION=$(echo $TARGET_VERSION | cut -d'-' -f 1)
+		NEW_UNBUILT_BRANCH="branch-$NUMERIC_VERSION"
+		NEW_BUILT_BRANCH="branch-$NUMERIC_VERSION-built"
+	else
+		NEW_UNBUILT_BRANCH="branch-$TARGET_VERSION"
+		NEW_BUILT_BRANCH="branch-$TARGET_VERSION-built"
+	fi
 
 	# Check if branch already exists, if not, create new branch named "branch-x.x"
 	if [[ -n $( git branch -r | grep "$NEW_UNBUILT_BRANCH" ) ]]; then
@@ -109,7 +115,6 @@ function create_new_release_branches {
 		git checkout -b $NEW_UNBUILT_BRANCH
 
 		./tools/version-update.sh -v $TARGET_VERSION
-		exit
 
 		git push -u origin $NEW_UNBUILT_BRANCH
 		echo ""

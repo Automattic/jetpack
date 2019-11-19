@@ -95,9 +95,10 @@ if [[ 'y' != $reply && 'Y' != $reply ]]; then
 fi
 
 # Replace all file contents.
-sed -E -i "" "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php
-sed -E -i "" "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
-sed -E -i "" "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json
+sed -i.bak -E "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php || echo "Could not replace version."; exit 1
+sed -i.bak -E "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php || echo "Could not replace version."; exit 1
+sed -i.bak -E "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json || echo "Could not replace version."; exit 1
+rm *.bak # We need a backup file because macOS requires it.
 
 git --no-pager diff HEAD jetpack.php package.json
 echo ""
