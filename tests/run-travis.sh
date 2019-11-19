@@ -75,6 +75,8 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="phpunit --group external-http"
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
+	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
+		export WP_TRAVISCI="phpdbg -qrr phpunit --coverage-clover clover.xml"
 	fi
 
 	print_build_info
