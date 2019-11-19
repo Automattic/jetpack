@@ -113,7 +113,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	if (
 		class_exists( 'Jetpack_AMP_Support' )
 		&& Jetpack_AMP_Support::is_amp_request()
-		&& isset( $options['url'] )
+		&& ! empty( $options['url'] )
 		&& 'api.soundcloud.com' !== wp_parse_url( $options['url'], PHP_URL_HOST )
 	) {
 		// Defer to oEmbed if an oEmbeddable URL is provided.
