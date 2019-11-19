@@ -864,12 +864,13 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @since 8.0.0
 	 */
 	public function test_photon_filter_the_content_ignores_data_width_and_data_height_attributes() {
-		$sample_html      = '<img src="http://example.com/test.png" data-width="100px" data-height="200px" />';
+		$sample_html      = '<img src="http://example.com/test.png" class="test" data-width="100" data-height="200" />';
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
 
-		$this->assertArrayNotHasKey( 'width', $attributes );
-		$this->assertArrayNotHasKey( 'height', $attributes );
+		$this->assertArrayNotHasKey( 'resize', $query_params );
 	}
 
 	/**
@@ -880,12 +881,14 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @since 8.0.0
 	 */
 	public function test_photon_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
-		$sample_html      = '<img src="http://example.com/test.png"width="100px"height="200px" />';
+		$sample_html      = '<img src="http://example.com/test.png" class="test"width="100"height="200" />';
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
 
-		$this->assertEquals( 100, $attributes['width']['value'] );
-		$this->assertEquals( 200, $attributes['height']['value'] );
+		$this->assertArrayHasKey( 'resize', $query_params );
+		$this->assertEquals( '100,200', $query_params['resize'] );
 	}
 
 	public function photon_attributes_when_filtered_data_provider() {
