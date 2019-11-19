@@ -51,7 +51,7 @@ function dailymotion_embed_to_shortcode( $content ) {
 			}
 
 			$id = basename( substr( $src, strlen( 'www.dailymotion.com/swf' ) ) );
-			$id = preg_replace( '/[^a-z0-9].*$/i', '', $id );
+			$id = preg_replace( '/[^a-z0-9].*$/is', '', $id );
 
 			$content = str_replace( $match[0], "[dailymotion id=$id]", $content );
 			/** This action is documented in modules/shortcodes/youtube.php */
