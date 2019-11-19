@@ -267,8 +267,7 @@ function jetpack_shortcode_instagram( $atts ) {
 		preg_match( $url_pattern, $atts['url'], $matches );
 		if ( ! $matches ) {
 			return sprintf(
-				'<a href="%1$s" class="amp-wp-embed-fallback">%2$s</a>',
-				esc_url( $atts['url'] ),
+				'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
 				esc_url( $atts['url'] )
 			);
 		}
