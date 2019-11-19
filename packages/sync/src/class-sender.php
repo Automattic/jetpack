@@ -261,6 +261,7 @@ class Sender {
 			return;
 		}
 		if ( Settings::get_setting( 'full_sync_send_immediately' ) ) {
+			$this->fastcgi_finish_request();
 			Modules::get_module( 'full-sync' )->continue_sending();
 			return;
 		}
