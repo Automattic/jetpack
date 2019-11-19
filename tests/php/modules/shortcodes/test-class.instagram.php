@@ -302,6 +302,11 @@ BODY;
 	 * @param string $expected The expected return value of the function.
 	 */
 	public function test_shortcodes_instagram_amp( $shortcode_content, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
 	}
