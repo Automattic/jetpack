@@ -262,6 +262,27 @@ function jetpack_shortcode_instagram( $atts ) {
 		return '';
 	}
 
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		$url_pattern = '#http(s?)://(www\.)?instagr(\.am|am\.com)/p/([^/?]+)#i';
+		preg_match( $url_pattern, $atts['url'], $matches );
+		if ( ! $matches ) {
+			return sprintf(
+				'<a href="%1$s" class="amp-wp-embed-fallback">%1$s</a>',
+				esc_url( $atts['url'] )
+			);
+		}
+
+		$shortcode_id = end( $matches );
+		$width        = ! empty( $atts['width'] ) ? $atts['width'] : 600;
+		$height       = ! empty( $atts['height'] ) ? $atts['height'] : 600;
+		return sprintf(
+			'<amp-instagram data-shortcode="%1$s" layout="responsive" width="%2$d" height="%3$d" data-captioned></amp-instagram>',
+			esc_attr( $shortcode_id ),
+			absint( $width ),
+			absint( $height )
+		);
+	}
+
 	return $wp_embed->shortcode( $atts, $atts['url'] );
 }
 add_shortcode( 'instagram', 'jetpack_shortcode_instagram' );
