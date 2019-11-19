@@ -65,7 +65,7 @@ matrix:
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
-    script: phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover clover.xml
+    # script: phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover clover.xml
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover
 
