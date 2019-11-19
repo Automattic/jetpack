@@ -3219,8 +3219,6 @@ p {
 			return;
 		}
 
-		$post_image_src = isset( $post_data['posts'][0]['featured_image'] ) ? $post_data['posts'][0]['featured_image'] : null;
-
 		$content = wp_kses_post( $post_content );
 
 		// Remove the hidden elements from the modal content.
@@ -3234,17 +3232,15 @@ p {
 
 		$selector = new DOMXPath( $dom_doc );
 		foreach ( $selector->query( '//*[contains(@class, "hide-in-jetpack")]' ) as $el ) {
-			$el->parentNode->removeChild( $el );
+			$el->parentNode->removeChild( $el ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 
 		$post_content = $dom_doc->saveHTML();
 
-		$image_src = esc_url( $post_image_src );
-		$link      = esc_url( $post_link );
+		$link = esc_url( $post_link );
 
 		$post_array = array(
 			'release_post_content' => $post_content,
-			'release_post_image'   => $image_src,
 			'release_post_link'    => $link,
 		);
 
@@ -3252,13 +3248,15 @@ p {
 	}
 
 	/**
-	 * Obtains the most recent post in the 'releases' category in the Jetpack.com
-	 * blog. Returns an array with the release post's data at index ['posts'][0].
+	 * Obtains the release post from the Jetpack.com blog. A release post will be displayed in the
+	 * update modal when these two tags are used on the post:
+	 * 1) the Jetpack version number
+	 * 2) show_update_modal
 	 *
 	 * The response parameters for the post array can be found here:
 	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
 	 *
-	 * @return array|null Returns an associative array containing the release post data.
+	 * @return array|null Returns an associative array containing the release post data at index ['posts'][0].
 	 *                    Returns null if the release post data is not available.
 	 */
 	private static function get_release_post_data() {
@@ -3269,7 +3267,7 @@ p {
 		$release_post_src = add_query_arg(
 			array(
 				'order_by' => 'date',
-				'tag'      => JETPACK__VERSION . '+show_modal',
+				'tag'      => JETPACK__VERSION . '+show_update_modal',
 				'number'   => '1',
 			),
 			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'

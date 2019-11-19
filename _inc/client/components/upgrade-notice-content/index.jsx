@@ -10,6 +10,7 @@ import Button from 'components/button';
  * Internal dependencies
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
+import { imagePath } from 'constants/urls';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
 import ExternalLink from 'components/external-link';
@@ -92,9 +93,8 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 
 		render() {
 			return (
-				// TODO: update SVG?
 				<JetpackDialogue
-					svg={ <img src={ this.props.releasePostImage } width="350" alt={ '' } /> }
+					svg={ <img src={ imagePath + 'jetpack-welcome.svg' } width="250" alt={ '' } /> }
 					title={ __( 'New in Jetpack %(version)s', {
 						args: {
 							version: this.props.version,
