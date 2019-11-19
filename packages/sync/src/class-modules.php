@@ -166,9 +166,6 @@ class Modules {
 	 * @return Automattic\Jetpack\Sync\Modules\Module
 	 */
 	public static function load_module( $module_class ) {
-		if ( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync' === $module_class && Settings::get_setting( 'full_sync_send_immediately' ) ) {
-			return new Modules\Full_Sync_Immediately();
-		}
 		return new $module_class();
 	}
 

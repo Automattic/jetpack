@@ -147,7 +147,7 @@ abstract class Module {
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// In subclasses, return the number of actions sent, and next module state (true == done).
-		return [ 0, 0, 1 ];
+		return array( 0, 0, 1 );
 	}
 
 	/**
@@ -309,7 +309,7 @@ abstract class Module {
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$status['last_sent']} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
-			$result = $this->send_action( $action_name, [ $ids, $status['last_sent'] ] );
+			$result = $this->send_action( $action_name, array( $ids, $status['last_sent'] ) );
 
 			if ( is_wp_error( $result ) ) {
 				return $status;
@@ -336,7 +336,7 @@ abstract class Module {
 	 * @param string $action_name The action.
 	 * @param array  $data The data associated with the action.
 	 */
-	public function send_action( $action_name, $data ) {
+	public function send_action( $action_name, $data = null ) {
 		$sender = Sender::get_instance();
 		return $sender->send_action( $action_name, $data );
 	}

@@ -57,10 +57,6 @@ class Full_Sync_Immediately extends Module {
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_full_sync_listeners( $callable ) {
-		// Synthetic actions for full sync.
-		add_action( 'jetpack_full_sync_start', $callable, 10, 3 );
-		add_action( 'jetpack_full_sync_end', $callable, 10, 2 );
-		add_action( 'jetpack_full_sync_cancelled', $callable );
 	}
 
 	/**
@@ -81,6 +77,7 @@ class Full_Sync_Immediately extends Module {
 			 * @since 4.2.0
 			 */
 			do_action( 'jetpack_full_sync_cancelled' );
+			$this->send_action( 'jetpack_full_sync_cancelled' );
 		}
 
 		// Remove all evidence of previous full sync items and status.
@@ -98,11 +95,11 @@ class Full_Sync_Immediately extends Module {
 		}
 
 		$this->update_status(
-			[
+			array(
 				'started'  => time(),
 				'config'   => $full_sync_config,
 				'progress' => $this->get_initial_progress( $full_sync_config ),
-			]
+			)
 		);
 
 		$range = $this->get_content_range( $full_sync_config );
@@ -119,27 +116,9 @@ class Full_Sync_Immediately extends Module {
 		 * @since 7.4.0 Added $empty arg.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
+		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range ) );
 
 		return true;
-	}
-
-	/**
-	 * Clear all the full sync data.
-	 *
-	 * @access public
-	 */
-	public function reset_data() {
-		$this->clear_status();
-		( new Lock() )->remove( self::LOCK_NAME );
-	}
-
-	/**
-	 * Clear all the full sync status options.
-	 *
-	 * @access public
-	 */
-	public function clear_status() {
-		\Jetpack_Options::delete_raw_option( self::STATUS_OPTION );
 	}
 
 	/**
@@ -161,12 +140,12 @@ class Full_Sync_Immediately extends Module {
 	 * @return array Full sync status.
 	 */
 	public function get_status() {
-		$default = [
+		$default = array(
 			'started'  => false,
 			'finished' => false,
-			'progress' => [],
-			'config'   => [],
-		];
+			'progress' => array(),
+			'config'   => array(),
+		);
 
 		return wp_parse_args( \Jetpack_Options::get_raw_option( self::STATUS_OPTION ), $default );
 	}
@@ -180,6 +159,25 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function is_finished() {
 		return ! ! $this->get_status()['finished'];
+	}
+
+	/**
+	 * Clear all the full sync data.
+	 *
+	 * @access public
+	 */
+	public function reset_data() {
+		$this->clear_status();
+		( new Lock() )->remove( self::LOCK_NAME );
+	}
+
+	/**
+	 * Clear all the full sync status options.
+	 *
+	 * @access public
+	 */
+	public function clear_status() {
+		\Jetpack_Options::delete_raw_option( self::STATUS_OPTION );
 	}
 
 	/**
@@ -209,6 +207,28 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
+	 * Given an initial Full Sync configuration set the initial status.
+	 *
+	 * @param array $full_sync_config Full sync configuration.
+	 *
+	 * @return array Initial Sent status.
+	 */
+	public function get_initial_progress( $full_sync_config ) {
+		// Set default configuration, calculate totals, and save configuration if totals > 0.
+		$status = array();
+		foreach ( $full_sync_config as $name => $config ) {
+			$module          = Modules::get_module( $name );
+			$status[ $name ] = array(
+				'total'    => $module->total( $full_sync_config ),   // Total.
+				'sent'     => 0,             // Sent.
+				'finished' => false,
+			);
+		}
+
+		return $status;
+	}
+
+	/**
 	 * Get the range for content (posts and comments) to sync.
 	 *
 	 * @access private
@@ -216,7 +236,7 @@ class Full_Sync_Immediately extends Module {
 	 * @return array Array of range (min ID, max ID, total items) for all content types.
 	 */
 	private function get_content_range() {
-		$range  = [];
+		$range  = array();
 		$config = $this->get_status()['config'];
 		// Only when we are sending the whole range do we want to send also the range.
 		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
@@ -270,26 +290,13 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Given an initial Full Sync configuration set the initial status.
+	 * Continue sending.
 	 *
-	 * @param array $full_sync_config Full sync configuration.
-	 *
-	 * @return array Initial Sent status.
+	 * @access public
 	 */
-	public function get_initial_progress( $full_sync_config ) {
-		// Set default configuration, calculate totals, and save configuration if totals > 0.
-		$status = [];
-		foreach ( $full_sync_config as $name => $config ) {
-			$module          = Modules::get_module( $name );
-			$status[ $name ] = array(
-				'total'    => $module->total( $full_sync_config ),   // Total.
-				'sent'     => 0,             // Sent.
-				'finished' => false,
-			);
-		}
-
-		return $status;
-	}
+	public function continue_enqueuing() {
+		$this->continue_sending();
+	} // Seconds.
 
 	/**
 	 * Continue sending.
@@ -326,18 +333,18 @@ class Full_Sync_Immediately extends Module {
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $send_until, $progress[ $module->name() ] );
 			if ( microtime( true ) >= $send_until ) {
-				$this->update_status( [ 'progress' => $progress ] );
+				$this->update_status( array( 'progress' => $progress ) );
 
 				return;
 			}
 		}
 
 		$this->send_full_sync_end();
-		$this->update_status( [ 'progress' => $progress ] );
+		$this->update_status( array( 'progress' => $progress ) );
 	}
 
 	/**
-	 * Get Modules that are configured to Full Sync and haven't finished enqueuing
+	 * Get Modules that are configured to Full Sync and haven't finished sending
 	 *
 	 * @return array
 	 */
@@ -390,8 +397,9 @@ class Full_Sync_Immediately extends Module {
 		 * @since 7.3.0 Added $range arg.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
+		$this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
 
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
-		$this->update_status( [ 'finished' => time() ] );
+		$this->update_status( array( 'finished' => time() ) );
 	}
 }

@@ -260,11 +260,6 @@ class Sender {
 		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
 			return;
 		}
-		if ( Settings::get_setting( 'full_sync_send_immediately' ) ) {
-			$this->fastcgi_finish_request();
-			Modules::get_module( 'full-sync' )->continue_sending();
-			return;
-		}
 		$this->continue_full_sync_enqueue();
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
 	}
@@ -533,9 +528,9 @@ class Sender {
 	 *
 	 * @return Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
 	 */
-	public function send_action( $action_name, $data ) {
+	public function send_action( $action_name, $data = null ) {
 		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
-			return [];
+			return array();
 		}
 
 		// Compose the data to be sent.
@@ -569,15 +564,15 @@ class Sender {
 	 * @return array An array of synthetic sync actions keyed by current microtime(true)
 	 */
 	private function create_action_to_send( $action_name, $data ) {
-		return [
-			microtime( true ) => [
+		return array(
+			microtime( true ) => array(
 				$action_name,
 				$data,
 				get_current_user_id(),
 				microtime( true ),
 				Settings::is_importing(),
-			],
-		];
+			),
+		);
 	}
 
 	/**

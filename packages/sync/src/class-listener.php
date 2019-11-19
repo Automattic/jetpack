@@ -188,11 +188,6 @@ class Listener {
 	 * @param mixed ...$args Args passed to the action.
 	 */
 	public function full_sync_action_handler( ...$args ) {
-		if ( Settings::get_setting( 'full_sync_send_immediately' ) ) {
-			Modules::get_module( 'full-sync' )->send_action( current_filter(), $args );
-			return;
-		}
-
 		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
 	}
 

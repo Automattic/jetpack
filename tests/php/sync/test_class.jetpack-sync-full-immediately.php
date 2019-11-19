@@ -11,6 +11,11 @@ if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	}
 }
 
+/**
+ * Sync Full Immediately
+ *
+ * @group sync-beta
+ */
 class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
@@ -30,6 +35,8 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
+		$this->sender->set_enqueue_wait_time( 0 );
+
 	}
 
 	function test_sync_start_action_with_ranges() {
@@ -62,9 +69,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 
-		do_action( 'jetpack_full_sync_start' );
-		$this->sender->do_full_sync();
-
+		$this->sender->send_action( 'jetpack_full_sync_start' );
 		$this->assertEquals( 0, $this->server_replica_storage->post_count() );
 
 		$this->full_sync->start();
