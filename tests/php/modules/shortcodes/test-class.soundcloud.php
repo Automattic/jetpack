@@ -124,6 +124,11 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 */
 	public function tests_shortcodes_soundcloud_amp() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
 		// Simulate the oEmbed filter in the AMP plugin that should run on calling $wp_embed->shortcode().
 		$oembed_markup = '<amp-soundcloud></amp-soundcloud>';
 		add_filter(
