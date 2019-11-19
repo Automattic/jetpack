@@ -868,8 +868,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
 
-		$this->assertArrayHasKey( 'width', $attributes );
-		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertArrayNotHasKey( 'width', $attributes );
+		$this->assertArrayNotHasKey( 'height', $attributes );
 	}
 
 	/**
