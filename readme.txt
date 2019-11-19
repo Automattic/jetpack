@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Security: fix vulnerability in the way Jetpack processes embed codes.
 * Verification Tools: avoid PHP warnings when using plugins to modify the WordPress admin menu.
 * Widgets: ensure opening hours can be displayed properly in the Contact Info Widget.
 
