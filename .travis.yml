@@ -86,7 +86,8 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
-  - name: "Sync Beta"
+  - php: "7.0"
+    name: "Sync Beta"
     env: WP_TRAVISCI="phpunit --group=sync-beta" SYNC_BETA=1
 
   allow_failures:
