@@ -59,14 +59,14 @@ matrix:
       - WP_BRANCH=latest
       - DO_COVERAGE=true
     before_script:
-      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > $HOME/cc-test-reporter
-      - chmod +x $HOME/cc-test-reporter
-      - $HOME/cc-test-reporter before-build
+      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - chmod +x ./cc-test-reporter
+      - ./cc-test-reporter before-build
       - export PATH="$HOME/.composer/vendor/bin:$PATH"
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - $HOME/cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover --prefix $HOME
 
   - php: "7.0"
     name: "E2E tests"
