@@ -328,7 +328,8 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueue WP.com block editor common styles.
 	 */
 	public function enqueue_styles() {
-		if ( ! WP_Screen::is_block_editor() && ! has_block( 'paragraph' ) ) {
+		$screen = get_current_screen();
+		if ( ! $screen->is_block_editor() && ! has_block( 'paragraph' ) ) {
 			return;
 		}
 
