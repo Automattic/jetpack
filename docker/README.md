@@ -155,7 +155,7 @@ yarn docker:phpunit:multisite --filter=Protect
 
 ### Starting over
 
-To remove all docker images, all mysql data, and all docker-related files from your local machine run:
+To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
 
 ```sh
 yarn docker:clean
@@ -177,7 +177,7 @@ For example run [`cron event list`](https://developer.wordpress.org/cli/commands
 yarn docker:wp cron event list
 ```
 
-[`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy wp-cli command you can use like so:
+[`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy WP-CLI command you can use like so:
 
 ```bash
 yarn docker:wp shell
@@ -204,7 +204,7 @@ Connecting to your MySQL database from outside the container, use:
 - Pass: `wordpress`
 - Database: `wordpress`
 
-You can also see your database files via local filesystem at `./docker/data/mysql`
+You can also see your database files via local file system at `./docker/data/mysql`
 
 ## SFTP access
 
@@ -238,7 +238,7 @@ If you use one-off domains, you'll have to re-install WordPress and re-connect J
 
 If you're developing Jetpack often you'll want to reserve a domain you can keep using.
 
-If you are an Automattician, sign up on Ngrok.com using your a8c Google account; you'll be automattically added to the Automattic team. That will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
+If you are an Automattician, sign up on Ngrok.com using your A8C Google account; you'll be automatically added to the Automattic team. That will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
 
 [Go to this page to reserve a permanent domain](https://dashboard.ngrok.com/reserved).
 
@@ -355,7 +355,7 @@ You can pass multiple configuration files by adding more `-f/--file` arguments. 
 
 ### Accessing logs
 
-Logs are stored in your filesystem under `./docker/logs` directory.
+Logs are stored in your file system under `./docker/logs` directory.
 
 #### PHP error log
 
@@ -388,7 +388,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 * Add Breakpoints
 * Step through debugging (Over, In, Out)
 * Stack and Context views
-* Add Watchpoints to inspect current values of variables
+* Add watch points to inspect current values of variables
 
 ##### Configuring Atom editor
 
@@ -399,7 +399,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 	1. To listen on all addresses (**Server Address**: `0.0.0.0`)
 	    ![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
 
-	2. To map your current Jetpack directory to the docker filesystem path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
+	2. To map your current Jetpack directory to the docker file system path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
 
 		![Screenshot showing "Path Maps" input](https://user-images.githubusercontent.com/746152/37150779-c891a7f4-22b1-11e8-9293-f34679df82f5.png)
 
@@ -421,7 +421,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 	![Screenshot showing debugger console](https://user-images.githubusercontent.com/746152/37092608-3f649e26-21eb-11e8-87b8-02a8ae7e9a98.png)
 
-	* This window will read `Listening on address port 0.0.0.0:9000` until you go to the WordPress site and refresh to make a new request. Then this window will read: `Connected` for a short time until the request ends. Note that it will also remain as such if you had added a breakpoint and the code flow has stopped:
+	* This window will read `Listening on address port 0.0.0.0:9000` until you go to the WordPress site and refresh to make a new request. Then this window will read: `Connected` for a short time until the request ends. Note that it will also remain as such if you had added a break point and the code flow has stopped:
 
 	![Screenshot showing "connected"](https://user-images.githubusercontent.com/746152/37092711-9d8d1fb4-21eb-11e8-93f6-dd1edf89e6fa.png)
 
@@ -449,7 +449,7 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 
 1. In the server configuration window, set your host to the URL you use to run Jetpack locally. ( Eg, localhost, or 0.0.0.0, or example.ngrok.io )
 
-1. In the server configuration window, check the 'Use path mappings' checkbox.
+1. In the server configuration window, check the 'Use path mappings' check box.
 
 1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/docker/wordpress' to '/var/www'
 
@@ -514,7 +514,7 @@ Now, in your browser's Xdebug Helper preferences, look for the IDE Key setting:
 
 ##### Run the debugger
 
-- Set a breakpoint in a php file, for example in the `init()` function of `class.jetpack.php`.
+- Set a break point in a PHP file, for example in the `init()` function of `class.jetpack.php`.
 - Select 'Debug' on the browser extension.
 - Click 'play' in VSCode's debug panel
 - Refresh the page at localhost

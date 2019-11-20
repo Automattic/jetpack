@@ -1,48 +1,33 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
-import { filter, pick } from 'lodash';
+import { filter, get, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
-import { withDispatch } from '@wordpress/data';
-import {
-	BlockControls,
-	BlockIcon,
-	InspectorControls,
-	MediaPlaceholder,
-	MediaUpload,
-	mediaUpload,
-} from '@wordpress/editor';
-import {
-	DropZone,
-	FormFileUpload,
-	IconButton,
-	PanelBody,
-	RangeControl,
-	SelectControl,
-	ToggleControl,
-	Toolbar,
-	withNotices,
-} from '@wordpress/components';
+import { withDispatch, withSelect } from '@wordpress/data';
+import { BlockIcon, MediaPlaceholder, mediaUpload } from '@wordpress/editor';
+import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { icon } from '.';
+import Controls from './controls';
 import Slideshow from './slideshow';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image' ];
 
-const effectOptions = [
-	{ label: _x( 'Slide', 'Slideshow transition effect', 'jetpack' ), value: 'slide' },
-	{ label: _x( 'Fade', 'Slideshow transition effect', 'jetpack' ), value: 'fade' },
-];
-
-export const pickRelevantMediaFiles = image =>
-	pick( image, [ 'alt', 'id', 'link', 'url', 'caption' ] );
+export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
+	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );
+	imageProps.url =
+		get( image, [ 'sizes', sizeSlug, 'url' ] ) ||
+		get( image, [ 'media_details', 'sizes', sizeSlug, 'source_url' ] ) ||
+		image.url;
+	return imageProps;
+};
 
 class SlideshowEdit extends Component {
 	constructor() {
@@ -50,6 +35,16 @@ class SlideshowEdit extends Component {
 		this.state = {
 			selectedImage: null,
 		};
+	}
+	componentDidMount() {
+		const { ids, sizeSlug } = this.props.attributes;
+		if ( ! sizeSlug ) {
+			// To improve the performance, we use large size images by default except for blocks inserted before the
+			// image size attribute was added, since they were loading full size images. The presence or lack of images
+			// in a block determines when it has been inserted (before or after we added the image size attribute),
+			// given that now it is not possible to have a block with images and no size.
+			this.setAttributes( { sizeSlug: ids.length ? 'full' : 'large' } );
+		}
 	}
 	setAttributes( attributes ) {
 		if ( attributes.ids ) {
@@ -68,7 +63,8 @@ class SlideshowEdit extends Component {
 		this.props.setAttributes( attributes );
 	}
 	onSelectImages = images => {
-		const mapped = images.map( image => pickRelevantMediaFiles( image ) );
+		const { sizeSlug } = this.props.attributes;
+		const mapped = images.map( image => pickRelevantMediaFiles( image, sizeSlug ) );
 		this.setAttributes( {
 			images: mapped,
 		} );
@@ -82,6 +78,7 @@ class SlideshowEdit extends Component {
 	};
 	addFiles = files => {
 		const currentImages = this.props.attributes.images || [];
+		const sizeSlug = this.props.attributes.sizeSlug;
 		const { lockPostSaving, unlockPostSaving, noticeOperations } = this.props;
 		const lockName = 'slideshowBlockLock';
 		lockPostSaving( lockName );
@@ -89,7 +86,7 @@ class SlideshowEdit extends Component {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
 			onFileChange: images => {
-				const imagesNormalized = images.map( image => pickRelevantMediaFiles( image ) );
+				const imagesNormalized = images.map( image => pickRelevantMediaFiles( image, sizeSlug ) );
 				this.setAttributes( {
 					images: [ ...currentImages, ...imagesNormalized ],
 				} );
@@ -101,84 +98,41 @@ class SlideshowEdit extends Component {
 		} );
 	};
 	uploadFromFiles = event => this.addFiles( event.target.files );
+	getImageSizeOptions() {
+		const { imageSizes } = this.props;
+		return map( imageSizes, ( { name, slug } ) => ( { value: slug, label: name } ) );
+	}
+	updateImagesSize = sizeSlug => {
+		const { images } = this.props.attributes;
+		const { resizedImages } = this.props;
+
+		const updatedImages = images.map( image => {
+			const resizedImage = resizedImages.find(
+				( { id } ) => parseInt( id, 10 ) === parseInt( image.id, 10 )
+			);
+			const url = get( resizedImage, [ 'sizes', sizeSlug, 'source_url' ] );
+			return {
+				...image,
+				...( url && { url } ),
+			};
+		} );
+
+		this.setAttributes( { images: updatedImages, sizeSlug } );
+	};
 	render() {
-		const {
-			attributes,
-			className,
-			isSelected,
-			noticeOperations,
-			noticeUI,
-			setAttributes,
-		} = this.props;
+		const { attributes, className, isSelected, noticeOperations, noticeUI } = this.props;
 		const { align, autoplay, delay, effect, images } = attributes;
-		const prefersReducedMotion =
-			typeof window !== 'undefined' &&
-			window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+		const imageSizeOptions = this.getImageSizeOptions();
 		const controls = (
-			<Fragment>
-				<InspectorControls>
-					<PanelBody title={ __( 'Autoplay', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Autoplay', 'jetpack' ) }
-							help={ __( 'Autoplay between slides', 'jetpack' ) }
-							checked={ autoplay }
-							onChange={ value => {
-								setAttributes( { autoplay: value } );
-							} }
-						/>
-						{ autoplay && (
-							<RangeControl
-								label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
-								value={ delay }
-								onChange={ value => {
-									setAttributes( { delay: value } );
-								} }
-								min={ 1 }
-								max={ 5 }
-							/>
-						) }
-						{ autoplay && prefersReducedMotion && (
-							<span>
-								{ __(
-									'The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser.',
-									'jetpack'
-								) }
-							</span>
-						) }
-					</PanelBody>
-					<PanelBody title={ __( 'Effects', 'jetpack' ) }>
-						<SelectControl
-							label={ __( 'Transition effect', 'jetpack' ) }
-							value={ effect }
-							onChange={ value => {
-								setAttributes( { effect: value } );
-							} }
-							options={ effectOptions }
-						/>
-					</PanelBody>
-				</InspectorControls>
-				<BlockControls>
-					{ !! images.length && (
-						<Toolbar>
-							<MediaUpload
-								onSelect={ this.onSelectImages }
-								allowedTypes={ ALLOWED_MEDIA_TYPES }
-								multiple
-								gallery
-								value={ images.map( img => img.id ) }
-								render={ ( { open } ) => (
-									<IconButton
-										className="components-toolbar__control"
-										label={ __( 'Edit Slideshow', 'jetpack' ) }
-										icon="edit"
-										onClick={ open }
-									/>
-								) }
-							/>
-						</Toolbar>
-					) }
-				</BlockControls>
-			</Fragment>
+			<Controls
+				allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
+				attributes={ attributes }
+				imageSizeOptions={ imageSizeOptions }
+				onChangeImageSize={ this.updateImagesSize }
+				onSelectImages={ this.onSelectImages }
+				setAttributes={ attrs => this.setAttributes( attrs ) }
+			/>
 		);
 
 		if ( images.length === 0 ) {
@@ -238,6 +192,18 @@ class SlideshowEdit extends Component {
 	}
 }
 export default compose(
+	withSelect( ( select, props ) => {
+		const imageSizes = select( 'core/editor' ).getEditorSettings().imageSizes;
+		const resizedImages = props.attributes.ids.reduce( ( currentResizedImages, id ) => {
+			const image = select( 'core' ).getMedia( id );
+			const sizes = get( image, [ 'media_details', 'sizes' ] );
+			return [ ...currentResizedImages, { id, sizes } ];
+		}, [] );
+		return {
+			imageSizes,
+			resizedImages,
+		};
+	} ),
 	withDispatch( dispatch => {
 		const { lockPostSaving, unlockPostSaving } = dispatch( 'core/editor' );
 		return {

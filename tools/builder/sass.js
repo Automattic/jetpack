@@ -21,7 +21,7 @@ gulp.task( 'sass:dashboard', function( done ) {
 
 	return gulp
 		.src( './_inc/client/scss/style.scss' )
-		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
+		.pipe( sass( { outputStyle: 'compressed' } ) )
 		.pipe(
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
@@ -39,7 +39,7 @@ gulp.task( 'sass:calypsoify', function( done ) {
 
 	return gulp
 		.src( './modules/calypsoify/*.scss' )
-		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
+		.pipe( sass( { outputStyle: 'compressed' } ) )
 		.pipe(
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
@@ -57,7 +57,7 @@ gulp.task( 'sass:instant-search', function( done ) {
 
 	return gulp
 		.src( './modules/search/instant-search/*.scss' )
-		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
+		.pipe( sass( { outputStyle: 'compressed' } ) )
 		.pipe(
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
@@ -112,7 +112,7 @@ gulp.task( 'sass:old:rtl', function() {
 	return (
 		gulp
 			.src( 'scss/*.scss' )
-			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+			.pipe( sass( { outputStyle: 'expanded' } ) )
 			.pipe(
 				prepend.prependText(
 					'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
@@ -143,7 +143,7 @@ gulp.task(
 		return (
 			gulp
 				.src( 'scss/**/*.scss' )
-				.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+				.pipe( sass( { outputStyle: 'expanded' } ) )
 				.pipe(
 					prepend.prependText(
 						'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'
@@ -171,7 +171,7 @@ gulp.task( 'sass:packages', function() {
 	return (
 		gulp
 			.src( 'packages/**/assets/*.scss', { base: '.' } )
-			.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
+			.pipe( sass( { outputStyle: 'expanded' } ) )
 			.pipe(
 				prepend.prependText(
 					'/*!\n' + '* Do not modify this file directly.  It is compiled SASS code.\n' + '*/\n'

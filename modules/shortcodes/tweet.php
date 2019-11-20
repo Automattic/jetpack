@@ -204,11 +204,22 @@ class Jetpack_Tweet {
 			remove_filter( 'oembed_fetch_url', array( 'Jetpack_Tweet', 'jetpack_tweet_url_extra_args' ), 10 );
 		}
 
-		// Add Twitter widgets.js script to the footer.
-		add_action( 'wp_footer', array( 'Jetpack_Tweet', 'jetpack_tweet_shortcode_script' ) );
-
 		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'embeds', 'tweet' );
+
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			$width  = ! empty( $attr['width'] ) ? $attr['width'] : 600;
+			$height = 480;
+			$output = sprintf(
+				'<amp-twitter data-tweetid="%1$s" layout="responsive" width="%2$d" height="%3$d"></amp-twitter>',
+				esc_attr( $tweet_id ),
+				absint( $width ),
+				absint( $height )
+			);
+		} else {
+			// Add Twitter widgets.js script to the footer.
+			add_action( 'wp_footer', array( 'Jetpack_Tweet', 'jetpack_tweet_shortcode_script' ) );
+		}
 
 		return $output;
 	}

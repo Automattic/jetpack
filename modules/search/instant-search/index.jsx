@@ -8,40 +8,31 @@ import { h, render } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchWidget from './components/search-widget';
-import { getSearchQuery } from './lib/query-string';
+import SearchApp from './components/search-app';
+import { getSearchQuery, determineDefaultSort } from './lib/query-string';
+import { getThemeOptions } from './lib/dom';
+import { SERVER_OBJECT_NAME } from './lib/constants';
+import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
 
-function removeChildren( htmlElement ) {
-	while ( htmlElement.lastChild ) {
-		htmlElement.removeChild( htmlElement.lastChild );
-	}
-}
-
-const hideSearchHeader = () => {
-	const titleElements = document.getElementById( 'content' ).getElementsByClassName( 'page-title' );
-	if ( titleElements.length > 0 ) {
-		titleElements[ 0 ].style.display = 'none';
-	}
-};
-
-const injectSearchWidget = ( initialValue, target, siteId, grabFocus ) => {
+const injectSearchApp = grabFocus => {
 	render(
-		<SearchWidget initialValue={ initialValue } grabFocus={ grabFocus } siteId={ siteId } />,
-		target
+		<SearchApp
+			grabFocus={ grabFocus }
+			initialHref={ window.location.href }
+			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }
+			isSearchPage={ getSearchQuery() !== '' }
+			options={ window[ SERVER_OBJECT_NAME ] }
+			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
+		/>,
+		document.body
 	);
 };
 
 document.addEventListener( 'DOMContentLoaded', function() {
-	//This var is provided by wp_localize_script() so we have limited control
-	const options = jetpack_instant_search_options; // eslint-disable-line no-undef
-
-	if ( 'siteId' in options && document.body && document.body.classList.contains( 'search' ) ) {
-		const widget = document.querySelector( '.widget_search' );
-		if ( !! widget ) {
-			removeChildren( widget );
-			removeChildren( document.querySelector( 'main' ) );
-			hideSearchHeader();
-			injectSearchWidget( getSearchQuery(), widget, options.siteId );
-		}
+	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
+		initializeTracks();
+		resetTrackingCookies();
+		identifySite( window[ SERVER_OBJECT_NAME ].siteId );
+		injectSearchApp();
 	}
 } );

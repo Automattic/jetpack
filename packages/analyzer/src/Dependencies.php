@@ -1,4 +1,9 @@
 <?php
+/**
+ * This collects dependencies of invocations in Codebase A to declarations in codebase B.
+ *
+ * @package automattic/jetpack-analyzer
+ */
 
 namespace Automattic\Jetpack\Analyzer;
 
@@ -6,13 +11,21 @@ namespace Automattic\Jetpack\Analyzer;
  * This collects dependencies of invocations in Codebase A to declarations in codebase B
  */
 class Dependencies extends PersistentList {
-	function generate( $invocations, $declarations, $invocation_root = null ) {
+	/**
+	 * Generates items for PersistentList
+	 *
+	 * @param object $invocations The invocation.
+	 * @param object $declarations Declaration.
+	 * @param null   $invocation_root Invocation root name.
+	 * @throws \Exception If unable to add declaration.
+	 */
+	public function generate( $invocations, $declarations, $invocation_root = null ) {
 		if ( $invocation_root ) {
 			$invocation_root = $this->slashit( $invocation_root );
 		}
 
 		/**
-		 * Scan every invocation to see if it depends on a declaration
+		 * Scan every invocation to see if it depends on a declaration.
 		 */
 		foreach ( $invocations->get() as $invocation ) {
 			foreach ( $declarations->get() as $declaration ) {
@@ -23,17 +36,28 @@ class Dependencies extends PersistentList {
 		}
 	}
 
+	/**
+	 * Adds a slash to the end of the $path
+	 *
+	 * @param string $path Path to slash.
+	 * @return string Slashed path.
+	 */
 	private function slashit( $path ) {
-		$path .= ( substr( $path, -1 ) == '/' ? '' : '/' );
+		$path .= ( substr( $path, -1 ) === '/' ? '' : '/' );
 		return $path;
 	}
 
+	/**
+	 * Returns summary of declarations.
+	 *
+	 * @return string
+	 */
 	public function declaration_summary() {
 		if ( $this->count() === 0 ) {
 			return '';
 		}
 
-		// assoc array of declarations and counts
+		// assoc array of declarations and counts.
 		$summary = array();
 		foreach ( $this->get() as $dependency ) {
 			$unique_issue_key = $dependency->declaration->display_name();
@@ -55,12 +79,17 @@ class Dependencies extends PersistentList {
 		return $summary_string;
 	}
 
+	/**
+	 * Returns summary of external files involved.
+	 *
+	 * @return string
+	 */
 	public function external_file_summary() {
 		if ( $this->count() === 0 ) {
 			return '';
 		}
 
-		// assoc array of files and counts
+		// assoc array of files and counts.
 		$summary = array();
 		foreach ( $this->get() as $dependency ) {
 			$unique_issue_key = $dependency->full_path();

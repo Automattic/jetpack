@@ -94,6 +94,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return true;
 	}
 
+	function get_unmapped_url() {
+		// Fallback to the home URL since all Jetpack sites don't have an unmapped *.wordpress.com domain.
+		return $this->get_url();
+	}
+
 	function is_redirect() {
 		return false;
 	}
@@ -202,6 +207,15 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 			return false;
 		}
 		return function_exists( '\A8C\FSE\is_full_site_editing_active' ) && \A8C\FSE\is_full_site_editing_active();
+	}
+
+	/**
+	 * Return the last engine used for an import on the site.
+	 *
+	 * This option is not used in Jetpack.
+	 */
+	function get_import_engine() {
+		return null;
 	}
 
 	/**

@@ -68,10 +68,15 @@
 				class: classNames,
 				href: post.url,
 				title: anchor_title,
-				rel: post.rel,
 				'data-origin': post.url_meta.origin,
 				'data-position': post.url_meta.position,
 			} );
+
+			if ( '' !== post.rel ) {
+				anchor.attr( {
+					rel: post.rel,
+				} );
+			}
 
 			var anchor_html = $( '<div>' )
 				.append( anchor )

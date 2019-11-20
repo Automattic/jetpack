@@ -42,11 +42,32 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
+  - if: branch !~ /(^branch-.*-built)/
+    name: "Spell check Markdown files"
+    language: node_js
+    env: WP_TRAVISCI="yarn test-spelling"
   - php: "nightly"
     name: "PHP Nightly"
   - php: "7.4snapshot"
     env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
     # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
+
+  # Code Climate code coverage.
+  - php: "7.3"
+    name: "Code Coverage"
+    env:
+      - WP_BRANCH=latest
+      - DO_COVERAGE=true
+    before_script:
+      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - chmod +x ./cc-test-reporter
+      - ./cc-test-reporter before-build
+      - export PATH="$HOME/.composer/vendor/bin:$PATH"
+      - export PLUGIN_SLUG=$(basename $(pwd))
+      - ./tests/setup-travis.sh
+    after_script:
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover
+
   - php: "7.0"
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
@@ -58,8 +79,7 @@ matrix:
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
     script:
-    - find $(pwd)/tests/e2e/specs/*.js > ~/.jest-e2e-tests
-    - yarn test-e2e --runInBand --verbose --runTestsByPath $(cat ~/.jest-e2e-tests )
+    - yarn test-e2e --runInBand --verbose
     addons:
       apt:
         packages:
@@ -71,6 +91,8 @@ matrix:
   allow_failures:
     - name: "E2E tests"
     - name: "PHP Nightly"
+    - name: "Spell check Markdown files"
+    - name: "Code Coverage"
 
 cache:
   directories:
@@ -94,7 +116,6 @@ git:
 before_script:
   - export PLUGIN_SLUG=$(basename $(pwd))
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - composer install
   - ./tests/setup-travis.sh
 
 script: ./tests/run-travis.sh

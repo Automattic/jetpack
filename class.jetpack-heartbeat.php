@@ -102,6 +102,13 @@ class Jetpack_Heartbeat {
 		do_action( 'jetpack_heartbeat' );
 	}
 
+	/**
+	 * Generates heartbeat stats data.
+	 *
+	 * @param string $prefix Prefix to add before stats identifier.
+	 *
+	 * @return array The stats array.
+	 */
 	public static function generate_stats_array( $prefix = '' ) {
 		$return = array();
 
@@ -119,6 +126,9 @@ class Jetpack_Heartbeat {
 		$return[ "{$prefix}is-multisite" ]   = is_multisite() ? 'multisite' : 'singlesite';
 		$return[ "{$prefix}identitycrisis" ] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
 		$return[ "{$prefix}plugins" ]        = implode( ',', Jetpack::get_active_plugins() );
+		if ( function_exists( 'get_mu_plugins' ) ) {
+			$return[ "{$prefix}mu-plugins" ] = implode( ',', array_keys( get_mu_plugins() ) );
+		}
 		$return[ "{$prefix}manage-enabled" ] = true;
 
 		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
@@ -131,7 +141,7 @@ class Jetpack_Heartbeat {
 		$connection_manager                 = new Manager();
 		$return[ "{$prefix}missing-owner" ] = $connection_manager->is_missing_connection_owner();
 
-		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
+		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`.
 		$return[ "{$prefix}is-multi-network" ] = 'single-site';
 		if ( is_multisite() ) {
 			$return[ "{$prefix}is-multi-network" ] = Jetpack::is_multi_network() ? 'multi-network' : 'single-network';
@@ -140,7 +150,7 @@ class Jetpack_Heartbeat {
 		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
 			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
 			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
-			if ( 4 == count( $ip_arr ) ) {
+			if ( 4 === count( $ip_arr ) ) {
 				$return[ "{$prefix}ip-2-octets" ] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
 			}
 		}

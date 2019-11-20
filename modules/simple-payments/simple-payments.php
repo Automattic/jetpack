@@ -156,7 +156,10 @@ class Jetpack_Simple_Payments {
 		}
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
-			return $this->output_admin_warning( $data );
+			if ( ! is_feed() ) {
+				$this->output_admin_warning( $data );
+			}
+			return;
 		}
 
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
@@ -374,11 +377,16 @@ class Jetpack_Simple_Payments {
 	/**
 	 * Sanitize three-character ISO-4217 Simple payments currency
 	 *
-	 * List has to be in sync with list at the client side:
-	 * @link https://github.com/Automattic/wp-calypso/blob/6d02ffe73cc073dea7270a22dc30881bff17d8fb/client/lib/simple-payments/constants.js
+	 * List has to be in sync with list at the block's client side and widget's backend side:
+	 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/extensions/blocks/simple-payments/constants.js#L9-L39
+	 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/widgets/simple-payments.php#L19-L44
 	 *
 	 * Currencies should be supported by PayPal:
-	 * @link https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
+	 * @link https://developer.paypal.com/docs/api/reference/currency-codes/
+	 *
+	 * Indian Rupee (INR) not supported because at the time of the creation of this file
+	 * because it's limited to in-country PayPal India accounts only.
+	 * Discussion: https://github.com/Automattic/wp-calypso/pull/28236
 	 */
 	public static function sanitize_currency( $currency ) {
 		$valid_currencies = array(

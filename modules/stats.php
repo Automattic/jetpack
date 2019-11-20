@@ -237,7 +237,7 @@ function stats_footer() {
 	} else {
 		stats_render_footer( $data );
 	}
-	
+
 }
 
 function stats_render_footer( $data ) {
@@ -903,7 +903,7 @@ function stats_update_blog() {
  * @return string
  */
 function stats_get_blog() {
-	$home = parse_url( trailingslashit( get_option( 'home' ) ) );
+	$home = wp_parse_url( trailingslashit( get_option( 'home' ) ) );
 	$blog = array(
 		'host'                => $home['host'],
 		'path'                => $home['path'],

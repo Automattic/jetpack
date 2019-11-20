@@ -105,8 +105,10 @@
 	&.toplevel_page_jetpack .jp-connect-full__container {
 		position: relative;
 		bottom: 0;
-		box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
-			0 1px 2px lighten( $gray, 30% );
+		box-shadow:
+			0 0 0 1px #ccd0d4,
+			0 1px 1px 1px  rgba(0,0,0,.04);
+
 
 		.jp-connect-full__container-card {
 			margin: 0;
@@ -282,7 +284,8 @@
 .updated.jp-wpcom-connect__container {
 	border-left: none;
 	padding: 0;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px  rgba(0,0,0,.04);
 
 	@media screen and (max-width: 782px) {
 		padding: 0 !important; // override core cascades
@@ -307,6 +310,7 @@
 .jp-wpcom-connect__container-top-text {
 	padding: 15px 35px 25px 15px;
 	background-color: $green-primary;
+
 	color: $white;
 	display: flex;
 	align-items: baseline;
@@ -449,6 +453,11 @@
 		&:hover, &:focus {
 			background: $green-secondary;
 			border-color: $green-dark;
+		}
+		&:focus {
+			box-shadow:
+				0 0 0 1px $white,
+				0 0 0 3px $green-dark;
 		}
 	}
 }

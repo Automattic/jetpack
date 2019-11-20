@@ -197,6 +197,7 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	private function insert_adcode() {
+		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -265,6 +266,35 @@ class WordAds {
 	}
 
 	/**
+	 * Add the IPW resource hints
+	 *
+	 * @since 7.9
+	 */
+	public function resource_hints( $hints, $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type ) {
+			$hints[] = '//s.pubmine.com';
+			$hints[] = '//x.bidswitch.net';
+			$hints[] = '//static.criteo.net';
+			$hints[] = '//ib.adnxs.com';
+			$hints[] = '//aax.amazon-adsystem.com';
+			$hints[] = '//bidder.criteo.com';
+			$hints[] = '//cas.criteo.com';
+			$hints[] = '//gum.criteo.com';
+			$hints[] = '//ads.pubmatic.com';
+			$hints[] = '//gads.pubmatic.com';
+			$hints[] = '//tpc.googlesyndication.com';
+			$hints[] = '//ad.doubleclick.net';
+			$hints[] = '//googleads.g.doubleclick.net';
+			$hints[] = '//www.googletagservices.com';
+			$hints[] = '//cdn.switchadhub.com';
+			$hints[] = '//delivery.g.switchadhub.com';
+			$hints[] = '//delivery.swid.switchadhub.com';
+		}
+
+		return $hints;
+	}
+
+	/**
 	 * IPONWEB metadata used by the various scripts
 	 *
 	 * @return [type] [description]
@@ -300,21 +330,13 @@ HTML;
 		}
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		echo <<<HTML
-		<link rel='dns-prefetch' href='//s.pubmine.com' />
-		<link rel='dns-prefetch' href='//x.bidswitch.net' />
-		<link rel='dns-prefetch' href='//static.criteo.net' />
-		<link rel='dns-prefetch' href='//ib.adnxs.com' />
-		<link rel='dns-prefetch' href='//aax.amazon-adsystem.com' />
-		<link rel='dns-prefetch' href='//bidder.criteo.com' />
-		<link rel='dns-prefetch' href='//cas.criteo.com' />
-		<link rel='dns-prefetch' href='//gum.criteo.com' />
-		<link rel='dns-prefetch' href='//ads.pubmatic.com' />
-		<link rel='dns-prefetch' href='//gads.pubmatic.com' />
-		<link rel='dns-prefetch' href='//tpc.googlesyndication.com' />
-		<link rel='dns-prefetch' href='//ad.doubleclick.net' />
-		<link rel='dns-prefetch' href='//googleads.g.doubleclick.net' />
-		<link rel='dns-prefetch' href='//www.googletagservices.com' />
-		<script$data_tags async type="text/javascript" src="//s.pubmine.com/head.js"></script>
+		<script$data_tags type="text/javascript">
+			(function(){function g(a,c){a:{for(var b=a.length,d="string"==typeof a?a.split(""):a,e=0;e<b;e++)if(e in d&&c.call(void 0,d[e],e,a)){c=e;break a}c=-1}return 0>c?null:"string"==typeof a?a.charAt(c):a[c]};function h(a,c,b){b=null!=b?"="+encodeURIComponent(String(b)):"";if(c+=b){b=a.indexOf("#");0>b&&(b=a.length);var d=a.indexOf("?");if(0>d||d>b){d=b;var e=""}else e=a.substring(d+1,b);a=[a.substr(0,d),e,a.substr(b)];b=a[1];a[1]=c?b?b+"&"+c:c:b;a=a[0]+(a[1]?"?"+a[1]:"")+a[2]}return a};var k=0;function l(a,c){var b=document.createElement("script");b.src=a;b.onload=function(){c&&c(void 0)};b.onerror=function(){c("error")};a=document.getElementsByTagName("head");var d;a&&0!==a.length?d=a[0]:d=document.documentElement;d.appendChild(b)}function m(a){return"string"==typeof a&&0<a.length}
+			function p(a,c,b){c=void 0===c?"":c;b=void 0===b?".":b;var d=[];Object.keys(a).forEach(function(e){var f=a[e],n=typeof f;"object"==n&&null!=f||"function"==n?d.push(p(f,c+e+b)):null!==f&&void 0!==f&&(e=encodeURIComponent(c+e),d.push(e+"="+encodeURIComponent(f)))});return d.filter(m).join("&")}function q(){return window.__ATA||{}}function r(a,c){a||(q().config=c.c,l(c.url))}var t=Math.floor(1E13*Math.random());q().rid=t;
+			var u=q().pageParams,v="//"+(q().serverDomain||"s.pubmine.com")+"/conf",w=window.top===window,x;try{var y=JSON.parse(document.getElementById("oil-configuration").innerText);if("boolean"!==typeof y.gdpr_applies)throw Error("Config doesn't contain gdpr_applies");x=y.gdpr_applies?1:0}catch(a){x=null}
+			var z=x,A=window.__ATA_PP||u||null,B=w?document.referrer?document.referrer:null:null,C=w?null:document.referrer?document.referrer:null,D=function(){var a=void 0===a?document.cookie:a;return(a=g(a.split("; "),function(c){return-1!=c.indexOf("__ATA_tuuid=")}))?a.split("=")[1]:""}(),E=p({gdpr:z,pp:A,rid:t,src:B,ref:C,tuuid:D?D:null,vp:window.innerWidth+"x"+window.innerHeight},"",".");
+			(function(a){var c;k++;var b="callback__"+Date.now().toString(36)+"_"+k.toString(36);a=h(a,void 0===c?"cb":c,b);window[b]=function(d){r(void 0,d)};l(a,function(d){d&&r(d)})})(v+"?"+E);}).call(this);
+		</script>
 HTML;
 	}
 

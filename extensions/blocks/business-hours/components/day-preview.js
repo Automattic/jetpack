@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { _x, sprintf } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { date } from '@wordpress/date';
 import { isEmpty } from 'lodash';
 
@@ -20,6 +20,8 @@ class DayPreview extends Component {
 	}
 
 	renderInterval = ( interval, key ) => {
+		const { day } = this.props;
+		const hours = day.hours;
 		return (
 			<span key={ key }>
 				{ sprintf(
@@ -27,6 +29,7 @@ class DayPreview extends Component {
 					this.formatTime( interval.opening ),
 					this.formatTime( interval.closing )
 				) }
+				{ hours.length > 1 + key && <span>, </span> }
 			</span>
 		);
 	};
@@ -38,14 +41,15 @@ class DayPreview extends Component {
 			interval => this.formatTime( interval.opening ) && this.formatTime( interval.closing )
 		);
 		return (
-			<Fragment>
+			<div className="jetpack-business-hours__item">
 				<dt className={ day.name }>{ localization.days[ day.name ] }</dt>
 				<dd>
 					{ isEmpty( hours )
 						? _x( 'Closed', 'business is closed on a full day', 'jetpack' )
 						: hours.map( this.renderInterval ) }
+					<br />
 				</dd>
-			</Fragment>
+			</div>
 		);
 	}
 }

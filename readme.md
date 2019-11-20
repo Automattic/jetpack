@@ -14,7 +14,7 @@ To install the Jetpack plugin on your site, [follow the instructions on this pag
 
 ### Installation From Git Repo
 
-To use this plugin on your own site, you will need to build every JS and CSS first. To do so, [follow the instructions here](./docs/development-environment.md).
+To use this plugin on your site, you will need to build every JS and CSS first. To do so, [follow the instructions here](./docs/development-environment.md).
 
 ### Installation from the Jetpack Beta plugin
 
@@ -28,7 +28,7 @@ If you cannot build the Jetpack plugin yourself, you can rely on [the Jetpack Be
 
 ## Contribute
 
-Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question, or to change something in your pull request. There are variety of options how you can help:
+Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question or to change something in your pull request. There are a variety of options for how you can help:
 
 - [Write and submit patches](./docs/CONTRIBUTING.md#write-and-submit-a-patch).
 - If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
@@ -51,11 +51,11 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Team
 
-Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @brbrr, @briancolinger, @dereksmart, @eliorivero, @jeherve, @kraftbj, @mdawaffe, @oskosk, and @zinigor.
+Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @brbrr, @dereksmart, @chaosexanima, @jeherve, @kbrown9, @kraftbj, @mdawaffe, and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jeherve, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @kraftbj, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
+@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @briancolinger, @cfinke, @daniloercoli, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jeherve, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @kraftbj, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
 
 Our _awesome_ happiness engineers are @a8ck3n, @aheckler, @almoyen, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @chickenn00dle, @coder-karen, @codestor4, @csonnek, @danjjohnson, @dericleeyy, @gaurav1984, @gsmumbo, @htdat, @jenhooks, @jeremypaavola, @joeboydston, @joendotcom, @lizthefair, @macmanx2, @madhattermattic, @mbhthompson, @mzakariya, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @snowmads, @stefmattana, and @tmmbecker.
 

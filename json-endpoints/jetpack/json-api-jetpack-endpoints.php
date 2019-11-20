@@ -556,6 +556,8 @@ $sync_settings_response = array(
 	'sync_via_cron'            => '(int|bool=false) Set to 1 or true to avoid using cron for sync.',
 	'cron_sync_time_limit'	   => '(int|bool=false) Limit cron jobs to number of seconds',
 	'enqueue_wait_time'        => '(int|bool=false) Wait time in seconds between attempting to continue a full sync, via requests',
+	'sync_sender_enabled'      => '(int|bool=false) Set to 1 or true to enable the default sender for the incremental queue.',
+	'full_sync_sender_enabled' => '(int|bool=false) Set to 1 or true to enable the default sender for the "full sync" queue.',
 );
 
 // GET /sites/%s/sync/settings
@@ -682,6 +684,7 @@ new Jetpack_JSON_API_Sync_Checkout_Endpoint( array(
 		'number_of_items'   => '(int=10) Maximum number of items from the queue to be returned',
 		'encode'            => '(bool=true) Use the default encode method',
 		'force'             => '(bool=false) Force unlock the queue',
+		'pop'               => '(bool=false) Pop from the queue without checkout, use carefully 😱',
 	),
 	'response_format' => array(
 		'buffer_id' => '(string) Buffer ID that we are using',
@@ -1261,4 +1264,58 @@ new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
 	),
 	'example_response' => '{ "success": true }',
 	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jps/woo-connect'
+) );
+
+// POST /sites/%s/install-backup-helper-script
+require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php' );
+new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
+	'description'             => 'Setup a Helper Script, to allow Jetpack Backup to connect to this site',
+	'group'                   => '__do_not_document',
+	'method'                  => 'POST',
+	'stat'                    => 'install-backup-helper-script',
+	'path'                    => '/sites/%s/install-backup-helper-script',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'             => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'request_format'          => array(
+		'helper' => '(string) Base64-encoded Helper Script contents',
+	),
+	'response_format'         => array(
+		'abspath' => '(string) WordPress install path',
+		'path'    => '(string) Path of the helper script',
+		'url'     => '(string) URL to access the helper script',
+	),
+	'example_request_data'    => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/install-backup-helper-script'
+) );
+
+// POST /sites/%s/delete-backup-helper-script
+require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-backup-helper-script-endpoint.php' );
+new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint( array(
+	'description'             => 'Delete a Helper Script',
+	'group'                   => '__do_not_document',
+	'method'                  => 'POST',
+	'stat'                    => 'delete-backup-helper-script',
+	'path'                    => '/sites/%s/delete-backup-helper-script',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'             => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'response_format'         => array(
+		'success' => '(bool) Deleted the Helper Script successfully?'
+	),
+	'request_format'          => array(
+		'path' => '(string) Path to Helper Script to delete',
+	),
+	'example_request_data'    => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/delete-backup-helper-script'
 ) );

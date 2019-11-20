@@ -4,6 +4,8 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Queue;
@@ -183,7 +185,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function disconnect( $args, $assoc_args ) {
 		if ( ! Jetpack::is_active() ) {
-			WP_CLI::error( __( 'You cannot disconnect, without having first connected.', 'jetpack' ) );
+			WP_CLI::success( __( 'The site is not currently connected, so nothing to do!', 'jetpack' ) );
+			return;
 		}
 
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
@@ -901,7 +904,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
 						return;
 					}
-					if ( Jetpack::is_development_mode() ) {
+					if ( ( new Status() )->is_development_mode() ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
 						return;
 					}
@@ -1264,7 +1267,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$is_master_user  = ! Jetpack::is_active();
 		$current_user_id = get_current_user_id();
 
-		Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
+		Connection_Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
 
 		WP_CLI::log( wp_json_encode( $named_args ) );
 
@@ -1607,7 +1610,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
 		}
 
-		if ( Jetpack::is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
 				! has_filter( 'jetpack_development_mode' ) &&
@@ -1882,6 +1885,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'slug'            => $slug,
 					'title'           => $title,
 					'underscoredSlug' => str_replace( '-', '_', $slug ),
+					'jetpackVersion'  => substr( JETPACK__VERSION, 0, strpos( JETPACK__VERSION, '.' ) ) . '.x',
 				)
 			),
 			"$path/index.js"    => $this->render_block_file(
@@ -1944,7 +1948,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 			} elseif ( false === stripos( $block_list, $slug ) ) {
 				$new_block_list         = json_decode( $block_list );
 				$new_block_list->beta[] = $slug;
-				if ( ! $wp_filesystem->put_contents( $block_list_path, wp_json_encode( $new_block_list ) ) ) {
+
+				// Format the JSON to match our coding standards.
+				$new_block_list_formatted = wp_json_encode( $new_block_list, JSON_PRETTY_PRINT ) . "\n";
+				$new_block_list_formatted = preg_replace_callback(
+					// Find all occurrences of multiples of 4 spaces a the start of the line.
+					'/^((?:    )+)/m',
+					function ( $matches ) {
+						// Replace each occurrence of 4 spaces with a tab character.
+						return str_repeat( "\t", substr_count( $matches[0], '    ' ) );
+					},
+					$new_block_list_formatted
+				);
+
+				if ( ! $wp_filesystem->put_contents( $block_list_path, $new_block_list_formatted ) ) {
 					/* translators: %s is the path to the file with the block list */
 					WP_CLI::error( sprintf( esc_html__( 'Error writing new %s', 'jetpack' ), $block_list_path ) );
 				}

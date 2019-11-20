@@ -66,7 +66,16 @@ export const settings = {
 				'jetpack'
 			),
 		},
+		preview: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 	edit,
 	save: () => null,
+	example: {
+		attributes: {
+			preview: true,
+		},
+	},
 };

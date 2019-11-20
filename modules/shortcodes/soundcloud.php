@@ -30,6 +30,7 @@
  * @return string                  Widget embed code HTML
  */
 function soundcloud_shortcode( $atts, $content = null ) {
+	global $wp_embed;
 
 	// Custom shortcode options.
 	$shortcode_options = array_merge(
@@ -109,7 +110,17 @@ function soundcloud_shortcode( $atts, $content = null ) {
 		$options['visual'] = false;
 	}
 
-	// Build our list of Souncloud parameters.
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+		&& ! empty( $options['url'] )
+		&& 'api.soundcloud.com' !== wp_parse_url( $options['url'], PHP_URL_HOST )
+	) {
+		// Defer to oEmbed if an oEmbeddable URL is provided.
+		return $wp_embed->shortcode( $options, $options['url'] );
+	}
+
+	// Build our list of Soundcloud parameters.
 	$query_args = array(
 		'url' => rawurlencode( $options['url'] ),
 	);

@@ -50,6 +50,16 @@ class PlanGrid extends React.Component {
 		};
 	}
 
+	handleSeeFeaturesClick( planType ) {
+		return () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'see-all-features-link',
+				feature: 'plans-grid',
+				extra: planType,
+			} );
+		};
+	}
+
 	render() {
 		if ( ! this.props.plans ) {
 			return (
@@ -330,7 +340,12 @@ class PlanGrid extends React.Component {
 					key={ 'bottom-' + planType }
 					className="plan-features__table-item is-bottom-buttons has-border-bottom"
 				>
-					<Button href={ this.props.plansLearnMoreUpgradeUrl }>{ plan.strings.see_all }</Button>
+					<Button
+						href={ this.props.plansLearnMoreUpgradeUrl }
+						onClick={ this.handleSeeFeaturesClick( planType ) }
+					>
+						{ plan.strings.see_all }
+					</Button>
 				</td>
 			);
 		} );

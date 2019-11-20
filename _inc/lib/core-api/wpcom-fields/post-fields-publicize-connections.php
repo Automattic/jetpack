@@ -23,8 +23,10 @@
  * @since 6.8.0
  */
 class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_V2_Field_Controller {
-	protected $object_type = 'post';
+	protected $object_type = array( 'post' );
 	protected $field_name  = 'jetpack_publicize_connections';
+
+	private $_meta_saved = array();
 
 	public $memoized_updates = array();
 
@@ -34,7 +36,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 */
 	public function register_fields() {
 		$this->object_type = get_post_types_by_support( 'publicize' );
-
 		foreach ( $this->object_type as $post_type ) {
 			// Adds meta support for those post types that don't already have it.
 			// Only runs during REST API requests, so it doesn't impact UI.
@@ -208,13 +209,17 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		}
 
 		$permission_check = $this->update_permission_check( $request['jetpack_publicize_connections'], $post, $request );
-
 		if ( is_wp_error( $permission_check ) ) {
 			return $permission_check;
 		}
-
 		// memoize
 		$this->get_meta_to_update( $request['jetpack_publicize_connections'], isset( $post->ID ) ? $post->ID : 0 );
+
+		if ( isset( $post->ID ) ) {
+			// Set the meta before we mark the post as published so that publicize works as expected.
+			// If this is not the case post end up on social media when they are marked as skipped.
+			$this->update( $request['jetpack_publicize_connections'], $post, $request );
+		}
 
 		return $post;
 	}
@@ -338,6 +343,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 * @param WP_REST_Request
 	 */
 	public function update( $requested_connections, $post, $request ) {
+		if ( isset( $this->_meta_saved[ $post->ID ] ) ) { // Make sure we only save it once - per request.
+			return;
+		}
 		foreach ( $this->get_meta_to_update( $requested_connections, $post->ID ) as $meta_key => $meta_value ) {
 			if ( is_null( $meta_value ) ) {
 				delete_post_meta( $post->ID, $meta_key );
@@ -345,6 +353,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				update_post_meta( $post->ID, $meta_key, $meta_value );
 			}
 		}
+		$this->_meta_saved[ $post->ID ] = true;
 	}
 }
 

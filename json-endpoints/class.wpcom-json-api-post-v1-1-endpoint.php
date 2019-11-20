@@ -291,7 +291,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		foreach ( $response['posts'] as $post ) {
 
 			if ( ! isset( $post['meta'] ) || ! isset( $post['meta']->data ) || (! is_array( $post['meta']->data ) && ! is_object( $post['meta']->data ) ) ) {
-				break;
+				continue;
 			}
 			
 			$newmeta = [];
