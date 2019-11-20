@@ -1133,7 +1133,7 @@ class Defaults {
 	 *
 	 * @var float Number of Seconds
 	 */
-	public static $default_full_sync_send_immediately_duration = 9;
+	public static $default_full_sync_send_duration = 9;
 
 	/**
 	 * Defaul for time between syncing callables.

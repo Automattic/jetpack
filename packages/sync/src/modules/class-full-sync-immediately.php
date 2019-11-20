@@ -321,7 +321,7 @@ class Full_Sync_Immediately extends Module {
 	public function send() {
 		$config = $this->get_status()['config'];
 
-		$max_duration = Settings::get_setting( 'full_sync_send_immediately_duration' );
+		$max_duration = Settings::get_setting( 'full_sync_send_duration' );
 		$send_until   = microtime( true ) + $max_duration;
 
 		$progress = $this->get_status()['progress'];
