@@ -250,10 +250,10 @@ class Callables extends Module {
 	 */
 	public function send_full_sync_actions( $config, $send_until, $status ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
-		$this->send_action( 'jetpack_full_sync_callables', [ true ] );
+		$this->send_action( 'jetpack_full_sync_callables', array( true ) );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 'finished' => true ];
+		return array( 'finished' => true );
 	}
 
 	/**
@@ -511,9 +511,11 @@ class Callables extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
+	 * @param array $config Full Sync config.
+	 *
 	 * @return int total
 	 */
-	public function total() {
+	public function total( $config ) {
 		return 1;
 	}
 

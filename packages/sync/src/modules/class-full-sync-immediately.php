@@ -219,7 +219,7 @@ class Full_Sync_Immediately extends Module {
 		foreach ( $full_sync_config as $name => $config ) {
 			$module          = Modules::get_module( $name );
 			$status[ $name ] = array(
-				'total'    => $module->total( $full_sync_config ),   // Total.
+				'total'    => $module->total( $config ),   // Total.
 				'sent'     => 0,             // Sent.
 				'finished' => false,
 			);

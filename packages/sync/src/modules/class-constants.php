@@ -145,10 +145,10 @@ class Constants extends Module {
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
-		$this->send_action( 'jetpack_full_sync_constants', [ true ] );
+		$this->send_action( 'jetpack_full_sync_constants', array( true ) );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 'finished' => true ];
+		return array( 'finished' => true );
 	}
 
 	/**
@@ -275,9 +275,11 @@ class Constants extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
+	 * @param array $config Full Sync config.
+	 *
 	 * @return int total
 	 */
-	public function total() {
+	public function total( $config ) {
 		return 1;
 	}
 }

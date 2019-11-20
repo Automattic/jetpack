@@ -142,10 +142,10 @@ class Network_Options extends Module {
 		}
 
 		// we call this instead of do_action when sending immediately.
-		$this->send_action( 'jetpack_full_sync_network_options', [ true ] );
+		$this->send_action( 'jetpack_full_sync_network_options', array( true ) );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 'finished' => true ];
+		return array( 'finished' => true );
 	}
 
 	/**
@@ -260,9 +260,11 @@ class Network_Options extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
+	 * @param array $config Full Sync config.
+	 *
 	 * @return int total
 	 */
-	public function total() {
+	public function total( $config ) {
 		return 1;
 	}
 

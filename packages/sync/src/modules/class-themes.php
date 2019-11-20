@@ -509,10 +509,10 @@ class Themes extends Module {
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
-		$this->send_action( 'jetpack_full_sync_theme_data', [ true ] );
+		$this->send_action( 'jetpack_full_sync_theme_data', array( true ) );
 
 		// The number of actions enqueued, and next module state (true == done).
-		return [ 'finished' => true ];
+		return array( 'finished' => true );
 	}
 
 	/**
@@ -845,9 +845,11 @@ class Themes extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
+	 * @param array $config Full Sync config.
+	 *
 	 * @return int total
 	 */
-	public function total() {
+	public function total( $config ) {
 		return 1;
 	}
 

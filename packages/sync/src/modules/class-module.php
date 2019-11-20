@@ -544,15 +544,29 @@ abstract class Module {
 	/**
 	 * Return Total number of objects.
 	 *
+	 * @param array $config Full Sync config.
+	 *
 	 * @return int total
 	 */
-	public function total() {
+	public function total( $config ) {
 		global $wpdb;
 		$table = $wpdb->{$this->table_name()};
+		$where = $this->get_where_sql( $config );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $table" );
-		// TODO: add where sql that considers blacklist and full sync config.
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
+	}
+
+	/**
+	 * Retrieve the WHERE SQL clause based on the module config.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 */
+	public function get_where_sql( $config ) {
+		return '1=1';
 	}
 
 }
