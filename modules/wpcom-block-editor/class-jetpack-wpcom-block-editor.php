@@ -328,6 +328,10 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueue WP.com block editor common styles.
 	 */
 	public function enqueue_styles() {
+		if ( ! WP_Screen::is_block_editor() && ! has_block( 'core/paragraph' ) ) {
+			return;
+		}
+
 		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 		$version = gmdate( 'Ymd' );
 
