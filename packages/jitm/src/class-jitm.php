@@ -183,13 +183,13 @@ class JITM {
 		// Bail if we're not trying to delete connection owner.
 		$user_ids_to_delete = array();
 		if ( isset( $_REQUEST['users'] ) ) {
-			$user_ids_to_delete = $_REQUEST['users'];
+			$user_ids_to_delete = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['users'] ) );
 		} elseif ( isset( $_REQUEST['user'] ) ) {
-			$user_ids_to_delete[] = $_REQUEST['user'];
+			$user_ids_to_delete[] = sanitize_text_field( wp_unslash( $_REQUEST['user'] ) );
 		}
 
 		// phpcs:enable
-
+		$user_ids_to_delete        = array_map( 'absint', $user_ids_to_delete );
 		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete, true );
 		if ( ! $deleting_connection_owner ) {
 			return;
