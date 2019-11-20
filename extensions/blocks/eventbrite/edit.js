@@ -11,7 +11,6 @@ const defaultEvent = { label: __( 'Select event', 'jetpack' ), value: '' };
 class EventbriteEdit extends Component {
 	state = {
 		events: [],
-		selectedEventID: null,
 	};
 
 	componentDidMount() {
@@ -31,17 +30,19 @@ class EventbriteEdit extends Component {
 		this.setState( { events } );
 	};
 
+	setEvent = eventId => {
+		this.props.setAttributes( { eventId: eventId } );
+	};
+
 	render() {
-		const { events, selectedEventID } = this.state;
+		const { events } = this.state;
 
 		return (
 			<SelectControl
 				label={ __( 'Event', 'jetpack' ) }
-				value={ selectedEventID }
+				value={ this.props.attributes.eventId }
 				options={ [ defaultEvent, ...events ] }
-				onChange={ eventID => {
-					this.setState( { selectedEventID: eventID } );
-				} }
+				onChange={ this.setEvent }
 			/>
 		);
 	}
