@@ -3230,6 +3230,11 @@ p {
 
 		$content = wp_kses_post( $post_content );
 
+		// Bail if DOMDocument is disabled on the server.
+		if ( ! class_exists( 'DOMDocument' ) ) {
+			return;
+		}
+
 		// Remove the hidden elements from the modal content.
 		$dom_doc = new DOMDocument();
 
@@ -3244,12 +3249,12 @@ p {
 			$el->parentNode->removeChild( $el ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 
-		$post_content = $dom_doc->saveHTML();
+		$modal_content = $dom_doc->saveHTML();
 
 		$link = esc_url( $post_link );
 
 		$post_array = array(
-			'release_post_content' => $post_content,
+			'release_post_content' => $modal_content,
 			'release_post_link'    => $link,
 		);
 
