@@ -924,7 +924,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'enqueue_wait_time'        => 0,
 						'queue_max_writes_sec'     => 10000,
 						'max_queue_size_full_sync' => 100000,
-						'full_sync_send_immediately' => true,
 						'full_sync_send_immediately_duration' => HOUR_IN_SECONDS,
 					)
 				);

@@ -53,10 +53,8 @@ class Settings {
 		'term_relationships_full_sync_item_size' => true,
 		'sync_sender_enabled'                    => true,
 		'full_sync_sender_enabled'               => true,
-		'full_sync_send_immediately'             => true,
 		'full_sync_send_immediately_duration'    => true,
 		'full_sync_max_objects'                  => true,
-		'full_sync_max_actions'                  => true,
 	);
 
 	/**

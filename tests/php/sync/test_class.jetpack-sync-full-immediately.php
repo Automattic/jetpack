@@ -29,7 +29,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 		Settings::reset_data();
-		Settings::update_settings( array( 'full_sync_send_immediately' => 1 ) );
 
 		$this->full_sync = Modules::get_module( 'full-sync' );
 

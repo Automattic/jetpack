@@ -1195,7 +1195,7 @@ class Defaults {
 	 *
 	 * @var array list of module names.
 	 */
-	public static $default_full_sync_config = [
+	public static $default_full_sync_config = array(
 		'constants'          => 1,
 		'functions'          => 1,
 		'options'            => 1,
@@ -1206,14 +1206,14 @@ class Defaults {
 		'posts'              => 1,
 		'comments'           => 1,
 		'term_relationships' => 1,
-	];
+	);
 
 	/**
 	 * Default Full Sync max objects to send on a single action.
 	 *
 	 * @var array list of module => max.
 	 */
-	public static $default_full_sync_max_objects = [
+	public static $default_full_sync_max_objects = array(
 		'constants'          => 100,
 		'functions'          => 100,
 		'options'            => 100,
@@ -1225,13 +1225,6 @@ class Defaults {
 		'posts'              => 10,
 		'comments'           => 50,
 		'term_relationships' => 200,
-	];
-
-	/**
-	 * Default Full Sync max actions to send on a single request.
-	 *
-	 * @var int list of module names.
-	 */
-	public static $default_full_sync_max_actions = 100;
+	);
 
 }
