@@ -1213,11 +1213,11 @@ class Defaults {
 		'network_options'    => 100,
 		'updates'            => 100,
 		'themes'             => 100,
-		'users'              => 20,
-		'terms'              => 100,
-		'posts'              => 10,
-		'comments'           => 50,
-		'term_relationships' => 200,
+		'users'              => 500,
+		'terms'              => 1000,
+		'posts'              => 250,
+		'comments'           => 500,
+		'term_relationships' => 1000,
 	);
 
 }
