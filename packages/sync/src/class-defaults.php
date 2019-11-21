@@ -1129,7 +1129,7 @@ class Defaults {
 	public static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue.
 
 	/**
-	 * Default max time sending in immediately mode.
+	 * Default max time for sending in immediate mode.
 	 *
 	 * @var float Number of Seconds
 	 */
