@@ -33,7 +33,7 @@ class MailchimpGroups extends Component {
 							<CheckboxControl
 								label={ interest.name }
 								value={ interest.id }
-								checked={ interests.indexOf( interest.id ) > -1 }
+								checked={ interests.includes( interest.id ) }
 								onChange={ checked => onChange( interest.id, checked ) }
 								key={ interest.id }
 							/>
