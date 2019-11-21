@@ -105,7 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				403
 			);
 		}
-		$path    = sprintf( '/sites/%d/mailchimp/groups', $site_id );
+		$path    = sprintf( '/sites/%d/mailchimp/groups', absint( $site_id ) );
 		$request = Client::wpcom_json_api_request_as_blog( $path );
 		$body    = wp_remote_retrieve_body( $request );
 		return json_decode( $body );
