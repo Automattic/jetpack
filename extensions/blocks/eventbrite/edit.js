@@ -4,12 +4,13 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { SelectControl } from '@wordpress/components';
+import { SelectControl, Spinner } from '@wordpress/components';
 
 const defaultEvent = { label: __( 'Select event', 'jetpack' ), value: '' };
 
 class EventbriteEdit extends Component {
 	state = {
+		fetchingEvents: true,
 		events: [],
 	};
 
@@ -27,7 +28,7 @@ class EventbriteEdit extends Component {
 			value: event.ID,
 		} ) );
 
-		this.setState( { events } );
+		this.setState( { events, fetchingEvents: false } );
 	};
 
 	setEvent = eventId => {
@@ -35,7 +36,16 @@ class EventbriteEdit extends Component {
 	};
 
 	render() {
-		const { events } = this.state;
+		const { events, fetchingEvents } = this.state;
+
+		if ( fetchingEvents ) {
+			return (
+				<div className="wp-block-jetpack-eventbrite is-loading">
+					<Spinner />
+					<p>{ __( 'Loading events…', 'jetpack' ) }</p>
+				</div>
+			);
+		}
 
 		return (
 			<SelectControl
