@@ -85,6 +85,7 @@
 		"@babel/core": "7.4.0",
 		"@babel/preset-env": "7.6.0",
 		"@babel/register": "7.4.4",
+		"@wordpress/base-styles": "1.0.0",
 		"@wordpress/browserslist-config": "2.5.0",
 		"@wordpress/compose": "3.5.0",
 		"@wordpress/data": "4.7.0",
