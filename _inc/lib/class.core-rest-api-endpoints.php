@@ -217,8 +217,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'/site/purchases',
 			array(
-				'methods' => WP_REST_Server::READABLE,
-				'callback' => array( $site_endpoint, 'get_purchases' ),
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $site_endpoint, 'get_purchases' ),
 				'permission_callback' => array( $site_endpoint, 'can_request' ),
 			)
 		);
