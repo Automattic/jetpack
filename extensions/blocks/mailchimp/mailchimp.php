@@ -108,7 +108,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						name="interests[<?php echo esc_attr( $interest ); ?>]"
 						type="hidden"
 						class="mc-submit-param"
-						value=1
+						value="1"
 					/>
 				<?php endforeach; ?>
 				<?php if ( $values['signupFieldTag'] && strlen( $values['signupFieldTag'] ) && $values['signupFieldValue'] && strlen( $values['signupFieldValue'] ) ) : ?>
