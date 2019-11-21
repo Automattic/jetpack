@@ -59,7 +59,10 @@ export const settings = {
 			type: 'string',
 			default: __( 'Processing…', 'jetpack' ),
 		},
-		signupLocation: {
+		signupFieldTag: {
+			type: 'string',
+		},
+		signupFieldValue: {
 			type: 'string',
 		},
 		successLabel: {

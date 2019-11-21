@@ -139,7 +139,8 @@ class MailchimpSubscribeEdit extends Component {
 			successLabel,
 			errorLabel,
 			preview,
-			signupLocation,
+			signupFieldTag,
+			signupFieldValue,
 		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp_';
 		const waiting = (
@@ -204,14 +205,26 @@ class MailchimpSubscribeEdit extends Component {
 							} );
 						} }
 					/>
+					<ExternalLink href="https://mailchimp.com/help/send-groups-audience/">
+						{ __( 'Learn about groups', 'jetpack' ) }
+					</ExternalLink>
 				</PanelBody>
-				<PanelBody title={ __( 'Merge Fields', 'jetpack' ) }>
+				<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
 					<TextControl
-						label={ __( 'Signup Location', 'jetpack' ) }
-						placeholder={ __( 'website' ) }
-						value={ signupLocation }
-						onChange={ value => setAttributes( { signupLocation: value } ) }
+						label={ __( 'Signup Field Tag', 'jetpack' ) }
+						placeholder={ __( 'SIGNUP' ) }
+						value={ signupFieldTag }
+						onChange={ value => setAttributes( { signupFieldTag: value } ) }
 					/>
+					<TextControl
+						label={ __( 'Signup Field Value', 'jetpack' ) }
+						placeholder={ __( 'website' ) }
+						value={ signupFieldValue }
+						onChange={ value => setAttributes( { signupFieldValue: value } ) }
+					/>
+					<ExternalLink href="https://mailchimp.com/help/determine-webpage-signup-location/">
+						{ __( 'Learn about signup location tracking', 'jetpack' ) }
+					</ExternalLink>
 				</PanelBody>
 				<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>
 					<ExternalLink href={ connectURL }>{ __( 'Manage Connection', 'jetpack' ) }</ExternalLink>

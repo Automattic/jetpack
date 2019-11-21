@@ -42,7 +42,8 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
 		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
 		'interests'        => array(),
-		'signupLocation'   => '',
+		'signupFieldTag'   => '',
+		'signupFieldValue' => '',
 	);
 	foreach ( $defaults as $id => $default ) {
 		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
@@ -110,12 +111,12 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						value=1
 					/>
 				<?php endforeach; ?>
-				<?php if ( $values['signupLocation'] ) : ?>
+				<?php if ( $values['signupFieldTag'] && strlen( $values['signupFieldTag'] ) && $values['signupFieldValue'] && strlen( $values['signupFieldValue'] ) ) : ?>
 					<input
-						name="merge_fields[SIGNUP]"
+						name="merge_fields[<?php echo esc_attr( $values['signupFieldTag'] ); ?>]"
 						type="hidden"
 						class="mc-submit-param"
-						value="<?php echo esc_attr( $values['signupLocation'] ); ?>"
+						value="<?php echo esc_attr( $values['signupFieldValue'] ); ?>"
 					/>
 				<?php endif; ?>
 				<p>
