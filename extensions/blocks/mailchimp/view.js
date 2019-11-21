@@ -23,7 +23,7 @@ function fetchSubscription( blogId, email, params ) {
 		encodeURIComponent( email );
 
 	for ( const param in params ) {
-		url += '&' + param + '=' + params[ param ];
+		url += '&' + encodeURIComponent( param ) + '=' + encodeURIComponent( params[ param ] );
 	}
 	return new Promise( function( resolve, reject ) {
 		const xhr = new XMLHttpRequest();
