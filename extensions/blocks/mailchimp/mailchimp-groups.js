@@ -6,12 +6,9 @@ import { CheckboxControl } from '@wordpress/components';
 import { Fragment, Component } from '@wordpress/element';
 
 class MailchimpGroups extends Component {
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			groups: [],
-		};
-	}
+	state = {
+		interest_categories: [],
+	};
 	componentDidMount() {
 		this.retrieveGroups();
 	}
