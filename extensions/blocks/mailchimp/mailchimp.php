@@ -111,7 +111,12 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						value="1"
 					/>
 				<?php endforeach; ?>
-				<?php if ( $values['signupFieldTag'] && strlen( $values['signupFieldTag'] ) && $values['signupFieldValue'] && strlen( $values['signupFieldValue'] ) ) : ?>
+				<?php
+				if (
+					! empty( $values['signupFieldTag'] )
+					&& ! empty( $values['signupFieldValue'] )
+					) :
+					?>
 					<input
 						name="merge_fields[<?php echo esc_attr( $values['signupFieldTag'] ); ?>]"
 						type="hidden"
