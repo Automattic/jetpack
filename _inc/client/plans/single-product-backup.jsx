@@ -26,7 +26,7 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 	const priceDailyMonthlyPerYear = '' === priceDailyMonthly ? '' : priceDailyMonthly * 12;
 	const priceRealtime = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
 	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
-	const priceRealtimeMonthlyPerYear = priceRealtimeMonthly * 12;
+	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
 	const backupOptions = [
 		{
