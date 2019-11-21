@@ -29,7 +29,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		static $map_block_counter = array();
 
 		$id = get_the_ID();
-		if ( ! $map_block_counter[ $id ] ) {
+		if ( ! isset( $map_block_counter[ $id ] ) ) {
 			$map_block_counter[ $id ] = 0;
 		}
 		$map_block_counter[ $id ]++;
