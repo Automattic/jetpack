@@ -38,6 +38,7 @@ class MailchimpGroups extends Component {
 								value={ interest.id }
 								checked={ interests.indexOf( interest.id ) > -1 }
 								onChange={ checked => onChange( interest.id, checked ) }
+								key={ interest.id }
 							/>
 						) )
 					) }
