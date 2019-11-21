@@ -41,7 +41,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
 		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
-		'interests'        => [],
+		'interests'        => array(),
 		'signupLocation'   => '',
 	);
 	foreach ( $defaults as $id => $default ) {
