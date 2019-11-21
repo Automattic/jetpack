@@ -1,65 +1,54 @@
 @import '../scss/variables/_colors.scss';
 
+// Plan radio button
+.plan-radio-button {
+	display: flex;
+}
+
 .plan-radio-button__label {
 	display: flex;
+	flex-flow: column nowrap;
+	margin-left: 8px;
 }
 
 input[type='radio'].plan-radio-button__input {
-	margin-top: 0px;
+	margin-top: 2px;
 }
 
-.plans-price__container {
-	height: 50px;
-	line-height: 50px;
-	text-align: center;
+.plan-radio-button__title {
+	font-weight: 600;
 }
 
-.plans-price__price-range {
-	display: inline-block;
-	vertical-align: middle;
-	line-height: normal;
+// Single product backup
+.single-product-backup__header-title {
+	margin: 5px 0;
+	font-size: 17px;
 }
 
-.discounted-price__container {
-	position: relative;
-	display: inline-block;
-	line-height: 50px;
-	margin-right: 14px;
-}
-
-.discounted-price__slash {
-	position: relative;
-	width: 100%;
-	height: 0;
-	border-top: 2px solid $blue-medium;
-	transform: rotate( -16deg );
-	top: 27px;
-}
-
-.discounted-price__price {
-	color: #a7aaad;
-}
-
-.single-product-backup__header-price {
+.single-product-backup__price-group {
 	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-content: center;
+	flex-flow: row nowrap;
+	align-items: baseline;
 }
 
 .single-product-backup__options-header {
+	padding-bottom: 8px;
 	font-size: 14px;
+	font-weight: 400;
 	color: $gray-text-min;
-	border-bottom: solid 2px #e6e6e6;
+	border-bottom: solid 1px #e6e6e6;
 }
 
+// Plans section
 .plans-section__header {
+	margin: 24px auto 8px;
 	text-align: center;
 	font-weight: normal;
 	font-size: 22px;
 }
 
 .plans-section__subheader {
+	margin: 8px auto;
 	color: $gray-text-min;
 	text-align: center;
 	font-weight: normal;
@@ -69,44 +58,45 @@ input[type='radio'].plan-radio-button__input {
 .plans-section__single-product {
 	display: flex;
 	justify-content: center;
-	margin-bottom: 10px;
+	margin: 24px auto 40px;
 }
 
-.single-product-backup__header-container {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-content: center;
-}
-
+// Single product backup containers
 .single-product-backup__radio-buttons-container {
 	display: flex;
 	flex-direction: row;
+	justify-content: space-around; // IE11 fallback.
 	justify-content: space-evenly;
 }
 
 .single-product-backup__upgrade-button-container {
 	text-align: center;
-	margin-top: 23px;
-	margin-bottom: 10px;
+	margin-top: 24px;
+	margin-bottom: 16px;
 }
 
+// Accented card
 .single-product-backup__accented-card {
 	max-width: 518px;
-	min-height: 313px;
+	font-size: 14px;
 	background-color: #fff;
 	border: solid 1px #e6e6e6;
 }
 
 .single-product-backup__accented-card-header {
-	padding: 15px;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 16px;
 	border-bottom: solid 2px $blue-medium;
 }
 
-.single-product-backup__header-title {
-	font-size: 17px;
-}
-
 .single-product-backup__accented-card-body {
-	padding: 15px;
+	padding: 16px;
+
+	p {
+		margin-top: 8px;
+		font-size: 14px;
+	}
 }
