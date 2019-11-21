@@ -1,0 +1,23 @@
+{
+	"name": "automattic/jetpack-purchases",
+	"description": "Everything needed know the state of purchases of a site",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-options": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}
