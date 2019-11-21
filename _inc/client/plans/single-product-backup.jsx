@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -18,7 +18,7 @@ import './single-product-backup.scss';
 export function SingleProductBackup( { products, upgradeLinks } ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 
-	const billingTimeFrame = __( 'per year' );
+	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
@@ -50,7 +50,7 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 				{ __( "Just looking for backups? We've got you covered." ) }
 			</h2>
 			<div className="plans-section__single-product">
-				<div className="single-product-backup__accented-card">
+				<div className="single-product-backup__accented-card dops-card">
 					<div className="single-product-backup__accented-card-header">
 						<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
 						<SingleProductBackupPriceGroup
@@ -82,17 +82,31 @@ function SingleProductBackupPriceGroup( {
 	discountedPrice,
 	fullPrice,
 } ) {
-	const isDiscounted = !! discountedPrice;
+	const timeframe = <div className="single-product-backup__price-group-billing-timeframe" />;
+	let price = <PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } />;
 
+	if ( !! discountedPrice ) {
+		price = (
+			<Fragment>
+				<PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } original />
+				<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice } discounted />
+			</Fragment>
+		);
+	}
 	return (
 		<div className="single-product-backup__price-group">
-			<PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } original={ isDiscounted } />
-			{ isDiscounted && (
-				<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice } discounted />
-			) }
-			<div className="single-product-backup__price-group-billing-timeframe">
-				{ billingTimeFrame }
-			</div>
+			{ billingTimeFrame === 'yearly' &&
+				__( '{{price/}} {{timeframe}}per year{{/timeframe}}', {
+					components: { price, timeframe },
+					comment:
+						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+				} ) }
+			{ billingTimeFrame === 'monthly' &&
+				__( '{{price/}} {{timeframe}}per month{{/timeframe}}', {
+					components: { price, timeframe },
+					comment:
+						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+				} ) }
 		</div>
 	);
 }
