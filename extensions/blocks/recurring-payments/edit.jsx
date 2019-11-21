@@ -200,7 +200,7 @@ class MembershipsButtonEdit extends Component {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
-					isDefault
+					isPrimary
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
@@ -265,7 +265,7 @@ class MembershipsButtonEdit extends Component {
 				/>
 				<div>
 					<Button
-						isDefault
+						isPrimary
 						isLarge
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }

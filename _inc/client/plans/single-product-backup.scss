@@ -1,7 +1,11 @@
-.single-product-backup__options-header {
-	font-size: 14px;
-	color: #747474;
-	border-bottom: solid 2px #e6e6e6;
+@import '../scss/variables/_colors.scss';
+
+.plan-radio-button__label {
+	display: flex;
+}
+
+input[type='radio'].plan-radio-button__input {
+	margin-top: 0px;
 }
 
 .plans-price__container {
@@ -43,10 +47,66 @@
 	align-content: center;
 }
 
-.plan-radio-button__label {
-	display: flex;
+.single-product-backup__options-header {
+	font-size: 14px;
+	color: $gray-text-min;
+	border-bottom: solid 2px #e6e6e6;
 }
 
-input[type='radio'].plan-radio-button__input {
-	margin-top: 0px;
+.plans-section__header {
+	text-align: center;
+	font-weight: normal;
+	font-size: 22px;
+}
+
+.plans-section__subheader {
+	color: $gray-text-min;
+	text-align: center;
+	font-weight: normal;
+	font-size: 14px;
+}
+
+.plans-section__single-product {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 10px;
+}
+
+.single-product-backup__header-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-content: center;
+}
+
+.single-product-backup__radio-buttons-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+
+.single-product-backup__upgrade-button-container {
+	text-align: center;
+	margin-top: 23px;
+	margin-bottom: 10px;
+}
+
+.single-product-backup__accented-card {
+	max-width: 518px;
+	min-height: 313px;
+	background-color: #fff;
+	border: solid 1px #e6e6e6;
+}
+
+.single-product-backup__accented-card-header {
+	padding: 15px;
+	border-bottom: solid 2px $blue-medium;
+}
+
+.single-product-backup__header-title {
+	font-size: 17px;
+}
+
+.single-product-backup__accented-card-body {
+	padding: 15px;
 }

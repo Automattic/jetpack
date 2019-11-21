@@ -183,13 +183,13 @@ class JITM {
 		// Bail if we're not trying to delete connection owner.
 		$user_ids_to_delete = array();
 		if ( isset( $_REQUEST['users'] ) ) {
-			$user_ids_to_delete = $_REQUEST['users'];
+			$user_ids_to_delete = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['users'] ) );
 		} elseif ( isset( $_REQUEST['user'] ) ) {
-			$user_ids_to_delete[] = $_REQUEST['user'];
+			$user_ids_to_delete[] = sanitize_text_field( wp_unslash( $_REQUEST['user'] ) );
 		}
 
 		// phpcs:enable
-
+		$user_ids_to_delete        = array_map( 'absint', $user_ids_to_delete );
 		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete, true );
 		if ( ! $deleting_connection_owner ) {
 			return;
@@ -323,6 +323,12 @@ class JITM {
 		if ( ! is_admin() ) {
 			return;
 		}
+
+		// do not display on Gutenberg pages.
+		if ( $this->is_gutenberg_page() ) {
+			return;
+		}
+
 		$message_path   = $this->get_message_path();
 		$query_string   = _http_build_query( $_GET, '', ',' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
@@ -351,6 +357,9 @@ class JITM {
 	 * Function to enqueue jitm css and js
 	 */
 	public function jitm_enqueue_files() {
+		if ( $this->is_gutenberg_page() ) {
+			return;
+		}
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
@@ -614,5 +623,15 @@ class JITM {
 		}
 
 		return $envelopes;
+	}
+
+	/**
+	 * Is the current page a block editor page?
+	 *
+	 * @since 8.0.0
+	 */
+	private function is_gutenberg_page() {
+		$current_screen = get_current_screen();
+		return ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() );
 	}
 }

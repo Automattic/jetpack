@@ -32,7 +32,7 @@
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
 		"sirbrillig/phpcs-changed": "2.2.7-beta-1@dev",
 		"sirbrillig/phpcs-variable-analysis": "2.7.0",
-		"wp-coding-standards/wpcs": "2.1.1"
+		"wp-coding-standards/wpcs": "^2.2"
 	},
 	"scripts": {
 		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",

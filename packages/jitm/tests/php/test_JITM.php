@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class Test_Jetpack_JITM extends TestCase {
 	public function setUp() {
+		$this->mock_add_get_current_screen();
 		$this->mock_add_action();
 		$this->mock_do_action();
 		$this->mock_wp_enqueue_script();
@@ -112,6 +113,16 @@ class Test_Jetpack_JITM extends TestCase {
 	protected function clear_mock_filters() {
 		$this->apply_filters_mock->disable();
 		unset( $this->mocked_filters );
+	}
+
+	protected function mock_add_get_current_screen() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'get_current_screen' )
+			->setFunction( function() {
+				return new \stdClass;
+			} );
+		$builder->build()->enable();
 	}
 
 	protected function mock_add_action() {

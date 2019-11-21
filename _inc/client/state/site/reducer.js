@@ -20,6 +20,9 @@ import {
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
+	JETPACK_SITE_PURCHASES_FETCH,
+	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+	JETPACK_SITE_PURCHASES_FETCH_FAIL,
 	JETPACK_PRODUCTS_FETCH,
 	JETPACK_PRODUCTS_FETCH_RECEIVE,
 	JETPACK_PRODUCTS_FETCH_FAIL,
@@ -35,6 +38,8 @@ export const data = ( state = {}, action ) => {
 			return merge( {}, state, { site: { features: action.siteFeatures } } );
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return merge( {}, state, { sitePlans: action.plans } );
+		case JETPACK_SITE_PURCHASES_FETCH_RECEIVE:
+			return merge( {}, state, { sitePurchases: action.purchases } );
 		case JETPACK_PRODUCTS_FETCH_RECEIVE:
 			return merge( {}, state, { products: action.products } );
 		default:
@@ -64,6 +69,10 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSitePlans: true,
 			} );
+		case JETPACK_SITE_PURCHASES_FETCH:
+			return assign( {}, state, {
+				isFetchingSitePurchases: true,
+			} );
 		case JETPACK_PRODUCTS_FETCH:
 			return assign( {}, state, {
 				isFetchingProducts: true,
@@ -87,6 +96,11 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSitePlans: false,
+			} );
+		case JETPACK_SITE_PURCHASES_FETCH_FAIL:
+		case JETPACK_SITE_PURCHASES_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingSitePurchases: false,
 			} );
 		case JETPACK_PRODUCTS_FETCH_RECEIVE:
 		case JETPACK_PRODUCTS_FETCH_FAIL:
@@ -114,7 +128,8 @@ export function isFetchingSiteData( state ) {
 	return !! (
 		state.jetpack.siteData.requests.isFetchingSiteData &&
 		state.jetpack.siteData.requests.isFetchingSiteFeatures &&
-		state.jetpack.siteData.requests.isFetchingSitePlans
+		state.jetpack.siteData.requests.isFetchingSitePlans &&
+		state.jetpack.siteData.requests.isFetchingSitePurchases
 	);
 }
 
@@ -136,6 +151,16 @@ export function isFetchingSiteBenefits( state ) {
  */
 export function isFetchingProducts( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingProducts;
+}
+
+/**
+ * Returns true if currently requesting site products. Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether site purchases are being requested
+ */
+export function isFetchingSitePurchases( state ) {
+	return !! state.jetpack.siteData.requests.isFetchingSitePurchases;
 }
 
 /**
@@ -176,6 +201,10 @@ export function getActiveFeatures( state ) {
 
 export function getAvailablePlans( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePlans' ] );
+}
+
+export function getSitePurchases( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ] );
 }
 
 /**

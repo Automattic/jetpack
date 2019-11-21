@@ -243,4 +243,84 @@ BODY;
 			$shortcode_content
 		);
 	}
+
+	/**
+	 * Gets the test data for test_shortcodes_instagram_amp().
+	 *
+	 * @return array The test data.
+	 */
+	public function get_instagram_amp_data() {
+		$shortcode_id      = 'BnMOk_FFsxg';
+		$url_with_id       = 'https://www.instagram.com/p/' . $shortcode_id;
+		$short_url_with_id = 'https://instagr.am/p/' . $shortcode_id;
+		$wrong_url_with_id = 'https://www.twitter.com/p/' . $shortcode_id;
+		$default_dimension = 600;
+
+		return array(
+			'no_attribute'                   => array(
+				'[instagram]',
+				'',
+			),
+			'plain_url'                      => array(
+				'[instagram ' . $url_with_id . ']',
+				'',
+			),
+			'non_instagram_url'              => array(
+				'[instagram url=' . $wrong_url_with_id . ']',
+				'<a href="' . $wrong_url_with_id . '" class="amp-wp-embed-fallback">' . $wrong_url_with_id . '</a>',
+			),
+			'url_value_as_attribute'         => array(
+				'[instagram url=' . $url_with_id . ']',
+				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="' . $default_dimension . '" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+			),
+			'short_url_value_as_attribute'   => array(
+				'[instagram url=' . $short_url_with_id . ']',
+				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="' . $default_dimension . '" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+			),
+			'width_in_attributes'            => array(
+				'[instagram url=' . $url_with_id . ' width=300]',
+				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="300" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+			),
+			'width_and_height_in_attributes' => array(
+				'[instagram url=' . $url_with_id . ' width=300 height="200"]',
+				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="300" height="200" data-captioned></amp-instagram>',
+			),
+			'0_width_in_attributes'          => array(
+				'[instagram url=' . $url_with_id . ' width=0]',
+				'<amp-instagram data-shortcode="'. $shortcode_id .'" layout="responsive" width="' . $default_dimension . '" height="' . $default_dimension . '" data-captioned></amp-instagram>',
+			),
+		);
+	}
+
+	/**
+	 * Test the AMP-compatible [instagram] shortcode on an AMP endpoint.
+	 *
+	 * @dataProvider get_instagram_amp_data
+	 * @since 8.0.0
+	 *
+	 * @param string $shortcode_content The shortcode content, as entered in the editor.
+	 * @param string $expected The expected return value of the function.
+	 */
+	public function test_shortcodes_instagram_amp( $shortcode_content, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$this->assertEquals( $expected, do_shortcode( $shortcode_content ) );
+	}
+
+	/**
+	 * Test that the AMP [instagram] shortcode logic doesn't run on a non-AMP endpoint.
+	 *
+	 * @dataProvider get_instagram_amp_data
+	 * @since 8.0.0
+	 *
+	 * @param string $shortcode_content The shortcode as entered in the editor.
+	 */
+	public function test_shortcodes_instagram_non_amp( $shortcode_content ) {
+		add_filter( 'jetpack_is_amp_request', '__return_false' );
+		$this->assertNotContains( 'amp-instagram', do_shortcode( $shortcode_content ) );
+	}
 }
