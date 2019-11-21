@@ -79,11 +79,12 @@ function jetpack_map_block_render_single_block_page() {
 	}
 
 	$post_html = new DOMDocument();
-	$content   = apply_filters( 'the_content', $post->post_content );
+	/** This filter is already documented in core/wp-includes/post-template.php */
+	$content = apply_filters( 'the_content', $post->post_content );
 
 	/* Suppress warnings */
 	libxml_use_internal_errors( true );
-	$post_html->loadHTML( $content );
+	@$post_html->loadHTML( $content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	libxml_use_internal_errors( false );
 
 	$xpath     = new DOMXPath( $post_html );
