@@ -198,10 +198,14 @@ class MailchimpSubscribeEdit extends Component {
 					<MailchimpGroups
 						interests={ interests }
 						onChange={ ( id, checked ) => {
+							// Create a Set to insure no duplicate interests
+							const deDupedInterests = [ ...new Set( [ ...interests, id ] ) ];
+							// Filter the clicked interest based on checkbox's state.
+							const updatedInterests = deDupedInterests.filter( item =>
+								item === id && ! checked ? false : item
+							);
 							setAttributes( {
-								interests: [ ...new Set( [ ...interests, id ] ) ].filter( item =>
-									item === id && ! checked ? false : item
-								),
+								interests: updatedInterests,
 							} );
 						} }
 					/>
