@@ -4,7 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { SelectControl, Spinner } from '@wordpress/components';
+import { PanelBody, RadioControl, SelectControl, Spinner } from '@wordpress/components';
+import { InspectorControls } from '@wordpress/editor';
 
 const defaultEvent = { label: __( 'Select event', 'jetpack' ), value: '' };
 
@@ -36,6 +37,7 @@ class EventbriteEdit extends Component {
 	};
 
 	render() {
+		const { eventId, useModal } = this.props.attributes;
 		const { events, fetchingEvents } = this.state;
 
 		if ( fetchingEvents ) {
@@ -48,12 +50,32 @@ class EventbriteEdit extends Component {
 		}
 
 		return (
-			<SelectControl
-				label={ __( 'Event', 'jetpack' ) }
-				value={ this.props.attributes.eventId }
-				options={ [ defaultEvent, ...events ] }
-				onChange={ this.setEvent }
-			/>
+			<div className="wp-block-jetpack-eventbrite">
+				<InspectorControls>
+					<PanelBody>
+						<RadioControl
+							label={ __( 'Embed Type', 'jetpack' ) }
+							help={ __(
+								'Whether to embed the event inline, or as a button that opens a modal.',
+								'jetpack'
+							) }
+							selected={ useModal ? 'modal' : 'inline' }
+							options={ [
+								{ label: __( 'Inline', 'jetpack' ), value: 'inline' },
+								{ label: __( 'Modal', 'jetpack' ), value: 'modal' },
+							] }
+							onChange={ option => this.props.setAttributes( { useModal: 'modal' === option } ) }
+						/>
+					</PanelBody>
+				</InspectorControls>
+
+				<SelectControl
+					label={ __( 'Event', 'jetpack' ) }
+					value={ eventId }
+					options={ [ defaultEvent, ...events ] }
+					onChange={ this.setEvent }
+				/>
+			</div>
 		);
 	}
 }
