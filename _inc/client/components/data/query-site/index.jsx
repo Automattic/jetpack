@@ -13,6 +13,7 @@ import {
 	fetchAvailablePlans,
 	fetchSiteData,
 	fetchSiteFeatures,
+	fetchSitePurchases,
 	isFetchingSiteData,
 	getSitePlan,
 } from 'state/site';
@@ -40,6 +41,7 @@ class QuerySite extends Component {
 			this.props.fetchSiteData();
 			this.props.fetchSiteFeatures();
 			this.props.fetchAvailablePlans();
+			this.props.fetchSitePurchases();
 		}
 	}
 
@@ -61,6 +63,7 @@ export default connect(
 			fetchSiteData: () => dispatch( fetchSiteData() ),
 			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() ),
 			fetchAvailablePlans: () => dispatch( fetchAvailablePlans() ),
+			fetchSitePurchases: () => dispatch( fetchSitePurchases() ),
 		};
 	}
 )( QuerySite );
