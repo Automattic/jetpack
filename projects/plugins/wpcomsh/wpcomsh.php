@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.53' );
+define( 'WPCOMSH_VERSION', '2.4.54' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1029,3 +1029,16 @@ add_filter( 'big_image_size_threshold', '__return_false' );
  * WordPress 5.3 adds periodic admin email verification, disable it for WordPress.com on Atomic
  */
 add_filter( 'admin_email_check_interval', '__return_zero' );
+
+/**
+ * Allow redirects to WordPress.com from Customizer.
+ */
+function wpcomsh_allowed_redirect_hosts( $hosts ) {
+	if ( is_array( $hosts ) ) {
+		$hosts[] = 'wordpress.com';
+		$hosts[] = 'calypso.localhost';
+		$hosts = array_unique( $hosts );
+	}
+	return $hosts;
+}
+add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
