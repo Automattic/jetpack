@@ -42,7 +42,7 @@ class Purchases {
 	public function get_from_wpcom() {
 
 		$request  = sprintf( '/sites/%d/purchases', \Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1', array( 'owner' => 'site' ) );
+		$response = Client::wpcom_json_api_request_as_blog( $request . '?owner=site', '1.1' );
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
