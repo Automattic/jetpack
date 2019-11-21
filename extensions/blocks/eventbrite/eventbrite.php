@@ -27,6 +27,10 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_eventbrite_block_load_assets( $attr ) {
+	if ( empty( $attr['eventId'] ) ) {
+		return '';
+	}
+
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 	wp_add_inline_script(
 		'eventbrite-widget',
