@@ -4,8 +4,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { getCurrencyDefaults } from '@automattic/format-currency';
-import { translate as __ } from 'i18n-calypso';
+import { numberFormat, translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import _objectSpread from '@babel/runtime/helpers/objectSpread';
 
 /**
  * Internal dependencies
@@ -29,8 +30,8 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 		},
 	};
 
-	const currency_code = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
-	const currencySymbol = getCurrencyDefaults( currency_code ).symbol;
+	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
+	const currencySymbol = getCurrencyDefaults( currencyCode ).symbol;
 
 	return (
 		<React.Fragment>
@@ -44,6 +45,7 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 						<SingleProductBackupHeader
 							currencySymbol={ currencySymbol }
 							backupPlanPrices={ backupPlanPrices }
+							currencyCode={ currencyCode }
 						/>
 					</div>
 					<div className="single-product-backup__accented-card-body">
@@ -61,24 +63,54 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 	);
 }
 
-function SingleProductBackupHeader( { currencySymbol, backupPlanPrices } ) {
+function SingleProductBackupHeader( { currencySymbol, currencyCode, backupPlanPrices } ) {
 	return (
 		<div className="single-product-backup__header-container">
 			<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-			<PlanPriceDisplay currencySymbol={ currencySymbol } backupPlanPrices={ backupPlanPrices } />
+			<PlanPriceDisplay
+				currencySymbol={ currencySymbol }
+				currencyCode={ currencyCode }
+				backupPlanPrices={ backupPlanPrices }
+			/>
 		</div>
 	);
 }
 
-export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
+function formatCurrencyNumber( number, code ) {
+	const options = arguments.length > 2 && arguments[ 2 ] !== undefined ? arguments[ 2 ] : {};
+	const currencyDefaults = getCurrencyDefaults( code );
+
+	if ( ! currencyDefaults || isNaN( number ) ) {
+		return null;
+	}
+
+	const _currencyDefaults$opt = _objectSpread( {}, currencyDefaults, options ),
+		decimal = _currencyDefaults$opt.decimal,
+		grouping = _currencyDefaults$opt.grouping,
+		precision = _currencyDefaults$opt.precision;
+
+	return numberFormat( Math.abs( number ), {
+		decimals: precision,
+		thousandsSep: grouping,
+		decPoint: decimal,
+	} );
+}
+
+export function PlanPriceDisplay( { backupPlanPrices, currencySymbol, currencyCode } ) {
 	const dailyBackupYearlyPrice = backupPlanPrices.jetpack_backup_daily.yearly;
 	const dailyBackupMonthlyPrice = backupPlanPrices.jetpack_backup_daily.monthly;
 
 	const realtimeBackupYearlyPrice = backupPlanPrices.jetpack_backup_realtime.yearly;
 	const realtimeBackupMonthlyPrice = backupPlanPrices.jetpack_backup_realtime.monthly;
 
-	const fullDailyBackupYearlyCost = dailyBackupMonthlyPrice * 12;
-	const fullRealtimeBackupYearlyCost = realtimeBackupMonthlyPrice * 12;
+	const fullDailyBackupYearlyCost = formatCurrencyNumber(
+		dailyBackupMonthlyPrice * 12,
+		currencyCode
+	);
+	const fullRealtimeBackupYearlyCost = formatCurrencyNumber(
+		realtimeBackupMonthlyPrice * 12,
+		currencyCode
+	);
 
 	const perYearPriceRange = __(
 		'%(currencySymbol)s%(dailyBackupYearlyPrice)s-%(realtimeBackupYearlyPrice)s per year',
