@@ -102,7 +102,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						name="email"
 					/>
 				</p>
-				<?php foreach ( $values['interests'] as $interest ) : ?>
+				<?php foreach ( is_array( $values['interests'] ) ? $values['interests'] : array() as $interest ) : ?>
 					<input
 						name="interests[<?php echo esc_attr( $interest ); ?>]"
 						type="hidden"
