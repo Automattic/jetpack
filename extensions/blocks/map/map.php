@@ -36,8 +36,8 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 
 		$iframe_url = add_query_arg(
 			array(
-				'map-block-counter' => $map_block_counter[ get_the_ID() ],
-				'map-block-post-id' => get_the_ID(),
+				'map-block-counter' => absint( $map_block_counter[ $id ] ),
+				'map-block-post-id' => $id,
 			),
 			get_permalink()
 		);
