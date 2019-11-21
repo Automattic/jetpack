@@ -17,6 +17,9 @@ import {
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
+	JETPACK_SITE_PURCHASES_FETCH,
+	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+	JETPACK_SITE_PURCHASES_FETCH_FAIL,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -128,6 +131,29 @@ export const fetchAvailablePlans = () => {
 				dispatch( {
 					type: JETPACK_SITE_PLANS_FETCH_FAIL,
 					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchSitePurchases = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_PURCHASES_FETCH,
+		} );
+		return restApi
+			.fetchSitePurchases()
+			.then( purchases => {
+				dispatch( {
+					type: JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+					purchases,
+				} );
+				return purchases;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_PURCHASES_FETCH_FAIL,
+					error,
 				} );
 			} );
 	};
