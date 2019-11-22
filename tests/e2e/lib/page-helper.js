@@ -28,8 +28,12 @@ export async function waitForSelector( page, selector, options = {} ) {
 	const defaultOptions = { timeout: 30000, logHTML: false };
 	options = Object.assign( defaultOptions, options );
 
+	const isXPath = selector.startsWith( '//' );
+
 	try {
-		const element = await page.waitForSelector( selector, options );
+		const element = isXPath
+			? await page.waitForXPath( selector, options )
+			: await page.waitForSelector( selector, options );
 		const secondsPassed = ( new Date() - startTime ) / 1000;
 		console.log( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
 		return element;
