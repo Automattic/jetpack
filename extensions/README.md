@@ -59,6 +59,13 @@ Generally, all new extensions should start out as a beta.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
+### Experimental Extensions
+
+We also offer an "experimental" state for extensions. Those extensions will be made available to anyone:
+- Running the Gutenberg plugin, or;
+- Running the FSE plugin, or;
+- having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`.
+
 ### Testing
 
 Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
