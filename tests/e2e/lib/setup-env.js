@@ -22,17 +22,13 @@ async function setupBrowser() {
 function setupConsoleLogs() {
 	page.on( 'pageerror', function( err ) {
 		const theTempValue = err.toString();
-		const stackTrace = {};
-		err.captureStackTrace( stackTrace );
 		console.log( 'Page error: ' + theTempValue );
-		console.log( stackTrace.stack );
+		console.log( err.stack );
 	} );
 	page.on( 'error', function( err ) {
 		const theTempValue = err.toString();
-		const stackTrace = {};
-		err.captureStackTrace( stackTrace );
 		console.log( 'Error: ' + theTempValue );
-		console.log( stackTrace.stack );
+		console.log( err.stack );
 	} );
 }
 
