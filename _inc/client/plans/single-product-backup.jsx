@@ -171,9 +171,10 @@ class SingleProductBackupBody extends React.Component {
 
 	handleUpgradeButtonClick = selectedBackupType => () => {
 		analytics.tracks.recordJetpackClick( {
-			target: 'upgrade-button',
-			feature: 'single-product-backup',
-			extra: selectedBackupType,
+			target: `upgrade-${ selectedBackupType }`,
+			type: 'upgrade',
+			product: selectedBackupType,
+			page: 'Plans',
 		} );
 	};
 
