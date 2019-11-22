@@ -77,22 +77,22 @@ export default Symbol =>
 					) ) }
 				</div>
 				<InspectorControls>
-					<PanelBody title={ __( 'Settings' ) }>
+					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 						<RangeControl
-							label={ __( 'Highest rating' ) }
+							label={ __( 'Highest rating', 'jetpack' ) }
 							value={ maxRating }
 							onChange={ setNewMaxRating }
 							min={ 2 }
 							max={ 10 }
 						/>
 						<PanelColorSettings
-							title={ __( 'Color Settings' ) }
+							title={ __( 'Color Settings', 'jetpack' ) }
 							initialOpen
 							colorSettings={ [
 								{
 									value: color,
 									onChange: setNewColor,
-									label: __( 'Color' ),
+									label: __( 'Color', 'jetpack' ),
 								},
 							] }
 						/>
