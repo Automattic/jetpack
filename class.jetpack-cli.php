@@ -1939,7 +1939,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( empty( $files_written ) ) {
 			WP_CLI::log( esc_html__( 'No files were created', 'jetpack' ) );
 		} else {
-			// Load index.json and insert the slug of the new block in the production array
+			// Load index.json and insert the slug of the new block in the beta array.
 			$block_list_path = JETPACK__PLUGIN_DIR . 'extensions/index.json';
 			$block_list      = $wp_filesystem->get_contents( $block_list_path );
 			if ( empty( $block_list ) ) {
