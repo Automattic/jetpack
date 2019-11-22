@@ -51,9 +51,19 @@ export const settings = {
 				'jetpack'
 			),
 		},
+		interests: {
+			type: 'array',
+			default: [],
+		},
 		processingLabel: {
 			type: 'string',
 			default: __( 'Processing…', 'jetpack' ),
+		},
+		signupFieldTag: {
+			type: 'string',
+		},
+		signupFieldValue: {
+			type: 'string',
 		},
 		successLabel: {
 			type: 'string',
