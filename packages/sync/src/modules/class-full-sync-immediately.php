@@ -14,14 +14,8 @@ use Automattic\Jetpack\Sync\Settings;
 
 /**
  * This class does a full resync of the database by
- * enqueuing an outbound action for every single object
+ * sending an outbound action for every single object
  * that we care about.
- *
- * This class, and its related class Jetpack_Sync_Module, contain a few non-obvious optimisations that should be explained:
- * - we fire an action called jetpack_full_sync_start so that WPCOM can erase the contents of the cached database
- * - for each object type, we page through the object IDs and enqueue them by firing some monitored actions
- * - we load the full objects for those IDs in chunks of Jetpack_Sync_Module::ARRAY_CHUNK_SIZE (to reduce the number of MySQL calls)
- * - we fire a trigger for the entire array which the Automattic\Jetpack\Sync\Listener then serializes and queues.
  */
 class Full_Sync_Immediately extends Module {
 	/**
@@ -326,10 +320,6 @@ class Full_Sync_Immediately extends Module {
 
 		$progress = $this->get_status()['progress'];
 
-		/**
-		 * If a module exits early (e.g. because it ran out of full sync queue slots, or we ran out of request time)
-		 * then it should exit early
-		 */
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $send_until, $progress[ $module->name() ] );
 			if ( microtime( true ) >= $send_until ) {
