@@ -23,9 +23,6 @@ import {
 	JETPACK_SITE_PURCHASES_FETCH,
 	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 	JETPACK_SITE_PURCHASES_FETCH_FAIL,
-	JETPACK_PRODUCTS_FETCH,
-	JETPACK_PRODUCTS_FETCH_RECEIVE,
-	JETPACK_PRODUCTS_FETCH_FAIL,
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
@@ -40,8 +37,6 @@ export const data = ( state = {}, action ) => {
 			return merge( {}, state, { sitePlans: action.plans } );
 		case JETPACK_SITE_PURCHASES_FETCH_RECEIVE:
 			return merge( {}, state, { sitePurchases: action.purchases } );
-		case JETPACK_PRODUCTS_FETCH_RECEIVE:
-			return merge( {}, state, { products: action.products } );
 		default:
 			return state;
 	}
@@ -73,10 +68,6 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSitePurchases: true,
 			} );
-		case JETPACK_PRODUCTS_FETCH:
-			return assign( {}, state, {
-				isFetchingProducts: true,
-			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
@@ -101,11 +92,6 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_PURCHASES_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSitePurchases: false,
-			} );
-		case JETPACK_PRODUCTS_FETCH_RECEIVE:
-		case JETPACK_PRODUCTS_FETCH_FAIL:
-			return assign( {}, state, {
-				isFetchingProducts: false,
 			} );
 
 		default:
@@ -144,17 +130,7 @@ export function isFetchingSiteBenefits( state ) {
 }
 
 /**
- * Returns true if currently requesting products. Otherwise false.
- *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether products are being requested
- */
-export function isFetchingProducts( state ) {
-	return !! state.jetpack.siteData.requests.isFetchingProducts;
-}
-
-/**
- * Returns true if currently requesting site products. Otherwise false.
+ * Returns true if currently requesting site purchases. Otherwise false.
  *
  * @param  {Object}  state Global state tree
  * @return {Boolean}       Whether site purchases are being requested
@@ -205,15 +181,6 @@ export function getAvailablePlans( state ) {
 
 export function getSitePurchases( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ] );
-}
-
-/**
- * Returns wpcom products that are relevant to Jetpack
- * @param  {Object}  state Global state tree
- * @return {Object}  Products
- */
-export function getProducts( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'products' ] );
 }
 
 export function getSiteID( state ) {
