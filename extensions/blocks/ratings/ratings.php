@@ -94,6 +94,11 @@ function jetpack_ratings_amp_add_inline_css() {
 
 function jetpack_ratings_render_block( $attributes ) {
 	$classname = empty( $attributes['className'] ) ? '' : ' ' . $attributes['className'];
+
+	Jetpack_Gutenberg::load_assets_as_required( 'rating-star' );
+	Jetpack_Gutenberg::load_assets_as_required( 'rating-spiciness' );
+	Jetpack_Gutenberg::load_assets_as_required( 'rating-priciness' );
+
 	return sprintf(
 		'<div class="%1$s" style="text-align:%3$s">%2$s</div>',
 		esc_attr( 'wp-block-jetpack-rating-' . $attributes['ratingStyle'] . $classname ),
