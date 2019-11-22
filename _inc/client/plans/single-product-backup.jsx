@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
-import { get } from 'lodash';
+import { get, startCase } from 'lodash';
 
 /**
  * Internal dependencies
@@ -170,11 +170,13 @@ class SingleProductBackupBody extends React.Component {
 	};
 
 	handleUpgradeButtonClick = selectedBackupType => () => {
+		const page = startCase( window.location.hash.replace( /#\//g, ' ' ).trim() );
+
 		analytics.tracks.recordJetpackClick( {
 			target: `upgrade-${ selectedBackupType }`,
 			type: 'upgrade',
 			product: selectedBackupType,
-			page: 'Plans',
+			page,
 		} );
 	};
 
