@@ -4,14 +4,20 @@
 import { __ } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { PanelBody, RadioControl, SelectControl, Spinner } from '@wordpress/components';
+import { PanelBody, RadioControl, SelectControl, Spinner, Button } from '@wordpress/components';
 import { InspectorControls } from '@wordpress/editor';
+
+/**
+ * Internal dependences
+ */
+import requestExternalAccess from 'lib/sharing';
 
 const defaultEvent = { label: __( 'Select event', 'jetpack' ), value: '' };
 
 class EventbriteEdit extends Component {
 	state = {
 		fetchingEvents: true,
+		connectUrl: '',
 		events: [],
 	};
 
@@ -24,12 +30,25 @@ class EventbriteEdit extends Component {
 			path: '/jetpack/v4/integrations/eventbrite',
 		} );
 
+		// If the API returned a connection URL, save it and retry a little later.
+		if ( response.connect_url ) {
+			this.setState( {
+				connectUrl: response.connect_url,
+			} );
+			return;
+		}
+
+		// Save the events returned.
 		const events = response.events.map( event => ( {
 			label: event.post_title,
 			value: event.ID,
 		} ) );
 
-		this.setState( { events, fetchingEvents: false } );
+		this.setState( {
+			connectUrl: '',
+			events,
+			fetchingEvents: false,
+		} );
 	};
 
 	setEvent = eventId => {
@@ -38,7 +57,25 @@ class EventbriteEdit extends Component {
 
 	render() {
 		const { eventId, useModal } = this.props.attributes;
-		const { events, fetchingEvents } = this.state;
+		const { events, fetchingEvents, connectUrl } = this.state;
+
+		if ( connectUrl ) {
+			return (
+				<div className="wp-block-jetpack-eventbrite is-disconnected">
+					<Button
+						isPrimary
+						onClick={ requestExternalAccess( connectUrl, () => {
+							this.setState( {
+								connectUrl: '',
+							} );
+							this.getEvents();
+						} ) }
+					>
+						Connect!
+					</Button>
+				</div>
+			);
+		}
 
 		if ( fetchingEvents ) {
 			return (
