@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -15,9 +15,9 @@ import PlanPrice from 'components/plans/plan-price';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { plan, products, upgradeLinks } ) {
+export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
 	// Don't show the product card for paid plans.
-	if ( ! isEmpty( products ) && ( plan || 'jetpack_free' !== plan ) ) {
+	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
 		return null;
 	}
 
@@ -28,17 +28,17 @@ export function SingleProductBackup( { plan, products, upgradeLinks } ) {
 				{ __( "Just looking for backups? We've got you covered." ) }
 			</h2>
 			<div className="plans-section__single-product">
-				<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
+				{ isFetchingData ? (
+					<div className="plans-section__single-product-skeleton is-placeholder" />
+				) : (
+					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
+				) }
 			</div>
 		</React.Fragment>
 	);
 }
 
 function SingleProductBackupCard( { products, upgradeLinks } ) {
-	if ( isEmpty( products ) ) {
-		return <div className="plans-section__single-product-skeleton is-placeholder" />;
-	}
-
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );

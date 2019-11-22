@@ -13,12 +13,17 @@ import { SingleProductBackup } from './single-product-backup';
 import QueryProducts from 'components/data/query-products';
 import QuerySite from 'components/data/query-site';
 import { getUpgradeUrl } from 'state/initial-state';
+import { getSitePlan, isFetchingSiteData, isFetchingProducts } from 'state/site';
 import { getProducts } from 'state/products';
-import { getSitePlan } from 'state/site';
 
 export class Plans extends React.Component {
 	render() {
-		const { dailyBackupUpgradeUrl, products, realtimeBackupUpgradeUrl } = this.props;
+		const {
+			dailyBackupUpgradeUrl,
+			products,
+			realtimeBackupUpgradeUrl,
+			isFetchingData,
+		} = this.props;
 
 		const plan = get( this.props.sitePlan, 'product_slug' );
 		const upgradeLinks = {
@@ -30,7 +35,12 @@ export class Plans extends React.Component {
 			<React.Fragment>
 				<QueryProducts />
 				<QuerySite />
-				<SingleProductBackup plan={ plan } products={ products } upgradeLinks={ upgradeLinks } />
+				<SingleProductBackup
+					plan={ plan }
+					products={ products }
+					upgradeLinks={ upgradeLinks }
+					isFetchingData={ isFetchingData }
+				/>
 				<PlanGrid />
 			</React.Fragment>
 		);
@@ -43,5 +53,6 @@ export default connect( state => {
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		sitePlan: getSitePlan( state ),
+		isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
 	};
 } )( Plans );
