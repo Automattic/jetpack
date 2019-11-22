@@ -177,6 +177,14 @@ class SingleProductBackupBody extends React.Component {
 		} );
 	};
 
+	handleLandingPageLinkClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-backup',
+			extra: selectedBackupType,
+		} );
+	};
+
 	render() {
 		const {
 			backupOptions,
@@ -205,6 +213,7 @@ class SingleProductBackupBody extends React.Component {
 										href="https://jetpack.com/upgrade/backup/"
 										icon
 										iconSize={ 12 }
+										onClick={ this.handleLandingPageLinkClick( selectedBackupType ) }
 									/>
 								),
 							},
