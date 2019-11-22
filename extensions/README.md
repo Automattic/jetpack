@@ -76,7 +76,7 @@ Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testin
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
 
-`wp jetpack scaffold <type> <title> [--slug] [--description] [--keywords]`
+`wp jetpack scaffold <type> <title> [--slug] [--description] [--keywords] [--variation]`
 
 **Currently the only `type` is `block`.**
 
@@ -86,6 +86,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 - **--slug**: Specific slug to identify the block that overrides the one generated base don the title.
 - **--description**: Allows to provide a text description of the block.
 - **--keywords**: Provide up to three keywords separated by a comma so users when they search for a block in the editor.
+- **--variation**: Allows to decide whether the block should be a production block, experimental, or beta. Defaults to Beta when arg not provided.
 
 ### Files
 
@@ -108,6 +109,8 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 `wp jetpack scaffold block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"`
 
 `wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"`
+
+`wp jetpack scaffold block "Jukebox" --variation="experimental"`
 
 ### Can I use Jurassic Ninja to test blocks?
 

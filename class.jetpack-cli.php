@@ -1809,15 +1809,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * --slug: Specific slug to identify the block that overrides the one generated based on the title.
 	 * --description: Allows to provide a text description of the block.
 	 * --keywords: Provide up to three keywords separated by comma so users can find this block when they search in Gutenberg's inserter.
+	 * --variation: Allows to decide whether the block should be a production block, experimental, or beta. Defaults to Beta when arg not provided.
 	 *
 	 * ## BLOCK TYPE EXAMPLES
 	 *
 	 * wp jetpack scaffold block "Cool Block"
 	 * wp jetpack scaffold block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"
 	 * wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"
+	 * wp jetpack scaffold block "Jukebox" --variation="experimental"
 	 *
 	 * @subcommand scaffold block
-	 * @synopsis <type> <title> [--slug] [--description] [--keywords]
+	 * @synopsis <type> <title> [--slug] [--description] [--keywords] [--variation]
 	 *
 	 * @param array $args       Positional parameters, when strings are passed, wrap them in quotes.
 	 * @param array $assoc_args Associative parameters like --slug="nice-block".
@@ -1852,6 +1854,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$slug = isset( $assoc_args['slug'] )
 			? $assoc_args['slug']
 			: sanitize_title( $title );
+
+		$variation_options = array( 'production', 'experimental', 'beta' );
+		$variation         = ( isset( $assoc_args['variation'] ) && in_array( $assoc_args['variation'], $variation_options, true ) )
+			? $assoc_args['variation']
+			: 'beta';
 
 		if ( preg_match( '#^jetpack/#', $slug ) ) {
 			$slug = preg_replace( '#^jetpack/#', '', $slug );
@@ -1939,15 +1946,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( empty( $files_written ) ) {
 			WP_CLI::log( esc_html__( 'No files were created', 'jetpack' ) );
 		} else {
-			// Load index.json and insert the slug of the new block in the beta array.
+			// Load index.json and insert the slug of the new block in its block variation array.
 			$block_list_path = JETPACK__PLUGIN_DIR . 'extensions/index.json';
 			$block_list      = $wp_filesystem->get_contents( $block_list_path );
 			if ( empty( $block_list ) ) {
 				/* translators: %s is the path to the file with the block list */
 				WP_CLI::error( sprintf( esc_html__( 'Error fetching contents of %s', 'jetpack' ), $block_list_path ) );
 			} elseif ( false === stripos( $block_list, $slug ) ) {
-				$new_block_list         = json_decode( $block_list );
-				$new_block_list->beta[] = $slug;
+				$new_block_list                   = json_decode( $block_list );
+				$new_block_list->{ $variation }[] = $slug;
 
 				// Format the JSON to match our coding standards.
 				$new_block_list_formatted = wp_json_encode( $new_block_list, JSON_PRETTY_PRINT ) . "\n";
@@ -1973,16 +1980,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 					esc_html__( 'Successfully created block %1$s with slug %2$s', 'jetpack' ) . ' 🎉' . "\n" .
 					"--------------------------------------------------------------------------------------------------------------------\n" .
 					/* translators: the placeholder is a directory path */
-					esc_html__( 'The files were created at %s', 'jetpack' ) . "\n" .
+					esc_html__( 'The files were created at %3$s', 'jetpack' ) . "\n" .
 					esc_html__( 'To start using the block, build the blocks with yarn run build-extensions', 'jetpack' ) . "\n" .
 					/* translators: the placeholder is a file path */
-					esc_html__( 'The block slug has been added to the beta list at %s', 'jetpack' ) . "\n" .
+					esc_html__( 'The block slug has been added to the %4$s list at %5$s', 'jetpack' ) . "\n" .
 					esc_html__( 'To load the block, add the constant JETPACK_BETA_BLOCKS as true to your wp-config.php file', 'jetpack' ) . "\n" .
 					/* translators: the placeholder is a URL */
-					"\n" . esc_html__( 'Read more at %s', 'jetpack' ) . "\n",
+					"\n" . esc_html__( 'Read more at %6$s', 'jetpack' ) . "\n",
 					$title,
 					$slug,
 					$path,
+					$variation,
 					$block_list_path,
 					'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
 				) . '--------------------------------------------------------------------------------------------------------------------'
