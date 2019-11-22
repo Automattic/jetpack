@@ -180,7 +180,16 @@ export function getAvailablePlans( state ) {
 }
 
 export function getSitePurchases( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ] );
+	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ], [] );
+}
+
+/**
+ * Returns the active purchases for a site
+ * @param {*} state Global state tree
+ * @return {Array}  Active purchse for the site
+ */
+export function getActiveSitePurchases( state ) {
+	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
 }
 
 export function getSiteID( state ) {
