@@ -64,12 +64,14 @@ class EventbriteEdit extends Component {
 				<div className="wp-block-jetpack-eventbrite is-disconnected">
 					<Button
 						isPrimary
-						onClick={ requestExternalAccess( connectUrl, () => {
-							this.setState( {
-								connectUrl: '',
-							} );
-							this.getEvents();
-						} ) }
+						onClick={ () =>
+							requestExternalAccess( connectUrl, () => {
+								this.setState( {
+									connectUrl: '',
+								} );
+								this.getEvents();
+							} )
+						}
 					>
 						Connect!
 					</Button>
