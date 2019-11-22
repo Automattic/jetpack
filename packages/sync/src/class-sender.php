@@ -529,7 +529,7 @@ class Sender {
 	 * @return Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
 	 */
 	public function send_action( $action_name, $data = null ) {
-		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
+		if ( ! Settings::is_sender_enabled() ) {
 			return array();
 		}
 
