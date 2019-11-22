@@ -9,6 +9,7 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import PlanPrice from 'components/plans/plan-price';
@@ -168,6 +169,14 @@ class SingleProductBackupBody extends React.Component {
 		this.props.setSelectedBackupType( event.target.value );
 	};
 
+	handleUpgradeButtonClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'upgrade-button',
+			feature: 'single-product-backup',
+			extra: selectedBackupType,
+		} );
+	};
+
 	render() {
 		const {
 			backupOptions,
@@ -222,7 +231,11 @@ class SingleProductBackupBody extends React.Component {
 					upgradeLinks[ selectedBackupType ] &&
 					upgradeTitles[ selectedBackupType ] && (
 						<div className="single-product-backup__upgrade-button-container">
-							<Button href={ upgradeLinks[ selectedBackupType ] } primary>
+							<Button
+								href={ upgradeLinks[ selectedBackupType ] }
+								onClick={ this.handleUpgradeButtonClick( selectedBackupType ) }
+								primary
+							>
 								{ upgradeTitles[ selectedBackupType ] }
 							</Button>
 						</div>
