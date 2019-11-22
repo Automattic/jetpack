@@ -19,7 +19,7 @@ require_once __DIR__ . '/rating-meta.php';
  */
 function jetpack_rating_star_render_block( $attributes ) {
 	// Tell Jetpack to load the assets registered via jetpack_register_block.
-	Jetpack_Gutenberg::load_assets_as_required( 'rating-star' );
+	Jetpack_Gutenberg::load_assets_as_required( 'ratings' );
 
 	return jetpack_rating_meta_render_block( $attributes );
 }
