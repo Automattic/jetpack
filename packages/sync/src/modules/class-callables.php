@@ -244,9 +244,9 @@ class Callables extends Module {
 	 *
 	 * @param array $config Full sync configuration for this sync module.
 	 * @param int   $send_until The timestamp until the current request can send.
-	 * @param array $status Module Full Sync Status.
+	 * @param array $status This Module Full Sync Status.
 	 *
-	 * @return array Module Full Sync Status.
+	 * @return array This Module Full Sync Status.
 	 */
 	public function send_full_sync_actions( $config, $send_until, $status ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
