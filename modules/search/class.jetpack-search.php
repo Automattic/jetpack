@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
 /**
  * Jetpack Search: Main Jetpack_Search class
  *
@@ -153,7 +154,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
+		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
@@ -280,6 +281,28 @@ class Jetpack_Search {
 				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
 		}
+	}
+
+	/**
+	 * Is search supported on the current plan
+	 *
+	 * @since 6.0
+	 * Loads scripts for Tracks analytics library
+	 */
+	public function is_search_supported() {
+		return Jetpack::active_plan_supports( 'search' );
+	}
+
+	/**
+	 * Does this site have a VIP index
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @since 6.0
+	 * @param string $file Path of the file we are looking for.
+	 * @return string $script_version Version number.
+	 */
+	public function has_vip_index() {
+		return defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX;
 	}
 
 	/**
@@ -974,7 +997,7 @@ class Jetpack_Search {
 		);
 
 		if ( empty( $args['query_fields'] ) ) {
-			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
+			if ( $this->has_vip_index() ) {
 				// VIP indices do not have per language fields.
 				$match_fields = $this->_get_caret_boosted_fields(
 					array(

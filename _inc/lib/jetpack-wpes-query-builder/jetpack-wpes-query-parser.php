@@ -31,7 +31,7 @@
  * Example usage (from Search on Reader Manage):
  *
  *		require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-search-query-parser' );
- *		$parser = new WPES_Search_Query_Parser( $args['q'], array( $lang ) );
+ *		$parser = new Jetpack_WPES_Search_Query_Parser( $args['q'], array( $lang ) );
  *
  *		//author
  *		$parser->author_field_filter( array(
