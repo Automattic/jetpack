@@ -128,7 +128,7 @@ function runPHPCSChanged( phpFilesToCheck ) {
 		process.env.PHPCS = 'vendor/bin/phpcs';
 
 		phpFilesToCheck.forEach( function( file ) {
-			phpFileChangedResult = spawnSync( 'vendor/bin/phpcs-changed', [ '--git', file ], {
+			phpFileChangedResult = spawnSync( 'composer', [ 'run', 'php:changed', file ], {
 				env: process.env,
 				shell: true,
 				stdio: 'inherit',
