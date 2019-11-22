@@ -557,7 +557,7 @@ class Sender {
 	/**
 	 * Create an synthetic action for direct sending to WPCOM during full sync (for example)
 	 *
-	 * @access protected
+	 * @access private
 	 *
 	 * @param string $action_name The action.
 	 * @param array  $data The data associated with the action.
