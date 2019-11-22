@@ -352,7 +352,7 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @param (array|Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or indexed array object.
+	 * @param (array|Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or array of objects.
 	 * @param boolean                                      $encode Whether to encode the items.
 	 * @return array Sync items to send.
 	 */
