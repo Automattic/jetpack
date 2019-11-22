@@ -13,8 +13,8 @@ import { SingleProductBackup } from './single-product-backup';
 import QueryProducts from 'components/data/query-products';
 import QuerySite from 'components/data/query-site';
 import { getUpgradeUrl } from 'state/initial-state';
-import { getSitePlan, isFetchingSiteData, isFetchingProducts } from 'state/site';
-import { getProducts } from 'state/products';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getProducts, isFetchingProducts } from 'state/products';
 
 export class Plans extends React.Component {
 	render() {
