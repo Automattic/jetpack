@@ -243,7 +243,7 @@ class Callables extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until Maximum duration of processing.
+	 * @param int   $send_until The timestamp until the current request can send.
 	 * @param array $status Module Full Sync Status.
 	 *
 	 * @return array Module Full Sync Status.

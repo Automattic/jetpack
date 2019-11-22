@@ -144,7 +144,7 @@ class Term_Relationships extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until Maximum duration of processing.
+	 * @param int   $send_until The timestamp until the current request can send.
 	 * @param array $status Full sync status for this module.
 	 *
 	 * @return array Full sync status for this module.
@@ -155,16 +155,16 @@ class Term_Relationships extends Module {
 		$items_per_page = 100;
 
 		if ( empty( $status['last_sent'] ) ) {
-			$status['last_sent'] = [
+			$status['last_sent'] = array(
 				'object_id'        => self::MAX_INT,
 				'term_taxonomy_id' => self::MAX_INT,
-			];
+			);
 		}
 
 		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $status['last_sent']['object_id'], $status['last_sent']['term_taxonomy_id'], $status['last_sent']['object_id'], $items_per_page ), ARRAY_A ) ) {
-			$result = $this->send_action( 'jetpack_full_sync_term_relationships', [ $objects, $status['last_sent'] ] );
+			$result = $this->send_action( 'jetpack_full_sync_term_relationships', array( $objects, $status['last_sent'] ) );
 
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				return $status;

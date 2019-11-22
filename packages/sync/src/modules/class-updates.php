@@ -379,7 +379,7 @@ class Updates extends Module {
 	 * @access public
 	 *
 	 * @param array   $config Full sync configuration for this sync module.
-	 * @param int     $send_until Maximum duration of processing.
+	 * @param int     $send_until The timestamp until the current request can send.
 	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
 	 *
 	 * @return array Number of actions enqueued, and next module state.
