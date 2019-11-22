@@ -11,9 +11,12 @@ export const StarBlockIcon = () => {
 	);
 };
 
+const getColor = props => ( props && props.color ? props.color : 'currentColor' );
+const getClassName = props => ( props && props.className ? props.className : '' );
+
 export const StarIcon = props => {
-	const color = props && props.color ? props.color : 'currentColor';
-	const className = props && props.className ? props.className : '';
+	const color = getColor( props );
+	const className = getClassName( props );
 
 	return (
 		<SVG
@@ -34,8 +37,8 @@ export const StarIcon = props => {
 };
 
 export const ChiliIcon = props => {
-	const color = props && props.color ? props.color : 'currentColor';
-	const className = props && props.className ? props.className : '';
+	const color = getColor( props );
+	const className = getClassName( props );
 
 	return (
 		<SVG
@@ -55,8 +58,8 @@ export const ChiliIcon = props => {
 };
 
 export const MoneyIcon = props => {
-	const color = props && props.color ? props.color : 'currentColor';
-	const className = props && props.className ? props.className : '';
+	const color = getColor( props );
+	const className = getClassName( props );
 
 	return (
 		<SVG
