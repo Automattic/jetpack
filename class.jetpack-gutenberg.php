@@ -348,11 +348,28 @@ class Jetpack_Gutenberg {
 	public static function get_jetpack_gutenberg_extensions_whitelist() {
 		$preset_extensions_manifest = self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array();
 
-		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array();
+		$blocks_variation  = self::blocks_variation();
+		$preset_extensions = isset( $preset_extensions_manifest->production )
+			? (array) $preset_extensions_manifest->production
+			: array();
 
-		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
-			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
-			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
+		if ( 'production' === $blocks_variation ) {
+			$preset_extensions = self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
+		}
+
+		if ( 'experimental' === $blocks_variation ) {
+			$preset_extensions = self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation, $preset_extensions );
+		}
+
+		/*
+		 * If you've chosen to see Beta blocks,
+		 * we want to make all blocks available to you:
+		 * - Production
+		 * - Experimental
+		 * - Beta
+		 */
+		if ( 'beta' === $blocks_variation ) {
+			$preset_extensions = self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation, $preset_extensions );
 		}
 
 		return $preset_extensions;
@@ -585,14 +602,20 @@ class Jetpack_Gutenberg {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$rtl        = is_rtl() ? '.rtl' : '';
-		$beta       = Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
-		$blocks_dir = self::get_blocks_directory();
+		$rtl              = is_rtl() ? '.rtl' : '';
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
 
-		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
 
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.asset.php";
+		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
+
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
 		$editor_deps      = array( 'wp-polyfill' );
 		if ( file_exists( $editor_deps_path ) ) {
 			$asset_manifest = include $editor_deps_path;
