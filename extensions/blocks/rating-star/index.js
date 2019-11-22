@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -21,17 +21,22 @@ export const settings = {
 		'jetpack'
 	),
 	icon: StarBlockIcon,
+	keywords: [
+		_x( 'star', 'block search term', 'jetpack' ),
+		_x( 'rating', 'block search term', 'jetpack' ),
+		_x( 'review', 'block search term', 'jetpack' ),
+	],
 	category: 'jetpack',
 	example: {},
 	styles: [
 		{
 			name: 'default',
-			label: 'Default',
+			label: _x( 'Default', 'block style', 'jetpack' ),
 			isDefault: true,
 		},
 		{
 			name: 'outlined',
-			label: 'Outlined',
+			label: _x( 'Outlined', 'block style', 'jetpack' ),
 		},
 	],
 	attributes: {
