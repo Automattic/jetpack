@@ -16,6 +16,7 @@ if (
 	Jetpack::is_active() &&
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 	apply_filters( 'jetpack_show_promotions', true ) &&
+	// Disable feature hints when plugins cannot be installed.
 	! Constants::is_true( 'DISALLOW_FILE_MODS' ) &&
 	jetpack_is_psh_active()
 ) {
