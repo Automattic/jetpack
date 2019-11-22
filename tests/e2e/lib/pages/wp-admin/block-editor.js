@@ -5,7 +5,7 @@ import Page from '../page';
 /**
  * WordPress dependencies
  */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
+import { getAllBlocks, searchForBlock, selectBlockByClientId } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
@@ -23,6 +23,7 @@ export default class BlockEditorPage extends Page {
 		await scrollIntoView( this.page, jetpackPanelSelector );
 		await waitAndClick( this.page, blockIconSelector );
 		const blockInfo = await this.getInsertedBlock();
+		await selectBlockByClientId( blockInfo.clientId );
 		return blockInfo;
 	}
 
