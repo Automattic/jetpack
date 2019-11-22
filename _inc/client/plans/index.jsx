@@ -49,7 +49,31 @@ export class Plans extends React.Component {
 		if ( 'is-business-plan' === planClass ) {
 			singleProductContent = <ProductCard title="Business Plan" />;
 		} else if ( activePurchaseProductSlugs.includes( 'jetpack_backup_realtime' ) ) {
-			singleProductContent = <ProductCard title="Jetpack Backup Realtime" />;
+			singleProductContent = (
+				<ProductCard
+					{ ...{
+						title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
+							components: {
+								em: <em />,
+							},
+						} ),
+						subtitle: __( 'Purchased %(purchaseDate)s', {
+							args: {
+								purchaseDate: moment(
+									activeSitePurchases.find(
+										purchase => 'jetpack_backup_realtime' === purchase.product_slug
+									).subscribedDate
+								).format( 'YYYY-MM-DD' ),
+							},
+						} ),
+						description: __(
+							'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
+						),
+						purchase: true,
+						isCurrent: true,
+					} }
+				/>
+			);
 		} else if ( 'is-premium-plan' === planClass ) {
 			singleProductContent = <ProductCard title="Premium Plan" />;
 		} else if ( 'is-personal-plan' === planClass ) {
@@ -93,7 +117,7 @@ export class Plans extends React.Component {
 					} }
 				/>
 			);
-		} else if ( products && 'is-free-plan' === planClass ) {
+		} else if ( products && [ '', 'is-free-plan' ].includes( planClass ) ) {
 			singleProductContent = (
 				<SingleProductBackup
 					plan={ plan }
