@@ -7,20 +7,22 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/eventbrite',
-	array(
-		'attributes'      => array(
-			'eventId'  => array(
-				'type' => 'string',
+if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
+	jetpack_register_block(
+		'jetpack/eventbrite',
+		array(
+			'attributes'      => array(
+				'eventId'  => array(
+					'type' => 'string',
+				),
+				'useModal' => array(
+					'type' => 'boolean',
+				),
 			),
-			'useModal' => array(
-				'type' => 'boolean',
-			),
-		),
-		'render_callback' => 'jetpack_eventbrite_block_load_assets',
-	)
-);
+			'render_callback' => 'jetpack_eventbrite_block_load_assets',
+		)
+	);
+}
 
 /**
  * Eventbrite block registration/dependency delclaration.
