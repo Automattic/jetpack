@@ -113,6 +113,10 @@ module.exports = [
 				..._.without( extensionsWebpackConfig.module.rules, transpileConfig ),
 			],
 		},
+		resolve: {
+			...extensionsWebpackConfig.resolve,
+			modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
+		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
 			new CopyWebpackPlugin( [
