@@ -28,7 +28,7 @@ export default class PinterestBlock {
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
 		await waitAndClick( this.page, inputSelector );
-		await waitAndType( this.page, inputSelector, this.embedUrl() );
+		await waitAndType( this.page, inputSelector, PinterestBlock.embedUrl() );
 
 		await waitAndClick( this.page, descriptionSelector );
 	}
@@ -42,7 +42,7 @@ export default class PinterestBlock {
 	 * @param {Page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
-		const containerSelector = `.entry-content a[data-pin-do='embedPin'][href='${ this.embedUrl() }']`;
+		const containerSelector = `.entry-content a[data-pin-do='embedPin'][href='${ PinterestBlock.embedUrl() }']`;
 
 		await waitForSelector( page, containerSelector );
 	}
