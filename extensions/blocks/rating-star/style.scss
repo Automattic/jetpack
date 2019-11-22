@@ -1,7 +1,5 @@
 // Editor and View styles
-.wp-block-jetpack-rating-star,
-.wp-block-jetpack-rating-spiciness,
-.wp-block-jetpack-rating-priciness {
+.wp-block-jetpack-rating-star {
 	margin-bottom: 1.5em; // Provide a minimum bottom margin.
 	line-height: 0;
 	stroke-width: 0;
@@ -72,21 +70,14 @@
 	.jetpack-ratings-button span:nth-child(even) {
 		justify-content: flex-end;
 	}
-}
 
-// Some themes change the display, so make it explicit here.
-// !important added because these should never be unset.
-.wp-block-jetpack-rating-star,
-.wp-block-jetpack-rating-spiciness,
-.wp-block-jetpack-rating-priciness {
+	// Some themes change the display, so make it explicit here.
+	// !important added because these should never be unset.
 	svg {
 		display: inline-block !important;
 		max-width: none !important
 	}
-}
 
-// Star rating styles.
-.wp-block-jetpack-rating-star {
 	&.is-style-outlined {
 		stroke-width: 2px;
 
