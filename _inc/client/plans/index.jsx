@@ -20,6 +20,7 @@ export class Plans extends React.Component {
 	render() {
 		const { dailyBackupUpgradeUrl, products, realtimeBackupUpgradeUrl } = this.props;
 
+		const plan = get( this.props.sitePlan, 'product_slug' );
 		const upgradeLinks = {
 			daily: dailyBackupUpgradeUrl,
 			'real-time': realtimeBackupUpgradeUrl,
@@ -29,9 +30,7 @@ export class Plans extends React.Component {
 			<React.Fragment>
 				<QueryProducts />
 				<QuerySite />
-				{ products && 'jetpack_free' === get( this.props.sitePlan, 'product_slug' ) && (
-					<SingleProductBackup products={ products } upgradeLinks={ upgradeLinks } />
-				) }
+				<SingleProductBackup plan={ plan } products={ products } upgradeLinks={ upgradeLinks } />
 				<PlanGrid />
 			</React.Fragment>
 		);
