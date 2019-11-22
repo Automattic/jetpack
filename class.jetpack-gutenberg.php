@@ -717,4 +717,61 @@ class Jetpack_Gutenberg {
 
 		return implode( ' ', $classes );
 	}
+
+	/**
+	 * Determine whether a site should use the default set of blocks, or a custom set.
+	 * Possible variations are currently beta, experimental, and production.
+	 *
+	 * @since 8.1.0
+	 *
+	 * @return string $block_varation production|beta|experimental
+	 */
+	public function blocks_variation() {
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+			return 'beta';
+		}
+
+		/*
+		 * Switch to experimental blocks if you use Gutenberg, the FSE plugin, or the constant.
+		 */
+		if (
+			Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
+			|| Jetpack::is_plugin_active( 'gutenberg/gutenberg.php' )
+			|| Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' )
+		) {
+			return 'experimental';
+		}
+
+		/**
+		 * Allow customizing the variation of blocks in use on a site.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+		 */
+		return apply_filters( 'jetpack_blocks_variation', 'production' );
+	}
+
+	/**
+	 * Get a list of extensions available for the variation you chose.
+	 *
+	 * @since 8.1.0
+	 *
+	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
+	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
+	 * @param array  $additional_extensions      Array of other extensions to add to our variation (preexisting set).
+	 *
+	 * @return array $preset_extensions Array of extensions for that variation
+	 */
+	public function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation, $additional_extensions = array() ) {
+		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
+				? (array) $preset_extensions_manifest->{ $blocks_variation }
+				: array();
+
+		if ( ! empty( $additional_extensions ) ) {
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $additional_extensions ) );
+		}
+
+		return $preset_extensions;
+	}
 }
