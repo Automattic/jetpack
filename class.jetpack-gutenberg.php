@@ -346,33 +346,12 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function get_jetpack_gutenberg_extensions_whitelist() {
-		$preset_extensions_manifest = self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array();
+		$preset_extensions_manifest = self::preset_exists( 'index' )
+			? self::get_preset( 'index' )
+			: (object) array();
+		$blocks_variation           = self::blocks_variation();
 
-		$blocks_variation  = self::blocks_variation();
-		$preset_extensions = isset( $preset_extensions_manifest->production )
-			? (array) $preset_extensions_manifest->production
-			: array();
-
-		if ( 'production' === $blocks_variation ) {
-			$preset_extensions = self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
-		}
-
-		if ( 'experimental' === $blocks_variation ) {
-			$preset_extensions = self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation, $preset_extensions );
-		}
-
-		/*
-		 * If you've chosen to see Beta blocks,
-		 * we want to make all blocks available to you:
-		 * - Production
-		 * - Experimental
-		 * - Beta
-		 */
-		if ( 'beta' === $blocks_variation ) {
-			$preset_extensions = self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation, $preset_extensions );
-		}
-
-		return $preset_extensions;
+		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
 	}
 
 	/**
@@ -749,7 +728,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return string $block_varation production|beta|experimental
 	 */
-	public function blocks_variation() {
+	public static function blocks_variation() {
 		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 			return 'beta';
 		}
@@ -782,17 +761,43 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
 	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
-	 * @param array  $additional_extensions      Array of other extensions to add to our variation (preexisting set).
 	 *
 	 * @return array $preset_extensions Array of extensions for that variation
 	 */
-	public function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation, $additional_extensions = array() ) {
+	public static function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation ) {
 		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
 				? (array) $preset_extensions_manifest->{ $blocks_variation }
 				: array();
 
-		if ( ! empty( $additional_extensions ) ) {
-			$preset_extensions = array_unique( array_merge( $preset_extensions, $additional_extensions ) );
+		/*
+		 * Experimental and Beta blocks need the production blocks as well.
+		 */
+		if (
+			'experimental' === $blocks_variation
+			|| 'beta' === $blocks_variation
+		) {
+			$production_extensions = isset( $preset_extensions_manifest->production )
+				? (array) $preset_extensions_manifest->production
+				: array();
+
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
+		}
+
+		/*
+		 * Beta blocks need the experimental blocks as well.
+		 *
+		 * If you've chosen to see Beta blocks,
+		 * we want to make all blocks available to you:
+		 * - Production
+		 * - Experimental
+		 * - Beta
+		 */
+		if ( 'beta' === $blocks_variation ) {
+			$production_extensions = isset( $preset_extensions_manifest->experimental )
+				? (array) $preset_extensions_manifest->experimental
+				: array();
+
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
 		}
 
 		return $preset_extensions;
