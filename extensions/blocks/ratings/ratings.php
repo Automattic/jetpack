@@ -48,17 +48,17 @@ jetpack_register_block(
 				'default' => 5,
 			),
 			'color'       => array(
-				'type' => 'text',
+				'type' => 'string',
 			),
 			'ratingStyle' => array(
-				'type'    => 'text',
+				'type'    => 'string',
 				'default' => 'star',
 			),
 			'className'   => array(
-				'type' => 'text',
+				'type' => 'string',
 			),
 			'align'       => array(
-				'type'    => 'text',
+				'type'    => 'string',
 				'default' => 'left',
 			),
 		),
