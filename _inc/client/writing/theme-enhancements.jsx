@@ -205,7 +205,7 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundMinileven && (
+				{ foundMinileven && isMinilevenActive && (
 					<SettingsGroup
 						hasChild
 						module={ { module: minileven.module } }
