@@ -1,7 +1,4 @@
 <?php
-
-use Automattic\Jetpack\Assets;
-
 /**
  * GitHub's Gist site supports oEmbed but their oembed provider only
  * returns raw HTML (no styling) and the first little bit of the code.
@@ -20,6 +17,8 @@ use Automattic\Jetpack\Assets;
  *
  * @package Jetpack
  */
+
+use Automattic\Jetpack\Assets;
 
 wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9/]+)(\#file\-[a-zA-Z0-9\_\-]+)?#', 'github_gist_embed_handler' );
 add_shortcode( 'gist', 'github_gist_shortcode' );
@@ -59,6 +58,7 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 	$gist_info = array(
 		'id'   => '',
 		'file' => '',
+		'ts'   => 8,
 	);
 	// Simple shortcode, with just an ID.
 	if ( ctype_alnum( $gist ) ) {
@@ -77,6 +77,7 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 			return array(
 				'id'   => '',
 				'file' => '',
+				'ts'   => 8,
 			);
 		}
 
@@ -87,9 +88,18 @@ function jetpack_gist_get_shortcode_id( $gist = '' ) {
 
 		// Keep the unique identifier without any leading or trailing slashes.
 		if ( ! empty( $parsed_url['path'] ) ) {
-			$gist_info['id'] = preg_replace( '/^\/([^\.]+)\./', '$1', $parsed_url['path'] );
+			$gist_info['id'] = trim( $parsed_url['path'], '/' );
 			// Overwrite $gist with our identifier to clean it up below.
 			$gist = $gist_info['id'];
+		}
+
+		// Parse the query args to obtain the tab spacing.
+		if ( ! empty( $parsed_url['query'] ) ) {
+			$query_args = array();
+			wp_parse_str( $parsed_url['query'], $query_args );
+			if ( ! empty( $query_args['ts'] ) ) {
+				$gist_info['ts'] = absint( $query_args['ts'] );
+			}
 		}
 	}
 
@@ -157,6 +167,12 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		$file = rawurlencode( $file );
 	}
 
+	// Set the tab size, allowing attributes to override the query string.
+	$tab_size = $gist_info['ts'];
+	if ( ! empty( $atts['ts'] ) ) {
+		$tab_size = absint( $atts['ts'] );
+	}
+
 	if (
 		class_exists( 'Jetpack_AMP_Support' )
 		&& Jetpack_AMP_Support::is_amp_request()
@@ -196,7 +212,11 @@ function github_gist_shortcode( $atts, $content = '' ) {
 	);
 
 	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables.
-	$return = '<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="' . esc_attr( $id ) . '"></div>';
+	$return = sprintf(
+		'<style>.gist table { margin-bottom: 0; }</style><div class="gist-oembed" data-gist="%1$s" data-ts="%2$d"></div>',
+		esc_attr( $id ),
+		absint( $tab_size )
+	);
 
 	if (
 		// No need to check for a nonce here, that's already handled by Core further up.
@@ -207,7 +227,7 @@ function github_gist_shortcode( $atts, $content = '' ) {
 		&& 'parse-embed' === $_POST['action']
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	) {
-		return github_gist_simple_embed( $id );
+		return github_gist_simple_embed( $id, $tab_size );
 	}
 
 	return $return;
@@ -219,9 +239,11 @@ function github_gist_shortcode( $atts, $content = '' ) {
  *
  * @since 3.9.0
  *
- * @param string $id The ID of the gist.
+ * @param string $id       The ID of the gist.
+ * @param int    $tab_size The tab size of the gist.
+ * @return string          The script tag of the gist.
  */
-function github_gist_simple_embed( $id ) {
+function github_gist_simple_embed( $id, $tab_size = 8 ) {
 	$id = str_replace( 'json', 'js', $id );
-	return '<script src="' . esc_url( "https://gist.github.com/$id" ) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	return '<script src="' . esc_url( "https://gist.github.com/$id?ts=$tab_size" ) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 }

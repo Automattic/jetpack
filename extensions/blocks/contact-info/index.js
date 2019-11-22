@@ -48,6 +48,33 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	example: {
+		attributes: {},
+		innerBlocks: [
+			{
+				name: 'jetpack/email',
+				attributes: {
+					email: 'hello@yourjetpack.blog',
+				},
+			},
+			{
+				name: 'jetpack/phone',
+				attributes: {
+					phone: '123-456-7890',
+				},
+			},
+			{
+				name: 'jetpack/address',
+				attributes: {
+					address: '987 Photon Drive',
+					city: 'Speedyville',
+					region: 'CA',
+					postal: '12345',
+					country: 'USA',
+				},
+			},
+		],
+	},
 };
 
 export const childBlocks = [

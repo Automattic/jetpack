@@ -226,7 +226,7 @@ class VideoPress_Shortcode {
 		if ( false === stripos( $oembed_provider, 'videopress.com' ) ) {
 			return $oembed_provider;
 		}
-		return add_query_arg( 'for', parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
+		return add_query_arg( 'for', wp_parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
 	}
 
 	/**

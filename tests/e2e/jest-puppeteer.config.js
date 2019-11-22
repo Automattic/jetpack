@@ -3,21 +3,22 @@
  * https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#puppeteerlaunchoptions
  */
 
+const { CI, E2E_DEBUG, PUPPETEER_HEADLESS, PUPPETEER_SLOWMO } = process.env;
 let executablePath = '';
 let dumpio = false;
-if ( ! process.env.CI ) {
+if ( ! CI ) {
 	executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 }
 
-if ( process.env.E2E_DEBUG ) {
+if ( E2E_DEBUG ) {
 	dumpio = true;
 }
 
 module.exports = {
 	launch: {
-		headless: process.env.PUPPETEER_HEADLESS !== 'false',
-		devtools: process.env.PUPPETEER_HEADLESS === 'false',
-		slowMo: parseInt( process.env.PUPPETEER_SLOWMO, 10 ) || 0,
+		headless: PUPPETEER_HEADLESS !== 'false',
+		devtools: PUPPETEER_HEADLESS === 'false',
+		slowMo: parseInt( PUPPETEER_SLOWMO, 10 ) || 0,
 		executablePath,
 		dumpio,
 	},

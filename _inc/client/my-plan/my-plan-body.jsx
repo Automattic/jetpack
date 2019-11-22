@@ -94,31 +94,35 @@ class MyPlanBody extends React.Component {
 				! this.props.showBackups ||
 				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
 
+		const getJetpackBackupCard = args => {
+			const { title, description } = args;
+
+			return (
+				<div className="jp-landing__plan-features-card">
+					<div className="jp-landing__plan-features-img">
+						<img
+							src={ imagePath + '/jetpack-backup.svg' }
+							className="jp-landing__plan-features-icon"
+							alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup' ) }
+						/>
+					</div>
+					<div className="jp-landing__plan-features-text">
+						<h3 className="jp-landing__plan-features-title">{ title }</h3>
+						<p>{ description }</p>
+						<Button
+							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
+							href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+						>
+							{ __( 'View Your Backups' ) }
+						</Button>
+					</div>
+				</div>
+			);
+		};
+
 		const getRewindVaultPressCard = () => {
 			if ( hideVaultPressCard ) {
 				return;
-			}
-
-			let description = '';
-
-			switch ( planClass ) {
-				case 'is-personal-plan':
-					description = __(
-						'Daily backup of all your site data with unlimited space and one-click restores'
-					);
-					break;
-				case 'is-premium-plan':
-					description = __(
-						'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
-					);
-					break;
-				case 'is-business-plan':
-					description = __(
-						'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
-					);
-					break;
-				default:
-					description = '';
 			}
 
 			if ( rewindActive ) {
@@ -147,6 +151,28 @@ class MyPlanBody extends React.Component {
 						</div>
 					</div>
 				);
+			}
+
+			let description = '';
+			switch ( planClass ) {
+				case 'is-personal-plan':
+					description = __(
+						'Daily backup of all your site data with unlimited space and one-click restores'
+					);
+					break;
+				case 'is-premium-plan':
+					description = __(
+						'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
+					);
+					break;
+				case 'is-business-plan':
+					description = __(
+						'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support'
+					);
+					break;
+				default:
+					description = '';
+					break;
 			}
 
 			return (
@@ -186,6 +212,25 @@ class MyPlanBody extends React.Component {
 			);
 		};
 
+		let jetpackBackupCard;
+		if ( 'is-daily-backup-plan' === planClass ) {
+			jetpackBackupCard = getJetpackBackupCard( {
+				title: __( 'Automated Daily Backups' ),
+				description: __(
+					'We back up your website every day, so you never have to worry about your data again.'
+				),
+			} );
+		}
+
+		if ( 'is-realtime-backup-plan' === planClass ) {
+			jetpackBackupCard = getJetpackBackupCard( {
+				title: __( 'Automated Real-time Backups' ),
+				description: __(
+					'We back up your website with every change you make, making it easy to fix your mistakes.'
+				),
+			} );
+		}
+
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
@@ -217,7 +262,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'paid_performance' ) }
-									href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
 								>
 									{ __( 'Make your site faster' ) }
 								</Button>
@@ -233,7 +278,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Spam Filtering' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Anti-spam' ) }</h3>
 								<p>{ __( 'Spam is automatically blocked from your comments.' ) }</p>
 								{ this.props.isPluginInstalled( 'akismet/akismet.php' ) &&
 								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
@@ -537,9 +582,12 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
+			case 'is-daily-backup-plan':
+			case 'is-realtime-backup-plan':
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-features">
+						{ jetpackBackupCard }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -583,7 +631,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
-									href={ 'https://wordpress.com/settings/performance/' + this.props.siteRawUrl }
+									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
 								>
 									{ __( 'Make your site faster' ) }
 								</Button>
@@ -700,8 +748,6 @@ class MyPlanBody extends React.Component {
 									{ __( 'Take your site to the next level!' ) }
 								</h3>
 								<ul className="jp-landing__plan-features-list">
-									<li>{ __( 'Get peace of mind with automated backups.' ) }</li>
-									<li>{ __( 'Resolve issues quickly with priority support.' ) }</li>
 									<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
 									<li>{ __( 'Customize your social posting schedule.' ) }</li>
 									<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>

@@ -69,7 +69,10 @@ class AtAGlance extends Component {
 		);
 		const connections = (
 			<div>
-				<DashSectionHeader label={ __( 'Connections' ) } />
+				<DashSectionHeader
+					label={ __( 'Connections' ) }
+					className="jp-dash-section-header__connections"
+				/>
 				<DashConnections />
 			</div>
 		);

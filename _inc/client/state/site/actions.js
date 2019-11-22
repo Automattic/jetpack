@@ -8,9 +8,15 @@ import {
 	JETPACK_SITE_FEATURES_FETCH,
 	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
 	JETPACK_SITE_FEATURES_FETCH_FAIL,
+	JETPACK_SITE_BENEFITS_FETCH,
+	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
+	JETPACK_SITE_BENEFITS_FETCH_FAIL,
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
+	JETPACK_SITE_PURCHASES_FETCH,
+	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+	JETPACK_SITE_PURCHASES_FETCH_FAIL,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -31,6 +37,28 @@ export const fetchSiteData = () => {
 			.catch( error => {
 				dispatch( {
 					type: JETPACK_SITE_DATA_FETCH_FAIL,
+					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchSiteBenefits = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_BENEFITS_FETCH,
+		} );
+		return restApi
+			.fetchSiteBenefits()
+			.then( siteBenefits => {
+				dispatch( {
+					type: JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
+					siteBenefits: siteBenefits,
+				} );
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_BENEFITS_FETCH_FAIL,
 					error: error,
 				} );
 			} );
@@ -68,10 +96,9 @@ export const fetchAvailablePlans = () => {
 		return restApi
 			.getPlans()
 			.then( sitePlans => {
-				const plans = JSON.parse( sitePlans );
 				dispatch( {
 					type: JETPACK_SITE_PLANS_FETCH_RECEIVE,
-					plans,
+					plans: sitePlans,
 				} );
 				return sitePlans;
 			} )
@@ -79,6 +106,29 @@ export const fetchAvailablePlans = () => {
 				dispatch( {
 					type: JETPACK_SITE_PLANS_FETCH_FAIL,
 					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchSitePurchases = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_PURCHASES_FETCH,
+		} );
+		return restApi
+			.fetchSitePurchases()
+			.then( purchases => {
+				dispatch( {
+					type: JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+					purchases,
+				} );
+				return purchases;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_PURCHASES_FETCH_FAIL,
+					error,
 				} );
 			} );
 	};

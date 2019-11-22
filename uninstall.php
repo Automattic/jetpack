@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Backup\Helper_Script_Manager;
 
 if (
 	!defined( 'WP_UNINSTALL_PLUGIN' )
@@ -36,3 +37,6 @@ add_filter( 'jetpack_sync_modules', '__return_empty_array', 100 );
 
 // Jetpack Sync
 Sender::get_instance()->uninstall();
+
+// Jetpack Backup: Cleanup any leftover Helper Scripts
+Helper_Script_Manager::delete_all_helper_scripts();

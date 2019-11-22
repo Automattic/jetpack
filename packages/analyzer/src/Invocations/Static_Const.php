@@ -17,8 +17,8 @@ class Static_Const extends PersistentListItem implements Depends_On {
 	public $const_name;
 
 	public function __construct( $path, $line, $class_name, $const_name ) {
-		$this->path = $path;
-		$this->line = $line;
+		$this->path       = $path;
+		$this->line       = $line;
 		$this->class_name = $class_name;
 		$this->const_name = $const_name;
 	}
@@ -29,7 +29,7 @@ class Static_Const extends PersistentListItem implements Depends_On {
 			$this->path,
 			$this->line,
 			$this->class_name,
-			$this->const_name
+			$this->const_name,
 		);
 	}
 

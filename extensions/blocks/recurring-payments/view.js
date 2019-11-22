@@ -1,6 +1,11 @@
 /* global tb_show, tb_remove */
 
 /**
+ * External dependencies
+ */
+import domReady from '@wordpress/dom-ready';
+
+/**
  * Internal dependencies
  */
 import './view.scss';
@@ -61,11 +66,6 @@ const initializeMembershipButtonBlocks = () => {
 	} );
 };
 
-if ( typeof window !== 'undefined' && typeof document !== 'undefined' ) {
-	// `DOMContentLoaded` may fire before the script has a chance to run
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', initializeMembershipButtonBlocks );
-	} else {
-		initializeMembershipButtonBlocks();
-	}
+if ( typeof window !== 'undefined' ) {
+	domReady( initializeMembershipButtonBlocks );
 }

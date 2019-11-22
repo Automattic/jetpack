@@ -861,7 +861,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function add_www_subdomain_to_siteurl( $url ) {
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
 	}
@@ -897,13 +897,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_force_sync_callabled_on_plugin_update() {
+	function test_force_sync_callable_on_plugin_update() {
 		// fake the cron so that we really prevent the callables from being called
 		Settings::$is_doing_cron = true;
 
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
 		$this->sender->do_sync();
-		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->server_replica_storage->get_callable( 'jetpack_foo' );
 
 		$this->server_replica_storage->reset();
 

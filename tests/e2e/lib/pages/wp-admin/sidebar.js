@@ -25,6 +25,20 @@ export default class Sidebar extends Page {
 		return await this._selectMenuItem( postsSelector, itemSelector );
 	}
 
+	async selectInstalledPlugins() {
+		const pluginsSelector = '#menu-plugins';
+		const itemSelector = '#menu-plugins a[href*="plugins.php"]';
+
+		return await this._selectMenuItem( pluginsSelector, itemSelector );
+	}
+
+	async selectDashboard() {
+		const mainSelector = '#menu-dashboard';
+		const itemSelector = '#menu-dashboard a[href*="index.php"]';
+
+		return await this._selectMenuItem( mainSelector, itemSelector );
+	}
+
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
 		const menuElement = await waitForSelector( this.page, menuSelector );
 		const classes = await page.$eval( menuSelector, e => e.getAttribute( 'class' ) );

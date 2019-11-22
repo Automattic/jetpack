@@ -18,6 +18,7 @@ import {
 	LAYOUT_SQUARE,
 	LAYOUT_STYLES,
 } from './constants';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 /**
  * Style dependencies
@@ -25,6 +26,16 @@ import {
 import './editor.scss';
 
 import * as deprecatedV1 from './deprecated/v1';
+
+/**
+ * Example Images
+ */
+import tiledGalleryExample1 from './tiled-gallery_example-1.jpg';
+import tiledGalleryExample2 from './tiled-gallery_example-2.jpg';
+import tiledGalleryExample3 from './tiled-gallery_example-3.jpg';
+import tiledGalleryExample4 from './tiled-gallery_example-4.jpg';
+import tiledGalleryExample5 from './tiled-gallery_example-5.jpg';
+import tiledGalleryExample6 from './tiled-gallery_example-6.jpg';
 
 // Style names are translated. Avoid introducing an i18n dependency elsewhere (view)
 // by only including the labels here, the only place they're needed.
@@ -119,6 +130,56 @@ const blockAttributes = {
 	},
 };
 
+const exampleAttributes = {
+	align: 'center',
+	className: 'is-style-rectangular',
+	images: [
+		{
+			alt: '',
+			link: '',
+			url: tiledGalleryExample1,
+			width: 160,
+			height: 95,
+		},
+		{
+			alt: '',
+			link: '',
+			url: tiledGalleryExample2,
+			width: 160,
+			height: 107,
+		},
+		{
+			alt: '',
+			link: '',
+			url: tiledGalleryExample3,
+			width: 304,
+			height: 203,
+		},
+		{
+			alt: '',
+			link: '',
+			url: tiledGalleryExample4,
+			width: 312,
+			height: 207,
+		},
+		{
+			alt: '',
+			link: '',
+			url: tiledGalleryExample5,
+			width: 152,
+			height: 101,
+		},
+		{
+			alt: '',
+			link: '',
+			url: tiledGalleryExample6,
+			width: 152,
+			height: 105,
+		},
+	],
+	linkTo: 'none',
+};
+
 export const name = 'tiled-gallery';
 
 export const icon = (
@@ -133,7 +194,11 @@ export const icon = (
 export const settings = {
 	attributes: blockAttributes,
 	category: 'jetpack',
-	description: __( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ),
+	description:
+		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
+		( ! isSimpleSite()
+			? ' ' + __( "Serves images using Jetpack's fast global network of servers.", 'jetpack' )
+			: '' ),
 	icon,
 	keywords: [
 		_x( 'images', 'block search term', 'jetpack' ),
@@ -209,4 +274,7 @@ export const settings = {
 	edit,
 	save,
 	deprecated: [ deprecatedV1 ],
+	example: {
+		attributes: exampleAttributes,
+	},
 };

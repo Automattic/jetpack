@@ -19,6 +19,17 @@ async function setupBrowser() {
 	await setBrowserViewport( 'large' );
 }
 
+function setupConsoleLogs() {
+	page.on( 'pageerror', function( err ) {
+		const theTempValue = err.toString();
+		console.log( 'Page error: ' + theTempValue );
+	} );
+	page.on( 'error', function( err ) {
+		const theTempValue = err.toString();
+		console.log( 'Error: ' + theTempValue );
+	} );
+}
+
 // Before every test suite run, delete all content created by the test. This ensures
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
 // each other's side-effects.
@@ -27,6 +38,7 @@ beforeAll( async () => {
 
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
+	setupConsoleLogs();
 } );
 
 afterEach( async () => {

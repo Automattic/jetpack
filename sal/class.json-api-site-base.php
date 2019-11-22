@@ -51,6 +51,8 @@ abstract class SAL_Site {
 
 	abstract public function is_mapped_domain();
 
+	abstract public function get_unmapped_url();
+
 	abstract public function is_redirect();
 
 	abstract public function is_headstart_fresh();
@@ -92,6 +94,8 @@ abstract class SAL_Site {
 	abstract public function get_ak_vp_bundle_enabled();
 
 	abstract public function get_podcasting_archive();
+
+	abstract public function get_import_engine();
 
 	abstract public function get_jetpack_seo_front_page_description();
 
@@ -380,7 +384,7 @@ abstract class SAL_Site {
 	}
 
 	function get_xmlrpc_url() {
-		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+		$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
 		return site_url( 'xmlrpc.php', $xmlrpc_scheme );
 	}
 
@@ -475,10 +479,6 @@ abstract class SAL_Site {
 
 	function get_admin_url() {
 		return get_admin_url();
-	}
-
-	function get_unmapped_url() {
-		return get_site_url( get_current_blog_id() );
 	}
 
 	function get_theme_slug() {

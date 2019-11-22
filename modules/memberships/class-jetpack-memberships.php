@@ -42,6 +42,21 @@ class Jetpack_Memberships {
 	 * @var array
 	 */
 	private static $tags_allowed_in_the_button = array( 'br' => array() );
+
+	/**
+	 * The minimum required plan for this Gutenberg block.
+	 *
+	 * @var string Plan slug
+	 */
+	private static $required_plan;
+
+	/**
+	 * Track recurring payments block registration.
+	 *
+	 * @var boolean True if block registration has been executed.
+	 */
+	private static $has_registered_block = false;
+
 	/**
 	 * Classic singleton pattern
 	 *
@@ -63,6 +78,8 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
+			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -91,6 +108,7 @@ class Jetpack_Memberships {
 	 */
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
 	}
 
 	/**
@@ -242,7 +260,7 @@ class Jetpack_Memberships {
 				)
 			);
 		}
-		$button_styles = implode( $button_styles, ';' );
+		$button_styles = implode( ';', $button_styles );
 		add_thickbox();
 		return sprintf(
 			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" data-lang="%s" class="%s" style="%s">%s</button>',
@@ -276,6 +294,58 @@ class Jetpack_Memberships {
 	 */
 	public static function get_connected_account_id() {
 		return get_option( self::$connected_account_id_option_name );
+	}
+
+	/**
+	 * Whether Recurring Payments are enabled.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled_jetpack_recurring_payments() {
+		// For WPCOM sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+			$site_id = get_current_blog_id();
+			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		}
+
+		// For Jetpack sites.
+		return Jetpack::is_active() && (
+			/** This filter is documented in class.jetpack-gutenberg.php */
+			! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ) || // Remove when the default becomes `true`.
+			Jetpack_Plan::supports( 'recurring-payments' )
+		);
+	}
+
+	/**
+	 * Register the Recurring Payments Gutenberg block
+	 */
+	public function register_gutenberg_block() {
+		// This gate was introduced to prevent duplicate registration. A race condition exists where
+		// the registration that happens via extensions/blocks/recurring-payments/recurring-payments.php
+		// was adding the registration action after the action had been run in some contexts.
+		if ( self::$has_registered_block ) {
+			return;
+		}
+
+		if ( self::is_enabled_jetpack_recurring_payments() ) {
+			jetpack_register_block(
+				'jetpack/recurring-payments',
+				array(
+					'render_callback' => array( $this, 'render_button' ),
+				)
+			);
+		} else {
+			Jetpack_Gutenberg::set_extension_unavailable(
+				'jetpack/recurring-payments',
+				'missing_plan',
+				array(
+					'required_feature' => 'memberships',
+					'required_plan'    => self::$required_plan,
+				)
+			);
+		}
+
+		self::$has_registered_block = true;
 	}
 }
 Jetpack_Memberships::get_instance();

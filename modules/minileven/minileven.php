@@ -136,7 +136,7 @@ function jetpack_mobile_available() {
 function jetpack_mobile_request_handler() {
 	global $wpdb;
 	if (isset($_GET['ak_action'])) {
-		$url = parse_url( get_bloginfo( 'url' ) );
+		$url = wp_parse_url( get_bloginfo( 'url' ) );
 		$domain = $url['host'];
 		if (!empty($url['path'])) {
 			$path = $url['path'];

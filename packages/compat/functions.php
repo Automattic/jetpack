@@ -2,7 +2,7 @@
 /**
  * Legacy global scope functions.
  *
- * @package global-functions
+ * @package automattic/jetpack-compat
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

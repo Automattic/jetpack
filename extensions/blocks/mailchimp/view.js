@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import domReady from '@wordpress/dom-ready';
+
+/**
  * Internal dependencies
  */
 import emailValidator from 'email-validator';
@@ -10,12 +15,16 @@ import './view.scss';
 
 const blockClassName = 'wp-block-jetpack-mailchimp';
 
-function fetchSubscription( blogId, email ) {
-	const url =
+function fetchSubscription( blogId, email, params ) {
+	let url =
 		'https://public-api.wordpress.com/rest/v1.1/sites/' +
 		encodeURIComponent( blogId ) +
 		'/email_follow/subscribe?email=' +
 		encodeURIComponent( email );
+
+	for ( const param in params ) {
+		url += '&' + encodeURIComponent( param ) + '=' + encodeURIComponent( params[ param ] );
+	}
 	return new Promise( function( resolve, reject ) {
 		const xhr = new XMLHttpRequest();
 		xhr.open( 'GET', url );
@@ -40,7 +49,10 @@ function activateSubscription( block, blogId ) {
 	const successEl = block.querySelector( '.' + blockClassName + '_success' );
 	form.addEventListener( 'submit', e => {
 		e.preventDefault();
-		const emailField = form.querySelector( 'input' );
+		const emailField = form.querySelector( 'input[name=email]' );
+		const params = [].slice
+			.call( form.querySelectorAll( 'input[type=hidden].mc-submit-param' ) )
+			.reduce( ( accumulator, node ) => ( { ...accumulator, [ node.name ]: node.value } ), {} );
 		emailField.classList.remove( errorClass );
 		const email = emailField.value;
 		if ( ! emailValidator.validate( email ) ) {
@@ -49,7 +61,7 @@ function activateSubscription( block, blogId ) {
 		}
 		block.classList.add( 'is-processing' );
 		processingEl.classList.add( 'is-visible' );
-		fetchSubscription( blogId, email ).then(
+		fetchSubscription( blogId, email, params ).then(
 			response => {
 				processingEl.classList.remove( 'is-visible' );
 				if ( response.error && response.error !== 'member_exists' ) {
@@ -81,11 +93,6 @@ const initializeMailchimpBlocks = () => {
 	} );
 };
 
-if ( typeof window !== 'undefined' && typeof document !== 'undefined' ) {
-	// `DOMContentLoaded` may fire before the script has a chance to run
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', initializeMailchimpBlocks );
-	} else {
-		initializeMailchimpBlocks();
-	}
+if ( typeof window !== 'undefined' ) {
+	domReady( initializeMailchimpBlocks );
 }

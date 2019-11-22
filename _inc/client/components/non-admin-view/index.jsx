@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import {
+	userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	userIsSubscriber as _userIsSubscriber,
 } from 'state/initial-state';
@@ -47,6 +48,7 @@ class NonAdminView extends React.Component {
 							siteAdminUrl={ this.props.siteAdminUrl }
 							siteRawUrl={ this.props.siteRawUrl }
 							searchTerm={ this.props.searchTerm }
+							userCanManageModules={ this.props.userCanManageModules }
 						/>
 					);
 				}
@@ -80,5 +82,6 @@ export default connect( state => {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isSubscriber: _userIsSubscriber( state ),
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
+		userCanManageModules: userCanManageModules( state ),
 	};
 } )( NonAdminView );

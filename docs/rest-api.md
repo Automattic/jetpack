@@ -266,7 +266,7 @@ Accepts a JSON object in the body like:
 }
 ```
 
-POSTing with `isActive` as `false` will disconect the site. Sending `isActive: true` has no effect.
+POSTing with `isActive` as `false` will disconnect the site. Sending `isActive: true` has no effect.
 
 #### POST /wp-json/jetpack/v4/connection/user
 
@@ -280,14 +280,14 @@ Accepts a JSON object in the body like:
 }
 ```
 
-POSTing with `linked` as `false` will disconect the site. Sending `linked: true` has no effect.
+POSTing with `linked` as `false` will disconnect the site. Sending `linked: true` has no effect.
 
 
 ### Jetpack modules
 
 #### GET /wp-json/jetpack/v4/module/all
 
-Get a list of all Jetpacks modules, its description, other properties and the module's options
+Get a list of all Jetpack's modules, its description, other properties and the module's options
 
 **Note**. The response has a big payload in the body. Use it carefully.
 

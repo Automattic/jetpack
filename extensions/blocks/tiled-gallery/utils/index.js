@@ -36,7 +36,11 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	}
 
 	// Do not Photonize images that are still uploading or from localhost
-	if ( isBlobURL( img.url ) || /^https?:\/\/localhost/.test( img.url ) ) {
+	if (
+		isBlobURL( img.url ) ||
+		/^https?:\/\/localhost/.test( img.url ) ||
+		/^https?:\/\/.*\.local\//.test( img.url )
+	) {
 		return { src: img.url };
 	}
 
@@ -46,7 +50,8 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation = isWpcomFilesUrl( url ) ? photonWpcomImage : photon;
+	const photonImplementation =
+		isWpcomFilesUrl( url ) || true === isVIP() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -81,7 +86,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 			.map( srcsetWidth => {
 				const srcsetSrc = photonImplementation( url, {
 					resize: `${ srcsetWidth },${ srcsetWidth }`,
-					strip: 'all',
+					strip: 'info',
 				} );
 				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
 			} )
@@ -94,7 +99,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		srcSet = range( minWidth, maxWidth, step )
 			.map( srcsetWidth => {
 				const srcsetSrc = photonImplementation( url, {
-					strip: 'all',
+					strip: 'info',
 					width: srcsetWidth,
 				} );
 				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
@@ -105,7 +110,12 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 
 	return Object.assign( { src }, srcSet && { srcSet } );
 }
-
+function isVIP() {
+	/*global jetpack_plan*/
+	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
+		return true;
+	}
+}
 function isWpcomFilesUrl( url ) {
 	const { host } = parseUrl( url );
 	return /\.files\.wordpress\.com$/.test( host );

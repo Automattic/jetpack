@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
@@ -586,13 +587,13 @@ EXPECTED;
 
 	function test_is_development_mode_filter() {
 		add_filter( 'jetpack_development_mode', '__return_true' );
-		$this->assertTrue( Jetpack::is_development_mode() );
+		$this->assertTrue( ( new Status() )->is_development_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
 	function test_is_development_mode_bool() {
 		add_filter( 'jetpack_development_mode', '__return_zero' );
-		$this->assertFalse( Jetpack::is_development_mode() );
+		$this->assertFalse( ( new Status() )->is_development_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_zero' );
 	}
 
@@ -801,7 +802,8 @@ EXPECTED;
 			'post_date' => '1995-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1990-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1990-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
@@ -820,7 +822,8 @@ EXPECTED;
 			'post_date' => '1991-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1991-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1991-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $user_id );
 		wp_delete_post( $post_id, true );
@@ -840,7 +843,8 @@ EXPECTED;
 			'user_registered' => '1992-01-01 00:00:00',
 		) );
 
-		$this->assertEquals( '1994-01-01 00:00:00', Jetpack::get_assumed_site_creation_date() );
+		$jetpack = new MockJetpack();
+		$this->assertEquals( '1994-01-01 00:00:00', $jetpack::connection()->get_assumed_site_creation_date() );
 
 		wp_delete_user( $admin_id );
 		wp_delete_user( $editor_id );
@@ -1039,8 +1043,9 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)
@@ -1078,11 +1083,12 @@ EXPECTED;
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
-			'jetpack.syncObject',
 			'jetpack.idcUrlValidation',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
+
+			'jetpack.syncObject',
 		];
 
 		// It's OK if these module-added methods are present. (Module active in tests.)
@@ -1153,6 +1159,17 @@ EXPECTED;
 		$allowed = [];
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
+	}
+
+	/**
+	 * https://github.com/Automattic/jetpack/pull/13514
+	 *
+	 * @group xmlrpc
+	 */
+	public function test_wp_getOptions_hook_in_place() {
+		$options = apply_filters( 'xmlrpc_blog_options', array() );
+
+		$this->assertArrayHasKey( 'jetpack_version', $options );
 	}
 
 } // end class

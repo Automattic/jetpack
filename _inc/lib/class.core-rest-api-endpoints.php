@@ -3,6 +3,8 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Status;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -78,7 +80,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods'             => WP_REST_Server::READABLE,
 			'callback'            => __CLASS__ . '::get_plans',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+		) );
 
+		register_rest_route( 'jetpack/v4', 'products', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_products',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+		) );
+
+		register_rest_route( 'jetpack/v4', 'marketing/survey', array(
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'            => __CLASS__ . '::submit_survey',
+			'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
@@ -198,6 +211,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => array( $site_endpoint, 'get_features' ),
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
 		) );
+
+		// Get current site purchases.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/purchases',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $site_endpoint, 'get_purchases' ),
+				'permission_callback' => array( $site_endpoint, 'can_request' ),
+			)
+		);
 
 		// Get current site benefits
 		register_rest_route( 'jetpack/v4', '/site/benefits', array(
@@ -484,12 +508,73 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		$body = wp_remote_retrieve_body( $request );
+		$body = json_decode( wp_remote_retrieve_body( $request ) );
 		if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
 			$data = $body;
 		} else {
 			// something went wrong so we'll just return the response without caching
 			return $body;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Gets the WP.com products that are in use on wpcom.
+	 * Similar to the WP.com plans that we currently in user on WPCOM.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return string|WP_Error A JSON object of wpcom products if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_products( $request ) {
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/products?_locale=' . get_user_locale() . '&type=jetpack',
+			'v1.1',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			),
+			null,
+			'rest'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			// Something went wrong so we'll just return the response without caching.
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	public static function submit_survey( $request ) {
+
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			'/marketing/survey',
+			'v2',
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type'    => 'application/json',
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			),
+			$request->get_json_params()
+		);
+
+		$wpcom_request_body = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		if ( 200 === wp_remote_retrieve_response_code( $wpcom_request ) ) {
+			$data = $wpcom_request_body;
+		} else {
+			// something went wrong so we'll just return the response without caching
+			return $wpcom_request_body;
 		}
 
 		return $data;
@@ -712,7 +797,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_jetpack_connect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 
 	}
 
@@ -897,7 +982,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'isStaging'    => Jetpack::is_staging_site(),
 				'isRegistered' => Jetpack::connection()->is_registered(),
 				'devMode'      => array(
-					'isActive' => Jetpack::is_development_mode(),
+					'isActive' => ( new Status() )->is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
@@ -1232,6 +1317,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		if ( $updated && ! $xml->isError() ) {
+
+			// Track it
+			if ( class_exists( 'Automattic\Jetpack\Tracking' ) ) {
+				$tracking = new Tracking();
+				$tracking->record_user_event( 'set_connection_owner_success' );
+			}
+
 			return rest_ensure_response(
 				array(
 					'code' => 'success',

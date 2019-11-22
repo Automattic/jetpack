@@ -60,6 +60,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
+							target="_blank"
 							href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
 						>
 							{ __( 'Configure your notification settings' ) }

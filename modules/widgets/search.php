@@ -7,6 +7,9 @@
  * @since      5.0.0
  */
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
+
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
@@ -164,7 +167,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) ) {
+		if ( ! is_active_widget( false, false, $this->id_base, true ) || Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
 			return;
 		}
 
@@ -266,7 +269,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$display_filters = false;
 
-		if ( Jetpack::is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			echo $args['before_widget'];
 			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
 				<div class="jetpack-search-sort-wrapper">
@@ -309,7 +312,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 		echo $args['before_widget'];
-		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
+		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="<?php 
+		echo Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ? 'jetpack-instant-search-wrapper' : '' ?>">
 		<?php
 
 		if ( ! empty( $title ) ) {
@@ -393,6 +397,10 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param string $orderby  The orderby to initialize the select with.
 	 */
 	private function maybe_render_sort_javascript( $instance, $order, $orderby ) {
+		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+			return;
+		}
+
 		if ( ! empty( $instance['user_sort_enabled'] ) ) :
 		?>
 		<script type="text/javascript">

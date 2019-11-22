@@ -5,7 +5,7 @@
  * From your plugin include this file with:
  * require_once . plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
  *
- * @package Automattic\Jetpack\Autoloader
+ * @package automattic/jetpack-autoloader
  */
 
 // phpcs:disable PHPCompatibility.LanguageConstructs.NewLanguageConstructs.t_ns_separatorFound
@@ -90,6 +90,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Automattic\Jetpack\Tracking',
 						'Automattic\Jetpack\Bootstrap',
 						'Automattic\Jetpack\Plugin\Tracking',
+						'Automattic\Jetpack\Status',
 					),
 					true
 				);

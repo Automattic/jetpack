@@ -131,7 +131,7 @@ class Jetpack_SEO_Titles {
 
 			case 'post_title':
 			case 'page_title':
-				return get_the_title();
+				return the_title_attribute( array( 'echo' => false ) );
 
 			case 'group_title':
 				return single_tag_title( '', false );

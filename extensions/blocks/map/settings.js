@@ -62,6 +62,10 @@ export const settings = {
 			type: 'string',
 			default: 'red',
 		},
+		preview: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 	supports: {
 		html: false,
@@ -101,4 +105,9 @@ export const settings = {
 			</g>
 		</svg>
 	),
+	example: {
+		attributes: {
+			preview: true,
+		},
+	},
 };

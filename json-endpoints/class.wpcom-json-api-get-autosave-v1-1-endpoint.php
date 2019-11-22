@@ -63,7 +63,7 @@ class WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1
 				'content'     => $autosave->post_content,
 				'excerpt'     => $autosave->post_excerpt,
 				'preview_URL' => $preview_url,
-				'modified'    => $this->format_date( $autosave->post_modified )
+				'modified'    => $this->format_date( $autosave->post_modified_gmt, $autosave->post_modified )
 			);
 		} else {
 			return new WP_Error( 'not_found', 'No autosaves exist for this post', 404 );

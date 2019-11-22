@@ -1,10 +1,10 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.6
-Requires at least: 5.1
+Stable tag: 7.8
+Requires at least: 5.2
 Requires PHP: 5.6
-Tested up to: 5.2
+Tested up to: 5.3
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
@@ -96,57 +96,80 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.7 =
+= 7.9 =
 
-* Release date: September 3, 2019
-* Release post: https://wp.me/p1moTy-log
+* Release date: November 5, 2019
+* Release post: https://wp.me/p1moTy-lzt
 
-**Major Enhancements**
+**Major enhancements**
 
-* This release brings in multiple improvements to the WordPress.com connection process, to fix issues site owners may experience when first connecting their site to WordPress.com.
+* Block Editor: allow authors to upload videos to our Jetpack Videos service from the Video Block.
+* Block Editor: add new post-submission settings to the Form block.
+* Twenty Twenty: Ensure full compatibility with the upcoming default theme.
 
 **Enhancements**
 
-* Anti-spam: improve the flow to configure Akismet from Jetpack's Dashboard.
-* Blocks: add new utility to get all CSS classes for a given block.
-* Bruteforce Login Protection: improve Network Activation detection on Multisite networks.
-* Dashboard: update all illustrations to use new color scheme.
-* General: log XML-RPC communication errors between the site and WordPress.com.
-* General: use HTTPS URLs when linking to external sites when possible.
-* General: warn admins when about to delete another admin user that happens to be the main Jetpack admin on the site.
-* Sharing / Publicize: add Open Graph Meta Tags to archive pages.
-* Sitemaps: reduce sitemap cache duration when using Jetpack's Development mode.
-* Social menus: replace the outdated Medium icon with updated logo.
-* Stats: improve method used to enqueue JavaScript when the feature is active.
-* Videos: Add video settings to Jetpack's enhanced video block.
-* Widgets: improve the creation process and display of maps inside the Contact Info Widget.
-* Widgets: add more RSS feed patterns to the Social Icons Widget.
-* Widgets: add new `jetpack_widget_authors_params` filter to the Authors widget, to allow site owners to customize the list of authors.
-* WordPress.com API: add option to manage Full Site Editing.
-* WordPress.com Interface: allow language to be changed even if `WPLANG` constant is defined.
-* WooCommerce Analytics: use core WordPress function to enqueue script asynchronously.
+* Admin Page: update icons for security settings.
+* Backup: support for Jetpack Backup functionality with simpler configuration.
+* Block Editor: provide block previews for Jetpack blocks.
+* Block Editor: add image size option to the Slideshow block.
+* Block Editor: improve the display of opening hours when using the Business Hours block.
+* CLI: no longer return exit code 1 if trying to disconnect a site that's already disconnected.
+* Connection flow: update connect buttons on main dashboard page and plugins page to use the new connection flow.
+* Connection flow: add plan billing period toggle.
+* Contact Form: synchronize form data with WordPress.com when submitting a form via the Form block.
+* Dashboard: update styles for visual parity with the WordPress.com dashboard.
+* Dashboard: improve performance of the Jetpack dashboard when the plugin is not connected to WordPress.com yet.
+* Dashboard: add new plans' information to Plans pages.
+* Dashboard: update design to better integrate with the updated design of the WordPress dashboard in WordPress 5.3.
+* Dashboard: improve experience for site owners looking to disconnect their site from WordPress.com.
+* Debug: provide additional information in Tools > Site Health when a site's connection to WordPress.com is broken.
+* Performance: modernize various parts of the code to use PHP 5.6+ functionality.
+* Progressive Web Apps: sunset feature. If you wish to continue to use that feature on your site, we recommend installing another plugin that offers the functionality you need.
+* Related Posts: remove nofollow attribute from links.
+* Related Posts: add Posts to the REST API response for all post types that support them.
+* Search: add new filter allowing one to adjuct Jetpack Search's ES query languages.
+* Search: continued work on upcoming Instant Search features.
+* Shortcodes: add support for tab sizing to Gist shortcodes and embeds.
+* Social Networks: update Facebook logo to match new color.
+* Sync: improve reliability of the information synchronized back to your site when connecting to WordPress.com.
+* Tiled Galleries: ensure that color profile information is retained for all images in Tiled Galleries.
+* Widgets: add aria-current attribute to links when on same page.
+* WordAds: improve speed & resource use of Ads' loading scripts.
 
 **Improved compatibility**
 
-* Ads: make sure the Ad block generates ads that are compatible with the AMP plugin.
-* Image CDN: update the size of images used in AMP Stories when using the AMP plugin.
-* Responsive Videos: improve compatibility and avoid validation errors when using the AMP plugin.
-* WordPress.com API: avoid errors when used in combination with the Polylang plugin.
-* WordPress.com API: improve compatibility with plugins that alter the behavior of search queries.
+* AMP: ensure that one can use the Slideshow and the MailChimp blocks when using the AMP plugin.
+* AMP: support the new Dev mode for Notifications and Stats features.
+* Admin Page: improve compatibility with themes and plugins that insert CSS in the dashboard.
+* Blocks: ensure that all blocks display well in the editor when using WordPress 5.3.
+* Carousel: ensure that the feature works with the new gallery markup introduced in WordPress 5.3.
+* Dashboard Notices: ensure that all notices redirect to the right page, including on WooCommerce dashboard pages.
+* General: use new functionality available in WordPress 5.3.
+* PHP: resolve deprecation warnings in anticipation of PHP 7.4.
+* Related Posts: avoid conflicts with other plugins adding elements below the post content, especially when the AMP plugin is active on the site.
+* SSO: ensure that the Secure Sign In Form is displayed properly when using WordPress 5.3.
+* Widgets: update deprecated option in the Facebook Page Plugin widget.
+* WordPress.com REST API: ensure compatibility with WordPress 5.3.
 
 **Bug fixes**
 
-* Bruteforce Login Protection: fix the display of the admin notice displayed on Multisite networks.
-* Contact Form: update the feedback post type capability to a valid value.
-* Dashboard: improve the layout of the Connection modal on mobile devices.
-* General: do not redirect during automatic upgrades.
-* Image CDN: support the `medium_large` image sizes.
-* Related Posts: ensure Related Posts can be displayed when using the AMP plugin and Jetpack's Sharing feature.
-* Search: authenticated search requests will now display non-public content.
-* Sitemaps: improve the display of descriptions in video sitemaps, when they include HTML content.
-* Stats: load RTL stylesheet for dashboard widget, to fix layout issues on RTL language sites.
-* WordPress.com API: fix API responses which contain malformed (non-UTF-8) data.
-* WordPress.com Toolbar: limit access to Stats and Plan menu items.
+* Admin Page: remove Jetpack dashboard link for registered users (non admins) when the site is not connected to WordPress.com.
+* Admin Page: translate empty Stats chart's message.
+* Admin Page: change default settings tab depending on your role.
+* Admin Page: do not display Composing header for editors.
+* Block Editor: ensure that the Ad block is compatible with dark themes.
+* Contact Form: revise the email validation function to include length limit.
+* Debug: reduce instances when an inconclusive response would result in an error.
+* Geo-Location: fix spacing for RSS geo-location namespaces.
+* Image CDN: remove wp-dom-ready dependency to improve performance on the frontend.
+* Search: add hooks for when Search falls back to using the local database.
+* Site Logo: ensure that the right stylesheet is loaded depending on your site's language.
+* Site Verification Tools: ensure that you can connect your site to Google Search Console even when Publicize is disabled.
+* Sync: prevent a PHP Notice in some cases where a post isn't actually a post.
+* Widgets: ensure that the Google Maps API key in the Contact Info widget can be set to only work on your domain.
+* Widgets: fix timeout issues that may sometimes occur in the GoodReads widget when user has added lots of books to their account.
+* WordPress.com REST API: better site preview support for sites using WordPress in a subdirectory.
 
 --------
 

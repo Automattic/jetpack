@@ -57,7 +57,7 @@ class Utils {
 			}
 		}
 
-		if ( $class_name  === '\\self' && ! is_null( $class_for_self ) ) {
+		if ( $class_name === '\\self' && ! is_null( $class_for_self ) ) {
 			$class_name = $class_for_self;
 		}
 
@@ -75,6 +75,10 @@ class Utils {
 
 		if ( $is_stringifiable ) {
 			return (string) $object;
+		}
+
+		if ( is_null( $object ) ) {
+			return '';
 		}
 
 		// Objects that need additional recursion to properly stringify

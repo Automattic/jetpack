@@ -26,7 +26,6 @@ const concat_list = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/infinite-scroll/infinity.css',
-	'modules/likes/style.css',
 	'modules/related-posts/related-posts.css',
 	'modules/sharedaddy/sharing.css',
 	'modules/shortcodes/css/slideshow-shortcode.css',
@@ -64,6 +63,7 @@ const separate_list = [
 	'modules/shortcodes/css/recipes-print.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 	'modules/theme-tools/compat/twentynineteen.css',
+	'modules/theme-tools/compat/twentytwenty.css',
 ];
 
 const cwd = process.cwd() + '/';

@@ -10,7 +10,7 @@ use Automattic\Jetpack\Sync\Functions;
 class Jetpack_AMP_Support {
 
 	/**
-	 * Apply custom AMP changes onthe frontend.
+	 * Apply custom AMP changes on the front-end.
 	 */
 	public static function init() {
 
