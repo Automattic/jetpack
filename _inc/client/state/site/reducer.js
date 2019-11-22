@@ -112,9 +112,9 @@ export const reducer = combineReducers( {
  */
 export function isFetchingSiteData( state ) {
 	return !! (
-		state.jetpack.siteData.requests.isFetchingSiteData &&
-		state.jetpack.siteData.requests.isFetchingSiteFeatures &&
-		state.jetpack.siteData.requests.isFetchingSitePlans &&
+		state.jetpack.siteData.requests.isFetchingSiteData ||
+		state.jetpack.siteData.requests.isFetchingSiteFeatures ||
+		state.jetpack.siteData.requests.isFetchingSitePlans ||
 		state.jetpack.siteData.requests.isFetchingSitePurchases
 	);
 }

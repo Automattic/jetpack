@@ -79,6 +79,12 @@ input[type='radio'].plan-radio-button__input {
 	margin: 24px auto 40px;
 }
 
+.plans-section__single-product-skeleton {
+	width: 100%;
+	max-width: 518px;
+	height: 328px;
+}
+
 // Single product backup containers
 .single-product-backup__radio-buttons-container {
 	display: flex;

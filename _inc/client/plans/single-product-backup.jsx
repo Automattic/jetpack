@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -15,12 +15,33 @@ import PlanPrice from 'components/plans/plan-price';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
+	// Don't show the product card for paid plans.
+	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
+		return null;
+	}
 
+	return (
+		<React.Fragment>
+			<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
+			<h2 className="plans-section__subheader">
+				{ __( "Just looking for backups? We've got you covered." ) }
+			</h2>
+			<div className="plans-section__single-product">
+				{ isFetchingData ? (
+					<div className="plans-section__single-product-skeleton is-placeholder" />
+				) : (
+					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
+				) }
+			</div>
+		</React.Fragment>
+	);
+}
+
+function SingleProductBackupCard( { products, upgradeLinks } ) {
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
-
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
 	const priceDailyMonthlyPerYear = '' === priceDailyMonthly ? '' : priceDailyMonthly * 12;
@@ -44,35 +65,27 @@ export function SingleProductBackup( { products, upgradeLinks } ) {
 	];
 
 	return (
-		<React.Fragment>
-			<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
-			<h2 className="plans-section__subheader">
-				{ __( "Just looking for backups? We've got you covered." ) }
-			</h2>
-			<div className="plans-section__single-product">
-				<div className="single-product-backup__accented-card dops-card">
-					<div className="single-product-backup__accented-card-header">
-						<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-						<SingleProductBackupPriceGroup
-							billingTimeFrame={ billingTimeFrame }
-							currencyCode={ currencyCode }
-							discountedPrice={ [ priceDaily, priceRealtime ] }
-							fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
-						/>
-					</div>
-					<div className="single-product-backup__accented-card-body">
-						<SingleProductBackupBody
-							billingTimeFrame={ billingTimeFrame }
-							currencyCode={ currencyCode }
-							backupOptions={ backupOptions }
-							selectedBackupType={ selectedBackupType }
-							setSelectedBackupType={ setSelectedBackupType }
-							upgradeLinks={ upgradeLinks }
-						/>
-					</div>
-				</div>
+		<div className="single-product-backup__accented-card dops-card">
+			<div className="single-product-backup__accented-card-header">
+				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+				<SingleProductBackupPriceGroup
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					discountedPrice={ [ priceDaily, priceRealtime ] }
+					fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
+				/>
 			</div>
-		</React.Fragment>
+			<div className="single-product-backup__accented-card-body">
+				<SingleProductBackupBody
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					backupOptions={ backupOptions }
+					selectedBackupType={ selectedBackupType }
+					setSelectedBackupType={ setSelectedBackupType }
+					upgradeLinks={ upgradeLinks }
+				/>
+			</div>
+		</div>
 	);
 }
 
@@ -87,10 +100,10 @@ function SingleProductBackupPriceGroup( {
 
 	if ( !! discountedPrice ) {
 		price = (
-			<Fragment>
+			<React.Fragment>
 				<PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } original />
 				<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice } discounted />
-			</Fragment>
+			</React.Fragment>
 		);
 	}
 	return (
