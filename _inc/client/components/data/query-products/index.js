@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchProducts, isFetchingProducts } from 'state/site';
+import { fetchProducts, isFetchingProducts } from 'state/products';
 
 class QueryProducts extends Component {
 	static propTypes = {
