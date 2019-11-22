@@ -38,9 +38,16 @@ class Jetpack_Core_API_Integrations_Proxy {
 			'wpcom'
 		);
 
-		return is_wp_error( $response )
-			? $response
-			: rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ) ) );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$response_data = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( is_string( $response_data ) ) {
+			$response_data = array( 'connect_url' => $response_data );
+		}
+
+		return rest_ensure_response( $response_data );
 	}
 
 	/**
