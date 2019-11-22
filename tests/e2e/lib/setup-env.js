@@ -23,12 +23,10 @@ function setupConsoleLogs() {
 	page.on( 'pageerror', function( err ) {
 		const theTempValue = err.toString();
 		console.log( 'Page error: ' + theTempValue );
-		console.log( err.stack );
 	} );
 	page.on( 'error', function( err ) {
 		const theTempValue = err.toString();
 		console.log( 'Error: ' + theTempValue );
-		console.log( err.stack );
 	} );
 }
 
