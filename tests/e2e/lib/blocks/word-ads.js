@@ -9,13 +9,17 @@ import { clickBlockToolbarButton } from '@wordpress/e2e-test-utils';
 
 export default class WordAdsBlock {
 	constructor( block, page ) {
-		this.blockName = WordAdsBlock.name();
+		this.blockTitle = WordAdsBlock.title();
 		this.block = block;
 		this.page = page;
 		this.blockSelector = '#block-' + block.clientId;
 	}
 
 	static name() {
+		return 'wordads';
+	}
+
+	static title() {
 		return 'Ad';
 	}
 

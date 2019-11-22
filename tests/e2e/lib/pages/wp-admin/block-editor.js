@@ -16,9 +16,9 @@ export default class BlockEditorPage extends Page {
 		super( page, { expectedSelector, url } );
 	}
 
-	async insertBlock( blockName ) {
+	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockName );
-		const blockIconSelector = `//button//span[contains(text(), '${ blockName }')]`;
+		const blockIconSelector = `.editor-block-list-item-jetpack-'${ blockTitle }')]`;
 		const jetpackPanelSelector = '.components-panel__body .jetpack-logo';
 		await scrollIntoView( this.page, jetpackPanelSelector );
 		await waitAndClick( this.page, blockIconSelector );
