@@ -137,11 +137,11 @@ class Constants extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param array   $config Full sync configuration for this sync module.
-	 * @param int     $send_until The timestamp until the current request can send.
-	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
+	 * @param array $config Full sync configuration for this sync module.
+	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param array $state This module Full Sync status.
 	 *
-	 * @return array Number of actions enqueued, and next module state.
+	 * @return array This module Full Sync status.
 	 */
 	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
