@@ -20,60 +20,13 @@ import { getProducts, isFetchingProducts } from 'state/products';
 import { getActiveSitePurchases, getSitePlan, isFetchingSiteData } from 'state/site';
 
 export class Plans extends React.Component {
-	getProductCardPropsForPlanClass( planClass ) {
+	getProductCardPropsForPurchase( purchase ) {
 		const { siteRawlUrl } = this.props;
 
-		switch ( planClass ) {
-			case 'is-personal-plan':
-				return {
-					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
-					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
-						components: {
-							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
-						},
-					} ),
-					description: __( 'Always-on backups ensure you never lose your site.' ),
-				};
-			case 'is-premium-plan':
-				return {
-					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
-					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
-						components: {
-							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
-						},
-					} ),
-					description: __( 'Always-on backups ensure you never lose your site.' ),
-				};
-			case 'is-business-plan':
-				return {
-					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
-					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
-						components: {
-							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
-						},
-					} ),
-					description: __(
-						'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
-					),
-				};
-		}
-	}
+		const planClass = getPlanClass( purchase.product_slug );
 
-	getProductCardPropsForPurchase( purchase ) {
-		switch ( purchase.product_slug ) {
-			case 'jetpack_backup_daily':
+		switch ( planClass ) {
+			case 'is-daily-backup-plan':
 				return {
 					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
 						components: {
@@ -122,6 +75,56 @@ export class Plans extends React.Component {
 					purchase,
 					isCurrent: true,
 				};
+			case 'is-personal-plan':
+				return {
+					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
+						components: {
+							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+						},
+					} ),
+					description: __( 'Always-on backups ensure you never lose your site.' ),
+					purchase,
+					isCurrent: true,
+				};
+			case 'is-premium-plan':
+				return {
+					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
+						components: {
+							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+						},
+					} ),
+					description: __( 'Always-on backups ensure you never lose your site.' ),
+					purchase,
+					isCurrent: true,
+				};
+			case 'is-business-plan':
+				return {
+					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
+						components: {
+							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+						},
+					} ),
+					description: __(
+						'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
+					),
+					purchase,
+					isCurrent: true,
+				};
 		}
 	}
 
@@ -136,9 +139,33 @@ export class Plans extends React.Component {
 		);
 	}
 
+	findPrioritizedPurchase() {
+		const { activeSitePurchases } = this.props;
+
+		// Note: the order here is important, as it resolves cases where a site
+		// has both a plan and a product at the same time.
+		const planClasses = [
+			'is-business-plan',
+			'is-realtime-backup-plan',
+			'is-premium-plan',
+			'is-personal-plan',
+			'is-daily-backup-plan',
+		];
+
+		for ( const planClass of planClasses ) {
+			const purchase = activeSitePurchases.find(
+				item => getPlanClass( item.product_slug ) === planClass
+			);
+			if ( undefined !== purchase ) {
+				return purchase;
+			}
+		}
+
+		return false;
+	}
+
 	render() {
 		const {
-			activeSitePurchases,
 			dailyBackupUpgradeUrl,
 			isFetchingData,
 			products,
@@ -152,31 +179,11 @@ export class Plans extends React.Component {
 			'real-time': realtimeBackupUpgradeUrl,
 		};
 
-		const activeJetpackBackupDailyPurchase = activeSitePurchases.find(
-			purchase => 'jetpack_backup_daily' === purchase.product_slug
-		);
-		const activeJetpackBackupRealtimePurchase = activeSitePurchases.find(
-			purchase => 'jetpack_backup_realtime' === purchase.product_slug
-		);
-		const planClass = getPlanClass( plan );
-
-		// The order here needs to be maintained so that cases with both a plan and a product
-		// display correctly.
-		let productCardProps = null;
-		if ( 'is-business-plan' === planClass ) {
-			productCardProps = this.getProductCardPropsForPlanClass( planClass );
-		} else if ( undefined !== activeJetpackBackupRealtimePurchase ) {
-			productCardProps = this.getProductCardPropsForPurchase( activeJetpackBackupRealtimePurchase );
-		} else if ( 'is-premium-plan' === planClass ) {
-			productCardProps = this.getProductCardPropsForPlanClass( 'is-premium-plan' );
-		} else if ( 'is-personal-plan' === planClass ) {
-			productCardProps = this.getProductCardPropsForPlanClass( 'is-personal-plan' );
-		} else if ( undefined !== activeJetpackBackupDailyPurchase ) {
-			productCardProps = this.getProductCardPropsForPurchase( activeJetpackBackupDailyPurchase );
-		}
-
 		let singleProductContent;
-		if ( null !== productCardProps ) {
+
+		const purchase = this.findPrioritizedPurchase();
+		if ( purchase ) {
+			const productCardProps = this.getProductCardPropsForPurchase( purchase );
 			singleProductContent = (
 				<Fragment>
 					{ this.getTitleSection() }
@@ -185,7 +192,7 @@ export class Plans extends React.Component {
 					</div>
 				</Fragment>
 			);
-		} else if ( products && [ '', 'is-free-plan' ].includes( planClass ) ) {
+		} else {
 			singleProductContent = (
 				<Fragment>
 					{ this.getTitleSection() }
