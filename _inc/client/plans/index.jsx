@@ -180,7 +180,9 @@ export class Plans extends React.Component {
 			singleProductContent = (
 				<Fragment>
 					{ this.getTitleSection() }
-					<ProductCard { ...productCardProps } />
+					<div className="plans-section__single-product">
+						<ProductCard { ...productCardProps } />
+					</div>
 				</Fragment>
 			);
 		} else if ( products && [ '', 'is-free-plan' ].includes( planClass ) ) {
