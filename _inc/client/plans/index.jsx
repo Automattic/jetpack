@@ -20,6 +20,111 @@ import { getProducts, isFetchingProducts } from 'state/products';
 import { getActiveSitePurchases, getSitePlan, isFetchingSiteData } from 'state/site';
 
 export class Plans extends React.Component {
+	getProductCardPropsForPlanClass( planClass ) {
+		const { siteRawlUrl } = this.props;
+
+		switch ( planClass ) {
+			case 'is-personal-plan':
+				return {
+					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
+						components: {
+							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+						},
+					} ),
+					description: __( 'Always-on backups ensure you never lose your site.' ),
+				};
+			case 'is-premium-plan':
+				return {
+					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
+						components: {
+							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+						},
+					} ),
+					description: __( 'Always-on backups ensure you never lose your site.' ),
+				};
+			case 'is-business-plan':
+				return {
+					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
+						components: {
+							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+						},
+					} ),
+					description: __(
+						'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
+					),
+				};
+		}
+	}
+
+	getProductCardPropsForPurchase( purchase ) {
+		switch ( purchase.product_slug ) {
+			case 'jetpack_backup_daily':
+				return {
+					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Purchased %(purchaseDate)s', {
+						args: {
+							purchaseDate: moment( purchase.subscribedDate ).format( 'YYYY-MM-DD' ),
+						},
+					} ),
+					description: (
+						<>
+							<p>
+								{ __( '{{strong}}Looking for more?{{/strong}}', {
+									components: {
+										strong: <strong />,
+									},
+								} ) }
+							</p>
+							<p>
+								{ __(
+									'With Real-time backups, we save as you edit and you’ll get unlimited backup archives.'
+								) }
+							</p>
+						</>
+					),
+					purchase,
+					isCurrent: true,
+				};
+			case 'jetpack_backup_realtime':
+				return {
+					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
+						components: {
+							em: <em />,
+						},
+					} ),
+					subtitle: __( 'Purchased %(purchaseDate)s', {
+						args: {
+							purchaseDate: moment( purchase.subscribedDate ).format( 'YYYY-MM-DD' ),
+						},
+					} ),
+					description: __(
+						'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
+					),
+					purchase,
+					isCurrent: true,
+				};
+		}
+	}
+
 	render() {
 		const {
 			activeSitePurchases,
@@ -28,10 +133,8 @@ export class Plans extends React.Component {
 			products,
 			realtimeBackupUpgradeUrl,
 			sitePlan,
-			siteRawlUrl,
 		} = this.props;
 
-		// const siteSlug = get( this.props.plan );
 		const plan = get( sitePlan, 'product_slug' );
 		const upgradeLinks = {
 			daily: dailyBackupUpgradeUrl,
@@ -46,135 +149,24 @@ export class Plans extends React.Component {
 		);
 		const planClass = getPlanClass( plan );
 
-		// singleProductContent should maintain this priority order for display:
-		// 1. Professional
-		// 2. Real-time
-		// 3. Premium
-		// 4. Personal
-		// 5. Daily
-		// 6. Free
-		let singleProductContent;
+		// The order here needs to be maintained so that cases with both a plan and a product
+		// display correctly.
+		let productCardProps = null;
 		if ( 'is-business-plan' === planClass ) {
-			singleProductContent = (
-				<ProductCard
-					{ ...{
-						title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
-							components: {
-								em: <em />,
-							},
-						} ),
-						subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
-							components: {
-								planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
-							},
-						} ),
-						description: __(
-							'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
-						),
-					} }
-				/>
-			);
+			productCardProps = this.getProductCardPropsForPlanClass( planClass );
 		} else if ( undefined !== activeJetpackBackupRealtimePurchase ) {
-			singleProductContent = (
-				<ProductCard
-					{ ...{
-						title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
-							components: {
-								em: <em />,
-							},
-						} ),
-						subtitle: __( 'Purchased %(purchaseDate)s', {
-							args: {
-								purchaseDate: moment(
-									activeSitePurchases.find(
-										purchase => 'jetpack_backup_realtime' === purchase.product_slug
-									).subscribedDate
-								).format( 'YYYY-MM-DD' ),
-							},
-						} ),
-						description: __(
-							'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
-						),
-						purchase: activeJetpackBackupRealtimePurchase,
-						isCurrent: true,
-					} }
-				/>
-			);
+			productCardProps = this.getProductCardPropsForPurchase( activeJetpackBackupRealtimePurchase );
 		} else if ( 'is-premium-plan' === planClass ) {
-			singleProductContent = (
-				<ProductCard
-					{ ...{
-						title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-							components: {
-								em: <em />,
-							},
-						} ),
-						subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
-							components: {
-								planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
-							},
-						} ),
-						description: __( 'Always-on backups ensure you never lose your site.' ),
-					} }
-				/>
-			);
+			productCardProps = this.getProductCardPropsForPlanClass( 'is-premium-plan' );
 		} else if ( 'is-personal-plan' === planClass ) {
-			singleProductContent = (
-				<ProductCard
-					{ ...{
-						title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-							components: {
-								em: <em />,
-							},
-						} ),
-						subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
-							components: {
-								planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
-							},
-						} ),
-						description: __( 'Always-on backups ensure you never lose your site.' ),
-					} }
-				/>
-			);
+			productCardProps = this.getProductCardPropsForPlanClass( 'is-personal-plan' );
 		} else if ( undefined !== activeJetpackBackupDailyPurchase ) {
-			singleProductContent = (
-				<ProductCard
-					{ ...{
-						title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-							components: {
-								em: <em />,
-							},
-						} ),
-						subtitle: __( 'Purchased %(purchaseDate)s', {
-							args: {
-								purchaseDate: moment(
-									activeSitePurchases.find(
-										purchase => 'jetpack_backup_daily' === purchase.product_slug
-									).subscribedDate
-								).format( 'YYYY-MM-DD' ),
-							},
-						} ),
-						description: (
-							<>
-								<p>
-									{ __( '{{strong}}Looking for more?{{/strong}}', {
-										components: {
-											strong: <strong />,
-										},
-									} ) }
-								</p>
-								<p>
-									{ __(
-										'With Real-time backups, we save as you edit and you’ll get unlimited backup archives.'
-									) }
-								</p>
-							</>
-						),
-						purchase: activeJetpackBackupDailyPurchase,
-						isCurrent: true,
-					} }
-				/>
-			);
+			productCardProps = this.getProductCardPropsForPurchase( activeJetpackBackupDailyPurchase );
+		}
+
+		let singleProductContent;
+		if ( null !== productCardProps ) {
+			singleProductContent = <ProductCard { ...productCardProps } />;
 		} else if ( products && [ '', 'is-free-plan' ].includes( planClass ) ) {
 			singleProductContent = (
 				<SingleProductBackup
