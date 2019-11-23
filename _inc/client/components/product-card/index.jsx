@@ -4,7 +4,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
 
 /**
@@ -12,13 +11,9 @@ import { localize } from 'i18n-calypso';
  */
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
-// TODO:
-// import { managePurchase } from 'me/purchases/paths';
-const managePurchase = () => {};
+import analytics from 'lib/analytics';
 import ProductCardAction from './action';
 import ProductCardPriceGroup from './price-group';
-// import { recordTracksEvent } from 'state/analytics/actions';
-const recordTracksEvent = () => {};
 
 /**
  * Style dependencies
@@ -42,10 +37,15 @@ class ProductCard extends Component {
 		title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	};
 
+	getManagePurchaseLink( siteName, purchaseId ) {
+		return `https://wordpress.com/me/purchases/${ siteName }/${ purchaseId }`;
+	}
+
 	handleManagePurchase( productSlug ) {
 		return () => {
-			this.props.recordTracksEvent( 'calypso_manage_purchase_click', {
-				slug: productSlug,
+			analytics.tracks.recordJetpackClick( {
+				target: 'product-card-manage-purchase',
+				feature: productSlug,
 			} );
 		};
 	}
@@ -95,8 +95,8 @@ class ProductCard extends Component {
 					{ description && <p>{ description }</p> }
 					{ purchase && isCurrent && (
 						<ProductCardAction
-							onClick={ this.handleManagePurchase( purchase.productSlug ) }
-							href={ managePurchase( purchase.domain, purchase.id ) }
+							onClick={ this.handleManagePurchase( purchase.product_slug ) }
+							href={ this.getManagePurchaseLink( purchase.domain, purchase.ID ) }
 							label={ translate( 'Manage Subscription' ) }
 							primary={ false }
 						/>
@@ -108,7 +108,4 @@ class ProductCard extends Component {
 	}
 }
 
-export default connect(
-	null,
-	{ recordTracksEvent }
-)( localize( ProductCard ) );
+export default localize( ProductCard );

@@ -38,7 +38,12 @@ export class Plans extends React.Component {
 			'real-time': realtimeBackupUpgradeUrl,
 		};
 
-		const activePurchaseProductSlugs = activeSitePurchases.map( purchase => purchase.product_slug );
+		const activeJetpackBackupDailyPurchase = activeSitePurchases.find(
+			purchase => 'jetpack_backup_daily' === purchase.product_slug
+		);
+		const activeJetpackBackupRealtimePurchase = activeSitePurchases.find(
+			purchase => 'jetpack_backup_realtime' === purchase.product_slug
+		);
 		const planClass = getPlanClass( plan );
 
 		// singleProductContent should maintain this priority order for display:
@@ -66,12 +71,10 @@ export class Plans extends React.Component {
 						description: __(
 							'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
 						),
-						purchase: true,
-						isCurrent: true,
 					} }
 				/>
 			);
-		} else if ( activePurchaseProductSlugs.includes( 'jetpack_backup_realtime' ) ) {
+		} else if ( undefined !== activeJetpackBackupRealtimePurchase ) {
 			singleProductContent = (
 				<ProductCard
 					{ ...{
@@ -92,7 +95,7 @@ export class Plans extends React.Component {
 						description: __(
 							'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
 						),
-						purchase: true,
+						purchase: activeJetpackBackupRealtimePurchase,
 						isCurrent: true,
 					} }
 				/>
@@ -112,8 +115,6 @@ export class Plans extends React.Component {
 							},
 						} ),
 						description: __( 'Always-on backups ensure you never lose your site.' ),
-						purchase: true,
-						isCurrent: true,
 					} }
 				/>
 			);
@@ -132,12 +133,10 @@ export class Plans extends React.Component {
 							},
 						} ),
 						description: __( 'Always-on backups ensure you never lose your site.' ),
-						purchase: true,
-						isCurrent: true,
 					} }
 				/>
 			);
-		} else if ( activePurchaseProductSlugs.includes( 'jetpack_backup_daily' ) ) {
+		} else if ( undefined !== activeJetpackBackupDailyPurchase ) {
 			singleProductContent = (
 				<ProductCard
 					{ ...{
@@ -171,7 +170,7 @@ export class Plans extends React.Component {
 								</p>
 							</>
 						),
-						purchase: true,
+						purchase: activeJetpackBackupDailyPurchase,
 						isCurrent: true,
 					} }
 				/>
