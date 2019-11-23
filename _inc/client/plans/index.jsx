@@ -15,7 +15,7 @@ import QueryProducts from 'components/data/query-products';
 import QuerySite from 'components/data/query-site';
 import ProductCard from 'components/product-card';
 import { getPlanClass } from 'lib/plans/constants';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getSiteRawUrl, getUpgradeUrl } from 'state/initial-state';
 import { getProducts, isFetchingProducts } from 'state/products';
 import { getActiveSitePurchases, getSitePlan, isFetchingSiteData } from 'state/site';
 
@@ -27,16 +27,19 @@ export class Plans extends React.Component {
 			isFetchingData,
 			products,
 			realtimeBackupUpgradeUrl,
+			sitePlan,
+			siteRawlUrl,
 		} = this.props;
 
-		const plan = get( this.props.sitePlan, 'product_slug' );
+		// const siteSlug = get( this.props.plan );
+		const plan = get( sitePlan, 'product_slug' );
 		const upgradeLinks = {
 			daily: dailyBackupUpgradeUrl,
 			'real-time': realtimeBackupUpgradeUrl,
 		};
 
 		const activePurchaseProductSlugs = activeSitePurchases.map( purchase => purchase.product_slug );
-		const planClass = getPlanClass( this.props.sitePlan );
+		const planClass = getPlanClass( plan );
 
 		// singleProductContent should maintain this priority order for display:
 		// 1. Professional
@@ -47,7 +50,27 @@ export class Plans extends React.Component {
 		// 6. Free
 		let singleProductContent;
 		if ( 'is-business-plan' === planClass ) {
-			singleProductContent = <ProductCard title="Business Plan" />;
+			singleProductContent = (
+				<ProductCard
+					{ ...{
+						title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
+							components: {
+								em: <em />,
+							},
+						} ),
+						subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
+							components: {
+								planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+							},
+						} ),
+						description: __(
+							'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
+						),
+						purchase: true,
+						isCurrent: true,
+					} }
+				/>
+			);
 		} else if ( activePurchaseProductSlugs.includes( 'jetpack_backup_realtime' ) ) {
 			singleProductContent = (
 				<ProductCard
@@ -75,9 +98,45 @@ export class Plans extends React.Component {
 				/>
 			);
 		} else if ( 'is-premium-plan' === planClass ) {
-			singleProductContent = <ProductCard title="Premium Plan" />;
+			singleProductContent = (
+				<ProductCard
+					{ ...{
+						title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+							components: {
+								em: <em />,
+							},
+						} ),
+						subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
+							components: {
+								planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+							},
+						} ),
+						description: __( 'Always-on backups ensure you never lose your site.' ),
+						purchase: true,
+						isCurrent: true,
+					} }
+				/>
+			);
 		} else if ( 'is-personal-plan' === planClass ) {
-			singleProductContent = <ProductCard title="Personal Plan" />;
+			singleProductContent = (
+				<ProductCard
+					{ ...{
+						title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+							components: {
+								em: <em />,
+							},
+						} ),
+						subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
+							components: {
+								planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+							},
+						} ),
+						description: __( 'Always-on backups ensure you never lose your site.' ),
+						purchase: true,
+						isCurrent: true,
+					} }
+				/>
+			);
 		} else if ( activePurchaseProductSlugs.includes( 'jetpack_backup_daily' ) ) {
 			singleProductContent = (
 				<ProductCard
@@ -146,6 +205,7 @@ export default connect( state => {
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		sitePlan: getSitePlan( state ),
+		siteRawlUrl: getSiteRawUrl( state ),
 		isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
 	};
 } )( Plans );
