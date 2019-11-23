@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { translate as __, moment } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -125,6 +125,17 @@ export class Plans extends React.Component {
 		}
 	}
 
+	getTitleSection() {
+		return (
+			<Fragment>
+				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
+				<h2 className="plans-section__subheader">
+					{ __( "Just looking for backups? We've got you covered." ) }
+				</h2>
+			</Fragment>
+		);
+	}
+
 	render() {
 		const {
 			activeSitePurchases,
@@ -166,15 +177,23 @@ export class Plans extends React.Component {
 
 		let singleProductContent;
 		if ( null !== productCardProps ) {
-			singleProductContent = <ProductCard { ...productCardProps } />;
+			singleProductContent = (
+				<Fragment>
+					{ this.getTitleSection() }
+					<ProductCard { ...productCardProps } />
+				</Fragment>
+			);
 		} else if ( products && [ '', 'is-free-plan' ].includes( planClass ) ) {
 			singleProductContent = (
-				<SingleProductBackup
-					plan={ plan }
-					products={ products }
-					upgradeLinks={ upgradeLinks }
-					isFetchingData={ isFetchingData }
-				/>
+				<Fragment>
+					{ this.getTitleSection() }
+					<SingleProductBackup
+						plan={ plan }
+						products={ products }
+						upgradeLinks={ upgradeLinks }
+						isFetchingData={ isFetchingData }
+					/>
+				</Fragment>
 			);
 		}
 

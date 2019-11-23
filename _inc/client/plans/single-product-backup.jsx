@@ -27,6 +27,7 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 			<h2 className="plans-section__subheader">
 				{ __( "Just looking for backups? We've got you covered." ) }
 			</h2>
+
 			<div className="plans-section__single-product">
 				{ isFetchingData ? (
 					<div className="plans-section__single-product-skeleton is-placeholder" />
