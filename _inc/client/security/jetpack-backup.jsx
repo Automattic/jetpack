@@ -69,7 +69,7 @@ export class JetpackBackup extends Component {
 			<Banner
 				title={ title }
 				icon={ icon }
-				feature={ 'rewind' }
+				feature="rewind"
 				description={ description }
 				className="is-upgrade-premium jp-banner__no-border"
 				href={ url }
