@@ -2,7 +2,7 @@
 /**
  * Star Rating Block.
  *
- * @since 8.0
+ * @since 8.0.0
  *
  * @package Jetpack
  */
@@ -13,7 +13,7 @@ require_once __DIR__ . '/rating-meta.php';
 /**
  * Dynamic rendering of the block.
  *
- * @param array $attributes Array containing the business hours block attributes.
+ * @param array $attributes Array containing the block attributes.
  *
  * @return string
  */

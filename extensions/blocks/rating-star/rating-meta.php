@@ -2,6 +2,8 @@
 /**
  * Utilities for the rating block.
  *
+ * @since 8.0.0
+ *
  * @package Jetpack
  */
 
@@ -46,7 +48,7 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbol_high_fidelity' ) ) {
 	/**
 	 * Returns the high fidelity symbol for the block.
 	 *
-	 * @param array   $attributes Array containing the business hours block attributes.
+	 * @param array   $attributes Array containing the block attributes.
 	 * @param integer $pos Value to render whole and half symbols.
 	 * @return string
 	 */
@@ -63,7 +65,7 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbols' ) ) {
 	/**
 	 * Returns the symbol for the block.
 	 *
-	 * @param array $attributes Array containing the business hours block attributes.
+	 * @param array $attributes Array containing the block attributes.
 	 *
 	 * @return string
 	 */
@@ -90,7 +92,7 @@ if ( ! function_exists( 'jetpack_rating_meta_render_block' ) ) {
 	/**
 	 * Dynamic rendering of the block.
 	 *
-	 * @param array $attributes Array containing the business hours block attributes.
+	 * @param array $attributes Array containing the block attributes.
 	 *
 	 * @return string
 	 */
