@@ -44,7 +44,7 @@ export class JetpackBackup extends Component {
 
 	getRewindMessage() {
 		const { siteRawUrl, rewindStatus } = this.props;
-		const rewindState = get( rewindStatus, [ 'state' ], false );
+		const rewindState = get( rewindStatus, 'state', false );
 
 		switch ( rewindState ) {
 			case 'provisioning':
