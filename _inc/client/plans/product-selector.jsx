@@ -34,95 +34,79 @@ class ProductSelector extends Component {
 
 		const planClass = getPlanClass( purchase.product_slug );
 
+		const dailyBackupTitle = __( 'Jetpack Backup {{em}}Daily{{/em}}', {
+			components: {
+				em: <em />,
+			},
+		} );
+
+		const realTimeBackupTitle = __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
+			components: {
+				em: <em />,
+			},
+		} );
+
+		const purchasedDate = __( 'Purchased %(purchaseDate)s', {
+			args: {
+				purchaseDate: moment( purchase.subscribedDate ).format( 'YYYY-MM-DD' ),
+			},
+		} );
+
+		const backupDescription = __( 'Always-on backups ensure you never lose your site.' );
+		const backupDescriptionRealtime = __(
+			'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
+		);
+
 		switch ( planClass ) {
 			case 'is-daily-backup-plan':
 				return {
-					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
-					subtitle: __( 'Purchased %(purchaseDate)s', {
-						args: {
-							purchaseDate: moment( purchase.subscribedDate ).format( 'YYYY-MM-DD' ),
-						},
-					} ),
-					description: __(
-						'{{strong}}Looking for more?{{/strong}} With Real-time backups, we save as you edit and you’ll get unlimited backup archives.',
-						{
-							components: {
-								strong: <strong />,
-							},
-						}
-					),
+					title: dailyBackupTitle,
+					subtitle: purchasedDate,
+					description: backupDescription,
 					purchase,
 					isCurrent: true,
 				};
 			case 'is-realtime-backup-plan':
 				return {
-					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
-					subtitle: __( 'Purchased %(purchaseDate)s', {
-						args: {
-							purchaseDate: moment( purchase.subscribedDate ).format( 'YYYY-MM-DD' ),
-						},
-					} ),
-					description: __(
-						'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
-					),
+					title: realTimeBackupTitle,
+					subtitle: purchasedDate,
+					description: backupDescriptionRealtime,
 					purchase,
 					isCurrent: true,
 				};
 			case 'is-personal-plan':
 				return {
-					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
+					title: dailyBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
 						components: {
 							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
 						},
 					} ),
-					description: __( 'Always-on backups ensure you never lose your site.' ),
+					description: backupDescription,
 					purchase,
 					isCurrent: true,
 				};
 			case 'is-premium-plan':
 				return {
-					title: __( 'Jetpack Backup {{em}}Daily{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
+					title: dailyBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
 						components: {
 							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
 						},
 					} ),
-					description: __( 'Always-on backups ensure you never lose your site.' ),
+					description: backupDescription,
 					purchase,
 					isCurrent: true,
 				};
 			case 'is-business-plan':
 				return {
-					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
-						components: {
-							em: <em />,
-						},
-					} ),
+					title: realTimeBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
 						components: {
 							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
 						},
 					} ),
-					description: __(
-						'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
-					),
+					description: backupDescriptionRealtime,
 					purchase,
 					isCurrent: true,
 				};

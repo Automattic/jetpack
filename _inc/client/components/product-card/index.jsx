@@ -34,7 +34,7 @@ class ProductCard extends Component {
 		isPlaceholder: PropTypes.bool,
 		purchase: PropTypes.object,
 		subtitle: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element, PropTypes.node ] ),
-		title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+		title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element, PropTypes.node ] ),
 	};
 
 	getManagePurchaseLink( siteName, purchaseId ) {
