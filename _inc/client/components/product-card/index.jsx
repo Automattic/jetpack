@@ -9,9 +9,9 @@ import { localize } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
 import ProductCardAction from './action';
 import ProductCardPriceGroup from './price-group';
 
