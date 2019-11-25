@@ -2,6 +2,15 @@
 
 ### Blocks
 
+#### Mailchimp
+
+We've added 2 new options to the existing Mailchimp block. You'll locate them in the block sidebar when adding a block to a post or page.
+
+- If you've defined groups in your [Maichimp Audience settings](https://mailchimp.com/help/create-new-audience-group/), you'll see that option in the block sidebar.
+- In your Audience Settings, you can also define custom Audience fields and MERGE tags. You can use those to create a new field for your forms, and you can add info about that field to your block settings in the block editor. This will allow you to track where subscriptions are coming from.
+
+Give that a try, try using the forms you create, and see if the fields are updated accordingly when looking at your subscriber list on Maichimp.com. Bonus points if you also try to sign up when using the AMP plugin on the site!
+
 #### Pinterest
 
 This release introduces **a new Pinterest block**. This block allows you to insert various Pinterest links (pins, boards, profiles) that will be automatically converted into a Pinterest embed in your posts.

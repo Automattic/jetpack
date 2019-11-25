@@ -109,7 +109,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Image CDN: expand number of images using the new subdomain determination function.
-* Recurring Payments: improve display of buttons inside the block in the editor.
+* Mailchimp block: you can now create forms for a subset (group) of your Mailchimp list, and add a field to track which form the signups are coming from.
+* Recurring Payments block: improve display of buttons inside the block in the editor.
 * Shortcodes: add new customization options and improve Schema.org markup of the Recipe shortcode.
 * Shortcodes: add AMP views for 5 shortcodes: `vimeo`, `instagram`, `dailymotion`, `tweet`, and `soundcloud`.
 * Support Tools: improve the reliability of the tools on slower sites.
