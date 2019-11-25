@@ -85,7 +85,7 @@ class ProductSelector extends Component {
 					} ),
 					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
 						components: {
-							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
 						},
 					} ),
 					description: __( 'Always-on backups ensure you never lose your site.' ),
@@ -101,7 +101,7 @@ class ProductSelector extends Component {
 					} ),
 					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
 						components: {
-							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
 						},
 					} ),
 					description: __( 'Always-on backups ensure you never lose your site.' ),
@@ -117,7 +117,7 @@ class ProductSelector extends Component {
 					} ),
 					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
 						components: {
-							planLink: <a href={ `/plans/my-plan/${ siteRawlUrl }` } />,
+							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
 						},
 					} ),
 					description: __(
