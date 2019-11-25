@@ -41,6 +41,13 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_PERSONAL_MONTHLY,
 ];
 
+export const JETPACK_BACKUP_PRODUCTS = [
+	PLAN_JETPACK_BACKUP_DAILY,
+	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
+	PLAN_JETPACK_BACKUP_REALTIME,
+	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
+];
+
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
 
@@ -117,6 +124,10 @@ export function isPopular( plan ) {
 
 export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
+}
+
+export function isJetpackBackup( product ) {
+	return includes( JETPACK_BACKUP_PRODUCTS, product );
 }
 
 export function getPlanClass( plan ) {
