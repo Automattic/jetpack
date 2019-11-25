@@ -15,7 +15,6 @@ import { getPlanClass } from '../lib/plans/constants';
 import { getActiveSitePurchases, getSitePlan, isFetchingSiteData } from '../state/site';
 import { getSiteRawUrl, getUpgradeUrl } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
-// import { JETPACK_PRODUCTS } from '../lib/products/constants';
 
 class ProductSelector extends Component {
 	getTitleSection() {
