@@ -52,6 +52,10 @@ class ProductSelector extends Component {
 				rel="noopener noreferrer"
 			/>
 		);
+		const additionalProps = {
+			purchase,
+			isCurrent: true,
+		};
 
 		switch ( planClass ) {
 			case 'is-daily-backup-plan':
@@ -59,16 +63,14 @@ class ProductSelector extends Component {
 					title: dailyBackupTitle,
 					subtitle: purchasedDate,
 					description: backupDescription,
-					purchase,
-					isCurrent: true,
+					...additionalProps,
 				};
 			case 'is-realtime-backup-plan':
 				return {
 					title: realTimeBackupTitle,
 					subtitle: purchasedDate,
 					description: backupDescriptionRealtime,
-					purchase,
-					isCurrent: true,
+					...additionalProps,
 				};
 			case 'is-personal-plan':
 				return {
@@ -79,8 +81,7 @@ class ProductSelector extends Component {
 						},
 					} ),
 					description: backupDescription,
-					purchase,
-					isCurrent: true,
+					...additionalProps,
 				};
 			case 'is-premium-plan':
 				return {
@@ -91,8 +92,7 @@ class ProductSelector extends Component {
 						},
 					} ),
 					description: backupDescription,
-					purchase,
-					isCurrent: true,
+					...additionalProps,
 				};
 			case 'is-business-plan':
 				return {
@@ -103,8 +103,7 @@ class ProductSelector extends Component {
 						},
 					} ),
 					description: backupDescriptionRealtime,
-					purchase,
-					isCurrent: true,
+					...additionalProps,
 				};
 		}
 	}
