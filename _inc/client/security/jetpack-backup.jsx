@@ -70,13 +70,6 @@ export class JetpackBackup extends Component {
 					description: __( 'Your site is being backed up.' ),
 					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
 				};
-			default:
-				return {
-					title: '',
-					icon: '',
-					description: '',
-					url: '',
-				};
 		}
 	}
 
