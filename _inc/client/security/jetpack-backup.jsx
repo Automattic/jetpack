@@ -91,7 +91,7 @@ export class JetpackBackup extends Component {
 	render() {
 		const { rewindStatus, vaultPressData } = this.props;
 
-		const rewindState = get( rewindStatus, [ 'state' ], false );
+		const rewindState = get( rewindStatus, 'state', false );
 		const vaultPressEnabled = get( vaultPressData, [ 'data', 'features', 'backups' ], false );
 
 		const hasRewindData = false !== rewindState;
