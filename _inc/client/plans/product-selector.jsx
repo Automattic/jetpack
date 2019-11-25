@@ -67,7 +67,13 @@ class ProductSelector extends Component {
 					title: dailyBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
 						components: {
-							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
+							planLink: (
+								<a
+									href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
 						},
 					} ),
 					description: backupDescription,
@@ -79,7 +85,13 @@ class ProductSelector extends Component {
 					title: dailyBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
 						components: {
-							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
+							planLink: (
+								<a
+									href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
 						},
 					} ),
 					description: backupDescription,
@@ -91,7 +103,13 @@ class ProductSelector extends Component {
 					title: realTimeBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
 						components: {
-							planLink: <a href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` } />,
+							planLink: (
+								<a
+									href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
 						},
 					} ),
 					description: backupDescriptionRealtime,
