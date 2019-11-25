@@ -3250,8 +3250,6 @@ p {
 		$connection = self::connection();
 		$connection->clean_nonces( true );
 
-		$connection = new Connection_Manager();
-
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
