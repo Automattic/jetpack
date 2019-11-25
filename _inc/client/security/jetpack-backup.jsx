@@ -9,7 +9,6 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
-import { LoadingCard } from './loading-card';
 import Banner from 'components/banner';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -105,18 +104,24 @@ export class JetpackBackup extends Component {
 		const hasRewindData = false !== rewindState;
 		if ( ! hasRewindData && ! vaultPressEnabled ) {
 			return (
-				<LoadingCard
+				<SettingsCard
 					header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
-					action="security-scanning-jetpack"
-					module={ { module: 'backups' } }
-					support={ {
-						text: __(
-							'Backs up your site to the global WordPress.com servers, ' +
-								'allowing you to restore your content in the event of an emergency or error.'
-						),
-						link: 'https://help.vaultpress.com/get-to-know/',
-					} }
-				/>
+					hideButton
+					action={ FEATURE_SITE_BACKUPS_JETPACK }
+				>
+					<SettingsGroup
+						module={ { module: 'backups' } }
+						support={ {
+							text: __(
+								'Backs up your site to the global WordPress.com servers, ' +
+									'allowing you to restore your content in the event of an emergency or error.'
+							),
+							link: 'https://help.vaultpress.com/get-to-know/',
+						} }
+					>
+						{ __( 'Checking site status…' ) }
+					</SettingsGroup>
+				</SettingsCard>
 			);
 		}
 
