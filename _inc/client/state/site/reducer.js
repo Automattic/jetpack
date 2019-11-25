@@ -186,7 +186,7 @@ export function getSitePurchases( state ) {
 /**
  * Returns the active purchases for a site
  * @param {*} state Global state tree
- * @return {Array}  Active purchse for the site
+ * @return {Array}  Active purchases for the site
  */
 export function getActiveSitePurchases( state ) {
 	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
