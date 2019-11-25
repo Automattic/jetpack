@@ -58,7 +58,7 @@ class ProductSelector extends Component {
 					purchase,
 					isCurrent: true,
 				};
-			case 'is-jetpack-backup-realtime':
+			case 'is-realtime-backup-plan':
 				return {
 					title: __( 'Jetpack Backup {{em}}Real-Time{{/em}}', {
 						components: {
