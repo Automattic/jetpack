@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Image CDN: expand number of images using the new subdomain determination function.
 * Shortcodes: add new customization options and improve Schema.org markup of the Recipe shortcode.
+* Shortcodes: add AMP views for 4 shortcodes: `vimeo`, `instagram`, `dailymotion`, and `soundcloud`.
 * Support Tools: improve the reliability of the tools on slower sites.
 
 **Improved compatibility**
