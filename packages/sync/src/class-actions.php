@@ -289,7 +289,8 @@ class Actions {
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
-		$url = add_query_arg( $query_args, \Jetpack::xmlrpc_api_url() );
+		$connection = new Jetpack_Connection();
+		$url        = add_query_arg( $query_args, $connection->xmlrpc_api_url() );
 
 		// If we're currently updating to Jetpack 7.7, the IXR client may be missing briefly
 		// because since 7.7 it's being autoloaded with Composer.
