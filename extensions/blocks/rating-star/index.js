@@ -12,7 +12,7 @@ import { StarIcon, StarBlockIcon } from './icon';
 import './editor.scss';
 import './style.scss';
 
-export const name = 'jetpack/rating-star';
+export const name = 'rating-star';
 
 export const settings = {
 	title: 'Star Rating',
