@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: start using the @wordpress/block-editor package introduced in WordPress 5.2.
 * Image CDN: expand number of images using the new subdomain determination function.
 * Mailchimp block: you can now create forms for a subset (group) of your Mailchimp list, and add a field to track which form the signups are coming from.
 * Recurring Payments block: improve display of buttons inside the block in the editor.
