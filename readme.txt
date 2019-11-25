@@ -120,7 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* SEO Tools: do not display any HTML tags in title meta tags.
 
 --------
 
