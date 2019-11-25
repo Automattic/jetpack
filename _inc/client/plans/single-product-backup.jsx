@@ -4,7 +4,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
-import { get, startCase } from 'lodash';
+import { get } from 'lodash';
+import { withRouter } from 'react-router';
 
 /**
  * Internal dependencies
@@ -63,15 +64,33 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 	];
 
 	return (
-		<div className="single-product-backup__accented-card dops-card">
-			<div className="single-product-backup__accented-card-header">
-				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-				<SingleProductBackupPriceGroup
-					billingTimeFrame={ billingTimeFrame }
-					currencyCode={ currencyCode }
-					discountedPrice={ [ priceDaily, priceRealtime ] }
-					fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
-				/>
+		<React.Fragment>
+			<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
+			<h2 className="plans-section__subheader">
+				{ __( "Just looking for backups? We've got you covered." ) }
+			</h2>
+			<div className="plans-section__single-product">
+				<div className="single-product-backup__accented-card dops-card">
+					<div className="single-product-backup__accented-card-header">
+						<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+						<SingleProductBackupBodyWithRouter
+							billingTimeFrame={ billingTimeFrame }
+							currencyCode={ currencyCode }
+							discountedPrice={ [ priceDaily, priceRealtime ] }
+							fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
+						/>
+					</div>
+					<div className="single-product-backup__accented-card-body">
+						<SingleProductBackupBodyWithRouter
+							billingTimeFrame={ billingTimeFrame }
+							currencyCode={ currencyCode }
+							backupOptions={ backupOptions }
+							selectedBackupType={ selectedBackupType }
+							setSelectedBackupType={ setSelectedBackupType }
+							upgradeLinks={ upgradeLinks }
+						/>
+					</div>
+				</div>
 			</div>
 			<div className="single-product-backup__accented-card-body">
 				<SingleProductBackupBody
@@ -83,7 +102,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 					upgradeLinks={ upgradeLinks }
 				/>
 			</div>
-		</div>
+		</React.Fragment>
 	);
 }
 
@@ -170,13 +189,11 @@ class SingleProductBackupBody extends React.Component {
 	};
 
 	handleUpgradeButtonClick = selectedBackupType => () => {
-		const page = startCase( window.location.hash.replace( /#\//g, ' ' ).trim() );
-
 		analytics.tracks.recordJetpackClick( {
 			target: `upgrade-${ selectedBackupType }`,
 			type: 'upgrade',
 			product: selectedBackupType,
-			page,
+			page: this.props.routes[ 0 ] && this.props.routes[ 0 ].name,
 		} );
 	};
 
@@ -256,3 +273,5 @@ class SingleProductBackupBody extends React.Component {
 		);
 	}
 }
+
+const SingleProductBackupBodyWithRouter = withRouter( SingleProductBackupBody );
