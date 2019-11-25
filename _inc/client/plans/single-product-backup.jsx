@@ -23,10 +23,6 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 
 	return (
 		<React.Fragment>
-			<h1 className="plans-section__header">{ __( 'Single Products' ) }</h1>
-			<h2 className="plans-section__subheader">
-				{ __( "Just looking for backups? We've got you covered." ) }
-			</h2>
 			<div className="plans-section__single-product">
 				{ isFetchingData ? (
 					<div className="plans-section__single-product-skeleton is-placeholder" />
@@ -49,6 +45,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
 	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
+	// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
 	const backupOptions = [
 		{
 			type: 'daily',
@@ -180,6 +177,7 @@ class SingleProductBackupBody extends React.Component {
 			upgradeLinks,
 		} = this.props;
 
+		// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
 		const upgradeTitles = {
 			'real-time': __( 'Upgrade to Real-Time Backups' ),
 			daily: __( 'Upgrade to Daily Backups' ),
