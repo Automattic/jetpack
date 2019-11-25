@@ -5,7 +5,7 @@ import { invoke } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Placeholder, SandBox, Button, IconButton, Spinner, Toolbar } from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/editor';
+import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
