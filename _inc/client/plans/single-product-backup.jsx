@@ -64,36 +64,18 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 	];
 
 	return (
-		<React.Fragment>
-			<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
-			<h2 className="plans-section__subheader">
-				{ __( "Just looking for backups? We've got you covered." ) }
-			</h2>
-			<div className="plans-section__single-product">
-				<div className="single-product-backup__accented-card dops-card">
-					<div className="single-product-backup__accented-card-header">
-						<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-						<SingleProductBackupBodyWithRouter
-							billingTimeFrame={ billingTimeFrame }
-							currencyCode={ currencyCode }
-							discountedPrice={ [ priceDaily, priceRealtime ] }
-							fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
-						/>
-					</div>
-					<div className="single-product-backup__accented-card-body">
-						<SingleProductBackupBodyWithRouter
-							billingTimeFrame={ billingTimeFrame }
-							currencyCode={ currencyCode }
-							backupOptions={ backupOptions }
-							selectedBackupType={ selectedBackupType }
-							setSelectedBackupType={ setSelectedBackupType }
-							upgradeLinks={ upgradeLinks }
-						/>
-					</div>
-				</div>
+		<div className="single-product-backup__accented-card dops-card">
+			<div className="single-product-backup__accented-card-header">
+				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+				<SingleProductBackupPriceGroup
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					discountedPrice={ [ priceDaily, priceRealtime ] }
+					fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
+				/>
 			</div>
 			<div className="single-product-backup__accented-card-body">
-				<SingleProductBackupBody
+				<SingleProductBackupBodyWithRouter
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
 					backupOptions={ backupOptions }
@@ -102,7 +84,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 					upgradeLinks={ upgradeLinks }
 				/>
 			</div>
-		</React.Fragment>
+		</div>
 	);
 }
 
