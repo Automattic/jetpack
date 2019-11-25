@@ -17,6 +17,12 @@ This release introduces **a new Pinterest block**. This block allows you to inse
 
 To test this, try adding various Pinterest URLs (short and long), and see that they are displayed properly in the editor and on the front-end of your site.
 
+#### Ratings
+
+This release also brings **a new Ratings block** to your site. Rate movies, books, songs, recipes — anything you can put a number on. To get started, go to the block editor and search for "Star" or "Rating".
+
+Play with the different block settings and let us know how it goes.
+
 ### Shortcodes
 
 Jetpack includes a Recipe shortcode that allows you to display recipes in your blog posts, with a nice layout and a markup optimized for search engines. In this release, we're introducing 3 new elements to the recipe display:
