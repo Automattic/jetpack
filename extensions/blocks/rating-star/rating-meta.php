@@ -72,7 +72,7 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbols' ) ) {
 		// These are hidden by default, then unhid when CSS loads.
 		$symbols_hifi = array();
 		for ( $pos = 1; $pos <= $attributes['maxRating']; $pos++ ) {
-			$symbols_hifi[] = '<span style="display: none;">' . jetpack_rating_star_get_symbol_high_fidelity( $attributes, $pos ) . '</span>';
+			$symbols_hifi[] = '<span style="display: none;">' . jetpack_rating_meta_get_symbol_high_fidelity( $attributes, $pos ) . '</span>';
 		}
 
 		// Output fallback symbols for low fidelity contexts, like AMP,
