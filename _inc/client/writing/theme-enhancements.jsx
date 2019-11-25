@@ -225,6 +225,18 @@ class ThemeEnhancements extends React.Component {
 									'still see your regular theme on other screen sizes.'
 							) }
 						</p>
+						<p>
+							{ __(
+								'{{b}}Note:{{/b}} This feature is being discontinued ' +
+									'and will be removed from Jetpack in a future release. ' +
+									'If you disable this setting, you will not be able to re-activate it.',
+								{
+									components: {
+										b: <strong />,
+									},
+								}
+							) }
+						</p>
 						<ModuleToggle
 							slug={ minileven.module }
 							activated={ isMinilevenActive }
