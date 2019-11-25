@@ -76,6 +76,8 @@
 .product-card__title {
 	font-size: 20px;
 	line-height: 24px;
+	margin: 0;
+	font-weight: 400;
 
 	@include breakpoint( '>960px' ) {
 		font-size: 22px;
@@ -112,6 +114,7 @@
 }
 
 .product-card {
+	max-width: 512px;
 	.plan-price {
 		margin-right: 0.333em;
 
