@@ -1260,6 +1260,36 @@ class Manager {
 	}
 
 	/**
+	 * Deletes all connection tokens and transients from the local Jetpack site.
+	 */
+	public function delete_all_connection_tokens() {
+		\Jetpack_Options::delete_option(
+			array(
+				'blog_token',
+				'user_token',
+				'user_tokens',
+				'master_user',
+				'time_diff',
+				'fallback_no_verify_ssl_certs',
+			)
+		);
+
+		\Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
+
+		// Delete cached connected user data.
+		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
+		delete_transient( $transient_key );
+	}
+
+	/**
+	 * Tells WordPress.com to disconnect the site and clear all tokens from cached site.
+	 */
+	public function disconnect_site_wpcom() {
+		$xml = new \Jetpack_IXR_Client();
+		$xml->query( 'jetpack.deregister', get_current_user_id() );
+	}
+
+	/**
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
 	 *

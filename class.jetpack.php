@@ -3262,23 +3262,11 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$xml = new Jetpack_IXR_Client();
-			$xml->query( 'jetpack.deregister', get_current_user_id() );
+			$connection->disconnect_site_wpcom();
 		}
 
-		Jetpack_Options::delete_option(
-			array(
-				'blog_token',
-				'user_token',
-				'user_tokens',
-				'master_user',
-				'time_diff',
-				'fallback_no_verify_ssl_certs',
-			)
-		);
-
+		$connection->delete_all_connection_tokens();
 		Jetpack_IDC::clear_all_idc_options();
-		Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
@@ -3302,10 +3290,6 @@ p {
 
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
-
-		// Delete cached connected user data
-		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
-		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();
