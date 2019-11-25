@@ -107,11 +107,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Block Editor: new Ratings block allowing you to add star ratings any post or page.
 * Mailchimp block: you can now create forms for a subset (group) of your Mailchimp list, and add a field to track which form the signups are coming from.
 
-
 **Enhancements**
 
 * Blocks: start using the @wordpress/block-editor package introduced in WordPress 5.2.
 * Contact Form: make the Form block reusable on a single post / page.
+* Dashboard: add support for Jetpack Backup display.
 * Image CDN: expand number of images using the new subdomain determination function.
 * Recurring Payments block: improve display of buttons inside the block in the editor.
 * Shortcodes: add new customization options and improve Schema.org markup of the Recipe shortcode.
