@@ -17,17 +17,6 @@ import { getSiteRawUrl, getUpgradeUrl } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
 
 class ProductSelector extends Component {
-	getTitleSection() {
-		return (
-			<Fragment>
-				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
-				<h2 className="plans-section__subheader">
-					{ __( "Just looking for backups? We've got you covered." ) }
-				</h2>
-			</Fragment>
-		);
-	}
-
 	getProductCardPropsForPurchase( purchase ) {
 		const { siteRawlUrl } = this.props;
 
@@ -137,8 +126,18 @@ class ProductSelector extends Component {
 		return false;
 	}
 
-	render() {
-		let singleProductContent;
+	renderTitleSection() {
+		return (
+			<Fragment>
+				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
+				<h2 className="plans-section__subheader">
+					{ __( "Just looking for backups? We've got you covered." ) }
+				</h2>
+			</Fragment>
+		);
+	}
+
+	renderSingleProductContent() {
 		const {
 			dailyBackupUpgradeUrl,
 			isFetchingData,
@@ -146,7 +145,6 @@ class ProductSelector extends Component {
 			realtimeBackupUpgradeUrl,
 			sitePlan,
 		} = this.props;
-
 		const plan = get( sitePlan, 'product_slug' );
 		const upgradeLinks = {
 			daily: dailyBackupUpgradeUrl,
@@ -156,26 +154,28 @@ class ProductSelector extends Component {
 		const purchase = this.findPrioritizedPurchase();
 		if ( purchase ) {
 			const productCardProps = this.getProductCardPropsForPurchase( purchase );
-			singleProductContent = (
+			return (
 				<div className="plans-section__single-product">
 					<ProductCard { ...productCardProps } />
 				</div>
 			);
-		} else {
-			singleProductContent = (
-				<SingleProductBackup
-					plan={ plan }
-					products={ products }
-					upgradeLinks={ upgradeLinks }
-					isFetchingData={ isFetchingData }
-				/>
-			);
 		}
 
 		return (
+			<SingleProductBackup
+				plan={ plan }
+				products={ products }
+				upgradeLinks={ upgradeLinks }
+				isFetchingData={ isFetchingData }
+			/>
+		);
+	}
+
+	render() {
+		return (
 			<Fragment>
-				{ this.getTitleSection() }
-				{ singleProductContent }
+				{ this.renderTitleSection() }
+				{ this.renderSingleProductContent() }
 			</Fragment>
 		);
 	}
