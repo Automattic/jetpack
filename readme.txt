@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Connection management: fix issue that prevented the Connection transfer banner from appearing in some situations.
 * SEO Tools: do not display any HTML tags in title meta tags.
 * Sync: avoid conflicts when two processes are synchronized to WordPress.com at the same time.
 * WordPress.com Block Editor: ensure that the Justify button works well on any paragraph using that button.
