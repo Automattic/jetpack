@@ -12,6 +12,8 @@ import { get } from 'lodash';
 import { LoadingCard } from './loading-card';
 import Banner from 'components/banner';
 import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import { FEATURE_SITE_BACKUPS_JETPACK } from 'lib/plans/constants';
 
 export class JetpackBackup extends Component {
 	static propTypes = {
@@ -22,6 +24,23 @@ export class JetpackBackup extends Component {
 	static defaultProps = {
 		siteRawUrl: '',
 		rewindState: '',
+	};
+
+	getVaultPressContent = () => {
+		return (
+			<SettingsGroup
+				module={ { module: 'backups' } }
+				support={ {
+					text: __(
+						'Backs up your site to the global WordPress.com servers, ' +
+							'allowing you to restore your content in the event of an emergency or error.'
+					),
+					link: 'https://help.vaultpress.com/get-to-know/',
+				} }
+			>
+				{ __( 'Your site is backed up.' ) }
+			</SettingsGroup>
+		);
 	};
 
 	getRewindMessage() {
@@ -62,7 +81,7 @@ export class JetpackBackup extends Component {
 		}
 	}
 
-	getBanner = () => {
+	getRewindBanner = () => {
 		const { title, icon, description, url } = this.getRewindMessage();
 
 		return (
@@ -78,12 +97,13 @@ export class JetpackBackup extends Component {
 	};
 
 	render() {
-		const { rewindStatus } = this.props;
+		const { rewindStatus, vaultPressData } = this.props;
 
 		const rewindState = get( rewindStatus, [ 'state' ], false );
+		const vaultPressEnabled = get( vaultPressData, [ 'data', 'features', 'backups' ], false );
 
 		const hasRewindData = false !== rewindState;
-		if ( ! hasRewindData ) {
+		if ( ! hasRewindData && ! vaultPressEnabled ) {
 			return (
 				<LoadingCard
 					header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
@@ -102,13 +122,12 @@ export class JetpackBackup extends Component {
 
 		return (
 			<SettingsCard
-				feature={ 'security-scanning-jetpack' }
+				feature={ FEATURE_SITE_BACKUPS_JETPACK }
 				{ ...this.props }
 				header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
-				action={ 'security-scanning-jetpack' }
 				hideButton
 			>
-				{ this.getBanner() }
+				{ 'unavailable' === rewindState ? this.getVaultPressContent() : this.getRewindBanner() }
 			</SettingsCard>
 		);
 	}

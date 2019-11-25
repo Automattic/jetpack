@@ -13,6 +13,7 @@ import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { getVaultPressData } from 'state/at-a-glance';
 import { isModuleFound } from 'state/search';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
@@ -100,7 +101,7 @@ export class Security extends Component {
 		const backupsOnly = isPersonalPlan || isFreePlanWithBackup;
 
 		const backupsContent = backupsOnly ? (
-			<JetpackBackup { ...commonProps } />
+			<JetpackBackup { ...commonProps } vaultPressData={ this.props.vaultPressData } />
 		) : (
 			<BackupsScan { ...commonProps } />
 		);
@@ -145,5 +146,6 @@ export default connect( state => {
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
+		vaultPressData: getVaultPressData( state ),
 	};
 } )( Security );
