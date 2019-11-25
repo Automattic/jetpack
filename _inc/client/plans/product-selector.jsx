@@ -44,6 +44,13 @@ class ProductSelector extends Component {
 		const backupDescriptionRealtime = __(
 			'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
 		);
+		const planLink = (
+			<a
+				href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
+				target="_blank"
+				rel="noopener noreferrer"
+			/>
+		);
 
 		switch ( planClass ) {
 			case 'is-daily-backup-plan':
@@ -67,13 +74,7 @@ class ProductSelector extends Component {
 					title: dailyBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
 						components: {
-							planLink: (
-								<a
-									href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
+							planLink,
 						},
 					} ),
 					description: backupDescription,
@@ -85,13 +86,7 @@ class ProductSelector extends Component {
 					title: dailyBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
 						components: {
-							planLink: (
-								<a
-									href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
+							planLink,
 						},
 					} ),
 					description: backupDescription,
@@ -103,13 +98,7 @@ class ProductSelector extends Component {
 					title: realTimeBackupTitle,
 					subtitle: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
 						components: {
-							planLink: (
-								<a
-									href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
-									target="_blank"
-									rel="noopener noreferrer"
-								/>
-							),
+							planLink,
 						},
 					} ),
 					description: backupDescriptionRealtime,
