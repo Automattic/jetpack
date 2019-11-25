@@ -18,6 +18,8 @@ const ProductCardAction = ( { intro, label, onClick, primary, href } ) => (
 			href={ href }
 			onClick={ onClick }
 			primary={ primary }
+			target="_blank"
+			rel="noopener noreferrer"
 		>
 			{ label }
 		</Button>
