@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connection: fix communication between Jetpack sites and WordPress.com for some sites hosted on non-standard ports.
 * Connection management: fix issue that prevented the Connection transfer banner from appearing in some situations.
+* Image CDN: avoid blurry images when using Jetpack's Image CDN alongside other image-focussed blocks.
 * SEO Tools: do not display any HTML tags in title meta tags.
 * Sharing: improve accessibility of the sharing buttons by updating the buttons' color.
 * Sync: avoid conflicts when two processes are synchronized to WordPress.com at the same time.
