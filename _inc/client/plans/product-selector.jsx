@@ -22,6 +22,7 @@ class ProductSelector extends Component {
 
 		const planClass = getPlanClass( purchase.product_slug );
 
+		// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
 		const dailyBackupTitle = __( 'Jetpack Backup {{em}}Daily{{/em}}', {
 			components: {
 				em: <em />,

@@ -45,6 +45,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
 	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
+	// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
 	const backupOptions = [
 		{
 			type: 'daily',
@@ -176,6 +177,7 @@ class SingleProductBackupBody extends React.Component {
 			upgradeLinks,
 		} = this.props;
 
+		// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
 		const upgradeTitles = {
 			'real-time': __( 'Upgrade to Real-Time Backups' ),
 			daily: __( 'Upgrade to Daily Backups' ),
