@@ -1,6 +1,8 @@
+@import '../../shared/styles/jetpack-variables';
+
 // Editor and View styles
 .wp-block-jetpack-rating-star {
-	margin-bottom: 1.5em; // Provide a minimum bottom margin.
+	margin-bottom: $jetpack-block-margin-bottom;
 	line-height: 0;
 	stroke-width: 0;
 
