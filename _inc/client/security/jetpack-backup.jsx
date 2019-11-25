@@ -87,7 +87,7 @@ export class JetpackBackup extends Component {
 			return (
 				<LoadingCard
 					header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
-					action="rewind"
+					action="security-scanning-jetpack"
 					module={ { module: 'backups' } }
 					support={ {
 						text: __(
@@ -102,10 +102,10 @@ export class JetpackBackup extends Component {
 
 		return (
 			<SettingsCard
-				feature={ 'rewind' }
+				feature={ 'security-scanning-jetpack' }
 				{ ...this.props }
 				header={ __( 'Jetpack Backup', { context: 'Settings header' } ) }
-				action={ 'rewind' }
+				action={ 'security-scanning-jetpack' }
 				hideButton
 			>
 				{ this.getBanner() }

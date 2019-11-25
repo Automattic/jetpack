@@ -87,15 +87,15 @@ export class Security extends Component {
 		}
 
 		const planClass = getPlanClass( get( this.props.sitePlan, [ 'product_slug' ] ) );
-		const activePurchaseProductSlugs = this.props.activeSitePurchases.map(
-			purchase => purchase.product_slug
+		const activePlanClasses = this.props.activeSitePurchases.map( purchase =>
+			getPlanClass( purchase.product_slug )
 		);
 
 		const isPersonalPlan = 'is-personal-plan' === planClass;
 		const isFreePlanWithBackup =
 			'is-free-plan' === planClass &&
-			( activePurchaseProductSlugs.includes( 'jetpack_backup_daily' ) ||
-				activePurchaseProductSlugs.includes( 'jetpack_backup_realtime' ) );
+			( activePlanClasses.includes( 'is-daily-backup-plan' ) ||
+				activePlanClasses.includes( 'is-realtime-backup-plan' ) );
 
 		const backupsOnly = isPersonalPlan || isFreePlanWithBackup;
 
