@@ -734,13 +734,9 @@ class Jetpack_Gutenberg {
 		}
 
 		/*
-		 * Switch to experimental blocks if you use Gutenberg, the FSE plugin, or the constant.
+		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant.
 		 */
-		if (
-			Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
-			|| Jetpack::is_plugin_active( 'gutenberg/gutenberg.php' )
-			|| Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' )
-		) {
+		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
 			return 'experimental';
 		}
 

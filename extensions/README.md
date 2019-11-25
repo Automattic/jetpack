@@ -61,10 +61,7 @@ Generally, all new extensions should start out as a beta.
 
 ### Experimental Extensions
 
-We also offer an "experimental" state for extensions. Those extensions will be made available to anyone:
-- Running the Gutenberg plugin, or;
-- Running the FSE plugin, or;
-- having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`.
+We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`.
 
 ### Testing
 
