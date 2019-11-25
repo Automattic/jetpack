@@ -5130,7 +5130,7 @@ endif;
 	 * @return string
 	 */
 	public static function xmlrpc_api_url() {
-		_deprecated_function( __METHOD__, 'jetpack-8.0' );
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_api_url()' );
 		return self::connection()->xmlrpc_api_url();
 	}
 
