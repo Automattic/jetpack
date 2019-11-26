@@ -94,7 +94,6 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 					),
 					true
 				);
-				error_log("checking if $class_name matches Automattic\Jetpack\Bootstrap");
 				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
 						esc_html( $class_name ),
