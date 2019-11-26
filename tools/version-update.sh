@@ -96,7 +96,7 @@ fi
 
 # Replace all file contents.
 sed -i.bak -E "s/Version: .+/Version: ${TARGET_VERSION}/" jetpack.php
-sed -i.bak -E "s/'JETPACK__VERSION',(\s+)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
+sed -i.bak -E "s/'JETPACK__VERSION',( +)'(.+)'/'JETPACK__VERSION',\1'${TARGET_VERSION}'/" jetpack.php
 sed -i.bak -E "s/\"version\": \".+\"/\"version\": \"${NPM_TARGET_VERSION}\"/" package.json
 rm *.bak # We need a backup file because macOS requires it.
 
