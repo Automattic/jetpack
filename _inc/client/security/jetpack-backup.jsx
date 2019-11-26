@@ -34,7 +34,7 @@ export class JetpackBackup extends Component {
 						'Backs up your site to the global WordPress.com servers, ' +
 							'allowing you to restore your content in the event of an emergency or error.'
 					),
-					link: 'https://help.vaultpress.com/get-to-know/',
+					link: 'https://jetpack.com/support/backups/',
 				} }
 			>
 				{ __( 'Your site is backed up.' ) }
@@ -109,7 +109,7 @@ export class JetpackBackup extends Component {
 								'Backs up your site to the global WordPress.com servers, ' +
 									'allowing you to restore your content in the event of an emergency or error.'
 							),
-							link: 'https://help.vaultpress.com/get-to-know/',
+							link: 'https://jetpack.com/support/backups/',
 						} }
 					>
 						{ __( 'Checking site status…' ) }
