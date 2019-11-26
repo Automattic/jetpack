@@ -5,10 +5,12 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import { withRouter } from 'react-router';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
 import PlanPrice from 'components/plans/plan-price';
@@ -73,7 +75,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 				/>
 			</div>
 			<div className="single-product-backup__accented-card-body">
-				<SingleProductBackupBody
+				<SingleProductBackupBodyWithRouter
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
 					backupOptions={ backupOptions }
@@ -168,6 +170,23 @@ class SingleProductBackupBody extends React.Component {
 		this.props.setSelectedBackupType( event.target.value );
 	};
 
+	handleUpgradeButtonClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: `upgrade-${ selectedBackupType }`,
+			type: 'upgrade',
+			product: selectedBackupType,
+			page: this.props.routes[ 0 ] && this.props.routes[ 0 ].name,
+		} );
+	};
+
+	handleLandingPageLinkClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-backup',
+			extra: selectedBackupType,
+		} );
+	};
+
 	render() {
 		const {
 			backupOptions,
@@ -196,6 +215,7 @@ class SingleProductBackupBody extends React.Component {
 										href="https://jetpack.com/upgrade/backup/"
 										icon
 										iconSize={ 12 }
+										onClick={ this.handleLandingPageLinkClick( selectedBackupType ) }
 									/>
 								),
 							},
@@ -222,7 +242,11 @@ class SingleProductBackupBody extends React.Component {
 					upgradeLinks[ selectedBackupType ] &&
 					upgradeTitles[ selectedBackupType ] && (
 						<div className="single-product-backup__upgrade-button-container">
-							<Button href={ upgradeLinks[ selectedBackupType ] } primary>
+							<Button
+								href={ upgradeLinks[ selectedBackupType ] }
+								onClick={ this.handleUpgradeButtonClick( selectedBackupType ) }
+								primary
+							>
 								{ upgradeTitles[ selectedBackupType ] }
 							</Button>
 						</div>
@@ -231,3 +255,5 @@ class SingleProductBackupBody extends React.Component {
 		);
 	}
 }
+
+const SingleProductBackupBodyWithRouter = withRouter( SingleProductBackupBody );
