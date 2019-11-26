@@ -161,7 +161,6 @@ class Term_Relationships extends Module {
 			);
 		}
 
-		// Count down from max_id to min_id so we get newest posts/comments/etc first.
 		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $status['last_sent']['object_id'], $status['last_sent']['term_taxonomy_id'], $status['last_sent']['object_id'], $items_per_page ), ARRAY_A ) ) {
 			$result = $this->send_action( 'jetpack_full_sync_term_relationships', array( $objects, $status['last_sent'] ) );
