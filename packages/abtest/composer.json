@@ -4,8 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-error": "@dev"
+		"automattic/jetpack-connection": "1.7.0",
+		"automattic/jetpack-error": "1.0.4"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
