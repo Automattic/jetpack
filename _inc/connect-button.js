@@ -121,6 +121,13 @@ jQuery( document ).ready( function( $ ) {
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
+
+			// At this point we are pretty sure if things work out that we will be loading the admin script
+			var link = document.createElement( 'link' );
+			link.rel = 'preload';
+			link.as = 'script';
+			link.href = jpConnect.preFetchScript;
+			document.head.appendChild( link );
 		},
 		fetchPlanType: function() {
 			$.ajax( {
