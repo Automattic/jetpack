@@ -59,10 +59,10 @@ __( "Updating settings…", "jetpack" ), // _inc/client/state/settings/actions.j
 __( "Updated settings.", "jetpack" ), // _inc/client/state/settings/actions.js:92
 __( "Error updating settings. %(error)s", "jetpack" ), // _inc/client/state/settings/actions.js:97
 __( "Updated settings. Refreshing page…", "jetpack" ), // _inc/client/state/settings/actions.js:112
-__( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js:89
 __( "Updating privacy settings…", "jetpack" ), // _inc/client/state/tracking/actions.js:46
 __( "Updated privacy settings.", "jetpack" ), // _inc/client/state/tracking/actions.js:47
 __( "Error updating privacy settings. %(error)s", "jetpack" ), // _inc/client/state/tracking/actions.js:52
+__( "Site is verified", "jetpack" ), // _inc/client/state/site-verify/actions.js:89
 /* translators: Onboarding task list progress */
 __( "Your Jetpack setup progress", "jetpack" ), // _inc/client/my-plan/my-plan-header/checklist-progress-card/index.js:40
 /* translators: Text on link to list of onboarding tasks */

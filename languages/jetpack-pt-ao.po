@@ -15,15 +15,15 @@ msgstr ""
 msgid "Visitors tracked by Jetpack"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Jetpack t-shirt"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Serves images using Jetpack's fast global network of servers."
 msgstr ""
 
@@ -45,51 +45,51 @@ msgstr ""
 msgid "You can access your backups on your site's <a href=\"https://wordpress.com/activity-log/%s\" target=\"_blank\" rel=\"noopener noreferrer\">Activity</a> page."
 msgstr ""
 
-#: _inc/jetpack-strings.php:632
+#: _inc/jetpack-strings.php:639
 msgid "Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:631
+#: _inc/jetpack-strings.php:638
 msgid "Jetpack has many powerful tools that can help you achieve your goals"
 msgstr ""
 
-#: _inc/jetpack-strings.php:630
+#: _inc/jetpack-strings.php:637
 msgid " We’ve highlighted some of the features you rely on below."
 msgstr ""
 
-#: _inc/jetpack-strings.php:629
+#: _inc/jetpack-strings.php:636
 msgid "Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way."
 msgstr ""
 
-#: _inc/jetpack-strings.php:628
+#: _inc/jetpack-strings.php:635
 msgid "Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way."
 msgstr ""
 
-#: _inc/jetpack-strings.php:627
+#: _inc/jetpack-strings.php:634
 msgid "Grow your traffic with automated social {{a}}publishing and sharing{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:626
+#: _inc/jetpack-strings.php:633
 msgid "Block {{a}}brute force attacks{{/a}} and get immediate notifications if your site is down"
 msgstr ""
 
-#: _inc/jetpack-strings.php:625
+#: _inc/jetpack-strings.php:632
 msgid "Speed up your site and provide mobile-ready images with {{a}}our CDN{{/a}}"
 msgstr ""
 
-#: _inc/jetpack-strings.php:624
+#: _inc/jetpack-strings.php:631
 msgid "Disable"
 msgstr ""
 
-#: _inc/jetpack-strings.php:621
+#: _inc/jetpack-strings.php:628
 msgid "Are you sure you want to disconnect and deactivate?"
 msgstr ""
 
-#: _inc/jetpack-strings.php:620
+#: _inc/jetpack-strings.php:627
 msgid "Are you sure you want to disconnect?"
 msgstr ""
 
-#: _inc/jetpack-strings.php:619
+#: _inc/jetpack-strings.php:626
 msgid "Disable Jetpack"
 msgstr ""
 
@@ -97,95 +97,95 @@ msgstr ""
 msgid "Show Timeline"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "View my plan"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Congratulations! Your site is now on a paid plan."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Congratulations! Your site is now on the %s plan."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "This block will only appear to a visitor who visited the page three or more times."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Or a new one."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "To use this block, select a previously created payment plan."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "To use this block, first add at least one payment plan."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add a plan"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add this plan"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "This block will be hidden from your visitors until you connect to Stripe."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Connect to Stripe to use this block on your site"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Markdown is a text formatting syntax that is converted into HTML. You can _emphasize_ text or **make it strong** with just a few characters."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Try Markdown"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Image Size"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Image Settings"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Map Preview"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Confirmation Message"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Redirect Address"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Message Text"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Redirect to another webpage"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Show a custom text message"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Show a summary of submitted fields"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "On Submission"
 msgstr ""
 
@@ -263,8 +263,8 @@ msgstr ""
 msgid "Your plan: Jetpack Free + Daily Backup"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:1845
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-contact-form.php:1845 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Thank you for your submission!"
 msgstr ""
 
@@ -301,11 +301,11 @@ msgstr ""
 msgid "Use Markdown syntax to compose content with links, lists, and other styles. This setting enables Markdown in the Classic Editor as well as within a Classic Editor block."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You cancelled connecting your site to Stripe."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Congrats! Your site is now connected to Stripe. You can start making money by adding your first subscription!"
 msgstr ""
 
@@ -337,70 +337,70 @@ msgstr ""
 msgid "Now that you're set up, pick a plan that fits your needs."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Generating preview…"
 msgstr "A gerar a pré-visualização..."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Remove Poster Image"
 msgstr "Remover imagem de capa"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "There is no poster image currently selected"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "The current poster image url is %s"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Replace image"
 msgstr "Substituir imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Select Poster Image"
 msgstr "Seleccionar Imagem de capa"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Poster Image"
 msgstr "Imagem de capa"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "VideoPress preload setting"
 msgid "None"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "VideoPress preload setting"
 msgid "Metadata"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "VideoPress preload setting"
 msgid "Auto"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Preload"
 msgstr "Pré-carregar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Playback Controls"
 msgstr "Controlos de reprodução"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Muted"
 msgstr "Silenciado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Loop"
 msgstr "Loop"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Video Settings"
 msgstr "Definições do vídeo"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Note: Autoplaying videos may cause usability issues for some visitors."
 msgstr ""
 
@@ -500,15 +500,15 @@ msgstr ""
 msgid "Jetpack Brute Force Attack Prevention cannot keep your site secure"
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "Upgrade to a paid plan to use this block on your site."
 msgstr "Atualize para um plano pago para usar esse bloqueio em seu site."
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "Upgrade to %(planName)s to use this block on your site."
 msgstr "Atualize para %(planName)s para usar esse bloqueio em seu site."
 
@@ -611,25 +611,25 @@ msgstr "Anti-spam"
 msgid "Connect your site to Google Analytics in seconds with Jetpack Premium or Professional."
 msgstr "Conecte seu site ao Google Analytics em segundos, com o Jetpack Premium ou o Profissional."
 
-#: _inc/jetpack-strings.php:639
+#: _inc/jetpack-strings.php:624
 msgid "Log in to the WordPress mobile app"
 msgstr "Faça login no aplicativo para dispositivos móveis do WordPress"
 
-#: _inc/jetpack-strings.php:638
+#: _inc/jetpack-strings.php:623
 msgctxt "A caption for a button to log in to the WordPress mobile app."
 msgid "Send link"
 msgstr "Enviar link"
 
-#: _inc/jetpack-strings.php:637
+#: _inc/jetpack-strings.php:622
 msgctxt "A caption for a button to cancel an action."
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: _inc/jetpack-strings.php:636
+#: _inc/jetpack-strings.php:621
 msgid "Easily log in to the WordPress app by clicking the link we'll send to the email address on your account."
 msgstr "Acesse o aplicativo do WordPress.com com facilidade clicando no link que enviaremos ao endereço de e-mail de sua conta."
 
-#: _inc/jetpack-strings.php:635
+#: _inc/jetpack-strings.php:620
 msgid "Email me a link to log in to the app"
 msgstr "Enviar por e-mail um link para fazer login no aplicativo"
 
@@ -806,27 +806,27 @@ msgctxt "Module Description"
 msgid "Enable the option to copy entire posts and pages, including tags and settings"
 msgstr "Ativar a opção para copiar posts e páginas inteiros, incluindo tags e configurações."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Recurring Payments button"
 msgstr "Botão de pagamento recorrente"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You'll need to upgrade your plan to use the Recurring Payments button."
 msgstr "Será necessário fazer upgrade do seu plano para usar o botão de Pagamentos recorrentes."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Recurring Payments"
 msgstr "Pagamentos recorrentes"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Management"
 msgstr "Gerenciamento"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Payment plan"
 msgstr "Plano de pagamento"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Read more about Recurring Payments and related fees."
 msgstr "Leia mais sobre Pagamentos recorrentes e respectivas taxas."
 
@@ -834,23 +834,23 @@ msgstr "Leia mais sobre Pagamentos recorrentes e respectivas taxas."
 msgid "Recurring Payments plans"
 msgstr "Planos de Pagamentos recorrentes"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Upgrade Your Plan"
 msgstr "Melhore seu plano"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "See your earnings, subscriber list, and products."
 msgstr "Veja seus ganhos, lista de assinantes e produtos."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%s / %s"
 msgstr "%s / %s"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%s / year"
 msgstr "%s / ano"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%s / month"
 msgstr "%s / mês"
 
@@ -1027,138 +1027,138 @@ msgstr "Nenhum usuário mestre configurado."
 msgid "Creating product has failed."
 msgstr "A criação do produto falhou."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "contact"
 msgstr "contato"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "photos"
 msgstr "fotos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "Connected"
 msgstr "Conectado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "Linked"
 msgstr "Vinculado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "markup"
 msgstr "marcação"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "syntax"
 msgstr "sintaxe"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "giphy"
 msgstr "giphy"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "subscription"
 msgstr "assinatura"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "address"
 msgstr "endereço"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "phone"
 msgstr "telefone"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "message"
 msgstr "mensagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "sell"
 msgstr "venda"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "shop"
 msgstr "loja"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgctxt "block search term"
 msgid "map"
 msgstr "mapa"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "visitors"
 msgstr "visitantes"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "return"
 msgstr "devolução"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "image"
 msgstr "imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid " Contribution"
 msgstr " Contribuição"
 
-#: _inc/jetpack-strings.php:309 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: _inc/jetpack-strings.php:309 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Yearly"
 msgstr "Anual"
 
-#: _inc/jetpack-strings.php:308 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: _inc/jetpack-strings.php:308 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Monthly"
 msgstr "Mensal"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Renew interval"
 msgstr "Período de renovação"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Subscription description"
 msgstr "Descrição da assinatura"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Describe your subscription in a few words"
 msgstr "Descreva sua assinatura em poucas palavras"
 
-#: _inc/blocks/editor-beta.js:20 _inc/blocks/editor.js:20
+#: _inc/blocks/editor.js:20 _inc/blocks/editor-beta.js:20
 msgid "Likes and Sharing"
 msgstr "Curtidas e compartilhamentos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "formatting"
 msgstr "formatação"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Button allowing you to sell subscription products."
 msgstr "Botão que permite a venda de produtos de assinatura."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "feedback"
 msgstr "feedback"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgctxt "block search term"
 msgid "navigation"
 msgstr "navegação"
@@ -1179,8 +1179,8 @@ msgstr "Jetpack: "
 msgid "There was another problem:"
 msgstr "Ocorreu outro problema:"
 
-#: _inc/lib/debugger/debug-functions-for-php53.php:74
 #: _inc/lib/debugger/class-jetpack-cxn-test-base.php:387
+#: _inc/lib/debugger/debug-functions-for-php53.php:74
 msgid "Resolve"
 msgstr "Solucionar"
 
@@ -1213,9 +1213,9 @@ msgid "add_test arguments changed in 7.3.0. Please reference inline documentatio
 msgstr "Argumentos add_test alterados na versão 7.3.0. Verifique a documentação embutida."
 
 #. translators: accessibility text
-#: jetpack.php:124 _inc/lib/debugger/debug-functions-for-php53.php:76
-#: _inc/lib/debugger/class-jetpack-debug-data.php:111
+#: jetpack.php:124 _inc/lib/debugger/class-jetpack-debug-data.php:111
 #: _inc/lib/debugger/class-jetpack-cxn-test-base.php:389
+#: _inc/lib/debugger/debug-functions-for-php53.php:76
 msgid "(opens in a new tab)"
 msgstr "(abre num novo separador)"
 
@@ -1230,7 +1230,7 @@ msgstr "As informações do diagnóstico são úteis para a <a href=\"%1$s\" tar
 msgid "<a href=\"%1$s\">Contact our Happiness team</a>. When you do, please include the <a href=\"%2$s\">full debug information from your site</a>."
 msgstr "<a href=\"%1$s\">Entre em contato com a nossa equipe de suporte</a>. Quando fizer isso, inclua <a href=\"%2$s\">todas as informações de depuração do seu site</a>."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "follow"
 msgstr "seguir"
@@ -1408,8 +1408,8 @@ msgstr "Conheça a equipe da Automattic"
 msgid "Back to Jetpack Dashboard"
 msgstr "Voltar para o painel do Jetpack"
 
-#: _inc/lib/admin-pages/class.jetpack-admin-page.php:393
 #: _inc/lib/admin-pages/class-jetpack-about-page.php:45
+#: _inc/lib/admin-pages/class.jetpack-admin-page.php:393
 msgid "About Jetpack"
 msgstr "Sobre o Jetpack"
 
@@ -1739,129 +1739,129 @@ msgstr[1] "%d caracteres"
 msgid "Write a description…"
 msgstr "Escreva uma descrição…"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "animated"
 msgstr "animado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "Similar content"
 msgstr "Conteúdo semelhante"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Preview unavailable: you haven't published enough posts with similar content."
 msgstr "Visualização indisponível: você não publicou posts suficientes com conteúdo semelhante."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "newsletter"
 msgstr "boletim informativo"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "subscribe"
 msgstr "assinar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "A form enabling readers to join a Mailchimp list."
 msgstr "Um formulário que permite que os leitores ingressem em uma lista do Mailchimp."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Write consent text"
 msgstr "Redigir texto de permissão"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You can edit the email placeholder in the sidebar."
 msgstr "É possível editar o espaço reservado para o e-mail na barra lateral."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Manage Connection"
 msgstr "Gerenciar conexão"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Mailchimp Connection"
 msgstr "Conexão com o Mailchimp"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Error text"
 msgstr "Texto de erro"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Success text"
 msgstr "Texto de êxito"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Processing text"
 msgstr "Processando texto"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Email Placeholder"
 msgstr "Placeholder para e-mails"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Text Elements"
 msgstr "Elementos de texto"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Re-check Connection"
 msgstr "Verificar a conexão novamente"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Mailchimp"
 msgstr "MailChimp"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "visibility"
 msgstr "visibilidade"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Control block visibility based on how often a visitor has viewed the page."
 msgstr "Controle a visibilidade do bloco, de acordo com a frequência com que o visitante visualiza a página."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Please enter a valid number."
 msgstr "Digite um número válido."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Advertisement"
 msgstr "Publicidade"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Learn all about WordAds"
 msgstr "Saiba tudo sobre a WordAds"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Earn income by adding high quality ads to your post"
 msgstr "Gere renda, adicionando publicidade de alta qualidade ao seu post"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Hide ad on mobile views"
 msgstr "Ocultar anúncio em visualizações móveis"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "business is closed on a full day"
 msgid "Closed"
 msgstr "Fechado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Delay between transitions (in seconds)"
 msgstr "Atraso entre as transições (em segundos)"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "The Swiper library could not be loaded."
 msgstr "Não foi possível carregar a biblioteca do Swiper."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add a marker…"
 msgstr "Adicione um marcador…"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Lets you create and embed credit and debit card payment buttons with minimal setup."
 msgstr "Permite que você crie e incorpore botões de pagamento em cartão de crédito ou débito com o mínimo de configuração."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Lets you add an email address with an automatically generated click-to-email link."
 msgstr "Permite que você adicione um endereço de e-mail com um link para envio gerado automaticamente."
 
@@ -2059,95 +2059,95 @@ msgstr "Responda nossa pesquisa"
 msgid "Lytro has been shut down since March 2019."
 msgstr "Lytro foi desativado em Março de 2019."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "image style"
 msgid "Gingham"
 msgstr "Gingham"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "image style"
 msgid "Clarendon"
 msgstr "Clarendon"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "image style"
 msgid "Sepia"
 msgstr "Sépia"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "image style"
 msgid "Black and White"
 msgstr "Preto e branco"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "image style"
 msgid "Original"
 msgstr "Original"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "schedule"
 msgstr "programar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "closing time"
 msgstr "horário de encerramento"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "opening hours"
 msgstr "horário de abertura"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Pick an image filter"
 msgstr "Selecione um filtro para a imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add an interactive slideshow."
 msgstr "Adicione um slideshow interativo."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Create one on PayPal"
 msgstr "Crie uma no PayPal"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Enter the email address associated with your PayPal account. Don’t have an account?"
 msgstr "Insira o endereço de e-mail associado à sua conta do PayPal. Não possui uma conta?"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Describe your item in a few words"
 msgstr "Descreva seu item em poucas palavras"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "We know every penny counts, but prices in this currency can’t contain decimal values."
 msgstr "Sabemos que cada centavo faz a diferença, mas os preços nessa moeda não podem conter valores decimais."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Visit count threshold"
 msgstr "Número de visitas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Repeat Visitor"
 msgstr "Visitante frequente"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "This block will only appear to people who have visited this page more than once."
 msgid_plural "This block will only appear to people who have visited this page more than %d times."
 msgstr[0] "Este bloco só será exibido para as pessoas que já visitaram esta página mais de uma vez."
 msgstr[1] "Este bloco só será exibido para as pessoas que já visitaram esta página mais de %d vezes."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "This block will only appear to people who are visiting this page for the first time."
 msgid_plural "This block will only appear to people who have visited this page at most %d times."
 msgstr[0] "Este bloco só será exibido para as pessoas que estejam visitando a página pela primeira vez."
 msgstr[1] "Este bloco só será exibido para as pessoas que visitaram a página no máximo %d vezes."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Show after threshold"
 msgstr "Mostrar depois de atingir o número de visitas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Show before threshold"
 msgstr "Mostrar antes de atingir o número de visitas"
 
@@ -2166,137 +2166,137 @@ msgctxt "Module Name"
 msgid "Image CDN"
 msgstr "CDN da imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "Slideshow transition effect"
 msgid "Fade"
 msgstr "Suavizar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "Slideshow transition effect"
 msgid "Slide"
 msgstr "Deslizar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Pick an ad format"
 msgstr "Escolha um formato de anúncio"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Wide Skyscraper 160x600"
 msgstr "Arranha-céu amplo 160x600"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Mobile Leaderboard 320x50"
 msgstr "Leaderboard para dispositivos móveis 320x50"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Leaderboard 728x90"
 msgstr "Leaderboard 728x90"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Rectangle 300x250"
 msgstr "Retângulo 300x250"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Edit video"
 msgstr "Editar vídeo"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Uploading…"
 msgstr "Fazendo upload..."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Drag images, upload new ones or select files from your library."
 msgstr "Arraste imagens, carregue novas ou seleccione ficheiros da sua biblioteca."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Edit Slideshow"
 msgstr "Editar slideshow"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Transition effect"
 msgstr "Efeito de transição"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Effects"
 msgstr "Efeitos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "The Reduce Motion accessibility option is selected, therefore autoplay will be disabled in this browser."
 msgstr "Como a opção de acessibilidade \"Reduzir movimento\" está selecionada, a reprodução automática será desativada no navegador."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Autoplay between slides"
 msgstr "Reprodução automática entre os slides"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Autoplay"
 msgstr "Reprodução automática"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Icon for image"
 msgstr "Ícone para imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Grey square"
 msgstr "Quadrado cinza"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Open address in Google Maps"
 msgstr "Abrir endereço no Google Maps"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Display opening hours for your business."
 msgstr "Exibir o horário de abertura da sua empresa."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Business Hours"
 msgstr "Horário comercial"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Loading business hours"
 msgstr "Carregando o horário de funcionamento"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Saturday"
 msgstr "Sábado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Friday"
 msgstr "Sexta-feira"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Thursday"
 msgstr "Quinta-feira"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Tuesday"
 msgstr "Terça-feira"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Sunday"
 msgstr "Domingo"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add Hours"
 msgstr "Adicionar horário"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Closing"
 msgstr "Término"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Opening"
 msgstr "Início"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Open"
 msgstr "Aberto"
 
@@ -2332,7 +2332,7 @@ msgstr "Seu servidor não se conectou com êxito ao servidor do Jetpack usando H
 msgid "Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ and enable PHP's XML module."
 msgstr "Solicite ao seu provedor de hospedagem que consulte nossos requisitos de servidor no site https://jetpack.com/support/server-requirements/ e ative o módulo PHP do XML."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Write a message for your audience here. If you leave this blank, we'll use the post title as the message."
 msgstr "Escreva aqui uma mensagem para o seu público. Se você deixar em branco, usaremos o título do post como a mensagem."
 
@@ -2372,8 +2372,8 @@ msgstr "Desativar modo de desenvolvimento."
 msgid "TEST RESULTS:"
 msgstr "RESULTADOS DO TESTE:"
 
-#: _inc/lib/debugger/class-jetpack-cxn-test-base.php:323
 #: _inc/lib/debugger/class-jetpack-cxn-tests.php:81
+#: _inc/lib/debugger/class-jetpack-cxn-test-base.php:323
 msgid "Jetpack is in Development Mode:"
 msgstr "O Jetpack está no Modo de desenvolvimento:"
 
@@ -2394,23 +2394,23 @@ msgstr "O teste foi aprovado!"
 msgid "All connection tests passed."
 msgstr "Todos os testes de conexão foram aprovados."
 
-#: extensions/blocks/mailchimp/mailchimp.php:43 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: extensions/blocks/mailchimp/mailchimp.php:43 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Whoops! There was an error and we couldn't process your subscription. Please reload the page and try again."
 msgstr "Ops! Houve um erro e não foi possível processar sua assinatura. Recarregue a página e tente novamente."
 
-#: extensions/blocks/mailchimp/mailchimp.php:42 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: extensions/blocks/mailchimp/mailchimp.php:42 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Success! You're on the list."
 msgstr "Sucesso! Você está na lista."
 
-#: extensions/blocks/mailchimp/mailchimp.php:41 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: extensions/blocks/mailchimp/mailchimp.php:41 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Processing…"
 msgstr "Processando..."
 
 #: extensions/blocks/business-hours/business-hours.php:131
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Closed"
 msgstr "Fechado"
 
@@ -2523,13 +2523,13 @@ msgstr "No <a href=\"%s\" target=\"_blank\">Modo de desenvolvimento</a>:"
 msgid "The jetpack_development_mode filter is set to true."
 msgstr "O filtro jetpack_development_mode está configurado como verdadeiro."
 
-#: modules/publicize/publicize.php:519 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/publicize/publicize.php:519 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Your LinkedIn connection needs to be reauthenticated to continue working – head to Sharing to take care of it."
 msgstr "Sua conexão do LinkedIn precisa ser refeita para que continue funcionando. Acesse Compartilhamento para corrigir."
 
-#: modules/publicize/ui.php:493 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/publicize/ui.php:493 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Go to Sharing settings"
 msgstr "Ir para configurações de compartilhamento"
 
@@ -2546,167 +2546,167 @@ msgstr "Configurações do Publicize"
 msgid "Connect social media services to automatically share new posts."
 msgstr "Conecte suas redes sociais para compartilhar novos posts automaticamente."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Upload an image"
 msgstr "Enviar uma imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Link To"
 msgstr "Ligar a"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Columns"
 msgstr "Colunas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Tiled Gallery settings"
 msgstr "Configurações da galeria"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "images"
 msgstr "imagens"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Edit Gallery"
 msgstr "Editar galeria"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Subscriber count unavailable"
 msgstr "Número de assinantes indisponível"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Show total subscribers"
 msgstr "Mostrar total de assinantes"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Remove Image"
 msgstr "Remover imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Edit Image"
 msgstr "Editar imagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Product Image"
 msgstr "Imagem do produto"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Compact, but powerful. Add a select box with several items."
 msgstr "Compacto mas poderoso. Adicione uma caixa de seleção com diversos itens."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Dropdown"
 msgstr "Dropdown"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Choose"
 msgstr "Escolher"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Select"
 msgstr "Seleccionar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Inspired by radios, only one radio item can be selected at a time. Add several radio button items."
 msgstr "Inspirado por botões radio, somente um item pode ser selecionado por vez. Adiciona diversos botões radio."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "People love options. Add several checkbox items."
 msgstr "Visitantes adoram opções. Adicione diversas caixas de seleção."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Choose Multiple"
 msgstr "Múltipla escolha"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Checkbox Group"
 msgstr "Grupo da caixa de seleção"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add a single checkbox."
 msgstr "Adicione uma única caixa de seleção."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Accept"
 msgstr "Aceitar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Confirm"
 msgstr "Confirmar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Let folks speak their mind. This text box is great for longer responses."
 msgstr "Permita que escrevam suas ideias. Essa caixa de texto é ótima para respostas longas."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Multiline text"
 msgstr "Texto com diversas linhas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add a phone number input."
 msgstr "Adicionar um campo de número de telefone."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Mobile"
 msgstr "Dispositivo móvel"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Cellular phone"
 msgstr "Número de celular"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Telephone"
 msgstr "Telefone"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "The best way to set a date. Add a date picker."
 msgstr "A melhor maneira de informar uma data. Adicione um seletor de data."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "day month year"
 msgstr "dia mês ano"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Calendar"
 msgstr "Calendário"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Date Picker"
 msgstr "Seletor de data"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add an address input for a website."
 msgstr "Adicionar um campo para endereço de site."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "internet page"
 msgstr "página da internet"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Want to reply to folks? Add an email address input."
 msgstr "Quer responder aos comentários? Adicione um campo de endereço de e-mail."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "mail"
 msgstr "correio"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "A simple way to get feedback from folks visiting your site."
 msgstr "Uma forma simples de receber comentários dos visitantes de seu site."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Introductions are important. Add an input for folks to add their name."
 msgstr "Apresentações são importantes. Adicione um campo de nome."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "When you need just a small amount of text, add a text input."
 msgstr "Quando você precisar de pouco texto, adicione um campo de texto simples."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Default Checked State"
 msgstr "Estado padrão da seleção"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%s is not a valid email address."
 msgstr "%s não é um endereço de e-mail válido."
 
@@ -2714,411 +2714,411 @@ msgstr "%s não é um endereço de e-mail válido."
 msgid "Duplicate existing posts, pages, Testimonials, and Portfolios. All the content will be copied including text, featured images, sharing settings, and more."
 msgstr "Duplique posts, páginas, testemunhos e portfólios existentes. Todo o conteúdo será copiado incluindo texto, imagem destacada, configurações de compartilhamento etc."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "Tiled gallery layout"
 msgid "Tiled columns"
 msgstr "Colunas organizadas lado a lado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "Tiled gallery layout"
 msgid "Square tiles"
 msgstr "Mosaicos quadrados"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "Tiled gallery layout"
 msgid "Circles"
 msgstr "Círculos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "Tiled gallery layout"
 msgid "Tiled mosaic"
 msgstr "Mosaicos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "gallery"
 msgstr "galeria"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "pictures"
 msgstr "fotos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "slider"
 msgstr "slider"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "cell"
 msgstr "celular"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "telephone"
 msgstr "telefone"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "mobile"
 msgstr "dispositivo móvel"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "images"
 msgstr "imagens"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "join"
 msgstr "ingressar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "email"
 msgstr "e-mail"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "place"
 msgstr "lugar"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgctxt "block search term"
 msgid "direction"
 msgstr "direção"
 
+#: _inc/blocks/editor.js:12 _inc/blocks/editor.js:24 _inc/blocks/map/view.js:1
 #: _inc/blocks/editor-beta.js:12 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/map/view.js:1 _inc/blocks/editor.js:12 _inc/blocks/editor.js:24
 msgctxt "block search term"
 msgid "location"
 msgstr "localização"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "ads"
 msgstr "anúncios"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Ad"
 msgstr "Anúncio"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Tiled Gallery"
 msgstr "Galeria em colunas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Display multiple images in an elegantly organized tiled layout."
 msgstr ""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "A form enabling readers to get notifications when new posts are published from this site."
 msgstr "Um formulário que permite que leitores recebam notificações quando novos posts são publicados neste site."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Subscription Form"
 msgstr "Formulário de assinatura"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Shortlink"
 msgstr "Link curto"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "In “Uncategorized”"
 msgstr "Em \"sem categoria\""
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "August 3, 2018"
 msgstr "3 de agosto de 2018"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Placeholder image"
 msgstr "Imagem padrão"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Connect an account"
 msgstr "Conectar uma conta"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Connect and select the accounts where you'd like to share your post."
 msgstr "Conecte e selecione as contas em que você deseja compartilhar seu post."
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "Text Color"
 msgstr "Cor do texto"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "Button Color Settings"
 msgstr "Configurações da cor do botão"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "Add text…"
 msgstr "Adicionar texto…"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgid "Terrain"
 msgstr "Terreno"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgid "Satellite"
 msgstr "Satélite"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgid "Black and white"
 msgstr "Preto e branco"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgid "Basic"
 msgstr "Básico"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:12
 msgid "Add an interactive map showing one or more locations."
 msgstr "Adicione um mapa interativo mostrando uma ou mais locais."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "No results."
 msgstr "Sem resultados."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%d result found, use up and down arrow keys to navigate."
 msgid_plural "%d results found, use up and down arrow keys to navigate."
 msgstr[0] "%d resultado encontardo, use as teclas de seta para cima e para baixo para navegar."
 msgstr[1] "%d resultados encontardos, use as teclas de seta para cima e para baixo para navegar."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Set Token"
 msgstr "Configurar token"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Paste Token Here"
 msgstr "Cole o token aqui"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Locate and copy the default access token. Then, paste it into the field below."
 msgstr "Localize e copie o token de acesso padrão. Então, cole-o no campo abaixo."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Create an account or log in to Mapbox."
 msgstr "Crie uma conta ou acesse o Mapbox."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "To use the map block, you need an Access Token."
 msgstr "Para usar o bloco de mapa, é necessário ter um token de acesso."
 
+#: _inc/blocks/editor.js:12 _inc/blocks/editor.js:24 _inc/blocks/map/view.js:1
 #: _inc/blocks/editor-beta.js:12 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/map/view.js:1 _inc/blocks/editor.js:12 _inc/blocks/editor.js:24
 msgid "Map"
 msgstr "Mapa"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Remove Token"
 msgstr "Remover token"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Update Token"
 msgstr "Atualizar token"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Mapbox Access Token"
 msgstr "Token de acesso do Mapbox"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Markers"
 msgstr "Marcadores"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Colors"
 msgstr "Cores"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Show street names"
 msgstr "Mostrar nome das ruas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Map Theme"
 msgstr "Tema do mapa"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:24
 msgid "Delete Marker"
 msgstr "Excluir marcador"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:24
 msgid "Marker Caption"
 msgstr "Legenda do marcador"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/map/view.js:1
+#: _inc/blocks/editor-beta.js:24
 msgid "Marker Title"
 msgstr "Título do marcador"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add a location"
 msgstr "Adicionar um local"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add marker"
 msgstr "Adicionar marcador"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Search for and insert an animated image."
 msgstr "Procure e adicione uma imagem animada."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "GIF"
 msgstr "GIF"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Write caption…"
 msgstr "Escreva uma legenda…"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Search for a term or paste a Giphy URL"
 msgstr "Procure por um termo ou cole um link do Giphy"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Lets you add a phone number with an automatically generated click-to-call link."
 msgstr "Permite que você adicione um número de telefone com um link de clique para discar."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Phone Number"
 msgstr "Número do telefone"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Phone number"
 msgstr "Número do telefone"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Lets you add an email address, phone number, and physical address with improved markup for better SEO results."
 msgstr "Permite que você adicione um endereço de e-mail, número de telefone e endereço físico para melhores resultados de SEO."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Lets you add a physical address with Schema markup."
 msgstr "Permite que você adicione um endereço físico com marcação Schema."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Address"
 msgstr "Endereço"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Country"
 msgstr "País"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Postal/Zip Code"
 msgstr "CEP"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "State/Province/Region"
 msgstr "Estado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "City"
 msgstr "Cidade"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Address Line 3"
 msgstr "Linha de endereço 3"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Address Line 2"
 msgstr "Linha de endereço 2"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Street Address"
 msgstr "Logradouro"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Link address to Google Maps"
 msgstr "Link para os mapas do Google"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Write option…"
 msgstr "Escrever opção..."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "ID"
 msgstr "ID"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You can enter multiple email addresses separated by commas."
 msgstr "Você pode digitar múltiplos endereços de e-mail separados por vírgulas."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Default Value"
 msgstr "Valor padrão"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Required"
 msgstr "Obrigatório"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Field Settings"
 msgstr "Configurações do campo"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Set the placeholder text"
 msgstr "Configure o texto padrão"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add option"
 msgstr "Adicionar opção"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You’ll receive an email notification each time someone fills out the form. Where should it go, and what should the subject line be?"
 msgstr "Você receberá uma notificação por e-mail sempre que alguém preencher seu formulário. Para onde ele deve ser enviado e qual será o assunto dele?"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Write label…"
 msgstr "Digite a etiqueta..."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Insert option"
 msgstr "Inserir opção"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Remove option"
 msgstr "Remover opção"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Add form"
 msgstr "Adicionar formulário"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "(If you leave these blank, notifications will go to the author with the post or page title as the subject line.)"
 msgstr "(Caso você deixe esse campo em branco, as notificações serão enviadas para o autor do post ou página com o título como assunto)"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Email address"
 msgstr "Endereço de e-mail"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%s and %s are not a valid email address."
 msgstr "%s e %s não são endereços de e-mail válidos."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "name@example.com"
 msgstr "nome@exemplo.com.br"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Form"
 msgstr "Formulário"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Email subject line"
 msgstr "Linha de assunto do e-mail"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Let's work together"
 msgstr "Vamos trabalhar juntos"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Email Feedback Settings"
 msgstr ""
 
@@ -3139,8 +3139,8 @@ msgid "When visitors enjoy your content, let them show it with a Like."
 msgstr "Quando os visitantes gostarem de seu conteúdo, deixe que eles mostrem isso com uma curtida."
 
 #: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:122
-#: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:177
 #: _inc/lib/core-api/wpcom-endpoints/publicize-services.php:150
+#: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:177
 msgid "Sorry, Publicize is not available on your site right now."
 msgstr "Desculpe-nos, o Publicize não está disponível em seu site no momento."
 
@@ -3186,36 +3186,36 @@ msgstr "Copiar esse post."
 msgid "%1$s has shut down"
 msgstr "%1$s foi descontinuado"
 
+#: modules/sharedaddy/sharing.php:184
 #: modules/sharedaddy/sharing-sources.php:277
 #: modules/sharedaddy/sharing-sources.php:426
-#: modules/sharedaddy/sharing.php:184
 msgid "The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed."
 msgstr "Os serviços do %1$s foram descontinuados. O botão de compartilhamento não será exibido para seus visitantes e deve ser removido."
 
-#: extensions/blocks/mailchimp/mailchimp.php:40 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: extensions/blocks/mailchimp/mailchimp.php:40 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "By clicking submit, you agree to share your email address with the site owner and Mailchimp to receive marketing, updates, and other emails from the site owner. Use the unsubscribe link in those emails to opt out at any time."
 msgstr "Ao clicar em enviar, você concorda em compartilhar seu endereço de e-mail com o proprietário do site e o MailChimp para receber anúncios, atualizações e outros e-mails do proprietário. A qualquer momento, é possível usar o link de cancelamento de assinatura para cancelar o recebimento desses e-mails."
 
-#: extensions/blocks/mailchimp/mailchimp.php:39 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: extensions/blocks/mailchimp/mailchimp.php:39 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Join my email list"
 msgstr "Inscreva-se em minha lista de e-mails"
 
-#: extensions/blocks/mailchimp/mailchimp.php:38 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: extensions/blocks/mailchimp/mailchimp.php:38 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Enter your email"
 msgstr "Insira seu e-mail"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Set up Mailchimp form"
 msgstr "Configurar o formulário do MailChimp"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers."
 msgstr "É necessário se conectar à sua conta do MailChimp e escolher uma lista para começar a receber assinantes por e-mail."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "image %1$d of %2$d in gallery"
 msgstr "imagem %1$d de %2$d na galeria"
 
@@ -3493,7 +3493,7 @@ msgstr "Você se conectou com êxito ao Secure Sign On do WordPress.com!"
 msgid "Built-in Performance"
 msgstr "Desempenho integrado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Simple Payments button"
 msgstr "Botão de pagamento simples"
 
@@ -3561,8 +3561,8 @@ msgstr "Escolher um"
 msgid "Choose several"
 msgstr "Escolher vários"
 
-#: modules/contact-form/grunion-contact-form.php:2311
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-contact-form.php:2311 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Phone"
 msgstr "Telefone"
 
@@ -3590,8 +3590,8 @@ msgstr "A URL usada para conectar ao serviço do Publicize"
 msgid "Human readable label for the Publicize Service"
 msgstr "Rótulo da leitura manual do serviço do Publicize"
 
-#: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:188
 #: _inc/lib/core-api/wpcom-endpoints/publicize-services.php:161
+#: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:188
 msgid "Sorry, you are not allowed to access Publicize data on this site."
 msgstr "Você não tem permissão para acessar os dados do Publicize neste site."
 
@@ -3605,8 +3605,8 @@ msgid "Username of the connected account"
 msgstr "Nome de usuário da conta conectada"
 
 #: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:80
-#: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:66
 #: _inc/lib/core-api/wpcom-endpoints/publicize-services.php:61
+#: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:66
 msgid "Alphanumeric identifier for the Publicize Service"
 msgstr "Identificador alfanumérico do serviço do Publicize"
 
@@ -3776,59 +3776,59 @@ msgstr "Pagamentos simples; código de moeda."
 msgid "Simple payments; price."
 msgstr "Pagamentos simples; preço."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Pay with PayPal"
 msgstr "Pagar com o PayPal"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Allow people to buy more than one item at a time"
 msgstr "Permite que as pessoas comprem mais de um item por vez"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Currency"
 msgstr "Moeda"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Item name"
 msgstr "Nome do item"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Invalid price."
 msgstr "Preço inválido."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Please add a brief title so that people know what they’re paying for."
 msgstr "Adicione um título curto, para que as pessoas saibam pelo que estão pagando."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%s are not a valid email address."
 msgstr "%s não é um endereço de e-mail válido."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "If you’re selling something, you need a price tag. Add yours here."
 msgstr "Se você está vendendo algo, precisa de uma etiqueta contendo o preço. Insira o seu aqui."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "The price cannot have more than %d decimal place."
 msgid_plural "The price cannot have more than %d decimal places."
 msgstr[0] "O preço não pode ter mais de %d casa decimal."
 msgstr[1] "O preço não pode ter mais de %d casas decimais."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Your price is negative — enter a positive number so people can pay the right amount."
 msgstr "Seu preço é negativo — insira um número positivo, para que as pessoas paguem pelo valor correto."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "%d character remaining"
 msgid_plural "%d characters remaining"
 msgstr[0] "%d caractere restante"
 msgstr[1] "%d caracteres restantes"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Customize your message"
 msgstr "Personalize sua mensagem"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Share this post"
 msgstr "Compartilhar este post"
 
@@ -3841,7 +3841,7 @@ msgid "No sitemap found. Please try again later."
 msgstr "Nenhum sitemap encontrado. Tente novamente mais tarde."
 
 #. translators: %s is a human_time_diff until next sitemap generation.
-#: modules/sitemaps/sitemap-stylist.php:198 modules/sitemaps/sitemaps.php:161
+#: modules/sitemaps/sitemaps.php:161 modules/sitemaps/sitemap-stylist.php:198
 msgid "No sitemap found. The system will try to build it again in %s."
 msgstr "Nenhum sitemap encontrado. O sistema tentará criá-lo novamente em %s."
 
@@ -3874,43 +3874,43 @@ msgstr "o Jetpack não pode carregar as bibliotecas de manipulação XML necess�
 msgid "Site is under construction and cannot be verified"
 msgstr "O site está em construção e não pode ser verificado"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Number of posts"
 msgstr "Número de posts"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Display context (category or tag)"
 msgstr "Exibir contexto (categoria ou tag)"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Display thumbnails"
 msgstr "Exibir miniaturas"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Related Posts Settings"
 msgstr "Configurações de posts relacionados"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "List View"
 msgstr "Vista de lista"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Grid View"
 msgstr "Vista de grelha"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Write your _Markdown_ **here**…"
 msgstr "Insira o _Markdown_ **aqui**..."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Support reference"
 msgstr "Referência de suporte"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Use regular characters and punctuation to style text, links, and lists."
 msgstr "Use caracteres regulares e a pontuação tradicional para estilizar o texto, os links e as listas."
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Are you sure you wish to leave this page?"
 msgstr "Você tem certeza que deseja sair dessa página?"
 
@@ -3979,7 +3979,7 @@ msgstr "O Google enviará um e-mail sobre determinados eventos que ocorrem com s
 msgid "Site connection failed!"
 msgstr "A conexão do site falhou!"
 
-#: _inc/lib/debugger/class-jetpack-debugger.php:102 class.jetpack-admin.php:263
+#: class.jetpack-admin.php:263 _inc/lib/debugger/class-jetpack-debugger.php:102
 msgid "Debugging Center"
 msgstr "Centro de depuração"
 
@@ -4060,8 +4060,8 @@ msgstr "No momento, o Jetpack está em modo de desenvolvimento porque a URL do s
 msgid "The publicize module is not active."
 msgstr "O módulo Publicize não está ativo."
 
-#: modules/widgets/simple-payments.php:324 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/widgets/simple-payments.php:324 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Invalid price"
 msgstr "Preço inválido"
 
@@ -4111,8 +4111,8 @@ msgstr "<a class=\"button\" href=\"%s\" target=\"%s\">Crie uma página no Facebo
 msgid "Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href=\"%s\">Learn More about Publicize for Facebook</a>"
 msgstr "Ao contrário dos perfis, as páginas do Facebook são compatíveis com as conexões do Publicize. <a href=\"%s\">Saiba mais sobre o Publicize para Facebook</a>"
 
-#: modules/widgets/simple-payments.php:328 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/widgets/simple-payments.php:328 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "We want to make sure payments reach you, so please add an email address."
 msgstr "Queremos nos certificar de que os pagamentos estão chegando até você. Adicione um endereço de e-mail."
 
@@ -4334,9 +4334,9 @@ msgstr "Os sitemaps são arquivos que os mecanismos de busca, como o Google ou o
 msgid "Configure related posts in the Customizer"
 msgstr "Configure posts relacionados no Personalizador"
 
+#: modules/related-posts/jetpack-related-posts.php:599
 #: _inc/jetpack-strings.php:439 _inc/jetpack-strings.php:652
 #: _inc/lib/class.core-rest-api-endpoints.php:2013
-#: modules/related-posts/jetpack-related-posts.php:599
 msgid "Highlight related content with a heading"
 msgstr "Destaque o conteúdo relacionado com um cabeçalho"
 
@@ -4468,9 +4468,9 @@ msgstr "O novo proprietário é o usuário atual"
 msgid "New owner is not admin"
 msgstr "O novo proprietário não é administrador"
 
+#: modules/related-posts/jetpack-related-posts.php:601
 #: _inc/jetpack-strings.php:440 _inc/jetpack-strings.php:653
 #: _inc/lib/class.core-rest-api-endpoints.php:2020
-#: modules/related-posts/jetpack-related-posts.php:601
 msgid "Show a thumbnail image where available"
 msgstr "Exibir uma miniatura de imagem quando disponível"
 
@@ -5236,9 +5236,9 @@ msgstr "Idioma principal do site."
 msgid "Design the perfect website"
 msgstr "Crie o site perfeito"
 
-#: views/admin/must-connect-main-blog.php:10
 #: class.jetpack-connection-banner.php:293
 #: class.jetpack-connection-banner.php:340 _inc/jetpack-strings.php:575
+#: views/admin/must-connect-main-blog.php:10
 msgid "Set up Jetpack"
 msgstr "Configurar o Jetpack"
 
@@ -5276,7 +5276,7 @@ msgctxt "displayed in search results when results are cached"
 msgid "cache hit"
 msgstr "ocorrência de cache"
 
-#: modules/widgets/social-icons.php:353 modules/widgets/search.php:817
+#: modules/widgets/search.php:817 modules/widgets/social-icons.php:353
 msgid "Remove"
 msgstr "Remover"
 
@@ -5456,8 +5456,8 @@ msgstr "Testar conexão para %s"
 msgid "Checking status for %s"
 msgstr "Conferindo status para %s"
 
-#: _inc/jetpack-strings.php:76 _inc/jetpack-strings.php:215
-#: modules/masterbar/masterbar.php:889
+#: modules/masterbar/masterbar.php:889 _inc/jetpack-strings.php:76
+#: _inc/jetpack-strings.php:215
 msgid "Activity"
 msgstr "Atividade"
 
@@ -5769,8 +5769,8 @@ msgstr "Leia mais sobre imagens destacadas"
 msgid "Simple Payments products"
 msgstr "Produtos com pagamento simplificado"
 
-#: modules/simple-payments/simple-payments.php:510
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/simple-payments/simple-payments.php:510 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Product"
 msgstr "Produto"
 
@@ -5876,7 +5876,7 @@ msgstr "Usar automaticamente a primeira imagem do post"
 msgid "Display comment link"
 msgstr "Mostrar link do comentário"
 
-#: modules/shortcodes/class.filter-embedded-html-objects.php:343
+#: modules/shortcodes/class.filter-embedded-html-objects.php:348
 msgid "PHP’s XML extension is not available. Please contact your hosting provider to enable PHP’s XML extension."
 msgstr "A extensão XML do PHP não está disponível. Entre em contato com sua hospedagem para ativar o XML do PHP."
 
@@ -5970,8 +5970,8 @@ msgstr "user_token é obrigatório"
 msgid "The user is already connected"
 msgstr "O usuário já está conectado"
 
-#: json-endpoints/jetpack/class.jetpack-json-api-jps-woocommerce-connect-endpoint.php:49
 #: json-endpoints/jetpack/class.jetpack-json-api-user-connect-endpoint.php:18
+#: json-endpoints/jetpack/class.jetpack-json-api-jps-woocommerce-connect-endpoint.php:49
 msgid "user_id is required"
 msgstr "user_id é obrigatório"
 
@@ -6468,12 +6468,12 @@ msgstr "O Jetpack se conecta ao WordPress.com para ter acesso a vários recursos
 msgid "A connection problem with WordPress.com."
 msgstr "Problema de conexão com o WordPress.com."
 
-#. Translators: the first variable is a module option or slug, or setting. The
-#. second is the error message .
 #. translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on
 #. Service (@jetpack, ...)
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:932
+#. Translators: the first variable is a module option or slug, or setting. The
+#. second is the error message .
 #: modules/publicize/ui.php:422
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:932
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
@@ -6884,8 +6884,8 @@ msgstr "Configurar"
 msgid "View your Email Followers"
 msgstr "Veja seus seguidores de e-mail"
 
-#: _inc/jetpack-strings.php:169 _inc/lib/class.core-rest-api-endpoints.php:1697
-#: modules/widgets/eu-cookie-law/form.php:210
+#: modules/widgets/eu-cookie-law/form.php:210 _inc/jetpack-strings.php:169
+#: _inc/lib/class.core-rest-api-endpoints.php:1697
 msgid "Color scheme"
 msgstr "Combinação de cores"
 
@@ -6978,13 +6978,13 @@ msgstr[1] "%d vídeos foram limpos."
 msgid "Social Links Menu"
 msgstr "Menu de links sociais"
 
-#: modules/widgets/social-icons.php:388
 #: modules/theme-tools/social-menu/icon-functions.php:43
+#: modules/widgets/social-icons.php:388
 msgid "Please define an SVG icon filename."
 msgstr "Informe um nome de arquivo de ícone SVG."
 
-#: modules/widgets/social-icons.php:375
 #: modules/theme-tools/social-menu/icon-functions.php:38
+#: modules/widgets/social-icons.php:375
 msgid "Please define default parameters in the form of an array."
 msgstr "Informe os parâmetros padrão na forma de um array."
 
@@ -7057,7 +7057,7 @@ msgstr "Anúncios"
 msgid "# of Tweets Shown (1 to 20):"
 msgstr "Nº de tweets mostrados (1 a 20):"
 
-#: _inc/lib/class.jetpack-keyring-service-helper.php:163
+#: _inc/lib/class.jetpack-keyring-service-helper.php:166
 msgid "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>."
 msgstr "O Jetpack não está conectado. Conecte-se ao Jetpack acessando as <a href='%s'>Configurações</a>."
 
@@ -7159,8 +7159,8 @@ msgstr "Mínimo: %s"
 msgid "Contact Info & Map"
 msgstr "Info de contato & Mapa"
 
-#: modules/widgets/upcoming-events.php:90
 #: modules/shortcodes/upcoming-events.php:45
+#: modules/widgets/upcoming-events.php:90
 msgid "No upcoming events"
 msgstr "Nenhum evento"
 
@@ -7244,7 +7244,7 @@ msgstr "Foco da atualização: VideoPress para casamentos"
 msgid "{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}"
 msgstr "{{span}}Agora você também pode configurar os posts relacionados no Personalizador. {{ExternalLink}}Experimente!{{/ExternalLink}}{{/span}}"
 
-#: _inc/jetpack-strings.php:658 modules/module-info.php:778
+#: modules/module-info.php:778 _inc/jetpack-strings.php:658
 msgid "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!"
 msgstr "Por padrão, a publicidade é mostrada ao final de cada página, post ou no primeiro artigo da sua página inicial. Você também pode adicioná-los na parte superior do seu site e nas áreas de widget para aumentar seus lucros!"
 
@@ -7284,7 +7284,7 @@ msgstr "Minutos"
 msgid "Hour"
 msgstr "Hora"
 
-#: modules/widgets/search.php:781 modules/widgets/milestone/milestone.php:620
+#: modules/widgets/milestone/milestone.php:620 modules/widgets/search.php:781
 msgid "Year"
 msgstr "Ano"
 
@@ -7292,7 +7292,7 @@ msgstr "Ano"
 msgid "Day"
 msgstr "Dia"
 
-#: modules/widgets/search.php:778 modules/widgets/milestone/milestone.php:608
+#: modules/widgets/milestone/milestone.php:608 modules/widgets/search.php:778
 msgid "Month"
 msgstr "Mês"
 
@@ -7390,7 +7390,7 @@ msgid "Display categories"
 msgstr "Exibir categorias"
 
 #: modules/theme-tools/content-options/customizer.php:186
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Display date"
 msgstr "Mostrar data"
 
@@ -7459,7 +7459,7 @@ msgid "Bio:"
 msgstr "Biografia:"
 
 #. translators: placeholder is an HTML tag.
-#: modules/shortcodes/class.filter-embedded-html-objects.php:292
+#: modules/shortcodes/class.filter-embedded-html-objects.php:297
 msgid "<code>%s</code> HTML tag removed as it is not allowed"
 msgstr "Tag HTML <code>%s</code> removida já que não possui permissão"
 
@@ -7473,10 +7473,10 @@ msgstr "Escrever é uma experiência nova no Android com o novo aplicativo do Wo
 
 #. translators: It refers to the category where a post was found. Used in an
 #. example preview.
-#: _inc/jetpack-strings.php:445 _inc/jetpack-strings.php:448
 #: modules/related-posts/jetpack-related-posts.php:1064
 #: modules/related-posts/jetpack-related-posts.php:1084
 #: modules/related-posts/jetpack-related-posts.php:1104
+#: _inc/jetpack-strings.php:445 _inc/jetpack-strings.php:448
 msgid "In \"Mobile\""
 msgstr "Em “Móvel”"
 
@@ -7908,11 +7908,11 @@ msgstr "Formato de título de SEO inválido."
 msgid "Invalid SEO meta description value."
 msgstr "Valor de meta descrição de SEO inválido."
 
-#: json-endpoints/class.wpcom-json-api-update-post-v1-1-endpoint.php:789
-#: json-endpoints/class.wpcom-json-api-update-post-v1-2-endpoint.php:760
-#: json-endpoints/class.wpcom-json-api-update-post-endpoint.php:710
 #: json-endpoints/class.wpcom-json-api-site-settings-endpoint.php:734
 #: json-endpoints/class.wpcom-json-api-site-settings-endpoint.php:750
+#: json-endpoints/class.wpcom-json-api-update-post-endpoint.php:710
+#: json-endpoints/class.wpcom-json-api-update-post-v1-2-endpoint.php:760
+#: json-endpoints/class.wpcom-json-api-update-post-v1-1-endpoint.php:789
 msgid "SEO tools are not enabled for this site."
 msgstr "As ferramentas de SEO não estão ativas para este site."
 
@@ -8121,13 +8121,13 @@ msgstr "Configurar suas verificações de segurança"
 msgid "Subscriber"
 msgstr "Assinante"
 
-#: _inc/jetpack-strings.php:443 _inc/jetpack-strings.php:647
 #: modules/related-posts/jetpack-related-posts.php:1059
+#: _inc/jetpack-strings.php:443 _inc/jetpack-strings.php:647
 msgid "Big iPhone/iPad Update Now Available"
 msgstr "Um agrande atualização para iPhone/iPad está disponível"
 
-#: _inc/jetpack-strings.php:446 _inc/jetpack-strings.php:648
 #: modules/related-posts/jetpack-related-posts.php:1079
+#: _inc/jetpack-strings.php:446 _inc/jetpack-strings.php:648
 msgid "The WordPress for Android App Gets a Big Facelift"
 msgstr "O aplicativo WordPress para Android foi melhorado"
 
@@ -8151,7 +8151,7 @@ msgstr "Ocultar emoticons das estatísticas"
 msgid "Whitelisted IP addresses"
 msgstr "Endereços IP na lista de permissões"
 
-#: _inc/blocks/editor-beta.js:12 _inc/blocks/editor.js:12
+#: _inc/blocks/editor.js:12 _inc/blocks/editor-beta.js:12
 msgid "Background Color"
 msgstr "Cor de fundo"
 
@@ -8159,14 +8159,14 @@ msgstr "Cor de fundo"
 msgid "Show an ad for the WordPress mobile apps in the footer of the mobile theme"
 msgstr "Mostrar um anúncio dos aplicativos do WordPress no rodapé do tema para dispositivos móveis"
 
-#: _inc/jetpack-strings.php:507 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: _inc/jetpack-strings.php:507 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgctxt "verb"
 msgid "Copy"
 msgstr "Copiar"
 
-#: _inc/jetpack-strings.php:508 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: _inc/jetpack-strings.php:508 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Copied!"
 msgstr "Copiado!"
 
@@ -8244,8 +8244,8 @@ msgstr "Backups do site"
 
 #: _inc/jetpack-strings.php:82 _inc/jetpack-strings.php:92
 #: _inc/jetpack-strings.php:147 _inc/jetpack-strings.php:158
-#: _inc/jetpack-strings.php:693 _inc/blocks/editor-beta.js:12
-#: _inc/blocks/editor.js:12
+#: _inc/jetpack-strings.php:693 _inc/blocks/editor.js:12
+#: _inc/blocks/editor-beta.js:12
 msgid "Upgrade"
 msgstr "Atualização"
 
@@ -8293,8 +8293,8 @@ msgstr "Todos os plugins estão atualizados. Ótimo trabalho!"
 msgid "Jetpack is monitoring your site. If we think your site is down, you will receive an email."
 msgstr "O Jetpack está monitorando seu site. Se acharmos que seu site está fora do ar, você receberá um e-mail."
 
-#: _inc/jetpack-strings.php:110 _inc/jetpack-strings.php:371
-#: modules/masterbar/masterbar.php:677
+#: modules/masterbar/masterbar.php:677 _inc/jetpack-strings.php:110
+#: _inc/jetpack-strings.php:371
 msgid "Security"
 msgstr "Segurança"
 
@@ -8809,8 +8809,8 @@ msgstr "Falha carregando dependência obrigatória Sharing_Service."
 msgid "%s must be an array with visible and hidden items."
 msgstr "%s deve ser um array com itens visíveis e ocultos."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:2424
 #: modules/plugin-search.php:128
+#: _inc/lib/class.core-rest-api-endpoints.php:2424
 msgid "%s must be an alphanumeric string."
 msgstr "%s deve ser uma string alfanumérica."
 
@@ -8985,8 +8985,8 @@ msgstr "Parâmetro \"notice\" ausente."
 msgid "Invalid parameter \"notice\"."
 msgstr "Parâmetro inválido \"notice\"."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:62
 #: _inc/lib/core-api/wpcom-endpoints/service-api-keys.php:60
+#: _inc/lib/class.core-rest-api-endpoints.php:62
 msgid ""
 "You do not have the correct user permissions to perform this action.\n"
 "\t\t\tPlease contact your site admin if you think this is a mistake."
@@ -9002,10 +9002,10 @@ msgstr "Ative o JavaScript para liberar todo o potencial do Jetpack!"
 msgid "You have JavaScript disabled"
 msgstr "Você está com o JavaScript desativado"
 
-#: class.jetpack-network-sites-list-table.php:63 _inc/jetpack-strings.php:633
-#: _inc/lib/admin-pages/class.jetpack-admin-page.php:303
+#: class.jetpack-network-sites-list-table.php:63
+#: modules/masterbar/masterbar.php:1301 _inc/jetpack-strings.php:618
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:57
-#: modules/masterbar/masterbar.php:1301
+#: _inc/lib/admin-pages/class.jetpack-admin-page.php:303
 msgid "Dashboard"
 msgstr "Painel"
 
@@ -9403,8 +9403,8 @@ msgstr "pixels"
 msgid "Start Video After"
 msgstr "Iniciar o video após"
 
-#: modules/widgets/eu-cookie-law/form.php:173
 #: modules/videopress/editor-media-view.php:42
+#: modules/widgets/eu-cookie-law/form.php:173
 msgid "seconds"
 msgstr "segundos"
 
@@ -9784,8 +9784,8 @@ msgstr "Comece a usar o Multisite do Jetpack"
 msgid "Activated"
 msgstr "Ativado"
 
-#: _inc/jetpack-strings.php:521 _inc/jetpack-strings.php:694
-#: _inc/jetpack-strings.php:695 modules/plugin-search.php:533
+#: modules/plugin-search.php:533 _inc/jetpack-strings.php:521
+#: _inc/jetpack-strings.php:694 _inc/jetpack-strings.php:695
 msgid "Learn more"
 msgstr "Saiba mais"
 
@@ -9980,17 +9980,17 @@ msgstr "Vermelho"
 msgid "Image Size:"
 msgstr "Tamanho da Imagem:"
 
-#: modules/widgets/flickr/form.php:99 modules/widgets/social-icons.php:247
-#: modules/widgets/rsslinks-widget.php:141
+#: modules/widgets/rsslinks-widget.php:141 modules/widgets/flickr/form.php:99
+#: modules/widgets/social-icons.php:247
 msgid "Large"
 msgstr "Grande"
 
-#: modules/widgets/flickr/form.php:88 modules/widgets/social-icons.php:246
-#: modules/widgets/rsslinks-widget.php:140
+#: modules/widgets/rsslinks-widget.php:140 modules/widgets/flickr/form.php:88
+#: modules/widgets/social-icons.php:246
 msgid "Medium"
 msgstr "Médio"
 
-#: modules/widgets/social-icons.php:245 modules/widgets/rsslinks-widget.php:139
+#: modules/widgets/rsslinks-widget.php:139 modules/widgets/social-icons.php:245
 msgid "Small"
 msgstr "Pequeno"
 
@@ -10018,8 +10018,8 @@ msgstr "Feed (s) para Mostrar:"
 msgid "Posts & Comments"
 msgstr "Posts &amp; Comentários"
 
-#: _inc/jetpack-strings.php:419 modules/widgets/rsslinks-widget.php:101
-#: modules/widgets/rsslinks-widget.php:177
+#: modules/widgets/rsslinks-widget.php:101
+#: modules/widgets/rsslinks-widget.php:177 _inc/jetpack-strings.php:419
 msgid "Posts"
 msgstr "Posts"
 
@@ -10194,13 +10194,13 @@ msgstr "Exibir seus livros do Goodreads"
 msgid "Goodreads"
 msgstr "Goodreads"
 
-#: modules/widgets/gallery.php:379 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/widgets/gallery.php:379 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Media File"
 msgstr "Ficheiro multimédia"
 
-#: modules/widgets/gallery.php:378 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/widgets/gallery.php:378 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Attachment Page"
 msgstr "Página de anexo"
 
@@ -10280,17 +10280,17 @@ msgstr "Mostrar mapa"
 msgid "Address:"
 msgstr "Endereço:"
 
-#: modules/widgets/twitter-timeline.php:340
-#: modules/widgets/social-media-icons.php:246
-#: modules/widgets/upcoming-events.php:42
-#: modules/widgets/gallery/templates/form.php:2
-#: modules/widgets/flickr/form.php:3
 #: modules/widgets/wordpress-post-widget/class.jetpack-display-posts-widget-base.php:224
-#: modules/widgets/my-community.php:85 modules/widgets/authors.php:223
-#: modules/widgets/top-posts.php:92 modules/widgets/contact-info.php:248
-#: modules/widgets/blog-stats.php:93 modules/widgets/goodreads.php:137
-#: modules/widgets/social-icons.php:253 modules/widgets/rsslinks-widget.php:96
-#: modules/widgets/search.php:789 modules/widgets/google-translate.php:173
+#: modules/widgets/rsslinks-widget.php:96 modules/widgets/goodreads.php:137
+#: modules/widgets/top-posts.php:92 modules/widgets/my-community.php:85
+#: modules/widgets/social-media-icons.php:246
+#: modules/widgets/twitter-timeline.php:340
+#: modules/widgets/google-translate.php:173
+#: modules/widgets/upcoming-events.php:42 modules/widgets/search.php:789
+#: modules/widgets/flickr/form.php:3 modules/widgets/blog-stats.php:93
+#: modules/widgets/social-icons.php:253
+#: modules/widgets/gallery/templates/form.php:2 modules/widgets/authors.php:223
+#: modules/widgets/contact-info.php:248
 msgid "Title:"
 msgstr "Título:"
 
@@ -10319,7 +10319,7 @@ msgstr ""
 msgid "Hours & Info"
 msgstr "Horário e informações"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Contact Info"
 msgstr "Informações de contato"
 
@@ -10400,8 +10400,8 @@ msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show
 msgid "%s if:"
 msgstr "%s se:"
 
-#: modules/widget-visibility/widget-conditions.php:267
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/widget-visibility/widget-conditions.php:267 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Visibility"
 msgstr "Visibilidade"
 
@@ -10433,8 +10433,8 @@ msgstr "Página de Arquivo"
 msgid "Posts page"
 msgstr "Página de posts"
 
-#: _inc/jetpack-strings.php:418
 #: modules/widget-visibility/widget-conditions.php:109
+#: _inc/jetpack-strings.php:418
 msgid "Front page"
 msgstr "Página inicial"
 
@@ -10554,8 +10554,8 @@ msgstr "Erro %s"
 msgid "Website Verification Services"
 msgstr "Serviço de verificação de sites"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1746
 #: modules/tiled-gallery/tiled-gallery.php:293
+#: _inc/lib/class.core-rest-api-endpoints.php:1746
 msgid "Display all your gallery pictures in a cool mosaic."
 msgstr "Exibir todas as suas fotos de galeria em um mosaico maneiro."
 
@@ -10654,7 +10654,7 @@ msgstr "Placeholder de assinatura:"
 msgid "Optional text to display to your readers:"
 msgstr "Texto opcional para mostrar aos seus leitores:"
 
-#: modules/subscriptions/views.php:626 modules/widgets/image-widget.php:226
+#: modules/widgets/image-widget.php:226 modules/subscriptions/views.php:626
 msgid "Widget title:"
 msgstr "Título do Widget:"
 
@@ -10662,8 +10662,8 @@ msgstr "Título do Widget:"
 msgid "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
 msgstr "Sucesso! Enviamos um e-mail para confirmar a sua assinatura. Encontre o e-mail agora e clique em 'Confirmar' para iniciar a inscrição."
 
-#: modules/subscriptions/views.php:525 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/subscriptions/views.php:525 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Subscribe"
 msgstr "Assinar"
 
@@ -10675,13 +10675,13 @@ msgstr "Digite seu endereço de e-mail para assinar este blog e receber notifica
 msgid "Subscribe to Blog via Email"
 msgstr "Assinar blog por e-mail"
 
-#: modules/subscriptions/views.php:345 modules/widgets/contact-info.php:303
+#: modules/widgets/contact-info.php:303 modules/subscriptions/views.php:345
 msgid "Email Address:"
 msgstr "Endereço de e-mail:"
 
 #. translators: %s: number of folks following the blog
-#: modules/subscriptions/views.php:338 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/subscriptions/views.php:338 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] "Junte-se a %s outro assinante"
@@ -10751,13 +10751,13 @@ msgstr "Texto de introdução enviado quando alguém segue o seu blog. (Site e d
 msgid "These settings change emails sent from your blog to followers."
 msgstr "Essas configurações alteram os e-mails enviados do seu blog para seus assinantes."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:2004
 #: modules/subscriptions.php:368
+#: _inc/lib/class.core-rest-api-endpoints.php:2004
 msgid "Show a <em>'follow comments'</em> option in the comment form"
 msgstr "Mostrar a opção <em>'seguir comentários'</em> no formulário de comentários"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1997
 #: modules/subscriptions.php:353
+#: _inc/lib/class.core-rest-api-endpoints.php:1997
 msgid "Show a <em>'follow blog'</em> option in the comment form"
 msgstr "Mostrar uma opção <em>'seguir blog'</em> no formulário de comentário"
 
@@ -10781,7 +10781,7 @@ msgstr "Configurações de assinantes"
 msgid "Follow Comments"
 msgstr "Seguir Comentários"
 
-#: modules/subscriptions/views.php:20 modules/subscriptions.php:274
+#: modules/subscriptions.php:274 modules/subscriptions/views.php:20
 msgid "Follow Blog"
 msgstr "Seguir Blog"
 
@@ -10823,10 +10823,10 @@ msgstr "Posts populares "
 msgid "%1$s %2$s Views"
 msgstr "%1$s %2$s Visualizações"
 
-#: modules/stats.php:1095 modules/contact-form/grunion-editor-view.php:92
-#: modules/contact-form/grunion-contact-form.php:1842
 #: modules/videopress/class.videopress-player.php:305
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-editor-view.php:92
+#: modules/contact-form/grunion-contact-form.php:1842 modules/stats.php:1095
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Submit"
 msgstr "Submeter"
 
@@ -10878,8 +10878,8 @@ msgstr "dia"
 msgid "Views over 48 hours. Click for more Site Stats."
 msgstr "Visualizações nas últimas 48 horas. Clique para mais estatísticas do site."
 
-#: modules/stats.php:876 modules/stats.php:1697
-#: modules/masterbar/masterbar.php:875
+#: modules/masterbar/masterbar.php:875 modules/stats.php:876
+#: modules/stats.php:1697
 msgid "Stats"
 msgstr "Estatísticas"
 
@@ -10919,11 +10919,11 @@ msgstr "Fazer login com WordPress.com"
 msgid "Cannot deal with cookie redirects, as headers are already sent."
 msgstr "Impossível lidar com redirecionamentos de cookies, pois os cabeçalhos já foram enviados."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1988 modules/sso.php:280
+#: modules/sso.php:280 _inc/lib/class.core-rest-api-endpoints.php:1988
 msgid "Match by Email"
 msgstr "Coincidir por e-mail"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1981 modules/sso.php:250
+#: modules/sso.php:250 _inc/lib/class.core-rest-api-endpoints.php:1981
 msgid "Require Two-Step Authentication"
 msgstr "Exige Autenticação Dois Fatores "
 
@@ -10940,8 +10940,8 @@ msgstr "Este slideshow necessita de JavaScript."
 msgid "Click to view slideshow."
 msgstr "Clique para exibir o slide."
 
-#: modules/widgets/gallery.php:373 modules/shortcodes/slideshow.php:73
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/shortcodes/slideshow.php:73 modules/widgets/gallery.php:373
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Slideshow"
 msgstr "Apresentação de slides"
 
@@ -11002,23 +11002,23 @@ msgstr "Nome do serviço"
 msgid "Sharing label"
 msgstr "Rótulo do Compartilhar"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1921
 #: modules/sharedaddy/sharing.php:392
+#: _inc/lib/class.core-rest-api-endpoints.php:1921
 msgid "Official buttons"
 msgstr "Botões oficiais"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1920
 #: modules/sharedaddy/sharing.php:391
+#: _inc/lib/class.core-rest-api-endpoints.php:1920
 msgid "Text only"
 msgstr "Somente texto"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1919
 #: modules/sharedaddy/sharing.php:390
+#: _inc/lib/class.core-rest-api-endpoints.php:1919
 msgid "Icon only"
 msgstr "Apenas Ícone"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1918
 #: modules/sharedaddy/sharing.php:389
+#: _inc/lib/class.core-rest-api-endpoints.php:1918
 msgid "Icon + text"
 msgstr "Ícone + Texto"
 
@@ -11101,7 +11101,7 @@ msgctxt "share to"
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: _inc/jetpack-strings.php:480 modules/sharedaddy/sharing-sources.php:1458
+#: modules/sharedaddy/sharing-sources.php:1458 _inc/jetpack-strings.php:480
 msgid "Pinterest"
 msgstr "Pinterest"
 
@@ -11130,8 +11130,8 @@ msgstr "Remover Serviço"
 msgid "Icon"
 msgstr "Ícone"
 
-#: modules/sharedaddy/sharing-sources.php:1288
 #: modules/sitemaps/sitemap-stylist.php:68
+#: modules/sharedaddy/sharing-sources.php:1288
 msgid "URL"
 msgstr "URL"
 
@@ -11280,12 +11280,12 @@ msgstr "(abre em nova janela)"
 msgid "Share"
 msgstr "Compartilhar"
 
-#: modules/sharedaddy/sharing-service.php:847
 #: modules/sharedaddy/sharing.php:329 modules/sharedaddy/sharing.php:365
+#: modules/sharedaddy/sharing-service.php:847
 msgid "More"
 msgstr "Mais"
 
-#: modules/sharedaddy/sharing-service.php:15 modules/sharedaddy/sharing.php:225
+#: modules/sharedaddy/sharing.php:225 modules/sharedaddy/sharing-service.php:15
 msgid "Share this:"
 msgstr "Compartilhe isso:"
 
@@ -11293,8 +11293,8 @@ msgstr "Compartilhe isso:"
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "Avançados. Se esta opção estiver marcada, você deve incluir esses arquivos em seu tema manualmente para os links de compartilhamento funcionarem."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1953
 #: modules/sharedaddy/sharedaddy.php:246
+#: _inc/lib/class.core-rest-api-endpoints.php:1953
 msgid "Disable CSS and JS"
 msgstr "Desativar CSS e JS"
 
@@ -11352,8 +11352,8 @@ msgstr "Em \"%s\""
 msgid "Untitled Post"
 msgstr "Post Sem Tìtulo"
 
-#: _inc/jetpack-strings.php:438
 #: modules/related-posts/jetpack-related-posts.php:635
+#: _inc/jetpack-strings.php:438
 msgid "Show related content after posts"
 msgstr "Mostrar conteúdo relacionado após posts"
 
@@ -11365,11 +11365,11 @@ msgstr "Esconder conteúdo relacionado após posts"
 msgid "Preview:"
 msgstr "Visualizar:"
 
-#: _inc/jetpack-strings.php:442
+#: modules/related-posts/class.related-posts-customize.php:178
 #: modules/related-posts/jetpack-related-posts.php:492
 #: modules/related-posts/jetpack-related-posts.php:552
 #: modules/related-posts/jetpack-related-posts.php:661
-#: modules/related-posts/class.related-posts-customize.php:178
+#: _inc/jetpack-strings.php:442
 msgid "Related"
 msgstr "Relacionado"
 
@@ -11397,20 +11397,20 @@ msgstr "Mensagem Personalizada:"
 msgid "Publicize:"
 msgstr "Divulgar:"
 
-#: modules/publicize/ui.php:300 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/publicize/ui.php:300 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:"
 msgstr "Antes de clicar em Publicar, atualize as seguintes conexões para ter certeza que nós poderemos divulgar seu post:"
 
 #: class.jetpack-network-sites-list-table.php:115
 #: class.jetpack-network-sites-list-table.php:120
-#: modules/theme-tools/social-links.php:125 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/theme-tools/social-links.php:125 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Connect"
 msgstr "Conectar"
 
 #: class.jetpack-network-sites-list-table.php:104
-#: class.jetpack-network-sites-list-table.php:121 _inc/jetpack-strings.php:623
+#: class.jetpack-network-sites-list-table.php:121 _inc/jetpack-strings.php:630
 msgid "Disconnect"
 msgstr "Desconectar"
 
@@ -11532,8 +11532,8 @@ msgstr "Resolva esse problema de matemática para provar que você não é um ro
 msgid "<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser's back button to return to the login form, press the \"refresh\" button to generate a new math problem, and try to log in again."
 msgstr "<strong>Você não respondeu corretamente o problema de matemática.</strong> Isso é usado para combater a ocorrência de spam quando a API do Jetpack Protect está indisponível. Use o botão de retorno do seu navegador para voltar ao formulário de login. Clique o botão “Atualizar” para gerar um novo problema de matemática e tente fazer login novamente."
 
-#: _inc/jetpack-strings.php:709 modules/sharedaddy/sharing-sources.php:1300
-#: modules/widgets/simple-payments/form.php:181
+#: modules/sharedaddy/sharing-sources.php:1300
+#: modules/widgets/simple-payments/form.php:181 _inc/jetpack-strings.php:709
 msgid "Save"
 msgstr "Guardar"
 
@@ -11541,7 +11541,7 @@ msgstr "Guardar"
 msgid "Your current IP: %s"
 msgstr "Seu IP atual: %s"
 
-#: views/admin/network-settings.php:8 modules/protect/shared-functions.php:143
+#: modules/protect/shared-functions.php:143 views/admin/network-settings.php:8
 msgid "One of your IP addresses was not valid."
 msgstr "Um dos seus endereços IP não era válido."
 
@@ -11577,8 +11577,8 @@ msgstr "Desativar publicar por e-mail"
 msgid "Regenerate Address"
 msgstr "Regenerar endereço"
 
-#: modules/post-by-email.php:102
 #: modules/videopress/class.videopress-player.php:308
+#: modules/post-by-email.php:102
 msgid "More information"
 msgstr "Mais informações"
 
@@ -11586,9 +11586,9 @@ msgstr "Mais informações"
 msgid "Enable Post By Email"
 msgstr "Ativar publicar por e-mail"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1860 modules/post-by-email.php:83
-#: modules/subscriptions/views.php:524 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/post-by-email.php:83 modules/subscriptions/views.php:524
+#: _inc/lib/class.core-rest-api-endpoints.php:1860 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Email Address"
 msgstr "Endereço de e-mail"
 
@@ -11599,12 +11599,12 @@ msgstr "Endereço de e-mail"
 msgid "Last Modified"
 msgstr "Modificado pela última vez"
 
-#: modules/widgets/facebook-likebox.php:154
-#: modules/widgets/gravatar-profile.php:277
-#: modules/widgets/milestone/milestone.php:596
 #: modules/sitemaps/sitemap-stylist.php:307
 #: modules/sitemaps/sitemap-stylist.php:447
 #: modules/sitemaps/sitemap-stylist.php:588
+#: modules/widgets/milestone/milestone.php:596
+#: modules/widgets/gravatar-profile.php:277
+#: modules/widgets/facebook-likebox.php:154
 msgid "Title"
 msgstr "Título"
 
@@ -11630,7 +11630,7 @@ msgid "Plugins"
 msgstr "Plugins"
 
 #: modules/related-posts/class.related-posts-customize.php:50
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Related Posts"
 msgstr "Posts Relacionados"
 
@@ -11670,20 +11670,20 @@ msgstr ""
 msgid "LaTeX is a powerful markup language for writing complex mathematical equations and formulas."
 msgstr "LaTeX é uma linguagem poderosa de marcação para escrever equações matemáticas complexas e fórmulas."
 
-#: modules/masterbar/masterbar.php:377 modules/masterbar/masterbar.php:383
-#: modules/masterbar/masterbar.php:689 modules/notes.php:197
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/notes.php:197 modules/masterbar/masterbar.php:377
+#: modules/masterbar/masterbar.php:383 modules/masterbar/masterbar.php:689
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Notifications"
 msgstr "Notificações"
 
-#: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:199
 #: modules/publicize/ui.php:97
+#: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:199
 msgid "Publicize"
 msgstr "Divulgação"
 
+#: modules/stats.php:423 modules/stats.php:566 modules/stats.php:975
 #: _inc/jetpack-strings.php:566 _inc/jetpack-strings.php:567
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:96
-#: modules/stats.php:423 modules/stats.php:566 modules/stats.php:975
 msgid "Site Stats"
 msgstr "Estatísticas do site"
 
@@ -11916,8 +11916,8 @@ msgstr "Carrossel"
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
 msgstr "Mostre uma publicidade dos aplicativos WordPress para mobiles no rodapé de seu tema."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1835
 #: modules/theme-tools/content-options/customizer.php:291
+#: _inc/lib/class.core-rest-api-endpoints.php:1835
 msgid "Featured Images"
 msgstr "Imagens em Destaque"
 
@@ -11981,10 +11981,10 @@ msgstr "Resposta"
 msgid "Your comment is awaiting moderation."
 msgstr "O seu comentário aguarda moderação."
 
-#. translators: Date and time
 #. translators: 1: date, 2: time
-#: _inc/lib/icalendar-reader.php:824
+#. translators: Date and time
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
+#: _inc/lib/icalendar-reader.php:824
 msgid "%1$s at %2$s"
 msgstr "%1$s às %2$s"
 
@@ -12022,8 +12022,8 @@ msgstr "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %
 msgid "Skip to primary content"
 msgstr "Pular para o conteúdo principal"
 
-#: modules/masterbar/masterbar.php:1315
 #: modules/minileven/theme/pub/minileven/header.php:27
+#: modules/masterbar/masterbar.php:1315
 msgid "Menu"
 msgstr "Menu"
 
@@ -12068,18 +12068,18 @@ msgstr "Visualizar Site Completo"
 msgid "Next &raquo;"
 msgstr "Próximo &raquo;"
 
-#: modules/minileven/theme/pub/minileven/image.php:98
 #: modules/minileven/theme/pub/minileven/content.php:58
+#: modules/minileven/theme/pub/minileven/image.php:98
 msgid "&laquo; Previous"
 msgstr "&laquo; Anterior"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
 #: modules/minileven/theme/pub/minileven/content.php:57
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
 msgid "Post navigation"
 msgstr "Navegação de Posts"
 
-#: modules/minileven/theme/pub/minileven/image.php:90
 #: modules/minileven/theme/pub/minileven/content.php:49
+#: modules/minileven/theme/pub/minileven/image.php:90
 msgid "Leave a reply"
 msgstr "Deixe um comentário"
 
@@ -12092,20 +12092,20 @@ msgid "Featured"
 msgstr "Destacado"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
-#: modules/minileven/theme/pub/minileven/image.php:90
 #: modules/minileven/theme/pub/minileven/content.php:49
+#: modules/minileven/theme/pub/minileven/image.php:90
 msgid "<b>%</b> Replies"
 msgstr "<b>%</b> Respostas"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
-#: modules/minileven/theme/pub/minileven/image.php:90
 #: modules/minileven/theme/pub/minileven/content.php:49
+#: modules/minileven/theme/pub/minileven/image.php:90
 msgid "<b>1</b> Reply"
 msgstr "<b>1</b> Resposta"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:70
-#: modules/minileven/theme/pub/minileven/image.php:74
 #: modules/minileven/theme/pub/minileven/content.php:41
+#: modules/minileven/theme/pub/minileven/image.php:74
 #: modules/minileven/theme/pub/minileven/page.php:32
 msgid "Pages:"
 msgstr "Páginas"
@@ -12117,13 +12117,13 @@ msgstr[0] "Esta galeria contém <a %1$s>%2$s imagem</a>."
 msgstr[1] "Esta galeria contém <a %1$s>%2$s imagens</a>."
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:26
-#: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 #: modules/minileven/theme/pub/minileven/content.php:39
+#: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
 msgstr "Continuar lendo <span class=\"meta-nav\">&rarr;</span>"
 
-#: modules/widgets/gallery.php:31
 #: modules/minileven/theme/pub/minileven/content-gallery.php:20
+#: modules/widgets/gallery.php:31
 msgid "Gallery"
 msgstr "Galeria"
 
@@ -12170,8 +12170,8 @@ msgstr "Ver Site Móvel"
 msgid "Markdown content"
 msgstr "Conteúdo Markdown"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1812
 #: modules/markdown/easy-markdown.php:290
+#: _inc/lib/class.core-rest-api-endpoints.php:1812
 msgid "Use Markdown for comments."
 msgstr "Usar Markdown para comentários."
 
@@ -12185,8 +12185,8 @@ msgid "Use Markdown for posts and pages."
 msgstr "Usar Markdown para posts e páginas."
 
 #: modules/markdown/easy-markdown.php:250
-#: modules/markdown/easy-markdown.php:252 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/markdown/easy-markdown.php:252 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Markdown"
 msgstr "Markdown"
 
@@ -12208,43 +12208,42 @@ msgstr "Curtir"
 msgid "Like this:"
 msgstr "Curtir isso:"
 
-#: modules/likes/jetpack-likes-settings.php:227
 #: modules/sharedaddy/sharing.php:464
+#: modules/likes/jetpack-likes-settings.php:227
 msgid "Save Changes"
 msgstr "Salvar Alterações"
 
-#: modules/likes/jetpack-likes-settings.php:215
 #: modules/sharedaddy/sharing.php:247
+#: modules/likes/jetpack-likes-settings.php:215
 msgid "Sharing Buttons"
 msgstr "Botões de compartilhamento"
 
-#: modules/likes/jetpack-likes-settings.php:207
 #: modules/sharedaddy/sharing.php:221
+#: modules/likes/jetpack-likes-settings.php:207
 msgid "Settings have been saved"
 msgstr "Configurações foram salvas"
 
-#: _inc/jetpack-strings.php:393
+#: modules/sharedaddy/sharedaddy.php:143 modules/sharedaddy/sharing.php:100
+#: modules/publicize/ui.php:56 modules/masterbar/masterbar.php:1199
+#: modules/likes/jetpack-likes-settings.php:181 _inc/jetpack-strings.php:393
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:210
-#: modules/likes/jetpack-likes-settings.php:181
-#: modules/sharedaddy/sharing.php:100 modules/sharedaddy/sharedaddy.php:143
-#: modules/masterbar/masterbar.php:1199 modules/publicize/ui.php:56
 msgid "Sharing"
 msgstr "Compartilhar"
 
-#: modules/likes/jetpack-likes-settings.php:181
-#: modules/likes/jetpack-likes-settings.php:193
 #: modules/sharedaddy/sharing.php:99 modules/sharedaddy/sharing.php:231
 #: modules/publicize/ui.php:55 modules/publicize/ui.php:73
+#: modules/likes/jetpack-likes-settings.php:181
+#: modules/likes/jetpack-likes-settings.php:193
 msgid "Sharing Settings"
 msgstr "Configurações de compartilhamento "
 
-#: modules/likes/jetpack-likes-settings.php:678
 #: modules/sharedaddy/sharing.php:420
+#: modules/likes/jetpack-likes-settings.php:678
 msgid "Front Page, Archive Pages, and Search Results"
 msgstr "Página Inicial, Páginas de Arquivos e Resultados de Pesquisa"
 
-#: modules/likes/jetpack-likes-settings.php:669
 #: modules/sharedaddy/sharing.php:414
+#: modules/likes/jetpack-likes-settings.php:669
 msgid "Show buttons on"
 msgstr "Mostrar botões em"
 
@@ -12268,18 +12267,18 @@ msgstr "Mostar o botão Reblogar nos posts"
 msgid "WordPress.com Reblog Button"
 msgstr "Botão Reblogar do WordPress.com"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1797
 #: modules/likes/jetpack-likes-settings.php:504
+#: _inc/lib/class.core-rest-api-endpoints.php:1797
 msgid "Turned on per post"
 msgstr "Ligado por post"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1796
 #: modules/likes/jetpack-likes-settings.php:498
+#: _inc/lib/class.core-rest-api-endpoints.php:1796
 msgid "On for all posts"
 msgstr "Ativo para todos os posts"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1788
 #: modules/likes/jetpack-likes-settings.php:492
+#: _inc/lib/class.core-rest-api-endpoints.php:1788
 msgid "WordPress.com Likes are"
 msgstr "Curtidas WordPress.com"
 
@@ -12295,14 +12294,14 @@ msgstr "Envie-me e-mail quando"
 msgid "Likes Notifications"
 msgstr "Notificações de Curtidas"
 
-#: modules/likes/jetpack-likes-settings.php:170
-#: modules/sharedaddy/sharedaddy.php:169 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/sharedaddy/sharedaddy.php:169
+#: modules/likes/jetpack-likes-settings.php:170 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Show sharing buttons."
 msgstr "Mostrar botões de compartilhar"
 
-#: modules/likes/jetpack-likes-settings.php:80 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/likes/jetpack-likes-settings.php:80 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Show likes."
 msgstr "Mostrar curtidas."
 
@@ -12315,8 +12314,8 @@ msgstr "Curtidas"
 msgid "Likes and Shares"
 msgstr "Curtidas e Compartilhadas"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1779
 #: modules/infinite-scroll.php:76
+#: _inc/lib/class.core-rest-api-endpoints.php:1779
 msgid "Use Google Analytics with Infinite Scroll"
 msgstr "Use o Google Analytics com a Rolagem Infinita"
 
@@ -12355,8 +12354,8 @@ msgstr "Para o infinito e além"
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr "Mova o cursor do mouse sobre seu Gravatar para verificar seu perfil."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1754
 #: modules/gravatar-hovercards.php:60
+#: _inc/lib/class.core-rest-api-endpoints.php:1754
 msgid "View people's profiles when you mouse over their Gravatars"
 msgstr "Veja os perfis das pessoas quando passa o mouse sobre seus Gravatar"
 
@@ -12475,13 +12474,12 @@ msgstr "Ativar depoimentos para este site."
 msgid "Your theme supports Testimonials"
 msgstr "Seu tema suporta depoimentos"
 
-#: _inc/jetpack-strings.php:489 modules/masterbar/masterbar.php:1038
-#: modules/masterbar/masterbar.php:1051
+#: modules/masterbar/masterbar.php:1038 modules/masterbar/masterbar.php:1051
 #: modules/custom-post-types/testimonial.php:120
 #: modules/custom-post-types/testimonial.php:295
 #: modules/custom-post-types/testimonial.php:297
 #: modules/custom-post-types/testimonial.php:461
-#: modules/custom-post-types/testimonial.php:467
+#: modules/custom-post-types/testimonial.php:467 _inc/jetpack-strings.php:489
 msgid "Testimonials"
 msgstr "Depoimentos"
 
@@ -12718,11 +12716,10 @@ msgstr "Adicionar Esses Novos Itens ao Menu"
 msgid "New Row"
 msgstr "Nova Linha"
 
-#: _inc/lib/icalendar-reader.php:775
-#: modules/widgets/simple-payments/form.php:103
-#: modules/widgets/milestone/milestone.php:601
-#: modules/custom-post-types/nova.php:956
 #: modules/sitemaps/sitemap-stylist.php:449
+#: modules/widgets/milestone/milestone.php:601
+#: modules/widgets/simple-payments/form.php:103
+#: modules/custom-post-types/nova.php:956 _inc/lib/icalendar-reader.php:775
 msgid "Description"
 msgstr "Descrição"
 
@@ -12775,8 +12772,8 @@ msgstr "Ordem"
 #: modules/custom-post-types/nova.php:505
 #: modules/custom-post-types/nova.php:954
 #: modules/custom-post-types/nova.php:999
-#: modules/custom-post-types/nova.php:1005 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/custom-post-types/nova.php:1005 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Price"
 msgstr "Preço"
 
@@ -12784,9 +12781,9 @@ msgstr "Preço"
 msgid "Labels"
 msgstr "Rótulos"
 
-#: modules/widgets/flickr/form.php:77 modules/custom-post-types/nova.php:503
 #: modules/sitemaps/sitemap-stylist.php:306
-#: modules/sitemaps/sitemap-stylist.php:446
+#: modules/sitemaps/sitemap-stylist.php:446 modules/widgets/flickr/form.php:77
+#: modules/custom-post-types/nova.php:503
 msgid "Thumbnail"
 msgstr "Miniatura"
 
@@ -13063,10 +13060,10 @@ msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
 msgstr "O rascunho do quadrinho foi atualizado. <a target=\"_blank\" href=\"%s\">Pré-visualizar quadrinho</a>"
 
 #. translators: Publish box date format, see https://php.net/date
-#: modules/custom-post-types/nova.php:284
 #: modules/custom-post-types/comics.php:315
-#: modules/custom-post-types/portfolios.php:387
+#: modules/custom-post-types/nova.php:284
 #: modules/custom-post-types/testimonial.php:356
+#: modules/custom-post-types/portfolios.php:387
 msgid "M j, Y @ G:i"
 msgstr "M j, Y @ G:i"
 
@@ -13095,17 +13092,17 @@ msgstr "O quadrinho foi restaurado a partir da revisão %s"
 msgid "Comic updated."
 msgstr "Quadrinho atualizado"
 
-#: modules/custom-post-types/nova.php:270
 #: modules/custom-post-types/comics.php:306
-#: modules/custom-post-types/portfolios.php:378
+#: modules/custom-post-types/nova.php:270
 #: modules/custom-post-types/testimonial.php:347
+#: modules/custom-post-types/portfolios.php:378
 msgid "Custom field deleted."
 msgstr "Campo Personalizado excluído."
 
-#: modules/custom-post-types/nova.php:269
 #: modules/custom-post-types/comics.php:305
-#: modules/custom-post-types/portfolios.php:377
+#: modules/custom-post-types/nova.php:269
 #: modules/custom-post-types/testimonial.php:346
+#: modules/custom-post-types/portfolios.php:377
 msgid "Custom field updated."
 msgstr "Campo Personalizado atualizado."
 
@@ -13143,8 +13140,8 @@ msgstr "Adicionar novo quadrinho"
 
 #: modules/widgets/simple-payments/form.php:46
 #: modules/custom-post-types/comics.php:224
-#: modules/custom-post-types/portfolios.php:269
 #: modules/custom-post-types/testimonial.php:299
+#: modules/custom-post-types/portfolios.php:269
 msgid "Add New"
 msgstr "Adicionar nova"
 
@@ -13213,8 +13210,8 @@ msgid "Save &amp; Buy Upgrade"
 msgstr "Salvar &amp; Comprar Aprimoramento"
 
 #: modules/custom-css/custom-css.php:1239
-#: modules/custom-post-types/comics.php:266 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/custom-post-types/comics.php:266 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Preview"
 msgstr "Pré-visualizar"
 
@@ -13238,10 +13235,11 @@ msgstr "Adicionar"
 msgid "Mode:"
 msgstr "Modo:"
 
-#: modules/custom-css/custom-css-4.7.php:757
 #: modules/custom-css/custom-css.php:1163
-#: modules/custom-css/custom-css.php:1168 modules/widgets/image-widget.php:243
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/custom-css/custom-css.php:1168
+#: modules/custom-css/custom-css-4.7.php:757
+#: modules/widgets/image-widget.php:243 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "None"
 msgstr "Nenhum"
 
@@ -13249,24 +13247,24 @@ msgstr "Nenhum"
 msgid "Preprocessor:"
 msgstr "Pré-processador:"
 
-#: _inc/jetpack-strings.php:622 _inc/jetpack-strings.php:710
+#: modules/minileven/minileven.php:298
 #: modules/sharedaddy/sharing-sources.php:606
+#: modules/contact-form/grunion-editor-view.php:290
 #: modules/custom-css/custom-css.php:1089
 #: modules/custom-css/custom-css.php:1180
 #: modules/custom-css/custom-css.php:1221
-#: modules/widgets/simple-payments/form.php:182
-#: modules/contact-form/grunion-editor-view.php:290
-#: modules/minileven/minileven.php:298 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/widgets/simple-payments/form.php:182 _inc/jetpack-strings.php:629
+#: _inc/jetpack-strings.php:710 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: modules/custom-css/custom-css.php:1088
-#: modules/custom-css/custom-css.php:1179
-#: modules/custom-css/custom-css.php:1220 modules/publicize/ui.php:625
+#: modules/minileven/minileven.php:297 modules/publicize/ui.php:625
 #: modules/publicize/ui.php:653 modules/publicize/publicize-jetpack.php:528
 #: modules/publicize/publicize-jetpack.php:631
-#: modules/minileven/minileven.php:297
+#: modules/custom-css/custom-css.php:1088
+#: modules/custom-css/custom-css.php:1179
+#: modules/custom-css/custom-css.php:1220
 msgid "OK"
 msgstr "OK"
 
@@ -13280,10 +13278,10 @@ msgstr[1] "A largura do conteúdo padrão para o tema %s é de %d pixels."
 msgid "%s px"
 msgstr "%s px"
 
+#: modules/theme-tools/content-options/customizer.php:74
 #: modules/custom-css/custom-css.php:1050
 #: modules/widgets/eu-cookie-law/form.php:14
 #: modules/widgets/eu-cookie-law/form.php:51
-#: modules/theme-tools/content-options/customizer.php:74
 msgid "Default"
 msgstr "Por omissão"
 
@@ -13323,17 +13321,17 @@ msgstr "Folha de estilos salva."
 msgid "Custom CSS Stylesheet"
 msgstr "Folha de Estilo CSS Personalizada"
 
+#: modules/custom-css/custom-css.php:907
 #: modules/custom-css/custom-css-4.7.php:138
 #: modules/custom-css/custom-css-4.7.php:141
 #: modules/custom-css/custom-css-4.7.php:181
 #: modules/custom-css/custom-css-4.7.php:279
-#: modules/custom-css/custom-css.php:907
 msgid "CSS"
 msgstr "CSS"
 
+#: modules/custom-css/custom-css.php:894
 #: modules/custom-css/custom-css-4.7.php:138
 #: modules/custom-css/custom-css-4.7.php:141
-#: modules/custom-css/custom-css.php:894
 msgid "Edit CSS"
 msgstr "Editar CSS"
 
@@ -13367,8 +13365,8 @@ msgstr "Salvar e retornar ao criador de formulários"
 msgid "What should the subject line be?"
 msgstr "Qual deveria ser a linha de assunto?"
 
-#: modules/subscriptions/views.php:283
 #: modules/contact-form/grunion-form-view.php:259
+#: modules/subscriptions/views.php:283
 msgid "Enter your email address"
 msgstr "Digite seu endereço de e-mail"
 
@@ -13411,21 +13409,21 @@ msgid "Options"
 msgstr "Opções"
 
 #: modules/contact-form/grunion-form-view.php:219
-#: modules/contact-form/grunion-editor-view.php:222
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-editor-view.php:222 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Textarea"
 msgstr "Área de texto"
 
 #: modules/contact-form/grunion-form-view.php:218
 #: modules/contact-form/grunion-editor-view.php:218
-#: modules/contact-form/grunion-contact-form.php:2301
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-contact-form.php:2301 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Text"
 msgstr "Texto"
 
 #: modules/contact-form/grunion-form-view.php:217
-#: modules/contact-form/grunion-editor-view.php:226
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-editor-view.php:226 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Radio"
 msgstr "Rádio"
 
@@ -13436,8 +13434,8 @@ msgstr "Lista de seleção"
 
 #: modules/contact-form/grunion-form-view.php:212
 #: modules/contact-form/grunion-editor-view.php:223
-#: modules/contact-form/grunion-contact-form.php:2315
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-contact-form.php:2315 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Checkbox"
 msgstr "Caixa de Seleção"
 
@@ -13593,15 +13591,15 @@ msgctxt "Label for HTML form \"Name\" field in contact form builder"
 msgid "Name"
 msgstr "Nome"
 
+#: modules/minileven/minileven.php:288
 #: modules/contact-form/grunion-editor-view.php:156
 #: modules/contact-form/grunion-contact-form.php:3359
-#: modules/minileven/minileven.php:288
 msgid "Yes"
 msgstr "Sim"
 
 #: modules/contact-form/grunion-editor-view.php:94
-#: modules/contact-form/grunion-contact-form.php:3451
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/contact-form/grunion-contact-form.php:3451 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "(required)"
 msgstr "(obrigatório)"
 
@@ -13763,20 +13761,20 @@ msgstr "Recuperar"
 msgid "Restore this item from the Trash"
 msgstr "Restaurar este item da Lixeira"
 
-#: modules/widgets/search.php:720 modules/widgets/search.php:758
-#: modules/widgets/milestone/milestone.php:606
-#: modules/contact-form/admin.php:272
 #: modules/contact-form/grunion-editor-view.php:227
+#: modules/contact-form/admin.php:272
 #: modules/contact-form/grunion-contact-form.php:2309
+#: modules/widgets/milestone/milestone.php:606 modules/widgets/search.php:720
+#: modules/widgets/search.php:758
 msgid "Date"
 msgstr "Data"
 
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
-#: modules/contact-form/admin.php:271
 #: modules/contact-form/grunion-editor-view.php:90
+#: modules/contact-form/admin.php:271
 #: modules/contact-form/grunion-contact-form.php:1870
 #: modules/contact-form/grunion-contact-form.php:2313
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Message"
 msgstr "Mensagem"
 
@@ -13809,8 +13807,8 @@ msgstr "Marcar como spam"
 msgid "Delete Permanently"
 msgstr "Excluir Permanentemente"
 
-#: modules/contact-form/admin.php:17
 #: modules/contact-form/grunion-editor-view.php:32
+#: modules/contact-form/admin.php:17
 msgid "Add Contact Form"
 msgstr "Adicionar Formulário de Contato"
 
@@ -13858,37 +13856,37 @@ msgstr "Ajuste seu formulário Comentários com uma saudação inteligente e esq
 msgid "Color Scheme"
 msgstr "Combinação de cores"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1690
 #: modules/comments/admin.php:81
+#: _inc/lib/class.core-rest-api-endpoints.php:1690
 msgid "Greeting Text"
 msgstr "Texto de Saudação"
 
-#: _inc/jetpack-strings.php:165 modules/masterbar/masterbar.php:1023
+#: modules/masterbar/masterbar.php:1023 modules/comments/admin.php:72
 #: modules/widgets/rsslinks-widget.php:102
-#: modules/widgets/rsslinks-widget.php:180 modules/comments/admin.php:72
+#: modules/widgets/rsslinks-widget.php:180 _inc/jetpack-strings.php:165
 msgid "Comments"
 msgstr "Comentários"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1708
 #: modules/comments/admin.php:56
+#: _inc/lib/class.core-rest-api-endpoints.php:1708
 msgid "Transparent"
 msgstr "Transparente"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1707
+#: modules/comments/admin.php:55 modules/widgets/eu-cookie-law/form.php:232
 #: modules/widgets/twitter-timeline.php:499
-#: modules/widgets/eu-cookie-law/form.php:232 modules/comments/admin.php:55
+#: _inc/lib/class.core-rest-api-endpoints.php:1707
 msgid "Dark"
 msgstr "Escuro"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1706
+#: modules/comments/admin.php:54 modules/widgets/eu-cookie-law/form.php:221
 #: modules/widgets/twitter-timeline.php:496
-#: modules/widgets/eu-cookie-law/form.php:221 modules/comments/admin.php:54
+#: _inc/lib/class.core-rest-api-endpoints.php:1706
 msgid "Light"
 msgstr "Claro"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1692
-#: modules/comments/comments.php:247 modules/comments/admin.php:50
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
+#: modules/comments/admin.php:50 modules/comments/comments.php:247
+#: _inc/lib/class.core-rest-api-endpoints.php:1692
 msgid "Leave a Reply"
 msgstr "Deixe uma resposta"
 
@@ -13896,13 +13894,13 @@ msgstr "Deixe uma resposta"
 msgid "Display images in full-size carousel slideshow."
 msgstr "Exibir imagens em slideshow carrossel tamanho original."
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1675
 #: modules/carousel/jetpack-carousel.php:815
+#: _inc/lib/class.core-rest-api-endpoints.php:1675
 msgid "White"
 msgstr "Branco"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1674
 #: modules/carousel/jetpack-carousel.php:814
+#: _inc/lib/class.core-rest-api-endpoints.php:1674
 msgid "Black"
 msgstr "Preto"
 
@@ -13970,27 +13968,27 @@ msgstr "Verificação do Nonce falhou."
 msgid "Missing attachment ID."
 msgstr "Faltando a ID do anexo."
 
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
-#: modules/carousel/jetpack-carousel.php:297
 #: modules/contact-form/grunion-form-view.php:220
 #: modules/contact-form/grunion-editor-view.php:89
 #: modules/contact-form/grunion-editor-view.php:221
 #: modules/contact-form/grunion-contact-form.php:1862
 #: modules/contact-form/grunion-contact-form.php:2307
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/carousel/jetpack-carousel.php:297
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Website"
 msgstr "Site"
 
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
-#: modules/carousel/jetpack-carousel.php:293
-#: modules/widgets/simple-payments/form.php:147
-#: modules/widgets/social-icons.php:565
 #: modules/contact-form/grunion-form-view.php:215
 #: modules/contact-form/grunion-editor-view.php:88
 #: modules/contact-form/grunion-editor-view.php:220
 #: modules/contact-form/grunion-contact-form.php:1861
 #: modules/contact-form/grunion-contact-form.php:2305
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/carousel/jetpack-carousel.php:293
+#: modules/widgets/social-icons.php:565
+#: modules/widgets/simple-payments/form.php:147
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Email"
 msgstr "E-mail"
 
@@ -14134,9 +14132,9 @@ msgstr "Você deve especificar um tema para mudar."
 msgid "There was an error updating your plugin"
 msgstr "Ocorreu um erro ao atualizar seu plugin"
 
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:101
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:326
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:387
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-modify-endpoint.php:101
 msgid "No update needed"
 msgstr "Nenhuma atualização disponível"
 
@@ -14172,10 +14170,10 @@ msgstr "O Plugin já está ativo."
 msgid "The plugin is already installed"
 msgstr "O plugin já está instalado"
 
-#: _inc/lib/plugins.php:83
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:61
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-new-endpoint.php:114
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php:61
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:61
+#: _inc/lib/plugins.php:83
 msgid "An unknown error occurred during installation"
 msgstr "Ocorreu um erro desconhecido durante a instalação"
 
@@ -14191,8 +14189,8 @@ msgstr "Você deve especificar um plugin para ativar."
 msgid "This user is not authorized to manage plugins network wide."
 msgstr "Este usuário não está autorizado a gerenciar plugins de toda a rede."
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:109
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:82
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:109
 msgid "No plugins found."
 msgstr "Nenhum plugin encontrado."
 
@@ -14253,8 +14251,8 @@ msgstr "Artista"
 msgid "Comment cache problem?"
 msgstr "Problema de cache de comentário?"
 
-#: sal/class.json-api-post-base.php:400
 #: json-endpoints/class.wpcom-json-api-post-endpoint.php:69
+#: sal/class.json-api-post-base.php:400
 msgid "This post is password protected."
 msgstr "Este post está protegido por senha."
 
@@ -14432,7 +14430,7 @@ msgstr "Jetpack turbina seu WordPress em servidor próprio com o poder da nuvem 
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack por WordPress.com"
 
-#: class.jetpack.php:3860 modules/theme-tools/site-breadcrumbs.php:48
+#: modules/theme-tools/site-breadcrumbs.php:48 class.jetpack.php:3860
 msgid "Home"
 msgstr "Início"
 
@@ -14457,8 +14455,8 @@ msgstr "Jetpack requer WordPress versão %s ou posterior."
 msgid "You are currently running a development version of Jetpack. <a href=\"%s\" target=\"_blank\">Submit your feedback</a>"
 msgstr "Atualmente, você está executando a versão de desenvolvimento do Jetpack. <a href=\"%s\" target=\"_blank\">Envie seu feedback</a>"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1945
 #: class.jetpack-twitter-cards.php:247
+#: _inc/lib/class.core-rest-api-endpoints.php:1945
 msgid "The Twitter username of the owner of this site's domain."
 msgstr "O nome de usuário no Twitter do proprietário do domínio deste site."
 
@@ -14482,8 +14480,8 @@ msgid "Video post by %s."
 msgstr "Vídeo postado por %s."
 
 #. translators: %s is the post author
-#: functions.opengraph.php:149 class.jetpack-twitter-cards.php:138
-#: class.jetpack-twitter-cards.php:145
+#: class.jetpack-twitter-cards.php:138 class.jetpack-twitter-cards.php:145
+#: functions.opengraph.php:149
 msgid "Visit the post for more."
 msgstr "Visite o post para mais."
 
@@ -14495,15 +14493,15 @@ msgstr "Sites"
 msgid "Jetpack Sites"
 msgstr "Sites do Jetpack"
 
-#: class.jetpack-network-sites-list-table.php:62 _inc/jetpack-strings.php:713
-#: modules/custom-css/custom-css.php:1051
-#: modules/custom-css/custom-css.php:1164
-#: modules/custom-css/custom-css.php:1194 modules/publicize/ui.php:517
-#: modules/publicize/ui.php:525 modules/minileven/minileven.php:289
+#: class.jetpack-network-sites-list-table.php:62
 #: modules/minileven/theme/pub/minileven/content-gallery.php:79
-#: modules/minileven/theme/pub/minileven/image.php:92
 #: modules/minileven/theme/pub/minileven/content.php:51
+#: modules/minileven/theme/pub/minileven/image.php:92
 #: modules/minileven/theme/pub/minileven/page.php:36
+#: modules/minileven/minileven.php:289 modules/publicize/ui.php:517
+#: modules/publicize/ui.php:525 modules/custom-css/custom-css.php:1051
+#: modules/custom-css/custom-css.php:1164
+#: modules/custom-css/custom-css.php:1194 _inc/jetpack-strings.php:713
 msgid "Edit"
 msgstr "Editar"
 
@@ -14523,11 +14521,10 @@ msgstr "Nome do site"
 msgid "No Modules Found"
 msgstr "Nenhum Módulo Encontrado"
 
-#: _inc/jetpack-strings.php:334
-#: _inc/lib/admin-pages/class-jetpack-about-page.php:352
 #: class.jetpack-modules-list-table.php:117
 #: class.jetpack-modules-list-table.php:216
-#: class.jetpack-modules-list-table.php:285
+#: class.jetpack-modules-list-table.php:285 _inc/jetpack-strings.php:334
+#: _inc/lib/admin-pages/class-jetpack-about-page.php:352
 msgid "Activate"
 msgstr "Ativar"
 
@@ -14545,20 +14542,20 @@ msgstr "Buscar Módulos..."
 msgid "Debug Info"
 msgstr "Informações da depuração"
 
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "e-mail"
 msgstr "e-mail"
 
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
-#: modules/carousel/jetpack-carousel.php:295
-#: modules/custom-post-types/nova.php:953
+#: class.jetpack-modules-list-table.php:209
 #: modules/contact-form/grunion-form-view.php:216
 #: modules/contact-form/grunion-editor-view.php:87
 #: modules/contact-form/grunion-editor-view.php:219
 #: modules/contact-form/grunion-contact-form.php:1860
 #: modules/contact-form/grunion-contact-form.php:2303
-#: class.jetpack-modules-list-table.php:209 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: modules/carousel/jetpack-carousel.php:295
+#: modules/custom-post-types/nova.php:953
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1059
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Name"
 msgstr "Nome"
 
@@ -14660,8 +14657,8 @@ msgstr "opção"
 msgid "Value"
 msgstr "Valor"
 
-#: class.jetpack-cli.php:767 _inc/blocks/editor-beta.js:24
-#: _inc/blocks/editor.js:24
+#: class.jetpack-cli.php:767 _inc/blocks/editor.js:24
+#: _inc/blocks/editor-beta.js:24
 msgid "Option"
 msgstr "Opção"
 
@@ -14757,8 +14754,8 @@ msgstr "Especifique um módulo válido. "
 msgid "%s is not a valid module."
 msgstr "%s não é um módulo válido. "
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1615 class.jetpack-cli.php:327
-#: class.jetpack-cli.php:335
+#: class.jetpack-cli.php:327 class.jetpack-cli.php:335
+#: _inc/lib/class.core-rest-api-endpoints.php:1615
 msgid "Modules reset to default."
 msgstr "Redefinição de módulos para padrão."
 
@@ -14840,8 +14837,8 @@ msgstr "Jetpack não está atualmente conectado ao WordPress.com"
 msgid "Jetpack Debugging Center"
 msgstr "Central de Depuração do Jetpack"
 
-#: modules/plugin-search.php:212 modules/plugin-search.php:513
-#: modules/stats.php:575 modules/stats.php:1098 class.jetpack-admin.php:172
+#: class.jetpack-admin.php:172 modules/plugin-search.php:212
+#: modules/plugin-search.php:513 modules/stats.php:575 modules/stats.php:1098
 msgid "Configure"
 msgstr "Configurar"
 
@@ -14865,20 +14862,20 @@ msgstr "Alfabético"
 msgid "Sort by:"
 msgstr "Ordenar por:"
 
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:97
 #: class.jetpack-cli.php:521
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:97
 msgid "Inactive"
 msgstr "Inativo"
 
+#: class.jetpack-cli.php:520 modules/vaultpress.php:27
 #: _inc/jetpack-strings.php:354 _inc/jetpack-strings.php:578
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:96
-#: modules/vaultpress.php:27 class.jetpack-cli.php:520
 msgid "Active"
 msgstr "Ativo"
 
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:95
-#: modules/widgets/upcoming-events.php:60
 #: class.jetpack-modules-list-table.php:144
+#: modules/widgets/upcoming-events.php:60
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:95
 msgid "All"
 msgstr "Tudo"
 
@@ -14886,12 +14883,12 @@ msgstr "Tudo"
 msgid "View:"
 msgstr "Visualizar:"
 
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:92
-#: modules/masterbar/masterbar.php:467 modules/widgets/search.php:64
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
-#: _inc/blocks/editor-beta.js:24 _inc/blocks/editor.js:24
+#: modules/masterbar/masterbar.php:467 modules/widgets/search.php:64
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:92
+#: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Search"
 msgstr "Pesquisar"
 
@@ -14899,44 +14896,44 @@ msgstr "Pesquisar"
 msgid "Jetpack Settings"
 msgstr "Configurações do Jetpack"
 
-#: modules/calypsoify/class.jetpack-calypsoify.php:236
-#: modules/calypsoify/class.jetpack-calypsoify.php:286
 #: modules/contact-form/grunion-form-view.php:191
 #: modules/contact-form/grunion-contact-form.php:172
 #: modules/contact-form/grunion-contact-form.php:173
 #: modules/contact-form/grunion-contact-form.php:916
 #: modules/contact-form/grunion-contact-form.php:934
 #: modules/contact-form/grunion-contact-form.php:1004
+#: modules/calypsoify/class.jetpack-calypsoify.php:236
+#: modules/calypsoify/class.jetpack-calypsoify.php:286
 msgid "Feedback"
 msgstr "Feedback"
 
-#: class.jetpack.php:3873 class.jetpack.php:3948 _inc/jetpack-strings.php:634
+#: class.jetpack-network.php:296 modules/sharedaddy/sharedaddy.php:217
+#: modules/sharedaddy/sharedaddy.php:224 modules/publicize/ui.php:517
+#: modules/masterbar/masterbar.php:1288 class.jetpack.php:3873
+#: class.jetpack.php:3948 _inc/jetpack-strings.php:619
+#: _inc/lib/admin-pages/class.jetpack-react-page.php:70
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:22
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:307
-#: _inc/lib/admin-pages/class.jetpack-react-page.php:70
-#: class.jetpack-network.php:296 modules/sharedaddy/sharedaddy.php:217
-#: modules/sharedaddy/sharedaddy.php:224 modules/masterbar/masterbar.php:1288
-#: modules/publicize/ui.php:517
 msgid "Settings"
 msgstr "Opções"
 
-#: _inc/lib/debugger/debug-functions-for-php53.php:50
 #: _inc/lib/debugger/class-jetpack-debug-data.php:103
 #: _inc/lib/debugger/class-jetpack-cxn-test-base.php:357
+#: _inc/lib/debugger/debug-functions-for-php53.php:50
 msgid "Jetpack"
 msgstr "Jetpack"
 
+#: modules/custom-content-types.php:42 modules/sso.php:1123
+#: modules/custom-post-types/testimonial.php:155
+#: modules/custom-post-types/portfolios.php:140 modules/protect.php:188
 #: _inc/jetpack-strings.php:597 _inc/jetpack-strings.php:617
-#: modules/protect.php:188 modules/custom-post-types/portfolios.php:140
-#: modules/custom-post-types/testimonial.php:155 modules/sso.php:1123
-#: modules/custom-content-types.php:42
 msgid "Learn More"
 msgstr "Saiba mais"
 
-#: _inc/jetpack-strings.php:618
+#: _inc/jetpack-strings.php:625
 msgid "Disconnect Jetpack"
 msgstr "Desconectar Jetpack"
 
-#: class.jetpack.php:3949 modules/sharedaddy/sharedaddy.php:225
+#: modules/sharedaddy/sharedaddy.php:225 class.jetpack.php:3949
 msgid "Support"
 msgstr "Suporte"
