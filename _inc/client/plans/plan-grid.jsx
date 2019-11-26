@@ -340,12 +340,12 @@ class PlanGrid extends React.Component {
 					key={ 'bottom-' + planType }
 					className="plan-features__table-item is-bottom-buttons has-border-bottom"
 				>
-					<Button
+					<a
 						href={ this.props.plansLearnMoreUpgradeUrl }
 						onClick={ this.handleSeeFeaturesClick( planType ) }
 					>
 						{ plan.strings.see_all }
-					</Button>
+					</a>
 				</td>
 			);
 		} );
