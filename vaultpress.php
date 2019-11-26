@@ -989,20 +989,37 @@ class VaultPress {
 	function ui_delete_vp_settings_button() {
 		?>
 		<div class="dops-card dops-section-header is-compact">
-			<?php _e( 'Settings reset', 'vaultpress' ); ?>
+			<?php _e( 'Reset settings', 'vaultpress' ); ?>
 		</div>
 		<?php
 		if ( isset( $_GET['delete-vp-settings'] ) && 1 == (int) $_GET['delete-vp-settings'] ) {
 			?>
 			<div class="dops-card">
-                <p><?php _e( 'All VaultPress settings have been deleted.', 'vaultpress' ); ?></p>
+				<p><?php esc_html_e( 'All VaultPress settings have been deleted.', 'vaultpress' ); ?></p>
 			</div>
 			<?php
 		} else {
 			?>
 			<div class="dops-card">
-				<p><?php _e( 'Click this button to reset all VaultPress options in the database.', 'vaultpress' ); ?></p>
-				<p><strong><?php esc_html_e( 'Warning: this process is irreversible.', 'vaultpress' ) ?></strong></p>
+				<p><?php esc_html_e( 'Click this button to reset all VaultPress options in the database. You can try this if VaultPress is reporting a connection error.', 'vaultpress' ); ?></p>
+				<p><strong>
+				<?php
+				printf(
+					wp_kses(
+						/* translators: URLs to VaultPress dashboard. */
+						__( 'Warning: this button will unregister VaultPress and disconnect it from your site. If you intend on registering the plugin again, you can find your registration key <a href="%1$s" target="_blank" rel="noopener noreferrer">here</a>.', 'vaultpress' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
+					),
+					'https://dashboard.vaultpress.com/account/'
+				);
+				?>
+				</strong></p>
 				<form
 					onsubmit="return confirm( '<?php esc_html_e( 'Do you really want to reset all options?', 'vaultpress' ) ?>' );"
 					method="post"
