@@ -322,7 +322,7 @@ class Full_Sync_Immediately extends Module {
 
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until );
-			if ( microtime( true ) >= $send_until ) {
+			if ( ! $progress[ $module->name() ]['finished'] ) {
 				$this->update_status( array( 'progress' => $progress ) );
 
 				return;
