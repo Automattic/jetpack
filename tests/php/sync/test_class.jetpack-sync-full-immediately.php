@@ -1207,6 +1207,26 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( ! $start_event );
 	}
 
+	function test_full_sync_send_max_chunks() {
+		$this->factory->post->create_many( 10 );
+
+		$this->sender->reset_data();
+		$this->server_event_storage->reset();
+
+		$limits = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 1,
+			'max_chunks' => 5,
+		);
+
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$this->assertEquals( 5, $this->server_replica_storage->post_count() );
+	}
+
 	function test_enable_sending_full_sync() {
 		$this->factory->post->create_many( 2 );
 
