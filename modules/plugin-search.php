@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -427,10 +428,10 @@ class Jetpack_Plugin_Search {
 	 */
 	private function get_upgrade_url( $feature ) {
 		$site_raw_url = Jetpack::build_raw_urls( get_home_url() );
-		$affiliateCode = Jetpack_Affiliate::init()->get_affiliate_code();
+		$affiliate_code = Partner::init()->get_partner_code( Partner::AFFILIATE_CODE );
 		$user = wp_get_current_user()->ID;
 		return "https://jetpack.com/redirect/?source=plugin-hint-upgrade-$feature&site=$site_raw_url&u=$user" .
-		       ( $affiliateCode ? "&aff=$affiliateCode" : '' );
+		       ( $affiliate_code ? "&aff=$affiliate_code" : '' );
 	}
 
 	/**
