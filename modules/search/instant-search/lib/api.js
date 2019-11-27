@@ -11,11 +11,12 @@ import Cache from 'cache';
  * Internal dependencies
  */
 import { getFilterKeys } from './query-string';
-import { FIVE_MINUTES_IN_MILLISECONDS } from './constants';
+import { MINUTE_IN_MILLISECONDS } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
-// Cache contents evicted after 5 minutes (TTL)
-const apiCache = new Cache( FIVE_MINUTES_IN_MILLISECONDS );
+// Cache contents evicted after fixed time-to-live
+const cache = new Cache( 5 * MINUTE_IN_MILLISECONDS );
+const backupCache = new Cache( 30 * MINUTE_IN_MILLISECONDS );
 
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
@@ -124,9 +125,14 @@ function buildFilterObject( filterQuery ) {
 
 export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
 	const key = stringify( Array.from( arguments ) );
-	const cachedVal = apiCache.get( key );
-	if ( cachedVal ) {
-		return cachedVal;
+
+	// Use cached value from the last 5 minutes
+	if ( cache.get( key ) ) {
+		return cache.get( key );
+	}
+	// Use cached value from the last 30 minutes if browser is offline
+	if ( ! navigator.onLine && backupCache.get( key ) ) {
+		return backupCache.get( key );
 	}
 
 	let fields = [
@@ -160,11 +166,20 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	).then( response => {
-		const json = response.json();
-		apiCache.put( key, json );
-		return json;
-	} );
-	//TODO: handle errors and fallback to a longer term cache - network connectivity for mobile
-	//TODO: store cache data in the browser - esp for mobile
+	)
+		.catch( error => {
+			// TODO: Display a message about falling back to a cached value in the interface
+			// Fallback to either cache if we run into any errors
+			const fallbackValue = cache.get( key ) || backupCache.get( key );
+			if ( fallbackValue ) {
+				return fallbackValue;
+			}
+			throw error;
+		} )
+		.then( response => {
+			const json = response.json();
+			cache.put( key, json );
+			backupCache.put( key, json );
+			return json;
+		} );
 }
