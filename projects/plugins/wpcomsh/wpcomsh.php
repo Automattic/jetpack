@@ -81,6 +81,7 @@ const WPCOM_FEATURE_PLUGINS = [
 	'coblocks/class-coblocks.php',
 	'full-site-editing/full-site-editing-plugin.php',
 	'gutenberg/gutenberg.php',
+	'layout-grid/index.php',
 ];
 
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {

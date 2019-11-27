@@ -36,6 +36,7 @@
 .wp-list-table tr[data-slug="gutenberg"] > *,
 .wp-list-table tr[data-slug="jetpack"] > *,
 .wp-list-table tr[data-slug="amp"] > *,
+.wp-list-table tr[data-slug="layout-grid"] > *,
 .wp-list-table tr[data-slug="coblocks"] > * {
 	-webkit-box-shadow: none !important;
 	box-shadow: none !important; /* Can otherwise be overridden by https://core.trac.wordpress.org/browser/tags/5.2.1/src/wp-admin/css/list-tables.css#L1217 */
