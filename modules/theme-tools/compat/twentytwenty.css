@@ -208,6 +208,15 @@
 }
 
 /**
+ * Shortcodes
+ */
+
+/* Recipe */
+.entry-content .jetpack-recipe {
+	margin: 1em auto;
+}
+
+/**
  * Blocks
  */
 
