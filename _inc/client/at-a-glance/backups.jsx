@@ -169,12 +169,6 @@ class DashBackups extends Component {
 			} );
 
 		switch ( rewindStatus ) {
-			case 'provisioning':
-				return (
-					<React.Fragment>
-						{ buildCard( __( "We are configuring your site's backups." ) ) }
-					</React.Fragment>
-				);
 			case 'awaiting_credentials':
 				return (
 					<React.Fragment>
@@ -187,6 +181,7 @@ class DashBackups extends Component {
 						) }
 					</React.Fragment>
 				);
+			case 'provisioning':
 			case 'active':
 				return (
 					<React.Fragment>

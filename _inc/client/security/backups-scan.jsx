@@ -67,9 +67,12 @@ class BackupsScanRewind extends Component {
 		switch ( rewindState ) {
 			case 'provisioning':
 				return {
-					title: __( 'Provisioning' ),
+					title: __( 'Your backup is underway' ),
 					icon: 'info',
-					description: __( 'Backups and Scan are being configured for your site.' ),
+					description: __(
+						"We're currently backing up your site for the first time, and we'll let you know when we're finished. " +
+							"After this initial backup, we'll save future changes in real time."
+					),
 					url: '',
 				};
 			case 'awaiting_credentials':

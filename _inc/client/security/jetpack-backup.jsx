@@ -51,7 +51,7 @@ export class JetpackBackup extends Component {
 				return {
 					title: __( 'Provisioning' ),
 					icon: 'info',
-					description: __( 'Jetpack Backup is being configured for your site.' ),
+					description: __( 'Your backup is underway.' ),
 					url: '',
 				};
 			case 'awaiting_credentials':

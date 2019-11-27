@@ -72,16 +72,12 @@ class ProStatus extends React.Component {
 
 	getRewindMessage() {
 		switch ( this.props.rewindStatus.state ) {
-			case 'provisioning':
-				return {
-					status: 'is-info',
-					text: __( 'Setting up' ),
-				};
 			case 'awaiting_credentials':
 				return {
 					status: 'is-warning',
 					text: __( 'Action needed' ),
 				};
+			case 'provisioning':
 			case 'active':
 				return {
 					status: 'is-success',

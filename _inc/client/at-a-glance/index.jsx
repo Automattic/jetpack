@@ -101,10 +101,11 @@ class AtAGlance extends Component {
 		}
 
 		// Maybe add the rewind card
-		'active' === rewindStatus &&
+		if ( 'active' === rewindStatus || 'provisioning' === rewindStatus ) {
 			securityCards.unshift(
 				<DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 			);
+		}
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
