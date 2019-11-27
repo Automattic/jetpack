@@ -206,23 +206,6 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Send the posts actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until The timestamp until the current request can send.
-	 * @param array $state This module Full Sync status.
-	 *
-	 * @return array This module Full Sync status.
-	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) {
-		global $wpdb;
-
-		return $this->send_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $this->get_where_sql( $config ), $send_until, $state );
-	}
-
-	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public

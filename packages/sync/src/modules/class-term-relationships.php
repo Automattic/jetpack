@@ -139,49 +139,43 @@ class Term_Relationships extends Module {
 	}
 
 	/**
-	 * Send the term_relationships actions for full sync.
+	 * Return the initial last sent object.
 	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until The timestamp until the current request can send.
-	 * @param array $status Full sync status for this module.
-	 *
-	 * @return array Full sync status for this module.
+	 * @return string|array initial status.
 	 */
-	public function send_full_sync_actions( $config, $send_until, $status ) {
+	public function get_initial_last_sent() {
+		return array(
+			'object_id'        => self::MAX_INT,
+			'term_taxonomy_id' => self::MAX_INT,
+		);
+	}
+
+	/**
+	 * Given the Module Full Sync Configuration and Status return the next chunk of items to send.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
 		global $wpdb;
 
-		$items_per_page = 100;
-
-		if ( empty( $status['last_sent'] ) ) {
-			$status['last_sent'] = array(
-				'object_id'        => self::MAX_INT,
-				'term_taxonomy_id' => self::MAX_INT,
-			);
-		}
-
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $objects = $wpdb->get_results( $wpdb->prepare( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) ORDER BY object_id DESC, term_taxonomy_id DESC LIMIT %d", $status['last_sent']['object_id'], $status['last_sent']['term_taxonomy_id'], $status['last_sent']['object_id'], $items_per_page ), ARRAY_A ) ) {
-			$result = $this->send_action( 'jetpack_full_sync_term_relationships', array( $objects, $status['last_sent'] ) );
-
-			if ( is_wp_error( $result ) || $wpdb->last_error ) {
-				return $status;
-			}
-			// The $ids are ordered in descending order.
-			$status['last_sent'] = end( $objects );
-			$status['sent']     += count( $objects );
-
-			if ( microtime( true ) >= $send_until ) {
-				return $status;
-			}
-		}
-
-		if ( ! $wpdb->last_error ) {
-			$status['finished'] = true;
-		}
-
-		return $status;
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT object_id, term_taxonomy_id 
+				FROM $wpdb->term_relationships 
+				WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) 
+				ORDER BY object_id DESC, term_taxonomy_id 
+				DESC LIMIT %d",
+				$status['last_sent']['object_id'],
+				$status['last_sent']['term_taxonomy_id'],
+				$status['last_sent']['object_id'],
+				$chunk_size
+			),
+			ARRAY_A
+		);
 	}
 
 	/**

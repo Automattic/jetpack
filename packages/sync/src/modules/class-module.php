@@ -135,22 +135,6 @@ abstract class Module {
 	}
 
 	/**
-	 * Immediately send the module actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config Full sync configuration for this sync module.
-	 * @param float   $send_until timestamp until we want this request to send full sync events.
-	 * @param boolean $state True if full sync has finished enqueueing this module, false otherwise.
-	 *
-	 * @return array  Number of actions sent, and next module state.
-	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// In subclasses, return the number of actions sent, and next module state (true == done).
-		return array( 0, 0, 1 );
-	}
-
-	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public
@@ -280,43 +264,67 @@ abstract class Module {
 	}
 
 	/**
+	 * Given the Module Full Sync Configuration and Status return the next chunk of items to send.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+		global $wpdb;
+		return $wpdb->get_col(
+			<<<SQL
+SELECT {$this->id_field()} 
+FROM {$wpdb->{$this->table_name()}} 
+WHERE {$this->get_where_sql( $config )}
+AND {$this->id_field()} < {$status['last_sent']}
+ORDER BY {$this->id_field()} 
+DESC LIMIT {$chunk_size}
+SQL
+		);
+	}
+
+	/**
+	 * Return the initial last sent object.
+	 *
+	 * @return string|array initial status.
+	 */
+	public function get_initial_last_sent() {
+		return '~0';
+	}
+
+	/**
 	 * Immediately send all items of a sync type as an action.
 	 *
 	 * @access protected
 	 *
-	 * @param string $action_name Name of the action.
-	 * @param string $table_name Name of the database table.
-	 * @param string $id_field Name of the ID field in the database.
-	 * @param string $where_sql The SQL WHERE clause to filter to the desired items.
-	 * @param float  $send_until timestamp until we want this request to send full sync events.
+	 * @param string $config Full sync configuration for this module.
 	 * @param array  $status the current module full sync status.
+	 * @param float  $send_until timestamp until we want this request to send full sync events.
 	 *
 	 * @return array Status, the module full sync status updated.
 	 */
-	protected function send_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $send_until, $status ) {
+	public function send_full_sync_actions( $config, $status, $send_until ) {
 		global $wpdb;
 
-		if ( ! $where_sql ) {
-			$where_sql = '1 = 1';
-		}
-
-		$items_per_page = Settings::get_setting( 'full_sync_max_objects' )[ $this->name() ];
-
 		if ( empty( $status['last_sent'] ) ) {
-			$status['last_sent'] = '~0';
+			$status['last_sent'] = $this->get_initial_last_sent();
 		}
 
-		// Count down from max_id to min_id so we get newest posts/comments/etc first.
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$status['last_sent']} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
-			$result = $this->send_action( $action_name, array( $ids, $status['last_sent'] ) );
+		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ];
 
-			if ( is_wp_error( $result ) ) {
+		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( $objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] ) ) {
+			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
+
+			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				return $status;
 			}
 			// The $ids are ordered in descending order.
-			$status['last_sent'] = end( $ids );
-			$status['sent']      = $status['sent'] + count( $ids );
+			$status['last_sent'] = end( $objects );
+			$status['sent']     += count( $objects );
 
 			if ( microtime( true ) >= $send_until ) {
 				return $status;
@@ -329,6 +337,7 @@ abstract class Module {
 
 		return $status;
 	}
+
 
 	/**
 	 * Immediately sends a single item without firing or enqueuing it

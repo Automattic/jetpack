@@ -54,7 +54,7 @@ class Settings {
 		'sync_sender_enabled'                    => true,
 		'full_sync_sender_enabled'               => true,
 		'full_sync_send_duration'                => true,
-		'full_sync_max_objects'                  => true,
+		'full_sync_limits'                       => true,
 	);
 
 	/**
@@ -248,7 +248,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_taxonomies_sql() {
-		return 'taxonomy NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . '\')';
+		return "taxonomy NOT IN ('" . join( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
 	}
 
 	/**

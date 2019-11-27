@@ -14,14 +14,6 @@ use Automattic\Jetpack\Sync\Settings;
  * Class to handle sync for terms.
  */
 class Terms extends Module {
-	/**
-	 * Whitelist for taxonomies we want to sync.
-	 *
-	 * @access private
-	 *
-	 * @var array
-	 */
-	private $taxonomy_whitelist;
 
 	/**
 	 * Sync module name.
@@ -53,7 +45,7 @@ class Terms extends Module {
 	 * @return string
 	 */
 	public function table_name() {
-		return 'terms';
+		return 'term_taxonomy';
 	}
 
 	/**
@@ -150,23 +142,6 @@ class Terms extends Module {
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_terms', $wpdb->term_taxonomy, 'term_taxonomy_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
-	}
-
-	/**
-	 * Send the terms actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until The timestamp until the current request can send.
-	 * @param array $state This module Full Sync status.
-	 *
-	 * @return array This module Full Sync status.
-	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) {
-		global $wpdb;
-
-		return $this->send_all_ids_as_action( 'jetpack_full_sync_terms', $wpdb->term_taxonomy, 'term_taxonomy_id', $this->get_where_sql( $config ), $send_until, $state );
 	}
 
 	/**
@@ -278,27 +253,6 @@ class Terms extends Module {
 		}
 
 		return $args;
-	}
-
-	/**
-	 * Set the taxonomy whitelist.
-	 *
-	 * @access public
-	 *
-	 * @param array $taxonomies The new taxonomyy whitelist.
-	 */
-	public function set_taxonomy_whitelist( $taxonomies ) {
-		$this->taxonomy_whitelist = $taxonomies;
-	}
-
-	/**
-	 * Set module defaults.
-	 * Define the taxonomy whitelist to be the default one.
-	 *
-	 * @access public
-	 */
-	public function set_defaults() {
-		$this->taxonomy_whitelist = Defaults::$default_taxonomy_whitelist;
 	}
 
 	/**

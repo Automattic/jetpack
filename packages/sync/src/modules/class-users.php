@@ -49,7 +49,18 @@ class Users extends Module {
 	 * @return string
 	 */
 	public function table_name() {
-		return 'users';
+		return 'usermeta';
+	}
+
+	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'user_id';
 	}
 
 	/**
@@ -615,23 +626,6 @@ class Users extends Module {
 		global $wpdb;
 
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
-	}
-
-	/**
-	 * Send the users actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until The timestamp until the current request can send.
-	 * @param array $state This module Full Sync status.
-	 *
-	 * @return array This module Full Sync status.
-	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) {
-		global $wpdb;
-
-		return $this->send_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ), $send_until, $state );
 	}
 
 	/**

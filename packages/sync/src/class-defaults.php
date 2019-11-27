@@ -1202,22 +1202,47 @@ class Defaults {
 	);
 
 	/**
-	 * Default Full Sync max objects to send on a single action.
+	 * Send all Items
+	 *
+	 * @var Array chunk limmits per request request.
+	 */
+	const FULL_SYNC_ALL = array(
+		'chunk_size' => 100,
+		'max_chunks' => 1,
+	);
+
+	/**
+	 * Default Full Sync max objects to send on a single request.
 	 *
 	 * @var array list of module => max.
 	 */
-	public static $default_full_sync_max_objects = array(
-		'constants'          => 100,
-		'functions'          => 100,
-		'options'            => 100,
-		'network_options'    => 100,
-		'updates'            => 100,
-		'themes'             => 100,
-		'users'              => 500,
-		'terms'              => 1000,
-		'posts'              => 250,
-		'comments'           => 500,
-		'term_relationships' => 1000,
+	public static $default_full_sync_limits = array(
+		'constants'          => self::FULL_SYNC_ALL,
+		'functions'          => self::FULL_SYNC_ALL,
+		'options'            => self::FULL_SYNC_ALL,
+		'network_options'    => self::FULL_SYNC_ALL,
+		'updates'            => self::FULL_SYNC_ALL,
+		'themes'             => self::FULL_SYNC_ALL,
+		'users'              => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'terms'              => array(
+			'chunk_size' => 1000,
+			'max_chunks' => 10,
+		),
+		'posts'              => array(
+			'chunk_size' => 100,
+			'max_chunks' => 1,
+		),
+		'comments'           => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'term_relationships' => array(
+			'chunk_size' => 1000,
+			'max_chunks' => 10,
+		),
 	);
 
 }

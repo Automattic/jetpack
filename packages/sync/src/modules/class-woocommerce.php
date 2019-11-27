@@ -58,6 +58,17 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
+	 * The table in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function table_name() {
+		return $this->order_item_table_name;
+	}
+
+	/**
 	 * Constructor.
 	 *
 	 * @global $wpdb
@@ -240,21 +251,6 @@ class WooCommerce extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_woocommerce_order_items', $this->order_item_table_name, 'order_item_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
-	}
-
-	/**
-	 * Send the WooCommerce actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @param int   $send_until The timestamp until the current request can send.
-	 * @param array $state This module Full Sync status.
-	 *
-	 * @return array This module Full Sync status.
-	 */
-	public function send_full_sync_actions( $config, $send_until, $state ) {
-		return $this->send_all_ids_as_action( 'jetpack_full_sync_woocommerce_order_items', $this->order_item_table_name, 'order_item_id', $this->get_where_sql( $config ), $send_until, $state );
 	}
 
 	/**
