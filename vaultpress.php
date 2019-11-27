@@ -489,37 +489,38 @@ class VaultPress {
 	/**
 	 * Show message if plugin is activated but not connected to VaultPress.
 	 */
-	public function connect_notice() {
+	function connect_notice() {
 		$screen = get_current_screen();
 
-		/*
+		/**
 		 * Do not display any error message if we don't have any info about the page.
 		 */
 		if ( is_null( $screen ) ) {
 			return;
 		}
 
-		/*
+		/**
 		 * Only display errors on specific pages:
 		 * - the main dashboard.
 		 * - the Jetpack dashboard.
 		 * - the plugins screen.
 		 */
+
 		if (
-			in_array(
-				$screen->id,
-				array(
-					'dashboard',
-					'toplevel_page_jetpack',
-					'plugins',
-				),
-				true
-			)
+		in_array(
+			$screen->id,
+			array(
+				'dashboard',
+				'toplevel_page_jetpack',
+				'plugins',
+			),
+			true
+		)
 		) {
 			$message = sprintf(
 				wp_kses(
-					/* Translators: placeholder is a link to the VaultPress settings page. */
-					__( 'You must enter your registration key before VaultPress can back up and secure your site. <a href="%1$s">Register VaultPress</a>', 'vaultpress' ),
+				/* translators: URLs to VaultPress' dashboard page. */
+					__( 'To back up and secure your site, enter your registration key. <a href="%1$s">Register VaultPress or purchase a plan.</a>', 'vaultpress' ),
 					array(
 						'a' => array(
 							'href' => array(),
@@ -532,7 +533,7 @@ class VaultPress {
 		}
 	}
 
-	// show message after activation
+  // show message after activation
 	function activated_notice() {
 		if ( 'network' == $this->get_option( 'activated' ) ) {
 			$message = sprintf(
