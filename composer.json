@@ -12,7 +12,7 @@
 		"ext-json": "*",
 		"ext-openssl": "*",
 		"automattic/jetpack-abtest": "^1.0",
-		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-assets": "^1.0",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
 		"automattic/jetpack-compat": "@dev",
