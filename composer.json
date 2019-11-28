@@ -22,7 +22,7 @@
 		"automattic/jetpack-jitm": "^1.0",
 		"automattic/jetpack-logo": "^1.1",
 		"automattic/jetpack-options": "^1.1",
-		"automattic/jetpack-roles": "@dev",
+		"automattic/jetpack-roles": "^1.0",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",
 		"automattic/jetpack-tracking": "@dev"
