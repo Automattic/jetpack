@@ -12,7 +12,12 @@ import { get } from 'lodash';
 import ProductCard from '../components/product-card';
 import { SingleProductBackup } from './single-product-backup';
 import { getPlanClass } from '../lib/plans/constants';
-import { getActiveSitePurchases, getSitePlan, isFetchingSiteData } from '../state/site';
+import {
+	getActiveSitePurchases,
+	getAvailablePlans,
+	getSitePlan,
+	isFetchingSiteData,
+} from '../state/site';
 import { getSiteRawUrl, getUpgradeUrl } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
 
@@ -148,6 +153,7 @@ class ProductSelector extends Component {
 		const {
 			dailyBackupUpgradeUrl,
 			isFetchingData,
+			plans,
 			products,
 			realtimeBackupUpgradeUrl,
 			sitePlan,
@@ -173,7 +179,7 @@ class ProductSelector extends Component {
 				plan={ plan }
 				products={ products }
 				upgradeLinks={ upgradeLinks }
-				isFetchingData={ isFetchingData }
+				isFetchingData={ isFetchingData || ! plans }
 			/>
 		);
 	}
@@ -192,6 +198,7 @@ export default connect( state => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
+		plans: getAvailablePlans( state ),
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		sitePlan: getSitePlan( state ),
