@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26568b6bd8f4d299ce067b02000181f2",
+    "content-hash": "d6c70497accac222fcf0282f087b4d51",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -77,7 +77,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "v1.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-autoloader.git",
@@ -104,16 +104,12 @@
                     "Automattic\\Jetpack\\Autoloader\\": "src"
                 }
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Creates a custom autoloader for a plugin or theme."
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "time": "2019-11-25T12:37:57+00:00"
         },
         {
             "name": "automattic/jetpack-backup",
@@ -1016,7 +1012,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-connection": 20,
