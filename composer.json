@@ -21,7 +21,7 @@
 		"automattic/jetpack-error": "^1.0",
 		"automattic/jetpack-jitm": "^1.0",
 		"automattic/jetpack-logo": "^1.1",
-		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-options": "^1.1",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",
