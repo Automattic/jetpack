@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f08c839b40c39b825267dd14786e95a8",
+    "content-hash": "4690a190b746cb8e2d32cf2acd87d17f",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -482,7 +482,7 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-master",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-terms-of-service.git",
@@ -509,16 +509,12 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything need to manage the terms of service state"
+            "description": "Everything need to manage the terms of service state",
+            "time": "2019-11-15T16:03:27+00:00"
         },
         {
             "name": "automattic/jetpack-tracking",
@@ -990,7 +986,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-terms-of-service": 20,
         "automattic/jetpack-tracking": 20,
         "sirbrillig/phpcs-changed": 20
     },
