@@ -123,7 +123,7 @@ class SearchApp extends Component {
 		sort = getSortQuery(),
 		resultFormat = getResultFormatQuery(),
 		pageHandle,
-	} ) => {
+	} = {} ) => {
 		const requestId = this.state.requestId + 1;
 
 		this.setState( { requestId, isLoading: true }, () => {
