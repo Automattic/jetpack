@@ -896,10 +896,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertFalse( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['progress'] );
-		$this->assertEquals( 1, $full_sync_status['progress']['constants']['total'] );
-		if ( is_multisite() ) {
-			$should_be_status['config']['network_options'] = 1;
-		}
+		$this->assertEquals( count( \Automattic\Jetpack\Sync\Defaults::get_constants_whitelist() ), $full_sync_status['progress']['constants']['total'] );
 	}
 
 	function test_full_sync_status_after_end() {
