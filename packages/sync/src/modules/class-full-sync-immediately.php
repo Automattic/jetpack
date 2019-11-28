@@ -201,7 +201,7 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Given an initial Full Sync configuration set the initial status.
+	 * Given an initial Full Sync configuration get the initial status.
 	 *
 	 * @param array $full_sync_config Full sync configuration.
 	 *
