@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4690a190b746cb8e2d32cf2acd87d17f",
+    "content-hash": "37c794ce02c5ceba01a15bd7732ecdb2",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -518,7 +518,7 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-tracking.git",
@@ -545,16 +545,12 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tracking for Jetpack"
+            "description": "Tracking for Jetpack",
+            "time": "2019-11-08T21:16:05+00:00"
         }
     ],
     "packages-dev": [
@@ -986,7 +982,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-tracking": 20,
         "sirbrillig/phpcs-changed": 20
     },
     "prefer-stable": true,

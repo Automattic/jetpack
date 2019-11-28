@@ -25,7 +25,7 @@
 		"automattic/jetpack-roles": "^1.0",
 		"automattic/jetpack-sync": "^1.5",
 		"automattic/jetpack-terms-of-service": "^1.0",
-		"automattic/jetpack-tracking": "@dev"
+		"automattic/jetpack-tracking": "^1.2"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
