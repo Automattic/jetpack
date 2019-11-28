@@ -369,7 +369,7 @@ class Options extends Module {
 	 * @return int total
 	 */
 	public function total( $config ) {
-		return 1;
+		return count( Defaults::get_options_whitelist() );
 	}
 
 }

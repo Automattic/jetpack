@@ -521,7 +521,7 @@ class Updates extends Module {
 	 * @return int total
 	 */
 	public function total( $config ) {
-		return 1;
+		return 3;
 	}
 
 }

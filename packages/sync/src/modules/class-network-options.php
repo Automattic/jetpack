@@ -265,7 +265,7 @@ class Network_Options extends Module {
 	 * @return int total
 	 */
 	public function total( $config ) {
-		return 1;
+		return count( $this->network_options_whitelist );
 	}
 
 }

@@ -280,6 +280,6 @@ class Constants extends Module {
 	 * @return int total
 	 */
 	public function total( $config ) {
-		return 1;
+		return count( $this->get_constants_whitelist() );
 	}
 }
