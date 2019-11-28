@@ -291,18 +291,4 @@ class Terms extends Module {
 		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
 
-	/**
-	 * Return Total number of objects.
-	 *
-	 * @param array $config Full Sync config.
-	 *
-	 * @return int total
-	 */
-	public function total( $config ) {
-		global $wpdb;
-		$where = $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_taxonomy WHERE $where" );
-	}
-
 }
