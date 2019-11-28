@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b85a12fad54c992216c47831ee1dc010",
+    "content-hash": "613ce23d6f4bde7c09a8c38fe8feaabc",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -217,7 +217,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "v1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-constants.git",
@@ -238,16 +238,12 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A wrapper for defining constants in a more testable way."
+            "description": "A wrapper for defining constants in a more testable way.",
+            "time": "2019-11-08T21:16:05+00:00"
         },
         {
             "name": "automattic/jetpack-error",
@@ -1006,7 +1002,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,
