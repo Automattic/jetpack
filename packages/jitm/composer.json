@@ -4,12 +4,12 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-tracking": "@dev"
+		"automattic/jetpack-assets": "^1.0",
+		"automattic/jetpack-connection": "^1.7",
+		"automattic/jetpack-logo": "^1.1",
+		"automattic/jetpack-constants": "^1.1",
+		"automattic/jetpack-options": "^1.1",
+		"automattic/jetpack-tracking": "^1.2"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
