@@ -11,7 +11,7 @@
 		"ext-fileinfo": "*",
 		"ext-json": "*",
 		"ext-openssl": "*",
-		"automattic/jetpack-abtest": "@dev",
+		"automattic/jetpack-abtest": "^1.0",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
