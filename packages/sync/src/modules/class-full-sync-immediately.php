@@ -284,7 +284,7 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
-	 * Continue sending.
+	 * Continue sending instead of enqueueing.
 	 *
 	 * @access public
 	 */
