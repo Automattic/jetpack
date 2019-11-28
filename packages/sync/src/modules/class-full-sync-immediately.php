@@ -232,7 +232,7 @@ class Full_Sync_Immediately extends Module {
 	private function get_content_range() {
 		$range  = array();
 		$config = $this->get_status()['config'];
-		// Only when we are sending the whole range do we want to send also the range.
+		// Add range only when syncing all objects.
 		if ( true === isset( $config['posts'] ) && $config['posts'] ) {
 			$range['posts'] = $this->get_range( 'posts' );
 		}
