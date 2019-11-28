@@ -16,7 +16,7 @@
 		"automattic/jetpack-autoloader": "^1.3",
 		"automattic/jetpack-backup": "^1.0",
 		"automattic/jetpack-compat": "^1.0",
-		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-connection": "^1.7",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-jitm": "@dev",

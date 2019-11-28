@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "43b0d244bab91f3cc9e5a36dbb9acfcb",
+    "content-hash": "b85a12fad54c992216c47831ee1dc010",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -177,7 +177,7 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
@@ -208,16 +208,12 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Everything needed to connect to the Jetpack infrastructure"
+            "description": "Everything needed to connect to the Jetpack infrastructure",
+            "time": "2019-11-25T13:53:28+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -1010,7 +1006,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
