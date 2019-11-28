@@ -2,6 +2,13 @@
 	padding: 0.125em 0;
 	margin: 1em 0;
 	position: relative;
+
+	.jetpack-instant-search__search-result-date {
+		margin: 0.5em 0;
+		float: right;
+		display: block;
+		font-size: 0.85em;
+	}
 }
 
 .jetpack-instant-search__search-result-minimal h3 {
@@ -19,13 +26,6 @@
 
 .jetpack-instant-search__search-result-minimal h3 {
 	overflow: hidden;
-}
-
-.jetpack-instant-search__search-result-minimal-date {
-	margin: 0.5em 0;
-	float: right;
-	display: block;
-	font-size: 0.85em;
 }
 
 .jetpack-instant-search__search-result-minimal-tag,

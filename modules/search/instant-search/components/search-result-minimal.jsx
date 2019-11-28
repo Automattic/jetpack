@@ -11,6 +11,7 @@ import { h, Component } from 'preact';
 import Gridicon from './gridicon';
 import PostTypeIcon from './post-type-icon';
 import SearchResultComments from './search-result-comments';
+import SearchResultDate from './search-result-date';
 
 class SearchResultMinimal extends Component {
 	getIconSize() {
@@ -86,19 +87,16 @@ class SearchResultMinimal extends Component {
 	}
 
 	render() {
-		const { locale = 'en-US' } = this.props;
+		const { locale } = this.props;
 		const { result_type, fields, highlight } = this.props.result;
 		if ( result_type !== 'post' ) {
 			return null;
 		}
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
+
 		return (
 			<li className="jetpack-instant-search__search-result-minimal">
-				<span className="jetpack-instant-search__search-result-minimal-date">
-					{ new Date( fields.date.split( ' ' )[ 0 ] ).toLocaleDateString( locale, {
-						dateStyle: 'short',
-					} ) }
-				</span>
+				<SearchResultDate date={ fields.date } locale={ locale } />
 				<h3 className="jetpack-instant-search__search-result-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
