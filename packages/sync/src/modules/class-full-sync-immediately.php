@@ -290,7 +290,7 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function continue_enqueuing() {
 		$this->continue_sending();
-	} // Seconds.
+	}
 
 	/**
 	 * Continue sending.
