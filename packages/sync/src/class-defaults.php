@@ -1202,27 +1202,11 @@ class Defaults {
 	);
 
 	/**
-	 * Default module send limit, send all objects.
-	 *
-	 * @var array Chunk limits per request.
-	 */
-	const DEFAULT_MODULE_CHUNK_SYNC_ALL = array(
-		'chunk_size' => 100,
-		'max_chunks' => 1,
-	);
-
-	/**
 	 * Default Full Sync max objects to send on a single request.
 	 *
 	 * @var array list of module => max.
 	 */
 	public static $default_full_sync_limits = array(
-		'constants'          => self::DEFAULT_MODULE_CHUNK_SYNC_ALL,
-		'functions'          => self::DEFAULT_MODULE_CHUNK_SYNC_ALL,
-		'options'            => self::DEFAULT_MODULE_CHUNK_SYNC_ALL,
-		'network_options'    => self::DEFAULT_MODULE_CHUNK_SYNC_ALL,
-		'updates'            => self::DEFAULT_MODULE_CHUNK_SYNC_ALL,
-		'themes'             => self::DEFAULT_MODULE_CHUNK_SYNC_ALL,
 		'users'              => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
