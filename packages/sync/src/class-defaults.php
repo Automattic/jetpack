@@ -1204,7 +1204,7 @@ class Defaults {
 	/**
 	 * Send all Items
 	 *
-	 * @var Array chunk limmits per request request.
+	 * @var array Chunk limits per request.
 	 */
 	const FULL_SYNC_ALL = array(
 		'chunk_size' => 100,
