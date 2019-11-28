@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d5e639cb4feec768c5cb23317759737",
+    "content-hash": "bcf3df8d7afa310be0d9dde4a426f5f2",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -277,7 +277,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "v1.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-jitm.git",
@@ -308,16 +308,12 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Just in time messages for Jetpack"
+            "description": "Just in time messages for Jetpack",
+            "time": "2019-11-21T09:35:32+00:00"
         },
         {
             "name": "automattic/jetpack-logo",
@@ -998,7 +994,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-roles": 20,
