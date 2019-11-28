@@ -4,8 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-terms-of-service": "@dev"
+		"automattic/jetpack-options": "^1.1",
+		"automattic/jetpack-terms-of-service": "^1.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
