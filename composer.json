@@ -20,7 +20,7 @@
 		"automattic/jetpack-constants": "^1.1",
 		"automattic/jetpack-error": "^1.0",
 		"automattic/jetpack-jitm": "^1.0",
-		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-logo": "^1.1",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-sync": "@dev",
