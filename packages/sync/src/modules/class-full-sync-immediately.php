@@ -305,7 +305,7 @@ class Full_Sync_Immediately extends Module {
 		$this->send();
 
 		( new Lock() )->remove( self::LOCK_NAME );
-	} // Seconds.
+	}
 
 	/**
 	 * Immediately send the next items to full sync.
