@@ -655,20 +655,6 @@ class Users extends Module {
 	}
 
 	/**
-	 * Return Total number of objects.
-	 *
-	 * @param array $config Full Sync config.
-	 *
-	 * @return int total
-	 */
-	public function total( $config ) {
-		global $wpdb;
-		$where = $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->usermeta WHERE $where" );
-	}
-
-	/**
 	 * Retrieve the WHERE SQL clause based on the module config.
 	 *
 	 * @access public
