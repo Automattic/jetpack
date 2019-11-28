@@ -1154,18 +1154,18 @@ class Jetpack_Beta {
 	 */
 	static function check_for_main_files( $source, $remote_source ) {
 		if ( $source === $remote_source . '/jetpack-dev/' ) {
-			if ( ! file_exists( $source. 'jetpack.php' ) ) {
+			if ( ! file_exists( $source . 'jetpack.php' ) ) {
 				return new WP_Error( 'plugin_file_does_not_exist', __( 'Main Plugin File does not exist', 'jetpack-beta' ) );
 			}
-			if ( ! file_exists( $source. '_inc/build/static.html' ) ) {
+			if ( ! file_exists( $source . '_inc/build/static.html' ) ) {
 				return new WP_Error( 'static_admin_page_does_not_exist', __( 'Static Admin Page File does not exist', 'jetpack-beta' ) );
 			}
-			if ( ! file_exists( $source. '_inc/build/admin.js' ) ) {
+			if ( ! file_exists( $source . '_inc/build/admin.js' ) ) {
 				return new WP_Error( 'admin_page_does_not_exist', __( 'Admin Page File does not exist', 'jetpack-beta' ) );
 			}
 			// It has happened that sometimes a generated bundle from the master branch ends up with an empty
 			// vendor directory. Used to be a problem in the beta building process.
-			if ( self::is_dir_empty( $source. 'vendor' ) ) {
+			if ( self::is_dir_empty( $source . 'vendor' ) ) {
 				return new WP_Error( 'vendor_dir_is_empty', __( 'The dependencies dir (vendor) is empty', 'jetpack-beta' ) );
 			}
 		}
