@@ -763,7 +763,7 @@ class Actions {
 			)
 		);
 
-		if ( ! strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}
