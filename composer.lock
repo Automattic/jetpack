@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d6c70497accac222fcf0282f087b4d51",
+    "content-hash": "89cf707c0147bfd41943486307678e5e",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -113,7 +113,7 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-master",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-backup.git",
@@ -134,10 +134,12 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Tools to assist with backing up Jetpack sites."
+            "description": "Tools to assist with backing up Jetpack sites.",
+            "time": "2019-11-08T21:16:05+00:00"
         },
         {
             "name": "automattic/jetpack-compat",
@@ -1012,7 +1014,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-backup": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
