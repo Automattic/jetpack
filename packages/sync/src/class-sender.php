@@ -155,7 +155,7 @@ class Sender {
 	 * @access public
 	 * @static
 	 *
-	 * @return Automattic\Jetpack\Sync\Sender
+	 * @return Sender
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -257,6 +257,9 @@ class Sender {
 		if ( ! Modules::get_module( 'full-sync' ) ) {
 			return;
 		}
+		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
+			return;
+		}
 		$this->continue_full_sync_enqueue();
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
 	}
@@ -349,16 +352,16 @@ class Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue_Buffer $buffer Queue buffer object.
-	 * @param boolean                              $encode Whether to encode the items.
+	 * @param (array|Automattic\Jetpack\Sync\Queue_Buffer) $buffer_or_items Queue buffer or array of objects.
+	 * @param boolean                                      $encode Whether to encode the items.
 	 * @return array Sync items to send.
 	 */
-	public function get_items_to_send( $buffer, $encode = true ) {
+	public function get_items_to_send( $buffer_or_items, $encode = true ) {
 		// Track how long we've been processing so we can avoid request timeouts.
 		$start_time    = microtime( true );
 		$upload_size   = 0;
 		$items_to_send = array();
-		$items         = $buffer->get_items();
+		$items         = is_array( $buffer_or_items ) ? $buffer_or_items : $buffer_or_items->get_items();
 		// Set up current screen to avoid errors rendering content.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -515,6 +518,61 @@ class Sender {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Immediately sends a single item without firing or enqueuing it
+	 *
+	 * @param string $action_name The action.
+	 * @param array  $data The data associated with the action.
+	 *
+	 * @return Items processed. TODO: this doesn't make much sense anymore, it should probably be just a bool.
+	 */
+	public function send_action( $action_name, $data = null ) {
+		if ( ! Settings::is_sender_enabled( 'full_sync' ) ) {
+			return array();
+		}
+
+		// Compose the data to be sent.
+		$action_to_send = $this->create_action_to_send( $action_name, $data );
+
+		list( $items_to_send, $skipped_items_ids, $items, $preprocess_duration ) = $this->get_items_to_send( $action_to_send, true ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		Settings::set_is_sending( true );
+		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->get_codec()->name(), microtime( true ), 'immediate-send', 0, $preprocess_duration );
+		Settings::set_is_sending( false );
+
+		/**
+		 * Allows us to keep track of all the actions that have been sent.
+		 * Allows us to calculate the progress of specific actions.
+		 *
+		 * @param array $processed_actions The actions that we send successfully.
+		 *
+		 * @since 4.2.0
+		 */
+		do_action( 'jetpack_sync_processed_actions', $action_to_send );
+
+		return $processed_item_ids;
+	}
+
+	/**
+	 * Create an synthetic action for direct sending to WPCOM during full sync (for example)
+	 *
+	 * @access private
+	 *
+	 * @param string $action_name The action.
+	 * @param array  $data The data associated with the action.
+	 * @return array An array of synthetic sync actions keyed by current microtime(true)
+	 */
+	private function create_action_to_send( $action_name, $data ) {
+		return array(
+			microtime( true ) => array(
+				$action_name,
+				$data,
+				get_current_user_id(),
+				microtime( true ),
+				Settings::is_importing(),
+			),
+		);
 	}
 
 	/**

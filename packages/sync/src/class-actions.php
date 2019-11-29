@@ -128,7 +128,7 @@ class Actions {
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
-			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
+			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 		}
 	}
 
@@ -723,7 +723,6 @@ class Actions {
 
 		$sync_module     = Modules::get_module( 'full-sync' );
 		$queue           = self::$sender->get_sync_queue();
-		$full_queue      = self::$sender->get_full_sync_queue();
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron       = $cron_timestamps[0] - time();
 
@@ -749,7 +748,9 @@ class Actions {
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 
-		return array_merge(
+		$full_queue = self::$sender->get_full_sync_queue();
+
+		$result = array_merge(
 			$full_sync_status,
 			$checksums,
 			array(
@@ -758,10 +759,14 @@ class Actions {
 				'queue_size'           => $queue->size(),
 				'queue_lag'            => $queue->lag(),
 				'queue_next_sync'      => ( self::$sender->get_next_sync_time( 'sync' ) - microtime( true ) ),
-				'full_queue_size'      => $full_queue->size(),
-				'full_queue_lag'       => $full_queue->lag(),
 				'full_queue_next_sync' => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
 			)
 		);
+
+		if ( false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+			$result['full_queue_size'] = $full_queue->size();
+			$result['full_queue_lag']  = $full_queue->lag();
+		}
+		return $result;
 	}
 }

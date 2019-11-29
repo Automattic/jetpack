@@ -65,6 +65,10 @@
 		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
+			<exclude>tests/php/sync/test_class.jetpack-sync-full-immediately.php</exclude>
+		</testsuite>
+		<testsuite name="sync-beta">
+			<file>tests/php/sync/test_class.jetpack-sync-full-immediately.php</file>
 		</testsuite>
 		<testsuite name="uninstall">
 			<directory prefix="test_" suffix=".php">tests/php/uninstall</directory>
@@ -98,6 +102,7 @@
 		<exclude>
 			<group>external-http</group>
 			<group>uninstall</group>
+			<group>sync-beta</group>
 		</exclude>
 	</groups>
 	<filter>

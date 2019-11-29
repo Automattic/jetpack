@@ -238,6 +238,25 @@ class Callables extends Module {
 	}
 
 	/**
+	 * Send the callable actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param array $status This Module Full Sync Status.
+	 *
+	 * @return array This Module Full Sync Status.
+	 */
+	public function send_full_sync_actions( $config, $send_until, $status ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// we call this instead of do_action when sending immediately.
+		$this->send_action( 'jetpack_full_sync_callables', array( true ) );
+
+		// The number of actions enqueued, and next module state (true == done).
+		return array( 'finished' => true );
+	}
+
+	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public
@@ -488,4 +507,16 @@ class Callables extends Module {
 
 		return $args;
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @param array $config Full Sync config.
+	 *
+	 * @return int total
+	 */
+	public function total( $config ) {
+		return count( $this->get_callable_whitelist() );
+	}
+
 }

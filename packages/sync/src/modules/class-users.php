@@ -49,7 +49,18 @@ class Users extends Module {
 	 * @return string
 	 */
 	public function table_name() {
-		return 'users';
+		return 'usermeta';
+	}
+
+	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'user_id';
 	}
 
 	/**
