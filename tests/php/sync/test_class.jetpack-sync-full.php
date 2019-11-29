@@ -101,9 +101,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 1, $this->started_sync_count );
 
-		// fake the last sync being over an hour ago
-		$prefix = Full_Sync::STATUS_OPTION_PREFIX;
-		update_option( "{$prefix}_started", time() - 3700 );
+		update_option( Full_Sync::STATUS_OPTION, array('started' => time() - 3700 ) );
 
 		$this->full_sync->start();
 
