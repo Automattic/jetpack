@@ -1,6 +1,6 @@
 {
 	"name": "wpcomsh",
-	"version": "2.4.55",
+	"version": "2.4.57",
 	"dependencies": {},
 	"devDependencies": {
 		"@babel/core": "^7.5.5",
