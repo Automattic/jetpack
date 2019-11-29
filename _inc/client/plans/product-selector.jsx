@@ -40,7 +40,7 @@ class ProductSelector extends Component {
 			},
 		} );
 
-		const purchasedDate = __( 'Purchased %(purchaseDate)s', {
+		const purchasedDate = __( 'Purchased on %(purchaseDate)s', {
 			args: {
 				purchaseDate: moment( purchase.subscribedDate ).format( 'LL' ),
 			},
