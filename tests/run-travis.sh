@@ -79,6 +79,10 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/clover.xml"
 	fi
 
+  if [ "$SYNC_BETA" == "1" ]; then
+    export WP_TRAVISCI="phpunit --group=sync-beta"
+  fi
+
 	print_build_info
 
 	# WP_BRANCH = master | latest | previous
