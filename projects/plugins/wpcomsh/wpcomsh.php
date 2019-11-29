@@ -1004,7 +1004,8 @@ function wpcomsh_display_disk_space_usage() {
 	}
 
 	$space_used = $site_info['space_used'];
-	$space_quota = $site_info['space_quota'];
+	// Hardcode 200GB in bytes, until we update all space_quota
+	$space_quota = 214748364800; //$site_info['space_quota'];
 
 	$message = sprintf(
 		__(
