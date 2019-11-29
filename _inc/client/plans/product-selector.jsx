@@ -18,7 +18,7 @@ import {
 	getSitePlan,
 	isFetchingSiteData,
 } from '../state/site';
-import { getSiteRawUrl, getUpgradeUrl } from '../state/initial-state';
+import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
 
 class ProductSelector extends Component {
@@ -153,11 +153,18 @@ class ProductSelector extends Component {
 		const {
 			dailyBackupUpgradeUrl,
 			isFetchingData,
+			multisite,
 			plans,
 			products,
 			realtimeBackupUpgradeUrl,
 			sitePlan,
 		} = this.props;
+
+		// Jetpack Backup does not support Multisite yet.
+		if ( multisite ) {
+			return null;
+		}
+
 		const plan = get( sitePlan, 'product_slug' );
 		const upgradeLinks = {
 			daily: dailyBackupUpgradeUrl,
@@ -198,6 +205,7 @@ export default connect( state => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
+		multisite: isMultisite( state ),
 		plans: getAvailablePlans( state ),
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
