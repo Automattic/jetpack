@@ -304,19 +304,6 @@ class Jetpack_Debug_Data {
 			'private' => false,
 		);
 
-		$full_sync_queue = Sender::get_instance()->get_full_sync_queue();
-
-		$debug_info['full_sync_size'] = array(
-			'label'   => 'Full Sync Queue Size',
-			'value'   => $full_sync_queue->size(),
-			'private' => false,
-		);
-		$debug_info['full_sync_lag']  = array(
-			'label'   => 'Full Sync Queue Lag',
-			'value'   => self::seconds_to_time( $full_sync_queue->lag() ),
-			'private' => false,
-		);
-
 		/**
 		 * IDC Information
 		 *

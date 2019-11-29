@@ -248,19 +248,14 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sends_queue_id_to_server() {
 		add_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
-		add_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
 
 		do_action( 'my_incremental_action' );
-		do_action( 'my_full_sync_action' );
 
 		$this->sender->do_sync();
-		$this->sender->do_full_sync();
 
 		$incremental_event = $this->server_event_storage->get_most_recent_event( 'my_incremental_action' );
-		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
 
 		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
-		$this->assertEquals( $this->listener->get_full_sync_queue()->id, $full_sync_event->queue );
 
 		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
 		remove_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );

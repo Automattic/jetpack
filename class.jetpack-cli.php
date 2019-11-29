@@ -869,7 +869,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$listener = Listener::get_instance();
 				if ( empty( $assoc_args['queue'] ) ) {
 					$listener->get_sync_queue()->reset();
-					$listener->get_full_sync_queue()->reset();
 					/* translators: %s is the site URL */
 					WP_CLI::log( sprintf( __( 'Reset Full Sync and Regular Queues Queue on %s', 'jetpack' ), get_site_url() ) );
 					break;
@@ -883,7 +882,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::log( sprintf( __( 'Reset Regular Sync Queue on %s', 'jetpack' ), get_site_url() ) );
 							break;
 						case 'full':
-							$listener->get_full_sync_queue()->reset();
+							// TODO reset full sync progress?.
 							/* translators: %s is the site URL */
 							WP_CLI::log( sprintf( __( 'Reset Full Sync Queue on %s', 'jetpack' ), get_site_url() ) );
 							break;
@@ -982,18 +981,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$i = 1;
 				do {
 					$result = Actions::$sender->do_full_sync();
-					if ( is_wp_error( $result ) ) {
-						$queue_empty_error = ( 'empty_queue_full_sync' == $result->get_error_code() );
-						if ( ! $queue_empty_error || ( $queue_empty_error && ( 1 == $i ) ) ) {
-							/* translators: %s is an error code  */
-							WP_CLI::error( sprintf( __( 'Sync errored with code: %s', 'jetpack' ), $result->get_error_code() ) );
-						}
+					if ( 1 == $i ) {
+						WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
 					} else {
-						if ( 1 == $i ) {
-							WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
-						} else {
-							WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
-						}
+						WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
 					}
 					$i++;
 				} while ( $result && ! is_wp_error( $result ) );

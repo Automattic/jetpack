@@ -24,13 +24,6 @@ class Listener {
 	private $sync_queue;
 
 	/**
-	 * Full sync queue.
-	 *
-	 * @var object
-	 */
-	private $full_sync_queue;
-
-	/**
 	 * Sync queue size limit.
 	 *
 	 * @var int size limit.
@@ -79,12 +72,10 @@ class Listener {
 	 * Sync Listener init.
 	 */
 	private function init() {
-		$handler           = array( $this, 'action_handler' );
-		$full_sync_handler = array( $this, 'full_sync_action_handler' );
+		$handler = array( $this, 'action_handler' );
 
 		foreach ( Modules::get_modules() as $module ) {
 			$module->init_listeners( $handler );
-			$module->init_full_sync_listeners( $full_sync_handler );
 		}
 
 		// Module Activation.
@@ -103,13 +94,6 @@ class Listener {
 	 */
 	public function get_sync_queue() {
 		return $this->sync_queue;
-	}
-
-	/**
-	 * Gets the full sync queue.
-	 */
-	public function get_full_sync_queue() {
-		return $this->full_sync_queue;
 	}
 
 	/**
@@ -149,7 +133,6 @@ class Listener {
 	 */
 	public function force_recheck_queue_limit() {
 		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->sync_queue->id );
-		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->full_sync_queue->id );
 	}
 
 	/**
@@ -183,80 +166,12 @@ class Listener {
 	}
 
 	/**
-	 * Full sync action handler.
-	 *
-	 * @param mixed ...$args Args passed to the action.
-	 */
-	public function full_sync_action_handler( ...$args ) {
-		$this->enqueue_action( current_filter(), $args, $this->full_sync_queue );
-	}
-
-	/**
 	 * Action handler.
 	 *
 	 * @param mixed ...$args Args passed to the action.
 	 */
 	public function action_handler( ...$args ) {
 		$this->enqueue_action( current_filter(), $args, $this->sync_queue );
-	}
-
-	// add many actions to the queue directly, without invoking them.
-
-	/**
-	 * Bulk add action to the queue.
-	 *
-	 * @param string $action_name The name the full sync action.
-	 * @param array  $args_array Array of chunked arguments.
-	 */
-	public function bulk_enqueue_full_sync_actions( $action_name, $args_array ) {
-		$queue = $this->get_full_sync_queue();
-
-		/*
-		 * If we add any items to the queue, we should try to ensure that our script
-		 * can't be killed before they are sent.
-		 */
-		if ( function_exists( 'ignore_user_abort' ) ) {
-			ignore_user_abort( true );
-		}
-
-		$data_to_enqueue = array();
-		$user_id         = get_current_user_id();
-		$currtime        = microtime( true );
-		$is_importing    = Settings::is_importing();
-
-		foreach ( $args_array as $args ) {
-			$previous_end = isset( $args['previous_end'] ) ? $args['previous_end'] : null;
-			$args         = isset( $args['ids'] ) ? $args['ids'] : $args;
-
-			/**
-			 * Modify or reject the data within an action before it is enqueued locally.
-			 *
-			 * @since 4.2.0
-			 *
-			 * @module sync
-			 *
-			 * @param array The action parameters
-			 */
-			$args        = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
-			$action_data = array( $args );
-			if ( ! is_null( $previous_end ) ) {
-				$action_data[] = $previous_end;
-			}
-			// allow listeners to abort.
-			if ( false === $args ) {
-				continue;
-			}
-
-			$data_to_enqueue[] = array(
-				$action_name,
-				$action_data,
-				$user_id,
-				$currtime,
-				$is_importing,
-			);
-		}
-
-		$queue->add_all( $data_to_enqueue );
 	}
 
 	/**
@@ -422,8 +337,7 @@ class Listener {
 	 * Sets Listener defaults.
 	 */
 	public function set_defaults() {
-		$this->sync_queue      = new Queue( 'sync' );
-		$this->full_sync_queue = new Queue( 'full_sync' );
+		$this->sync_queue = new Queue( 'sync' );
 		$this->set_queue_size_limit( Settings::get_setting( 'max_queue_size' ) );
 		$this->set_queue_lag_limit( Settings::get_setting( 'max_queue_lag' ) );
 	}

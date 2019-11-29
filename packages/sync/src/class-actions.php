@@ -748,8 +748,6 @@ class Actions {
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 
-		$full_queue = self::$sender->get_full_sync_queue();
-
 		$result = array_merge(
 			$full_sync_status,
 			$checksums,
@@ -763,10 +761,6 @@ class Actions {
 			)
 		);
 
-		if ( false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
-			$result['full_queue_size'] = $full_queue->size();
-			$result['full_queue_lag']  = $full_queue->lag();
-		}
 		return $result;
 	}
 }

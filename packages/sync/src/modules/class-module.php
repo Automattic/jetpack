@@ -85,16 +85,6 @@ abstract class Module {
 	}
 
 	/**
-	 * Initialize module action listeners for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param callable $callable Action handler callable.
-	 */
-	public function init_full_sync_listeners( $callable ) {
-	}
-
-	/**
 	 * Initialize the module in the sender.
 	 *
 	 * @access public
@@ -117,34 +107,6 @@ abstract class Module {
 	 * @access public
 	 */
 	public function reset_data() {
-	}
-
-	/**
-	 * Enqueue the module actions for full sync.
-	 *
-	 * @access public
-	 *
-	 * @param array   $config               Full sync configuration for this sync module.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
-	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array  Number of actions enqueued, and next module state.
-	 */
-	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		// In subclasses, return the number of actions enqueued, and next module state (true == done).
-		return array( null, true );
-	}
-
-	/**
-	 * Retrieve an estimated number of actions that will be enqueued.
-	 *
-	 * @access public
-	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
-	 */
-	public function estimate_full_sync_actions( $config ) {
-		// In subclasses, return the number of items yet to be enqueued.
-		return null;
 	}
 
 	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -201,66 +163,6 @@ abstract class Module {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Enqueue all items of a sync type as an action.
-	 *
-	 * @access protected
-	 *
-	 * @param string  $action_name          Name of the action.
-	 * @param string  $table_name           Name of the database table.
-	 * @param string  $id_field             Name of the ID field in the database.
-	 * @param string  $where_sql            The SQL WHERE clause to filter to the desired items.
-	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue in the same time.
-	 * @param boolean $state                Whether enqueueing has finished.
-	 * @return array Array, containing the number of chunks and TRUE, indicating enqueueing has finished.
-	 */
-	protected function enqueue_all_ids_as_action( $action_name, $table_name, $id_field, $where_sql, $max_items_to_enqueue, $state ) {
-		global $wpdb;
-
-		if ( ! $where_sql ) {
-			$where_sql = '1 = 1';
-		}
-
-		$items_per_page        = 1000;
-		$page                  = 1;
-		$chunk_count           = 0;
-		$previous_interval_end = $state ? $state : '~0';
-		$listener              = Listener::get_instance();
-
-		// Count down from max_id to min_id so we get newest posts/comments/etc first.
-		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} < {$previous_interval_end} ORDER BY {$id_field} DESC LIMIT {$items_per_page}" ) ) {
-			// Request posts in groups of N for efficiency.
-			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
-
-			// If we hit our row limit, process and return.
-			if ( $chunk_count + count( $chunked_ids ) >= $max_items_to_enqueue ) {
-				$remaining_items_count                      = $max_items_to_enqueue - $chunk_count;
-				$remaining_items                            = array_slice( $chunked_ids, 0, $remaining_items_count );
-				$remaining_items_with_previous_interval_end = $this->get_chunks_with_preceding_end( $remaining_items, $previous_interval_end );
-				$listener->bulk_enqueue_full_sync_actions( $action_name, $remaining_items_with_previous_interval_end );
-
-				$last_chunk = end( $remaining_items );
-				return array( $remaining_items_count + $chunk_count, end( $last_chunk ) );
-			}
-			$chunked_ids_with_previous_end = $this->get_chunks_with_preceding_end( $chunked_ids, $previous_interval_end );
-
-			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
-
-			$chunk_count += count( $chunked_ids );
-			$page++;
-			// The $ids are ordered in descending order.
-			$previous_interval_end = end( $ids );
-		}
-
-		if ( $wpdb->last_error ) {
-			// return the values that were passed in so all these chunks get retried.
-			return array( $max_items_to_enqueue, $state );
-		}
-
-		return array( $chunk_count, true );
 	}
 
 	/**

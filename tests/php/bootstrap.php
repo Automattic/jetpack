@@ -100,26 +100,6 @@ if ( ! ( in_running_uninstall_group() ) ) {
 	}
 }
 
-/**
- * Replace Full Sync module with Full Sync Immediately
- *
- * @param array $modules Sync Modules.
- *
- * @return array
- */
-function jetpack_full_sync_immediately_on( $modules ) {
-	foreach ( $modules as $key => $module ) {
-		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync', 'Jetpack_Sync_Modules_Full_Sync' ), true ) ) {
-			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately';
-		}
-	}
-	return $modules;
-}
-
-if ( false !== getenv( 'SYNC_BETA' ) ) {
-	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_on' );
-}
-
 require $test_root . '/includes/bootstrap.php';
 
 // Load the shortcodes module to test properly.

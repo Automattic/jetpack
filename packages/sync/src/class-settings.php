@@ -45,8 +45,6 @@ class Settings {
 		'render_filtered_content'                => true,
 		'post_meta_whitelist'                    => true,
 		'comment_meta_whitelist'                 => true,
-		'max_enqueue_full_sync'                  => true,
-		'max_queue_size_full_sync'               => true,
 		'sync_via_cron'                          => true,
 		'cron_sync_time_limit'                   => true,
 		'known_importers'                        => true,
@@ -207,7 +205,6 @@ class Settings {
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
-				$listener->get_full_sync_queue()->reset();
 			}
 		}
 	}

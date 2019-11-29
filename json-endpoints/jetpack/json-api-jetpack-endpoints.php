@@ -551,8 +551,6 @@ $sync_settings_response = array(
 	'comment_meta_whitelist'   => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
 	'disable'                  => '(int|bool=false) Set to 1 or true to disable sync entirely.',
 	'render_filtered_content'  => '(int|bool=true) Set to 1 or true to render filtered content.',
-	'max_enqueue_full_sync'    => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
-	'max_queue_size_full_sync' => '(int|bool=false) Maximum queue size that full sync is allowed to use',
 	'full_sync_send_duration'  => '(float) Max full sync duration per request',
 	'sync_via_cron'            => '(int|bool=false) Set to 1 or true to avoid using cron for sync.',
 	'cron_sync_time_limit'	   => '(int|bool=false) Limit cron jobs to number of seconds',

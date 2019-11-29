@@ -1113,22 +1113,6 @@ class Defaults {
 	public static $default_render_filtered_content = 0;
 
 	/**
-	 * Default number of items to enqueue at a time when running full sync.
-	 *
-	 * @var int Number of items.
-	 */
-	public static $default_max_enqueue_full_sync = 100;
-
-	/**
-	 * Default for maximum queue size during a full sync.
-	 *
-	 * Each item will represent a value in the wp_options table.
-	 *
-	 * @var int Number of items.
-	 */
-	public static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue.
-
-	/**
 	 * Default max time for sending in immediate mode.
 	 *
 	 * @var float Number of Seconds

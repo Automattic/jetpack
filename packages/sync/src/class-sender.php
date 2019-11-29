@@ -113,15 +113,6 @@ class Sender {
 	private $sync_queue;
 
 	/**
-	 * Full sync queue object.
-	 *
-	 * @access private
-	 *
-	 * @var Automattic\Jetpack\Sync\Queue
-	 */
-	private $full_sync_queue;
-
-	/**
 	 * Codec object for encoding and decoding sync items.
 	 *
 	 * @access private
@@ -260,8 +251,7 @@ class Sender {
 		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
 			return;
 		}
-		$this->continue_full_sync_enqueue();
-		return $this->do_sync_and_set_delays( $this->full_sync_queue );
+		$this->continue_full_sync_sending();
 	}
 
 	/**
@@ -271,18 +261,18 @@ class Sender {
 	 *
 	 * @access private
 	 */
-	private function continue_full_sync_enqueue() {
+	private function continue_full_sync_sending() {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return false;
 		}
 
-		if ( $this->get_next_sync_time( 'full-sync-enqueue' ) > microtime( true ) ) {
+		if ( $this->get_next_sync_time( 'full-sync-sending' ) > microtime( true ) ) {
 			return false;
 		}
 
-		Modules::get_module( 'full-sync' )->continue_enqueuing();
+		Modules::get_module( 'full-sync' )->continue_sending();
 
-		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-enqueue' );
+		$this->set_next_sync_time( time() + $this->get_enqueue_wait_time(), 'full-sync-sending' );
 	}
 
 	/**
@@ -619,17 +609,6 @@ class Sender {
 	}
 
 	/**
-	 * Get the full sync queue object.
-	 *
-	 * @access public
-	 *
-	 * @return Automattic\Jetpack\Sync\Queue Queue object.
-	 */
-	public function get_full_sync_queue() {
-		return $this->full_sync_queue;
-	}
-
-	/**
 	 * Get the codec object.
 	 *
 	 * @access public
@@ -671,15 +650,6 @@ class Sender {
 	 */
 	public function reset_sync_queue() {
 		$this->sync_queue->reset();
-	}
-
-	/**
-	 * Reset the full sync queue.
-	 *
-	 * @access public
-	 */
-	public function reset_full_sync_queue() {
-		$this->full_sync_queue->reset();
 	}
 
 	/**
@@ -798,8 +768,7 @@ class Sender {
 	 * @access public
 	 */
 	public function set_defaults() {
-		$this->sync_queue      = new Queue( 'sync' );
-		$this->full_sync_queue = new Queue( 'full_sync' );
+		$this->sync_queue = new Queue( 'sync' );
 		$this->set_codec();
 
 		// Saved settings.
@@ -821,7 +790,6 @@ class Sender {
 	 */
 	public function reset_data() {
 		$this->reset_sync_queue();
-		$this->reset_full_sync_queue();
 
 		foreach ( Modules::get_modules() as $module ) {
 			$module->reset_data();
