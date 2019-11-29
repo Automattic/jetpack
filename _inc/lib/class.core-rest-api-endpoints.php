@@ -530,15 +530,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_products( $request ) {
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			'/products?_locale=' . get_user_locale() . '&type=jetpack',
-			'v1.1',
+			'2',
 			array(
 				'method'  => 'GET',
 				'headers' => array(
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
-			),
-			null,
-			'rest'
+			)
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
