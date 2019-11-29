@@ -42,7 +42,7 @@ class ProductSelector extends Component {
 
 		const purchasedDate = __( 'Purchased %(purchaseDate)s', {
 			args: {
-				purchaseDate: moment( purchase.subscribedDate ).format( 'YYYY-MM-DD' ),
+				purchaseDate: moment( purchase.subscribedDate ).format( 'LL' ),
 			},
 		} );
 
