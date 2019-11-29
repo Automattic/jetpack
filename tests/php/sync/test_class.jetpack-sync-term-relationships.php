@@ -15,6 +15,7 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 		parent::setUp();
 
 		$this->sender->reset_data();
+		$this->sender->set_enqueue_wait_time( 0 );
 
 		$this->taxonomy = 'category';
 		$this->post_id     = $this->factory->post->create();
