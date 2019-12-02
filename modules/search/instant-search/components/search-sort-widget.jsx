@@ -23,20 +23,22 @@ export default class SearchSortWidget extends Component {
 	render() {
 		const sortOptions = getSortOptions();
 		return (
-			<label>
-				{ __( 'Sort by', 'jetpack' ) }
-				<select
-					className="jetpack-instant-search__sort-widget-select"
-					onBlur={ this.handleChange }
-					onChange={ this.handleChange }
-				>
-					{ Object.keys( sortOptions ).map( sortKey => (
-						<option value={ sortKey } selected={ this.props.value === sortKey }>
-							{ sortOptions[ sortKey ].label }
-						</option>
-					) ) }
-				</select>
-			</label>
+			<div className="jetpack-instant-search__sort-widget">
+				<label>
+					{ __( 'Sort by', 'jetpack' ) }
+					<select
+						className="jetpack-instant-search__sort-widget-select"
+						onBlur={ this.handleChange }
+						onChange={ this.handleChange }
+					>
+						{ Object.keys( sortOptions ).map( sortKey => (
+							<option value={ sortKey } selected={ this.props.value === sortKey }>
+								{ sortOptions[ sortKey ].label }
+							</option>
+						) ) }
+					</select>
+				</label>
+			</div>
 		);
 	}
 }

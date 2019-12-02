@@ -39,9 +39,7 @@ class SearchForm extends Component {
 						query={ getSearchQuery() }
 					/>
 				</div>
-				<div className="jetpack-search-sort-wrapper">
-					<SearchSortWidget onChange={ this.onChangeSort } value={ getSortQuery() } />
-				</div>
+				<SearchSortWidget onChange={ this.onChangeSort } value={ getSortQuery() } />
 				<SearchFilters
 					filters={ getFilterQuery() }
 					loading={ this.props.isLoading }
