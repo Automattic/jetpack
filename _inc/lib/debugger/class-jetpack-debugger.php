@@ -1,12 +1,12 @@
 <?php
+
+use Automattic\Jetpack\Status;
+
 /**
  * Jetpack Debugger functionality allowing for self-service diagnostic information via the legacy jetpack debugger.
  *
  * @package jetpack
  */
-
-/** Ensure the Jetpack_Debug_Data class is available. It should be via the library loaded, but defense is good. */
-require_once 'class-jetpack-debug-data.php';
 
 /**
  * Class Jetpack_Debugger
@@ -14,47 +14,25 @@ require_once 'class-jetpack-debug-data.php';
  * A namespacing class for functionality related to the legacy in-plugin diagnostic tooling.
  */
 class Jetpack_Debugger {
-
-	/**
-	 * Determine the active plan and normalize it for the debugger results.
-	 *
-	 * @return string The plan slug prepended with "JetpackPlan"
-	 */
-	private static function what_jetpack_plan() {
-		// Specifically not deprecating this function since it modifies the output of the Jetpack_Debug_Data::what_jetpack_plan return.
-		return 'JetpackPlan' . Jetpack_Debug_Data::what_jetpack_plan();
-	}
-
-	/**
-	 * Convert seconds to human readable time.
-	 *
-	 * A dedication function instead of using Core functionality to allow for output in seconds.
-	 *
-	 * @deprecated 7.3.0
-	 *
-	 * @param int $seconds Number of seconds to convert to human time.
-	 *
-	 * @return string Human readable time.
-	 */
-	public static function seconds_to_time( $seconds ) {
-		_deprecated_function( 'Jetpack_Debugger::seconds_to_time', 'Jetpack 7.3.0', 'Jeptack_Debug_Data::seconds_to_time' );
-		return Jetpack_Debug_Data::seconds_to_time( $seconds );
-	}
-
 	/**
 	 * Returns 30 for use with a filter.
 	 *
 	 * To allow time for WP.com to run upstream testing, this function exists to increase the http_request_timeout value
 	 * to 30.
 	 *
+	 * @deprecated 8.0.0
+	 *
 	 * @return int 30
 	 */
 	public static function jetpack_increase_timeout() {
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Jetpack_Cxn_Tests::increase_timeout' );
 		return 30; // seconds.
 	}
 
 	/**
 	 * Disconnect Jetpack and redirect user to connection flow.
+	 *
+	 * Used in class.jetpack-admin.php.
 	 */
 	public static function disconnect_and_redirect() {
 		if ( ! ( isset( $_GET['nonce'] ) && wp_verify_nonce( $_GET['nonce'], 'jp_disconnect' ) ) ) {
@@ -74,7 +52,6 @@ class Jetpack_Debugger {
 	 * Handles output to the browser for the in-plugin debugger.
 	 */
 	public static function jetpack_debug_display_handler() {
-		global $wp_version;
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'jetpack' ) );
 		}
@@ -82,19 +59,6 @@ class Jetpack_Debugger {
 		$support_url = Jetpack::is_development_version()
 			? 'https://jetpack.com/contact-support/beta-group/'
 			: 'https://jetpack.com/contact-support/';
-
-		$data       = Jetpack_Debug_Data::debug_data();
-		$debug_info = '';
-		foreach ( $data as $datum ) {
-			$debug_info .= $datum['label'] . ': ' . $datum['value'] . "\r\n";
-		}
-
-		$debug_info .= "\r\n" . esc_html( 'PHP_VERSION: ' . PHP_VERSION );
-		$debug_info .= "\r\n" . esc_html( 'WORDPRESS_VERSION: ' . $GLOBALS['wp_version'] );
-		$debug_info .= "\r\n" . esc_html( 'SITE_URL: ' . site_url() );
-		$debug_info .= "\r\n" . esc_html( 'HOME_URL: ' . home_url() );
-
-		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 
 		$cxntests = new Jetpack_Cxn_Tests();
 		?>
@@ -105,8 +69,6 @@ class Jetpack_Debugger {
 					<?php
 					if ( $cxntests->pass() ) {
 						echo '<div class="jetpack-tests-succeed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
-						$debug_info .= "All tests passed.\r\n";
-						$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 					} else {
 						$failures = $cxntests->list_fails();
 						foreach ( $failures as $fail ) {
@@ -124,10 +86,6 @@ class Jetpack_Debugger {
 								)
 							) . '</p>';
 							echo '</div>';
-
-							$debug_info .= "FAILED TESTS!\r\n";
-							$debug_info .= $fail['name'] . ': ' . $fail['message'] . "\r\n";
-							$debug_info .= print_r( $cxntests->raw_results(), true ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 						}
 					}
 					?>
@@ -227,11 +185,8 @@ class Jetpack_Debugger {
 				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
 				<?php
 				/**
-				 * Offload to new WordPress debug data in WP 5.2+
-				 *
-				 * @todo remove fallback when 5.2 is the minimum supported.
+				 * Offload to new WordPress debug data.
 				 */
-				if ( version_compare( $wp_version, '5.2-alpha', '>=' ) ) {
 					echo sprintf(
 						wp_kses(
 							/* translators: URL for Jetpack support. URL for WordPress's Site Health */
@@ -241,18 +196,6 @@ class Jetpack_Debugger {
 						esc_url( $support_url ),
 						esc_url( admin_url() . 'site-health.php?tab=debug' )
 					);
-					$hide_debug = true;
-				} else { // Versions before 5.2, fallback.
-					echo sprintf(
-						wp_kses(
-							/* translators: URL for Jetpack support. */
-							__( '<a href="%s">Contact our Happiness team</a>. When you do, please include the full debug information below.', 'jetpack' ),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						esc_url( $support_url )
-					);
-					$hide_debug = false;
-				}
 				?>
 						</p>
 				<hr />
@@ -291,7 +234,7 @@ class Jetpack_Debugger {
 				<?php
 				if (
 					current_user_can( 'jetpack_manage_modules' )
-					&& ( Jetpack::is_development_mode() || Jetpack::is_active() )
+					&& ( ( new Status() )->is_development_mode() || Jetpack::is_active() )
 				) {
 					printf(
 						wp_kses(
@@ -307,18 +250,6 @@ class Jetpack_Debugger {
 				}
 				?>
 			</div>
-		<hr />
-			<?php
-			if ( ! $hide_debug ) {
-				?>
-			<div id="toggle_debug_info"><?php esc_html_e( 'Advanced Debug Results', 'jetpack' ); ?></div>
-			<div id="debug_info_div">
-				<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
-				<div id="debug_info"><pre><?php echo esc_html( $debug_info ); ?></pre></div>
-			</div>
-				<?php
-			}
-			?>
 		</div>
 		<?php
 	}

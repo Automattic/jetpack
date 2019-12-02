@@ -1,4 +1,6 @@
 <?php
+use Automattic\Jetpack\Status;
+
 include_once( 'class.jetpack-admin-page.php' );
 
 // Builds the landing page and its menu
@@ -51,7 +53,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
-		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
 			if ( current_user_can( 'jetpack_admin_page' ) ) {
 				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
@@ -65,7 +67,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
+		if ( ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
@@ -146,12 +148,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
-		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.deps.json';
-		$script_dependencies = file_exists( $script_deps_path )
-			? json_decode( file_get_contents( $script_deps_path ) )
-			: array();
-		$script_dependencies[] = 'wp-polyfill';
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
+		$is_development_mode = ( new Status() )->is_development_mode();
+		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
+		$script_dependencies = array( 'wp-polyfill' );
+		if ( file_exists( $script_deps_path ) ) {
+			$asset_manifest      = include $script_deps_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
+
+		if ( Jetpack::is_active() || $is_development_mode ) {
 			wp_enqueue_script(
 				'react-plugin',
 				plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
@@ -162,7 +167,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 
-		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
+		if ( ! $is_development_mode && Jetpack::is_active() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
@@ -233,7 +238,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isActive'  => Jetpack::is_active(),
 				'isStaging' => Jetpack::is_staging_site(),
 				'devMode'   => array(
-					'isActive' => Jetpack::is_development_mode(),
+					'isActive' => ( new Status() )->is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
@@ -267,10 +272,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'currentUser'  => $current_user_data,
 			),
 			'siteData' => array(
-				'icon' => has_site_icon()
+				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
-				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ),
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				/**
 				 * Whether promotions are visible or not.
 				 *
@@ -278,10 +283,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite' => jetpack_is_atomic_site(),
-				'plan' => Jetpack_Plan::get(),
-				'showBackups' => Jetpack::show_backups_ui(),
+				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
+				'isAtomicSite'               => jetpack_is_atomic_site(),
+				'plan'                       => Jetpack_Plan::get(),
+				'showBackups'                => Jetpack::show_backups_ui(),
+				'isMultisite'                => is_multisite(),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),

@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -445,7 +446,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if ( ! Jetpack::is_active() && ! ( new Status() )->is_development_mode() ) {
 			return false;
 		}
 
@@ -523,13 +524,12 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
-		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
-
-		$script_dependencies = file_exists( $script_deps_path )
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			? json_decode( file_get_contents( $script_deps_path ) )
-			: array();
-		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
+		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
+		$script_dependencies  = array( 'wp-polyfill' );
+		if ( file_exists( $script_deps_path ) ) {
+			$asset_manifest      = include $script_deps_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
 
 		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
@@ -581,7 +581,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
+		if ( ! ( new Status() )->is_development_mode() && Jetpack::is_active() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
@@ -592,12 +592,12 @@ class Jetpack_Gutenberg {
 		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
 		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
 
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.deps.json";
-		$editor_deps      = file_exists( $editor_deps_path )
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			? json_decode( file_get_contents( $editor_deps_path ) )
-			: array();
-		$editor_deps[] = 'wp-polyfill';
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.asset.php";
+		$editor_deps      = array( 'wp-polyfill' );
+		if ( file_exists( $editor_deps_path ) ) {
+			$asset_manifest = include $editor_deps_path;
+			$editor_deps    = $asset_manifest['dependencies'];
+		}
 
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )

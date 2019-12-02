@@ -181,9 +181,15 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				return __( 'Your site is backed up and threat-free.' );
 			}
 
-			// Only return here if backups enabled and site on on free/personal plan.  If they're on a higher plan,
-			// then they have access to scan as well, and need to set it up!
-			if ( backupsEnabled && includes( [ 'is-free-plan', 'is-personal-plan' ], planClass ) ) {
+			// Only return here if backups enabled and site on on free/personal plan, or if Jetpack Backup is in use.
+			// If they're on a higher plan, then they have access to scan as well, and need to set it up!
+			if (
+				backupsEnabled &&
+				includes(
+					[ 'is-free-plan', 'is-personal-plan', 'is-daily-backup-plan', 'is-realtime-backup-plan' ],
+					planClass
+				)
+			) {
 				return __( 'Your site is backed up.' );
 			}
 

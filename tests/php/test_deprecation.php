@@ -147,18 +147,29 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}
 
+	/**
+	 * Provides deprecated files and expected relacements.
+	 *
+	 * @todo Remove version check when WordPress 5.4 is the minimum.
+	 *
+	 * @return array
+	 */
 	function provider_deprecated_file_paths() {
+		global $wp_version;
+
+		$error = ( version_compare( $wp_version, '5.4-alpha', '>=' ) ) ? E_USER_DEPRECATED : E_USER_NOTICE;
+
 		return array(
 
 			array(
 				'class.jetpack-ixr-client.php',
 				null,
-				E_USER_NOTICE,
+				$error,
 			),
 			array(
 				'class.jetpack-xmlrpc-server.php',
 				null,
-				E_USER_NOTICE,
+				$error,
 			),
 		);
 	}

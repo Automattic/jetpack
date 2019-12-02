@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+
 require_once dirname( __FILE__ ) . '/../../../../modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 
 /**
@@ -41,7 +43,7 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 		$this->assertFalse( $wpcom_block_editor->verify_frame_nonce( $this->create_nonce(), 'action' ) );
 
 		// Set user token.
-		Jetpack::update_user_token( $this->user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $this->user_id ), true );
+		Connection_Utils::update_user_token( $this->user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $this->user_id ), true );
 		$nonce = $this->create_nonce();
 
 		// User ID mismatch.

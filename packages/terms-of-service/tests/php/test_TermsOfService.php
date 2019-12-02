@@ -13,7 +13,7 @@ class Test_Terms_Of_Service extends TestCase {
 	 */
 	public function setUp() {
 		$this->terms_of_service = $this->createPartialMock( __NAMESPACE__ .'\\Terms_Of_Service',
-			[ 'get_raw_has_agreed', 'is_development_mode', 'is_active', 'set_agree', 'set_reject' ]
+			[ 'get_raw_has_agreed', 'is_development_mode', 'set_agree', 'is_active', 'set_reject' ]
 		);
 	}
 
@@ -29,7 +29,7 @@ class Test_Terms_Of_Service extends TestCase {
 	 */
 	public function test_agree() {
 		$this->mock_function( 'do_action', null,  'jetpack_agreed_to_terms_of_service' );
-		$this->terms_of_service->expects( $this->once() )->method( 'set_agree' )->willReturn( null );
+		$this->terms_of_service->expects( $this->once() )->method( 'set_agree' );
 
 		$this->terms_of_service->agree();
 	}
@@ -38,8 +38,8 @@ class Test_Terms_Of_Service extends TestCase {
 	 * @covers Automattic\Jetpack\Terms_Of_Service->revoke
 	 */
 	public function test_revoke() {
-		$this->mock_function( 'do_action', null, 'jetpack_reject_to_terms_of_service' );
-		$this->terms_of_service->expects( $this->once() )->method( 'set_reject' )->willReturn( null );
+		$this->mock_function( 'do_action', null, 'jetpack_reject_terms_of_service' );
+		$this->terms_of_service->expects( $this->once() )->method( 'set_reject' );
 
 		$this->terms_of_service->reject();
 	}
@@ -47,7 +47,7 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
 	 */
-	public function test_has_agreed_before_the_site_agrees() {
+	public function test_returns_false_if_not_agreed() {
 		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
@@ -55,9 +55,9 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
 	 */
-	public function test_has_agreed_is_development_mode() {
-		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( true );
+	public function test_returns_false_if_has_agreed_but_is_development_mode() {
 		// is_development_mode
+		$this->terms_of_service->method( 'get_raw_has_agreed' )->willReturn( true );
 		$this->terms_of_service->expects( $this->once() )->method( 'is_development_mode' )->willReturn( true );
 		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
@@ -65,29 +65,14 @@ class Test_Terms_Of_Service extends TestCase {
 	/**
 	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
 	 */
-	public function test_has_agreed_is_active_mode() {
-		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( true );
-		// Not in dev mode...
+	public function test_returns_true_if_active_even_if_not_agreed() {
+		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( false );
 		$this->terms_of_service->expects( $this->once() )->method( 'is_development_mode' )->willReturn( false );
 
 		// Jetpack is active
 		$this->terms_of_service->expects( $this->once() )->method( 'is_active' )->willReturn( true );
 
 		$this->assertTrue( $this->terms_of_service->has_agreed() );
-	}
-
-	/**
-	 * @covers Automattic\Jetpack\Terms_Of_Service->has_agreed
-	 */
-	public function test_has_agreed_is_not_active_mode() {
-		$this->terms_of_service->expects( $this->once() )->method( 'get_raw_has_agreed' )->willReturn( true );
-		// not in dev mode...
-		$this->terms_of_service->expects( $this->once() )->method( 'is_development_mode' )->willReturn( false );
-
-		// Jetpack is not active
-		$this->terms_of_service->expects( $this->once() )->method( 'is_active' )->willReturn( false );
-
-		$this->assertFalse( $this->terms_of_service->has_agreed() );
 	}
 
 	/**

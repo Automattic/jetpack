@@ -41,6 +41,9 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 		'processingLabel'  => esc_html__( 'Processing…', 'jetpack' ),
 		'successLabel'     => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
 		'errorLabel'       => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
+		'interests'        => array(),
+		'signupFieldTag'   => '',
+		'signupFieldValue' => '',
 	);
 	foreach ( $defaults as $id => $default ) {
 		$values[ $id ] = isset( $attr[ $id ] ) ? $attr[ $id ] : $default;
@@ -85,6 +88,9 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					method="post"
 					id="mailchimp_form"
 					target="_top"
+					<?php if ( $is_amp_request ) : ?>
+					on="submit-success:AMP.setState( { mailing_list_status: 'subscribed', mailing_list_email: event.response.email } )"
+					<?php endif; ?>
 				<?php endif; ?>
 			>
 				<p>
@@ -97,6 +103,27 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 						name="email"
 					/>
 				</p>
+				<?php foreach ( is_array( $values['interests'] ) ? $values['interests'] : array() as $interest ) : ?>
+					<input
+						name="interests[<?php echo esc_attr( $interest ); ?>]"
+						type="hidden"
+						class="mc-submit-param"
+						value="1"
+					/>
+				<?php endforeach; ?>
+				<?php
+				if (
+					! empty( $values['signupFieldTag'] )
+					&& ! empty( $values['signupFieldValue'] )
+					) :
+					?>
+					<input
+						name="merge_fields[<?php echo esc_attr( $values['signupFieldTag'] ); ?>]"
+						type="hidden"
+						class="mc-submit-param"
+						value="<?php echo esc_attr( $values['signupFieldValue'] ); ?>"
+					/>
+				<?php endif; ?>
 				<p>
 					<button type="submit" class="components-button is-button is-primary" style="<?php echo esc_attr( $button_styles ); ?>">
 						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>

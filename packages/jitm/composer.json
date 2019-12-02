@@ -17,9 +17,9 @@
 		"mockery/mockery": "^1.2"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\": "src/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"repositories": [
 		{

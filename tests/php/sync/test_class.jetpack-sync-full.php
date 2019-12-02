@@ -5,10 +5,6 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
 
-function jetpack_foo_full_sync_callable() {
-	return 'the value';
-}
-
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
@@ -21,7 +17,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
+		Settings::reset_data();
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		$this->full_sync = Modules::get_module( 'full-sync' );
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
 	}
 
 	function test_enqueues_sync_start_action() {
@@ -47,7 +48,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $range['comments']->max ) );
 		$this->assertTrue( isset( $range['comments']->min ) );
 		$this->assertTrue( isset( $range['comments']->count ) );
-
 	}
 
 	function test_enqueues_sync_start_action_without_post_sends_empty_range() {
@@ -283,7 +283,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_term_relationships() {
 		global $wpdb;
 		$this->sender->reset_data();
-		Settings::update_settings( array( 'max_queue_size_full_sync' => 10, 'max_enqueue_full_sync' => 10 ) );
 
 		$post_ids = $this->factory->post->create_many( 20 );
 
@@ -305,6 +304,65 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$replica_number_of_term_relationships = count( $this->server_replica_storage->get_term_relationships() );
 		$this->assertEquals( $original_number_of_term_relationships, $replica_number_of_term_relationships );
+	}
+
+	function test_full_sync_enqueue_term_relationships() {
+		global $wpdb;
+
+		// how many items are we allowed to enqueue on a single request/continue_enqueuing
+		$max_enqueue_full_sync = 2;
+		// how many sync items the full sync queue can contain
+		$max_queue_size_full_sync = 3;
+		// how many term relationships we can put on a full_sync_term_relationships item
+		$sync_item_size = 4;
+
+		Settings::update_settings( [
+			'term_relationships_full_sync_item_size' => $sync_item_size,
+			'max_queue_size_full_sync'               => $max_queue_size_full_sync,
+			'max_enqueue_full_sync'                  => $max_enqueue_full_sync,
+		] );
+
+		$post_ids = $this->factory->post->create_many( 4 );
+
+		foreach ( $post_ids as $post_id ) {
+			wp_set_object_terms( $post_id, array( 'cat1', 'cat2', 'cat3' ), 'category', true );
+			wp_set_object_terms( $post_id, array( 'tag1', 'tag2', 'tag3' ), 'post_tag', true );
+		}
+
+		// 28
+		$original_number_of_term_relationships = $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
+		// ceil(28/4) = 7
+		$total_items = intval( ceil( $original_number_of_term_relationships  / $sync_item_size ) );
+
+		$this->full_sync->start( array( 'term_relationships' => true ) );
+		$this->sender->do_full_sync(); // empty the queue since – "full_sync_start" takes one item in the queue
+
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $initial_queued, $finished ) = $status['term_relationships'];
+
+		$this->assertEquals( $total_items, $total );
+		$this->assertEquals( $max_enqueue_full_sync, $initial_queued );
+		$this->assertNotTrue( $finished );
+
+		$this->full_sync->continue_enqueuing(); // try to enqueue $max_enqueue_full_sync items
+		$this->full_sync->continue_enqueuing(); // try to enqueue $max_enqueue_full_sync items
+
+		// hit $max_queue_size_full_sync limit
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $queued, $finished ) = $status['term_relationships'];
+		$this->assertNotTrue( $finished );
+		$this->assertEquals( $initial_queued +  $max_queue_size_full_sync, $queued );
+
+		$this->sender->do_full_sync();
+
+		$this->full_sync->continue_enqueuing();
+
+		$status = $this->full_sync->get_enqueue_status();
+		list( $total, $queued, $finished ) = $status['term_relationships'];
+
+		$this->assertEquals( $total_items, $total );
+		$this->assertEquals( $total_items, $queued );
+		$this->assertSame( $finished, true );
 	}
 
 	function test_full_sync_sends_all_term_relationships_with_previous_interval_end() {
@@ -348,8 +406,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// The first batch has the previous_end not set.
 		// We use ~0 to denote that the previous_end is unknown.
 		$this->assertEquals( $previous_interval_end, array(
-			'object_id'        => 999999999,
-			'term_taxonomy_id' => 999999999,
+			'object_id'        => Modules\Term_Relationships::MAX_INT,
+			'term_taxonomy_id' => Modules\Term_Relationships::MAX_INT,
 		) );
 
 		// Since term relationships are ordered by post IDs and term IDs and the IDs are in descending order
@@ -1233,6 +1291,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
+
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
 		$keep_post_id = $this->factory->post->create();
@@ -1252,6 +1311,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_comments() {
+
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
 		$post_id     = $this->factory->post->create();
@@ -1271,6 +1331,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_users() {
+
 		$user_counts = count_users();
 		$existing_user_count = $user_counts['total_users'];
 
@@ -1321,6 +1382,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
+
 		$this->sender->set_dequeue_max_bytes( 1250 ); // process 0.00125MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();

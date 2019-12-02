@@ -278,7 +278,7 @@ class MyPlanBody extends React.Component {
 								/>
 							</div>
 							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Spam Filtering' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Anti-spam' ) }</h3>
 								<p>{ __( 'Spam is automatically blocked from your comments.' ) }</p>
 								{ this.props.isPluginInstalled( 'akismet/akismet.php' ) &&
 								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
@@ -748,8 +748,6 @@ class MyPlanBody extends React.Component {
 									{ __( 'Take your site to the next level!' ) }
 								</h3>
 								<ul className="jp-landing__plan-features-list">
-									<li>{ __( 'Get peace of mind with automated backups.' ) }</li>
-									<li>{ __( 'Resolve issues quickly with priority support.' ) }</li>
 									<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
 									<li>{ __( 'Customize your social posting schedule.' ) }</li>
 									<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>

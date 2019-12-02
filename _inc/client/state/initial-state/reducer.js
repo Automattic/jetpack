@@ -257,6 +257,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if the site is part of a Multisite network.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the site is part of a Multisite network.
+ */
+export function isMultisite( state ) {
+	return get( state.jetpack.initialState.siteData, 'isMultisite', false );
+}
+
+/**
  * Returns the affiliate code, if it exists. Otherwise an empty string.
  *
  * @param {object} state Global state tree

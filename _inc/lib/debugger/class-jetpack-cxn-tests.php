@@ -6,6 +6,8 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -67,7 +69,19 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return ( Jetpack::is_active() && ! Jetpack::is_development_mode() );
+		return ( Jetpack::is_active() && ! ( new Status() )->is_development_mode() );
+	}
+
+	/**
+	 * Returns 30 for use with a filter.
+	 *
+	 * To allow time for WP.com to run upstream testing, this function exists to increase the http_request_timeout value
+	 * to 30.
+	 *
+	 * @return int 30
+	 */
+	public static function increase_timeout() {
+		return 30; // seconds.
 	}
 
 	/**
@@ -77,7 +91,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test( $name );
-		} elseif ( Jetpack::is_development_mode() ) {
+		} elseif ( ( new Status() )->is_development_mode() ) {
 			$result = self::skipped_test( $name, __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(), __( 'Disable development mode.', 'jetpack' ) );
 		} else {
 			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), 'cycle_connection' );
@@ -223,14 +237,16 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__wpcom_connection_test() {
 		$name = __FUNCTION__;
 
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_active() || ( new Status() )->is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 
+		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
 			Client::WPCOM_JSON_API_VERSION
 		);
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
 
 		if ( is_wp_error( $response ) ) {
 			/* translators: %1$s is the error code, %2$s is the error message */
@@ -326,19 +342,20 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function last__wpcom_self_test() {
 		$name = 'test__wpcom_self_test';
-		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+
+		if ( ! Jetpack::is_active() || ( new Status() )->is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 
 		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
 
-		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+		$testsite_url = Connection_Utils::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
-		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
 
 		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
 
 		$error_msg = wp_kses(
 			sprintf(
@@ -347,7 +364,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'<a target="_blank" rel="noopener noreferrer" href="%s">Visit the Jetpack.com debug page</a> for more information or <a target="_blank" rel="noopener noreferrer" href="https://jetpack.com/contact-support/">contact support</a>.',
 					'jetpack'
 				),
-				esc_url( add_query_arg( 'url', urlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
+				esc_url( add_query_arg( 'url', rawurlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
 			),
 			array(
 				'a' => array(

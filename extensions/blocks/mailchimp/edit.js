@@ -14,13 +14,14 @@ import {
 	TextControl,
 	withNotices,
 } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { icon } from '.';
+import MailchimpGroups from './mailchimp-groups';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -133,10 +134,13 @@ class MailchimpSubscribeEdit extends Component {
 		const {
 			emailPlaceholder,
 			consentText,
+			interests,
 			processingLabel,
 			successLabel,
 			errorLabel,
 			preview,
+			signupFieldTag,
+			signupFieldValue,
 		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp_';
 		const waiting = (
@@ -189,6 +193,42 @@ class MailchimpSubscribeEdit extends Component {
 						value={ errorLabel }
 						onChange={ this.updateErrorText }
 					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Mailchimp Groups', 'jetpack' ) }>
+					<MailchimpGroups
+						interests={ interests }
+						onChange={ ( id, checked ) => {
+							// Create a Set to insure no duplicate interests
+							const deDupedInterests = [ ...new Set( [ ...interests, id ] ) ];
+							// Filter the clicked interest based on checkbox's state.
+							const updatedInterests = deDupedInterests.filter( item =>
+								item === id && ! checked ? false : item
+							);
+							setAttributes( {
+								interests: updatedInterests,
+							} );
+						} }
+					/>
+					<ExternalLink href="https://mailchimp.com/help/send-groups-audience/">
+						{ __( 'Learn about groups', 'jetpack' ) }
+					</ExternalLink>
+				</PanelBody>
+				<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
+					<TextControl
+						label={ __( 'Signup Field Tag', 'jetpack' ) }
+						placeholder={ __( 'SIGNUP' ) }
+						value={ signupFieldTag }
+						onChange={ value => setAttributes( { signupFieldTag: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Signup Field Value', 'jetpack' ) }
+						placeholder={ __( 'website' ) }
+						value={ signupFieldValue }
+						onChange={ value => setAttributes( { signupFieldValue: value } ) }
+					/>
+					<ExternalLink href="https://mailchimp.com/help/determine-webpage-signup-location/">
+						{ __( 'Learn about signup location tracking', 'jetpack' ) }
+					</ExternalLink>
 				</PanelBody>
 				<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>
 					<ExternalLink href={ connectURL }>{ __( 'Manage Connection', 'jetpack' ) }</ExternalLink>

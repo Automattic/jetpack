@@ -42,6 +42,7 @@ class Jetpack_WPCOM_Block_Editor {
 
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_scripts' ), 9 );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_styles' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 	}
 
@@ -297,16 +298,6 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		$src_styles = $debug
-			? '//widgets.wp.com/wpcom-block-editor/common.css?minify=false'
-			: '//widgets.wp.com/wpcom-block-editor/common.min.css';
-		wp_enqueue_style(
-			'wpcom-block-editor-styles',
-			$src_styles,
-			array(),
-			$version
-		);
-
 		if ( $this->is_iframed_block_editor() ) {
 			$src_calypso_iframe_bridge = $debug
 				? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
@@ -331,6 +322,53 @@ class Jetpack_WPCOM_Block_Editor {
 				true
 			);
 		}
+	}
+
+	/**
+	 * Enqueue WP.com block editor common styles.
+	 */
+	public function enqueue_styles() {
+		// Enqueue only for the block editor in WP Admin.
+		global $pagenow;
+		if ( is_admin() && ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		// Enqueue on the front-end only if justified blocks are present.
+		if ( ! is_admin() && ! $this->has_justified_block() ) {
+			return;
+		}
+
+		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+		$version = gmdate( 'Ymd' );
+
+		$src_styles = $debug
+			? '//widgets.wp.com/wpcom-block-editor/common.css?minify=false'
+			: '//widgets.wp.com/wpcom-block-editor/common.min.css';
+		wp_enqueue_style(
+			'wpcom-block-editor-styles',
+			$src_styles,
+			array(),
+			$version
+		);
+	}
+
+	/**
+	 * Determines if the current $post contains a justified paragraph block.
+	 *
+	 * @return boolean true if justified paragraph is found, false otherwise.
+	 */
+	public function has_justified_block() {
+		global $post;
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		};
+
+		if ( ! has_blocks( $post ) ) {
+			return false;
+		}
+
+		return false !== strpos( $post->post_content, '<!-- wp:paragraph {"align":"justify"' );
 	}
 
 	/**

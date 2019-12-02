@@ -13,5 +13,5 @@ Get a Jetpack option:
 Jetpack_Options::get_option( 'version' )
 ```
 
-[Explore the code for Jetpack_Options](legacy/class.jetpack-options.php) to see a complete
+[Explore the code for Jetpack_Options](legacy/class-jetpack-options.php) to see a complete
 list of documented methods. 

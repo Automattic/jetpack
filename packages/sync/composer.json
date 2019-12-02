@@ -11,10 +11,9 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\Sync\\": "src/",
-			"Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"repositories": [
 		{

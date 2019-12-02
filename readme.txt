@@ -1,10 +1,10 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 7.7.2
-Requires at least: 5.1
+Stable tag: 7.9.1
+Requires at least: 5.2
 Requires PHP: 5.6
-Tested up to: 5.2
+Tested up to: 5.3
 
 The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
@@ -96,40 +96,44 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 7.8 =
+= 8.0 =
 
-* Release date: October 1, 2019
-* Release post: https://wp.me/p1moTy-lvE
+* Release date: December 3, 2019
+* Release post: https://wp.me/p1moTy-lGH
+
+**Major enhancements**
+
+* Block Editor: new Pinterest block allowing you to easily embed boards, profiles, and pins.
+* Block Editor: new Ratings block allowing you to add star ratings any post or page.
+* Mailchimp block: you can now create forms for a subset (group) of your Mailchimp list, and add a field to track which form the signups are coming from.
 
 **Enhancements**
 
-* Connection flow: remove some of the text from the connection prompt.
-* Dashboard: remove custom About menu page ordering.
-* Dashboard: review and remove unnecessary queries.
-* General: remove files that were deprecated in Jetpack 7.5.
-* General: remove outdated pre-PHP 5.6 era code.
-* Image CDN: check for local file upload before processing post images.
-* Markdown Block: display in the block picker even if the classic Markdown feature is disabled.
-* Recurring Payments: add an alignment option to the button.
-* Recurring Payments: improve the display of connection notifications.
-* Tiled Galleries: the block is now available even if you've disable the "Image Accelerator" feature.
-* WordPress.com REST API: improve detection of the Full Site Editing feature.
+* Blocks: start using the @wordpress/block-editor package introduced in WordPress 5.2.
+* Contact Form: make the Form block reusable on a single post / page.
+* Dashboard: add support for Jetpack Backup display.
+* Image CDN: expand number of images using the new subdomain determination function.
+* Recurring Payments block: improve display of buttons inside the block in the editor.
+* Shortcodes: add new customization options and improve Schema.org markup of the Recipe shortcode.
+* Shortcodes: add AMP views for 5 shortcodes: `vimeo`, `instagram`, `dailymotion`, `tweet`, and `soundcloud`.
+* Support Tools: improve the reliability of the tools on slower sites.
 
 **Improved compatibility**
 
-* AMP / Sharing: include Open Graph metadata to AMP Story posts.
-* General: avoid conflicts when using Jetpack alongside other plugins or services that rely on an Autoloader.
+* AMP: improve display of the Map block on AMP views.
+* General: As WordPress 5.3 is now available, Jetpack now requires WordPress 5.2.
+* Shortcodes: ensure Vimeo videos can be displayed properly when using the AMP plugin.
 
 **Bug fixes**
 
-* Activity Log: avoid displaying events from the Action Scheduler.
-* Ads Block: avoid PHP errors when loading posts via the WordPress.com interface.
-* Blocks: ensure that all blocks are properly translated when a translation is available.
-* Dashboard: do not display Plans page to non-connected admins.
-* Post Images: look for representative images in inner blocks as well.
-* Shortcodes: add title attribute to Archive.org and Archive.org Book embeds.
-* Sync: avoid issues when using deprecated Sync functions.
-* WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
+* Connection: fix communication between Jetpack sites and WordPress.com for some sites hosted on non-standard ports.
+* Connection management: fix issue that prevented the Connection transfer banner from appearing in some situations.
+* Feature Hints: disable when plugins cannot be installed on site.
+* Image CDN: avoid blurry images when using Jetpack's Image CDN alongside other image-focussed blocks.
+* SEO Tools: do not display any HTML tags in title meta tags.
+* Sharing: improve accessibility of the sharing buttons by updating the buttons' color.
+* Sync: avoid conflicts when two processes are synchronized to WordPress.com at the same time.
+* WordPress.com Block Editor: ensure that the Justify button works well on any paragraph using that button.
 
 --------
 

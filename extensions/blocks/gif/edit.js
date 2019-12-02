@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { Button, PanelBody, Path, Placeholder, SVG, TextControl } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
