@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { getSortOptions } from '../lib/sort';
 
-export default class SearchSortWidget extends Component {
+export default class SearchSort extends Component {
 	handleChange = event => {
 		if ( this.props.value === event.target.value ) {
 			return;
@@ -23,11 +23,11 @@ export default class SearchSortWidget extends Component {
 	render() {
 		const sortOptions = getSortOptions();
 		return (
-			<div className="jetpack-instant-search__sort-widget">
+			<div className="jetpack-instant-search__sort">
 				<label>
 					{ __( 'Sort by', 'jetpack' ) }
 					<select
-						className="jetpack-instant-search__sort-widget-select"
+						className="jetpack-instant-search__sort-select"
 						onBlur={ this.handleChange }
 						onChange={ this.handleChange }
 					>

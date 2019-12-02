@@ -10,7 +10,7 @@ import { Component, h } from 'preact';
  */
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
-import SearchSortWidget from './search-sort-widget';
+import SearchSort from './search-sort';
 
 import {
 	getFilterQuery,
@@ -39,7 +39,7 @@ class SearchForm extends Component {
 						query={ getSearchQuery() }
 					/>
 				</div>
-				<SearchSortWidget onChange={ this.onChangeSort } value={ getSortQuery() } />
+				<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
 				<SearchFilters
 					filters={ getFilterQuery() }
 					loading={ this.props.isLoading }
