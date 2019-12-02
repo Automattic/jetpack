@@ -77,24 +77,4 @@ module.exports = [
 			} ),
 		],
 	},
-	{
-		...sharedWebpackConfig,
-		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
-		output: {
-			...sharedWebpackConfig.output,
-			path: path.join( __dirname, '_inc/build/instant-search' ),
-			filename: 'jp-search.bundle.js',
-		},
-		performance: isDevelopment
-			? {
-					maxAssetSize: 500000,
-					maxEntrypointSize: 500000,
-					hints: 'error',
-			  }
-			: {
-					maxAssetSize: 71680,
-					maxEntrypointSize: 71680,
-					hints: 'error',
-			  },
-	},
 ];
