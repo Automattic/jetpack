@@ -46,6 +46,14 @@ class ProductSelector extends Component {
 			},
 		} );
 
+		const renewalDate = __( 'Renews on %(renewalDate)s', {
+			args: {
+				renewalDate: moment( purchase.expiry_date ).format( 'LL' ),
+			},
+		} );
+
+		const subtitleText = purchase.is_refundable ? purchasedDate : renewalDate;
+
 		const backupDescription = __( 'Always-on backups ensure you never lose your site.' );
 		const backupDescriptionRealtime = __(
 			'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.'
@@ -66,14 +74,14 @@ class ProductSelector extends Component {
 			case 'is-daily-backup-plan':
 				return {
 					title: dailyBackupTitle,
-					subtitle: purchasedDate,
+					subtitle: subtitleText,
 					description: backupDescription,
 					...additionalProps,
 				};
 			case 'is-realtime-backup-plan':
 				return {
 					title: realTimeBackupTitle,
-					subtitle: purchasedDate,
+					subtitle: subtitleText,
 					description: backupDescriptionRealtime,
 					...additionalProps,
 				};
