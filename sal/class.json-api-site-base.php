@@ -641,6 +641,16 @@ abstract class SAL_Site {
 		return false;
 	}
 
+	/**
+	 * Return a boolean indicating whether a site migration involving the site
+	 * is under way
+	 *
+	 * @return bool
+	 */
+	public function get_migration_status() {
+		return false;
+	}
+
 	function get_site_segment() {
 		return false;
 	}
