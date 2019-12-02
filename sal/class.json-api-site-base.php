@@ -642,13 +642,12 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Return a boolean indicating whether a site migration involving the site
-	 * is under way
+	 * Say whether a site migration involving the site is under way
 	 *
 	 * @return bool
 	 */
 	public function get_migration_status() {
-		return false;
+		return get_option( 'site_migration_status', null );
 	}
 
 	function get_site_segment() {
