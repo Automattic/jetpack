@@ -264,7 +264,7 @@ export function showBackups( state ) {
  * @return {boolean} True if the site is part of a Multisite network.
  */
 export function isMultisite( state ) {
-	return get( state.jetpack.initialState.siteData, 'isMultisite', true );
+	return get( state.jetpack.initialState.siteData, 'isMultisite', false );
 }
 
 /**
