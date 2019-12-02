@@ -46,7 +46,7 @@ class SearchResults extends Component {
 		const hasResults = total > 0;
 
 		if ( ! hasQuery && ! hasFilter() ) {
-			return <SearchResultsEmpty />;
+			return null;
 		}
 
 		return (
