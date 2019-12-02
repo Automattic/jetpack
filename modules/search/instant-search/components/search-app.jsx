@@ -46,13 +46,7 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		this.getResults(
-			getSearchQuery(),
-			getFilterQuery(),
-			this.props.initialSort,
-			getResultFormatQuery(),
-			null
-		);
+		this.getResults( { sort: this.props.initialSort } );
 
 		this.getResults.flush();
 
@@ -116,27 +110,20 @@ class SearchApp extends Component {
 		} else {
 			this.hideResults();
 		}
-		this.getResults(
-			getSearchQuery(),
-			getFilterQuery(),
-			getSortQuery(),
-			getResultFormatQuery(),
-			null
-		);
+		this.getResults();
 	};
 
 	loadNextPage = () => {
-		this.hasNextPage() &&
-			this.getResults(
-				getSearchQuery(),
-				getFilterQuery(),
-				getSortQuery(),
-				getResultFormatQuery(),
-				this.state.response.page_handle
-			);
+		this.hasNextPage() && this.getResults( { pageHandle: this.state.response.page_handle } );
 	};
 
-	getResults = ( query, filter, sort, resultFormat, pageHandle ) => {
+	getResults = ( {
+		query = getSearchQuery(),
+		filter = getFilterQuery(),
+		sort = getSortQuery(),
+		resultFormat = getResultFormatQuery(),
+		pageHandle,
+	} = {} ) => {
 		const requestId = this.state.requestId + 1;
 
 		this.setState( { requestId, isLoading: true }, () => {
