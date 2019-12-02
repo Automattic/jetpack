@@ -30,7 +30,7 @@ class SearchForm extends Component {
 
 	render() {
 		return (
-			<form onSubmit={ noop } role="search">
+			<form onSubmit={ noop } role="search" className={ this.props.className }>
 				<div className="search-form">
 					<SearchBox
 						onChangeQuery={ this.onChangeQuery }

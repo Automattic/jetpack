@@ -12,6 +12,7 @@ import { h, Component } from 'preact';
 import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
+import SearchForm from './search-form';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -68,6 +69,8 @@ class SearchResults extends Component {
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
+				<SearchForm className="jetpack-instant-search__search-results-search-form" />
+
 				<p className="jetpack-instant-search__search-results-real-query">
 					{ this.getSearchTitle() }
 				</p>

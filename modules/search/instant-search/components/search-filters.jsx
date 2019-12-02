@@ -59,6 +59,10 @@ export default class SearchFilters extends Component {
 	};
 
 	render() {
+		if ( ! this.props.widget ) {
+			return null;
+		}
+
 		const aggregations = get( this.props.results, 'aggregations' );
 		const cls =
 			this.props.loading === true
