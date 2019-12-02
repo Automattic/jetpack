@@ -13,6 +13,7 @@ import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import SearchResultsEmpty from './search-results-empty';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -37,28 +38,15 @@ class SearchResults extends Component {
 		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
 	}
 
-	renderEmptyResults( { showText = false } = {} ) {
-		return (
-			<div className="jetpack-instant-search__search-results">
-				{ showText && (
-					<div>
-						<h3>{ sprintf( __( 'No Results.', 'jetpack' ), this.props.query ) }</h3>
-					</div>
-				) }
-			</div>
-		);
-	}
-
 	render() {
 		const { query } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = query !== '';
 		const hasCorrectedQuery = corrected_query !== false;
+		const hasResults = total > 0;
+
 		if ( ! hasQuery && ! hasFilter() ) {
-			return this.renderEmptyResults();
-		}
-		if ( total === 0 ) {
-			return this.renderEmptyResults( { showText: true } );
+			return <SearchResultsEmpty />;
 		}
 
 		return (
@@ -71,15 +59,17 @@ class SearchResults extends Component {
 			>
 				<SearchForm className="jetpack-instant-search__search-results-search-form" />
 
-				<p className="jetpack-instant-search__search-results-real-query">
-					{ this.getSearchTitle() }
-				</p>
-				{ hasCorrectedQuery && (
+				{ hasResults && (
+					<p className="jetpack-instant-search__search-results-real-query">
+						{ this.getSearchTitle() }
+					</p>
+				) }
+				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ results && (
+				{ hasResults && (
 					<ol
 						className={ `jetpack-instant-search__search-results-list is-format-${
 							this.props.resultFormat
@@ -96,15 +86,18 @@ class SearchResults extends Component {
 						) ) }
 					</ol>
 				) }
-				<div className="jetpack-instant-search__search-pagination">
-					{ this.props.hasNextPage && (
-						<ScrollButton
-							enableLoadOnScroll={ this.props.enableLoadOnScroll }
-							isLoading={ this.props.isLoading }
-							onLoadNextPage={ this.props.onLoadNextPage }
-						/>
-					) }
-				</div>
+				{ ! hasResults && <SearchResultsEmpty query={ this.props.query } /> }
+				{ hasResults && (
+					<div className="jetpack-instant-search__search-pagination">
+						{ this.props.hasNextPage && (
+							<ScrollButton
+								enableLoadOnScroll={ this.props.enableLoadOnScroll }
+								isLoading={ this.props.isLoading }
+								onLoadNextPage={ this.props.onLoadNextPage }
+							/>
+						) }
+					</div>
+				) }
 			</main>
 		);
 	}
