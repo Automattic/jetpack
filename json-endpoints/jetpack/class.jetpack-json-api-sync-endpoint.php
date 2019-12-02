@@ -48,7 +48,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
 		}
 
-		if ( ! in_array( $query, array( 'sync', 'full_sync' ) ) ) {
+		if ( ! in_array( $query, array( 'sync', 'full_sync', 'immediate' ) ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
 		}
 		return $query;
@@ -191,6 +191,9 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 		$number_of_items = absint( $args['number_of_items'] );
 
+		if ( ! empty( $args['queue'] ) && 'immediate' === $args['queue'] ) {
+			return $this->immediate_full_sync_pull( $number_of_items );
+		}
 		$queue = new Queue( $queue_name );
 
 		if ( 0 === $queue->size() ) {
@@ -230,6 +233,32 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 			'skipped_items'  => $skipped_items_ids,
 			'codec'          => $args['encode'] ? $sender->get_codec()->name() : null,
 			'sent_timestamp' => time(),
+		);
+	}
+
+	public $items = [];
+
+	public function jetpack_sync_send_data_listener() {
+		foreach ( func_get_args()[0] as $key => $item ) {
+			$items[ $key ] = $item;
+		}
+	}
+
+	public function immediate_full_sync_pull( $number_of_items ) {
+		// try to give ourselves as much time as possible.
+		set_time_limit( 0 );
+
+		remove_filter( 'jetpack_sync_send_data', array( 'Automattic\Jetpack\Sync\Actions', 'send_data' ), 10, 6 );
+		add_filter( 'jetpack_sync_send_data', array( $this, 'jetpack_sync_send_data_listener' ), 10, 6 );
+		Sender::get_instance()->do_full_sync();
+		remove_filter( 'jetpack_sync_send_data', array( $this, 'jetpack_sync_send_data_listener' ), 10, 6 );
+		add_filter( 'jetpack_sync_send_data', array( 'Automattic\Jetpack\Sync\Actions', 'send_data' ), 10, 6 );
+
+		return array(
+			'items'          => $this->items,
+			'codec'          => Sender::get_instance()->get_codec()->name(),
+			'sent_timestamp' => time(),
+			'status'         => Actions::get_sync_status(),
 		);
 	}
 
