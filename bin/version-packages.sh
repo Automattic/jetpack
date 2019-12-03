@@ -10,21 +10,31 @@
 # I was getting rate limited by the GH API when testing, so if this happens to you, you'll have to
 # pass in a personal access token from GitHub to get more requests.
 # Example: `bin/get-latest-package.sh -t YOUR_GH_ACCESS_TOKEN`
-while getopts ":t:" opt; do
-	case ${opt} in
-		t ) GH_TOKEN=$OPTARG
-		    AUTH_HEADER="-H 'Authorization: token $GH_TOKEN'"
+
+function usage {
+	echo "usage: $0 [--update | -u]"
+	echo "  -u | --update      Updates composer.lock and packages. If omitted, will only update composer.json."
+	echo "  -h | --help        Help!"
+	exit 1
+}
+
+UPDATE="--no-update"
+
+for i in "$@"; do
+	case $i in
+		-u | --update )
+		    UPDATE=""
+			shift
 			;;
-		? )
-			echo "Invalid argument: $OPTARG"
-			echo ""
+		-h | --help )
+		    usage
+			exit
 			;;
-		: )
-			AUTH_HEADER=""
-			;;
+		* )
+		    usage
+			exit 1
 	esac
 done
-shift "$(($OPTIND -1))"
 
 CURRENT_DIR=$( pwd )
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -46,6 +56,6 @@ composer show --self |
         if [[ $LINE == "automattic/jetpack-"*"@dev" ]]; then
             PACKAGE=$( echo $LINE | cut -d " " -f1 )
             echo "Updating $PACKAGE to $LATEST_TAG in $CURRENT_DIR/composer.json..."
-            composer require "$PACKAGE" --no-update
+            composer require "$PACKAGE" "$UPDATE"
         fi
     done
