@@ -92,13 +92,11 @@ class SearchResults extends Component {
 				) }
 				{ hasResults && this.props.hasNextPage && (
 					<div className="jetpack-instant-search__search-pagination">
-						{ this.props.hasNextPage && (
-							<ScrollButton
-								enableLoadOnScroll={ this.props.enableLoadOnScroll }
-								isLoading={ this.props.isLoading }
-								onLoadNextPage={ this.props.onLoadNextPage }
-							/>
-						) }
+						<ScrollButton
+							enableLoadOnScroll={ this.props.enableLoadOnScroll }
+							isLoading={ this.props.isLoading }
+							onLoadNextPage={ this.props.onLoadNextPage }
+						/>
 					</div>
 				) }
 			</main>
