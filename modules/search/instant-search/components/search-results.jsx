@@ -13,7 +13,6 @@ import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
-import SearchResultsEmpty from './search-results-empty';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -86,7 +85,11 @@ class SearchResults extends Component {
 						) ) }
 					</ol>
 				) }
-				{ ! hasResults && <SearchResultsEmpty query={ this.props.query } /> }
+				{ ! hasResults && (
+					<div className="jetpack-instant-search__search-results-empty">
+						<h3>{ sprintf( __( 'No results for "%s".', 'jetpack' ), this.props.query ) }</h3>
+					</div>
+				) }
 				{ hasResults && this.props.hasNextPage && (
 					<div className="jetpack-instant-search__search-pagination">
 						{ this.props.hasNextPage && (
