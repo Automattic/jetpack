@@ -56,6 +56,6 @@ composer show --self |
         if [[ $LINE == "automattic/jetpack-"*"@dev" ]]; then
             PACKAGE=$( echo $LINE | cut -d " " -f1 )
             echo "Updating $PACKAGE in $CURRENT_DIR/composer.json..."
-            composer require "$PACKAGE" "$UPDATE"
+            composer require $PACKAGE $UPDATE
         fi
     done
