@@ -87,7 +87,7 @@ class SearchResults extends Component {
 					</ol>
 				) }
 				{ ! hasResults && <SearchResultsEmpty query={ this.props.query } /> }
-				{ hasResults && (
+				{ hasResults && this.props.hasNextPage && (
 					<div className="jetpack-instant-search__search-pagination">
 						{ this.props.hasNextPage && (
 							<ScrollButton
