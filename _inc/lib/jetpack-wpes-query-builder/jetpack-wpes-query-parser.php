@@ -124,6 +124,14 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 
 	protected $extracted_phrases = array();
 
+	public function get_current_query() {
+		return $this->current_query;
+	}
+
+	public function set_current_query( $q ) {
+		$this->current_query = $q;
+	}
+
 	///////////////////////////////////////////////////////
 	// Methods for Building arrays of multilingual fields
 

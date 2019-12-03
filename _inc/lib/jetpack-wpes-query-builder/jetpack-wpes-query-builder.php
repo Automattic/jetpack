@@ -49,6 +49,13 @@ class Jetpack_WPES_Query_Builder {
 	protected $bucket_filters        = array();
 	protected $bucket_sub_aggs       = array();
 
+	public function get_langs() {
+		if ( isset( $this->langs ) ) {
+			return $this->langs;
+		}
+		return false;
+	}
+
 	////////////////////////////////////
 	// Methods for building a query
 
@@ -165,6 +172,13 @@ class Jetpack_WPES_Query_Builder {
 	public function add_aggs( $aggs_name, $aggs ) {
 		$this->aggs_query = true;
 		$this->aggs[$aggs_name] = $aggs;
+
+		return $this;
+	}
+
+	public function set_all_aggs( $aggs ) {
+		$this->aggs_query = true;
+		$this->aggs = $aggs;
 
 		return $this;
 	}
