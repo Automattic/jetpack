@@ -30,8 +30,8 @@ export const settings = {
 	example: {},
 	styles: [
 		{
-			name: 'default',
-			label: _x( 'Default', 'block style', 'jetpack' ),
+			name: 'filled',
+			label: _x( 'Filled', 'block style', 'jetpack' ),
 			isDefault: true,
 		},
 		{
