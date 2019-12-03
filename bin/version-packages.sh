@@ -45,10 +45,7 @@ composer show --self |
         # Only looks for packages labeled @dev
         if [[ $LINE == "automattic/jetpack-"*"@dev" ]]; then
             PACKAGE=$( echo $LINE | cut -d " " -f1 )
-            GH_TAGS_URL="https://api.github.com/repos/$PACKAGE/tags"
-            LATEST_TAG=$( curl -s $AUTH_HEADER $GH_TAGS_URL 2>&1 | grep -m1 -o '"name":.*' | cut -d ":" -f2 | sed 's/"//g; s/v//g; s/,//g' )
-
             echo "Updating $PACKAGE to $LATEST_TAG in $CURRENT_DIR/composer.json..."
-            composer require "$PACKAGE:$LATEST_TAG" --no-update
+            composer require "$PACKAGE" --no-update
         fi
     done
