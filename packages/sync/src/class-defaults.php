@@ -1160,7 +1160,7 @@ class Defaults {
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_cron_sync_time_limit = 4 * MINUTE_IN_SECONDS; // 30 seconds.
+	public static $default_cron_sync_time_limit = 4 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Default for number of term relationship items sent in an full sync item.
