@@ -1,29 +1,24 @@
 #!/bin/bash
 
 # This script updates the composer.json file in of whatever directory it is run.
-# It will update any packages prefixed with `automattic/jetpack-`
+# It will update any packages prefixed with `automattic/jetpack-` to it's latest stable version.
 #
 # Probably will be most useful in the release scripts that branch off, since we:
 # a. Want to ship Jetpack with specific versions of packages
 # b. Want to preserve @dev in master branch
-#
-# I was getting rate limited by the GH API when testing, so if this happens to you, you'll have to
-# pass in a personal access token from GitHub to get more requests.
-# Example: `bin/get-latest-package.sh -t YOUR_GH_ACCESS_TOKEN`
 
 function usage {
 	echo "usage: $0 [--update | -u]"
-	echo "  -u | --update      Updates composer.lock and packages. If omitted, will only update composer.json."
+	echo "  --no-update        If set, will only update composer.json file without updating the packages themselves."
 	echo "  -h | --help        Help!"
 	exit 1
 }
 
-UPDATE="--no-update"
-
+UPDATE=""
 for i in "$@"; do
 	case $i in
-		-u | --update )
-		    UPDATE=""
+		--no-update )
+		    UPDATE="--no-update"
 			shift
 			;;
 		-h | --help )
