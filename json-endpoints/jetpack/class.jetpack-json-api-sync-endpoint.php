@@ -194,6 +194,11 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		if ( ! empty( $args['queue'] ) && 'immediate' === $args['queue'] ) {
 			return $this->immediate_full_sync_pull( $number_of_items );
 		}
+
+		return $this->queue_pull( $queue_name, $number_of_items, $args );
+	}
+
+	function queue_pull( $queue_name, $number_of_items, $args ){
 		$queue = new Queue( $queue_name );
 
 		if ( 0 === $queue->size() ) {
