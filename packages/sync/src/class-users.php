@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -44,12 +43,22 @@ class Users {
 	 * @todo Eventually, connection needs to be instantiated at the top level in the sync package.
 	 */
 	public static function init() {
-		self::$connection = new Jetpack_Connection();
+		add_action( 'jetpack_loaded', array( __CLASS__, 'on_jetpack_loaded' ) );
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public static function on_jetpack_loaded( $jetpack ) {
+		self::$connection = $jetpack->get_connection();
 		if ( self::$connection->is_active() ) {
 			// Kick off synchronization of user role when it changes.
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}
 	}
+
 
 	/**
 	 * Synchronize connected user role changes.
