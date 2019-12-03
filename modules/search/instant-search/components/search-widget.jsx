@@ -11,15 +11,15 @@ import { createPortal } from 'preact/compat';
  */
 import SearchForm from './search-form';
 
-const SearchWidget = ( { widget } ) => {
+const SearchWidget = props => {
 	return createPortal(
 		<div
-			id={ `${ widget.widget_id }-portaled-wrapper` }
+			id={ `${ props.widget.widget_id }-portaled-wrapper` }
 			className="jetpack-instant-search__portaled-wrapper"
 		>
-			<SearchForm widget={ widget } />
+			<SearchForm { ...props } />
 		</div>,
-		document.getElementById( `${ widget.widget_id }-wrapper` )
+		document.getElementById( `${ props.widget.widget_id }-wrapper` )
 	);
 };
 
