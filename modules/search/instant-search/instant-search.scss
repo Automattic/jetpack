@@ -6,10 +6,11 @@ $grid-size-large: 16px;
 		@content;
 	}
 }
+
 @import './components/gridicon/style.scss';
 @import './components/search-results.scss';
 @import './components/search-filters.scss';
-@import './components/search-sort-widget.scss';
+@import './components/search-sort.scss';
 @import './components/search-box.scss';
 @import './components/search-result-minimal.scss';
 @import './components/search-result-product.scss';
@@ -17,5 +18,3 @@ $grid-size-large: 16px;
 .jetpack-instant-search__is-loading {
 	opacity: 0.2;
 }
-
-
