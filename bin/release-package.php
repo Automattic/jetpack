@@ -46,6 +46,13 @@ if ( ! preg_match( '/^[0-9.]+$/', $argv[2] ) ) {
 }
 $tag_version = $argv[2];
 
+$command       = sprintf(
+	'bin/version-packages.sh --package=%1$s --no-update',
+	escapeshellarg( $package_name )
+);
+execute( $command, 'Could not update sub-package dependency versions.', true, true );
+exit;
+
 // Create the new tag in the main repository.
 $main_repo_tag = 'automattic/jetpack-' . $package_name . '@' . $tag_version;
 $command       = sprintf(
