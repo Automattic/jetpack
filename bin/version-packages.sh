@@ -8,17 +8,23 @@
 # b. Want to preserve @dev in master branch
 
 function usage {
-	echo "usage: $0 [--update | -u]"
+	echo "usage: $0 [--package=example] [--no-update]"
 	echo "  --no-update        If set, will only update composer.json file without updating the packages themselves."
+	echo "  -p | --package     Will update a sub-package's dependencies (must be found in JETPACK_ROOT/packages/ dir)"
 	echo "  -h | --help        Help!"
 	exit 1
 }
 
 UPDATE=""
+PACKAGE=""
 for i in "$@"; do
 	case $i in
 		--no-update )
 		    UPDATE="--no-update"
+			shift
+			;;
+		-p=* | --package=* )
+		    PACKAGE="${i#*=}"
 			shift
 			;;
 		-h | --help )
@@ -34,6 +40,12 @@ done
 CURRENT_DIR=$( pwd )
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 JETPACK_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# If we're only modifying a sub-package.
+if [[ ! -z $PACKAGE ]]; then
+    CURRENT_DIR="$JETPACK_ROOT/packages/$PACKAGE"
+    cd $CURRENT_DIR
+fi
 
 # Bail if no composer.json to check for.
 if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
