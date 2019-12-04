@@ -52,6 +52,8 @@ class Gridicon extends Component {
 				return <title>{ __( 'Tag' ) }</title>;
 			case 'gridicons-video':
 				return <title>{ __( 'Has a video.' ) }</title>;
+			case 'gridicons-filter':
+				return <title>{ __( 'Open search filters.' ) }</title>;
 		}
 	}
 
@@ -113,6 +115,12 @@ class Gridicon extends Component {
 						<path d="M20 4v2h-2V4H6v2H4V4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2v-2h2v2h12v-2h2v2c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zM6 16H4v-3h2v3zm0-5H4V8h2v3zm4 4V9l4.5 3-4.5 3zm10 1h-2v-3h2v3zm0-5h-2V8h2v3z" />
 					</g>
 				);
+			case 'gridicons-filter':
+				return (
+					<g>
+						<path d="M10 19h4v-2h-4v2zm-4-6h12v-2H6v2zM3 5v2h18V5H3z" />
+					</g>
+				);
 		}
 	}
 
@@ -126,6 +134,7 @@ class Gridicon extends Component {
 		if ( needsOffset ) {
 			iconClass.push( 'needs-offset' );
 		}
+
 		iconClass = iconClass.join( ' ' );
 
 		return (

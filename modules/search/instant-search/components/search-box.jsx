@@ -9,6 +9,11 @@ import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
 
+/**
+ * Internal dependencies
+ */
+import Gridicon from './gridicon';
+
 function ignoreEnterKey( event ) {
 	if ( event.key === 'Enter' ) {
 		// Prevent form submission
@@ -36,6 +41,9 @@ const SearchBox = props => {
 				type="search"
 				value={ props.query }
 			/>
+			{ ! props.widget && (
+				<Gridicon icon="filter" class_name="jetpack-instant-search__box-filter-icon" />
+			) }
 			<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
 		</div>
 	);

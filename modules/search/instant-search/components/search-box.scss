@@ -1,3 +1,11 @@
+.jetpack-instant-search__box {
+	display: flex;
+}
+
+.jetpack-instant-search__box-filter-icon {
+	margin-left: 4px;
+}
+
 /* apply to all the inputs to try and pick up any theme styling */
 .jetpack-instant-search__box input {
 	border-radius: 2px;

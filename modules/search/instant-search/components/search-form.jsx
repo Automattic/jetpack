@@ -37,6 +37,7 @@ class SearchForm extends Component {
 						onFocus={ this.props.onSearchFocus }
 						onBlur={ this.props.onSearchBlur }
 						query={ getSearchQuery() }
+						widget={ this.props.widget }
 					/>
 				</div>
 				<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
