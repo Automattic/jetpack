@@ -1017,14 +1017,14 @@ class Defaults {
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_sync_wait_threshold = 5;
+	public static $default_sync_wait_threshold = 10;
 
 	/**
 	 * Default wait between attempting to continue a full sync via requests.
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_enqueue_wait_time = 10;
+	public static $default_enqueue_wait_time = 1;
 
 	/**
 	 * Maximum queue size.
@@ -1160,7 +1160,7 @@ class Defaults {
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_cron_sync_time_limit = 30; // 30 seconds.
+	public static $default_cron_sync_time_limit = 4 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Default for number of term relationship items sent in an full sync item.
