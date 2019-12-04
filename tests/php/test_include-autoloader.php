@@ -21,7 +21,6 @@ class WP_Test_Jetpack_Autoloader_Lint extends WP_UnitTestCase {
 	}
 
 	public function unset_package_classes() {
-		error_log( 'UNSET PACKAGE CLASSES' );
 		global $jetpack_packages_classes;
 		$jetpack_packages_classes = array();
 	}
