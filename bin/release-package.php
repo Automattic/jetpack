@@ -137,7 +137,7 @@ $command = sprintf(
 execute( $command, 'Could not push the new version tag to the package repository.', true, true );
 
 // Reset the main repository to the original state, and remove the package repository remote.
-cleanup( true, true );
+cleanup( true, true, $tag_version );
 
 /**
  * Execute a command.
@@ -169,11 +169,21 @@ function execute( $command, $error = '', $cleanup_repo = false, $cleanup_remotes
  * Cleanup repository and remotes.
  * Should be called at any error that changes the repo, or at success at the end.
  *
- * @param bool $cleanup_repo    Whether to cleaup repo on error.
- * @param bool $cleanup_remotes Whether to cleanup remotes on error.
+ * @param bool   $cleanup_repo    Whether to cleaup repo on error.
+ * @param bool   $cleanup_remotes Whether to cleanup remotes on error.
+ * @param string $tag_version     Optional version tag that needs to be deleted locally.
  */
-function cleanup( $cleanup_repo = false, $cleanup_remotes = false ) {
+function cleanup( $cleanup_repo = false, $cleanup_remotes = false, $tag_version = '' ) {
 	if ( $cleanup_repo ) {
+		// Delete the local tag we created and pushed to the package remote.
+		if ( ! empty( $tag_version ) ) {
+			$command = sprintf(
+				'git tag --delete v%1$s',
+				escapeshellarg( $tag_version )
+			);
+			execute( $command, 'Could not delete local tag.' );
+		}
+
 		// Reset the main repository to the original state.
 		execute( 'git reset --hard refs/original/refs/heads/master', 'Could not reset the repository to its original state.' );
 
