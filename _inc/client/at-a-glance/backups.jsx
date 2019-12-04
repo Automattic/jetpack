@@ -35,7 +35,7 @@ const renderCard = props => (
 			text: __(
 				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.'
 			),
-			link: 'https://jetpack.com/support/backups/',
+			link: 'https://jetpack.com/support/backup/',
 		} }
 		className={ props.className }
 		status={ props.status }
