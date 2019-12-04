@@ -254,12 +254,13 @@ INCLUDE_CLASSMAP;
 	private function getAutoloadPackageFile( $suffix ) {
 		$sourceLoader   = fopen( __DIR__ . '/autoload.php', 'r' );
 		$file_contents  = stream_get_contents( $sourceLoader );
+		$function_name  = '$enqueue_packages_' . $suffix;
 		$file_contents .= <<<INCLUDE_FILES
 /**
  * Prepare all the classes for autoloading.
  */
-function enqueue_packages_$suffix() {
-	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
+$function_name = function() {
+	\$class_map = require dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
 	foreach ( \$class_map as \$class_name => \$class_info ) {
 		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
 	}
@@ -276,8 +277,8 @@ function enqueue_packages_$suffix() {
 			\$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] = true;
 		}
 	}
-}
-enqueue_packages_$suffix();
+};
+$function_name();
 
 INCLUDE_FILES;
 
