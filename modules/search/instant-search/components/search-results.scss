@@ -43,6 +43,9 @@
 	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
 	li:before {
 		content: '\200B';
+		height: 1px;
+		position: absolute;
+		width: 1px;
 	}
 }
 
