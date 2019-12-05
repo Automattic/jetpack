@@ -128,11 +128,15 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 
 	// Use cached value from the last 30 minutes if browser is offline
 	if ( ! navigator.onLine && backupCache.get( key ) ) {
-		return backupCache.get( key );
+		return backupCache
+			.get( key )
+			.then( data => ( { _isCached: true, _isError: false, _isOffline: true, ...data } ) );
 	}
 	// Use cached value from the last 5 minutes
 	if ( cache.get( key ) ) {
-		return cache.get( key );
+		return cache
+			.get( key )
+			.then( data => ( { _isCached: true, _isError: false, _isOffline: false, ...data } ) );
 	}
 
 	let fields = [
@@ -172,7 +176,7 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 			// Fallback to either cache if we run into any errors
 			const fallbackValue = cache.get( key ) || backupCache.get( key );
 			if ( fallbackValue ) {
-				return fallbackValue;
+				return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
 			}
 			throw error;
 		} )
