@@ -36,9 +36,10 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = createRef();
 		this.state = {
+			hasError: false,
 			isLoading: false,
-			response: {},
 			requestId: 0,
+			response: {},
 			showResults: false,
 		};
 		this.getResults = debounce( this.getResults, 200 );
@@ -136,25 +137,33 @@ class SearchApp extends Component {
 				resultFormat,
 				siteId: this.props.options.siteId,
 				sort,
-			} ).then( newResponse => {
-				if ( this.state.requestId === requestId ) {
-					const response = { ...newResponse };
-					if ( !! pageHandle ) {
-						response.aggregations = {
-							...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
-								? this.state.response.aggregations
-								: {} ),
-							...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
-						};
-						response.results = [
-							...( 'results' in this.state.response ? this.state.response.results : [] ),
-							...newResponse.results,
-						];
+			} )
+				.then( newResponse => {
+					if ( this.state.requestId === requestId ) {
+						const response = { ...newResponse };
+						if ( !! pageHandle ) {
+							response.aggregations = {
+								...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
+									? this.state.response.aggregations
+									: {} ),
+								...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
+							};
+							response.results = [
+								...( 'results' in this.state.response ? this.state.response.results : [] ),
+								...newResponse.results,
+							];
+						}
+						this.setState( { response, hasError: false } );
 					}
-					this.setState( { response } );
-				}
-				this.setState( { isLoading: false } );
-			} );
+					this.setState( { isLoading: false } );
+				} )
+				.catch( error => {
+					if ( error instanceof ProgressEvent ) {
+						this.setState( { isLoading: false, hasError: true } );
+						return;
+					}
+					throw error;
+				} );
 		} );
 	};
 
@@ -199,6 +208,7 @@ class SearchApp extends Component {
 				{ this.state.showResults &&
 					createPortal(
 						<SearchResults
+							hasError={ this.state.hasError }
 							hasNextPage={ this.hasNextPage() }
 							isLoading={ this.state.isLoading }
 							onLoadNextPage={ this.loadNextPage }

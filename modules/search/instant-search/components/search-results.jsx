@@ -77,7 +77,11 @@ class SearchResults extends Component {
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ hasResults && (
+				{ this.props.hasError && (
+					<Notice type="warning">
+						It looks like you're offline. Please reconnect for results.
+					</Notice>
+				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
 					<Notice type="warning">
 						It looks like you're offline and the results below could be out of date. Please
