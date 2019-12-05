@@ -23,6 +23,7 @@ function ignoreEnterKey( event ) {
 
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
+
 	return (
 		<div className="jetpack-instant-search__box">
 			{ /* TODO: Add support for preserving label text */ }
@@ -42,7 +43,11 @@ const SearchBox = props => {
 				value={ props.query }
 			/>
 			{ ! props.widget && (
-				<Gridicon icon="filter" class_name="jetpack-instant-search__box-filter-icon" />
+				<Gridicon
+					icon="filter"
+					class_name="jetpack-instant-search__box-filter-icon"
+					onClick={ props.toggleFilters }
+				/>
 			) }
 			<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
 		</div>
