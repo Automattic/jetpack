@@ -174,6 +174,7 @@ class WordAds {
 			 */
 			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_transient );
 
+			http_response_code( 200 );
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			echo esc_html( $ads_txt_content );
 			die();
