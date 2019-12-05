@@ -49,7 +49,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 		}
 
 		if ( ! in_array( $query, array( 'sync', 'full_sync', 'immediate' ) ) ) {
-			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
+			return new WP_Error( 'invalid_queue', 'Queue name should be sync, full_sync or immediate', 400 );
 		}
 		return $query;
 	}
