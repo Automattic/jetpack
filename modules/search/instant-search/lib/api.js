@@ -126,13 +126,13 @@ function buildFilterObject( filterQuery ) {
 export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
 	const key = stringify( Array.from( arguments ) );
 
-	// Use cached value from the last 5 minutes
-	if ( cache.get( key ) ) {
-		return cache.get( key );
-	}
 	// Use cached value from the last 30 minutes if browser is offline
 	if ( ! navigator.onLine && backupCache.get( key ) ) {
 		return backupCache.get( key );
+	}
+	// Use cached value from the last 5 minutes
+	if ( cache.get( key ) ) {
+		return cache.get( key );
 	}
 
 	let fields = [
