@@ -53,7 +53,7 @@ class Gridicon extends Component {
 			case 'gridicons-video':
 				return <title>{ __( 'Has a video.' ) }</title>;
 			case 'gridicons-filter':
-				return <title>{ __( 'Open search filters.' ) }</title>;
+				return <title>{ __( 'Toggle search filters.' ) }</title>;
 		}
 	}
 
@@ -134,7 +134,6 @@ class Gridicon extends Component {
 		if ( needsOffset ) {
 			iconClass.push( 'needs-offset' );
 		}
-
 		iconClass = iconClass.join( ' ' );
 
 		return (

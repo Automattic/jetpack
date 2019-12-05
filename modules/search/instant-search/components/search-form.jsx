@@ -25,7 +25,7 @@ const noop = event => event.preventDefault();
 
 class SearchForm extends Component {
 	state = {
-		showFilters: true,
+		showFilters: false,
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => setFilterQuery( filterName, filterValue );
@@ -49,6 +49,7 @@ class SearchForm extends Component {
 						query={ getSearchQuery() }
 						widget={ this.props.widget }
 						toggleFilters={ this.toggleFilters }
+						showFilters={ this.state.showFilters }
 					/>
 				</div>
 				{ this.state.showFilters && (

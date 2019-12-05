@@ -43,11 +43,19 @@ const SearchBox = props => {
 				value={ props.query }
 			/>
 			{ ! props.widget && (
-				<Gridicon
-					icon="filter"
-					class_name="jetpack-instant-search__box-filter-icon"
+				/* Using role='button' rather than button element so we retain control over styling */
+				<div
+					role="button"
 					onClick={ props.toggleFilters }
-				/>
+					onKeyDown={ props.toggleFilters }
+					tabIndex="0"
+					className="jetpack-instant-search__box-filter-icon"
+				>
+					<Gridicon icon="filter" alt="Search filter icon" />
+					<span class="screen-reader-text">
+						{ props.showFilters ? __( 'Hide filters' ) : __( 'Show filters ' ) }
+					</span>
+				</div>
 			) }
 			<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
 		</div>
