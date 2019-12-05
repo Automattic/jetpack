@@ -20,7 +20,7 @@ function twentytwenty_jetpack_setup() {
 	add_theme_support(
 		'infinite-scroll',
 		array(
-			'type'           => 'scroll',
+			'type'           => 'click',
 			'container'      => 'site-content',
 			'render'         => 'twentytwenty_infinite_scroll_render',
 			'footer'         => 'site-content',
