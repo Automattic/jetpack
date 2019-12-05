@@ -245,7 +245,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 	public function jetpack_sync_send_data_listener() {
 		foreach ( func_get_args()[0] as $key => $item ) {
-			$items[ $key ] = $item;
+			$this->items[ $key ] = $item;
 		}
 	}
 
