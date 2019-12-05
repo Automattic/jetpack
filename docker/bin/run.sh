@@ -11,8 +11,7 @@ user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"
 
 # Download WordPress
-# @todo Switched version to nightly since WP 5.3 has PHP 7.4 compat work. Avoids already fixed notices/errors/etc.
-[ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download --version=nightly
+[ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
