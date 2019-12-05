@@ -563,9 +563,9 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'early_initalization' ), 5 );
+		add_action( 'plugins_loaded', array( $this, 'early_initialization' ), 5 );
 		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
-		add_action( 'plugins_loaded', array( $this, 'late_initalization' ), 90 );
+		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
 			'jetpack_connection_secret_generator',
@@ -738,7 +738,7 @@ class Jetpack {
 	 *
 	 * @action plugins_loaded
 	 */
-	public function early_initalization() {
+	public function early_initialization() {
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
@@ -764,7 +764,7 @@ class Jetpack {
 	 *
 	 * @action plugins_loaded
 	 */
-	public function late_initalization() {
+	public function late_initialization() {
 		/*
 		 * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
 		 * with a high priority or sites that use alternate cron.
@@ -803,24 +803,6 @@ class Jetpack {
 		}
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
-	}
-
-	/**
-	 * Runs on plugins_loaded. Use this to add code that needs to be executed later than other
-	 * initialization code.
-	 *
-	 * @action plugins_loaded
-	 */
-	public function late_initialization() {
-		/**
-		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
-		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
-		 *
-		 * @since 8.1.0
-		 *
-		 * @param Jetpack $jetpack the main plugin class object.
-		 */
-		do_action( 'jetpack_loaded', $this );
 	}
 
 	/**
