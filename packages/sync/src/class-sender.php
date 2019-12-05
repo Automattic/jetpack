@@ -150,6 +150,15 @@ class Sender {
 	private static $instance;
 
 	/**
+	 * Jetpack connection manager instance.
+	 *
+	 * @access protected
+	 *
+	 * @var null|Automattic\Jetpack\Connection\Manager
+	 */
+	protected $connection = null;
+
+	/**
 	 * Retrieve the singleton instance of this class.
 	 *
 	 * @access public
@@ -186,10 +195,20 @@ class Sender {
 	private function init() {
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
+		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'register_jetpack_xmlrpc_methods' ) );
 		foreach ( Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public function on_jetpack_loaded( $jetpack ) {
+		$this->connection = $jetpack->get_connection();
 	}
 
 	/**
@@ -199,7 +218,7 @@ class Sender {
 	 * @access public
 	 */
 	public function maybe_set_user_from_token() {
-		$verified_user = \Jetpack::connection()->verify_xml_rpc_signature();
+		$verified_user = $this->connection->verify_xml_rpc_signature();
 		if ( Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user

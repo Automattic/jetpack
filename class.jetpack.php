@@ -737,7 +737,6 @@ class Jetpack {
 	 * before other hooks.
 	 *
 	 * @action plugins_loaded
-	 * @priority 5
 	 */
 	public function early_initalization() {
 		/*
@@ -760,10 +759,10 @@ class Jetpack {
 	}
 
 	/**
-	 * Runs on plugins_loaded but with a lower priority.
+	 * Runs on plugins_loaded. Use this to add code that needs to be executed later than other
+	 * initialization code.
 	 *
 	 * @action plugins_loaded
-	 * @priority 90
 	 */
 	public function late_initalization() {
 		/*
@@ -771,15 +770,6 @@ class Jetpack {
 		 * with a high priority or sites that use alternate cron.
 		 */
 		Sync_Actions::init();
-
-		self::plugin_textdomain();
-		self::load_modules();
-	}
-
-	/**
-	 * Runs after all the plugins have loaded but before init.
-	 */
-	function after_plugins_loaded() {
 
 		Partner::init();
 
@@ -793,6 +783,15 @@ class Jetpack {
 		 */
 		do_action( 'jetpack_loaded', $this );
 
+		self::plugin_textdomain();
+		self::load_modules();
+	}
+
+	/**
+	 * Runs after all the plugins have loaded but before init.
+	 */
+	public function after_plugins_loaded() {
+		$terms_of_service = new Terms_Of_Service();
 		$tracking = new Plugin_Tracking();
 		if ( $terms_of_service->has_agreed() ) {
 			add_action( 'init', array( $tracking, 'init' ) );
@@ -5197,7 +5196,6 @@ endif;
 	 * @return Automattic\Jetpack\Connection\Manager
 	 */
 	public static function connection() {
-		_deprecated_function( __METHOD__, 'jetpack-8.1', 'Jetpack::get_connection()' );
 		return self::init()->connection_manager;
 	}
 

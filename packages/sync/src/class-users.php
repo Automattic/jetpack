@@ -110,7 +110,7 @@ class Users {
 	 * @return string Signed role of the user.
 	 */
 	public static function get_signed_role( $user_id ) {
-		return \Jetpack::connection()->sign_role( self::get_role( $user_id ), $user_id );
+		return self::$connection->sign_role( self::get_role( $user_id ), $user_id );
 	}
 
 	/**

@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use Automattic\Jetpack\Sync\Actions;
-
 /**
  * Jetpack Sync main class.
  */
