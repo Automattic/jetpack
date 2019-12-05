@@ -13,6 +13,7 @@ import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import Notice from './notice';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -77,6 +78,13 @@ class SearchResults extends Component {
 					</p>
 				) }
 				{ hasResults && (
+				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
+					<Notice type="warning">
+						It looks like you're offline and the results below could be out of date. Please
+						reconnect for live results.
+					</Notice>
+				) }
+				{ hasResults && ! this.props.hasError && (
 					<ol
 						className={ `jetpack-instant-search__search-results-list is-format-${
 							this.props.resultFormat
