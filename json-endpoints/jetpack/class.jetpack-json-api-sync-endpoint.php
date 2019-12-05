@@ -253,11 +253,14 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		// try to give ourselves as much time as possible.
 		set_time_limit( 0 );
 
-		remove_filter( 'jetpack_sync_send_data', array( 'Automattic\Jetpack\Sync\Actions', 'send_data' ), 10, 6 );
-		add_filter( 'jetpack_sync_send_data', array( $this, 'jetpack_sync_send_data_listener' ), 10, 6 );
+		$original_send_data_cb = array( 'Automattic\Jetpack\Sync\Actions', 'send_data' );
+		$temp_send_data_cb     = array( $this, 'jetpack_sync_send_data_listener' );
+
+		remove_filter( 'jetpack_sync_send_data', $original_send_data_cb );
+		add_filter( 'jetpack_sync_send_data', $temp_send_data_cb, 10, 6 );
 		Sender::get_instance()->do_full_sync();
-		remove_filter( 'jetpack_sync_send_data', array( $this, 'jetpack_sync_send_data_listener' ), 10, 6 );
-		add_filter( 'jetpack_sync_send_data', array( 'Automattic\Jetpack\Sync\Actions', 'send_data' ), 10, 6 );
+		remove_filter( 'jetpack_sync_send_data', $temp_send_data_cb );
+		add_filter( 'jetpack_sync_send_data', $original_send_data_cb, 10, 6 );
 
 		return array(
 			'items'          => $this->items,
