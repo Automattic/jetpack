@@ -9,7 +9,7 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
-import ProductCard from '../components/product-card';
+import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
 import { SingleProductBackup } from './single-product-backup';
 import { getPlanClass } from '../lib/plans/constants';
