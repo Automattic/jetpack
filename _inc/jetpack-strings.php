@@ -30,9 +30,6 @@ __( "Your data is being securely backed up as you edit.", "jetpack" ), // _inc/c
 __( "Jetpack Backup {{em}}Real-Time{{/em}}", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:107
 __( "My Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:127
 __( "My Products", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:143
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
 __( "Testing Jetpack Connection", "jetpack" ), // _inc/client/state/connection/actions.js:42
 __( "There was an error testing Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:67
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:129
@@ -40,6 +37,9 @@ __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), /
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:173
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:184
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:199
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
 __( "Sending login email…", "jetpack" ), // _inc/client/state/mobile/actions.js:22
 __( "Login email sent", "jetpack" ), // _inc/client/state/mobile/actions.js:34
 __( "Failed to send login email", "jetpack" ), // _inc/client/state/mobile/actions.js:49
@@ -296,6 +296,21 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
+_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
+_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
+_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
+_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
+_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:72
+_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:73
+_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:105
+__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:109
+__( "Share information with our analytics tool about your use of services while logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:120
+__( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
+__( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
+__( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
 __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:98
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:106
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:108
@@ -323,21 +338,7 @@ __( "Upgrade to Real-Time Backups", "jetpack" ), // _inc/client/plans/single-pro
 __( "Upgrade to Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:202
 __( "Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:208
 __( "Backup options:", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:225
-__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
-__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
-__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
-_x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
-_x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
-_x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
-_x( "gdpr", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
-_x( "tos", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:72
-_x( "terms of service", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:73
-_x( "Privacy Settings", "Settings header", "jetpack" ), // _inc/client/privacy/index.jsx:105
-__( "We are committed to your privacy and security. ", "jetpack" ), // _inc/client/privacy/index.jsx:109
-__( "Share information with our analytics tool about your use of services while logged in to your WordPress.com account. {{cookiePolicyLink}}Learn more{{/cookiePolicyLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:120
-__( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:139
-__( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:156
-__( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:174
+__( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
 __( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:78
 __( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:83
 __( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:88
@@ -347,7 +348,8 @@ _x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), 
 _x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:121
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:135
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:168
-__( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -416,8 +418,6 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
 __( "Share your content to social media, reaching new audiences and increasing engagement.", "jetpack" ), // _inc/client/sharing/index.jsx:60
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
