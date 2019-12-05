@@ -210,7 +210,9 @@ export class Map extends Component {
 				},
 			} );
 			this.setState( { boundsSetProgrammatically: true } );
-			map.removeControl( zoomControl );
+			try {
+				map.removeControl( zoomControl );
+			} catch ( e ) {}
 			return;
 		}
 		// If there is only one point, center map around it.
