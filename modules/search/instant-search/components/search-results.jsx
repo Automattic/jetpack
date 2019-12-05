@@ -79,11 +79,13 @@ class SearchResults extends Component {
 				) }
 				{ this.props.hasError && (
 					<Notice type="warning">
+						{ /* TODO: Wrap these in __ translation calls when copy is finalized. */ }
 						It looks like you're offline. Please reconnect for results.
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
 					<Notice type="warning">
+						{ /* TODO: Wrap these in __ translation calls when copy is finalized. */ }
 						It looks like you're offline and the results below could be out of date. Please
 						reconnect for live results.
 					</Notice>
