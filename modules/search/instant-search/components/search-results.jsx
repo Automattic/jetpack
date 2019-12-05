@@ -22,7 +22,7 @@ class SearchResults extends Component {
 		const hasCorrectedQuery = corrected_query !== false;
 		const num = new Intl.NumberFormat().format( total );
 
-		if ( total === 0 ) {
+		if ( total === 0 || this.props.hasError ) {
 			return sprintf( __( 'No results for "%s".', 'jetpack' ), this.props.query );
 		}
 		if ( hasQuery && hasCorrectedQuery ) {
