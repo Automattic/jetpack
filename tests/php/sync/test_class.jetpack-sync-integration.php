@@ -188,7 +188,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create_many( 2 );
 		$this->sender->do_sync();
 
-		$this->assertFalse( empty( $this->server_event_storage->get_all_events() ) );
+		$this->assertFalse( empty(  $this->server_event_storage->get_all_events() ) );
 	}
 
 	/**
