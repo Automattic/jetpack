@@ -191,7 +191,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 		$number_of_items = absint( $args['number_of_items'] );
 
-		if ( ! empty( $args['queue'] ) && 'immediate' === $args['queue'] ) {
+		if ( 'immediate' === $queue_name ) {
 			return $this->immediate_full_sync_pull( $number_of_items );
 		}
 
