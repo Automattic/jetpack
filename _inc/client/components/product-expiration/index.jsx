@@ -11,28 +11,39 @@ class ProductExpiration extends React.PureComponent {
 		purchaseDate: PropTypes.string,
 		isRefundable: PropTypes.bool,
 		dateFormat: PropTypes.string,
+		fallback: PropTypes.string,
 	};
 
 	static defaultProps = {
 		purchaseDate: '',
 		isRefundable: false,
 		dateFormat: 'LL',
+		fallback: '',
 	};
 
 	render() {
-		const { expiryDate, purchaseDate, isRefundable, dateFormat } = this.props;
+		const { expiryDate, purchaseDate, isRefundable, dateFormat, fallback } = this.props;
 
 		// Return nothing if we don't have any dates.
 		if ( ! expiryDate && ! purchaseDate ) {
-			return null;
+			return fallback;
 		}
 
 		// Return the subscription date if we don't have the expiry date or the plan is refundable.
 		if ( ! expiryDate || isRefundable ) {
-			return __( 'Purchased on %s.', { args: moment( purchaseDate ).format( dateFormat ) } );
+			const purchase = moment( purchaseDate );
+			if ( moment.isValid() ) {
+				return __( 'Purchased on %s.', { args: purchase.format( dateFormat ) } );
+			}
+			return fallback;
 		}
 
 		const expiry = moment( expiryDate );
+
+		// Return fallback if date is not parsable.
+		if ( ! expiry.isValid() ) {
+			return fallback;
+		}
 
 		// If the expiry date is in the past, show the expiration date.
 		if ( expiry.diff( new Date() ) < 0 ) {
