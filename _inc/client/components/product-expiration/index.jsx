@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { moment, translate as __, localize } from 'i18n-calypso';
+import { moment, translate as __ } from 'i18n-calypso';
 
 class ProductExpiration extends React.PureComponent {
 	static propTypes = {
@@ -43,4 +43,4 @@ class ProductExpiration extends React.PureComponent {
 	}
 }
 
-export default localize( ProductExpiration );
+export default ProductExpiration;
