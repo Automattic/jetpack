@@ -256,6 +256,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 		$original_send_data_cb = array( 'Automattic\Jetpack\Sync\Actions', 'send_data' );
 		$temp_send_data_cb     = array( $this, 'jetpack_sync_send_data_listener' );
 
+		Sender::get_instance()->set_enqueue_wait_time( 0 );
 		remove_filter( 'jetpack_sync_send_data', $original_send_data_cb );
 		add_filter( 'jetpack_sync_send_data', $temp_send_data_cb, 10, 6 );
 		Sender::get_instance()->do_full_sync();
