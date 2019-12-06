@@ -84,7 +84,7 @@ class SearchApp extends Component {
 	}
 
 	hasNextPage() {
-		return !! this.state.response.page_handle;
+		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
 
 	showResults = () => {
