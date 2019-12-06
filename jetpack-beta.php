@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.4.0
+ * Version: 2.4.1
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -1029,7 +1029,7 @@ class Jetpack_Beta {
 			! Jetpack_Beta::is_on_stable() &&
 			( Jetpack_Beta::should_update_dev_to_master() || Jetpack_Beta::should_update_dev_version() )
 		) {
-			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_file' ), 10, 2 );
+			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_files' ), 10, 2 );
 
 			// If response is false, don't alter the transient
 			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
@@ -1152,20 +1152,35 @@ class Jetpack_Beta {
 	 *
 	 * @return WP_Error
 	 */
-	static function check_for_main_file( $source, $remote_source ) {
+	static function check_for_main_files( $source, $remote_source ) {
 		if ( $source === $remote_source . '/jetpack-dev/' ) {
-			if ( ! file_exists( $source. 'jetpack.php' ) ) {
+			if ( ! file_exists( $source . 'jetpack.php' ) ) {
 				return new WP_Error( 'plugin_file_does_not_exist', __( 'Main Plugin File does not exist', 'jetpack-beta' ) );
 			}
-			if ( ! file_exists( $source. '_inc/build/static.html' ) ) {
+			if ( ! file_exists( $source . '_inc/build/static.html' ) ) {
 				return new WP_Error( 'static_admin_page_does_not_exist', __( 'Static Admin Page File does not exist', 'jetpack-beta' ) );
 			}
-			if ( ! file_exists( $source. '_inc/build/admin.js' ) ) {
+			if ( ! file_exists( $source . '_inc/build/admin.js' ) ) {
 				return new WP_Error( 'admin_page_does_not_exist', __( 'Admin Page File does not exist', 'jetpack-beta' ) );
+			}
+			// It has happened that sometimes a generated bundle from the master branch ends up with an empty
+			// vendor directory. Used to be a problem in the beta building process.
+			if ( self::is_dir_empty( $source . 'vendor' ) ) {
+				return new WP_Error( 'vendor_dir_is_empty', __( 'The dependencies dir (vendor) is empty', 'jetpack-beta' ) );
 			}
 		}
 
 		return $source;
+	}
+
+	/**
+	 * Checks if a dir is empty
+	 *
+	 * @param [type] $dir The absolute directory path to check
+	 * @return boolean
+	 */
+	static function is_dir_empty( $dir ) {
+		return ( count( scandir( $dir ) ) == 2 );
 	}
 
 	/**
