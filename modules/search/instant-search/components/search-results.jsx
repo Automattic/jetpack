@@ -66,7 +66,7 @@ class SearchResults extends Component {
 					className={
 						hasResults
 							? 'jetpack-instant-search__search-results-real-query'
-							: 'etpack-instant-search__search-results-empty'
+							: 'jetpack-instant-search__search-results-empty'
 					}
 				>
 					{ this.getSearchTitle() }
@@ -86,8 +86,7 @@ class SearchResults extends Component {
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
 					<Notice type="warning">
 						{ /* TODO: Wrap these in __ translation calls when copy is finalized. */ }
-						It looks like you're offline and the results below could be out of date. Please
-						reconnect for live results.
+						It looks like you're offline and these results could be out of date.
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && (
