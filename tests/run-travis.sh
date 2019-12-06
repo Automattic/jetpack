@@ -31,6 +31,7 @@ function print_build_info {
 		echo " - Because WordPress is in master branch, will also attempt to test multisite."
 	fi
 	echo "--------------------------------------------"
+	echo
 }
 
 function run_php_compatibility {
