@@ -86,7 +86,7 @@ class SearchResults extends Component {
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
 					<Notice type="warning">
 						{ /* TODO: Wrap these in __ translation calls when copy is finalized. */ }
-						It looks like you're offline and these results could be out of date.
+						It looks like you're offline. Please reconnect to load the latest results.
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && (
