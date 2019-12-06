@@ -34,9 +34,9 @@ class MyPlanHeader extends React.Component {
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
 		const expiration = (
 			<ProductExpiration
-				expiry_date={ purchase.expiry_date }
-				subscribed_date={ purchase.subscribed_date }
-				is_refundable={ purchase.is_refundable }
+				expiryDate={ purchase.expiry_date }
+				purchaseDate={ purchase.subscribed_date }
+				isRefundable={ purchase.is_refundable }
 			/>
 		);
 
