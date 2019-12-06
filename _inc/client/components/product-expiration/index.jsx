@@ -32,7 +32,7 @@ class ProductExpiration extends React.PureComponent {
 		// Return the subscription date if we don't have the expiry date or the plan is refundable.
 		if ( ! expiryDate || isRefundable ) {
 			const purchase = moment( purchaseDate );
-			if ( moment.isValid() ) {
+			if ( purchase.isValid() ) {
 				return __( 'Purchased on %s.', { args: purchase.format( dateFormat ) } );
 			}
 			return fallback;
