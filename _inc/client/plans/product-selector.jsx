@@ -41,7 +41,13 @@ class ProductSelector extends Component {
 			},
 		} );
 
-		const subtitleText = <ProductExpiration { ...purchase } />;
+		const subtitle = (
+			<ProductExpiration
+				expiry_date={ purchase.expiry_date }
+				subscribed_date={ purchase.subscribed_date }
+				is_refundable={ purchase.is_refundable }
+			/>
+		);
 
 		const backupDescription = __( 'Always-on backups ensure you never lose your site.' );
 		const backupDescriptionRealtime = __(
@@ -63,14 +69,14 @@ class ProductSelector extends Component {
 			case 'is-daily-backup-plan':
 				return {
 					title: dailyBackupTitle,
-					subtitle: subtitleText,
+					subtitle,
 					description: backupDescription,
 					...additionalProps,
 				};
 			case 'is-realtime-backup-plan':
 				return {
 					title: realTimeBackupTitle,
-					subtitle: subtitleText,
+					subtitle,
 					description: backupDescriptionRealtime,
 					...additionalProps,
 				};
