@@ -154,15 +154,4 @@ class Modules {
 		}
 		return $module;
 	}
-
-	/**
-	 * Reset the initialized modules.
-	 * Will force a new fresh loading of all known modules.
-	 *
-	 * @access public
-	 * @static
-	 */
-	public static function reset_modules() {
-		self::$initialized_modules = null;
-	}
 }
