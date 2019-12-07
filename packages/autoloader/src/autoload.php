@@ -77,7 +77,6 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 				$ignore = in_array(
 					$class_name,
 					array(
-						'Automattic\Jetpack\JITM',
 						'Automattic\Jetpack\Connection\Manager',
 						'Automattic\Jetpack\Connection\XMLRPC_Connector',
 						'Jetpack_Options',

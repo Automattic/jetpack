@@ -704,6 +704,7 @@ class Jetpack {
 		foreach (
 			array(
 				'connection',
+				'jitm',
 				'sync',
 				'tracking',
 				'tos',

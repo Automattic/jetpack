@@ -28,6 +28,7 @@ class Config {
 	 */
 	protected $config = array(
 		'connection' => false,
+		'jitm'       => false,
 		'sync'       => false,
 		'tracking'   => false,
 		'tos'        => false,
@@ -77,6 +78,11 @@ class Config {
 		if ( $this->config['sync'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Sync\Main' )
 				&& $this->ensure_feature( 'sync' );
+		}
+
+		if ( $this->config['jitm'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\JITM' )
+				&& $this->ensure_feature( 'jitm' );
 		}
 	}
 
@@ -178,6 +184,17 @@ class Config {
 	 */
 	protected function enable_connection() {
 		Manager::configure();
+
+		return true;
+	}
+
+	/**
+	 * Enables the JITM feature.
+	 */
+	protected function enable_jitm() {
+		if ( is_admin() ) {
+			( new JITM() )->register();
+		}
 
 		return true;
 	}
