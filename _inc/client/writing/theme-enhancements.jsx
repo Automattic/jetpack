@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -226,6 +227,10 @@ class ThemeEnhancements extends React.Component {
 							),
 							link: 'https://jetpack.com/support/mobile-theme',
 						} }
+						className={ classNames(
+							'minileven',
+							`${ isMinilevenActive ? `active` : `inactive` }`
+						) }
 					>
 						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
 						<SimpleNotice showDismiss={ false } status="is-info" className="mobile-deprecation">
