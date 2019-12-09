@@ -40,10 +40,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		 * Determines if the WP.com testing suite should be included.
 		 *
 		 * @since 7.1.0
+		 * @since 8.1.0 Default false.
 		 *
-		 * @param bool $run_test To run the WP.com testing suite. Default true.
+		 * @param bool $run_test To run the WP.com testing suite. Default false.
 		 */
-		if ( apply_filters( 'jetpack_debugger_run_self_test', true ) ) {
+		if ( apply_filters( 'jetpack_debugger_run_self_test', false ) ) {
 			/**
 			 * Intentionally added last as it checks for an existing failure state before attempting.
 			 * Generally, any failed location condition would result in the WP.com check to fail too, so
