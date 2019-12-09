@@ -32,13 +32,16 @@ class MyPlanHeader extends React.Component {
 		}
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
-		const expiration = (
-			<ProductExpiration
-				expiryDate={ purchase.expiry_date }
-				purchaseDate={ purchase.subscribed_date }
-				isRefundable={ purchase.is_refundable }
-			/>
-		);
+		let expiration;
+		if ( purchase ) {
+			expiration = (
+				<ProductExpiration
+					expiryDate={ purchase.expiry_date }
+					purchaseDate={ purchase.subscribed_date }
+					isRefundable={ purchase.is_refundable }
+				/>
+			);
+		}
 
 		switch ( getPlanClass( productSlug ) ) {
 			case 'is-free-plan':
