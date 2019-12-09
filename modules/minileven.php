@@ -13,11 +13,6 @@
  * Additional Search Queries: mobile, theme, minileven
  */
 
-// allow mobile theme to be disabled via query string for testing during deprecation.
-if ( isset( $_GET['jptest'] ) && 'responsivetheme' === $_GET['jptest'] ) {
-	return true;
-}
-
 function jetpack_load_minileven() {
 	include dirname( __FILE__ ) . "/minileven/minileven.php";
 
