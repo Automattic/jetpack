@@ -267,7 +267,7 @@ function enqueue_packages_$suffix() {
 	\$autoload_file = __DIR__ . '/composer/autoload_files.php';
 	\$includeFiles = file_exists( \$autoload_file )
 		? require \$autoload_file
-		: [];
+		: array();
 
 	foreach ( \$includeFiles as \$fileIdentifier => \$file ) {
 		if ( empty( \$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] ) ) {
