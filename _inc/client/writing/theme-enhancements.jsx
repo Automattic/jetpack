@@ -18,6 +18,7 @@ import { isModuleFound } from 'state/search';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SimpleNotice from 'components/notice';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 class ThemeEnhancements extends React.Component {
@@ -118,6 +119,14 @@ class ThemeEnhancements extends React.Component {
 		return () => this.updateOptions( optionName, module );
 	};
 
+	trackMinilevenLearnMore = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'learn-more',
+			feature: 'minileven',
+			extra: 'deprecated-link',
+		} );
+	};
+
 	render() {
 		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
 			foundCustomCSS = this.props.isModuleFound( 'custom-css' ),
@@ -205,7 +214,7 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundMinileven && isMinilevenActive && (
+				{ foundMinileven && (
 					<SettingsGroup
 						hasChild
 						module={ { module: minileven.module } }
@@ -219,22 +228,32 @@ class ThemeEnhancements extends React.Component {
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
+						<SimpleNotice showDismiss={ false } status="is-info" className="mobile-deprecation">
+							{ __(
+								'{{b}}Note:{{/b}} This feature is being discontinued ' +
+									'and will be removed from Jetpack in March. ' +
+									'Please ensure your current theme is mobile-ready or find a new one. ' +
+									'{{link}}Learn more{{/link}}',
+								{
+									components: {
+										b: <strong />,
+										link: (
+											<a
+												href="https://jetpack.com/support/mobile-theme/"
+												target="_blank"
+												rel="noopener noreferrer"
+												onClick={ this.trackMinilevenLearnMore }
+											/>
+										),
+									},
+									context: 'Link leads to a support document.',
+								}
+							) }
+						</SimpleNotice>
 						<p>
 							{ __(
 								'Give your site a fast-loading, streamlined look for mobile devices. Visitors will ' +
 									'still see your regular theme on other screen sizes.'
-							) }
-						</p>
-						<p>
-							{ __(
-								'{{b}}Note:{{/b}} This feature is being discontinued ' +
-									'and will be removed from Jetpack in a future release. ' +
-									'If you disable this setting, you will not be able to re-activate it.',
-								{
-									components: {
-										b: <strong />,
-									},
-								}
 							) }
 						</p>
 						<ModuleToggle
@@ -242,6 +261,7 @@ class ThemeEnhancements extends React.Component {
 							activated={ isMinilevenActive }
 							toggling={ this.props.isSavingAnyOption( minileven.module ) }
 							toggleModule={ this.props.toggleModuleNow }
+							disabled={ ! isMinilevenActive }
 						>
 							<span className="jp-form-toggle-explanation">{ minileven.description }</span>
 						</ModuleToggle>
