@@ -176,7 +176,6 @@ __( "Create a Jetpack account to view your email followers", "jetpack" ), // _in
 __( "Allows readers to subscribe to your posts or comments, and receive notifications of new content by email.", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:93
 __( "Enable the “subscribe to site” option on your comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:121
 __( "Enable the “subscribe to comments” option on your comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:134
-_n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:21
 __( "A Jetpack Site securely backed up with Jetpack Backup", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:106
 __( "View Your Backups", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:116
 __( "A secure site, locked and protected by Jetpack", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:135
@@ -271,6 +270,7 @@ __( "Expand your audience with pro SEO tools.", "jetpack" ), // _inc/client/my-p
 __( "Customize your social posting schedule.", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:752
 __( "Monetize your site by running high quality ads.", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:753
 __( "Upgrade Jetpack now", "jetpack" ), // _inc/client/my-plan/my-plan-body.jsx:760
+_n( "Please correct the issue below and try again.", "Please correct the issues listed below and try again.", 1, "jetpack" ), // _inc/client/notices/validation-error-list.jsx:21
 __( "Performance", "jetpack" ), // _inc/client/performance/index.jsx:50
 __( "Load pages faster, optimize images, and speed up your visitors’ experience.", "jetpack" ), // _inc/client/performance/index.jsx:51
 __( "Video", "jetpack" ), // _inc/client/performance/media.jsx:42
@@ -296,6 +296,33 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
+__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:98
+__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:106
+__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:108
+__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:110
+__( "Monthly", "jetpack" ), // _inc/client/plans/plan-grid.jsx:119
+__( "Yearly", "jetpack" ), // _inc/client/plans/plan-grid.jsx:120
+__( "Jetpack Backup {{em}}Daily{{/em}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:31
+__( "Jetpack Backup {{em}}Real-Time{{/em}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:37
+__( "Purchased on %(purchaseDate)s", "jetpack" ), // _inc/client/plans/product-selector.jsx:43
+__( "Always-on backups ensure you never lose your site.", "jetpack" ), // _inc/client/plans/product-selector.jsx:49
+__( "Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.", "jetpack" ), // _inc/client/plans/product-selector.jsx:50
+__( "Included in your {{planLink}}Personal Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:83
+__( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:94
+__( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:105
+__( "Solutions", "jetpack" ), // _inc/client/plans/product-selector.jsx:144
+__( "Just looking for backups? We've got you covered.", "jetpack" ), // _inc/client/plans/product-selector.jsx:146
+__( "Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:54
+__( "Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:60
+__( "Jetpack Backup", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:69
+/* translators: Describes how much a product costs. {{price/}} can be a single value or a range of values */
+__( "{{price/}} {{timeframe}}per year{{/timeframe}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:111
+/* translators: Describes how much a product costs. {{price/}} can be a single value or a range of values */
+__( "{{price/}} {{timeframe}}per month{{/timeframe}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:117
+__( "Upgrade to Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:201
+__( "Upgrade to Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:202
+__( "Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:208
+__( "Backup options:", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:225
 __( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
 __( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
 __( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
@@ -537,33 +564,6 @@ __( "Display images in a full-screen carousel gallery", "jetpack" ), // _inc/cli
 __( "Show photo Exif metadata in carousel (when available)", "jetpack" ), // _inc/client/writing/writing-media.jsx:99
 __( "Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.", "jetpack" ), // _inc/client/writing/writing-media.jsx:104
 __( "Carousel color scheme", "jetpack" ), // _inc/client/writing/writing-media.jsx:111
-__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:98
-__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:106
-__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:108
-__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:110
-__( "Monthly", "jetpack" ), // _inc/client/plans/plan-grid.jsx:119
-__( "Yearly", "jetpack" ), // _inc/client/plans/plan-grid.jsx:120
-__( "Jetpack Backup {{em}}Daily{{/em}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:31
-__( "Jetpack Backup {{em}}Real-Time{{/em}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:37
-__( "Purchased on %(purchaseDate)s", "jetpack" ), // _inc/client/plans/product-selector.jsx:43
-__( "Always-on backups ensure you never lose your site.", "jetpack" ), // _inc/client/plans/product-selector.jsx:49
-__( "Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.", "jetpack" ), // _inc/client/plans/product-selector.jsx:50
-__( "Included in your {{planLink}}Personal Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:83
-__( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:94
-__( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/product-selector.jsx:105
-__( "Solutions", "jetpack" ), // _inc/client/plans/product-selector.jsx:144
-__( "Just looking for backups? We've got you covered.", "jetpack" ), // _inc/client/plans/product-selector.jsx:146
-__( "Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:54
-__( "Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:60
-__( "Jetpack Backup", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:69
-/* translators: Describes how much a product costs. {{price/}} can be a single value or a range of values */
-__( "{{price/}} {{timeframe}}per year{{/timeframe}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:111
-/* translators: Describes how much a product costs. {{price/}} can be a single value or a range of values */
-__( "{{price/}} {{timeframe}}per month{{/timeframe}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:117
-__( "Upgrade to Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:201
-__( "Upgrade to Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:202
-__( "Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:208
-__( "Backup options:", "jetpack" ), // _inc/client/plans/single-product-backup.jsx:225
 /* translators: Referring to a number of page views */
 __( "Views today", "jetpack" ), // _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:56
 /* translators: Referring to a number of page views */
