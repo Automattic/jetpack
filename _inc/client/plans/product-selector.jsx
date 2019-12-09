@@ -11,8 +11,10 @@ import { get } from 'lodash';
  */
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
+import analytics from 'lib/analytics';
+import ExternalLink from 'components/external-link';
 import { SingleProductBackup } from './single-product-backup';
-import { getPlanClass } from '../lib/plans/constants';
+import { getPlanClass } from 'lib/plans/constants';
 import {
 	getActiveSitePurchases,
 	getAvailablePlans,
@@ -23,6 +25,15 @@ import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-stat
 import { getProducts, isFetchingProducts } from '../state/products';
 
 class ProductSelector extends Component {
+	state = {
+		selectedBackupType: 'real-time',
+	};
+
+	constructor( ...args ) {
+		super( ...args );
+		this.handleBackupTypeChange = this.handleBackupTypeChange.bind( this );
+	}
+
 	getProductCardPropsForPurchase( purchase ) {
 		const { siteRawlUrl } = this.props;
 
@@ -141,12 +152,35 @@ class ProductSelector extends Component {
 		return false;
 	}
 
+	handleLandingPageLinkClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-backup',
+			extra: selectedBackupType,
+		} );
+	};
+
+	handleBackupTypeChange( selectedBackupType ) {
+		this.setState( { selectedBackupType } );
+	}
+
 	renderTitleSection() {
+		const { selectedBackupType } = this.state;
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
 					{ __( "Just looking for backups? We've got you covered." ) }
+					<br />
+					<ExternalLink
+						target="_blank"
+						href="https://jetpack.com/upgrade/backup/"
+						icon
+						iconSize={ 12 }
+						onClick={ this.handleLandingPageLinkClick( selectedBackupType ) }
+					>
+						{ __( 'Which backup option is best for me?' ) }
+					</ExternalLink>
 				</h2>
 			</Fragment>
 		);
@@ -190,6 +224,8 @@ class ProductSelector extends Component {
 				products={ products }
 				upgradeLinks={ upgradeLinks }
 				isFetchingData={ isFetchingData || ! plans }
+				selectedBackupType={ this.state.selectedBackupType }
+				setSelectedBackupType={ this.handleBackupTypeChange }
 			/>
 		);
 	}

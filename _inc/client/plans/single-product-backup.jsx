@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -12,12 +12,18 @@ import { withRouter } from 'react-router';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import PlanPrice from 'components/plans/plan-price';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
+export function SingleProductBackup( {
+	plan,
+	products,
+	upgradeLinks,
+	isFetchingData,
+	selectedBackupType,
+	setSelectedBackupType,
+} ) {
 	// Don't show the product card for paid plans.
 	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
 		return null;
@@ -29,15 +35,36 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 				{ isFetchingData ? (
 					<div className="plans-section__single-product-skeleton is-placeholder" />
 				) : (
-					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
+					<SingleProductBackupCard
+						products={ products }
+						upgradeLinks={ upgradeLinks }
+						selectedBackupType={ selectedBackupType }
+						setSelectedBackupType={ setSelectedBackupType }
+					/>
 				) }
 			</div>
 		</React.Fragment>
 	);
 }
 
-function SingleProductBackupCard( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+function PromoNudge() {
+	return (
+		<div className="single-product-backup__promo">
+			<div className="single-product-backup__promo-star">{ __( 'Up to 70% off!' ) }</div>
+			<h4 className="single-product-backup__promo-header">
+				{ __( 'Hurry, these are' ) }
+				<strong>{ __( 'Limited time introductory prices!' ) }</strong>
+			</h4>
+		</div>
+	);
+}
+
+function SingleProductBackupCard( {
+	products,
+	upgradeLinks,
+	selectedBackupType,
+	setSelectedBackupType,
+} ) {
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
@@ -67,12 +94,6 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 		<div className="single-product-backup__accented-card dops-card">
 			<div className="single-product-backup__accented-card-header">
 				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-				<SingleProductBackupPriceGroup
-					billingTimeFrame={ billingTimeFrame }
-					currencyCode={ currencyCode }
-					discountedPrice={ [ priceDaily, priceRealtime ] }
-					fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
-				/>
 			</div>
 			<div className="single-product-backup__accented-card-body">
 				<SingleProductBackupBodyWithRouter
@@ -179,14 +200,6 @@ class SingleProductBackupBody extends React.Component {
 		} );
 	};
 
-	handleLandingPageLinkClick = selectedBackupType => () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'landing-page-link',
-			feature: 'single-product-backup',
-			extra: selectedBackupType,
-		} );
-	};
-
 	render() {
 		const {
 			backupOptions,
@@ -204,25 +217,11 @@ class SingleProductBackupBody extends React.Component {
 
 		return (
 			<React.Fragment>
-				<p>
-					{ __(
-						'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
-						{
-							components: {
-								a: (
-									<ExternalLink
-										target="_blank"
-										href="https://jetpack.com/upgrade/backup/"
-										icon
-										iconSize={ 12 }
-										onClick={ this.handleLandingPageLinkClick( selectedBackupType ) }
-									/>
-								),
-							},
-						}
-					) }
-				</p>
-				<h4 className="single-product-backup__options-header">{ __( 'Backup options:' ) }</h4>
+				<p>{ __( 'Always-on backups ensure you never lose your site.' ) }</p>
+				<PromoNudge />
+				<h4 className="single-product-backup__options-header">
+					{ __( 'Select a backup option:' ) }
+				</h4>
 				<div className="single-product-backup__radio-buttons-container">
 					{ backupOptions.map( option => (
 						<PlanRadioButton
@@ -238,6 +237,15 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
+				<p>
+					<em>
+						{ __( 'You are saving $40 by paying yearly. {{a}}Switch to monthly{{/a}}', {
+							components: {
+								a: <a />,
+							},
+						} ) }
+					</em>
+				</p>
 				{ upgradeLinks &&
 					upgradeLinks[ selectedBackupType ] &&
 					upgradeTitles[ selectedBackupType ] && (
