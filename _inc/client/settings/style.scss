@@ -25,3 +25,12 @@
 	box-shadow: none;
 	border: none;
 }
+
+/* Mobile Theme Card */
+.jp-form-settings-group.minileven {
+	&.inactive {
+		p, .form-toggle__label {
+			color: $gray;
+		}
+	}
+}

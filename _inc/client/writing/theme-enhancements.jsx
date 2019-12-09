@@ -233,7 +233,11 @@ class ThemeEnhancements extends React.Component {
 						) }
 					>
 						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
-						<SimpleNotice showDismiss={ false } status="is-info" className="mobile-deprecation">
+						<SimpleNotice
+							showDismiss={ false }
+							status="is-info"
+							className="jp-form-settings-notice"
+						>
 							{ __(
 								'{{b}}Note:{{/b}} This feature is being discontinued ' +
 									'and will be removed from Jetpack in March. ' +
