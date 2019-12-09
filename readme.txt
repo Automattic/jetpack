@@ -3,7 +3,7 @@ Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews,
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.1
 Tested up to: 5.3
-Stable tag: 2.0.1
+Stable tag: 2.1
 Requires PHP: 5.3
 License: GPLv2
 
@@ -51,7 +51,7 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 
 = 2.1 =
 
-* Release date: November 26, 2019
+* Release date: December 9, 2019
 
 **Compatibility**
 
