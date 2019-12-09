@@ -1120,7 +1120,7 @@ class VaultPress {
 		$should_ping = true;
 		$ignore_names = $this->get_option_name_ignore();
 		foreach( (array)$ignore_names as $val ) {
-			if ( $val{0} == '/' ) {
+			if ( $val[0] == '/' ) {
 				if ( preg_match( $val, $option_name ) )
 					$should_ping = false;
 			} else {
@@ -1708,11 +1708,11 @@ class VaultPress {
 JS;
 		$chars = array();
 		for ( $i = 0; $i < strlen( $token ); $i++ ) {
-			if ( isset( $set[$token{$i}] ) ) {
-				$k = array_rand( $set[$token{$i}], 1 );
-				$chars[] = $set[$token{$i}][$k];
+			if ( isset( $set[$token[ $i ] ] ) ) {
+				$k = array_rand( $set[$token[ $i ] ], 1 );
+				$chars[] = $set[$token[ $i ] ][$k];
 			} else {
-				$chars[] = $token{$i};
+				$chars[] = $token[ $i ];
 			}
 		}
 		$random = array_unique( $chars );
