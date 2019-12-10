@@ -3,13 +3,14 @@
  */
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { moment, translate as __ } from 'i18n-calypso';
+import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import ProductCard from '../components/product-card';
+import ProductCard from 'components/product-card';
+import ProductExpiration from 'components/product-expiration';
 import { SingleProductBackup } from './single-product-backup';
 import { getPlanClass } from '../lib/plans/constants';
 import {
@@ -40,11 +41,13 @@ class ProductSelector extends Component {
 			},
 		} );
 
-		const purchasedDate = __( 'Purchased on %(purchaseDate)s', {
-			args: {
-				purchaseDate: moment( purchase.subscribed_date ).format( 'LL' ),
-			},
-		} );
+		const subtitle = (
+			<ProductExpiration
+				expiryDate={ purchase.expiry_date }
+				purchaseDate={ purchase.subscribed_date }
+				isRefundable={ purchase.is_refundable }
+			/>
+		);
 
 		const backupDescription = __( 'Always-on backups ensure you never lose your site.' );
 		const backupDescriptionRealtime = __(
@@ -66,14 +69,14 @@ class ProductSelector extends Component {
 			case 'is-daily-backup-plan':
 				return {
 					title: dailyBackupTitle,
-					subtitle: purchasedDate,
+					subtitle,
 					description: backupDescription,
 					...additionalProps,
 				};
 			case 'is-realtime-backup-plan':
 				return {
 					title: realTimeBackupTitle,
-					subtitle: purchasedDate,
+					subtitle,
 					description: backupDescriptionRealtime,
 					...additionalProps,
 				};
