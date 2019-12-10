@@ -86,7 +86,7 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
-  - php: "7.1"
+  - php: "7.0"
     name: "Sync Beta"
     env: SYNC_BETA=1 WP_BRANCH=latest
 

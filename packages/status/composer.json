@@ -16,7 +16,7 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer install --ignore-platform-reqs",
+			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		]
 	},
