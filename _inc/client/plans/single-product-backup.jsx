@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
 import { withRouter } from 'react-router';
+import { getCurrencyObject } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
@@ -59,12 +60,8 @@ function PromoNudge() {
 	);
 }
 
-function SingleProductBackupCard( {
-	products,
-	upgradeLinks,
-	selectedBackupType,
-	setSelectedBackupType,
-} ) {
+function SingleProductBackupCard( { products, upgradeLinks } ) {
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
@@ -176,6 +173,47 @@ function PlanRadioButton( {
 	);
 }
 
+function UpgradeButton( {
+	selectedUpgradeType,
+	upgradesAvailable,
+	billingTimeFrame,
+	currencyCode,
+	onClickHandler,
+} ) {
+	const selectedUpgrade = upgradesAvailable.find( ( { type } ) => type === selectedUpgradeType );
+	if ( ! selectedUpgrade ) {
+		return null;
+	}
+	const { link, name, fullPrice, discountedPrice } = selectedUpgrade;
+	let billingTimeFrameString = '';
+	if ( 'yearly' === billingTimeFrame ) {
+		billingTimeFrameString = 'year';
+	} else if ( 'monthly' === billingTimeFrame ) {
+		billingTimeFrameString = 'month';
+	}
+
+	const { symbol, integer, fraction } = getCurrencyObject(
+		discountedPrice || fullPrice,
+		currencyCode
+	);
+	const price = `${ symbol }${ integer }${ fraction }`;
+
+	return (
+		<div className="single-product-backup__upgrade-button-container">
+			<Button href={ link } onClick={ onClickHandler( selectedUpgradeType ) } primary>
+				{ __( 'Upgrade to %(name) for %(price)/per %(billingTime)', {
+					args: {
+						name,
+						billingTime: billingTimeFrameString,
+						price,
+					},
+					comment: 'Button to purchase plan. {{price}} can be a range of values.',
+				} ) }
+			</Button>
+		</div>
+	);
+}
+
 // eslint-disable-next-line no-unused-vars
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
@@ -209,11 +247,10 @@ class SingleProductBackupBody extends React.Component {
 			upgradeLinks,
 		} = this.props;
 
-		// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
-		const upgradeTitles = {
-			'real-time': __( 'Upgrade to Real-Time Backups' ),
-			daily: __( 'Upgrade to Daily Backups' ),
-		};
+		const backupOptionsWithLinks = backupOptions.map( option => ( {
+			...option,
+			link: upgradeLinks[ option.type ],
+		} ) );
 
 		return (
 			<React.Fragment>
@@ -246,19 +283,13 @@ class SingleProductBackupBody extends React.Component {
 						} ) }
 					</em>
 				</p>
-				{ upgradeLinks &&
-					upgradeLinks[ selectedBackupType ] &&
-					upgradeTitles[ selectedBackupType ] && (
-						<div className="single-product-backup__upgrade-button-container">
-							<Button
-								href={ upgradeLinks[ selectedBackupType ] }
-								onClick={ this.handleUpgradeButtonClick( selectedBackupType ) }
-								primary
-							>
-								{ upgradeTitles[ selectedBackupType ] }
-							</Button>
-						</div>
-					) }
+				<UpgradeButton
+					upgradesAvailable={ backupOptionsWithLinks }
+					selectedUpgradeType={ selectedBackupType }
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					onClickHandler={ this.handleUpgradeButtonClick }
+				/>
 			</React.Fragment>
 		);
 	}
