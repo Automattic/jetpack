@@ -25,6 +25,19 @@ class Config {
 	protected $jetpack;
 
 	/**
+	 * The initial setting values.
+	 *
+	 * @var Array
+	 */
+	protected $config = array(
+		'sync'                => false,
+		'sync_woocommerce'    => false,
+		'sync_wp_super_cache' => false,
+		'tracking'            => false,
+		'tos'                 => false,
+	);
+
+	/**
 	 * Creates the configuration class instance, initalized with the Jetpack object.
 	 *
 	 * @param \Jetpack $jetpack the main object to initalize everything with.
@@ -43,13 +56,29 @@ class Config {
 	 * @action plugins_loaded
 	 */
 	public function on_plugins_loaded_early() {
-		Sync_Main::init();
 
-		// Check for WooCommerce support.
-		Sync_Actions::initialize_woocommerce();
+		/**
+		 * Filters the settings for the Jetpack Config package, allowing package consumers to set
+		 * initialization options.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param Array An array of options that configure Jetpack package initialization details.
+		 */
+		$this->config = wp_parse_args(
+			apply_filters( 'jetpack_config', $this->config ),
+			$this->config
+		);
 
-		// Check for WP Super Cache.
-		Sync_Actions::initialize_wp_super_cache();
+		if ( $this->config['sync'] ) {
+			Sync_Main::init();
+
+			// Check for WooCommerce support.
+			$this->config['sync_woocommerce'] ? Sync_Actions::initialize_woocommerce() : null;
+
+			// Check for WP Super Cache.
+			$this->config['sync_wp_super_cache'] ? Sync_Actions::initialize_wp_super_cache() : null;
+		}
 	}
 
 	/**
@@ -58,15 +87,17 @@ class Config {
 	 * @action plugins_loaded
 	 */
 	public function on_plugins_loaded() {
-		$terms_of_service = new Terms_Of_Service();
-		$tracking         = new Plugin_Tracking();
-		if ( $terms_of_service->has_agreed() ) {
-			add_action( 'init', array( $tracking, 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+		if ( $this->config['tos'] && $this->config['tracking'] ) {
+			$terms_of_service = new Terms_Of_Service();
+			$tracking         = new Plugin_Tracking();
+			if ( $terms_of_service->has_agreed() ) {
+				add_action( 'init', array( $tracking, 'init' ) );
+			} else {
+				/**
+				 * Initialize tracking right after the user agrees to the terms of service.
+				 */
+				add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+			}
 		}
 	}
 

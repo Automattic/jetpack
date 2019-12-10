@@ -734,6 +734,8 @@ class Jetpack {
 	public function early_initialization() {
 		new Config( $this );
 
+		add_filter( 'jetpack_config', array( $this, 'filter_jetpack_config' ) );
+
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
@@ -743,6 +745,19 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
+	}
+
+	/**
+	 * Filters Jetpack initialization configuration.
+	 *
+	 * @param Array $config options for package initialization.
+	 */
+	public function filter_jetpack_config( $config ) {
+		foreach ( $config as $feature => $enabled ) {
+			$config[ $feature ] = true;
+		}
+
+		return $config;
 	}
 
 	/**
