@@ -57,8 +57,12 @@ function PromoNudge() {
 				<span className="single-product-backup__promo-star-text">{ __( 'Up to 70% off!' ) }</span>
 			</div>
 			<h4 className="single-product-backup__promo-header">
-				{ __( 'Hurry, these are' ) }
-				<strong>{ __( 'Limited time introductory prices!' ) }</strong>
+				{
+					__( 'Hurry, these are {{s}}Limited time introductory prices!{{/s}}', {
+						components: {
+							s: <strong />
+						}
+					} ) }
 			</h4>
 		</div>
 	);
