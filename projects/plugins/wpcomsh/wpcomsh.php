@@ -284,12 +284,6 @@ function wpcomsh_hide_update_notice_for_managed_plugins() {
 add_action( 'load-plugins.php', 'wpcomsh_hide_update_notice_for_managed_plugins', 25 );
 
 function wpcomsh_is_managed_plugin( $plugin_file ) {
-	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
-		if ( class_exists( 'Pressable_Mu_Plugin' ) ) {
-			return ( new Pressable_Mu_Plugin() )->is_managed_plugin( $plugin_file );
-		}
-	}
-
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		if ( class_exists( 'Atomic_Mu_Plugin' ) ) {
 			return ( new Atomic_Mu_Plugin() )->is_managed_plugin( $plugin_file );
