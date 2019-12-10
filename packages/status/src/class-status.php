@@ -135,7 +135,7 @@ class Status {
 		}
 
 		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
-		if ( ! $is_staging && class_exists( 'Jetpack' ) && \Jetpack::validate_sync_error_idc_option() ) {
+		if ( ! $is_staging && method_exists( 'Jetpack', 'validate_sync_error_idc_option' ) && \Jetpack::validate_sync_error_idc_option() ) {
 			$is_staging = true;
 		}
 
