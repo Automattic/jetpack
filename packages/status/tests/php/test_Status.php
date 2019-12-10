@@ -6,6 +6,9 @@ use Automattic\Jetpack\Status;
 use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
+use Brain\Monkey\Filters;
 
 class Test_Status extends TestCase {
 	/**
@@ -29,12 +32,14 @@ class Test_Status extends TestCase {
 	 */
 	public function setUp() {
 		$this->status = new Status();
+		Monkey\setUp();
 	}
 
 	/**
 	 * Test teardown.
 	 */
 	public function tearDown() {
+		// Call Monkey\tearDown(); here, but the following function takes care of it for now.
 		Mock::disableAll();
 	}
 
@@ -42,59 +47,41 @@ class Test_Status extends TestCase {
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_default() {
-		$this->mock_function( 'site_url', $this->site_url );
-		$filters_mock = $this->mock_filters( array(
-			array( 'jetpack_development_mode', false, false ),
-			array( 'jetpack_development_mode', true, true ),
-		) );
+		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status->is_development_mode() );
-
-		$filters_mock->disable();
 	}
 
 	/**
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_filter_true() {
-		$this->mock_function( 'site_url', $this->site_url );
-		$filters_mock = $this->mock_filters( array(
-			array( 'jetpack_development_mode', false, true ),
-		) );
+		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( true );
 
 		$this->assertTrue( $this->status->is_development_mode() );
-
-		$filters_mock->disable();
 	}
 
 	/**
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_filter_bool() {
-		$this->mock_function( 'site_url', $this->site_url );
-		$filters_mock = $this->mock_filters( array(
-			array( 'jetpack_development_mode', false, 0 ),
-		) );
+		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status->is_development_mode() );
-
-		$filters_mock->disable();
 	}
 
 	/**
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_localhost() {
-		$this->mock_function( 'site_url', 'localhost' );
+		Functions\when( 'site_url' )->justReturn( 'localhost' );
 
-		$filters_mock = $this->mock_filters( array(
-			array( 'jetpack_development_mode', false, false ),
-			array( 'jetpack_development_mode', true, true ),
-		) );
+		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertTrue( $this->status->is_development_mode() );
-
-		$filters_mock->disable();
 	}
 
     /**
@@ -103,11 +90,9 @@ class Test_Status extends TestCase {
      * @runInSeparateProcess
      */
 	public function test_is_development_mode_constant() {
-		$this->mock_function( 'site_url', $this->site_url );
-		$filters_mock = $this->mock_filters( array(
-			array( 'jetpack_development_mode', false, false ),
-			array( 'jetpack_development_mode', true, true ),
-		) );
+		Functions\when( 'site_url' )->justReturn( $this->site_url );
+		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+
 		$constants_mocks = $this->mock_constants( array(
 			array( '\\JETPACK_DEV_DEBUG', true ),
 		) );
@@ -117,14 +102,13 @@ class Test_Status extends TestCase {
 		array_map( function( $mock ) {
 			$mock->disable();
 		}, $constants_mocks );
-		$filters_mock->disable();
 	}
 
 	/**
 	 * @covers Automattic\Jetpack\Status::is_multi_network
 	 */
 	public function test_is_multi_network_not_multisite() {
-		$this->mock_function( 'is_multisite', false );
+		Functions\when( 'is_multisite' )->justReturn( false );
 
 		$this->assertFalse( $this->status->is_multi_network() );
 	}
@@ -134,7 +118,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_multi_network_when_single_network() {
 		$this->mock_wpdb_get_var( 1 );
-		$this->mock_function( 'is_multisite', true );
+		Functions\when( 'is_multisite' )->justReturn( true );
 
 		$this->assertFalse( $this->status->is_multi_network() );
 
@@ -146,7 +130,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_multi_network_when_multiple_networks() {
 		$this->mock_wpdb_get_var( 2 );
-		$this->mock_function( 'is_multisite', true );
+		Functions\when( 'is_multisite' )->justReturn( true );
 
 		$this->assertTrue( $this->status->is_multi_network() );
 
@@ -158,7 +142,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_single_user_site_with_transient() {
 		$this->mock_wpdb_get_var( 3 );
-		$this->mock_function( 'get_transient', '1' );
+		Functions\when( 'get_transient' )->justReturn( 1 );
 
 		$this->assertTrue( $this->status->is_single_user_site() );
 
@@ -170,8 +154,8 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_single_user_site_with_one_user() {
 		$this->mock_wpdb_get_var( 1 );
-		$this->mock_function( 'get_transient', false );
-		$this->mock_function( 'set_transient' );
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
 
 		$this->assertTrue( $this->status->is_single_user_site() );
 
@@ -183,8 +167,8 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_single_user_site_with_multiple_users() {
 		$this->mock_wpdb_get_var( 3 );
-		$this->mock_function( 'get_transient', false );
-		$this->mock_function( 'set_transient' );
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
 
 		$this->assertFalse( $this->status->is_single_user_site() );
 
@@ -220,16 +204,6 @@ class Test_Status extends TestCase {
 	}
 
 	/**
-	 * Mock a set of filters.
-	 *
-	 * @param array $args Array of filters with their arguments.
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_filters( $filters = array() ) {
-		return $this->mock_function_with_args( 'apply_filters', $filters );
-	}
-
-	/**
 	 * Mock a set of constants.
 	 *
 	 * @param array $args Array of sets with constants and their respective values.
@@ -244,23 +218,6 @@ class Test_Status extends TestCase {
 			$this->mock_function_with_args( 'defined', array_map( $prepare_constant, $constants ) ),
 			$this->mock_function_with_args( 'constant', $constants )
 		];
-	}
-
-	/**
-	 * Mock a global function and make it return a certain value.
-	 *
-	 * @param string $function_name Name of the function.
-	 * @param mixed  $return_value  Return value of the function.
-	 * @return phpmock\Mock The mock object.
-	 */
-	protected function mock_function( $function_name, $return_value = null ) {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-			->setName( $function_name )
-			->setFunction( function() use ( &$return_value ) {
-				return $return_value;
-			} );
-		return $builder->build()->enable();
 	}
 
 	/**
@@ -300,7 +257,7 @@ class Test_Status extends TestCase {
 	 * @since  3.9.0
 	 */
 	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		$this->mock_function( 'site_url', 'http://bjk.staging.wpengine.com' );
+		Functions\when( 'site_url' )->justReturn( 'http://bjk.staging.wpengine.com' );
 		$this->assertTrue( $this->status->is_staging_site() );
 	}
 
@@ -312,7 +269,7 @@ class Test_Status extends TestCase {
 	 * @param string $site_url Site URL.
 	 */
 	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
-		$this->mock_function( 'site_url', $site_url );
+		Functions\when( 'site_url' )->justReturn( $site_url );
 		$result = $this->status->is_staging_site();
 		$this->assertTrue(
 			$result,
