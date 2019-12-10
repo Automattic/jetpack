@@ -57,12 +57,11 @@ function PromoNudge() {
 				<span className="single-product-backup__promo-star-text">{ __( 'Up to 70% off!' ) }</span>
 			</div>
 			<h4 className="single-product-backup__promo-header">
-				{
-					__( 'Hurry, these are {{s}}Limited time introductory prices!{{/s}}', {
-						components: {
-							s: <strong />
-						}
-					} ) }
+				{ __( 'Hurry, these are {{s}}Limited time introductory prices!{{/s}}', {
+					components: {
+						s: <strong />,
+					},
+				} ) }
 			</h4>
 		</div>
 	);
@@ -195,9 +194,9 @@ function UpgradeButton( {
 	const { link, name, fullPrice, discountedPrice } = selectedUpgrade;
 	let billingTimeFrameString = '';
 	if ( 'yearly' === billingTimeFrame ) {
-		billingTimeFrameString = 'year';
+		billingTimeFrameString = __( 'per year', { context: 'Amount of money per time unit.' } );
 	} else if ( 'monthly' === billingTimeFrame ) {
-		billingTimeFrameString = 'month';
+		billingTimeFrameString = __( 'per month', { context: 'Amount of money per time unit.' } );
 	}
 
 	const { symbol, integer, fraction, raw } = getCurrencyObject(
@@ -208,7 +207,7 @@ function UpgradeButton( {
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( selectedUpgradeType ) } primary>
-				{ __( 'Upgrade to %(name)s for %(price)s/per %(billingTime)s', {
+				{ __( 'Upgrade to %(name)s for %(price)s/%(billingTime)s', {
 					args: {
 						name,
 						billingTime: billingTimeFrameString,
