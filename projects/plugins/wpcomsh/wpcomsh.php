@@ -59,9 +59,6 @@ require_once( 'vendor/autoload.php' );
 // REST API
 require_once( 'endpoints/rest-api.php' );
 
-// V1 migration helper
-require_once( 'v1-migration-manager.php' );
-
 // Load feature plugin overrides
 require_once( 'feature-plugins/full-site-editing.php' );
 require_once( 'feature-plugins/gutenberg-mods.php' );
