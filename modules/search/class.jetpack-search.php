@@ -298,7 +298,6 @@ class Jetpack_Search {
 	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
 	 *
 	 * @since 6.0
-	 * @param string $file Path of the file we are looking for.
 	 * @return string $script_version Version number.
 	 */
 	public function has_vip_index() {
@@ -518,8 +517,6 @@ class Jetpack_Search {
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
 			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
 		}
-
-		$response_code = wp_remote_retrieve_response_code( $request );
 
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
@@ -873,12 +870,12 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Initialize widgets for the Search module.
+	 * Initialize widgets for the Search module (on wp.com only).
 	 *
 	 * @module search
 	 */
 	public function action__widgets_init() {
-		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php';
 
 		register_widget( 'Jetpack_Search_Widget_Filters' );
 	}
