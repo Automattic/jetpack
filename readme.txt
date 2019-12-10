@@ -4,7 +4,7 @@ Tags: security, malware, virus, archive, back up, back ups, backup, backups, sca
 Requires at least: 5.1
 Tested up to: 5.3
 Stable tag: 2.1
-Requires PHP: 5.3
+Requires PHP: 5.6
 License: GPLv2
 
 VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.
