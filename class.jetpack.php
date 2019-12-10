@@ -570,7 +570,8 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' )  );
+		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
+		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
 			'jetpack_connection_secret_generator',
@@ -753,6 +754,24 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
 		}
+	}
+
+	/**
+	 * Runs on plugins_loaded. Use this to add code that needs to be executed later than other
+	 * initialization code.
+	 *
+	 * @action plugins_loaded
+	 */
+	public function late_initialization() {
+		/**
+		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
+		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param Jetpack $jetpack the main plugin class object.
+		 */
+		do_action( 'jetpack_loaded', $this );
 	}
 
 	/**
