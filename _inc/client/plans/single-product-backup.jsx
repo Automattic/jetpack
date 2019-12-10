@@ -192,16 +192,16 @@ function UpgradeButton( {
 		billingTimeFrameString = 'month';
 	}
 
-	const { symbol, integer, fraction } = getCurrencyObject(
+	const { symbol, integer, fraction, raw } = getCurrencyObject(
 		discountedPrice || fullPrice,
 		currencyCode
 	);
-	const price = `${ symbol }${ integer }${ fraction }`;
+	const price = `${ symbol }${ integer }${ raw - integer > 0 ? fraction : '' }`;
 
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( selectedUpgradeType ) } primary>
-				{ __( 'Upgrade to %(name) for %(price)/per %(billingTime)', {
+				{ __( 'Upgrade to %(name)s for %(price)s/per %(billingTime)s', {
 					args: {
 						name,
 						billingTime: billingTimeFrameString,
