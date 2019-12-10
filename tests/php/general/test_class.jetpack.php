@@ -138,50 +138,6 @@ EXPECTED;
 
 	}
 
-	/**
-	 * @author  kraftbj
-	 * @covers Jetpack::is_staging_site
-	 * @since  3.9.0
-	 */
-	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		add_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
-		$this->assertTrue( MockJetpack::is_staging_site() );
-		remove_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
-
-	}
-
-	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url(){
-		return 'http://bjk.staging.wpengine.com';
-	}
-
-	/**
-	 * @dataProvider get_is_staging_site_known_hosting_providers_data
-	 */
-	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
-		$original_site_url = get_option( 'siteurl' );
-		update_option( 'siteurl', $site_url );
-		$result = MockJetpack::is_staging_site();
-		update_option( 'siteurl', $original_site_url );
-		$this->assertTrue(
-			$result,
-			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
-		);
-	}
-
-	public function get_is_staging_site_known_hosting_providers_data() {
-		return array(
-			'wpengine' => array(
-				'http://bjk.staging.wpengine.com',
-			),
-			'kinsta' => array(
-				'http://test.staging.kinsta.com',
-			),
-			'dreampress' => array(
-				'http://ebinnion.stage.site',
-			),
-		);
-	}
-
 	/*
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
@@ -557,7 +513,7 @@ EXPECTED;
 
 	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
 		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
-		$this->assertTrue( Jetpack::is_staging_site() );
+		$this->assertTrue( ( new Status() )->is_staging_site() );
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
 	}
 

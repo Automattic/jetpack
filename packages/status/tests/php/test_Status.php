@@ -291,4 +291,63 @@ class Test_Status extends TestCase {
 		global $wpdb;
 		unset( $wpdb );
 	}
+
+	/**
+	 * Tests a WP Engine staging site URL.
+	 *
+	 * @author  kraftbj
+	 * @covers Jetpack::is_staging_site
+	 * @since  3.9.0
+	 */
+	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
+		add_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
+		$this->assertTrue( $this->status->is_staging_site() );
+		remove_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
+	}
+
+	/**
+	 * Provides a WP Engine staging URL.
+	 *
+	 * @return string
+	 */
+	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
+		return 'http://bjk.staging.wpengine.com';
+	}
+
+	/**
+	 * Tests known staging sites.
+	 *
+	 * @dataProvider get_is_staging_site_known_hosting_providers_data
+	 *
+	 * @param string $site_url Site URL.
+	 */
+	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
+		$original_site_url = get_option( 'siteurl' );
+		update_option( 'siteurl', $site_url );
+		$result = $this->status->is_staging_site();
+		update_option( 'siteurl', $original_site_url );
+		$this->assertTrue(
+			$result,
+			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
+		);
+	}
+
+	/**
+	 * Known hosting providers.
+	 *
+	 * @return array
+	 */
+	public function get_is_staging_site_known_hosting_providers_data() {
+		return array(
+			'wpengine'   => array(
+				'http://bjk.staging.wpengine.com',
+			),
+			'kinsta'     => array(
+				'http://test.staging.kinsta.com',
+			),
+			'dreampress' => array(
+				'http://ebinnion.stage.site',
+			),
+		);
+	}
 }
