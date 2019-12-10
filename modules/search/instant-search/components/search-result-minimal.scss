@@ -4,10 +4,11 @@
 	position: relative;
 
 	.jetpack-instant-search__search-result-date {
-		margin: 0.5em 0;
-		float: right;
-		display: block;
 		font-size: 0.85em;
+		margin: 0.5em 0;
+		position: absolute;
+		right: 0;
+		top: 0;
 	}
 }
 

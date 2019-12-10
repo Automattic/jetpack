@@ -13,6 +13,7 @@ import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import Notice from './notice';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -21,6 +22,9 @@ class SearchResults extends Component {
 		const hasCorrectedQuery = corrected_query !== false;
 		const num = new Intl.NumberFormat().format( total );
 
+		if ( total === 0 || this.props.hasError ) {
+			return sprintf( __( 'No results for "%s".', 'jetpack' ), this.props.query );
+		}
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
 				_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total, 'jetpack' ),
@@ -58,17 +62,35 @@ class SearchResults extends Component {
 			>
 				<SearchForm className="jetpack-instant-search__search-results-search-form" />
 
-				{ hasResults && (
-					<p className="jetpack-instant-search__search-results-real-query">
-						{ this.getSearchTitle() }
-					</p>
-				) }
+				<div
+					className={
+						hasResults
+							? 'jetpack-instant-search__search-results-real-query'
+							: 'jetpack-instant-search__search-results-empty'
+					}
+				>
+					{ this.getSearchTitle() }
+				</div>
+
 				{ hasResults && hasCorrectedQuery && (
 					<p className="jetpack-instant-search__search-results-unused-query">
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
 					</p>
 				) }
-				{ hasResults && (
+				{ this.props.hasError && (
+					<Notice type="warning">
+						{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack' ) }
+					</Notice>
+				) }
+				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
+					<Notice type="warning">
+						{ __(
+							"It looks like you're offline. Please reconnect to load the latest results.",
+							'jetpack'
+						) }
+					</Notice>
+				) }
+				{ hasResults && ! this.props.hasError && (
 					<ol
 						className={ `jetpack-instant-search__search-results-list is-format-${
 							this.props.resultFormat
@@ -84,11 +106,6 @@ class SearchResults extends Component {
 							/>
 						) ) }
 					</ol>
-				) }
-				{ ! hasResults && (
-					<div className="jetpack-instant-search__search-results-empty">
-						<h3>{ sprintf( __( 'No results for "%s".', 'jetpack' ), this.props.query ) }</h3>
-					</div>
 				) }
 				{ hasResults && this.props.hasNextPage && (
 					<div className="jetpack-instant-search__search-pagination">

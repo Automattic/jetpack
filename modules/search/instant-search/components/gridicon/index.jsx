@@ -17,7 +17,12 @@ import './style.scss';
 
 class Gridicon extends Component {
 	needsOffset( icon, size ) {
-		const iconNeedsOffset = [ 'gridicons-calendar', 'gridicons-cart', 'gridicons-folder' ];
+		const iconNeedsOffset = [
+			'gridicons-calendar',
+			'gridicons-cart',
+			'gridicons-folder',
+			'gridicons-info',
+		];
 
 		if ( iconNeedsOffset.indexOf( icon ) >= 0 ) {
 			return size % 18 === 0;
@@ -95,6 +100,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M15 7.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5S17.328 9 16.5 9 15 8.328 15 7.5zM4 20h14c0 1.105-.895 2-2 2H4c-1.1 0-2-.9-2-2V8c0-1.105.895-2 2-2v14zM22 4v12c0 1.105-.895 2-2 2H8c-1.105 0-2-.895-2-2V4c0-1.105.895-2 2-2h12c1.105 0 2 .895 2 2zM8 4v6.333L11 7l4.855 5.395.656-.73c.796-.886 2.183-.886 2.977 0l.513.57V4H8z" />
+					</g>
+				);
+			case 'gridicons-info':
+				return (
+					<g>
+						<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
 					</g>
 				);
 			case 'gridicons-pages':
