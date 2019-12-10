@@ -51,7 +51,7 @@ const SearchBox = props => {
 					tabIndex="0"
 					className="jetpack-instant-search__box-filter-icon"
 				>
-					<Gridicon icon="filter" alt="Search filter icon" />
+					<Gridicon icon="filter" alt="Search filter icon" aria-hidden="true" />
 					<span class="screen-reader-text">
 						{ props.showFilters ? __( 'Hide filters' ) : __( 'Show filters ' ) }
 					</span>
