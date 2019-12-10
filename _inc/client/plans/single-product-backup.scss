@@ -153,19 +153,42 @@ input[type='radio'].plan-radio-button__input {
 
 .single-product-backup__promo-star {
 	position: absolute;
+	left: -1rem;
+	top: -1.5rem;
+	transform: rotate(-10deg);
+}
+
+.single-product-backup__promo-star img {
+	display: block;
+}
+
+.single-product-backup__promo-star-text {
+	position: absolute;
 	left: 0;
+	top: 0;
+	margin: 35px 20px;
+	color: $white;
+	font-weight: bold;
+	text-align: center;
+	line-height: 17px;
 }
 
 .single-product-backup__promo-header {
 	font-weight: normal;
 	font-size: 12px;
-	text-align: center;
+	text-transform: uppercase;
 	color: $gray-text-min;
-	margin: 0;
+	margin: 0 0 0 100px;
+
+	@include breakpoint( ">660px" ) {
+		text-align: center;
+		margin: 0;
+	}
 }
 
 .single-product-backup__promo-header strong {
 	font-size: 14px;
 	color: #191E23;
 	display: block;
+	text-transform: none;
 }
