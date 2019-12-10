@@ -300,18 +300,8 @@ class Test_Status extends TestCase {
 	 * @since  3.9.0
 	 */
 	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		add_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
+		$this->mock_function( 'site_url', 'http://bjk.staging.wpengine.com' );
 		$this->assertTrue( $this->status->is_staging_site() );
-		remove_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
-	}
-
-	/**
-	 * Provides a WP Engine staging URL.
-	 *
-	 * @return string
-	 */
-	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		return 'http://bjk.staging.wpengine.com';
 	}
 
 	/**
@@ -322,10 +312,8 @@ class Test_Status extends TestCase {
 	 * @param string $site_url Site URL.
 	 */
 	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
-		$original_site_url = get_option( 'siteurl' );
-		update_option( 'siteurl', $site_url );
+		$this->mock_function( 'site_url', $site_url );
 		$result = $this->status->is_staging_site();
-		update_option( 'siteurl', $original_site_url );
 		$this->assertTrue(
 			$result,
 			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
