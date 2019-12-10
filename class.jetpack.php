@@ -570,7 +570,7 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' )  );
+		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
@@ -762,7 +762,7 @@ class Jetpack {
 	 *
 	 * @action plugins_loaded
 	 */
-	public function late_initalization() {
+	public function late_initialization() {
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
 		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
