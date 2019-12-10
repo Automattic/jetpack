@@ -189,7 +189,7 @@ class Actions {
 			return false;
 		}
 
-		if ( \Jetpack::is_staging_site() ) {
+		if ( ( new Status() )->is_staging_site() ) {
 			return false;
 		}
 
