@@ -196,7 +196,6 @@ function UpgradeButton( {
 		discountedPrice || fullPrice,
 		currencyCode
 	);
-	const price = `${ symbol }${ integer }${ raw - integer > 0 ? fraction : '' }`;
 
 	return (
 		<div className="single-product-backup__upgrade-button-container">
@@ -205,7 +204,7 @@ function UpgradeButton( {
 					args: {
 						name,
 						billingTime: billingTimeFrameString,
-						price,
+						price: `${ symbol }${ integer }${ raw - integer > 0 ? fraction : '' }`,
 					},
 					comment: 'Button to purchase plan. {{price}} can be a range of values.',
 				} ) }
