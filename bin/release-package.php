@@ -56,8 +56,8 @@ if ( ! empty( $modified_files ) ) {
 	exit;
 }
 
-// Start by starting from a fresh copy of master.
-execute( 'git checkout master && git pull && git reset --hard origin/master', 'Could not switch to an up to date version of master.' );
+// Start from a fresh copy of master.
+execute( 'git fetch origin && git checkout master && git reset --hard origin/master', 'Could not switch to an up to date version of master.' );
 
 // Create the new tag in the main repository.
 $main_repo_tag = 'automattic/jetpack-' . $package_name . '@' . $tag_version;
