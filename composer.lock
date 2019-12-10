@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
-                "reference": "b873be98786907a49ac5cd21836167f662212aa0"
+                "reference": "c3681b3eac3d0e5625de758218fd1e8994e06302"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -24,9 +24,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -41,11 +41,11 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
-                "reference": "e93b5911e77ff0abfad498e99edbb5f6a8a124a9"
+                "reference": "165b7d1cdba6e1609fb0a92e9809a58bbc17503a"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -56,9 +56,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -73,7 +73,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -107,20 +107,20 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/backup",
-                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7"
+                "reference": "0ae8bfd8b87d9140066915c643fc6a00783d0032"
             },
             "type": "library",
             "autoload": {
                 "files": [
                     "actions.php"
                 ],
-                "psr-4": {
-                    "Automattic\\Jetpack\\Backup\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -129,7 +129,7 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -160,16 +160,36 @@
             "description": "Compatibility layer with previous versions of Jetpack"
         },
         {
+            "name": "automattic/jetpack-config",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "./packages/config",
+                "reference": "09edd078205d6fee2f8a46eaf0f736fd4ade1473"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage."
+        },
+        {
             "name": "automattic/jetpack-connection",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
-                "reference": "59fa2bc973303b013ce63978ff8d875d1223f510"
+                "reference": "ac53d3e65b1be0a24206dc32ef2d17a17e387fcd"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-options": "@dev"
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-roles": "@dev"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -177,14 +197,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Connection\\": "src"
-                },
                 "files": [
                     "legacy/load-ixr.php"
                 ],
                 "classmap": [
-                    "legacy"
+                    "legacy",
+                    "src/"
                 ]
             },
             "scripts": {
@@ -200,20 +218,20 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
-                "reference": "a6ab6360f4b48962ec7d62b06b39d1470b1dbe95"
+                "reference": "03403af14d39cec6fd826dbdc6675d0a23cf8d94"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -228,20 +246,20 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
-                "reference": "1707cf33a92fc66f1635dfe1e4215819101e9bb4"
+                "reference": "2f35acfb871c772dd3a81755d093b1cb295b8830"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -256,11 +274,11 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
-                "reference": "b0c2da6ce6a0137f3a1895ab82a93ad7769fddca"
+                "reference": "fd6393ba68829784166efc33f9946b55c321c289"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -277,9 +295,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -294,11 +312,11 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
-                "reference": "d8a31dfd40166c4867fa2c526a03d9df481d5610"
+                "reference": "f2b7828deb34f7bb6da24380f2a88ab98d3733df"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -306,9 +324,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Assets\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -323,7 +341,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -349,7 +367,7 @@
         },
         {
             "name": "automattic/jetpack-partner",
-            "version": "dev-add/upgrade-url-subsidiary-id",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
@@ -380,11 +398,11 @@
         },
         {
             "name": "automattic/jetpack-roles",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
-                "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
+                "reference": "22dd28b575dc20f2a8e7d44f024223033c66517a"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -392,9 +410,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -409,11 +427,11 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
-                "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
+                "reference": "e066e8d051698a5a9b1460296f156bbf7555484e"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -421,9 +439,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -438,11 +456,11 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
-                "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
+                "reference": "f163052f84a9656349985737f75c0e20c9a3c8e0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -453,10 +471,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Sync\\": "src/",
-                    "Automattic\\Jetpack\\Sync\\Modules\\": "src/modules/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "license": [
                 "GPL-2.0-or-later"
@@ -465,11 +482,11 @@
         },
         {
             "name": "automattic/jetpack-terms-of-service",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/terms-of-service",
-                "reference": "6f53f2987be1c025edcd7820759df50c134065e6"
+                "reference": "f97742a361eb772f8bc6f13ae9437b3e8233cb0e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -482,9 +499,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                }
+                "classmap": [
+                    "src/"
+                ]
             },
             "scripts": {
                 "phpunit": [
@@ -499,11 +516,11 @@
         },
         {
             "name": "automattic/jetpack-tracking",
-            "version": "dev-retry/phpcs-changed",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "./packages/tracking",
-                "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb"
+                "reference": "f4e52837194537e90f9fa10ac7b48f25519765bd"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
@@ -515,11 +532,9 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
-                },
                 "classmap": [
-                    "legacy"
+                    "legacy",
+                    "src/"
                 ]
             },
             "scripts": {
@@ -968,6 +983,7 @@
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
         "automattic/jetpack-compat": 20,
+        "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,

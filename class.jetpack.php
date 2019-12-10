@@ -1,23 +1,19 @@
 <?php
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
-use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use Automattic\Jetpack\Sync\Functions;
-use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 
 /*
 Options:
@@ -49,8 +45,6 @@ class Jetpack {
 	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
-
-	private $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -563,8 +557,7 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'early_initialization' ), 5 );
-		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
+		add_action( 'plugins_loaded', array( $this, 'early_initialization' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
@@ -739,6 +732,8 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function early_initialization() {
+		new Config( $this );
+
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
@@ -748,14 +743,6 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-
-		Sync_Main::init();
-
-		// Check for WooCommerce support.
-		Sync_Actions::initialize_woocommerce();
-
-		// Check for WP Super Cache.
-		Sync_Actions::initialize_wp_super_cache();
 	}
 
 	/**
@@ -765,11 +752,8 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		/*
-		 * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
-		 * with a high priority or sites that use alternate cron.
-		 */
-		Sync_Actions::init();
+		self::plugin_textdomain();
+		self::load_modules();
 
 		Partner::init();
 
@@ -782,25 +766,6 @@ class Jetpack {
 		 * @param Jetpack $jetpack the main plugin class object.
 		 */
 		do_action( 'jetpack_loaded', $this );
-
-		self::plugin_textdomain();
-		self::load_modules();
-	}
-
-	/**
-	 * Runs after all the plugins have loaded but before init.
-	 */
-	public function after_plugins_loaded() {
-		$terms_of_service = new Terms_Of_Service();
-		$tracking = new Plugin_Tracking();
-		if ( $terms_of_service->has_agreed() ) {
-			add_action( 'init', array( $tracking, 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
-		}
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 	}
