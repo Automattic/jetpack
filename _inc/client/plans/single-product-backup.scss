@@ -145,7 +145,7 @@ input[type='radio'].plan-radio-button__input {
 }
 
 .single-product-backup__promo {
-	background-color: #f8f8f8;
+	background-color: $color-off-white;
 	border-radius: 16px;
 	position: relative;
 	padding: 7px 0;
@@ -188,7 +188,7 @@ input[type='radio'].plan-radio-button__input {
 
 .single-product-backup__promo-header strong {
 	font-size: 14px;
-	color: #191E23;
+	color: $wpui-header-dark;
 	display: block;
 	text-transform: none;
 }
