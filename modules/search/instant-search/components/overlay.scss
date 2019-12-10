@@ -1,0 +1,12 @@
+.jetpack-instant-search__overlay {
+	bottom: 0;
+	left: 0;
+	opacity: 0.9;
+	transition: opacity 0.5s linear;
+	position: fixed;
+	right: 0;
+	top: 0;
+	background: white;
+	padding: 3em 1em;
+	overflow-y: auto;
+}

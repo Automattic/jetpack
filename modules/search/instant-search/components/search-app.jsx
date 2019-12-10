@@ -13,6 +13,7 @@ import debounce from 'lodash/debounce';
 /**
  * Internal dependencies
  */
+import Overlay from './overlay';
 import SearchBox from './search-box';
 import SearchResults from './search-results';
 import SearchWidget from './search-widget';
@@ -200,26 +201,31 @@ class SearchApp extends Component {
 		);
 	}
 
+	renderSearchOverlay() {
+		return createPortal(
+			<Overlay>
+				<SearchResults
+					enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
+					hasError={ this.state.hasError }
+					hasNextPage={ this.hasNextPage() }
+					isLoading={ this.state.isLoading }
+					locale={ this.props.options.locale }
+					onLoadNextPage={ this.loadNextPage }
+					query={ getSearchQuery() }
+					response={ this.state.response }
+					resultFormat={ getResultFormatQuery() }
+				/>
+			</Overlay>,
+			document.body
+		);
+	}
+
 	render() {
 		return (
 			<Fragment>
 				{ this.renderWidgets() }
 				{ this.renderSearchForms() }
-				{ this.state.showResults &&
-					createPortal(
-						<SearchResults
-							hasError={ this.state.hasError }
-							hasNextPage={ this.hasNextPage() }
-							isLoading={ this.state.isLoading }
-							onLoadNextPage={ this.loadNextPage }
-							locale={ this.props.options.locale }
-							query={ getSearchQuery() }
-							response={ this.state.response }
-							resultFormat={ getResultFormatQuery() }
-							enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
-						/>,
-						document.querySelector( this.props.themeOptions.resultsSelector )
-					) }
+				{ this.state.showResults && this.renderSearchOverlay() }
 			</Fragment>
 		);
 	}
