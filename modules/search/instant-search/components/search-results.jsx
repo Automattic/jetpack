@@ -79,14 +79,15 @@ class SearchResults extends Component {
 				) }
 				{ this.props.hasError && (
 					<Notice type="warning">
-						{ /* TODO: Wrap these in __ translation calls when copy is finalized. */ }
-						It looks like you're offline. Please reconnect for results.
+						{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack' ) }
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
 					<Notice type="warning">
-						{ /* TODO: Wrap these in __ translation calls when copy is finalized. */ }
-						It looks like you're offline. Please reconnect to load the latest results.
+						{ __(
+							"It looks like you're offline. Please reconnect to load the latest results.",
+							'jetpack'
+						) }
 					</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && (
