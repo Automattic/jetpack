@@ -47,7 +47,7 @@ class Config {
 
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_early' ), 5 );
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ) );
-		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_late' ) );
+		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_late' ), 90 );
 	}
 
 	/**
@@ -111,6 +111,6 @@ class Config {
 		 * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
 		 * with a high priority or sites that use alternate cron.
 		 */
-		Sync_Actions::init();
+		Sync_Actions::init( $this->jetpack );
 	}
 }

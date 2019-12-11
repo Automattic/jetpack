@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
@@ -56,7 +57,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
 
-		Jetpack::init()->late_initalization();
+		$jetpack = Jetpack::init();
+
+		new Config( $jetpack );
+
+		add_filter( 'jetpack_config', array( $jetpack, 'filter_jetpack_config' ) );
 	}
 
 	public function tearDown() {
