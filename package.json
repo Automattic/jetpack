@@ -201,7 +201,7 @@
 		"nock": "10.0.6",
 		"node-wp-i18n": "1.2.3",
 		"prettier": "npm:wp-prettier@1.18.2",
-		"puppeteer": "1.2.0",
+		"puppeteer": "1.20.0",
 		"react-test-renderer": "16.8.6",
 		"sass-loader": "7.3.1",
 		"sinon": "7.5.0",
