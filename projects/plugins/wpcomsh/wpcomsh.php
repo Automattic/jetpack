@@ -498,12 +498,6 @@ function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
 	return $was_theme_unsymlinked;
 }
 
-function wpcomsh_remove_dashboard_widgets() {
-	remove_meta_box( 'pressable_dashboard_widget', 'dashboard', 'normal' );
-}
-add_action( 'wp_dashboard_setup', 'wpcomsh_remove_dashboard_widgets' );
-
-
 /**
  * Pressable only
  *
