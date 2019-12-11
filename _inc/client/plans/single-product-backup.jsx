@@ -71,10 +71,10 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
-	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
+	const priceDailyAnnual = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
 	const priceDailyMonthlyPerYear = '' === priceDailyMonthly ? '' : priceDailyMonthly * 12;
-	const priceRealtime = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
+	const priceRealtimeAnnual = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
 	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
 	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
@@ -83,13 +83,13 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 		{
 			type: 'daily',
 			name: __( 'Daily Backups' ),
-			discountedPrice: priceDaily,
+			discountedPrice: priceDailyAnnual,
 			fullPrice: priceDailyMonthlyPerYear,
 		},
 		{
 			type: 'real-time',
 			name: __( 'Real-Time Backups' ),
-			discountedPrice: priceRealtime,
+			discountedPrice: priceRealtimeAnnual,
 			fullPrice: priceRealtimeMonthlyPerYear,
 		},
 	];
