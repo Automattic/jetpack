@@ -83,7 +83,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	await page.waitForResponse(
-		response => response.url().includes( 'v4/site?' ) && response.status() === 200
+		response => response.url().includes( 'v4/site&' ) && response.status() === 200
 	);
 
 	await execShellCommand(
