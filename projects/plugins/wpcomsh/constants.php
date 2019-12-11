@@ -2,7 +2,7 @@
 
 $current_dir = dirname( __FILE__ );
 
-// Base paths containing the location of WP.com and storefront themes, defined in Pressable.
+// Base paths containing the location of WP.com and storefront themes, defined in Atomic.
 if ( ! defined( 'THEMES_SYMLINK_BASE' ) || ! defined( 'THEMES_PATH_BASE' ) ) {
 	define( 'THEMES_SYMLINK_BASE', $current_dir );
 	define( 'THEMES_PATH_BASE', $current_dir );
@@ -20,6 +20,5 @@ define( 'WPCOMSH_PUB_THEME_TYPE', 'wpcom_pub_theme_type' );
 define( 'WPCOMSH_PREMIUM_THEME_TYPE', 'wpcom_premium_theme_type' );
 define( 'WPCOMSH_NON_WPCOM_THEME', 'non_wpcom_theme' );
 
-// Needed as Pressable has different path for wpcomsh than normally.
 define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
 define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
