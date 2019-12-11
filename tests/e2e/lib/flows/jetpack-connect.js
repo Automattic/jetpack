@@ -128,7 +128,8 @@ export async function connectThroughJetpackStart( {
 	await jetpackPage.openMyPlan();
 
 	await page.waitForResponse(
-		response => response.url().includes( 'v4/site?' ) && response.status() === 200
+		response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
+		{ timeout: 60 * 1000 }
 	);
 
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
