@@ -8,12 +8,7 @@
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
 		"php-mock/php-mock": "^2.1",
 		"mockery/mockery": "^1.2",
-		"wp-phpunit/wp-phpunit": "^5.2",
-		"roots/wordpress": "^5.2",
-		"limedeck/phpunit-detailed-printer": "^4.0"
-	},
-	"_comments": {
-		"limedeck/phpunit-detailed-printer": "Used for prettier PHPUnit output"
+		"brain/monkey": "^2.4"
 	},
 	"autoload": {
 		"classmap": [

@@ -2,11 +2,7 @@
 		bootstrap="tests/php/bootstrap.php"
 		backupGlobals="false"
 		colors="true"
-		printerClass="LimeDeck\Testing\Printer"
 >
-	<php>
-		<env name="WP_PHPUNIT__TESTS_CONFIG" value="tests/wp-config.php"/>
-	</php>
 	<testsuites>
 		<testsuite name="general">
 			<directory prefix="test" suffix=".php">tests/php</directory>
