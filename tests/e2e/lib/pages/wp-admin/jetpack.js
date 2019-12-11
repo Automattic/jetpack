@@ -21,12 +21,12 @@ export default class JetpackPage extends Page {
 	}
 
 	async isPremium() {
-		const premiumPlanImage = ".jp-landing__plan-card-img img[src*='premium']";
+		const premiumPlanImage = ".my-plan-card__icon img[src*='premium']";
 		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
 	}
 
 	async isProfessional() {
-		const proPlanImage = ".jp-landing__plan-card-img img[src*='business']";
+		const proPlanImage = ".my-plan-card__icon img[src*='business']";
 		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
 	}
 
