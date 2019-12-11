@@ -34,7 +34,7 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 						products={ products }
 						upgradeLinks={ upgradeLinks }
 						// TODO: Wire to picker
-						billingTimeFrame="monthly"
+						billingTimeFrame="yearly"
 					/>
 				) }
 			</div>
