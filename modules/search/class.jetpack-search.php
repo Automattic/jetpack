@@ -290,7 +290,10 @@ class Jetpack_Search {
 	 * Loads scripts for Tracks analytics library
 	 */
 	public function is_search_supported() {
-		return Jetpack::active_plan_supports( 'search' );
+		if ( method_exists( 'Jetpack_Plan', 'supports' ) ) {
+			return Jetpack_Plan::supports( 'search' );
+		}
+		return false;
 	}
 
 	/**
