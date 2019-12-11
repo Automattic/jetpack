@@ -18,14 +18,7 @@ import { imagePath } from 'constants/urls';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( {
-	plan,
-	products,
-	upgradeLinks,
-	isFetchingData,
-	selectedBackupType,
-	setSelectedBackupType,
-} ) {
+export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
 	// Don't show the product card for paid plans.
 	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
 		return null;
@@ -37,12 +30,7 @@ export function SingleProductBackup( {
 				{ isFetchingData ? (
 					<div className="plans-section__single-product-skeleton is-placeholder" />
 				) : (
-					<SingleProductBackupCard
-						products={ products }
-						upgradeLinks={ upgradeLinks }
-						selectedBackupType={ selectedBackupType }
-						setSelectedBackupType={ setSelectedBackupType }
-					/>
+					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
 				) }
 			</div>
 		</React.Fragment>
@@ -67,9 +55,8 @@ function PromoNudge() {
 	);
 }
 
-function SingleProductBackupCard( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
-	const billingTimeFrame = 'yearly';
+function SingleProductBackupCard( { products, upgradeLinks, billingTimeFrame = 'yearly' } ) {
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'realTime' );
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDailyAnnual = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
@@ -79,20 +66,34 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
 	// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
-	const backupOptions = [
-		{
-			type: 'daily',
-			name: __( 'Daily Backups' ),
+	let dailyOptions = {
+		type: 'daily',
+		name: __( 'Daily Backups' ),
+		link: upgradeLinks.daily,
+		potentialSavings: priceDailyMonthlyPerYear - priceDailyAnnual,
+	};
+	let realTimeOptions = {
+		type: 'realTime',
+		name: __( 'Real-Time Backups' ),
+		link: upgradeLinks[ 'real-time' ],
+		potentialSavings: priceRealtimeMonthlyPerYear - priceRealtimeAnnual,
+	};
+
+	if ( 'yearly' === billingTimeFrame ) {
+		dailyOptions = {
+			...dailyOptions,
 			discountedPrice: priceDailyAnnual,
 			fullPrice: priceDailyMonthlyPerYear,
-		},
-		{
-			type: 'real-time',
-			name: __( 'Real-Time Backups' ),
+		};
+		realTimeOptions = {
+			...realTimeOptions,
 			discountedPrice: priceRealtimeAnnual,
 			fullPrice: priceRealtimeMonthlyPerYear,
-		},
-	];
+		};
+	} else if ( 'monthly' === billingTimeFrame ) {
+		dailyOptions.fullPrice = priceDailyMonthly;
+		realTimeOptions.fullPrice = priceRealtimeMonthly;
+	}
 
 	return (
 		<div className="single-product-backup__accented-card dops-card">
@@ -103,7 +104,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 				<SingleProductBackupBodyWithRouter
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
-					backupOptions={ backupOptions }
+					backupOptions={ { realTime: realTimeOptions, daily: dailyOptions } }
 					selectedBackupType={ selectedBackupType }
 					setSelectedBackupType={ setSelectedBackupType }
 					upgradeLinks={ upgradeLinks }
@@ -180,18 +181,51 @@ function PlanRadioButton( {
 	);
 }
 
-function UpgradeButton( {
-	selectedUpgradeType,
-	upgradesAvailable,
-	billingTimeFrame,
-	currencyCode,
-	onClickHandler,
-} ) {
-	const selectedUpgrade = upgradesAvailable.find( ( { type } ) => type === selectedUpgradeType );
+function PlanSavingsText( { selectedBackup, billingTimeFrame, currencyCode } ) {
+	if ( ! selectedBackup ) {
+		return null;
+	}
+	const savingsCurrencyObject = getCurrencyObject( selectedBackup.potentialSavings, currencyCode );
+	const savings = formatCurrency( savingsCurrencyObject );
+
+	// TODO: Provide way to switch billing time frame state.
+	const switchComponent = <a />;
+
+	let promptText;
+	if ( 'yearly' === billingTimeFrame ) {
+		promptText = __( 'You are saving %(savings)s by paying yearly. {{a}}Switch to monthly{{/a}}', {
+			args: { savings },
+			components: {
+				a: switchComponent,
+			},
+		} );
+	} else if ( 'monthly' === billingTimeFrame ) {
+		promptText = __(
+			'You could be saving %(savings)s by paying yearly. {{a}}Switch to yearly{{/a}}',
+			{
+				args: { savings },
+				components: {
+					a: switchComponent,
+				},
+			}
+		);
+	}
+
+	if ( ! promptText ) {
+		return null;
+	}
+	return (
+		<p>
+			<em>{ promptText }</em>
+		</p>
+	);
+}
+
+function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onClickHandler } ) {
 	if ( ! selectedUpgrade ) {
 		return null;
 	}
-	const { link, name, fullPrice, discountedPrice } = selectedUpgrade;
+	const { link, name, fullPrice, discountedPrice, type } = selectedUpgrade;
 	let billingTimeFrameString = '';
 	if ( 'yearly' === billingTimeFrame ) {
 		billingTimeFrameString = __( 'per year', { context: 'Amount of money per time unit.' } );
@@ -199,19 +233,16 @@ function UpgradeButton( {
 		billingTimeFrameString = __( 'per month', { context: 'Amount of money per time unit.' } );
 	}
 
-	const { symbol, integer, fraction, raw } = getCurrencyObject(
-		discountedPrice || fullPrice,
-		currencyCode
-	);
+	const currencyObject = getCurrencyObject( discountedPrice || fullPrice, currencyCode );
 
 	return (
 		<div className="single-product-backup__upgrade-button-container">
-			<Button href={ link } onClick={ onClickHandler( selectedUpgradeType ) } primary>
+			<Button href={ link } onClick={ onClickHandler( type ) } primary>
 				{ __( 'Upgrade to %(name)s for %(price)s/%(billingTime)s', {
 					args: {
 						name,
 						billingTime: billingTimeFrameString,
-						price: `${ symbol }${ integer }${ raw - integer > 0 ? fraction : '' }`,
+						price: formatCurrency( currencyObject ),
 					},
 					comment: 'Button to purchase plan. {{price}} can be a range of values.',
 				} ) }
@@ -220,15 +251,23 @@ function UpgradeButton( {
 	);
 }
 
-// eslint-disable-next-line no-unused-vars
+// Placeholder for formatting the currency without zeros
+// until https://github.com/Automattic/wp-calypso/pull/36039
+// is released.
+function formatCurrency( { symbol, integer, raw, fraction } ) {
+	return `${ symbol }${ integer }${ raw - integer > 0 ? fraction : '' }`;
+}
+
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
-		backupOptions: PropTypes.array,
+		backupOptions: PropTypes.shape( {
+			realTime: PropTypes.object,
+			daily: PropTypes.object,
+		} ),
 		billingTimeFrame: PropTypes.string,
 		currencyCode: PropTypes.string,
 		setSelectedBackupType: PropTypes.func,
 		selectedBackupType: PropTypes.string,
-		upgradeLinks: PropTypes.object,
 	};
 
 	handleSelectedBackupTypeChange = event => {
@@ -245,18 +284,9 @@ class SingleProductBackupBody extends React.Component {
 	};
 
 	render() {
-		const {
-			backupOptions,
-			billingTimeFrame,
-			currencyCode,
-			selectedBackupType,
-			upgradeLinks,
-		} = this.props;
+		const { backupOptions, billingTimeFrame, currencyCode, selectedBackupType } = this.props;
 
-		const backupOptionsWithLinks = backupOptions.map( option => ( {
-			...option,
-			link: upgradeLinks[ option.type ],
-		} ) );
+		const selectedBackup = get( backupOptions, selectedBackupType, null );
 
 		return (
 			<React.Fragment>
@@ -266,7 +296,7 @@ class SingleProductBackupBody extends React.Component {
 					{ __( 'Select a backup option:' ) }
 				</h4>
 				<div className="single-product-backup__radio-buttons-container">
-					{ backupOptions.map( option => (
+					{ Object.values( backupOptions ).map( option => (
 						<PlanRadioButton
 							key={ option.type }
 							billingTimeFrame={ billingTimeFrame }
@@ -280,18 +310,13 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
-				<p>
-					<em>
-						{ __( 'You are saving $40 by paying yearly. {{a}}Switch to monthly{{/a}}', {
-							components: {
-								a: <a />,
-							},
-						} ) }
-					</em>
-				</p>
+				<PlanSavingsText
+					selectedBackup={ selectedBackup }
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+				/>
 				<UpgradeButton
-					upgradesAvailable={ backupOptionsWithLinks }
-					selectedUpgradeType={ selectedBackupType }
+					selectedUpgrade={ selectedBackup }
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
 					onClickHandler={ this.handleUpgradeButtonClick }
