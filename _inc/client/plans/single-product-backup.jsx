@@ -30,7 +30,12 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 				{ isFetchingData ? (
 					<div className="plans-section__single-product-skeleton is-placeholder" />
 				) : (
-					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
+					<SingleProductBackupCard
+						products={ products }
+						upgradeLinks={ upgradeLinks }
+						// TODO: Wire to picker
+						billingTimeFrame="monthly"
+					/>
 				) }
 			</div>
 		</React.Fragment>
@@ -55,7 +60,7 @@ function PromoNudge() {
 	);
 }
 
-function SingleProductBackupCard( { products, upgradeLinks, billingTimeFrame = 'yearly' } ) {
+function SingleProductBackupCard( { products, upgradeLinks, billingTimeFrame } ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'realTime' );
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDailyAnnual = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
