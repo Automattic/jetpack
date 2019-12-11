@@ -69,8 +69,10 @@ describe( 'Paid blocks', () => {
 		it( 'Can publish a post with a WordAds block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
 			const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
+			await blockEditor.focus();
 
 			const adBlock = new WordAdsBlock( blockInfo, page );
+			await adBlock.focus();
 			await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
 
 			await blockEditor.focus();

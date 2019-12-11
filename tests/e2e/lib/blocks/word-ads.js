@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
+import { waitForSelector, waitAndClick } from '../page-helper';
 /**
  * WordPress dependencies
  */
@@ -34,6 +34,10 @@ export default class WordAdsBlock {
 
 	getSelector( selector ) {
 		return `${ this.blockSelector } ${ selector }`;
+	}
+
+	async focus() {
+		return await waitAndClick( this.page, this.getSelector( '.wp-block-jetpack-wordads' ) );
 	}
 
 	/**
