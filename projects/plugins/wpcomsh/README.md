@@ -1,6 +1,6 @@
 # WordPress.com Site Helper
 
-With the help of this mu-plugin, a Pressable site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
+With the help of this mu-plugin, an Atomic site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
 
 ## Development
 
@@ -17,7 +17,7 @@ $ composer install # installs the composer dependencies
 $ cd ..
 $ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
-# define 'IS_PRESSABLE' (v1) or 'IS_ATOMIC' (v2) as true so the loader will require wpcomsh
+# define 'IS_ATOMIC' as true so the loader will require wpcomsh
 ```
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.
@@ -134,7 +134,7 @@ This allows users to make an informed decision when enabling/disabling these plu
 
 ### Symlinking WP.com pub (free) and premium themes
 
-We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
+We keep the WP.com pub and premium themes checked out on Atomic. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Atomic to user’s `wp-content/themes` folder.
 
 When a user tries to delete a WP.com theme (only available from Calypso), wpcomsh hooks into Jetpack themes API and unsymlinks the WP.com theme.
 
@@ -165,15 +165,11 @@ Setting `plan_slug` to `free`, in turn, adds the `do_not_allow` capability to th
 - `upload_themes`
 - `edit_themes`
 
-### Removal of Pressable wp-admin Dashboard widget
-
-Pressable adds a custom widget to wp-admin’s Dashboard. However, as AT users are still WP.com ones, we need to hide any mention of Pressable from them so wpcomsh removes this custom widget from wp-admin’s Dashboard.
-
 ### Points attachment URLs to WP.com
 
 TODO: needs Jennifer’s clarification.
 
-After transferring a site from WP.com to Pressable, the media files (such as images) are not immediately moved there and stay on WP.com servers. That’s why we need to point the attachment URLs to WP.com temporarily. A job to move media files is queued shortly after the transfer process finishes.
+After transferring a site from WP.com to Atomic, the media files (such as images) are not immediately moved there and stay on WP.com servers. That’s why we need to point the attachment URLs to WP.com temporarily. A job to move media files is queued shortly after the transfer process finishes.
 
 ### Bypassing Jetpack Single Sign On login form
 
@@ -196,10 +192,6 @@ If a site has the `a8c-fse-is-eligible` site option, the site is eligible for Fu
 ### Custom colors and fonts (+ Typekit fonts)
 
 On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
-
-### Notification if site is using old Pressable IPs
-
-If not using WordPress.com nameservers and site pointed to old Pressable IPs show a notice in `wp-admin/` saying that site will stop working if they don't update to the new IPs (which are shown in the notice).
 
 ### Media Library used space
 
