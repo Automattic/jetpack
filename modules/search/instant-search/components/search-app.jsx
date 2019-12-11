@@ -42,6 +42,7 @@ class SearchApp extends Component {
 			requestId: 0,
 			response: {},
 			showResults: false,
+			showOverlay: false,
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.prepareDomForMounting();
@@ -91,7 +92,7 @@ class SearchApp extends Component {
 	showResults = () => {
 		if ( this.hasActiveQuery() && ! this.state.showResults ) {
 			hideChildren( this.props.themeOptions.resultsSelector );
-			this.setState( { showResults: true } );
+			this.setState( { showResults: true, showOverlay: true } );
 		}
 	};
 
@@ -168,6 +169,12 @@ class SearchApp extends Component {
 		} );
 	};
 
+	toggleOverlay = () => {
+		this.setState( state => ( {
+			showOverlay: ! state.showOverlay,
+		} ) );
+	};
+
 	renderWidgets() {
 		return this.props.options.widgets.map( widget => (
 			<SearchWidget
@@ -203,7 +210,7 @@ class SearchApp extends Component {
 
 	renderSearchOverlay() {
 		return createPortal(
-			<Overlay>
+			<Overlay showOverlay={ this.state.showOverlay } toggleOverlay={ this.toggleOverlay }>
 				<SearchResults
 					enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 					hasError={ this.state.hasError }

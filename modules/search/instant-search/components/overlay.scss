@@ -9,4 +9,13 @@
 	background: white;
 	padding: 3em 1em;
 	overflow-y: auto;
+
+	&.is-hidden {
+		display: none;
+	}
+}
+
+.jetpack-instant-search__overlay-close {
+	position: absolute;
+	right: 2em;
 }
