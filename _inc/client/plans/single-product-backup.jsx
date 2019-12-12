@@ -183,15 +183,9 @@ function ProductSavings( { selectedBackup, currencyCode } ) {
 	const savingsCurrencyObject = getCurrencyObject( selectedBackup.potentialSavings, currencyCode );
 	const savings = formatCurrency( savingsCurrencyObject );
 
-	return (
-		<p>
-			<em>
-				{ __( 'You are saving %(savings)s by paying yearly', {
-					args: { savings },
-				} ) }
-			</em>
-		</p>
-	);
+	return __( 'You are saving %(savings)s by paying yearly', {
+		args: { savings },
+	} );
 }
 
 function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onClickHandler } ) {
@@ -280,11 +274,15 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
-				<ProductSavings
-					selectedBackup={ selectedBackup }
-					billingTimeFrame={ billingTimeFrame }
-					currencyCode={ currencyCode }
-				/>
+				<p>
+					<em>
+						<ProductSavings
+							selectedBackup={ selectedBackup }
+							billingTimeFrame={ billingTimeFrame }
+							currencyCode={ currencyCode }
+						/>
+					</em>
+				</p>
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }
 					billingTimeFrame={ billingTimeFrame }
