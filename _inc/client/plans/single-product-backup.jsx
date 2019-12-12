@@ -172,42 +172,20 @@ function PlanRadioButton( {
 	);
 }
 
-function PlanSavingsText( { selectedBackup, billingTimeFrame, currencyCode } ) {
+function ProductSavings( { selectedBackup, currencyCode } ) {
 	if ( ! selectedBackup ) {
 		return null;
 	}
 	const savingsCurrencyObject = getCurrencyObject( selectedBackup.potentialSavings, currencyCode );
 	const savings = formatCurrency( savingsCurrencyObject );
 
-	// TODO: Provide way to switch billing time frame state.
-	const switchComponent = <a />;
-
-	let promptText;
-	if ( 'yearly' === billingTimeFrame ) {
-		promptText = __( 'You are saving %(savings)s by paying yearly. {{a}}Switch to monthly{{/a}}', {
-			args: { savings },
-			components: {
-				a: switchComponent,
-			},
-		} );
-	} else if ( 'monthly' === billingTimeFrame ) {
-		promptText = __(
-			'You could be saving %(savings)s by paying yearly. {{a}}Switch to yearly{{/a}}',
-			{
-				args: { savings },
-				components: {
-					a: switchComponent,
-				},
-			}
-		);
-	}
-
-	if ( ! promptText ) {
-		return null;
-	}
 	return (
 		<p>
-			<em>{ promptText }</em>
+			<em>
+				{ __( 'You are saving %(savings)s by paying yearly', {
+					args: { savings },
+				} ) }
+			</em>
 		</p>
 	);
 }
@@ -298,7 +276,7 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
-				<PlanSavingsText
+				<ProductSavings
 					selectedBackup={ selectedBackup }
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
