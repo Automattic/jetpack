@@ -51,10 +51,6 @@
 
 .jetpack-instant-search__search-results-search-form {
 	// Only display the search form in the main column at the smallest breakpoint
-	@include break-small {
-		display: none;
-	}
-
 	font-size: 0.8em;
 
 	.jetpack-instant-search__sort-select {
