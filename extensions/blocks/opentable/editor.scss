@@ -1,0 +1,108 @@
+/**
+ * Editor styles for Opentable
+ */
+
+.wp-block-jetpack-opentable {
+	position: relative;
+
+    .components-base-control {
+		width: 100%;
+    }
+
+	.components-placeholder__fieldset {
+		p {
+			font-size: 13px;
+			margin: 0 0 1em;
+		}
+
+		form {
+			flex-direction: column;
+
+			p {
+				margin-top: 1em;
+			}
+		}
+	}
+
+	iframe {
+		height:100%;
+		width: 100%;
+	}
+
+	&-overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 10;
+	}
+
+	&-theme-standard {
+		height: 301px;
+
+		&.is-multi {
+			height: 361px
+		}
+	}
+
+	&-theme-tall {
+		height: 490px;
+
+		&.is-multi {
+			height: 550px
+		}
+	}
+
+	&-theme-wide {
+		height: 350px;
+	}
+
+	&-theme-button {
+		height: 113px;
+    }
+
+	&-restaurant-picker {
+		margin-bottom: 1em;
+		position: relative;
+		width: 100%;
+
+		.components-form-token-field__input-container {
+			width: 327px;
+		}
+
+		.components-button.is-large {
+			height: 38px;
+			margin: 4px 0 0 0;
+			position: absolute;
+			right: 0;
+		}
+	}
+
+	&-placeholder-links a {
+		padding: 0 1em;
+	}
+}
+
+.block-editor-block-styles__item.is-opentable {
+    padding-top: 6px;
+}
+
+.block-editor-block-styles__item-preview.is-opentable {
+    height: 100px;
+    margin-top: 0;
+    padding-top: 0;
+	position: relative;
+
+    .wp-block-jetpack-opentable-overlay {
+        height: 100px;
+        width: 100px;
+    }
+	
+	> iframe {
+		transform-origin: 0 0;
+		transform: scale(0.70);
+		width: 143%;
+		height: 143%;
+		position: absolute;
+		z-index: 1;	
+	}
+}

@@ -145,6 +145,7 @@ class Jetpack_Plan {
 
 		if ( in_array( $plan['product_slug'], $premium_plans, true ) ) {
 			$supports[]    = 'akismet';
+			$supports[]    = 'opentable';
 			$supports[]    = 'recurring-payments';
 			$supports[]    = 'simple-payments';
 			$supports[]    = 'vaultpress';
@@ -167,6 +168,7 @@ class Jetpack_Plan {
 
 		if ( in_array( $plan['product_slug'], $business_plans, true ) ) {
 			$supports[]    = 'akismet';
+			$supports[]    = 'opentable';
 			$supports[]    = 'recurring-payments';
 			$supports[]    = 'simple-payments';
 			$supports[]    = 'vaultpress';
