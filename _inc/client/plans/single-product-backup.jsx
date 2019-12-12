@@ -211,7 +211,8 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 						billingTimeFrame: billingTimeFrameString,
 						price: formatCurrency( currencyObject ),
 					},
-					comment: 'Button to purchase plan. {{price}} can be a range of values.',
+					comment:
+						'Button to purchase product upgrade. %(price) can be a range of prices, and %(billingTimeFrame) is the billing period for the product upgrade.',
 				} ) }
 			</Button>
 		</div>
