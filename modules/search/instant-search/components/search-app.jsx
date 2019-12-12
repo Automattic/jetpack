@@ -190,6 +190,7 @@ class SearchApp extends Component {
 	}
 
 	renderSearchForms() {
+		// NOTE/TODO: Can we just attach event handlers to the search inputs?
 		const searchForms = Array.from(
 			document.querySelectorAll( this.props.themeOptions.searchFormSelector )
 		);
