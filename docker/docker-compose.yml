@@ -64,7 +64,7 @@ services:
     build: .
     image: jetpack_wordpress:localbuild
     volumes:
-      - ..:/var/www/html/wp-content/plugins/jetpack:ro
+      - ..:/var/www/html/wp-content/plugins/jetpack
       ## Kludge for not having docker contain recursive stuff
       ## You will see on your filesystem that this dir gets created
       - dockerdirectory:/var/www/html/wp-content/plugins/jetpack/docker
