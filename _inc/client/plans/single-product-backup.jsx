@@ -205,7 +205,7 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( type ) } primary>
-				{ __( 'Upgrade to %(name)s for %(price)s/%(billingTime)s', {
+				{ __( 'Upgrade to %(name)s for %(price)s %(billingTime)s', {
 					args: {
 						name,
 						billingTime: billingTimeFrameString,
