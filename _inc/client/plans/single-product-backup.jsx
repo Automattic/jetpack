@@ -222,7 +222,10 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 // until https://github.com/Automattic/wp-calypso/pull/36039
 // is released.
 function formatCurrency( { symbol, integer, raw, fraction } ) {
-	return `${ symbol }${ integer }${ raw - integer > 0 ? fraction : '' }`;
+	if ( 0 === raw - integer ) {
+		return `${ symbol }${ integer }`;
+	}
+	return `${ symbol }${ integer }${ fraction }`;
 }
 
 class SingleProductBackupBody extends React.Component {
