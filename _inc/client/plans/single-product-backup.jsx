@@ -38,11 +38,15 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 }
 
 function PromoNudge() {
+	const percent = 70;
+
 	return (
 		<div className="single-product-backup__promo">
 			<div className="single-product-backup__promo-star">
 				<img src={ `${ imagePath }/green-star.svg` } alt="" />
-				<span className="single-product-backup__promo-star-text">{ __( 'Up to 70% off!' ) }</span>
+				<span className="single-product-backup__promo-star-text">
+					{ __( 'Up to %(percent)s% off!', { args: { percent } } ) }
+				</span>
 			</div>
 			<h4 className="single-product-backup__promo-header">
 				{ __( 'Hurry, these are {{s}}Limited time introductory prices!{{/s}}', {
