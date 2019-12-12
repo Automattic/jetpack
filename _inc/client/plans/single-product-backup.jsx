@@ -222,11 +222,8 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 // Placeholder for formatting the currency without zeros
 // until https://github.com/Automattic/wp-calypso/pull/36039
 // is released.
-function formatCurrency( { symbol, integer, raw, fraction } ) {
-	if ( 0 === raw - integer ) {
-		return `${ symbol }${ integer }`;
-	}
-	return `${ symbol }${ integer }${ fraction }`;
+function formatCurrency( { symbol, integer } ) {
+	return `${ symbol }${ integer }`;
 }
 
 class SingleProductBackupBody extends React.Component {
