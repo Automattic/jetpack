@@ -161,24 +161,21 @@ class Functions {
 	 * @return string Hosting provider.
 	 */
 	public static function get_hosting_provider() {
-		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
-			return 'gd-managed-wp';
+		$hosting_provider_constants = array(
+			'GD_SYSTEM_PLUGIN_DIR' => 'gd-managed-wp',
+			'MM_BASE_DIR'          => 'bh',
+			'PAGELYBIN'            => 'pagely',
+			'KINSTAMU_VERSION'     => 'kinsta',
+			'FLYWHEEL_CONFIG_DIR'  => 'flywheel',
+			'IS_PRESSABLE'         => 'pressable',
+		);
+
+		foreach ( $hosting_provider_constants as $constant => $constant_value ) {
+			if ( defined( $constant ) ) {
+				return $constant_value;
+			}
 		}
-		if ( defined( 'MM_BASE_DIR' ) ) {
-			return 'bh';
-		}
-		if ( defined( 'PAGELYBIN' ) ) {
-			return 'pagely';
-		}
-		if ( defined( 'KINSTAMU_VERSION' ) ) {
-			return 'kinsta';
-		}
-		if ( defined( 'FLYWHEEL_CONFIG_DIR' ) ) {
-			return 'flywheel';
-		}
-		if ( defined( 'IS_PRESSABLE' ) ) {
-			return 'pressable';
-		}
+
 		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
 			return 'wpe';
 		}
