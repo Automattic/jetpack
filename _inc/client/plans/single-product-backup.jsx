@@ -30,12 +30,7 @@ export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingD
 				{ isFetchingData ? (
 					<div className="plans-section__single-product-skeleton is-placeholder" />
 				) : (
-					<SingleProductBackupCard
-						products={ products }
-						upgradeLinks={ upgradeLinks }
-						// TODO: Wire to picker
-						billingTimeFrame="yearly"
-					/>
+					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
 				) }
 			</div>
 		</React.Fragment>
@@ -60,45 +55,36 @@ function PromoNudge() {
 	);
 }
 
-function SingleProductBackupCard( { products, upgradeLinks, billingTimeFrame } ) {
+function SingleProductBackupCard( { products, upgradeLinks } ) {
 	const [ selectedBackupType, setSelectedBackupType ] = useState( 'realTime' );
+	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
-	const priceDailyAnnual = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
+	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
 	const priceDailyMonthlyPerYear = '' === priceDailyMonthly ? '' : priceDailyMonthly * 12;
-	const priceRealtimeAnnual = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
+	const priceRealtime = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
 	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
 	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
 	// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
-	let dailyOptions = {
-		type: 'daily',
-		name: __( 'Daily Backups' ),
-		link: upgradeLinks.daily,
-		potentialSavings: priceDailyMonthlyPerYear - priceDailyAnnual,
-	};
-	let realTimeOptions = {
-		type: 'realTime',
-		name: __( 'Real-Time Backups' ),
-		link: upgradeLinks[ 'real-time' ],
-		potentialSavings: priceRealtimeMonthlyPerYear - priceRealtimeAnnual,
-	};
-
-	if ( 'yearly' === billingTimeFrame ) {
-		dailyOptions = {
-			...dailyOptions,
-			discountedPrice: priceDailyAnnual,
+	const backupOptions = [
+		{
+			type: 'daily',
+			name: __( 'Daily Backups' ),
+			link: upgradeLinks.daily,
+			discountedPrice: priceDaily,
 			fullPrice: priceDailyMonthlyPerYear,
-		};
-		realTimeOptions = {
-			...realTimeOptions,
-			discountedPrice: priceRealtimeAnnual,
+			potentialSavings: priceDailyMonthlyPerYear - priceDaily,
+		},
+		{
+			type: 'realTime',
+			name: __( 'Real-Time Backups' ),
+			link: upgradeLinks[ 'real-time' ],
+			discountedPrice: priceRealtime,
 			fullPrice: priceRealtimeMonthlyPerYear,
-		};
-	} else if ( 'monthly' === billingTimeFrame ) {
-		dailyOptions.fullPrice = priceDailyMonthly;
-		realTimeOptions.fullPrice = priceRealtimeMonthly;
-	}
+			potentialSavings: priceRealtimeMonthlyPerYear - priceRealtime,
+		},
+	];
 
 	return (
 		<div className="single-product-backup__accented-card dops-card">
@@ -109,7 +95,7 @@ function SingleProductBackupCard( { products, upgradeLinks, billingTimeFrame } )
 				<SingleProductBackupBodyWithRouter
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
-					backupOptions={ { realTime: realTimeOptions, daily: dailyOptions } }
+					backupOptions={ backupOptions }
 					selectedBackupType={ selectedBackupType }
 					setSelectedBackupType={ setSelectedBackupType }
 					upgradeLinks={ upgradeLinks }
@@ -265,10 +251,7 @@ function formatCurrency( { symbol, integer, raw, fraction } ) {
 
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
-		backupOptions: PropTypes.shape( {
-			realTime: PropTypes.object,
-			daily: PropTypes.object,
-		} ),
+		backupOptions: PropTypes.array,
 		billingTimeFrame: PropTypes.string,
 		currencyCode: PropTypes.string,
 		setSelectedBackupType: PropTypes.func,
@@ -291,7 +274,7 @@ class SingleProductBackupBody extends React.Component {
 	render() {
 		const { backupOptions, billingTimeFrame, currencyCode, selectedBackupType } = this.props;
 
-		const selectedBackup = get( backupOptions, selectedBackupType, null );
+		const selectedBackup = backupOptions.find( ( { type } ) => type === selectedBackupType );
 
 		return (
 			<React.Fragment>
@@ -301,7 +284,7 @@ class SingleProductBackupBody extends React.Component {
 					{ __( 'Select a backup option:' ) }
 				</h4>
 				<div className="single-product-backup__radio-buttons-container">
-					{ Object.values( backupOptions ).map( option => (
+					{ backupOptions.map( option => (
 						<PlanRadioButton
 							key={ option.type }
 							billingTimeFrame={ billingTimeFrame }
