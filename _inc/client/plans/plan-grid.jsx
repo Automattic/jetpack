@@ -13,8 +13,9 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
-import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
+import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
 import { getPlanClass } from 'lib/plans/constants';
+import { isFetchingProducts } from '../state/products';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
@@ -61,7 +62,7 @@ class PlanGrid extends React.Component {
 	}
 
 	render() {
-		if ( ! this.props.plans ) {
+		if ( ! this.props.plans || this.props.isFetchingData ) {
 			return (
 				<div className="plan-features">
 					{ this.renderMobileCard() }
@@ -340,12 +341,12 @@ class PlanGrid extends React.Component {
 					key={ 'bottom-' + planType }
 					className="plan-features__table-item is-bottom-buttons has-border-bottom"
 				>
-					<Button
+					<a
 						href={ this.props.plansLearnMoreUpgradeUrl }
 						onClick={ this.handleSeeFeaturesClick( planType ) }
 					>
 						{ plan.strings.see_all }
-					</Button>
+					</a>
 				</td>
 			);
 		} );
@@ -419,6 +420,7 @@ export default connect(
 			showBackups: showBackups( state ),
 			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
 			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+			isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
 		};
 	},
 	null

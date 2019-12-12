@@ -7,7 +7,7 @@ import { compose } from '@wordpress/compose';
 import { filter, get, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { BlockIcon, MediaPlaceholder, mediaUpload } from '@wordpress/editor';
+import { BlockIcon, MediaPlaceholder, mediaUpload } from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 
 /**

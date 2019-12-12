@@ -272,10 +272,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'currentUser'  => $current_user_data,
 			),
 			'siteData' => array(
-				'icon' => has_site_icon()
+				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
-				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ),
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				/**
 				 * Whether promotions are visible or not.
 				 *
@@ -283,10 +283,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 *
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
-				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite' => jetpack_is_atomic_site(),
-				'plan' => Jetpack_Plan::get(),
-				'showBackups' => Jetpack::show_backups_ui(),
+				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
+				'isAtomicSite'               => jetpack_is_atomic_site(),
+				'plan'                       => Jetpack_Plan::get(),
+				'showBackups'                => Jetpack::show_backups_ui(),
+				'isMultisite'                => is_multisite(),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),
@@ -341,11 +342,20 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * @return array
  */
 function jetpack_current_user_data() {
-	$current_user = wp_get_current_user();
+	$current_user   = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	$dotcom_data    = Jetpack::get_connected_user_data();
+
 	// Add connected user gravatar to the returned dotcom_data.
-	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'], array( 'size' => 64, 'default' => 'mysteryman' ) );
+	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
+		get_avatar_url(
+			$dotcom_data['email'],
+			array(
+				'size'    => 64,
+				'default' => 'mysteryman',
+			)
+		)
+		: false );
 
 	$current_user_data = array(
 		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),

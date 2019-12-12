@@ -428,7 +428,7 @@ class A8C_WPCOM_Masterbar {
 
 		$following_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/',
+				'url'   => 'https://wordpress.com/read',
 				'id'    => 'wp-admin-bar-followed-sites',
 				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
 			),

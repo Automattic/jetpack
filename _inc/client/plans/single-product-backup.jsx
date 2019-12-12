@@ -3,121 +3,138 @@
  */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { getCurrencyDefaults } from '@automattic/format-currency';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import { withRouter } from 'react-router';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ExternalLink from 'components/external-link';
+import PlanPrice from 'components/plans/plan-price';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
-
-	const backupPlanPrices = {
-		jetpack_backup_daily: {
-			monthly: get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' ),
-			yearly: get( products, [ 'jetpack_backup_daily', 'cost' ], '' ),
-		},
-		jetpack_backup_realtime: {
-			monthly: get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' ),
-			yearly: get( products, [ 'jetpack_backup_realtime', 'cost' ], '' ),
-		},
-	};
-
-	const currency_code = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
-	const currencySymbol = getCurrencyDefaults( currency_code ).symbol;
+export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
+	// Don't show the product card for paid plans.
+	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
+		return null;
+	}
 
 	return (
 		<React.Fragment>
-			<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
-			<h2 className="plans-section__subheader">
-				{ __( "Just looking for backups? We've got you covered." ) }
-			</h2>
 			<div className="plans-section__single-product">
-				<div className="single-product-backup__accented-card">
-					<div className="single-product-backup__accented-card-header">
-						<SingleProductBackupHeader
-							currencySymbol={ currencySymbol }
-							backupPlanPrices={ backupPlanPrices }
-						/>
-					</div>
-					<div className="single-product-backup__accented-card-body">
-						<SingleProductBackupBody
-							backupPlanPrices={ backupPlanPrices }
-							currencySymbol={ currencySymbol }
-							selectedBackupType={ selectedBackupType }
-							setSelectedBackupType={ setSelectedBackupType }
-							upgradeLinks={ upgradeLinks }
-						/>
-					</div>
-				</div>
+				{ isFetchingData ? (
+					<div className="plans-section__single-product-skeleton is-placeholder" />
+				) : (
+					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
+				) }
 			</div>
 		</React.Fragment>
 	);
 }
 
-function SingleProductBackupHeader( { currencySymbol, backupPlanPrices } ) {
-	return (
-		<div className="single-product-backup__header-container">
-			<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-			<PlanPriceDisplay currencySymbol={ currencySymbol } backupPlanPrices={ backupPlanPrices } />
-		</div>
-	);
-}
+function SingleProductBackupCard( { products, upgradeLinks } ) {
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+	const billingTimeFrame = 'yearly';
+	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
+	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
+	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
+	const priceDailyMonthlyPerYear = '' === priceDailyMonthly ? '' : priceDailyMonthly * 12;
+	const priceRealtime = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
+	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
+	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
 
-export function PlanPriceDisplay( { backupPlanPrices, currencySymbol } ) {
-	const dailyBackupYearlyPrice = backupPlanPrices.jetpack_backup_daily.yearly;
-	const dailyBackupMonthlyPrice = backupPlanPrices.jetpack_backup_daily.monthly;
-
-	const realtimeBackupYearlyPrice = backupPlanPrices.jetpack_backup_realtime.yearly;
-	const realtimeBackupMonthlyPrice = backupPlanPrices.jetpack_backup_realtime.monthly;
-
-	const fullDailyBackupYearlyCost = dailyBackupMonthlyPrice * 12;
-	const fullRealtimeBackupYearlyCost = realtimeBackupMonthlyPrice * 12;
-
-	const perYearPriceRange = __(
-		'%(currencySymbol)s%(dailyBackupYearlyPrice)s-%(realtimeBackupYearlyPrice)s per year',
+	// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
+	const backupOptions = [
 		{
-			args: {
-				currencySymbol,
-				dailyBackupYearlyPrice,
-				realtimeBackupYearlyPrice,
-			},
-			comment: 'Shows a range of prices, such as $12-15 per year',
-		}
-	);
+			type: 'daily',
+			name: __( 'Daily Backups' ),
+			discountedPrice: priceDaily,
+			fullPrice: priceDailyMonthlyPerYear,
+		},
+		{
+			type: 'real-time',
+			name: __( 'Real-Time Backups' ),
+			discountedPrice: priceRealtime,
+			fullPrice: priceRealtimeMonthlyPerYear,
+		},
+	];
 
 	return (
-		<div className="single-product-backup__header-price">
-			<div className="discounted-price__container">
-				<div className="discounted-price__slash"></div>
-				<div className="discounted-price__price">
-					{ __( '%(currencySymbol)s%(lowPrice)s-%(highPrice)s', {
-						args: {
-							currencySymbol,
-							lowPrice: fullDailyBackupYearlyCost,
-							highPrice: fullRealtimeBackupYearlyCost,
-						},
-						comment:
-							"Describes how much a plan will cost per year. %(currencySymbol) is the currency symbol of the user's locale (e.g. $). %(planPrice) is the cost of a plan (e.g. 20).",
-					} ) }
-				</div>
+		<div className="single-product-backup__accented-card dops-card">
+			<div className="single-product-backup__accented-card-header">
+				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+				<SingleProductBackupPriceGroup
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					discountedPrice={ [ priceDaily, priceRealtime ] }
+					fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
+				/>
 			</div>
-			<div className="plans-price__container">
-				<span className="plans-price__price-range">{ perYearPriceRange }</span>
+			<div className="single-product-backup__accented-card-body">
+				<SingleProductBackupBodyWithRouter
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					backupOptions={ backupOptions }
+					selectedBackupType={ selectedBackupType }
+					setSelectedBackupType={ setSelectedBackupType }
+					upgradeLinks={ upgradeLinks }
+				/>
 			</div>
 		</div>
 	);
 }
 
-function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioValue, planPrice } ) {
+function SingleProductBackupPriceGroup( {
+	billingTimeFrame,
+	currencyCode,
+	discountedPrice,
+	fullPrice,
+} ) {
+	const timeframe = <div className="single-product-backup__price-group-billing-timeframe" />;
+	let price = <PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } />;
+
+	if ( !! discountedPrice ) {
+		price = (
+			<React.Fragment>
+				<PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } original />
+				<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice } discounted />
+			</React.Fragment>
+		);
+	}
 	return (
-		<label className="plan-radio-button__label">
+		<div className="single-product-backup__price-group">
+			{ billingTimeFrame === 'yearly' &&
+				__( '{{price/}} {{timeframe}}per year{{/timeframe}}', {
+					components: { price, timeframe },
+					comment:
+						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+				} ) }
+			{ billingTimeFrame === 'monthly' &&
+				__( '{{price/}} {{timeframe}}per month{{/timeframe}}', {
+					components: { price, timeframe },
+					comment:
+						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+				} ) }
+		</div>
+	);
+}
+
+function PlanRadioButton( {
+	checked,
+	billingTimeFrame,
+	currencyCode,
+	discountedPrice,
+	fullPrice,
+	onChange,
+	planName,
+	radioValue,
+} ) {
+	return (
+		<label className="plan-radio-button">
 			<input
 				type="radio"
 				className="plan-radio-button__input"
@@ -125,16 +142,15 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 				checked={ checked }
 				onChange={ onChange }
 			/>
-			{ planName }
-			<br />
-			{ __( '%(currencySymbol)s%(planPrice)s per year', {
-				args: {
-					currencySymbol: currencySymbol,
-					planPrice: planPrice,
-				},
-				comment:
-					"Describes how much a plan will cost per year. %(currencySymbol) is the currency symbol of the user's locale (e.g. $). %(planPrice) is the cost of a plan (e.g. 20).",
-			} ) }
+			<div className="plan-radio-button__label">
+				<span className="plan-radio-button__title">{ planName }</span>
+				<SingleProductBackupPriceGroup
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					discountedPrice={ discountedPrice }
+					fullPrice={ fullPrice }
+				/>
+			</div>
 		</label>
 	);
 }
@@ -142,8 +158,9 @@ function PlanRadioButton( { checked, currencySymbol, onChange, planName, radioVa
 // eslint-disable-next-line no-unused-vars
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
-		backupPlanPrices: PropTypes.object,
-		currencySymbol: PropTypes.string,
+		backupOptions: PropTypes.array,
+		billingTimeFrame: PropTypes.string,
+		currencyCode: PropTypes.string,
 		setSelectedBackupType: PropTypes.func,
 		selectedBackupType: PropTypes.string,
 		upgradeLinks: PropTypes.object,
@@ -153,26 +170,37 @@ class SingleProductBackupBody extends React.Component {
 		this.props.setSelectedBackupType( event.target.value );
 	};
 
-	render() {
-		const { currencySymbol, backupPlanPrices, selectedBackupType, upgradeLinks } = this.props;
+	handleUpgradeButtonClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: `upgrade-${ selectedBackupType }`,
+			type: 'upgrade',
+			product: selectedBackupType,
+			page: this.props.routes[ 0 ] && this.props.routes[ 0 ].name,
+		} );
+	};
 
+	handleLandingPageLinkClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-backup',
+			extra: selectedBackupType,
+		} );
+	};
+
+	render() {
+		const {
+			backupOptions,
+			billingTimeFrame,
+			currencyCode,
+			selectedBackupType,
+			upgradeLinks,
+		} = this.props;
+
+		// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
 		const upgradeTitles = {
 			'real-time': __( 'Upgrade to Real-Time Backups' ),
 			daily: __( 'Upgrade to Daily Backups' ),
 		};
-
-		const backupOptions = [
-			{
-				type: 'daily',
-				name: __( 'Daily Backups' ),
-				price: backupPlanPrices.jetpack_backup_daily.yearly,
-			},
-			{
-				type: 'real-time',
-				name: __( 'Real-Time Backups' ),
-				price: backupPlanPrices.jetpack_backup_realtime.yearly,
-			},
-		];
 
 		return (
 			<React.Fragment>
@@ -187,6 +215,7 @@ class SingleProductBackupBody extends React.Component {
 										href="https://jetpack.com/upgrade/backup/"
 										icon
 										iconSize={ 12 }
+										onClick={ this.handleLandingPageLinkClick( selectedBackupType ) }
 									/>
 								),
 							},
@@ -198,12 +227,14 @@ class SingleProductBackupBody extends React.Component {
 					{ backupOptions.map( option => (
 						<PlanRadioButton
 							key={ option.type }
+							billingTimeFrame={ billingTimeFrame }
 							checked={ option.type === selectedBackupType }
-							currencySymbol={ currencySymbol }
-							planName={ option.name }
-							planPrice={ option.price }
+							currencyCode={ currencyCode }
+							fullPrice={ option.fullPrice }
+							discountedPrice={ option.discountedPrice }
 							onChange={ this.handleSelectedBackupTypeChange }
 							radioValue={ option.type }
+							planName={ option.name }
 						/>
 					) ) }
 				</div>
@@ -211,7 +242,11 @@ class SingleProductBackupBody extends React.Component {
 					upgradeLinks[ selectedBackupType ] &&
 					upgradeTitles[ selectedBackupType ] && (
 						<div className="single-product-backup__upgrade-button-container">
-							<Button href={ upgradeLinks[ selectedBackupType ] } primary>
+							<Button
+								href={ upgradeLinks[ selectedBackupType ] }
+								onClick={ this.handleUpgradeButtonClick( selectedBackupType ) }
+								primary
+							>
 								{ upgradeTitles[ selectedBackupType ] }
 							</Button>
 						</div>
@@ -220,3 +255,5 @@ class SingleProductBackupBody extends React.Component {
 		);
 	}
 }
+
+const SingleProductBackupBodyWithRouter = withRouter( SingleProductBackupBody );

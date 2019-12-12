@@ -171,7 +171,10 @@ export class Map extends Component {
 		const { map } = this.state;
 		const mapEl = this.mapRef.current;
 		const blockWidth = mapEl.offsetWidth;
-		const maxHeight = window.innerHeight * 0.8;
+		const maxHeight =
+			window.location.search.indexOf( 'map-block-counter' ) > -1
+				? window.innerHeight
+				: window.innerHeight * 0.8;
 		const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
 		mapEl.style.height = blockHeight + 'px';
 		map.resize();
@@ -207,7 +210,9 @@ export class Map extends Component {
 				},
 			} );
 			this.setState( { boundsSetProgrammatically: true } );
-			map.removeControl( zoomControl );
+			try {
+				map.removeControl( zoomControl );
+			} catch ( e ) {}
 			return;
 		}
 		// If there is only one point, center map around it.

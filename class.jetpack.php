@@ -570,7 +570,8 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' )  );
+		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
+		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
 			'jetpack_connection_secret_generator',
@@ -609,8 +610,8 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		Jetpack_Gutenberg::init();
-		Jetpack_Gutenberg::load_independent_blocks();
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
+		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
@@ -753,6 +754,24 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
 		}
+	}
+
+	/**
+	 * Runs on plugins_loaded. Use this to add code that needs to be executed later than other
+	 * initialization code.
+	 *
+	 * @action plugins_loaded
+	 */
+	public function late_initialization() {
+		/**
+		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
+		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param Jetpack $jetpack the main plugin class object.
+		 */
+		do_action( 'jetpack_loaded', $this );
 	}
 
 	/**
@@ -3262,23 +3281,11 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$xml = new Jetpack_IXR_Client();
-			$xml->query( 'jetpack.deregister', get_current_user_id() );
+			$connection->disconnect_site_wpcom();
 		}
 
-		Jetpack_Options::delete_option(
-			array(
-				'blog_token',
-				'user_token',
-				'user_tokens',
-				'master_user',
-				'time_diff',
-				'fallback_no_verify_ssl_certs',
-			)
-		);
-
+		$connection->delete_all_connection_tokens();
 		Jetpack_IDC::clear_all_idc_options();
-		Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
@@ -3302,10 +3309,6 @@ p {
 
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
-
-		// Delete cached connected user data
-		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
-		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();
@@ -5130,6 +5133,7 @@ endif;
 	 * @return string
 	 */
 	public static function xmlrpc_api_url() {
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_api_url()' );
 		return self::connection()->xmlrpc_api_url();
 	}
 

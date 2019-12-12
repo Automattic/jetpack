@@ -214,6 +214,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
 		) );
 
+		// Get current site purchases.
+		register_rest_route(
+			'jetpack/v4',
+			'/site/purchases',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $site_endpoint, 'get_purchases' ),
+				'permission_callback' => array( $site_endpoint, 'can_request' ),
+			)
+		);
+
 		// Get current site benefits
 		register_rest_route( 'jetpack/v4', '/site/benefits', array(
 			'methods'             => WP_REST_Server::READABLE,
@@ -531,15 +542,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_products( $request ) {
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			'/products?_locale=' . get_user_locale() . '&type=jetpack',
-			'v1.1',
+			'2',
 			array(
 				'method'  => 'GET',
 				'headers' => array(
 					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 				),
-			),
-			null,
-			'rest'
+			)
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );

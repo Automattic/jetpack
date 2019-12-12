@@ -52,6 +52,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
 		'launch_status'     => '(string) A string describing the launch status of a site',
 		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
+		'is_fse_eligible'   => '(bool) If the site is capable of Full Site Editing or not',
 	);
 
 	protected static $no_member_fields = array(
@@ -72,6 +73,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta',
 		'launch_status',
 		'is_fse_active',
+		'is_fse_eligible',
 	);
 
 	protected static $site_options_format = array(
@@ -227,44 +229,44 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
 
-		if ( ! $this->has_blog_access( $this->api->token_details, $blog_id ) ) {
+		$has_blog_access = $this->has_blog_access( $this->api->token_details );
+		$has_user_access = $this->has_user_access();
+
+		if ( ! $has_user_access && ! $has_blog_access ) {
+			// Public access without user or blog auth, only return `$no_member_fields`.
 			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
+		} elseif ( $has_user_access && ! current_user_can( 'edit_posts' ) ) {
+			// Subscriber level user, don't return site options.
+			$response_keys = array_diff( $response_keys, array( 'options' ) );
 		}
 
 		return $this->render_response_keys( $response_keys );
 	}
 
 	/**
-	 * Checks that the current user has access to the current blog,
-	 * and failing that checks that we have a valid blog token.
+	 * Checks that the current user has access to the current blog.
 	 *
-	 * @param $token_details array Details obtained from the authorization token
-	 * @param $blog_id int The server-side blog id on wordpress.com
+	 * @return bool Whether or not the current user can access the current blog.
+	 */
+	private function has_user_access() {
+		return is_user_member_of_blog( get_current_user_id(), get_current_blog_id() );
+	}
+
+	/**
+	 * Checks if the request has a valid blog token for the current blog.
 	 *
+	 * @param array $token_details Access token for the api request.
 	 * @return bool
 	 */
-	private function has_blog_access( $token_details, $blog_id ) {
-		$current_blog_id = (  defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
-			$blog_id :
-			get_current_blog_id();
-
-		if ( is_user_member_of_blog( get_current_user_id(), $current_blog_id ) ) {
-			return true;
-		}
-
+	private function has_blog_access( $token_details ) {
 		$token_details = (array) $token_details;
 		if ( ! isset( $token_details['access'], $token_details['auth'], $token_details['blog_id'] ) ) {
 			return false;
 		}
 
-		if (
-			'jetpack' === $token_details['auth'] &&
+		return 'jetpack' === $token_details['auth'] &&
 			'blog' === $token_details['access'] &&
-			$current_blog_id === $token_details['blog_id']
-		) {
-			return true;
-		}
-		return false;
+			get_current_blog_id() === $token_details['blog_id'];
 	}
 
 	private function render_response_keys( &$response_keys ) {
@@ -383,16 +385,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_fse_active':
 				$response[ $key ] = $this->site->is_fse_active();
 				break;
+			case 'is_fse_eligible':
+				$response[ $key ] = $this->site->is_fse_eligible();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
 	}
 
 	protected function render_option_keys( &$options_response_keys ) {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return array();
-		}
-
 		$options = array();
 		$site = $this->site;
 
@@ -628,7 +629,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
-		if ( $this->has_blog_access( $this->api->token_details, $response->ID ) ) {
+		if ( $this->has_user_access() || $this->has_blog_access( $this->api->token_details ) ) {
 			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
 			foreach( $wpcom_member_response as $key => $value ) {

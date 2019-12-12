@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { RichText } from '@wordpress/editor';
+import { RichText } from '@wordpress/block-editor';
 
 export default function VideoPressSave( { attributes } ) {
 	const { caption, guid } = attributes;

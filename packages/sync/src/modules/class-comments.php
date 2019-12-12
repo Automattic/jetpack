@@ -273,7 +273,7 @@ class Comments extends Module {
 			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
-		return null;
+		return '1=1';
 	}
 
 	/**

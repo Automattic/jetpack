@@ -8,7 +8,10 @@ fi
 phpenv config-rm xdebug.ini
 
 # Configure PHP and PHPUnit environment
-if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
+if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
+	composer install --ignore-platform-reqs
+	composer global require "phpunit/phpunit=5.7.*" --ignore-platform-reqs
+elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
   composer remove sirbrillig/phpcs-changed --dev
   composer install
 	composer global require "phpunit/phpunit=5.7.*" --no-suggest
@@ -18,7 +21,7 @@ elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
 elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
   composer remove sirbrillig/phpcs-changed --dev
   composer install
-	composer global require "phpunit/phpunit=4.8.*" --no-suggest
+	composer global require "phpunit/phpunit=5.7.*" --no-suggest
 fi
 
 mysql -e "set global wait_timeout = 3600;"

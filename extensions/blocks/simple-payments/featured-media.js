@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/editor';
+import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
 import { Toolbar, ToolbarButton } from '@wordpress/components';

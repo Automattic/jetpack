@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Sync;
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Sync\Functions;
 
 /**
  * Just some defaults that we share with the server.
@@ -1018,14 +1017,14 @@ class Defaults {
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_sync_wait_threshold = 5;
+	public static $default_sync_wait_threshold = 10;
 
 	/**
 	 * Default wait between attempting to continue a full sync via requests.
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_enqueue_wait_time = 10;
+	public static $default_enqueue_wait_time = 1;
 
 	/**
 	 * Maximum queue size.
@@ -1130,6 +1129,13 @@ class Defaults {
 	public static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue.
 
 	/**
+	 * Default max time for sending in immediate mode.
+	 *
+	 * @var float Number of Seconds
+	 */
+	public static $default_full_sync_send_duration = 9;
+
+	/**
 	 * Defaul for time between syncing callables.
 	 *
 	 * @var int Number of seconds.
@@ -1154,7 +1160,7 @@ class Defaults {
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_cron_sync_time_limit = 30; // 30 seconds.
+	public static $default_cron_sync_time_limit = 4 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Default for number of term relationship items sent in an full sync item.
@@ -1176,4 +1182,51 @@ class Defaults {
 	 * @var int 1 for true.
 	 */
 	public static $default_full_sync_sender_enabled = 1; // Should send full sync items.
+
+	/**
+	 * Default Full Sync config
+	 *
+	 * @var array list of module names.
+	 */
+	public static $default_full_sync_config = array(
+		'constants'          => 1,
+		'functions'          => 1,
+		'options'            => 1,
+		'updates'            => 1,
+		'themes'             => 1,
+		'users'              => 1,
+		'terms'              => 1,
+		'posts'              => 1,
+		'comments'           => 1,
+		'term_relationships' => 1,
+	);
+
+	/**
+	 * Default Full Sync max objects to send on a single request.
+	 *
+	 * @var array list of module => max.
+	 */
+	public static $default_full_sync_limits = array(
+		'users'              => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'terms'              => array(
+			'chunk_size' => 1000,
+			'max_chunks' => 10,
+		),
+		'posts'              => array(
+			'chunk_size' => 100,
+			'max_chunks' => 1,
+		),
+		'comments'           => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'term_relationships' => array(
+			'chunk_size' => 1000,
+			'max_chunks' => 10,
+		),
+	);
+
 }

@@ -51,6 +51,23 @@ matrix:
   - php: "7.4snapshot"
     env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
     # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
+
+  # Code Climate code coverage.
+  - php: "7.3"
+    name: "Code Coverage"
+    env:
+      - WP_BRANCH=latest
+      - DO_COVERAGE=true
+    before_script:
+      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - chmod +x ./cc-test-reporter
+      - ./cc-test-reporter before-build
+      - export PATH="$HOME/.composer/vendor/bin:$PATH"
+      - export PLUGIN_SLUG=$(basename $(pwd))
+      - ./tests/setup-travis.sh
+    after_script:
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover
+
   - php: "7.0"
     name: "E2E tests"
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
@@ -69,12 +86,15 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
-
+  - php: "7.0"
+    name: "Sync Beta"
+    env: SYNC_BETA=1 WP_BRANCH=latest
 
   allow_failures:
     - name: "E2E tests"
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
+    - name: "Code Coverage"
 
 cache:
   directories:

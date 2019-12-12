@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Sync\Modules\Module;
+
 /**
  * A class to handle loading of sync modules.
  */
@@ -86,7 +88,7 @@ class Modules {
 	 * @access public
 	 * @static
 	 *
-	 * @return array|null
+	 * @return Module[]
 	 */
 	public static function get_modules() {
 		if ( null === self::$initialized_modules ) {

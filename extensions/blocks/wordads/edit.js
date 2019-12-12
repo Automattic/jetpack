@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls } from '@wordpress/editor';
+import { BlockControls } from '@wordpress/block-editor';
 import { Component, Fragment } from '@wordpress/element';
 import { ToggleControl } from '@wordpress/components';
 

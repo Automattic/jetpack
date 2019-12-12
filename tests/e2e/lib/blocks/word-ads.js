@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
+import { waitForSelector, waitAndClick } from '../page-helper';
 /**
  * WordPress dependencies
  */
@@ -9,13 +9,17 @@ import { clickBlockToolbarButton } from '@wordpress/e2e-test-utils';
 
 export default class WordAdsBlock {
 	constructor( block, page ) {
-		this.blockName = WordAdsBlock.name();
+		this.blockTitle = WordAdsBlock.title();
 		this.block = block;
 		this.page = page;
 		this.blockSelector = '#block-' + block.clientId;
 	}
 
 	static name() {
+		return 'wordads';
+	}
+
+	static title() {
 		return 'Ad';
 	}
 
@@ -30,6 +34,10 @@ export default class WordAdsBlock {
 
 	getSelector( selector ) {
 		return `${ this.blockSelector } ${ selector }`;
+	}
+
+	async focus() {
+		return await waitAndClick( this.page, this.getSelector( '.wp-block-jetpack-wordads' ) );
 	}
 
 	/**

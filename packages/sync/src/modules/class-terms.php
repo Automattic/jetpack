@@ -14,14 +14,6 @@ use Automattic\Jetpack\Sync\Settings;
  * Class to handle sync for terms.
  */
 class Terms extends Module {
-	/**
-	 * Whitelist for taxonomies we want to sync.
-	 *
-	 * @access private
-	 *
-	 * @var array
-	 */
-	private $taxonomy_whitelist;
 
 	/**
 	 * Sync module name.
@@ -53,7 +45,7 @@ class Terms extends Module {
 	 * @return string
 	 */
 	public function table_name() {
-		return 'terms';
+		return 'term_taxonomy';
 	}
 
 	/**
@@ -264,27 +256,6 @@ class Terms extends Module {
 	}
 
 	/**
-	 * Set the taxonomy whitelist.
-	 *
-	 * @access public
-	 *
-	 * @param array $taxonomies The new taxonomyy whitelist.
-	 */
-	public function set_taxonomy_whitelist( $taxonomies ) {
-		$this->taxonomy_whitelist = $taxonomies;
-	}
-
-	/**
-	 * Set module defaults.
-	 * Define the taxonomy whitelist to be the default one.
-	 *
-	 * @access public
-	 */
-	public function set_defaults() {
-		$this->taxonomy_whitelist = Defaults::$default_taxonomy_whitelist;
-	}
-
-	/**
 	 * Expand the term taxonomy IDs to terms within a hook before they are serialized and sent to the server.
 	 *
 	 * @access public
@@ -319,4 +290,5 @@ class Terms extends Module {
 	public function expand_terms_for_relationship( $relationship ) {
 		return get_term_by( 'term_taxonomy_id', $relationship->term_taxonomy_id );
 	}
+
 }

@@ -3,7 +3,7 @@
 jQuery( function( $ ) {
 	var widgets_shell = $( 'div#widgets-right' );
 
-	if ( ! widgets_shell.length || ! $( widgets_shell ).find( '.widget-control-actions' ).length ) {
+	if ( ! widgets_shell && ! widgets_shell.length ) {
 		widgets_shell = $( 'form#customize-controls' );
 	}
 

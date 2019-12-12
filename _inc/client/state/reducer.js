@@ -16,6 +16,7 @@ import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as pluginsData } from 'state/site/plugins/reducer';
+import { reducer as products } from 'state/products/reducer';
 import { reducer as publicize } from 'state/publicize/reducer';
 import { reducer as rewind } from 'state/rewind/reducer';
 import { reducer as search } from 'state/search/reducer';
@@ -34,6 +35,7 @@ const jetpackReducer = combineReducers( {
 	jetpackNotices,
 	modules,
 	pluginsData,
+	products,
 	publicize,
 	rewind,
 	search,
