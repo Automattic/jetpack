@@ -3,7 +3,6 @@
 		"business-hours",
 		"contact-form",
 		"contact-info",
-		"eventbrite",
 		"gif",
 		"likes",
 		"mailchimp",
@@ -24,5 +23,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "seo" ]
+	"beta": [ "seo", "eventbrite" ]
 }
