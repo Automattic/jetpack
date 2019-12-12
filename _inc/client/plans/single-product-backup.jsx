@@ -45,7 +45,7 @@ function PromoNudge() {
 			<div className="single-product-backup__promo-star">
 				<img src={ `${ imagePath }/green-star.svg` } alt="" />
 				<span className="single-product-backup__promo-star-text">
-					{ __( 'Up to %(percent)s% off!', { args: { percent } } ) }
+					{ __( 'Up to %(percent)d%% off!', { args: { percent } } ) }
 				</span>
 			</div>
 			<h4 className="single-product-backup__promo-header">
