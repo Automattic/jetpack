@@ -167,6 +167,15 @@ class Functions {
 		if ( defined( 'MM_BASE_DIR' ) ) {
 			return 'bh';
 		}
+		if ( defined( 'PAGELYBIN' ) ) {
+			return 'pagely';
+		}
+		if ( defined( 'KINSTAMU_VERSION' ) ) {
+			return 'kinsta';
+		}
+		if ( defined( 'FLYWHEEL_CONFIG_DIR' ) ) {
+			return 'flywheel';
+		}
 		if ( defined( 'IS_PRESSABLE' ) ) {
 			return 'pressable';
 		}
