@@ -60,7 +60,7 @@ function PromoNudge() {
 }
 
 function SingleProductBackupCard( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'realTime' );
+	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
@@ -81,7 +81,7 @@ function SingleProductBackupCard( { products, upgradeLinks } ) {
 			potentialSavings: priceDailyMonthlyPerYear - priceDaily,
 		},
 		{
-			type: 'realTime',
+			type: 'real-time',
 			name: __( 'Real-Time Backups' ),
 			link: upgradeLinks[ 'real-time' ],
 			discountedPrice: priceRealtime,
