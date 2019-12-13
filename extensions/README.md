@@ -216,10 +216,10 @@ Possible:
 
 To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/).
 
-Use Gutenberg color variables where possible by importing them in your stylesheet from `extensions/shared/styles/gutenberg-colors.scss`.
+Use Gutenberg color variables where possible by importing `extensions/shared/styles/gutenberg-base-styles.scss`, which in turn imports all variables and mixins published in [`@wordpress/base-styles`](https://github.com/WordPress/gutenberg/tree/983c60f25e4bdb7432fde7afdf2b4cc16640f01e/packages/base-styles) package.
 
-The build pipeline also supports [Muriel colors](https://github.com/Automattic/color-studio) via SASS variables (`$muriel-pink-300`) and CSS custom properties (`var( --muriel-pink-300 )`) without specifically importing them first. Prefer CSS custom properties if possible.
+The build pipeline also supports [Color studio](https://github.com/Automattic/color-studio) via SASS variables (`$studio-pink-50`) and CSS custom properties (`var( --studio-pink-50 )`) without specifically importing them first. Prefer CSS custom properties when possible.
 
 ### Icons
 
-Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Muriel guidelines. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
