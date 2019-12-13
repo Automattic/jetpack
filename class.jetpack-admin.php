@@ -10,11 +10,6 @@ class Jetpack_Admin {
 	 **/
 	private static $instance = null;
 
-	/**
-	 * @var Jetpack
-	 **/
-	private $jetpack;
-
 	static function init() {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
@@ -32,8 +27,6 @@ class Jetpack_Admin {
 	}
 
 	private function __construct() {
-		$this->jetpack = Jetpack::init();
-
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page();
 
@@ -177,7 +170,7 @@ class Jetpack_Admin {
 			}
 		}
 
-		uasort( $modules, array( $this->jetpack, 'sort_modules' ) );
+		uasort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
 		if ( ! Jetpack::is_active() ) {
 			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
