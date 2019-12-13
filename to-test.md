@@ -1,6 +1,8 @@
 ## 8.1
 
+### Sync
 
+This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. You'll consequently want to check that on newly connected sites as well as existing sites, data gets properly synchronized with WordPress.com. That means that features like Notifications, Publicize, Related Posts should keep working properly on your site.
 
 ### Others
 
