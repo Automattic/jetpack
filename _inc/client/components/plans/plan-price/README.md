@@ -38,8 +38,9 @@ export default class extends React.Component {
 
 | Prop         | Type           | Description                                               |
 | ----         | -------        | -----------                                               |
-| rawPrice     | number / array | Price or price range of the plan                          |
-| original     | bool           | Is the price discounted and this is the original one?     |
-| discounted   | bool           | Is the price discounted and this is the discounted one?   |
-| currencyCode | string         | Currency of the price                                     |
 | className    | string         | If you need to add additional classes                     |
+| currencyCode | string         | Currency of the price                                     |
+| discounted   | bool           | Is the price discounted and this is the discounted one?   |
+| inline       | bool           | When set, a `span` will be returned instead of a `div`    |
+| original     | bool           | Is the price discounted and this is the original one?     |
+| rawPrice     | number / array | Price or price range of the plan                          |

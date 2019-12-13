@@ -42,24 +42,13 @@ export class PlanPrice extends Component {
 		);
 	}
 
-	render() {
-		const { className, currencyCode, discounted, original, rawPrice } = this.props;
-
-		if ( ! currencyCode || ! rawPrice ) {
-			return null;
-		}
-
-		const classes = classNames( 'plan-price', className, {
-			'is-original': original,
-			'is-discounted': discounted,
-		} );
-
+	renderContent() {
 		const priceRange = this.getPriceRange();
 		const smallerPrice = this.renderPrice( priceRange[ 0 ] );
 		const higherPrice = priceRange[ 1 ] && this.renderPrice( priceRange[ 1 ] );
 
 		return (
-			<div className={ classes }>
+			<>
 				<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
 				{ ! higherPrice && this.renderPrice( priceRange[ 0 ] ) }
 				{ higherPrice &&
@@ -70,7 +59,27 @@ export class PlanPrice extends Component {
 						},
 						comment: 'The price range for a particular product',
 					} ) }
-			</div>
+			</>
+		);
+	}
+
+	render() {
+		const { className, currencyCode, discounted, inline, original, rawPrice } = this.props;
+
+		if ( ! currencyCode || ! rawPrice ) {
+			return null;
+		}
+
+		const classes = classNames( 'plan-price', className, {
+			'is-discounted': discounted,
+			'is-inline': inline,
+			'is-original': original,
+		} );
+
+		return inline ? (
+			<span className={ classes }>{ this.renderContent() }</span>
+		) : (
+			<div className={ classes }>{ this.renderContent() }</div>
 		);
 	}
 }
@@ -81,6 +90,7 @@ PlanPrice.propTypes = {
 	className: PropTypes.string,
 	currencyCode: PropTypes.string,
 	discounted: PropTypes.bool,
+	inline: PropTypes.bool,
 	original: PropTypes.bool,
 	rawPrice: PropTypes.oneOfType( [ PropTypes.number, PropTypes.arrayOf( PropTypes.number ) ] ),
 };
