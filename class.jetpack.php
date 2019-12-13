@@ -4618,6 +4618,14 @@ endif;
 		}
 
 		$url = $raw ? esc_url_raw( $url ) : esc_url( $url );
+		/**
+		 * Filter the URL used when connecting a user to a WordPress.com account.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $url Connection URL.
+		 * @param bool   $raw If true, URL will not be escaped.
+		 */
 		return apply_filters( 'jetpack_build_connection_url', $url, $raw );
 	}
 
