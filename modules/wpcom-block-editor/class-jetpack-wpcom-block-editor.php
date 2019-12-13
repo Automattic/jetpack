@@ -328,14 +328,15 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueue WP.com block editor common styles.
 	 */
 	public function enqueue_styles() {
-		// Enqueue only for the block editor in WP Admin.
-		global $pagenow;
-		if ( is_admin() && ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
+		// On the front-end, add Justify styles inline when Gutenberg styles are also loaded.
+		if ( ! is_admin() ) {
+			wp_add_inline_style( 'wp-block-library', '.has-text-align-justify{text-align:justify;}' );
 			return;
 		}
 
-		// Enqueue on the front-end only if justified blocks are present.
-		if ( ! is_admin() && ! $this->has_justified_block() ) {
+		// Enqueue only for the block editor in WP Admin.
+		global $pagenow;
+		if ( ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
 			return;
 		}
 
@@ -351,24 +352,6 @@ class Jetpack_WPCOM_Block_Editor {
 			array(),
 			$version
 		);
-	}
-
-	/**
-	 * Determines if the current $post contains a justified paragraph block.
-	 *
-	 * @return boolean true if justified paragraph is found, false otherwise.
-	 */
-	public function has_justified_block() {
-		global $post;
-		if ( ! $post instanceof WP_Post ) {
-			return false;
-		};
-
-		if ( ! has_blocks( $post ) ) {
-			return false;
-		}
-
-		return false !== strpos( $post->post_content, '<!-- wp:paragraph {"align":"justify"' );
 	}
 
 	/**
