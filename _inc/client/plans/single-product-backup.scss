@@ -1,5 +1,6 @@
 @import '../scss/mixin_breakpoint';
 @import '../scss/variables/_colors.scss';
+@import '../scss/calypso-colors.scss';
 
 // Plan radio button
 .plan-radio-button {
@@ -145,7 +146,7 @@ input[type='radio'].plan-radio-button__input {
 }
 
 .single-product-backup__promo {
-	background-color: $color-off-white;
+	background-color: $gray-light;
 	border-radius: 16px;
 	position: relative;
 	padding: 7px 0;
