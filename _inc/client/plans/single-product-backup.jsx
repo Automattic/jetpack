@@ -14,7 +14,6 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import PlanPrice from 'components/plans/plan-price';
-import { imagePath } from 'constants/urls';
 
 import './single-product-backup.scss';
 
@@ -43,10 +42,7 @@ function PromoNudge() {
 	return (
 		<div className="single-product-backup__promo">
 			<div className="single-product-backup__promo-star">
-				<img src={ `${ imagePath }/green-star.svg` } alt="" />
-				<span className="single-product-backup__promo-star-text">
-					{ __( 'Up to %(percent)d%% off!', { args: { percent } } ) }
-				</span>
+				{ __( 'Up to %(percent)d%% off!', { args: { percent } } ) }
 			</div>
 			<h4 className="single-product-backup__promo-header">
 				{ __( 'Hurry, these are {{s}}Limited time introductory prices!{{/s}}', {

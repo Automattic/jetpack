@@ -157,21 +157,15 @@ input[type='radio'].plan-radio-button__input {
 	left: -1rem;
 	top: -1.5rem;
 	transform: rotate(-10deg);
-}
-
-.single-product-backup__promo-star img {
-	display: block;
-}
-
-.single-product-backup__promo-star-text {
-	position: absolute;
-	left: 0;
-	top: 0;
-	margin: 35px 20px;
+	background-image: url( '../../../images/green-star.svg' );
+	padding: 35px 20px;
 	color: $white;
 	font-weight: bold;
 	text-align: center;
 	line-height: 17px;
+	width: 105px;
+	height: 105px;
+	box-sizing: border-box;
 }
 
 .single-product-backup__promo-header {
