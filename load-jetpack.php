@@ -95,3 +95,5 @@ if ( JETPACK__SANDBOX_DOMAIN ) {
 }
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
+
+Jetpack::init();
