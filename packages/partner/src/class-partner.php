@@ -84,7 +84,7 @@ class Partner {
 	 * @param string $url The URL where the partner subsidiary id will be added.
 	 *
 	 * @return string The passed URL with the partner code added.
-	 * @since @since 8.1.0
+	 * @since 8.1.0
 	 */
 	public function add_code_as_query_arg( $type, $url ) {
 		switch ( $type ) {
