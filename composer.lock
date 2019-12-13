@@ -353,15 +353,13 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/partner",
-                "reference": "ebbd196552b4bc15b9651466458996f646248297"
+                "reference": "d0174e06e76927cefcedcded30c38405357ddea6"
             },
             "require-dev": {
-                "limedeck/phpunit-detailed-printer": "^4.0",
+                "brain/monkey": "^2.4",
                 "mockery/mockery": "^1.2",
                 "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-                "roots/wordpress": "^5.2",
-                "wp-phpunit/wp-phpunit": "^5.2"
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
             },
             "type": "library",
             "autoload": {
