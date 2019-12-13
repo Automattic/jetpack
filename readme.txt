@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: add flag to determine site eligibility for Full Site Editing.
 * WordPress.com synchronization: improve the reliability of the synchronization events triggered to keep your site up to date with WordPress.com.
 * WordPress.com Toolbar: update the link directing to the WordPress.com Reader.
+* WordPress.com Toolbar: add "My Home" link to the toolbar.
 
 **Improved compatibility**
 
