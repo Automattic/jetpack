@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -415,23 +414,6 @@ class Jetpack_Plugin_Search {
 	 */
 	private function by_sorting_option( $m1, $m2 ) {
 		return $m1['sort'] - $m2['sort'];
-	}
-
-	/**
-	 * Builds a URL to purchase and upgrade inserting the site fragment and the affiliate code if it exists.
-	 *
-	 * @param string $feature Module slug (or forged one for extra features).
-	 *
-	 * @since 7.1.0
-	 *
-	 * @return string URL to upgrade.
-	 */
-	private function get_upgrade_url( $feature ) {
-		$site_raw_url = Jetpack::build_raw_urls( get_home_url() );
-		$affiliate_code = Partner::init()->get_partner_code( Partner::AFFILIATE_CODE );
-		$user = wp_get_current_user()->ID;
-		return "https://jetpack.com/redirect/?source=plugin-hint-upgrade-$feature&site=$site_raw_url&u=$user" .
-		       ( $affiliate_code ? "&aff=$affiliate_code" : '' );
 	}
 
 	/**
