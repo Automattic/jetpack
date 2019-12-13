@@ -164,6 +164,7 @@ class ProductSelector extends Component {
 	};
 
 	renderTitleSection() {
+		const { backupInfoUrl } = this.props;
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
@@ -172,7 +173,7 @@ class ProductSelector extends Component {
 					<br />
 					<ExternalLink
 						target="_blank"
-						href="https://jetpack.com/upgrade/backup/"
+						href={ backupInfoUrl }
 						icon
 						iconSize={ 12 }
 						onClick={ this.handleLandingPageLinkClick }
@@ -256,5 +257,6 @@ export default connect( state => {
 		sitePlan: getSitePlan( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
 		isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
+		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ),
 	};
 } )( ProductSelector );
