@@ -170,9 +170,9 @@ class Functions {
 			'IS_PRESSABLE'         => 'pressable',
 		);
 
-		foreach ( $hosting_provider_constants as $constant => $constant_value ) {
+		foreach ( $hosting_provider_constants as $constant => $hosting_provider ) {
 			if ( defined( $constant ) ) {
-				return $constant_value;
+				return $hosting_provider;
 			}
 		}
 		if ( class_exists( '\\WPaaS\\Plugin' ) ) {
