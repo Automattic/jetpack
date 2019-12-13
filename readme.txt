@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Mobile Theme: allow one to temporary disable Jetpack's Mobile Theme for testing.
 * WordPress.com REST API: add flag to determine site eligibility for Full Site Editing.
 * WordPress.com synchronization: improve the reliability of the synchronization events triggered to keep your site up to date with WordPress.com.
 
