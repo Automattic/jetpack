@@ -175,7 +175,9 @@ class Functions {
 				return $constant_value;
 			}
 		}
-
+		if ( class_exists( '\\WPaaS\\Plugin' ) ) {
+			return 'gd-managed-wp';
+		}
 		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
 			return 'wpe';
 		}
