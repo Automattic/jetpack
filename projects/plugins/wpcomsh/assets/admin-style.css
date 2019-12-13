@@ -25,6 +25,7 @@
 }
 
 /* Hide the connections info and disconnect button in Jetpack Dashboard */
+#jp-plugin-container .jp-lower .jp-dash-section-header__connections,
 #jp-plugin-container .jp-lower .jp-connection-type {
 	display: none;
 }
