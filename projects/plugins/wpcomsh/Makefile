@@ -122,18 +122,9 @@ test-public-access: clean build
 test-private-access: clean build
 	/bin/sh ./bin/ci-init-access-tests.sh private
 
-## release
-release: export RELEASE_BUCKET := pressable-misc
-release: build
-	$(if $(shell command -v s3cmd 2> /dev/null),, $(error `s3cmd` not found in $$PATH))
-	@ echo "uploading to s3 $(RELEASE_BUCKET)..."
-	@ s3cmd --verbose put --acl-public --guess-mime-type \
-      $(BUILD_DST)/$(BUILD_FILE) s3://$(RELEASE_BUCKET)
-	@ echo "DONE!"
-
 ## clean
 clean: $(BUILD_DST)
 	@ echo "removing $(BUILD_DST)"
 	@ rm -rf $(BUILD_DST)
 
-.PHONY: check git.fetch submodules release clean checkbeforetag checktagandblockonfail
+.PHONY: check git.fetch submodules clean checkbeforetag checktagandblockonfail
