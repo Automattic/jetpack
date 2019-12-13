@@ -104,7 +104,7 @@ input[type='radio'].plan-radio-button__input {
 
 		&::before {
 			display: block;
-			border-left: 1px solid $gray-text-min;
+			border-left: 1px solid $light-gray-700;
 			position: absolute;
 			content: '';
 			height: 100%;
