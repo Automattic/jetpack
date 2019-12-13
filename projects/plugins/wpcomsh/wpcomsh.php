@@ -499,8 +499,6 @@ function wpcomsh_jetpack_wpcom_theme_delete( $result, $theme_slug ) {
 }
 
 /**
- * Pressable only
- *
  * Filter attachment URLs if the 'wpcom_attachment_subdomain' option is present.
  * Local image files will be unaffected, as they will pass a file_exists check.
  * Files stored remotely will be filtered to have the correct URL.

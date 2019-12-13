@@ -1,7 +1,7 @@
 {
   "name": "automattic/wpcomsh",
   "type": "project",
-  "description": "Like Jetpack for WPCom sites transferred to Pressable.",
+  "description": "A helper for connecting WordPress.com sites to external host infrastructure.",
   "license": "GPLv3",
   "require": {
     "automattic/at-pressable-podcasting": "v1.2.5",
