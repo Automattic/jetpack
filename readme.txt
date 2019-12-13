@@ -112,7 +112,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Twenty Twenty: improve the display of the Authors and Flickr widget.
+* Twenty Twenty: add Content Options to the Customizer.
+* Twenty Twenty: ensure that Infinite Scroll does not suppress the display of footer widgets.
 
 **Bug fixes**
 
