@@ -20,7 +20,7 @@ class WP_Test_Jetpack_Modules_Shortcode_Defense extends WP_UnitTestCase {
 	 * @see https://github.com/Automattic/jetpack/issues/4795
 	 */
 	public function test_handle_poor_content_variable() {
-		$content = array();
+		$content = '';
 
 		$content = wp_kses_post( $content );
 
