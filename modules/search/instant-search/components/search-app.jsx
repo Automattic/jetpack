@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { Component, createRef, Fragment, h } from 'preact';
+import { Component, createRef, h } from 'preact';
 import { createPortal } from 'preact/compat';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
@@ -14,9 +14,7 @@ import debounce from 'lodash/debounce';
  * Internal dependencies
  */
 import Overlay from './overlay';
-import SearchBox from './search-box';
 import SearchResults from './search-results';
-import SearchWidget from './search-widget';
 import { search } from '../lib/api';
 import {
 	getFilterQuery,
@@ -24,9 +22,7 @@ import {
 	getSortQuery,
 	getResultFormatQuery,
 	hasFilter,
-	restorePreviousHref,
 } from '../lib/query-string';
-import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -44,13 +40,13 @@ class SearchApp extends Component {
 			showResults: false,
 		};
 		this.getResults = debounce( this.getResults, 200 );
-		this.prepareDomForMounting();
 	}
 
 	componentDidMount() {
 		this.getResults( { sort: this.props.initialSort } );
-
 		this.getResults.flush();
+
+		this.addEventListeners();
 
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
@@ -59,25 +55,28 @@ class SearchApp extends Component {
 		if ( this.props.grabFocus ) {
 			this.input.current.focus();
 		}
-
-		window.addEventListener( 'popstate', this.onChangeQueryString );
-		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener( 'popstate', this.onChangeQueryString );
-		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
+		this.removeEventListeners();
 	}
 
-	prepareDomForMounting() {
-		// Clean up the page prior to mounting component
-		hideElements( this.props.themeOptions.elementSelectors );
+	addEventListeners() {
+		window.addEventListener( 'popstate', this.onChangeQueryString );
+		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
+
 		document
-			.querySelectorAll( '.jetpack-instant-search-wrapper' )
-			.forEach( widget => removeChildren( widget ) );
+			.querySelectorAll( this.props.themeOptions.searchInputSelector )
+			.forEach( input => input.addEventListener( 'focus', this.showResults ) );
+	}
+
+	removeEventListeners() {
+		window.removeEventListener( 'popstate', this.onChangeQueryString );
+		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
+
 		document
-			.querySelectorAll( this.props.themeOptions.searchFormSelector )
-			.forEach( searchForm => removeChildren( searchForm ) );
+			.querySelectorAll( '.jetpack-instant-search-wrapper input.search-field' )
+			.forEach( input => input.removeEventListener( 'focus', this.showResults ) );
 	}
 
 	hasActiveQuery() {
@@ -88,30 +87,11 @@ class SearchApp extends Component {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
 
-	showResults = () => {
-		if ( this.hasActiveQuery() && ! this.state.showResults ) {
-			hideChildren( this.props.themeOptions.resultsSelector );
-			this.setState( { showResults: true } );
-		}
-	};
-
-	hideResults = () => {
-		if ( this.props.isSearchPage || this.hasActiveQuery() || ! this.state.showResults ) {
-			return;
-		}
-
-		this.setState( { showResults: false }, () => {
-			showChildren( this.props.themeOptions.resultsSelector );
-			restorePreviousHref( this.props.initialHref );
-		} );
-	};
+	showResults = () => this.setState( { showResults: true } );
+	hideResults = () => this.setState( { showResults: false } );
+	toggleResults = () => this.setState( state => ( { showResults: ! state.showResults } ) );
 
 	onChangeQueryString = () => {
-		if ( this.hasActiveQuery() ) {
-			this.showResults();
-		} else {
-			this.hideResults();
-		}
 		this.getResults();
 	};
 
@@ -168,47 +148,9 @@ class SearchApp extends Component {
 		} );
 	};
 
-	toggleOverlay = () => {
-		this.setState( state => ( { showResults: ! state.showResults } ) );
-	};
-
-	renderWidgets() {
-		return this.props.options.widgets.map( widget => (
-			<SearchWidget
-				isLoading={ this.state.isLoading }
-				locale={ this.props.options.locale }
-				onSearchBlur={ this.hideResults }
-				onSearchFocus={ this.showResults }
-				postTypes={ this.props.options.postTypes }
-				response={ this.state.response }
-				widget={ widget }
-			/>
-		) );
-	}
-
-	renderSearchForms() {
-		// NOTE/TODO: Can we just attach event handlers to the search inputs?
-		const searchForms = Array.from(
-			document.querySelectorAll( this.props.themeOptions.searchFormSelector )
-		);
-		return (
-			searchForms &&
-			searchForms.map( searchForm =>
-				createPortal(
-					<SearchBox
-						onChangeQuery={ this.onChangeQuery }
-						appRef={ this.input }
-						query={ getSearchQuery() }
-					/>,
-					searchForm
-				)
-			)
-		);
-	}
-
-	renderSearchOverlay() {
+	render() {
 		return createPortal(
-			<Overlay showOverlay={ this.state.showResults } toggleOverlay={ this.toggleOverlay }>
+			<Overlay showOverlay={ this.state.showResults } toggleOverlay={ this.toggleResults }>
 				<SearchResults
 					enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 					hasError={ this.state.hasError }
@@ -222,16 +164,6 @@ class SearchApp extends Component {
 				/>
 			</Overlay>,
 			document.body
-		);
-	}
-
-	render() {
-		return (
-			<Fragment>
-				{ this.renderWidgets() }
-				{ this.renderSearchForms() }
-				{ this.renderSearchOverlay() }
-			</Fragment>
 		);
 	}
 }
