@@ -511,13 +511,6 @@ class Actions {
 	 */
 	public static function initialize_sender() {
 		self::$sender = Sender::get_instance();
-
-		// In case the plugins are already loaded, it means that we are initializing
-		// the sender too late for it to receive the Jetpack object naturally, so we're
-		// calling the hook manually.
-		if ( did_action( 'plugins_loaded' ) ) {
-			self::$sender->on_jetpack_loaded( self::$jetpack );
-		}
 		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
 	}
 

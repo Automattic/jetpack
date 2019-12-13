@@ -56,12 +56,6 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		$this->server_event_storage = new Jetpack_Sync_Server_Eventstore();
 		$this->server_event_storage->init();
-
-		$jetpack = Jetpack::init();
-
-		new Config( $jetpack );
-
-		add_filter( 'jetpack_config', array( $jetpack, 'filter_jetpack_config' ) );
 	}
 
 	public function tearDown() {
