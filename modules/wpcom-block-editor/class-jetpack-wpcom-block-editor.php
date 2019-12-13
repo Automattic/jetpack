@@ -396,15 +396,14 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function add_tinymce_plugins( $plugin_array ) {
 		if ( $this->is_iframed_block_editor() ) {
-			$debug               = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-			$src_calypso_tinymce = $debug
-				? '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.js?minify=false'
-				: '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.min.js';
+			$debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 
 			$plugin_array['gutenberg-wpcom-iframe-media-modal'] = add_query_arg(
 				'v',
 				gmdate( 'YW' ),
-				$src_calypso_tinymce
+				$debug
+					? '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.js?minify=false'
+					: '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.min.js'
 			);
 		}
 
