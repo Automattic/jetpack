@@ -14,12 +14,8 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import './style.scss';
 
 export class PlanPrice extends Component {
-	render() {
-		const { currencyCode, rawPrice, original, discounted, className } = this.props;
-
-		if ( ! currencyCode || ! rawPrice ) {
-			return null;
-		}
+	getPriceRange() {
+		const { currencyCode, rawPrice } = this.props;
 
 		// "Normalize" the input price or price range.
 		const rawPriceRange = Array.isArray( rawPrice ) ? rawPrice.slice( 0, 2 ) : [ rawPrice ];
@@ -27,42 +23,54 @@ export class PlanPrice extends Component {
 			return null;
 		}
 
-		const priceRange = rawPriceRange.map( item => {
+		return rawPriceRange.map( item => {
 			return {
 				price: getCurrencyObject( item, currencyCode ),
 				raw: item,
 			};
 		} );
+	}
+
+	renderPrice( priceObj ) {
+		return (
+			<>
+				<span className="plan-price__integer">{ priceObj.price.integer }</span>
+				<sup className="plan-price__fraction">
+					{ priceObj.raw - priceObj.price.integer > 0 && priceObj.price.fraction }
+				</sup>
+			</>
+		);
+	}
+
+	render() {
+		const { className, currencyCode, discounted, original, rawPrice } = this.props;
+
+		if ( ! currencyCode || ! rawPrice ) {
+			return null;
+		}
 
 		const classes = classNames( 'plan-price', className, {
 			'is-original': original,
 			'is-discounted': discounted,
 		} );
 
-		const renderPriceHtml = priceObj => {
-			return (
-				<>
-					<span className="plan-price__integer">{ priceObj.price.integer }</span>
-					<sup className="plan-price__fraction">
-						{ priceObj.raw - priceObj.price.integer > 0 && priceObj.price.fraction }
-					</sup>
-				</>
-			);
-		};
-
-		const smallerPriceHtml = renderPriceHtml( priceRange[ 0 ] );
-		const higherPriceHtml = priceRange[ 1 ] && renderPriceHtml( priceRange[ 1 ] );
+		const priceRange = this.getPriceRange();
+		const smallerPrice = this.renderPrice( priceRange[ 0 ] );
+		const higherPrice = priceRange[ 1 ] && this.renderPrice( priceRange[ 1 ] );
 
 		return (
-			<h4 className={ classes }>
+			<div className={ classes }>
 				<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
-				{ ! higherPriceHtml && renderPriceHtml( priceRange[ 0 ] ) }
-				{ higherPriceHtml &&
+				{ ! higherPrice && this.renderPrice( priceRange[ 0 ] ) }
+				{ higherPrice &&
 					__( '{{smallerPrice/}}-{{higherPrice/}}', {
-						components: { smallerPrice: smallerPriceHtml, higherPrice: higherPriceHtml },
+						components: {
+							smallerPrice,
+							higherPrice,
+						},
 						comment: 'The price range for a particular product',
 					} ) }
-			</h4>
+			</div>
 		);
 	}
 }
@@ -70,16 +78,16 @@ export class PlanPrice extends Component {
 export default PlanPrice;
 
 PlanPrice.propTypes = {
-	rawPrice: PropTypes.oneOfType( [ PropTypes.number, PropTypes.arrayOf( PropTypes.number ) ] ),
-	original: PropTypes.bool,
-	discounted: PropTypes.bool,
-	currencyCode: PropTypes.string,
 	className: PropTypes.string,
+	currencyCode: PropTypes.string,
+	discounted: PropTypes.bool,
+	original: PropTypes.bool,
+	rawPrice: PropTypes.oneOfType( [ PropTypes.number, PropTypes.arrayOf( PropTypes.number ) ] ),
 };
 
 PlanPrice.defaultProps = {
-	currencyCode: 'USD',
-	original: false,
-	discounted: false,
 	className: '',
+	currencyCode: 'USD',
+	discounted: false,
+	original: false,
 };
