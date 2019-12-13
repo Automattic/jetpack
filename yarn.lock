@@ -6981,22 +6981,30 @@ hyperlinker@^1.0.0:
   resolved "https://registry.yarnpkg.com/hyperlinker/-/hyperlinker-1.0.0.tgz#23dc9e38a206b208ee49bc2d6c8ef47027df0c0e"
   integrity sha512-Ty8UblRWFEcfSuIaajM34LdPXIhbs1ajEX/BBPv24J+enSVaEVY63xQ6lTO9VRYS5LAoghIG0IDJ+p+IPzKUQQ==
 
-i18n-calypso@4.0.0-alpha.2:
-  version "4.0.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-4.0.0-alpha.2.tgz#34b09093ef2d0e77591a1264c130dd9a207a27cc"
-  integrity sha512-qxOY8aHTnEdzRBJruZIxODbdxIuoAPiyb4XLSLIDdp8xpaWK3cUz/E9ze22350zxmGf5zwqRSIRrpjae8IZ8YA==
+i18n-calypso-cli@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/i18n-calypso-cli/-/i18n-calypso-cli-1.0.0.tgz#e8bc1094c35780d93d2319decd52c8137fa7c6e8"
+  integrity sha512-bNXshPHNl6p64IAv6cbnv1t77GxB3JoqjNE8K13M0nqJO3jomtC03UOiUr++s2td4rwmJ5iabWLFMyTx1rJCVQ==
   dependencies:
     commander "^2.9.0"
     debug "^3.2.6"
     globby "^9.0.0"
+    xgettext-js "^3.0.0"
+
+i18n-calypso@4.1.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-4.0.0.tgz#4d07c0c0ff6a9a70171186778bbe0be09ce0eeec"
+  integrity sha512-L1oMtViG/LtwWqGcLfA6FJN+ililsA6r/fPJswxvND8waJAWRONZEDmmjojs6MKratJ1E6cnFjTifiC75zuHHQ==
+  dependencies:
+    debug "^3.2.6"
+    events "^3.0.0"
     hash.js "^1.1.5"
-    interpolate-components "1.1.1"
-    jed "1.1.1"
+    interpolate-components "^1.1.1"
+    jed "^1.1.1"
     lodash "^4.17.11"
     lru "^3.1.0"
     moment "^2.24.0"
     react "^16.8.3"
-    xgettext-js "^3.0.0"
 
 i18n-calypso@^4.0.0-alpha.1:
   version "4.0.0-alpha.1"
@@ -7203,7 +7211,7 @@ inquirer@^6.2.2:
     strip-ansi "^5.1.0"
     through "^2.3.6"
 
-interpolate-components@1.1.1:
+interpolate-components@1.1.1, interpolate-components@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/interpolate-components/-/interpolate-components-1.1.1.tgz#699fff45d1525e98c7ce7b7159591d992b5dd6df"
   integrity sha1-aZ//RdFSXpjHzntxWVkdmStd1t8=
@@ -7706,7 +7714,7 @@ istanbul-reports@^2.2.6:
   dependencies:
     handlebars "^4.1.2"
 
-jed@1.1.1:
+jed@1.1.1, jed@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/jed/-/jed-1.1.1.tgz#7a549bbd9ffe1585b0cd0a191e203055bee574b4"
   integrity sha1-elSbvZ/+FYWwzQoZHiAwVb7ldLQ=
@@ -9208,6 +9216,7 @@ mimic-fn@^2.0.0:
   resolved "https://codeload.github.com/Automattic/mini-css-extract-plugin-with-rtl/tar.gz/f48ce03f385390257bdacbfec4759d38df983361"
   dependencies:
     loader-utils "^1.1.0"
+    normalize-url "1.9.1"
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
