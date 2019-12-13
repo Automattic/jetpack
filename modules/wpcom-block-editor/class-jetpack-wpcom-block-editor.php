@@ -294,7 +294,7 @@ class Jetpack_WPCOM_Block_Editor {
 			)
 		);
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( jetpack_is_atomic_site() ) {
 			wp_enqueue_script(
 				'wpcom-block-editor-wpcom-script',
 				$debug
