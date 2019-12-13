@@ -51,7 +51,7 @@ class Partner_Test extends TestCase {
 	 *
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired
 	 */
-	public function test_partner_code_is_empty_by_defalt( $code_type, $option_name, $query_string_name ) {
+	public function test_partner_code_is_empty_by_default( $code_type, $option_name, $query_string_name ) {
 		Functions\expect( 'get_option' )->once()->with( $option_name )->andReturn( '' );
 		$this->assertEmpty( Partner::init()->get_partner_code( $code_type ) );
 	}
