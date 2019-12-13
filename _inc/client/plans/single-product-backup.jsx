@@ -190,23 +190,30 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 	}
 	const { link, name, fullPrice, discountedPrice, type } = selectedUpgrade;
 	let billingTimeFrameString = '';
+	const timeframe = <span />;
+	const price = (
+		<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice || fullPrice } inline />
+	);
 	if ( 'yearly' === billingTimeFrame ) {
-		billingTimeFrameString = __( 'per year', { context: 'Amount of money per time unit.' } );
+		billingTimeFrameString = __( '{{price/}} {{timeframe}}per year{{/timeframe}}', {
+			components: { price, timeframe },
+			comment:
+				'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+		} );
 	} else if ( 'monthly' === billingTimeFrame ) {
-		billingTimeFrameString = __( 'per month', { context: 'Amount of money per time unit.' } );
+		billingTimeFrameString = __( '{{price/}} {{timeframe}}per month{{/timeframe}}', {
+			components: { price, timeframe },
+			comment:
+				'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+		} );
 	}
-
-	const currencyObject = getCurrencyObject( discountedPrice || fullPrice, currencyCode );
 
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( type ) } primary>
-				{ __( 'Upgrade to %(name)s for %(price)s %(billingTimeFrame)s', {
-					args: {
-						name,
-						billingTimeFrame: billingTimeFrameString,
-						price: formatCurrency( currencyObject ),
-					},
+				{ __( 'Upgrade to %(name)s for {{billingTimeFrame /}}', {
+					components: { billingTimeFrame: billingTimeFrameString },
+					args: { name },
 					comment:
 						'Button to purchase product upgrade. %(price) can be a range of prices, and %(billingTimeFrame) is the billing period for the product upgrade.',
 				} ) }
