@@ -17,8 +17,15 @@ export class PlanPrice extends Component {
 	getPriceRange() {
 		const { currencyCode, rawPrice } = this.props;
 
-		// "Normalize" the input price or price range.
-		const rawPriceRange = Array.isArray( rawPrice ) ? rawPrice.slice( 0, 2 ) : [ rawPrice ];
+		// "Normalize" the input price or price range
+		let rawPriceRange;
+		if ( Array.isArray( rawPrice ) ) {
+			const positivePrices = rawPrice.filter( price => price >= 0 );
+			// First array entry is lowest price, second is highest price.
+			rawPriceRange = [ Math.min( ...positivePrices ), Math.max( ...positivePrices ) ];
+		} else {
+			rawPriceRange = [ rawPrice ];
+		}
 		if ( rawPriceRange.includes( 0 ) ) {
 			return null;
 		}
