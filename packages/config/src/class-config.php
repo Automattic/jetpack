@@ -18,13 +18,6 @@ use Automattic\Jetpack\Terms_Of_Service;
 class Config {
 
 	/**
-	 * The Jetpack class instance.
-	 *
-	 * @var Jetpack
-	 */
-	protected $jetpack;
-
-	/**
 	 * The initial setting values.
 	 *
 	 * @var Array
@@ -38,16 +31,23 @@ class Config {
 	);
 
 	/**
-	 * Creates the configuration class instance, initalized with the Jetpack object.
-	 *
-	 * @param \Jetpack $jetpack the main object to initalize everything with.
+	 * Creates the configuration class instance..
 	 */
-	public function __construct( \Jetpack $jetpack ) {
-		$this->jetpack = $jetpack;
-
+	public function __construct() {
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_early' ), 5 );
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ) );
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_late' ), 90 );
+	}
+
+	/**
+	 * Require a feature to be initialized. It's up to the package consumer to actually add
+	 * the package to their composer project. Declaring a requirement using this method
+	 * instructs the class to initalize it.
+	 *
+	 * @param String $feature the feature slug.
+	 */
+	public function ensure( $feature ) {
+		$this->config[ $feature ] = true;
 	}
 
 	/**
@@ -56,20 +56,6 @@ class Config {
 	 * @action plugins_loaded
 	 */
 	public function on_plugins_loaded_early() {
-
-		/**
-		 * Filters the settings for the Jetpack Config package, allowing package consumers to set
-		 * initialization options.
-		 *
-		 * @since 8.1.0
-		 *
-		 * @param Array An array of options that configure Jetpack package initialization details.
-		 */
-		$this->config = wp_parse_args(
-			apply_filters( 'jetpack_config', $this->config ),
-			$this->config
-		);
-
 		if ( $this->config['sync'] ) {
 			Sync_Main::init();
 
@@ -111,6 +97,6 @@ class Config {
 		 * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
 		 * with a high priority or sites that use alternate cron.
 		 */
-		Sync_Actions::init( $this->jetpack );
+		Sync_Actions::init();
 	}
 }

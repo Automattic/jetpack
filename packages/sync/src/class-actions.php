@@ -40,13 +40,6 @@ class Actions {
 	public static $listener = null;
 
 	/**
-	 * The Jetpack class instance.
-	 *
-	 * @var Jetpack
-	 */
-	protected static $jetpack;
-
-	/**
 	 * Name of the sync cron schedule.
 	 *
 	 * @access public
@@ -70,11 +63,8 @@ class Actions {
 	 *
 	 * @access public
 	 * @static
-	 * @param \Jetpack $jetpack the main Jetpack class object.
 	 */
-	public static function init( \Jetpack $jetpack ) {
-		self::$jetpack = $jetpack;
-
+	public static function init() {
 		// Everything below this point should only happen if we're a valid sync site.
 		if ( ! self::sync_allowed() ) {
 			return;

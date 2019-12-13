@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 
 /*
 Options:
@@ -557,7 +558,7 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'early_initialization' ), 1 );
+		add_action( 'plugins_loaded', array( __CLASS__, 'configure' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
@@ -726,15 +727,24 @@ class Jetpack {
 	}
 
 	/**
-	 * Runs on plugins_loaded but with a higher priority to make sure we're initializing
-	 * before other hooks.
-	 *
-	 * @action plugins_loaded
+	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
+	 * Config object.
 	 */
-	public function early_initialization() {
-		new Config( $this );
+	public static function configure() {
+		$config = new Config();
 
-		add_filter( 'jetpack_config', array( $this, 'filter_jetpack_config' ) );
+		foreach (
+			array(
+				'sync',
+				'sync_woocommerce',
+				'sync_wp_super_cache',
+				'tracking',
+				'tos',
+			)
+			as $feature
+		) {
+			$config->ensure( $feature );
+		}
 
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
@@ -745,19 +755,7 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-	}
 
-	/**
-	 * Filters Jetpack initialization configuration.
-	 *
-	 * @param Array $config options for package initialization.
-	 */
-	public function filter_jetpack_config( $config ) {
-		foreach ( $config as $feature => $enabled ) {
-			$config[ $feature ] = true;
-		}
-
-		return $config;
 	}
 
 	/**
@@ -5153,21 +5151,10 @@ endif;
 	/**
 	 * Returns the connection manager object.
 	 *
-	 * @deprecated 8.1 Use the dynamic get_connection method on the Jetpack instance, which can be received
-	 *                 as a parameter to the jetpack_loaded action.
 	 * @return Automattic\Jetpack\Connection\Manager
 	 */
 	public static function connection() {
 		return self::init()->connection_manager;
-	}
-
-	/**
-	 * Returns the connection manager object.
-	 *
-	 * @return Automattic\Jetpack\Connection\Manager
-	 */
-	public function get_connection() {
-		return $this->connection_manager;
 	}
 
 	/**
