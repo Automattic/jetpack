@@ -30,8 +30,21 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function additional_styles() {}
 
-	function __construct() {
-		$this->jetpack                      = Jetpack::init();
+	/**
+	 * The constructor.
+	 */
+	public function __construct() {
+		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public function on_jetpack_loaded( $jetpack ) {
+		$this->jetpack = $jetpack;
+
 		self::$block_page_rendering_for_idc = (
 			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
