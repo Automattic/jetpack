@@ -266,7 +266,7 @@ class MapEdit extends Component {
 						onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 						onError={ this.onError }
 					>
-						{ addPointVisibility && (
+						{ this.props.isSelected && addPointVisibility && (
 							<AddPoint
 								onAddPoint={ this.addPoint }
 								onClose={ () => this.setState( { addPointVisibility: false } ) }
