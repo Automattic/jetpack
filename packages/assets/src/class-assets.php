@@ -49,6 +49,6 @@ class Assets {
 		 * @param string $min_path The minified path.
 		 * @param string $non_min_path The non-minified path.
 		 */
-		return \apply_filters( 'jetpack_get_file_for_environment', $url, $min_path, $non_min_path );
+		return apply_filters( 'jetpack_get_file_for_environment', $url, $min_path, $non_min_path );
 	}
 }
