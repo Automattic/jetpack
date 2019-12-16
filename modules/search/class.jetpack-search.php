@@ -197,7 +197,6 @@ class Jetpack_Search {
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
-			add_action( 'init', array( $this, 'disable_wp_search' ) );
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
@@ -206,27 +205,6 @@ class Jetpack_Search {
 		}
 
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
-	}
-
-	/**
-	 * Disables built-in WordPress search for Jetpack Instant Search
-	 */
-	public function disable_wp_search() {
-		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
-			/**
-			 * Intercepts query parsing and sets search-related values to false.
-			 *
-			 * @param string|array $query Array or string of Query parameters.
-			 */
-			function disable_search( $query ) {
-				if ( is_search() ) {
-					$query->is_search       = false;
-					$query->query_vars[ s ] = false;
-					$query->query[ s ]      = false;
-				}
-			}
-			add_action( 'parse_query', 'disable_search' );
-		}
 	}
 
 	/**
