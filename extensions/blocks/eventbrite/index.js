@@ -2,25 +2,21 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
+import { embedContentIcon, getEmbedBlockSettings } from '@wordpress/embed-block';
 
 export const name = 'eventbrite';
 
 // Should this be 'Eventbrite Tickets', since we may add other embeds in the future?
 export const title = __( 'Eventbrite', 'jetpack' );
 
-export const icon = null;
+export const icon = embedContentIcon;
 
-export const settings = {
+const definition = {
 	title,
 
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 
-	// icon,
+	icon,
 
 	category: 'jetpack',
 
@@ -37,7 +33,9 @@ export const settings = {
 		},
 	},
 
-	edit,
+	responsive: false,
 
-	save: () => null,
+	patterns: [ /^https?:\/\/(.+?\.)?eventbrite\.com(\.[a-z]{2,4})*\/.+/i ],
 };
+
+export const settings = getEmbedBlockSettings( definition );
