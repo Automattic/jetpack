@@ -63,12 +63,12 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 
 		$history = $response['http_response']->get_response_object()->history;
 		if ( ! $history ) {
-			return response_ensure_response( $request['url'] );
+			return rest_ensure_response( $request['url'] );
 		}
 
 		$location = $history[0]->headers->getValues( 'location' );
 		if ( ! $location ) {
-			return response_ensure_response( $request['url'] );
+			return rest_ensure_response( $request['url'] );
 		}
 
 		return rest_ensure_response( $location[0] );

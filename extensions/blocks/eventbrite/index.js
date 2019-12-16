@@ -2,21 +2,28 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { embedContentIcon, getEmbedBlockSettings } from '@wordpress/embed-block';
+import { createBlock } from '@wordpress/blocks';
+
+/**
+ * Internal dependencies
+ */
+import edit from './edit';
+
+export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:eventbrite\.[a-z.]+)\/([^/]+)(\/[^/]+)?/i;
 
 export const name = 'eventbrite';
 
 // Should this be 'Eventbrite Tickets', since we may add other embeds in the future?
 export const title = __( 'Eventbrite', 'jetpack' );
 
-export const icon = embedContentIcon;
+export const icon = '';
 
-const definition = {
+export const settings = {
 	title,
 
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 
-	icon,
+	// icon,
 
 	category: 'jetpack',
 
@@ -25,7 +32,7 @@ const definition = {
 	},
 
 	attributes: {
-		eventId: {
+		url: {
 			type: 'string',
 		},
 		useModal: {
@@ -33,9 +40,31 @@ const definition = {
 		},
 	},
 
-	responsive: false,
+	edit,
 
-	patterns: [ /^https?:\/\/(.+?\.)?eventbrite\.com(\.[a-z]{2,4})*\/.+/i ],
+	save: () => null,
+
+	transforms: {
+		from: [
+			{
+				type: 'raw',
+				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
+				transform: node => {
+					return createBlock( 'jetpack/eventbrite', {
+						url: node.textContent.trim(),
+					} );
+				},
+			},
+		],
+	},
+
+	example: {
+		attributes: {
+			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
+		},
+	},
+
+	// responsive: false,
+
+	// patterns: [ /^https?:\/\/(.+?\.)?eventbrite\.com(\.[a-z]{2,4})*\/.+/i ],
 };
-
-export const settings = getEmbedBlockSettings( definition );
