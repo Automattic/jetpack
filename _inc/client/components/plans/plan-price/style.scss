@@ -5,6 +5,10 @@
 	font-size: 14px;
 	font-weight: 400;
 	color: $gray-text;
+
+	&.is-inline {
+		display: inline-block;
+	}
 }
 
 .plan-price.is-original {
