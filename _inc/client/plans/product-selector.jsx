@@ -9,8 +9,6 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
-import analytics from 'lib/analytics';
-import ExternalLink from 'components/external-link';
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
 import { SingleProductBackup } from './single-product-backup';
@@ -159,16 +157,22 @@ class ProductSelector extends Component {
 			dailyBackupUpgradeUrl,
 			isFetchingData,
 			multisite,
+			plans,
 			products,
 			realtimeBackupUpgradeUrl,
 			sitePlan,
 		} = this.props;
-		const { selectedBackupType } = this.state;
 
 		// Jetpack Backup does not support Multisite yet.
 		if ( multisite ) {
 			return null;
 		}
+
+		const plan = get( sitePlan, 'product_slug' );
+		const upgradeLinks = {
+			daily: dailyBackupUpgradeUrl,
+			'real-time': realtimeBackupUpgradeUrl,
+		};
 
 		const purchase = this.findPrioritizedPurchase();
 		if ( purchase ) {
@@ -180,21 +184,9 @@ class ProductSelector extends Component {
 			);
 		}
 
-		const plan = get( sitePlan, 'product_slug' );
-
-		// Don't show the product card for paid plans.
-		if ( ! isFetchingData && 'jetpack_free' !== plan ) {
-			return null;
-		}
-
-		const upgradeLinks = {
-			daily: dailyBackupUpgradeUrl,
-			'real-time': realtimeBackupUpgradeUrl,
-		};
-
 		return (
 			<SingleProductBackup
-				isFetching={ isFetchingData }
+				plan={ plan }
 				products={ products }
 				upgradeLinks={ upgradeLinks }
 				isFetchingData={ isFetchingData || ! plans }
@@ -217,12 +209,11 @@ export default connect( state => {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
 		multisite: isMultisite( state ),
+		plans: getAvailablePlans( state ),
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		sitePlan: getSitePlan( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
-		isFetchingData:
-			isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state ),
-		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
+		isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
 	};
 } )( ProductSelector );
