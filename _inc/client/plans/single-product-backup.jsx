@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
 import { withRouter } from 'react-router';
-import { getCurrencyObject } from '@automattic/format-currency';
 
 /**
  * Internal dependencies
@@ -183,11 +182,17 @@ function ProductSavings( { selectedBackup, currencyCode } ) {
 	if ( ! selectedBackup ) {
 		return null;
 	}
-	const savingsCurrencyObject = getCurrencyObject( selectedBackup.potentialSavings, currencyCode );
-	const savings = formatCurrency( savingsCurrencyObject );
+	const savings = (
+		<PlanPrice
+			className="single-product-backup__annual-savings"
+			rawPrice={ selectedBackup.potentialSavings }
+			currencyCode={ currencyCode }
+			inline
+		/>
+	);
 
-	return __( 'You are saving %(savings)s by paying yearly', {
-		args: { savings },
+	return __( 'You are saving {{savings /}} by paying yearly', {
+		components: { savings },
 	} );
 }
 
@@ -222,13 +227,6 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 			</Button>
 		</div>
 	);
-}
-
-// Placeholder for formatting the currency without zeros
-// until https://github.com/Automattic/wp-calypso/pull/36039
-// is released.
-function formatCurrency( { symbol, integer } ) {
-	return `${ symbol }${ integer }`;
 }
 
 class SingleProductBackupBody extends React.Component {
