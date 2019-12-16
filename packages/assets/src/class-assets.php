@@ -45,7 +45,7 @@ class Assets {
 		 *
 		 * @since 8.1.0
 		 *
-		 * @parm string $url The URL to the file.
+		 * @param string $url The URL to the file.
 		 * @param string $min_path The minified path.
 		 * @param string $non_min_path The non-minified path.
 		 */
