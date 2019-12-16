@@ -17,22 +17,22 @@ import PlanPrice from 'components/plans/plan-price';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
-	// Don't show the product card for paid plans.
-	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
-		return null;
-	}
+export function SingleProductBackup( props ) {
+	const { isFetching, products, upgradeLinks, selectedBackupType, setSelectedBackupType } = props;
 
 	return (
-		<React.Fragment>
-			<div className="plans-section__single-product">
-				{ isFetchingData ? (
-					<div className="plans-section__single-product-skeleton is-placeholder" />
-				) : (
-					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
-				) }
-			</div>
-		</React.Fragment>
+		<div className="plans-section__single-product">
+			{ isFetching ? (
+				<div className="plans-section__single-product-skeleton is-placeholder" />
+			) : (
+				<SingleProductBackupCard
+					products={ products }
+					upgradeLinks={ upgradeLinks }
+					selectedBackupType={ selectedBackupType }
+					setSelectedBackupType={ setSelectedBackupType }
+				/>
+			) }
+		</div>
 	);
 }
 

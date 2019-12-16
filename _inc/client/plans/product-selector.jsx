@@ -9,6 +9,8 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import ExternalLink from 'components/external-link';
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
 import { SingleProductBackup } from './single-product-backup';
@@ -23,6 +25,10 @@ import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-stat
 import { getProducts, isFetchingProducts } from '../state/products';
 
 class ProductSelector extends Component {
+	state = {
+		selectedBackupType: 'real-time',
+	};
+
 	getProductCardPropsForPurchase( purchase ) {
 		const { siteRawlUrl } = this.props;
 
@@ -141,12 +147,41 @@ class ProductSelector extends Component {
 		return false;
 	}
 
+	handleLandingPageLinkClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-backup',
+			extra: this.state.selectedBackupType,
+		} );
+	};
+
+	setSelectedBackupType = selectedBackupType => {
+		this.setState( { selectedBackupType } );
+	};
+
 	renderTitleSection() {
+		const { backupInfoUrl, isFetchingData } = this.props;
+		const purchase = this.findPrioritizedPurchase();
+
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
 					{ __( "Just looking for backups? We've got you covered." ) }
+					{ ! isFetchingData && ! purchase && (
+						<>
+							<br />
+							<ExternalLink
+								target="_blank"
+								href={ backupInfoUrl }
+								icon
+								iconSize={ 12 }
+								onClick={ this.handleLandingPageLinkClick }
+							>
+								{ __( 'Which backup option is best for me?' ) }
+							</ExternalLink>
+						</>
+					) }
 				</h2>
 			</Fragment>
 		);
@@ -157,22 +192,16 @@ class ProductSelector extends Component {
 			dailyBackupUpgradeUrl,
 			isFetchingData,
 			multisite,
-			plans,
 			products,
 			realtimeBackupUpgradeUrl,
 			sitePlan,
 		} = this.props;
+		const { selectedBackupType } = this.state;
 
 		// Jetpack Backup does not support Multisite yet.
 		if ( multisite ) {
 			return null;
 		}
-
-		const plan = get( sitePlan, 'product_slug' );
-		const upgradeLinks = {
-			daily: dailyBackupUpgradeUrl,
-			'real-time': realtimeBackupUpgradeUrl,
-		};
 
 		const purchase = this.findPrioritizedPurchase();
 		if ( purchase ) {
@@ -184,12 +213,25 @@ class ProductSelector extends Component {
 			);
 		}
 
+		const plan = get( sitePlan, 'product_slug' );
+
+		// Don't show the product card for paid plans.
+		if ( ! isFetchingData && 'jetpack_free' !== plan ) {
+			return null;
+		}
+
+		const upgradeLinks = {
+			daily: dailyBackupUpgradeUrl,
+			'real-time': realtimeBackupUpgradeUrl,
+		};
+
 		return (
 			<SingleProductBackup
-				plan={ plan }
+				isFetching={ isFetchingData }
 				products={ products }
 				upgradeLinks={ upgradeLinks }
-				isFetchingData={ isFetchingData || ! plans }
+				selectedBackupType={ selectedBackupType }
+				setSelectedBackupType={ this.setSelectedBackupType }
 			/>
 		);
 	}
@@ -209,11 +251,12 @@ export default connect( state => {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
 		multisite: isMultisite( state ),
-		plans: getAvailablePlans( state ),
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		sitePlan: getSitePlan( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
-		isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
+		isFetchingData:
+			isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state ),
+		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
 	};
 } )( ProductSelector );
