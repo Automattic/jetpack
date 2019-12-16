@@ -120,7 +120,7 @@ class MapEdit extends Component {
 		noticeOperations.createErrorNotice( message );
 	};
 	render() {
-		const { className, setAttributes, attributes, noticeUI, notices } = this.props;
+		const { className, setAttributes, attributes, noticeUI, notices, isSelected } = this.props;
 		const {
 			mapStyle,
 			mapDetails,
@@ -266,7 +266,7 @@ class MapEdit extends Component {
 						onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 						onError={ this.onError }
 					>
-						{ addPointVisibility && (
+						{ isSelected && addPointVisibility && (
 							<AddPoint
 								onAddPoint={ this.addPoint }
 								onClose={ () => this.setState( { addPointVisibility: false } ) }
