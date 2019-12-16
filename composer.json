@@ -22,6 +22,7 @@
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-partner": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",

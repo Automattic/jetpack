@@ -417,23 +417,6 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
-	 * Builds a URL to purchase and upgrade inserting the site fragment and the affiliate code if it exists.
-	 *
-	 * @param string $feature Module slug (or forged one for extra features).
-	 *
-	 * @since 7.1.0
-	 *
-	 * @return string URL to upgrade.
-	 */
-	private function get_upgrade_url( $feature ) {
-		$site_raw_url = Jetpack::build_raw_urls( get_home_url() );
-		$affiliateCode = Jetpack_Affiliate::init()->get_affiliate_code();
-		$user = wp_get_current_user()->ID;
-		return "https://jetpack.com/redirect/?source=plugin-hint-upgrade-$feature&site=$site_raw_url&u=$user" .
-		       ( $affiliateCode ? "&aff=$affiliateCode" : '' );
-	}
-
-	/**
 	 * Modify the URL to the feature settings, for example Publicize.
 	 * Sharing is included here because while we still have a page in WP Admin,
 	 * we prefer to send users to Calypso.

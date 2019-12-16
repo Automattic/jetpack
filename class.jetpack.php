@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
@@ -744,6 +745,7 @@ class Jetpack {
 	 */
 	function after_plugins_loaded() {
 
+		Partner::init();
 		$terms_of_service = new Terms_Of_Service();
 		$tracking = new Plugin_Tracking();
 		if ( $terms_of_service->has_agreed() ) {
@@ -4634,14 +4636,16 @@ endif;
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
-		// Ensure that class to get the affiliate code is loaded
-		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-		}
-		// Get affiliate code and add it to the URL
-		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
-
-		return $raw ? esc_url_raw( $url ) : esc_url( $url );
+		$url = $raw ? esc_url_raw( $url ) : esc_url( $url );
+		/**
+		 * Filter the URL used when connecting a user to a WordPress.com account.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $url Connection URL.
+		 * @param bool   $raw If true, URL will not be escaped.
+		 */
+		return apply_filters( 'jetpack_build_connection_url', $url, $raw );
 	}
 
 	public static function build_authorize_url( $redirect = false, $iframe = false ) {

@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 
 // Extend with a public constructor so that can be mocked in tests
@@ -1170,6 +1171,56 @@ EXPECTED;
 		$options = apply_filters( 'xmlrpc_blog_options', array() );
 
 		$this->assertArrayHasKey( 'jetpack_version', $options );
+	}
+
+	/**
+	 * Tests if Partner codes are added to the connect url.
+	 *
+	 * @dataProvider partner_code_provider
+	 *
+	 * @param string $code_type Partner code type.
+	 * @param string $option_name Option and filter name.
+	 * @param string $query_string_name Query string variable name.
+	 */
+	public function test_partner_codes_are_added_to_connect_url( $code_type, $option_name, $query_string_name ) {
+		$test_code = 'abc-123';
+		Partner::init();
+		add_filter(
+			$option_name,
+			function() use ( $test_code ) {
+				return $test_code;
+			}
+		);
+		$jetpack = \Jetpack::init();
+		$url     = $jetpack->build_connect_url();
+
+		$parsed_vars = array();
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $parsed_vars );
+
+		$this->assertArrayHasKey( $query_string_name, $parsed_vars );
+		$this->assertSame( $test_code, $parsed_vars[ $query_string_name ] );
+	}
+
+	/**
+	 * Provides code for test_partner_codes_are_added_to_connect_url.
+	 *
+	 * @return array
+	 */
+	public function partner_code_provider() {
+		return array(
+			'subsidiary_code' =>
+				array(
+					Partner::SUBSIDIARY_CODE,            // Code type.
+					'jetpack_partner_subsidiary_id',     // filter/option key.
+					'subsidiaryId',                      // Query string parameter.
+				),
+			'affiliate_code'  =>
+				array(
+					Partner::AFFILIATE_CODE,
+					'jetpack_affiliate_code',
+					'aff',
+				),
+		);
 	}
 
 } // end class
