@@ -75,7 +75,7 @@ class SearchApp extends Component {
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document
-			.querySelectorAll( '.jetpack-instant-search-wrapper input.search-field' )
+			.querySelectorAll( this.props.themeOptions.searchInputSelector )
 			.forEach( input => input.removeEventListener( 'focus', this.showResults ) );
 	}
 
