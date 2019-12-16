@@ -59,14 +59,14 @@ input[type='radio'].plan-radio-button__input {
 
 // Plans section
 .plans-section__header {
-	margin: 24px auto 8px;
+	margin: 32px auto 8px;
 	text-align: center;
 	font-weight: normal;
 	font-size: 22px;
 }
 
 .plans-section__subheader {
-	margin: 8px auto;
+	margin: 8px auto 32px;
 	color: $gray-text-min;
 	text-align: center;
 	font-weight: normal;
@@ -106,6 +106,7 @@ input[type='radio'].plan-radio-button__input {
 // Accented card
 .single-product-backup__accented-card {
 	max-width: 518px;
+	width: 100%;
 	font-size: 14px;
 }
 

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -12,32 +12,35 @@ import { withRouter } from 'react-router';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import ExternalLink from 'components/external-link';
 import PlanPrice from 'components/plans/plan-price';
 
 import './single-product-backup.scss';
 
-export function SingleProductBackup( { plan, products, upgradeLinks, isFetchingData } ) {
-	// Don't show the product card for paid plans.
-	if ( ! isFetchingData && 'jetpack_free' !== plan ) {
-		return null;
-	}
+export function SingleProductBackup( props ) {
+	const { isFetching, products, upgradeLinks, selectedBackupType, setSelectedBackupType } = props;
 
 	return (
-		<React.Fragment>
-			<div className="plans-section__single-product">
-				{ isFetchingData ? (
-					<div className="plans-section__single-product-skeleton is-placeholder" />
-				) : (
-					<SingleProductBackupCard products={ products } upgradeLinks={ upgradeLinks } />
-				) }
-			</div>
-		</React.Fragment>
+		<div className="plans-section__single-product">
+			{ isFetching ? (
+				<div className="plans-section__single-product-skeleton is-placeholder" />
+			) : (
+				<SingleProductBackupCard
+					products={ products }
+					upgradeLinks={ upgradeLinks }
+					selectedBackupType={ selectedBackupType }
+					setSelectedBackupType={ setSelectedBackupType }
+				/>
+			) }
+		</div>
 	);
 }
 
-function SingleProductBackupCard( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+function SingleProductBackupCard( {
+	products,
+	selectedBackupType,
+	setSelectedBackupType,
+	upgradeLinks,
+} ) {
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
@@ -179,14 +182,6 @@ class SingleProductBackupBody extends React.Component {
 		} );
 	};
 
-	handleLandingPageLinkClick = selectedBackupType => () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'landing-page-link',
-			feature: 'single-product-backup',
-			extra: selectedBackupType,
-		} );
-	};
-
 	render() {
 		const {
 			backupOptions,
@@ -204,24 +199,7 @@ class SingleProductBackupBody extends React.Component {
 
 		return (
 			<React.Fragment>
-				<p>
-					{ __(
-						'Always-on backups ensure you never lose your site. Choose from real-time or daily backups. {{a}}Which one do I need?{{/a}}',
-						{
-							components: {
-								a: (
-									<ExternalLink
-										target="_blank"
-										href="https://jetpack.com/upgrade/backup/"
-										icon
-										iconSize={ 12 }
-										onClick={ this.handleLandingPageLinkClick( selectedBackupType ) }
-									/>
-								),
-							},
-						}
-					) }
-				</p>
+				<p>{ __( 'Always-on backups ensure you never lose your site.' ) }</p>
 				<h4 className="single-product-backup__options-header">{ __( 'Backup options:' ) }</h4>
 				<div className="single-product-backup__radio-buttons-container">
 					{ backupOptions.map( option => (
