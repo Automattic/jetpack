@@ -1,0 +1,22 @@
+.jetpack-instant-search__overlay {
+	bottom: 0;
+	left: 0;
+	opacity: 0.975;
+	transition: opacity 0.5s linear;
+	position: fixed;
+	right: 0;
+	top: 0;
+	background: white;
+	padding: 3em 1em;
+	overflow-y: auto;
+	z-index: 9999999999999;
+
+	&.is-hidden {
+		display: none;
+	}
+}
+
+.jetpack-instant-search__overlay-close {
+	position: absolute;
+	right: 2em;
+}

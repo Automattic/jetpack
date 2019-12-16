@@ -38,13 +38,6 @@ function pushQueryString( queryString ) {
 	}
 }
 
-export function restorePreviousHref( initialHref ) {
-	if ( history.pushState ) {
-		window.history.pushState( null, null, initialHref );
-		window.dispatchEvent( new Event( 'queryStringChange' ) );
-	}
-}
-
 export function getSearchQuery() {
 	const query = getQuery();
 	return 's' in query ? decodeURIComponent( query.s.replace( /\+/g, '%20' ) ) : '';
