@@ -210,9 +210,9 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( type ) } primary>
-				{ __( 'Upgrade to %(name)s for {{price/}} {{billingTimeFrame /}}', {
-					components: { billingTimeFrame: billingTimeFrameString, price },
-					args: { name },
+				{ __( 'Upgrade to %(name)s for {{price/}} %(billingTimeFrame)s', {
+					components: { price },
+					args: { name, billingTimeFrame: billingTimeFrameString },
 					comment:
 						'Button to purchase product upgrade. {{price /}} can be a range of prices, and %(billingTimeFrame) is the billing period for the product upgrade.',
 				} ) }
