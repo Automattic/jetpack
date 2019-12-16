@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
@@ -55,8 +55,12 @@ function PromoNudge() {
 	);
 }
 
-function SingleProductBackupCard( { products, upgradeLinks } ) {
-	const [ selectedBackupType, setSelectedBackupType ] = useState( 'real-time' );
+function SingleProductBackupCard( {
+	products,
+	upgradeLinks,
+	selectedBackupType,
+	setSelectedBackupType,
+} ) {
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
