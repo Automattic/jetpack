@@ -70,7 +70,7 @@ class Jetpack_Custom_CSS {
 
 		add_action( 'admin_enqueue_scripts', array( 'Jetpack_Custom_CSS', 'enqueue_scripts' ) );
 
-		if ( isset( $_GET['page'] ) && 'editcss' == $_GET['page'] && is_admin() ) {
+		if ( isset( $_GET['page'] ) && 'editcss' === $_GET['page'] && is_admin() ) {
 			// Do migration routine if necessary
 			Jetpack_Custom_CSS::upgrade();
 
@@ -530,7 +530,7 @@ class Jetpack_Custom_CSS {
 	 */
 	static function set_content_width(){
 		// Don't apply this filter on the Edit CSS page
-		if ( isset( $_GET ) && isset( $_GET['page'] ) &&  'editcss' == $_GET['page'] && is_admin() ) {
+		if ( isset( $_GET ) && isset( $_GET['page'] ) &&  'editcss' === $_GET['page'] && is_admin() ) {
 			return;
 		}
 
@@ -587,7 +587,7 @@ class Jetpack_Custom_CSS {
 		$option = ( Jetpack_Custom_CSS::is_preview() || Jetpack_Custom_CSS::is_freetrial() ) ? 'safecss_preview' : 'safecss';
 		$css = '';
 
-		if ( 'safecss' == $option ) {
+		if ( 'safecss' === $option ) {
 			// Don't bother checking for a migrated 'safecss' option if it never existed.
 			if ( false === get_option( 'safecss' ) || get_option( 'safecss_revision_migrated' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
@@ -611,7 +611,7 @@ class Jetpack_Custom_CSS {
 				}
 			}
 		}
-		else if ( 'safecss_preview' == $option ) {
+		else if ( 'safecss_preview' === $option ) {
 			$safecss_post = Jetpack_Custom_CSS::get_current_revision();
 			$css = $safecss_post['post_content'];
 			$css = Jetpack_Custom_CSS::minify( $css, get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true ) );
@@ -712,7 +712,7 @@ class Jetpack_Custom_CSS {
 		$css    = '';
 		$option = Jetpack_Custom_CSS::is_preview() ? 'safecss_preview' : 'safecss';
 
-		if ( 'safecss' == $option ) {
+		if ( 'safecss' === $option ) {
 			if ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_revision_migrated', '0' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
 
@@ -736,7 +736,7 @@ class Jetpack_Custom_CSS {
 			}
 		}
 
-		if ( 'safecss_preview' == $option ) {
+		if ( 'safecss_preview' === $option ) {
 			$safecss_post = Jetpack_Custom_CSS::get_current_revision();
 
 			if ( !empty( $safecss_post['post_content'] ) ) {
@@ -920,7 +920,7 @@ class Jetpack_Custom_CSS {
 			return $title;
 		}
 
-		if ( 'safecss' != $post->post_type ) {
+		if ( 'safecss' !== $post->post_type ) {
 			return $title;
 		}
 
@@ -928,7 +928,7 @@ class Jetpack_Custom_CSS {
 	}
 
 	static function enqueue_scripts( $hook ) {
-		if ( 'appearance_page_editcss' != $hook )
+		if ( 'appearance_page_editcss' !== $hook )
 			return;
 
 		wp_enqueue_script( 'postbox' );
@@ -1388,7 +1388,7 @@ class Jetpack_Custom_CSS {
 	static function restore_revision( $_post_id, $_revision_id ) {
 		$_post = get_post( $_post_id );
 
-		if ( 'safecss' != $_post->post_type )
+		if ( 'safecss' !== $_post->post_type )
 			return;
 
 		$safecss_revision = Jetpack_Custom_CSS::get_current_revision();
@@ -1511,10 +1511,10 @@ class Jetpack_Custom_CSS {
 	static function revision_redirect( $location ) {
 		$post = get_post();
 
-		if ( ! empty( $post->post_type ) && 'safecss' == $post->post_type ) {
+		if ( ! empty( $post->post_type ) && 'safecss' === $post->post_type ) {
 			$location = 'themes.php?page=editcss';
 
-			if ( 'edit.php' == $location ) {
+			if ( 'edit.php' === $location ) {
 				$location = '';
 			}
 		}
@@ -1531,13 +1531,13 @@ class Jetpack_Custom_CSS {
 			return $post_link;
 		}
 
-		if ( 'safecss' != $post->post_type ) {
+		if ( 'safecss' !== $post->post_type ) {
 			return $post_link;
 		}
 
 		$post_link = admin_url( 'themes.php?page=editcss' );
 
-		if ( 'display' == $context ) {
+		if ( 'display' === $context ) {
 			return esc_url( $post_link );
 		}
 
@@ -1551,7 +1551,7 @@ class Jetpack_Custom_CSS {
 	static function editor_max_image_size( $dims, $size = 'medium', $context = null ) {
 		list( $width, $height ) = $dims;
 
-		if ( 'large' == $size && 'edit' == $context )
+		if ( 'large' === $size && 'edit' === $context )
 			$width = Jetpack::get_content_width();
 
 		return array( $width, $height );

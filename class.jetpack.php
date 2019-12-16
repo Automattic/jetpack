@@ -1298,7 +1298,7 @@ class Jetpack {
 	 * @param array  $old_roles An array of the user's previous roles.
 	 */
 	function maybe_clear_other_linked_admins_transient( $user_id, $role, $old_roles = null ) {
-		if ( 'administrator' == $role
+		if ( 'administrator' === $role
 			|| ( is_array( $old_roles ) && in_array( 'administrator', $old_roles ) )
 			|| is_null( $old_roles )
 		) {
@@ -2501,7 +2501,7 @@ class Jetpack {
 		$mod['recommendation_order'] = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
 		$mod['deactivate']           = empty( $mod['deactivate'] );
 		$mod['free']                 = empty( $mod['free'] );
-		$mod['requires_connection']  = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		$mod['requires_connection']  = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
 			$mod['auto_activate'] = 'No';
@@ -4162,7 +4162,7 @@ p {
 					self::log( 'unlink' );
 					Connection_Manager::disconnect_user();
 					self::state( 'message', 'unlinked' );
-					if ( 'sub-unlink' == $redirect ) {
+					if ( 'sub-unlink' === $redirect ) {
 						wp_safe_redirect( admin_url() );
 					} else {
 						wp_safe_redirect( self::admin_url( array( 'page' => $redirect ) ) );
@@ -6649,7 +6649,7 @@ endif;
 		foreach ( $raw_data as $stat => $value ) {
 
 			// Check jetpack version
-			if ( 'version' == $stat ) {
+			if ( 'version' === $stat ) {
 				if ( version_compare( $value, JETPACK__VERSION, '<' ) ) {
 					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__VERSION;
 					continue;
@@ -6657,7 +6657,7 @@ endif;
 			}
 
 			// Check WP version
-			if ( 'wp-version' == $stat ) {
+			if ( 'wp-version' === $stat ) {
 				if ( version_compare( $value, JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__MINIMUM_WP_VERSION;
 					continue;
@@ -6665,7 +6665,7 @@ endif;
 			}
 
 			// Check PHP version
-			if ( 'php-version' == $stat ) {
+			if ( 'php-version' === $stat ) {
 				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_PHP_VERSION;
 					continue;
@@ -6673,8 +6673,8 @@ endif;
 			}
 
 			// Check ID crisis
-			if ( 'identitycrisis' == $stat ) {
-				if ( 'yes' == $value ) {
+			if ( 'identitycrisis' === $stat ) {
+				if ( 'yes' === $value ) {
 					$bad[ $stat ] = $value;
 					continue;
 				}
@@ -6895,7 +6895,7 @@ endif;
 	 * Show Jetpack icon if the user is linked.
 	 */
 	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
-		if ( 'user_jetpack' == $col && self::is_user_connected( $user_id ) ) {
+		if ( 'user_jetpack' === $col && self::is_user_connected( $user_id ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$emblem_html  = sprintf(
 				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',
@@ -6913,7 +6913,7 @@ endif;
 	 */
 	function jetpack_user_col_style() {
 		global $current_screen;
-		if ( ! empty( $current_screen->base ) && 'users' == $current_screen->base ) {
+		if ( ! empty( $current_screen->base ) && 'users' === $current_screen->base ) {
 			?>
 			<style>
 				.fixed .column-user_jetpack {

@@ -2754,7 +2754,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Is a list of modules
 			$modules['sitemaps']['extra']['sitemap_url'] = $sitemap_url;
 			$modules['sitemaps']['extra']['news_sitemap_url'] = $news_sitemap_url;
-		} elseif ( 'sitemaps' == $slug ) {
+		} elseif ( 'sitemaps' === $slug ) {
 			// It's a single module
 			$modules['extra']['sitemap_url'] = $sitemap_url;
 			$modules['extra']['news_sitemap_url'] = $news_sitemap_url;

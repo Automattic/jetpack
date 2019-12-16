@@ -320,19 +320,19 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
-			if ( 'facebook' == $service_name && 0 === strpos( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
+			if ( 'facebook' === $service_name && 0 === strpos( wp_parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
 				// App-scoped Facebook user IDs are not usable profile links
 				return false;
 			}
 
 			return $cmeta['connection_data']['meta']['link'];
-		} elseif ( 'facebook' == $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
+		} elseif ( 'facebook' === $service_name && isset( $cmeta['connection_data']['meta']['facebook_page'] ) ) {
 			return 'https://facebook.com/' . $cmeta['connection_data']['meta']['facebook_page'];
-		} elseif ( 'tumblr' == $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
+		} elseif ( 'tumblr' === $service_name && isset( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) ) {
 			 return 'https://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
-		} elseif ( 'twitter' == $service_name ) {
+		} elseif ( 'twitter' === $service_name ) {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
-		} else if ( 'linkedin' == $service_name ) {
+		} else if ( 'linkedin' === $service_name ) {
 			if ( !isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;
 			}
@@ -388,11 +388,11 @@ abstract class Publicize_Base {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		// always show if no selection has been made for facebook
-		if ( 'facebook' == $service_name && empty( $cmeta['connection_data']['meta']['facebook_profile'] ) && empty( $cmeta['connection_data']['meta']['facebook_page'] ) )
+		if ( 'facebook' === $service_name && empty( $cmeta['connection_data']['meta']['facebook_profile'] ) && empty( $cmeta['connection_data']['meta']['facebook_page'] ) )
 			return true;
 
 		// always show if no selection has been made for tumblr
-		if ( 'tumblr' == $service_name && empty ( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) )
+		if ( 'tumblr' === $service_name && empty ( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) )
 			return true;
 
 		// if we have the specific connection info..
@@ -401,7 +401,7 @@ abstract class Publicize_Base {
 				return true;
 		} else {
 			// otherwise, just show if this is the completed step / first load
-			if ( !empty( $_GET['action'] ) && 'completed' == $_GET['action'] && !empty( $_GET['service'] ) && $service_name == $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) )
+			if ( !empty( $_GET['action'] ) && 'completed' === $_GET['action'] && !empty( $_GET['service'] ) && $service_name == $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) )
 				return true;
 		}
 
@@ -1064,7 +1064,7 @@ abstract class Publicize_Base {
 		if ( $viewable ) {
 			$view_text = esc_html__( 'View post' ); // intentionally omitted domain
 
-			if ( 'jetpack-portfolio' == $post_type ) {
+			if ( 'jetpack-portfolio' === $post_type ) {
 				$view_text = esc_html__( 'View project', 'jetpack' );
 			}
 
@@ -1180,7 +1180,7 @@ abstract class Publicize_Base {
 	 * @return bool True if the post type can be Publicized.
 	 */
 	function post_type_is_publicizeable( $post_type ) {
-		if ( 'post' == $post_type )
+		if ( 'post' === $post_type )
 			return true;
 
 		return post_type_supports( $post_type, 'publicize' );

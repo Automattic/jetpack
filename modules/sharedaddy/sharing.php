@@ -416,7 +416,7 @@ class Sharing_Admin {
 								<?php
 								$br = false;
 								foreach ( $shows as $show ) :
-									if ( 'index' == $show ) {
+									if ( 'index' === $show ) {
 										$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
 									} else {
 										$post_type_object = get_post_type_object( $show );
@@ -542,7 +542,7 @@ class Sharing_Admin {
 
 	<script type="text/javascript">
 		var sharing_loading_icon = '<?php echo esc_js( admin_url( '/images/loading.gif' ) ); ?>';
-		<?php if ( isset( $_GET['create_new_service'] ) && 'true' == $_GET['create_new_service'] ) : ?>
+		<?php if ( isset( $_GET['create_new_service'] ) && 'true' === $_GET['create_new_service'] ) : ?>
 		jQuery(document).ready(function() {
 			// Prefill new service box and then open it
 			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( $_GET['name'] ); ?>' );

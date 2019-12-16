@@ -550,7 +550,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				}
 				<?php
 				$rtl_class = '';
-				if ( 'rtl' == $text_direction ) {
+				if ( 'rtl' === $text_direction ) {
 					$rtl_class = 'class="is-rtl"';
 					echo 'body { font-family: Tahoma, Arial; }';
 				}
@@ -592,7 +592,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			</div>
 			<div id="error-footer">
 			<?php if ( $back_button && ! $recovery_form ) {
-				if (  'rtl' == $text_direction ) {
+				if (  'rtl' === $text_direction ) {
 					$back_button_icon = '<svg class="gridicon gridicons-arrow-right" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/></g></svg>';
 				} else {
 					$back_button_icon = '<svg class="gridicon gridicons-arrow-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>';

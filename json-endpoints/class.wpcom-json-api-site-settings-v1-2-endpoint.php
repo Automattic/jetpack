@@ -131,7 +131,7 @@ class WPCOM_JSON_API_Site_Settings_V1_2_Endpoint extends WPCOM_JSON_API_Site_Set
 
 
 	protected function get_locale( $key ) {
-		if ( 'locale' == $key ) {
+		if ( 'locale' === $key ) {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				return (string) get_blog_lang_code();
 			} else {

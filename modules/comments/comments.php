@@ -563,7 +563,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
-		if ( ! isset( $_GET['for'] ) || 'jetpack' != $_GET['for'] ) {
+		if ( ! isset( $_GET['for'] ) || 'jetpack' !== $_GET['for'] ) {
 			return $url;
 		}
 		?>

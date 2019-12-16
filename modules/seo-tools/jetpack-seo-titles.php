@@ -103,7 +103,7 @@ class Jetpack_SEO_Titles {
 		$format_array = $title_formats[ $page_type ];
 
 		foreach ( $format_array as $item ) {
-			if ( 'token' == $item['type'] ) {
+			if ( 'token' === $item['type'] ) {
 				$custom_title .= self::get_token_value( $item['value'] );
 			} else {
 				$custom_title .= $item['value'];
@@ -259,7 +259,7 @@ class Jetpack_SEO_Titles {
 					return false;
 				}
 
-				if ( 'token' == $item['type'] ) {
+				if ( 'token' === $item['type'] ) {
 					if ( ! in_array( $item['value'], $allowed_tokens[ $format_type ] ) ) {
 						return false;
 					}

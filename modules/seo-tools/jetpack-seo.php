@@ -134,7 +134,7 @@ class Jetpack_SEO {
 
 			$description = get_term_field( 'description', $obj->term_id, $obj->taxonomy, 'raw' );
 
-			if ( ! is_wp_error( $description ) && '' != $description ) {
+			if ( ! is_wp_error( $description ) && '' !== $description ) {
 				$meta['description'] = wp_trim_words( $description );
 			} else {
 				$authors = $this->get_authors();

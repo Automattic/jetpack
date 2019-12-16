@@ -22,7 +22,7 @@ function enhanced_og_image( $tags ) {
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'image' != $summary['type'] )
+	if ( 'image' !== $summary['type'] )
 		return $tags;
 
 	$tags['og:image'] = $summary['image'];
@@ -47,7 +47,7 @@ function enhanced_og_gallery( $tags ) {
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'gallery' != $summary['type'] )
+	if ( 'gallery' !== $summary['type'] )
 		return $tags;
 
 	if( !isset( $summary['images'] ) || !is_array( $summary['images'] ) || empty( $summary['images'] ) )
@@ -81,7 +81,7 @@ function enhanced_og_video( $tags ) {
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'video' != $summary['type'] ) {
+	if ( 'video' !== $summary['type'] ) {
 		if ( $summary['count']['video'] > 0 && $summary['count']['image'] < 1 ) {
 			$tags['og:image']            = $summary['image'];
 			$tags['og:image:secure_url'] = $summary['secure']['image'];

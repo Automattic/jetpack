@@ -104,7 +104,7 @@ class Jetpack_RelatedPosts {
 		register_setting( 'reading', 'jetpack_relatedposts', array( $this, 'parse_options' ) );
 		add_action('admin_head', array( $this, 'print_setting_head' ) );
 
-		if( 'options-reading.php' == $GLOBALS['pagenow'] ) {
+		if( 'options-reading.php' === $GLOBALS['pagenow'] ) {
 			// Enqueue style for live preview on the reading settings page
 			$this->_enqueue_assets( false, true );
 		}
@@ -542,12 +542,12 @@ EOT;
 			$input['enabled'] = '1';
 		}
 
-		if ( '1' == $input['enabled'] ) {
+		if ( '1' === $input['enabled'] ) {
 			$current['enabled'] = true;
-			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] );
-			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
-			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
-			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
+			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' === $input['show_headline'] );
+			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' === $input['show_thumbnails'] );
+			$current['show_date'] = ( isset( $input['show_date'] ) && '1' === $input['show_date'] );
+			$current['show_context'] = ( isset( $input['show_context'] ) && '1' === $input['show_context'] );
 			$current['layout'] = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
 			$current['headline'] = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
@@ -653,7 +653,7 @@ EOT;
 			return;
 		}
 
-		if( 'options-reading' != $current_screen->id )
+		if( 'options-reading' !== $current_screen->id )
 			return;
 
 		$related_headline = sprintf(
@@ -731,8 +731,8 @@ EOT;
 	jQuery( document ).ready( function($) {
 		var update_ui = function() {
 			var is_enabled = true;
-			if ( 'radio' == $( 'input[name="jetpack_relatedposts[enabled]"]' ).attr('type') ) {
-				if ( '0' == $( 'input[name="jetpack_relatedposts[enabled]"]:checked' ).val() ) {
+			if ( 'radio' === $( 'input[name="jetpack_relatedposts[enabled]"]' ).attr('type') ) {
+				if ( '0' === $( 'input[name="jetpack_relatedposts[enabled]"]:checked' ).val() ) {
 					is_enabled = false;
 				}
 			}
@@ -930,7 +930,7 @@ EOT;
 			}
 			if ( ! empty( $sanitized_post_types ) )
 				$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
-		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
+		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' !== $args['post_type'] ) {
 			$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
 		}
 
@@ -1560,7 +1560,7 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
+				if ( 'uncategorized' !== $category->slug && '' != trim( $category->name ) ) {
 					$post_cat_context = sprintf(
 						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name

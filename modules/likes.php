@@ -224,7 +224,7 @@ class Jetpack_Likes {
 			$option_setting = get_option( $option, 'on' );
 		}
 
-		return intval( 'on' == $option_setting );
+		return intval( 'on' === $option_setting );
 	}
 
 	function admin_discussion_likes_settings_field() {
@@ -236,7 +236,7 @@ class Jetpack_Likes {
 
 	function admin_discussion_likes_settings_validate( $input ) {
 		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
-		if ( !$input || 'off' == $input )
+		if ( !$input || 'off' === $input )
 			return 'off';
 
 		// Otherwise, return 'on'.
@@ -367,7 +367,7 @@ class Jetpack_Likes {
 	* Load the JS required for loading the like counts.
 	*/
 	function enqueue_admin_scripts() {
-		if ( empty( $_GET['post_type'] ) || 'post' == $_GET['post_type'] || 'page' == $_GET['post_type'] ) {
+		if ( empty( $_GET['post_type'] ) || 'post' === $_GET['post_type'] || 'page' === $_GET['post_type'] ) {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
@@ -402,7 +402,7 @@ class Jetpack_Likes {
 	* @param int $post_id
 	*/
 	function likes_edit_column( $column_name, $post_id ) {
-		if ( 'likes' == $column_name ) {
+		if ( 'likes' === $column_name ) {
 
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$blog_id = get_current_blog_id();

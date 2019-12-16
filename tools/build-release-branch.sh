@@ -122,7 +122,7 @@ function create_new_release_branches {
 		echo ""
 		# Verify you want a built version
 		read -n1 -p "Would you like to create a built version of $NEW_UNBUILT_BRANCH as new $NEW_BUILT_BRANCH? [y/N]" reply
-		if [[ 'y' == $reply || 'Y' == $reply ]]; then
+		if [[ 'y' === $reply || 'Y' === $reply ]]; then
 			# make sure we're still checked out on the right branch
 			git checkout $NEW_UNBUILT_BRANCH
 
@@ -170,7 +170,7 @@ if [[ -n $( git status -s --porcelain ) ]]; then
 fi
 
 # Check the command
-if [[ 'new' == $COMMAND || '-n' == $COMMAND ]]; then
+if [[ 'new' === $COMMAND || '-n' === $COMMAND ]]; then
 	create_new_release_branches
 elif [[ 'update' = $COMMAND || '-u' = $COMMAND ]]; then
 	# It's possible they passed the branch name directly to the script
@@ -183,7 +183,7 @@ elif [[ 'update' = $COMMAND || '-u' = $COMMAND ]]; then
 
 	# Ask if they want to update the file versions.
 	read -p "Do you want to update the version in files? [y/N]" reply
-	if [[ 'y' == $reply || 'Y' == $reply ]]; then
+	if [[ 'y' === $reply || 'Y' === $reply ]]; then
 		./tools/version-update.sh
 	fi
 else

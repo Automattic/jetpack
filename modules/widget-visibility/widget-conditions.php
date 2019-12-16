@@ -453,7 +453,7 @@ class Jetpack_Widget_Conditions {
 				continue;
 			}
 
-			if ( 'wp_inactive_widgets' == $widget_area ) {
+			if ( 'wp_inactive_widgets' === $widget_area ) {
 				continue;
 			}
 
@@ -550,7 +550,7 @@ class Jetpack_Widget_Conditions {
 						break;
 					case 'page':
 						// Previously hardcoded post type options.
-						if ( 'post' == $rule['minor'] ) {
+						if ( 'post' === $rule['minor'] ) {
 							$rule['minor'] = 'post_type-post';
 						} elseif ( ! $rule['minor'] ) {
 							$rule['minor'] = 'post_type-page';
@@ -749,10 +749,10 @@ class Jetpack_Widget_Conditions {
 
 		if (
 			(
-				'show' == $instance['conditions']['action']
+				'show' === $instance['conditions']['action']
 				&& ! $condition_result
 			) || (
-				'hide' == $instance['conditions']['action']
+				'hide' === $instance['conditions']['action']
 				&& $condition_result
 			)
 		) {
@@ -769,7 +769,7 @@ class Jetpack_Widget_Conditions {
 	public static function maybe_get_split_term( $old_term_id = '', $taxonomy = '' ) {
 		$term_id = $old_term_id;
 
-		if ( 'tag' == $taxonomy ) {
+		if ( 'tag' === $taxonomy ) {
 			$taxonomy = 'post_tag';
 		}
 

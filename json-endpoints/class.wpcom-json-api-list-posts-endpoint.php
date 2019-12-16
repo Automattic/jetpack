@@ -87,7 +87,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		// Normalize post_type
-		if ( isset( $args['type'] ) && 'any' == $args['type'] ) {
+		if ( isset( $args['type'] ) && 'any' === $args['type'] ) {
 			if ( version_compare( $this->api->version, '1.1', '<' ) ) {
 				$args['type'] = array( 'post', 'page' );
 			} else { // 1.1+

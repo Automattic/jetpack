@@ -14,7 +14,7 @@
  * @return null
  */
 function jetpack_load_infinite_scroll_annotation() {
-	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
+	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
 			$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) ) {

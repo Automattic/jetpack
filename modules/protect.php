@@ -489,11 +489,11 @@ class Jetpack_Protect_Module {
 			$status = $response['status'];
 		}
 
-		if ( 'blocked' == $status ) {
+		if ( 'blocked' === $status ) {
 			$this->block_with_math();
 		}
 
-		if ( 'blocked-hard' == $status ) {
+		if ( 'blocked-hard' === $status ) {
 			$this->kill_login();
 		}
 
@@ -903,6 +903,6 @@ class Jetpack_Protect_Module {
 $jetpack_protect = Jetpack_Protect_Module::instance();
 
 global $pagenow;
-if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
+if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
 	$jetpack_protect->check_login_ability();
 }

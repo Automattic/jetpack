@@ -9,7 +9,7 @@ function minileven_get_header_image() {
 	$theme_slug = minileven_actual_current_theme();
 	$mods = get_option( "theme_mods_{$theme_slug}" );
 
-	if ( isset( $mods['header_image'] ) && 'remove-header' != $mods['header_image'] && 'random-default-image' != $mods['header_image'] && 'random-uploaded-image' != $mods['header_image'] )
+	if ( isset( $mods['header_image'] ) && 'remove-header' !== $mods['header_image'] && 'random-default-image' !== $mods['header_image'] && 'random-uploaded-image' !== $mods['header_image'] )
 		return $mods['header_image'];
 
 	return false;
@@ -31,10 +31,10 @@ function minileven_header() {
 	$header_image = minileven_get_header_image();
 	$header_text = minileven_header_text_display();
 
-	if ( 'blank' != $header_text || false != $header_image ) : ?>
+	if ( 'blank' !== $header_text || false != $header_image ) : ?>
 
 		<header id="branding" role="banner">
-			<?php if ( 'blank' != $header_text ) : ?>
+			<?php if ( 'blank' !== $header_text ) : ?>
 					<div class="site-branding">
 						<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></span></h1>
 						<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
@@ -94,7 +94,7 @@ function minileven_show_background_and_header_color() {
 		#site-generator {
 			border: 0;
 		}
-	<?php if ( 'blank' != $header_text && '1' != get_option( 'wp_mobile_header_color' ) ) : ?>
+	<?php if ( 'blank' !== $header_text && '1' != get_option( 'wp_mobile_header_color' ) ) : ?>
 		/* If The user has set a header text color, use that */
 		#site-title,
 		#site-title a {

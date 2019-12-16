@@ -111,11 +111,11 @@ function minileven_fonts() {
 		this to 'greek', 'cyrillic' or 'vietnamese'. Do not translate into your own language. */
 		$opensans_subset = _x( 'no-subset', 'Open Sans font: add new subset (greek, cyrillic, vietnamese)', 'jetpack' );
 
-		if ( 'cyrillic' == $opensans_subset )
+		if ( 'cyrillic' === $opensans_subset )
 			$opensans_subsets .= ',cyrillic,cyrillic-ext';
-		elseif ( 'greek' == $opensans_subset )
+		elseif ( 'greek' === $opensans_subset )
 			$opensans_subsets .= ',greek,greek-ext';
-		elseif ( 'vietnamese' == $opensans_subset )
+		elseif ( 'vietnamese' === $opensans_subset )
 			$opensans_subsets .= ',vietnamese';
 
 		$opensans_query_args = array(

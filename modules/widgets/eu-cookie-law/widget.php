@@ -8,7 +8,7 @@
 		<input type="submit" value="<?php echo esc_attr( $instance['button'] ); ?>" class="accept" />
 	</form>
 
-	<?php if ( 'default' == $instance['text'] || empty( $instance['customtext'] ) ) {
+	<?php if ( 'default' === $instance['text'] || empty( $instance['customtext'] ) ) {
 		echo nl2br( $instance['default-text'] );
 	} else {
 		echo nl2br( esc_html( $instance['customtext'] ) );

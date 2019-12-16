@@ -52,10 +52,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	protected function _get_image( $size = 'large', $meta = true ) {
-		if ( 'large' == $size ) { // 1600x1200
+		if ( 'large' === $size ) { // 1600x1200
 			$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-large.png';
 		}
-		elseif ( 'medium' == $size ) { // 1024x768
+		elseif ( 'medium' === $size ) { // 1024x768
 			$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-medium.png';
 		}
 		// Add sizes that exist before uploading the file.

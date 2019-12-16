@@ -681,17 +681,17 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'post_by_email_address':
-					if ( 'create' == $value ) {
+					if ( 'create' === $value ) {
 						$result = $this->_process_post_by_email(
 							'jetpack.createPostByEmailAddress',
 							esc_html__( 'Unable to create the Post by Email address. Please try again later.', 'jetpack' )
 						);
-					} elseif ( 'regenerate' == $value ) {
+					} elseif ( 'regenerate' === $value ) {
 						$result = $this->_process_post_by_email(
 							'jetpack.regeneratePostByEmailAddress',
 							esc_html__( 'Unable to regenerate the Post by Email address. Please try again later.', 'jetpack' )
 						);
-					} elseif ( 'delete' == $value ) {
+					} elseif ( 'delete' === $value ) {
 						$result = $this->_process_post_by_email(
 							'jetpack.deletePostByEmailAddress',
 							esc_html__( 'Unable to delete the Post by Email address. Please try again later.', 'jetpack' )
@@ -713,7 +713,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_protect_key':
 					$protect = Jetpack_Protect_Module::instance();
-					if ( 'create' == $value ) {
+					if ( 'create' === $value ) {
 						$result = $protect->get_protect_key();
 					} else {
 						$result = false;

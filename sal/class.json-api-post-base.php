@@ -650,7 +650,7 @@ abstract class SAL_Post {
 
 				$response['videopress_guid'] = $info->guid;
 				$response['videopress_processing_done'] = true;
-				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
+				if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
 					$response['videopress_processing_done'] = false;
 				}
 			}

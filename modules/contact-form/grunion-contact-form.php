@@ -221,7 +221,7 @@ class Grunion_Contact_Form_Plugin {
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] )
 			&&
-			isset( $_POST['action'] ) && 'grunion-contact-form' == $_POST['action']
+			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 			&&
 			isset( $_POST['contact-form-id'] )
 		) {
@@ -388,13 +388,13 @@ class Grunion_Contact_Form_Plugin {
 	 * @param object $screen Information about the current screen.
 	 */
 	function unread_count( $screen ) {
-		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
+		if ( isset( $screen->post_type ) && 'feedback' === $screen->post_type ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
 			global $menu;
 			if ( isset( $menu ) && is_array( $menu ) && ! empty( $menu ) ) {
 				foreach ( $menu as $index => $menu_item ) {
-					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
+					if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
 						$unread = get_option( 'feedback_unread_count', 0 );
 						if ( $unread > 0 ) {
 							$unread_count       = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
@@ -1721,7 +1721,7 @@ class Crunion_Contact_Form_Shortcode {
 				continue;
 			}
 
-			if ( 'id' == $key ) {
+			if ( 'id' === $key ) {
 				continue;
 			}
 
@@ -2506,7 +2506,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
 				)
 			);
-			if ( 'http://' == $comment_author_url ) {
+			if ( 'http://' === $comment_author_url ) {
 				$comment_author_url = '';
 			}
 			$comment_author_url_label = Grunion_Contact_Form_Plugin::strip_tags( $field->get_attribute( 'label' ) );
@@ -2707,7 +2707,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
-		if ( 'publish' == $feedback_status ) {
+		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
 			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
 			update_option( 'feedback_unread_count', $unread );
@@ -3048,12 +3048,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		);
 
 		// special default for subject field
-		if ( 'subject' == $attributes['type'] && is_null( $attributes['default'] ) && ! is_null( $form ) ) {
+		if ( 'subject' === $attributes['type'] && is_null( $attributes['default'] ) && ! is_null( $form ) ) {
 			$attributes['default'] = $form->get_attribute( 'subject' );
 		}
 
 		// allow required=1 or required=true
-		if ( '1' == $attributes['required'] || 'true' == strtolower( $attributes['required'] ) ) {
+		if ( '1' === $attributes['required'] || 'true' == strtolower( $attributes['required'] ) ) {
 			$attributes['required'] = true;
 		} else {
 			$attributes['required'] = false;

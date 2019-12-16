@@ -47,7 +47,7 @@ class VideoPress_Edit_Attachment {
 			$post = (object) array( 'ID' => 0 );
 		}
 
-		if ( 'attachment' != $post_type ) {
+		if ( 'attachment' !== $post_type ) {
 			return;
 		}
 

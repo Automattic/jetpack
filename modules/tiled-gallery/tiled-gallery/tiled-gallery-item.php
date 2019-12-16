@@ -42,7 +42,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		$img_meta = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' == $k || 'longitude' == $k ) {
+				if ( 'latitude' === $k || 'longitude' === $k ) {
 					unset( $img_meta[ $k ] );
 				}
 			}

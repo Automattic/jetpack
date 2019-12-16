@@ -21,7 +21,7 @@ function jetpack_likes_master_iframe() {
 		$_locale = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 	}
 
-	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
+	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
 	$src = sprintf(
 		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',

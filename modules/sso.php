@@ -348,7 +348,7 @@ class Jetpack_SSO {
 		}
 
 		 if ( 'jetpack-sso' === $action ) {
-			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
+			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {

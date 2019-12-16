@@ -46,7 +46,7 @@ function minileven_comment( $comment, $args, $depth ) {
 				<div class="comment-author vcard">
 					<?php
 						$avatar_size = 32;
-						if ( '0' != $comment->comment_parent )
+						if ( '0' !== $comment->comment_parent )
 							$avatar_size = 24;
 
 						echo get_avatar( $comment, $avatar_size );

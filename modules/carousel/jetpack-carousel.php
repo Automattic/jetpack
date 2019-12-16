@@ -485,7 +485,7 @@ class Jetpack_Carousel {
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' == $k || 'longitude' == $k ) {
+				if ( 'latitude' === $k || 'longitude' === $k ) {
 					unset( $img_meta[ $k ] );
 				}
 			}
@@ -819,7 +819,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_background_color_sanitize( $value ) {
-		return ( 'white' == $value ) ? 'white' : 'black';
+		return ( 'white' === $value ) ? 'white' : 'black';
 	}
 
 	function carousel_enable_it_callback() {

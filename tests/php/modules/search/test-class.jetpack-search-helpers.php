@@ -1179,7 +1179,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 		$override = array();
 		foreach ( $widgets as $key => $sidebar ) {
-			if ( 'wp_inactive_widgets' == $key ) {
+			if ( 'wp_inactive_widgets' === $key ) {
 				continue;
 			}
 

@@ -311,7 +311,7 @@ class Jetpack_SSO_Helpers {
 			return false;
 		}
 
-		if ( 'jetpack_json_api_authorization' != $args['action'] ) {
+		if ( 'jetpack_json_api_authorization' !== $args['action'] ) {
 			return false;
 		}
 

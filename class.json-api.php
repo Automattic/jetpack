@@ -160,7 +160,7 @@ class WPCOM_JSON_API {
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
 		$initialization = $this->initialize();
-		if ( 'OPTIONS' == $this->method ) {
+		if ( 'OPTIONS' === $this->method ) {
 			/**
 			 * Fires before the page output.
 			 * Can be used to specify custom header options.
@@ -193,7 +193,7 @@ class WPCOM_JSON_API {
 		if ( $is_help ) {
 			$origin = get_http_origin();
 
-			if ( ! empty( $origin ) && 'GET' == $this->method ) {
+			if ( ! empty( $origin ) && 'GET' === $this->method ) {
 				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
 			}
 

@@ -72,7 +72,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		// with other tiled galleries, regardless of whether or not the widget was set to Carousel mode. The onClick selector
 		// is simply too broad, since it was not written with widgets in mind. This special class prevents that behavior, via
 		// an override handler in gallery.js
-		if ( 'carousel' != $instance['link'] && 'slideshow' != $instance['type'] ) {
+		if ( 'carousel' !== $instance['link'] && 'slideshow' !== $instance['type'] ) {
 			$classes[] = 'no-carousel';
 		} else {
 			$classes[] = 'carousel';
@@ -80,7 +80,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$classes = implode( ' ', $classes );
 
-		if ( 'carousel' == $instance['link'] ) {
+		if ( 'carousel' === $instance['link'] ) {
 			require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../carousel/jetpack-carousel.php' ) ) . 'jetpack-carousel.php';
 
 			if ( class_exists( 'Jetpack_Carousel' ) ) {
@@ -150,7 +150,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function get_attachments( $instance ) {
 		$ids = explode( ',', $instance['ids'] );
 
-		if ( isset( $instance['random'] ) && 'on' == $instance['random'] ) {
+		if ( isset( $instance['random'] ) && 'on' === $instance['random'] ) {
 			shuffle( $ids );
 		}
 
@@ -414,7 +414,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function enqueue_admin_scripts() {
 		global $pagenow;
 
-		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
+		if ( 'widgets.php' === $pagenow || 'customize.php' === $pagenow ) {
 			wp_enqueue_media();
 
 			wp_enqueue_script(

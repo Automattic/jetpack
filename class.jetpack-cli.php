@@ -78,7 +78,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		 *
 		 * Loop through heartbeat data and organize by priority.
 		 */
-		$all_data = ( isset( $args[0] ) && 'full' == $args[0] ) ? 'full' : false;
+		$all_data = ( isset( $args[0] ) && 'full' === $args[0] ) ? 'full' : false;
 		if ( $all_data ) {
 			// Heartbeat data
 			WP_CLI::line( "\n" . __( 'Additional data: ', 'jetpack' ) );
@@ -631,7 +631,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				 * List the whitelist
 				 * Done here because it's easier to read the $whitelist array after it's been rebuilt
 				 */
-				if ( isset( $args[1] ) && 'list' == $args[1] ) {
+				if ( isset( $args[1] ) && 'list' === $args[1] ) {
 					if ( ! empty( $whitelist ) ) {
 						WP_CLI::success( __( 'Here are your whitelisted IPs:', 'jetpack' ) );
 						foreach ( $whitelist as $ip ) {
@@ -646,7 +646,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				/*
 				 * Clear the whitelist
 				 */
-				if ( isset( $args[1] ) && 'clear' == $args[1] ) {
+				if ( isset( $args[1] ) && 'clear' === $args[1] ) {
 					if ( ! empty( $whitelist ) ) {
 						$whitelist = array();
 						jetpack_protect_save_whitelist( $whitelist );
@@ -714,11 +714,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		if ( isset( $args[0] ) ) {
-			if ( 'get' == $args[0] && isset( $args[1] ) ) {
+			if ( 'get' === $args[0] && isset( $args[1] ) ) {
 				$action = 'get';
-			} elseif ( 'delete' == $args[0] && isset( $args[1] ) ) {
+			} elseif ( 'delete' === $args[0] && isset( $args[1] ) ) {
 				$action = 'delete';
-			} elseif ( 'update' == $args[0] && isset( $args[1] ) ) {
+			} elseif ( 'update' === $args[0] && isset( $args[1] ) ) {
 				$action = 'update';
 			} else {
 				$action = 'list';
@@ -983,7 +983,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				do {
 					$result = Actions::$sender->do_full_sync();
 					if ( is_wp_error( $result ) ) {
-						$queue_empty_error = ( 'empty_queue_full_sync' == $result->get_error_code() );
+						$queue_empty_error = ( 'empty_queue_full_sync' === $result->get_error_code() );
 						if ( ! $queue_empty_error || ( $queue_empty_error && ( 1 == $i ) ) ) {
 							/* translators: %s is an error code  */
 							WP_CLI::error( sprintf( __( 'Sync errored with code: %s', 'jetpack' ), $result->get_error_code() ) );

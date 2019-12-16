@@ -419,7 +419,7 @@ class Jetpack_Search_Helpers {
 						break;
 					}
 
-					if ( 'filters' == $k ) {
+					if ( 'filters' === $k ) {
 						if ( count( $new_instance['filters'] ) != count( $old_instance['filters'] ) ) {
 							$widget = $new_instance;
 							break;
@@ -460,7 +460,7 @@ class Jetpack_Search_Helpers {
 		$sanitized = array();
 
 		foreach ( (array) $widget as $key => $value ) {
-			if ( '_multiwidget' == $key ) {
+			if ( '_multiwidget' === $key ) {
 				continue;
 			}
 
@@ -525,7 +525,7 @@ class Jetpack_Search_Helpers {
 		$active_post_types = array();
 
 		foreach ( $filters as $item ) {
-			if ( ( 'post_type' == $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
+			if ( ( 'post_type' === $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
 				$active_post_types[] = $item['query_vars']['post_type'];
 			}
 		}

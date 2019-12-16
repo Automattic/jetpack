@@ -205,7 +205,7 @@ function sharing_meta_box_save( $post_id ) {
 }
 
 function sharing_meta_box_protected( $protected, $meta_key ) {
-	if ( 'sharing_disabled' == $meta_key )
+	if ( 'sharing_disabled' === $meta_key )
 		$protected = true;
 
 	return $protected;

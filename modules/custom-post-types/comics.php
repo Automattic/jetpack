@@ -84,7 +84,7 @@ class Jetpack_Comic {
 		?>
 		<script type="text/javascript">
 			jQuery( document ).ready( function( $ ) {
-				<?php if ( ! $post_type || 'post' == $post_type ) { ?>
+				<?php if ( ! $post_type || 'post' === $post_type ) { ?>
 					$( '<option>' )
 						.val( 'post2comic' )
 						.text( <?php echo json_encode( __( 'Convert to Comic', 'jetpack' ) ); ?> )
@@ -115,7 +115,7 @@ class Jetpack_Comic {
 
 		check_admin_referer( 'bulk-posts' );
 
-		if ( 'post2comic' == $action || 'comic2post' == $action ) {
+		if ( 'post2comic' === $action || 'comic2post' === $action ) {
 			if ( ! current_user_can( 'publish_posts' ) )
 				wp_die( __( 'You are not allowed to make this change.', 'jetpack' ) );
 
@@ -162,7 +162,7 @@ class Jetpack_Comic {
 	public function bulk_edit_notices() {
 		global $pagenow;
 
-		if ( 'edit.php' == $pagenow && ! empty( $_GET['post_type_changed'] ) ) {
+		if ( 'edit.php' === $pagenow && ! empty( $_GET['post_type_changed'] ) ) {
 			?><div id="message" class="updated below-h2 jetpack-comic-post-type-conversion" style="display: none;"><p><?php
 			printf( _n( 'Post converted.', '%s posts converted', $_GET['post_type_changed'], 'jetpack' ), number_format_i18n( $_GET['post_type_changed'] ) );
 			?></p></div><?php
@@ -269,7 +269,7 @@ class Jetpack_Comic {
 	}
 
 	public function manage_posts_custom_column( $column_name, $post_ID ) {
-		if ( 'preview-jetpack-comic' == $column_name && has_post_thumbnail( $post_ID ) ) {
+		if ( 'preview-jetpack-comic' === $column_name && has_post_thumbnail( $post_ID ) ) {
 			echo get_the_post_thumbnail( $post_ID, 'jetpack-comic-thumb' );
 		}
 	}
@@ -491,7 +491,7 @@ class Jetpack_Comic {
 		if ( ! is_admin() && $query->is_main_query() && ( $query->is_category() || $query->is_tag() ) ) {
 			$post_types = $query->get( 'post_type' );
 
-			if ( ! $post_types || 'post' == $post_types )
+			if ( ! $post_types || 'post' === $post_types )
 				$post_types = array( 'post', self::POST_TYPE );
 			else if ( is_array( $post_types ) )
 				$post_types[] = self::POST_TYPE;
@@ -516,7 +516,7 @@ add_action( 'init', array( 'Jetpack_Comic', 'init' ) );
 
 
 function comics_welcome_email( $welcome_email, $blog_id, $user_id, $password, $title, $meta ) {
-	if ( ( isset( $meta['vertical'] ) && 'comics' == $meta['vertical'] ) || has_blog_sticker( 'vertical-comics', $blog_id ) ) {
+	if ( ( isset( $meta['vertical'] ) && 'comics' === $meta['vertical'] ) || has_blog_sticker( 'vertical-comics', $blog_id ) ) {
 		return __( "Welcome! Ready to publish your first strip?
 
 Your webcomic's new site is ready to go. Get started by <a href=\"BLOG_URLwp-admin/customize.php#title\">setting your comic's title and tagline</a> so your readers know what it's all about.

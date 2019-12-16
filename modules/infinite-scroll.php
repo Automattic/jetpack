@@ -153,7 +153,7 @@ class Jetpack_Infinite_Scroll_Extras {
 
 			// Pagetype parameter
 			$settings['stats'] .= '&x_pagetype=infinite';
-			if ( 'click' == $settings['type'] )
+			if ( 'click' === $settings['type'] )
 				$settings['stats'] .= '-click';
 
 			$settings['stats'] .= '-jetpack';

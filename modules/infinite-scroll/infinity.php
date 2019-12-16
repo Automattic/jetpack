@@ -101,7 +101,7 @@ class The_Neverending_Home_Page {
 
 							case 'container' :
 							case 'wrapper' :
-								if ( 'wrapper' == $key && is_bool( $value ) ) {
+								if ( 'wrapper' === $key && is_bool( $value ) ) {
 									$settings[ $key ] = $value;
 								} else {
 									$value = preg_replace( $css_pattern, '', $value );
@@ -209,7 +209,7 @@ class The_Neverending_Home_Page {
 				$settings['footer_widgets'] = false;
 
 			// Ensure that IS is enabled and no footer widgets exist if the IS type isn't already "click".
-			if ( 'click' != $settings['type'] ) {
+			if ( 'click' !== $settings['type'] ) {
 				// Check the setting status
 				$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 
@@ -1014,7 +1014,7 @@ class The_Neverending_Home_Page {
 	 */
 	function filter_infinite_scroll_results( $results, $query_args, $wp_query ) {
 		// Don't bother unless there are posts to display
-		if ( 'success' != $results['type'] )
+		if ( 'success' !== $results['type'] )
 			return $results;
 
 		// Parse and sanitize the script handles already output
@@ -1343,14 +1343,14 @@ class The_Neverending_Home_Page {
 				ob_end_clean();
 			}
 
-			if ( 'success' == $results['type'] ) {
+			if ( 'success' === $results['type'] ) {
 				global $currentday;
 				$results['lastbatch'] = self::is_last_batch();
 				$results['currentday'] = $currentday;
 			}
 
 			// Loop through posts to capture sharing data for new posts loaded via Infinite Scroll
-			if ( 'success' == $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
+			if ( 'success' === $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
 				global $jetpack_sharing_counts;
 
 				while( have_posts() ) {

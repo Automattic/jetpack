@@ -87,11 +87,11 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
-		if ( 'edit_videos' == $cap && ! user_can( $user_id, 'edit_others_posts' ) ) {
+		if ( 'edit_videos' === $cap && ! user_can( $user_id, 'edit_others_posts' ) ) {
 			return false;
 		}
 
-		if ( 'delete_videos' == $cap && ! user_can( $user_id, 'delete_others_posts' ) ) {
+		if ( 'delete_videos' === $cap && ! user_can( $user_id, 'delete_others_posts' ) ) {
 			return false;
 		}
 

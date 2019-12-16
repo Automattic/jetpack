@@ -38,7 +38,7 @@ class WPCOM_JSON_API_List_Shortcodes_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$output = array( 'shortcodes' => array() );
 
 		foreach ( $shortcode_tags as $tag => $class ) {
-			if ( '__return_false' == $class )
+			if ( '__return_false' === $class )
 				continue;
 			$output['shortcodes'][] = $tag;
 		}

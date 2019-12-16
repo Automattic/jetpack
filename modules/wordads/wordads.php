@@ -508,7 +508,7 @@ HTML;
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
-		if ( 'iponweb' == $type ) {
+		if ( 'iponweb' === $type ) {
 			// Default to mrec
 			$width  = 300;
 			$height = 250;
@@ -516,13 +516,13 @@ HTML;
 			$section_id       = WORDADS_API_TEST_ID;
 			$second_belowpost = '';
 			$snippet          = '';
-			if ( 'top' == $spot ) {
+			if ( 'top' === $spot ) {
 				// mrec for mobile, leaderboard for desktop
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width      = $this->params->mobile_device ? 300 : 728;
 				$height     = $this->params->mobile_device ? 250 : 90;
 				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot );
-			} elseif ( 'belowpost' == $spot ) {
+			} elseif ( 'belowpost' === $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width      = 300;
 				$height     = 250;
@@ -541,10 +541,10 @@ HTML;
 				$height  = 50;
 				$snippet = $this->get_ad_snippet( null, $height, $width );
 			}
-		} elseif ( 'house' == $type ) {
-			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
+		} elseif ( 'house' === $type ) {
+			$leaderboard = 'top' === $spot && ! $this->params->mobile_device;
 			$snippet     = $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
-			if ( 'belowpost' == $spot && $this->option( 'wordads_second_belowpost', true ) ) {
+			if ( 'belowpost' === $spot && $this->option( 'wordads_second_belowpost', true ) ) {
 				$snippet .= $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
 			}
 		}
@@ -630,7 +630,7 @@ HTML;
 		}
 
 		$css_classes[] = 'wpcnt';
-		if ( 'top' == $spot ) {
+		if ( 'top' === $spot ) {
 			$css_classes[] = 'wpcnt-header';
 		}
 

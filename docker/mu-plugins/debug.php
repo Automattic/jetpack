@@ -172,7 +172,7 @@ function l_json_encode_pretty( $data ) {
 				break;
 			}
 		}
-		if ( '\\' == $char ) {
+		if ( '\\' === $char ) {
 			$slashed = !$slashed;
 		} else {
 			$slashed = false;

@@ -38,7 +38,7 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 
 	$blog_id = Jetpack_Options::get_option( 'id' );
 
-	if ( 'query' == $context ) {
+	if ( 'query' === $context ) {
 		if ( is_singular() ) {
 			$id = $wp_query->get_queried_object_id();
 			$context = 'post';
@@ -49,7 +49,7 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 		}
 	}
 
-	if ( 'blog' == $context ) {
+	if ( 'blog' === $context ) {
 		if ( empty( $id ) )
 			$id = $blog_id;
 
@@ -64,17 +64,17 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	$post_id = $post->ID;
 	$type = '';
 
-	if ( $allow_slugs && 'publish' == $post->post_status && 'post' == $post->post_type && strlen( $post->post_name ) <= 8 && false === strpos( $post->post_name, '%' )
+	if ( $allow_slugs && 'publish' === $post->post_status && 'post' === $post->post_type && strlen( $post->post_name ) <= 8 && false === strpos( $post->post_name, '%' )
 		&& false === strpos( $post->post_name, '-' ) ) {
 		$id = $post->post_name;
 		$type = 's';
 	} else {
 		$id = wpme_dec2sixtwo( $post_id );
-		if ( 'page' == $post->post_type )
+		if ( 'page' === $post->post_type )
 			$type = 'P';
-		elseif ( 'post' == $post->post_type || post_type_supports( $post->post_type, 'shortlinks' ) )
+		elseif ( 'post' === $post->post_type || post_type_supports( $post->post_type, 'shortlinks' ) )
 			$type= 'p';
-		elseif ( 'attachment' == $post->post_type )
+		elseif ( 'attachment' === $post->post_type )
 			$type = 'a';
 	}
 

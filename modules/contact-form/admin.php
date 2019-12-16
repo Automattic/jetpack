@@ -100,13 +100,13 @@ function grunion_add_bulk_edit_option() {
 		return;
 	}
 
-	if ( 'edit-feedback' != $screen->id ) {
+	if ( 'edit-feedback' !== $screen->id ) {
 		return;
 	}
 
 	// When viewing spam we want to be able to be able to bulk delete
 	// When viewing anything we want to be able to bulk move to spam
-	if ( isset( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) {
+	if ( isset( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) {
 		// Create Delete Permanently bulk item
 		$option_val      = 'delete';
 		$option_txt      = __( 'Delete Permanently', 'jetpack' );
@@ -142,7 +142,7 @@ function grunion_add_empty_spam_button() {
 	}
 
 	// Only add to feedback, only to spam view
-	if ( 'edit-feedback' != $screen->id
+	if ( 'edit-feedback' !== $screen->id
 	|| empty( $_GET['post_status'] )
 	|| 'spam' !== $_GET['post_status'] ) {
 		return;
@@ -169,17 +169,17 @@ add_action( 'admin_init', 'grunion_handle_bulk_spam' );
 function grunion_handle_bulk_spam() {
 	global $pagenow;
 
-	if ( 'edit.php' != $pagenow
-	|| ( empty( $_REQUEST['post_type'] ) || 'feedback' != $_REQUEST['post_type'] ) ) {
+	if ( 'edit.php' !== $pagenow
+	|| ( empty( $_REQUEST['post_type'] ) || 'feedback' !== $_REQUEST['post_type'] ) ) {
 		return;
 	}
 
 	// Slip in a success message
-	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' == $_REQUEST['message'] ) {
+	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' === $_REQUEST['message'] ) {
 		add_action( 'admin_notices', 'grunion_message_bulk_spam' );
 	}
 
-	if ( ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' != $_REQUEST['action2'] ) ) {
+	if ( ( empty( $_REQUEST['action'] ) || 'spam' !== $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' !== $_REQUEST['action2'] ) ) {
 		return;
 	}
 
@@ -238,7 +238,7 @@ function grunion_admin_menu() {
 add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
 function grunion_admin_bulk_actions( $actions ) {
 	global $current_screen;
-	if ( 'edit-feedback' != $current_screen->id ) {
+	if ( 'edit-feedback' !== $current_screen->id ) {
 		return $actions;
 	}
 
@@ -249,7 +249,7 @@ function grunion_admin_bulk_actions( $actions ) {
 add_filter( 'views_edit-feedback', 'grunion_admin_view_tabs' );
 function grunion_admin_view_tabs( $views ) {
 	global $current_screen;
-	if ( 'edit-feedback' != $current_screen->id ) {
+	if ( 'edit-feedback' !== $current_screen->id ) {
 		return $views;
 	}
 
@@ -799,7 +799,7 @@ function grunion_enable_spam_recheck() {
 	$screen = get_current_screen();
 
 	// Only add to feedback, only to non-spam view
-	if ( 'edit-feedback' != $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) ) {
+	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) {
 		return;
 	}
 

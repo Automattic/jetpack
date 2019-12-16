@@ -131,7 +131,7 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		if ( 'post' == $_POST['post_type'] ) {
+		if ( 'post' === $_POST['post_type'] ) {
 			if ( !current_user_can( 'edit_post', $post_id ) ) {
 				return $post_id;
 			}
@@ -329,12 +329,12 @@ class Jetpack_Likes_Settings {
 
 		if ( $post instanceof WP_Post ) {
 			// Check that the post is a public, published post.
-			if ( 'attachment' == $post->post_type ) {
+			if ( 'attachment' === $post->post_type ) {
 				$post_status = get_post_status( $post->post_parent );
 			} else {
 				$post_status = $post->post_status;
 			}
-			if ( 'publish' != $post_status ) {
+			if ( 'publish' !== $post_status ) {
 				$enabled = false;
 			}
 		}
@@ -674,7 +674,7 @@ class Jetpack_Likes_Settings {
 			array_unshift( $shows, 'index' );
 			$global = $this->get_options();
 			foreach ( $shows as $show ) :
-				if ( 'index' == $show ) {
+				if ( 'index' === $show ) {
 					$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
 				} else {
 					$post_type_object = get_post_type_object( $show );

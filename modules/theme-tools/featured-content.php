@@ -401,7 +401,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			// Bail if term objects are unavailable.
-			if ( 'all' != $args['fields'] ) {
+			if ( 'all' !== $args['fields'] ) {
 				return $terms;
 			}
 
@@ -445,7 +445,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 
 			// Make sure we are in the correct taxonomy.
-			if ( 'post_tag' != $taxonomy ) {
+			if ( 'post_tag' !== $taxonomy ) {
 				return $terms;
 			}
 
@@ -620,7 +620,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$options = wp_parse_args( $saved, $defaults );
 			$options = array_intersect_key( $options, $defaults );
 
-			if ( 'all' != $key ) {
+			if ( 'all' !== $key ) {
 				return isset( $options[ $key ] ) ? $options[ $key ] : false;
 			}
 
@@ -687,7 +687,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			$featured_content_settings = get_option( 'featured-content', array() );
 
 			// Check to see whether the stored tag ID is the one that's just been split.
-			if ( isset( $featured_content_settings['tag-id'] ) && $old_term_id == $featured_content_settings['tag-id'] && 'post_tag' == $taxonomy ) {
+			if ( isset( $featured_content_settings['tag-id'] ) && $old_term_id == $featured_content_settings['tag-id'] && 'post_tag' === $taxonomy ) {
 				// We have a match, so we swap out the old tag ID for the new one and resave the option.
 				$featured_content_settings['tag-id'] = $new_term_id;
 				update_option( 'featured-content', $featured_content_settings );

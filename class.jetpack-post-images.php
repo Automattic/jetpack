@@ -569,7 +569,7 @@ class Jetpack_PostImages {
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
-				if ( 'image' == $item['type'] ) {
+				if ( 'image' === $item['type'] ) {
 					$image = $item;
 					break;
 				}

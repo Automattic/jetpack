@@ -353,7 +353,7 @@ class Jetpack_Photon {
 					if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $size ) ) {
 						$size = array_pop( $size );
 
-						if ( false === $width && false === $height && 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
+						if ( false === $width && false === $height && 'full' !== $size && array_key_exists( $size, $image_sizes ) ) {
 							$width     = (int) $image_sizes[ $size ]['width'];
 							$height    = (int) $image_sizes[ $size ]['height'];
 							$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
@@ -391,7 +391,7 @@ class Jetpack_Photon {
 							$attachment = get_post( $attachment_id );
 
 							// Basic check on returned post object
-							if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' == $attachment->post_type ) {
+							if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' === $attachment->post_type ) {
 								$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
 
 								if ( self::validate_image_url( $src_per_wp[0] ) ) {
@@ -705,7 +705,7 @@ class Jetpack_Photon {
 				$image_meta = image_get_intermediate_size( $attachment_id, $size );
 
 				// 'full' is a special case: We need consistent data regardless of the requested size.
-				if ( 'full' == $size ) {
+				if ( 'full' === $size ) {
 					$image_meta   = wp_get_attachment_metadata( $attachment_id );
 					$intermediate = false;
 				} elseif ( ! $image_meta ) {
@@ -955,7 +955,7 @@ class Jetpack_Photon {
 					}
 				} // foreach ( $currentwidths as $currentwidth ){
 
-				if ( 'soft' == $crop ) {
+				if ( 'soft' === $crop ) {
 					$args = array(
 						'w' => $newwidth,
 					);
@@ -1038,7 +1038,7 @@ class Jetpack_Photon {
 
 		// Bail if scheme isn't http or port is set that isn't port 80
 		if (
-			( 'http' != $url_info['scheme'] || ! in_array( $url_info['port'], array( 80, null ) ) ) &&
+			( 'http' !== $url_info['scheme'] || ! in_array( $url_info['port'], array( 80, null ) ) ) &&
 			/**
 			 * Allow Photon to fetch images that are served via HTTPS.
 			 *

@@ -248,7 +248,7 @@ class Highlander_Comments_Base {
 			'comment_author_email' => 'email',
 			'comment_author_url'   => 'url',
 		) as $comment_field => $post_field ) {
-			if ( $comment_data[ $comment_field ] != $_POST[ $post_field ] && 'url' != $post_field ) {
+			if ( $comment_data[ $comment_field ] != $_POST[ $post_field ] && 'url' !== $post_field ) {
 				$author_change = true;
 			}
 			$comment_data[ $comment_field ] = $_POST[ $post_field ];
@@ -283,7 +283,7 @@ class Highlander_Comments_Base {
 
 		// Set comment author cookies
 		// phpcs:ignore WordPress.WP.CapitalPDangit
-		if ( ( 'wordpress' != $id_source ) && is_user_logged_in() ) {
+		if ( ( 'wordpress' !== $id_source ) && is_user_logged_in() ) {
 			/** This filter is already documented in core/wp-includes/comment-functions.php */
 			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
 			setcookie( 'comment_author_' . COOKIEHASH, $comment->comment_author, time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );

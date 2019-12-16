@@ -88,7 +88,7 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 
 		if ( ! wp_check_post_lock( $post->ID ) &&
 			 get_current_user_id() == $post->post_author &&
-			 ( 'auto-draft' == $post->post_status || 'draft' == $post->post_status )
+			 ( 'auto-draft' === $post->post_status || 'draft' === $post->post_status )
 		) {
 			// Drafts and auto-drafts are just overwritten by autosave for the same user if the post is not locked
 			$auto_ID = edit_post( wp_slash( $post_data ) );

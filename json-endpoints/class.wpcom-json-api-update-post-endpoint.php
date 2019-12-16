@@ -594,12 +594,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		// so we can track some other cool stats (like likes & comments on posts published)
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if (
-				( $new && 'publish' == $input['status'] )
+				( $new && 'publish' === $input['status'] )
 				|| (
 					! $new && isset( $last_status )
-					&& 'publish' != $last_status
+					&& 'publish' !== $last_status
 					&& isset( $new_status )
-					&& 'publish' == $new_status
+					&& 'publish' === $new_status
 				)
 			) {
 				/** This action is documented in modules/widgets/social-media-icons.php */
@@ -716,9 +716,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					$meta->operation = 'update';
 
 				if ( ! empty( $meta->value ) ) {
-					if ( 'true' == $meta->value )
+					if ( 'true' === $meta->value )
 						$meta->value = true;
-					if ( 'false' == $meta->value )
+					if ( 'false' === $meta->value )
 						$meta->value = false;
 				}
 

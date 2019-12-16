@@ -347,7 +347,7 @@ class iCalendarReader {
 					for ( $i = 1; $i <= $echo_limit; $i++ ) {
 
 						// Weeks need a daily loop and must check for inclusion in BYDAYS
-						if ( 'week' == $frequency ) {
+						if ( 'week' === $frequency ) {
 							$byday_event_date_start = strtotime( $recurring_event_date_start );
 
 							foreach ( $weekdays as $day ) {
@@ -529,7 +529,7 @@ class iCalendarReader {
 					}
 					break;
 				case 'TZID':
-					if ( 'VTIMEZONE' == $type && ! $this->timezone )
+					if ( 'VTIMEZONE' === $type && ! $this->timezone )
 						$this->timezone = $this->timezone_from_string( $value );
 					break;
 				case 'X-WR-TIMEZONE':
@@ -668,7 +668,7 @@ class iCalendarReader {
 
 			// Format for adding to event
 			$keyword = $keyword[0];
-			if ( 'EXDATE' != $keyword ) {
+			if ( 'EXDATE' !== $keyword ) {
 				$value = implode( (array) $value );
 			}
 		}
@@ -676,14 +676,14 @@ class iCalendarReader {
 		foreach ( (array) $value as $v ) {
 			switch ($component) {
 				case 'VTODO':
-					if ( 'EXDATE' == $keyword ) {
+					if ( 'EXDATE' === $keyword ) {
 						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ][] = $v;
 					} else {
 						$this->cal[ $component ][ $this->todo_count - 1 ][ $keyword ] = $v;
 					}
 					break;
 				case 'VEVENT':
-					if ( 'EXDATE' == $keyword ) {
+					if ( 'EXDATE' === $keyword ) {
 						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ][] = $v;
 					} else {
 						$this->cal[ $component ][ $this->event_count - 1 ][ $keyword ] = $v;
@@ -748,7 +748,7 @@ class iCalendarReader {
 
 		ob_start();
 
-		if ( 'widget' == $args['context'] ) : ?>
+		if ( 'widget' === $args['context'] ) : ?>
 		<ul class="upcoming-events">
 			<?php foreach ( $events as $event ) : ?>
 			<li>
@@ -765,7 +765,7 @@ class iCalendarReader {
 		</ul>
 		<?php endif;
 
-		if ( 'shortcode' == $args['context'] ) : ?>
+		if ( 'shortcode' === $args['context'] ) : ?>
 		<table class="upcoming-events">
 			<thead>
 				<tr>

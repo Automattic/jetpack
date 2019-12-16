@@ -60,7 +60,7 @@ class Milestone_Widget extends WP_Widget {
 	}
 
 	public static function enqueue_admin( $hook_suffix ) {
-		if ( 'widgets.php' == $hook_suffix ) {
+		if ( 'widgets.php' === $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
 			wp_enqueue_script(
 				'milestone-admin-js',

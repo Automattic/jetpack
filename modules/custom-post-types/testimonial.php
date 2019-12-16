@@ -535,11 +535,11 @@ class Jetpack_Testimonial {
 		), $atts, 'testimonial' );
 
 		// A little sanitization
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' !== $atts['display_content'] && 'full' !== $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 
-		if ( $atts['image'] && 'true' != $atts['image'] ) {
+		if ( $atts['image'] && 'true' !== $atts['image'] ) {
 			$atts['image'] = false;
 		}
 
@@ -550,7 +550,7 @@ class Jetpack_Testimonial {
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );
 			$atts['order'] = strtoupper( $atts['order'] );
-			if ( 'DESC' != $atts['order'] ) {
+			if ( 'DESC' !== $atts['order'] ) {
 				$atts['order'] = 'ASC';
 			}
 		}
@@ -725,7 +725,7 @@ class Jetpack_Testimonial {
 function jetpack_testimonial_custom_control_classes() {
 	class Jetpack_Testimonial_Title_Control extends WP_Customize_Control {
 		public static function sanitize_content( $value ) {
-			if ( '' != $value )
+			if ( '' !== $value )
 				$value = trim( convert_chars( wptexturize( $value ) ) );
 
 			return $value;

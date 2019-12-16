@@ -117,7 +117,7 @@ class Jetpack_IDC {
 
 	function non_admins_current_screen_check( $current_screen ) {
 		self::$current_screen = $current_screen;
-		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' == $current_screen->id ) {
+		if ( isset( $current_screen->id ) && 'toplevel_page_jetpack' === $current_screen->id ) {
 			return null;
 		}
 

@@ -1710,7 +1710,7 @@ function jetpack_stats_post_table( $columns ) { // Adds a stats link on the edit
  * @return mixed
  */
 function jetpack_stats_post_table_cell( $column, $post_id ) {
-	if ( 'stats' == $column ) {
+	if ( 'stats' === $column ) {
 		if ( 'publish' != get_post_status( $post_id ) ) {
 			printf(
 				'<span aria-hidden="true">—</span><span class="screen-reader-text">%s</span>',

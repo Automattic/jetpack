@@ -38,7 +38,7 @@ class GP_Locale {
 	 * @return bool Whether the property is set.
 	 */
 	public function __isset( $name ) {
-		if ( 'rtl' == $name ) {
+		if ( 'rtl' === $name ) {
 			return isset( $this->text_direction );
 		}
 	}
@@ -50,7 +50,7 @@ class GP_Locale {
 	 * @return mixed Property.
 	 */
 	public function __get( $name ) {
-		if ( 'rtl' == $name ) {
+		if ( 'rtl' === $name ) {
 			return ( 'rtl' === $this->text_direction );
 		}
 	}

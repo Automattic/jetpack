@@ -239,7 +239,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	function globalization() {
-		if ( 'on' == $_REQUEST['global'] ) {
+		if ( 'on' === $_REQUEST['global'] ) {
 			$globalize_connection = $_REQUEST['connection'];
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) {
 				return;
@@ -299,7 +299,7 @@ class Publicize extends Publicize_Base {
 			'tumblr'      => array(),
 		);
 
-		if ( 'all' == $filter ) {
+		if ( 'all' === $filter ) {
 			return $services;
 		} else {
 			$connected_services = array();
@@ -322,7 +322,7 @@ class Publicize extends Publicize_Base {
 			return;
 		}
 
-		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
 			 *
@@ -395,7 +395,7 @@ class Publicize extends Publicize_Base {
 			return false;
 		}
 
-		return 'publish' == $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
+		return 'publish' === $post->post_status || get_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 	}
 
 	/**
@@ -551,7 +551,7 @@ class Publicize extends Publicize_Base {
 			die( 'Security check' );
 		}
 
-		if ( 'page' != $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+		if ( 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
 			return;
 		}
 
@@ -708,7 +708,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
-		if ( 'twitter' == $service_name && $submit_post ) {
+		if ( 'twitter' === $service_name && $submit_post ) {
 			$connection_meta        = $this->get_connection_meta( $connection );
 			$publicize_twitter_user = get_post_meta( $post_id, '_publicize_twitter_user' );
 			if ( empty( $publicize_twitter_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
@@ -735,7 +735,7 @@ class Publicize extends Publicize_Base {
 	 */
 	function save_publicized_facebook_account( $submit_post, $post_id, $service_name, $connection ) {
 		$connection_meta = $this->get_connection_meta( $connection );
-		if ( 'facebook' == $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
+		if ( 'facebook' === $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
 			$publicize_facebook_user = get_post_meta( $post_id, '_publicize_facebook_user' );
 			if ( empty( $publicize_facebook_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
 				$profile_link = $this->get_profile_link( 'facebook', $connection );

@@ -480,7 +480,7 @@ class scssc {
 
 		foreach ($selector as $parts) {
 			foreach ($parts as $part) {
-				if ('%' == $part[0]) {
+				if ('%' === $part[0]) {
 					return true;
 				}
 			}
@@ -2226,7 +2226,7 @@ class scssc {
 		$originalUnit = null;
 		$numbers = array();
 		foreach ($args as $key => $item) {
-			if ('number' != $item[0]) {
+			if ('number' !== $item[0]) {
 				$this->throwError("%s is not a number", $item[0]);
 			}
 			$number = $this->normalizeNumber($item);

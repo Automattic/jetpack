@@ -412,7 +412,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 						$infinite_scroll_settings = The_Neverending_Home_Page::get_settings();
 						$response[ $key ]['infinite_scroll'] = get_option( 'infinite_scroll', true ) && $infinite_scroll_settings->type === 'scroll';
-						if ( $infinite_scroll_settings->footer_widgets || 'click' == $infinite_scroll_settings->requested_type ) {
+						if ( $infinite_scroll_settings->footer_widgets || 'click' === $infinite_scroll_settings->requested_type ) {
 							// The blog has footer widgets -- infinite scroll is blocked
 							$response[ $key ]['infinite_scroll_blocked'] = 'footer';
 						} else {
@@ -457,7 +457,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	protected function get_locale( $key ) {
-		if ( 'lang' == $key ) {
+		if ( 'lang' === $key ) {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				return (string) get_blog_lang_code();
 			} else {

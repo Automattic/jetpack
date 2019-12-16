@@ -86,7 +86,7 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 			}
 
 			// Normalize post_type
-			if ( 'any' == $args['type'] ) {
+			if ( 'any' === $args['type'] ) {
 				$whitelisted_post_types = $site->get_whitelisted_post_types();
 
 				if ( isset( $args['exclude_private_types'] ) && $args['exclude_private_types'] == true ) {

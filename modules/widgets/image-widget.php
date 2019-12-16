@@ -72,23 +72,23 @@ class Jetpack_Image_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
 
-		if ( '' != $instance['img_url'] ) {
+		if ( '' !== $instance['img_url'] ) {
 
 			$output = '<img src="' . esc_url( $instance['img_url'] ) . '" ';
 
-			if ( '' != $instance['alt_text'] ) {
+			if ( '' !== $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) . '" ';
 			}
-			if ( '' != $instance['img_title'] ) {
+			if ( '' !== $instance['img_title'] ) {
 				$output .= 'title="' . esc_attr( $instance['img_title'] ) . '" ';
 			}
-			if ( '' == $instance['caption'] ) {
+			if ( '' === $instance['caption'] ) {
 				$output .= 'class="align' . esc_attr( $instance['align'] ) . '" ';
 			}
-			if ( '' != $instance['img_width'] ) {
+			if ( '' !== $instance['img_width'] ) {
 				$output .= 'width="' . esc_attr( $instance['img_width'] ) . '" ';
 			}
-			if ( '' != $instance['img_height'] ) {
+			if ( '' !== $instance['img_height'] ) {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) . '" ';
 			}
 			$output .= '/>';
@@ -97,13 +97,13 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output = Jetpack_Photon::filter_the_content( $output );
 			}
 
-			if ( '' != $instance['link'] ) {
+			if ( '' !== $instance['link'] ) {
 				$target = ! empty( $instance['link_target_blank'] )
 					? 'target="_blank"'
 					: '';
 				$output = '<a ' . $target . ' href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
-			if ( '' != $instance['caption'] ) {
+			if ( '' !== $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
 				$caption   = apply_filters( 'widget_text', $instance['caption'] );
 				$img_width = ( ! empty( $instance['img_width'] ) ? 'style="width: ' . esc_attr( $instance['img_width'] ) . 'px"' : '' );
@@ -162,7 +162,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$new_img_width  = absint( $new_instance['img_width'] );
 		$new_img_height = absint( $new_instance['img_height'] );
 
-		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+		if ( ! empty( $instance['img_url'] ) && '' === $new_img_width && '' === $new_img_height ) {
 			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
 			$tmp_file = download_url( $instance['img_url'], 10 );
 			if ( ! is_wp_error( $tmp_file ) ) {

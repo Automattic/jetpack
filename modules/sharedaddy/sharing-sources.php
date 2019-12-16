@@ -87,11 +87,11 @@ abstract class Sharing_Source {
 		$args = func_get_args();
 		$klasses = array( 'share-' . $this->get_class(), 'sd-button' );
 
-		if ( 'icon' == $this->button_style || 'icon-text' == $this->button_style ) {
+		if ( 'icon' === $this->button_style || 'icon-text' === $this->button_style ) {
 			$klasses[] = 'share-icon';
 		}
 
-		if ( 'icon' == $this->button_style ) {
+		if ( 'icon' === $this->button_style ) {
 			$text = $title;
 			$klasses[] = 'no-text';
 
@@ -160,7 +160,7 @@ abstract class Sharing_Source {
 			}
 		}
 
-		if ( 'text' == $this->button_style ) {
+		if ( 'text' === $this->button_style ) {
 			$klasses[] = 'no-icon';
 		}
 
@@ -212,7 +212,7 @@ abstract class Sharing_Source {
 			$url,
 			( true == $this->open_link_in_new ) ? ' target="_blank"' : '',
 			$title,
-			( 'icon' == $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
+			( 'icon' === $this->button_style ) ? '></span><span class="sharing-screen-reader-text"' : '',
 			$text
 		);
 	}
@@ -444,7 +444,7 @@ class Share_Email extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -631,7 +631,7 @@ class Share_Twitter extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -672,7 +672,7 @@ class Share_Twitter extends Sharing_Source {
 		 * was introduced with the adding of the Twitter cards.
 		 * This should be a temporary solution until a better method is setup.
 		 */
-		if ( 'jetpack' == $twitter_site_tag_value ) {
+		if ( 'jetpack' === $twitter_site_tag_value ) {
 			$twitter_site_tag_value = '';
 		}
 
@@ -845,7 +845,7 @@ class Share_Reddit extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -882,7 +882,7 @@ class Share_LinkedIn extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -964,7 +964,7 @@ class Share_Facebook extends Sharing_Source {
 			$this->share_type = $settings['share_type'];
 		}
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -979,7 +979,7 @@ class Share_Facebook extends Sharing_Source {
 	}
 
 	function guess_locale_from_lang( $lang ) {
-		if ( 'en' == $lang || 'en_US' == $lang || ! $lang ) {
+		if ( 'en' === $lang || 'en_US' === $lang || ! $lang ) {
 			return 'en_US';
 		}
 
@@ -1093,7 +1093,7 @@ class Share_Print extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -1115,7 +1115,7 @@ class Share_PressThis extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -1377,7 +1377,7 @@ class Share_Tumblr extends Sharing_Source {
 	public $icon = '\f214';
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -1447,7 +1447,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -1569,7 +1569,7 @@ class Share_Pinterest extends Sharing_Source {
 				// if 'Pin it' button has 'counts' make container wider
 				jQuery(window).load( function(){ jQuery( 'li.share-pinterest a span:visible' ).closest( '.share-pinterest' ).width( '80px' ); } );
 			</script>
-		<?php elseif ( 'buttonPin' != $this->get_widget_type() ) : ?>
+		<?php elseif ( 'buttonPin' !== $this->get_widget_type() ) : ?>
 			<script type="text/javascript">
 				jQuery(document).ready( function(){
 					jQuery('body').on('click', 'a.share-pinterest', function(e){
@@ -1600,7 +1600,7 @@ class Share_Pocket extends Sharing_Source {
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;
@@ -1727,7 +1727,7 @@ class Share_Skype extends Sharing_Source {
 			$this->share_type = $settings['share_type'];
 		}
 
-		if ( 'official' == $this->button_style ) {
+		if ( 'official' === $this->button_style ) {
 			$this->smart = true;
 		} else {
 			$this->smart = false;

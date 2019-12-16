@@ -89,7 +89,7 @@ NPM_TARGET_VERSION=$NORMALIZED_VERSION
 # Updates file target version.
 read -n1 -p "Would you like to update the version number in files to $TARGET_VERSION? [y/N]" reply
 echo ""
-if [[ 'y' != $reply && 'Y' != $reply ]]; then
+if [[ 'y' !== $reply && 'Y' !== $reply ]]; then
 	echo "Okay, done!"
 	exit
 fi
@@ -104,7 +104,7 @@ git --no-pager diff HEAD jetpack.php package.json
 echo ""
 read -n1 -p "Here is the diff. Would you like to commit this? [y/N]" reply
 echo ""
-if [[ 'y' != $reply && 'Y' != $reply ]]; then
+if [[ 'y' !== $reply && 'Y' !== $reply ]]; then
 	echo "Got it. Please commit manually."
 	exit
 fi

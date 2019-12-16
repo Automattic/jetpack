@@ -94,7 +94,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			$likes_blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
-		if ( class_exists( 'Jetpack_Carousel' ) || in_array( 'carousel', Jetpack::get_active_modules() ) || 'carousel' == $this->link ) {
+		if ( class_exists( 'Jetpack_Carousel' ) || in_array( 'carousel', Jetpack::get_active_modules() ) || 'carousel' === $this->link ) {
 			$extra_data = array(
 				'blog_id'       => $blog_id,
 				'permalink'     => get_permalink( isset( $post->ID ) ? $post->ID : 0 ),

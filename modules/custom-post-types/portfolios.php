@@ -424,7 +424,7 @@ class Jetpack_Portfolio {
 	function enqueue_admin_styles( $hook ) {
 		$screen = get_current_screen();
 
-		if ( 'edit.php' == $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
+		if ( 'edit.php' === $hook && self::CUSTOM_POST_TYPE == $screen->post_type && current_theme_supports( 'post-thumbnails' ) ) {
 			wp_add_inline_style( 'wp-admin', '.manage-column.column-thumbnail { width: 50px; } @media screen and (max-width: 360px) { .column-thumbnail{ display:none; } }' );
 		}
 	}
@@ -572,19 +572,19 @@ class Jetpack_Portfolio {
 		), $atts, 'portfolio' );
 
 		// A little sanitization
-		if ( $atts['display_types'] && 'true' != $atts['display_types'] ) {
+		if ( $atts['display_types'] && 'true' !== $atts['display_types'] ) {
 			$atts['display_types'] = false;
 		}
 
-		if ( $atts['display_tags'] && 'true' != $atts['display_tags'] ) {
+		if ( $atts['display_tags'] && 'true' !== $atts['display_tags'] ) {
 			$atts['display_tags'] = false;
 		}
 
-		if ( $atts['display_author'] && 'true' != $atts['display_author'] ) {
+		if ( $atts['display_author'] && 'true' !== $atts['display_author'] ) {
 			$atts['display_author'] = false;
 		}
 
-		if ( $atts['display_content'] && 'true' != $atts['display_content'] && 'full' != $atts['display_content'] ) {
+		if ( $atts['display_content'] && 'true' !== $atts['display_content'] && 'full' !== $atts['display_content'] ) {
 			$atts['display_content'] = false;
 		}
 
@@ -604,7 +604,7 @@ class Jetpack_Portfolio {
 		if ( $atts['order'] ) {
 			$atts['order'] = urldecode( $atts['order'] );
 			$atts['order'] = strtoupper( $atts['order'] );
-			if ( 'DESC' != $atts['order'] ) {
+			if ( 'DESC' !== $atts['order'] ) {
 				$atts['order'] = 'ASC';
 			}
 		}

@@ -44,9 +44,9 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 		$snippet = '';
 		if ( $wordads->option( 'wordads_house', true ) ) {
 			$unit = 'mrec';
-			if ( 'leaderboard' == $instance['unit'] && ! $this->params->mobile_device ) {
+			if ( 'leaderboard' === $instance['unit'] && ! $this->params->mobile_device ) {
 				$unit = 'leaderboard';
-			} elseif ( 'wideskyscraper' == $instance['unit'] ) {
+			} elseif ( 'wideskyscraper' === $instance['unit'] ) {
 				$unit = 'widesky';
 			}
 

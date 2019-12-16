@@ -659,7 +659,7 @@ class Nova_Restaurant {
 				$order[] = $post->ID;
 			}
 
-			if ( 'move-item-up' == $action ) {
+			if ( 'move-item-up' === $action ) {
 				check_admin_referer( 'nova_move_item_up_' . $post_id );
 
 				$first_post_id = $order[0];
@@ -720,7 +720,7 @@ class Nova_Restaurant {
 				$order[] = $term->term_id;
 			}
 
-			if ( 'move-menu-up' == $action ) {
+			if ( 'move-menu-up' === $action ) {
 				check_admin_referer( 'nova_move_menu_up_' . $term_id );
 
 				$first_term_id = $order[0];

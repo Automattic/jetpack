@@ -182,7 +182,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		// 'likes' are not available in Jetpack
-		$instance['ordering'] = isset( $new_instance['ordering'] ) && 'likes' == $new_instance['ordering'] ? 'likes' : 'views';
+		$instance['ordering'] = isset( $new_instance['ordering'] ) && 'likes' === $new_instance['ordering'] ? 'likes' : 'views';
 
 		$allowed_post_types = array_values( get_post_types( array( 'public' => true ) ) );
 		$instance['types']  = $new_instance['types'];
@@ -244,7 +244,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$types = isset( $instance['types'] ) ? (array) $instance['types'] : array( 'post', 'page' );
 
 		// 'likes' are not available in Jetpack
-		$ordering = isset( $instance['ordering'] ) && 'likes' == $instance['ordering'] ? 'likes' : 'views';
+		$ordering = isset( $instance['ordering'] ) && 'likes' === $instance['ordering'] ? 'likes' : 'views';
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text' ) ) ) {
 			$display = $instance['display'];
@@ -252,7 +252,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$display = 'text';
 		}
 
-		if ( 'text' != $display ) {
+		if ( 'text' !== $display ) {
 			$get_image_options = array(
 				'fallback_to_avatars' => true,
 				/** This filter is documented in modules/stats.php */
@@ -261,7 +261,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				'width'               => null,
 				'height'              => null,
 			);
-			if ( 'grid' == $display ) {
+			if ( 'grid' === $display ) {
 				$get_image_options['avatar_size'] = 200;
 			}
 			/**
@@ -283,7 +283,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
 
-		if ( function_exists( 'wpl_get_blogs_most_liked_posts' ) && 'likes' == $ordering ) {
+		if ( function_exists( 'wpl_get_blogs_most_liked_posts' ) && 'likes' === $ordering ) {
 			$posts = $this->get_by_likes( $count );
 		} else {
 			$posts = $this->get_by_views( $count, $args );
@@ -370,14 +370,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						)
 					);
 					$post['image'] = $image['src'];
-					if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
+					if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
 						$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
 					}
 				}
 
 				unset( $post );
 
-				if ( 'grid' == $display ) {
+				if ( 'grid' === $display ) {
 					echo "<div class='widgets-grid-layout no-grav'>\n";
 					foreach ( $posts as $post ) :
 					?>
@@ -614,12 +614,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			 * To be able to remove attachment pages from private and password protect posts,
 			 * we need to replace their post status by the parent post' status.
 			 */
-			if ( 'inherit' == $post->post_status && 'attachment' == $post->post_type ) {
+			if ( 'inherit' === $post->post_status && 'attachment' === $post->post_type ) {
 				$post->post_status = get_post_status( $post_id );
 			}
 
 			// hide private and password protected posts
-			if ( 'publish' != $post->post_status || ! empty( $post->post_password ) ) {
+			if ( 'publish' !== $post->post_status || ! empty( $post->post_password ) ) {
 				continue;
 			}
 

@@ -120,9 +120,9 @@ class Jetpack_Twitter_Cards {
 			if ( class_exists( 'Jetpack_Media_Summary' ) ) {
 				$extract = Jetpack_Media_Summary::get( $post->ID );
 
-				if ( 'gallery' == $extract['type'] ) {
+				if ( 'gallery' === $extract['type'] ) {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
-				} elseif ( 'video' == $extract['type'] ) {
+				} elseif ( 'video' === $extract['type'] ) {
 					// Leave as summary, but with large pict of poster frame (we know those comply to Twitter's size requirements)
 					$card_type                = 'summary_large_image';
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $extract['image'] ) );
@@ -136,8 +136,8 @@ class Jetpack_Twitter_Cards {
 
 		// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
 		if ( ! isset( $og_tags['og:description'] ) || '' == trim( $og_tags['og:description'] ) || __( 'Visit the post for more.', 'jetpack' ) == $og_tags['og:description'] ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php
-			$has_creator = ( ! empty( $og_tags['twitter:creator'] ) && '@wordpressdotcom' != $og_tags['twitter:creator'] ) ? true : false;
-			if ( ! empty( $extract ) && 'video' == $extract['type'] ) { // use $extract['type'] since $card_type is 'summary' for video posts
+			$has_creator = ( ! empty( $og_tags['twitter:creator'] ) && '@wordpressdotcom' !== $og_tags['twitter:creator'] ) ? true : false;
+			if ( ! empty( $extract ) && 'video' === $extract['type'] ) { // use $extract['type'] since $card_type is 'summary' for video posts
 				/* translators: %s is the post author */
 				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Video post by %s.', 'jetpack' ), $og_tags['twitter:creator'] ) : __( 'Video post.', 'jetpack' );
 			} else {
@@ -198,7 +198,7 @@ class Jetpack_Twitter_Cards {
 
 			// Not falling back on Gravatar, because there's no way to know if we end up with an auto-generated one.
 
-		} elseif ( $img_count && ( 'image' == $extract['type'] || 'gallery' == $extract['type'] ) ) {
+		} elseif ( $img_count && ( 'image' === $extract['type'] || 'gallery' === $extract['type'] ) ) {
 			// Test for $extract['type'] to limit to image and gallery, so we don't send a potential fallback image like a Gravatar as a photo post.
 			$card_type                = 'summary_large_image';
 			$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 1400, ( empty( $extract['images'] ) ) ? $extract['image'] : $extract['images'][0]['url'] ) );

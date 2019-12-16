@@ -1224,7 +1224,7 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		$parent_url = get_permalink( get_post( $post->post_parent ) );
-		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
+		if ( '' === $parent_url ) { // WPCS: loose comparison ok.
 			$parent_url = get_permalink( $post );
 		}
 
@@ -1308,7 +1308,7 @@ class Jetpack_Sitemap_Builder {
 		}
 
 		$parent_url = esc_url( get_permalink( get_post( $post->post_parent ) ) );
-		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
+		if ( '' === $parent_url ) { // WPCS: loose comparison ok.
 			$parent_url = esc_url( get_permalink( $post ) );
 		}
 

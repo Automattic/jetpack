@@ -525,9 +525,9 @@ class Jetpack_User_Agent_Info {
 		$is_iphone = ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
 
-		if ( 'iphone-safari' == $type ) {
+		if ( 'iphone-safari' === $type ) {
 			return $is_iphone && $is_safari;
-		} elseif ( 'iphone-not-safari' == $type ) {
+		} elseif ( 'iphone-not-safari' === $type ) {
 			return $is_iphone && ! $is_safari;
 		} else {
 			return $is_iphone;
@@ -697,9 +697,9 @@ class Jetpack_User_Agent_Info {
 		$is_ipad   = ( false !== strpos( $ua, 'ipad' ) );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
 
-		if ( 'ipad-safari' == $type ) {
+		if ( 'ipad-safari' === $type ) {
 			return $is_ipad && $is_safari;
-		} elseif ( 'ipad-not-safari' == $type ) {
+		} elseif ( 'ipad-not-safari' === $type ) {
 			return $is_ipad && ! $is_safari;
 		} else {
 			return $is_ipad;

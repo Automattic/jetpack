@@ -23,7 +23,7 @@ function jetpack_get_site_logo( $show = 'url' ) {
 	}
 
 	// Return the ID if specified, otherwise return the URL by default
-	if ( 'id' == $show ) {
+	if ( 'id' === $show ) {
 		return $logo['id'];
 	} else {
 		return esc_url_raw( set_url_scheme( $logo['url'] ) );
@@ -54,7 +54,7 @@ function jetpack_get_site_logo_dimensions() {
 	// If the size is the default `thumbnail`, get its dimensions. Otherwise, get them from $_wp_additional_image_sizes
 	if ( empty( $size ) ) {
 		return false;
-	} elseif ( 'thumbnail' == $size ) {
+	} elseif ( 'thumbnail' === $size ) {
 		$dimensions = array(
 			'width'  => get_option( 'thumbnail_size_w' ),
 			'height' => get_option( 'thumbnail_size_h' ),

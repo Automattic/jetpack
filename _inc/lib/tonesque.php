@@ -137,7 +137,7 @@ class Tonesque {
 			imagecolorat( $img, $centerx, $centery ),
 		);
 
-		if ( 'hex' == $type ) {
+		if ( 'hex' === $type ) {
 			foreach ( $points as $i => $p ) {
 				$c = imagecolorsforindex( $img, $p );
 				$points[ $i ] = self::get_color( array(

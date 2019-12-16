@@ -56,7 +56,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
-		if ( 'none' != $instance['badge'] ) {
+		if ( 'none' !== $instance['badge'] ) {
 			if ( ! isset( $this->badges[ $instance['badge'] ] ) ) {
 				$instance['badge'] = $this->defaults['badge'];
 			}
@@ -68,7 +68,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			echo $args['after_widget'];
 		}
 
-		if ( 'none' != $instance['campaign'] ) {
+		if ( 'none' !== $instance['campaign'] ) {
 			$this->campaign = $instance['campaign'];
 			$this->variant  = $instance['variant'];
 			add_action( 'wp_footer', array( $this, 'footer_script' ) );

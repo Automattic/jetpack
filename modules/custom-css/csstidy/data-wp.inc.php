@@ -36,7 +36,7 @@ $GLOBALS['csstidy']['multiple_properties'][] = 'display';
 
 // Allow vendor prefixes for any property that is allowed to be used multiple times inside a single selector
 foreach ( $GLOBALS['csstidy']['multiple_properties'] as $property ) {
-	if ( '-' != $property[0] ) {
+	if ( '-' !== $property[0] ) {
 		$GLOBALS['csstidy']['multiple_properties'][] = '-o-' . $property;
 		$GLOBALS['csstidy']['multiple_properties'][] = '-ms-' . $property;
 		$GLOBALS['csstidy']['multiple_properties'][] = '-webkit-' . $property;

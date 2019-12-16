@@ -92,7 +92,7 @@ jQuery( function($) {
  * Sanitation filter for Gravatar Hovercard setting
  */
 function grofiles_hovercard_option_sanitize( $val ) {
-	if ( 'disabled' == $val ) {
+	if ( 'disabled' === $val ) {
 		return $val;
 	}
 
@@ -149,7 +149,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 				grofiles_gravatars_to_append( $user->ID );
 		}
 	} else if ( isset( $author->comment_type ) ) {
-		if ( '' != $author->comment_type && 'comment' != $author->comment_type )
+		if ( '' !== $author->comment_type && 'comment' !== $author->comment_type )
 			return $avatar;
 		if ( $author->user_id )
 			grofiles_gravatars_to_append( $author->user_id );

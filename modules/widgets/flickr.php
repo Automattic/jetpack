@@ -66,7 +66,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
+			$image_size_string = 'small' === $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
 
 			if ( ! empty( $instance['flickr_rss_url'] ) ) {
 

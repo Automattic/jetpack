@@ -601,10 +601,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		}
 
 		// set page template for this post..
-		if ( isset( $input['page_template'] ) && 'page' == $post_type->name ) {
+		if ( isset( $input['page_template'] ) && 'page' === $post_type->name ) {
 			$page_template = $input['page_template'];
 			$page_templates = wp_get_theme()->get_page_templates( get_post( $post_id ) );
-			if ( empty( $page_template ) || 'default' == $page_template || isset( $page_templates[ $page_template ] ) ) {
+			if ( empty( $page_template ) || 'default' === $page_template || isset( $page_templates[ $page_template ] ) ) {
 				update_post_meta( $post_id, '_wp_page_template', $page_template );
 			}
 		}
@@ -672,12 +672,12 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		// so we can track some other cool stats (like likes & comments on posts published)
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if (
-				( $new && 'publish' == $input['status'] )
+				( $new && 'publish' === $input['status'] )
 				|| (
 					! $new && isset( $last_status )
-					&& 'publish' != $last_status
+					&& 'publish' !== $last_status
 					&& isset( $new_status )
-					&& 'publish' == $new_status
+					&& 'publish' === $new_status
 				)
 			) {
 				/** This action is documented in modules/widgets/social-media-icons.php */
@@ -795,9 +795,9 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					$meta->operation = 'update';
 
 				if ( ! empty( $meta->value ) ) {
-					if ( 'true' == $meta->value )
+					if ( 'true' === $meta->value )
 						$meta->value = true;
-					if ( 'false' == $meta->value )
+					if ( 'false' === $meta->value )
 						$meta->value = false;
 				}
 

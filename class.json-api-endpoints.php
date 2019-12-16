@@ -1023,7 +1023,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$type    = array();
 					$default = '';
 
-					if ( 'none' == $types ) {
+					if ( 'none' === $types ) {
 						$types           = array();
 						$types[]['type'] = 'none';
 					}
@@ -1739,7 +1739,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type ) {
+		if ( 'any' === $post_type ) {
 			return true;
 		}
 
@@ -2045,11 +2045,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	function allows_cross_origin_requests() {
-		return 'GET' == $this->method || $this->allow_cross_origin_request;
+		return 'GET' === $this->method || $this->allow_cross_origin_request;
 	}
 
 	function allows_unauthorized_requests( $origin, $complete_access_origins ) {
-		return 'GET' == $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
+		return 'GET' === $this->method || ( $this->allow_unauthorized_request && in_array( $origin, $complete_access_origins ) );
 	}
 
 	function get_platform() {

@@ -35,20 +35,20 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			echo $before_title . stripslashes( $title ) . $after_title;
 		}
 
-		if ( 'text' == $instance['format'] ) {
+		if ( 'text' === $instance['format'] ) {
 			echo '<ul>';
 		}
 
-		if ( 'posts' == $instance['display'] ) {
+		if ( 'posts' === $instance['display'] ) {
 			$this->_rss_link( 'posts', $instance );
-		} elseif ( 'comments' == $instance['display'] ) {
+		} elseif ( 'comments' === $instance['display'] ) {
 			$this->_rss_link( 'comments', $instance );
-		} elseif ( 'posts-comments' == $instance['display'] ) {
+		} elseif ( 'posts-comments' === $instance['display'] ) {
 			$this->_rss_link( 'posts', $instance );
 			$this->_rss_link( 'comments', $instance );
 		}
 
-		if ( 'text' == $instance['format'] ) {
+		if ( 'text' === $instance['format'] ) {
 			echo '</ul>';
 		}
 
@@ -130,7 +130,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		echo '</select></label></p>';
 
 		echo '<div id="' . $this->get_field_id( 'image-settings' ) . '"';
-		if ( 'text' == $format ) {
+		if ( 'text' === $format ) {
 			echo ' style="display: none;"';
 		}
 		echo '><h3>' . esc_html__( 'Image Settings:', 'jetpack' ) . '</h3>';
@@ -173,10 +173,10 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	}
 
 	function _rss_link( $type = 'posts', $args ) {
-		if ( 'posts' == $type ) {
+		if ( 'posts' === $type ) {
 			$type_text = __( 'Posts', 'jetpack' );
 			$rss_type  = 'rss2_url';
-		} elseif ( 'comments' == $type ) {
+		} elseif ( 'comments' === $type ) {
 			$type_text = __( 'Comments', 'jetpack' );
 			$rss_type  = 'comments_rss2_url';
 		}
@@ -201,7 +201,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			$link_target = '_self';
 		}
 
-		if ( 'image' == $format || 'text-image' == $format ) {
+		if ( 'image' === $format || 'text-image' === $format ) {
 			/**
 			 * Filters the image used as RSS icon in the RSS widget.
 			 *
@@ -214,20 +214,20 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			$link_image = apply_filters( 'jetpack_rss_widget_icon', plugins_url( 'images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) );
 			$link_item  = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( $link_image ) . '" alt="RSS Feed" /></a>';
 		}
-		if ( 'text-image' == $format ) {
+		if ( 'text-image' === $format ) {
 			$link_item .= '&nbsp;<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ) . '</a>';
 		}
-		if ( 'text' == $format ) {
+		if ( 'text' === $format ) {
 			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ) . '</a>';
 		}
 
-		if ( 'text' == $format ) {
+		if ( 'text' === $format ) {
 			echo '<li>';
 		} else {
 			echo '<p>';
 		}
 		echo $link_item;
-		if ( 'text' == $format ) {
+		if ( 'text' === $format ) {
 			echo '</li>';
 		} else {
 			echo '</p>';

@@ -224,7 +224,7 @@ abstract class SAL_Site {
 		}
 
 		// allow special 'any' type
-		if ( 'any' == $post_type ) {
+		if ( 'any' === $post_type ) {
 			return true;
 		}
 

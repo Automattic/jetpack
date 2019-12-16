@@ -178,7 +178,7 @@ class Jetpack_Media_Summary {
 		}
 
 		// Do we really want to make the video the primary focus of the post?
-		if ( 'video' == $return['type'] ) {
+		if ( 'video' === $return['type'] ) {
 			$content = wpautop( strip_tags( $post->post_content ) );
 			$paragraphs = explode( '</p>', $content );
 			$number_of_paragraphs = 0;
@@ -200,7 +200,7 @@ class Jetpack_Media_Summary {
 		}
 
 		// If we don't have any prioritized embed...
-		if ( 'standard' == $return['type'] ) {
+		if ( 'standard' === $return['type'] ) {
 			if ( ( ! empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) && ! empty( $extract['image'] ) ) {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
@@ -272,14 +272,14 @@ class Jetpack_Media_Summary {
 	}
 
 	static function get_video_poster( $type, $id ) {
-		if ( 'videopress' == $type ) {
+		if ( 'videopress' === $type ) {
 			if ( function_exists( 'video_get_highest_resolution_image_url' ) ) {
 				return video_get_highest_resolution_image_url( $id );
 			} else if ( class_exists( 'VideoPress_Video' ) ) {
 				$video = new VideoPress_Video( $id );
 				return $video->poster_frame_uri;
 			}
-		} else if ( 'youtube' == $type ) {
+		} else if ( 'youtube' === $type ) {
 			return  'http://img.youtube.com/vi/'.$id.'/0.jpg';
 		}
 	}
