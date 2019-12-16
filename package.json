@@ -68,8 +68,7 @@
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
 		"test-dangerci-and-adminpage-and-extensions": "yarn danger ci && yarn test-adminpage && yarn test-extensions",
-		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
-		"version-packages": "bash ./bin/version-packages.sh"
+		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\""
 	},
 	"husky": {
 		"hooks": {
