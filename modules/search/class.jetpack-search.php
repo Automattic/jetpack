@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
 /**
  * Jetpack Search: Main Jetpack_Search class
  *
@@ -153,7 +154,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
+		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
@@ -280,6 +281,30 @@ class Jetpack_Search {
 				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
 		}
+	}
+
+	/**
+	 * Is search supported on the current plan
+	 *
+	 * @since 6.0
+	 * Loads scripts for Tracks analytics library
+	 */
+	public function is_search_supported() {
+		if ( method_exists( 'Jetpack_Plan', 'supports' ) ) {
+			return Jetpack_Plan::supports( 'search' );
+		}
+		return false;
+	}
+
+	/**
+	 * Does this site have a VIP index
+	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
+	 *
+	 * @since 6.0
+	 * @return string $script_version Version number.
+	 */
+	public function has_vip_index() {
+		return defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX;
 	}
 
 	/**
@@ -490,8 +515,11 @@ class Jetpack_Search {
 		if ( is_wp_error( $request ) ) {
 			return $request;
 		}
-
 		$response_code = wp_remote_retrieve_response_code( $request );
+
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
 
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
@@ -845,6 +873,17 @@ class Jetpack_Search {
 	}
 
 	/**
+	 * Initialize widgets for the Search module (on wp.com only).
+	 *
+	 * @module search
+	 */
+	public function action__widgets_init() {
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php';
+
+		register_widget( 'Jetpack_Search_Widget_Filters' );
+	}
+
+	/**
 	 * Get the Elasticsearch result.
 	 *
 	 * @since 5.0.0
@@ -958,7 +997,7 @@ class Jetpack_Search {
 		);
 
 		if ( empty( $args['query_fields'] ) ) {
-			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
+			if ( $this->has_vip_index() ) {
 				// VIP indices do not have per language fields.
 				$match_fields = $this->_get_caret_boosted_fields(
 					array(
