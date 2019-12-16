@@ -115,7 +115,6 @@ function SingleProductBackupPriceGroup( {
 	discountedPrice,
 	fullPrice,
 } ) {
-	const timeframe = <div className="single-product-backup__price-group-billing-timeframe" />;
 	let price = <PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } />;
 
 	if ( !! discountedPrice ) {
@@ -126,20 +125,24 @@ function SingleProductBackupPriceGroup( {
 			</React.Fragment>
 		);
 	}
+
+	let billingTimeFrameString = '';
+	if ( 'yearly' === billingTimeFrame ) {
+		billingTimeFrameString = __( 'per year', {
+			comment: 'Duration of product subscription timeframe.',
+		} );
+	} else if ( 'monthly' === billingTimeFrame ) {
+		billingTimeFrameString = __( 'per month', {
+			comment: 'Duration of product subscription timeframe.',
+		} );
+	}
+
 	return (
 		<div className="single-product-backup__price-group">
-			{ billingTimeFrame === 'yearly' &&
-				__( '{{price/}} {{timeframe}}per year{{/timeframe}}', {
-					components: { price, timeframe },
-					comment:
-						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
-				} ) }
-			{ billingTimeFrame === 'monthly' &&
-				__( '{{price/}} {{timeframe}}per month{{/timeframe}}', {
-					components: { price, timeframe },
-					comment:
-						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
-				} ) }
+			{ price }
+			<div className="single-product-backup__price-group-billing-timeframe">
+				{ billingTimeFrameString }
+			</div>
 		</div>
 	);
 }
