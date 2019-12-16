@@ -126,7 +126,6 @@ class Partner {
 				 * @since 6.9.0
 				 */
 				return apply_filters( 'jetpack_affiliate_code', get_option( 'jetpack_affiliate_code', '' ) );
-				break;
 			case self::SUBSIDIARY_CODE:
 				/**
 				 * Allow to filter the partner subsidiary id.
@@ -139,7 +138,6 @@ class Partner {
 					'jetpack_partner_subsidiary_id',
 					get_option( 'jetpack_partner_subsidiary_id', '' )
 				);
-				break;
 			default:
 				return '';
 		}
