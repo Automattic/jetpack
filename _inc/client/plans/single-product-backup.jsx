@@ -17,14 +17,19 @@ import PlanPrice from 'components/plans/plan-price';
 import './single-product-backup.scss';
 
 export function SingleProductBackup( props ) {
-	const { isFetching, ...backupCardProps } = props;
+	const { isFetching, products, upgradeLinks, selectedBackupType, setSelectedBackupType } = props;
 
 	return (
 		<div className="plans-section__single-product">
 			{ isFetching ? (
 				<div className="plans-section__single-product-skeleton is-placeholder" />
 			) : (
-				<SingleProductBackupCard { ...backupCardProps } />
+				<SingleProductBackupCard
+					products={ products }
+					upgradeLinks={ upgradeLinks }
+					selectedBackupType={ selectedBackupType }
+					setSelectedBackupType={ setSelectedBackupType }
+				/>
 			) }
 		</div>
 	);
