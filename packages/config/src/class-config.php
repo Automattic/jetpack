@@ -31,7 +31,7 @@ class Config {
 	);
 
 	/**
-	 * Creates the configuration class instance..
+	 * Creates the configuration class instance.
 	 */
 	public function __construct() {
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_early' ), 5 );

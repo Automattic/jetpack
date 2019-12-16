@@ -10,8 +10,6 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
 use Automattic\Jetpack\Sync\Modules\Posts;
 
-Jetpack::configure();
-
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
