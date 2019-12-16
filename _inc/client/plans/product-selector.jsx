@@ -160,22 +160,28 @@ class ProductSelector extends Component {
 	};
 
 	renderTitleSection() {
-		const { backupInfoUrl } = this.props;
+		const { backupInfoUrl, isFetchingData } = this.props;
+		const purchase = this.findPrioritizedPurchase();
+
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
 					{ __( "Just looking for backups? We've got you covered." ) }
-					<br />
-					<ExternalLink
-						target="_blank"
-						href={ backupInfoUrl }
-						icon
-						iconSize={ 12 }
-						onClick={ this.handleLandingPageLinkClick }
-					>
-						{ __( 'Which backup option is best for me?' ) }
-					</ExternalLink>
+					{ ! isFetchingData && ! purchase && (
+						<>
+							<br />
+							<ExternalLink
+								target="_blank"
+								href={ backupInfoUrl }
+								icon
+								iconSize={ 12 }
+								onClick={ this.handleLandingPageLinkClick }
+							>
+								{ __( 'Which backup option is best for me?' ) }
+							</ExternalLink>
+						</>
+					) }
 				</h2>
 			</Fragment>
 		);
