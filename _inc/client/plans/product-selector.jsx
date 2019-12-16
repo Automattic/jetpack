@@ -25,13 +25,9 @@ import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-stat
 import { getProducts, isFetchingProducts } from '../state/products';
 
 class ProductSelector extends Component {
-	constructor( props ) {
-		super( props );
-
-		this.state = {
-			selectedBackupType: 'real-time',
-		};
-	}
+	state = {
+		selectedBackupType: 'real-time',
+	};
 
 	getProductCardPropsForPurchase( purchase ) {
 		const { siteRawlUrl } = this.props;
