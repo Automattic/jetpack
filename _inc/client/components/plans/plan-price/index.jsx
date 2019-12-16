@@ -74,17 +74,14 @@ export class PlanPrice extends Component {
 			return null;
 		}
 
+		const WrapperComponent = inline ? 'span' : 'div';
 		const classes = classNames( 'plan-price', className, {
 			'is-discounted': discounted,
 			'is-inline': inline,
 			'is-original': original,
 		} );
 
-		return inline ? (
-			<span className={ classes }>{ this.renderContent() }</span>
-		) : (
-			<div className={ classes }>{ this.renderContent() }</div>
-		);
+		return <WrapperComponent className={ classes }>{ this.renderContent() }</WrapperComponent>;
 	}
 }
 
