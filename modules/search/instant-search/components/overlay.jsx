@@ -15,7 +15,7 @@ const Overlay = ( { showOverlay, toggleOverlay, children } ) => {
 	return (
 		<div className={ classNames.join( ' ' ) }>
 			<button className="jetpack-instant-search__overlay-close" onClick={ toggleOverlay }>
-				{ __( 'Close' ) }
+				{ __( 'Close', 'jetpack ) }
 			</button>
 			{ children }
 		</div>
