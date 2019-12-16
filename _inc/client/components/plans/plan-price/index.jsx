@@ -54,15 +54,15 @@ export class PlanPrice extends Component {
 		return (
 			<>
 				<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
-				{ ! higherPrice && this.renderPrice( priceRange[ 0 ] ) }
-				{ higherPrice &&
-					__( '{{smallerPrice/}}-{{higherPrice/}}', {
-						components: {
-							smallerPrice,
-							higherPrice,
-						},
-						comment: 'The price range for a particular product',
-					} ) }
+				{ higherPrice
+					? __( '{{smallerPrice/}}-{{higherPrice/}}', {
+							components: {
+								smallerPrice,
+								higherPrice,
+							},
+							comment: 'The price range for a particular product',
+					  } )
+					: smallerPrice }
 			</>
 		);
 	}
