@@ -26,9 +26,6 @@ export class PlanPrice extends Component {
 		} else {
 			rawPriceRange = [ rawPrice ];
 		}
-		if ( rawPriceRange.includes( 0 ) ) {
-			return null;
-		}
 
 		return rawPriceRange.map( item => {
 			return {
@@ -71,9 +68,9 @@ export class PlanPrice extends Component {
 	}
 
 	render() {
-		const { className, currencyCode, discounted, inline, original, rawPrice } = this.props;
+		const { className, discounted, inline, original, rawPrice } = this.props;
 
-		if ( ! currencyCode || ! rawPrice ) {
+		if ( rawPrice === undefined ) {
 			return null;
 		}
 

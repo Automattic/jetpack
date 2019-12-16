@@ -9,6 +9,8 @@ flexbox container.
 
 If you pass an array of two numbers in the `rawPrice` prop, a range of prices will be displayed.
 
+Note that a zero-value price is allowed.
+
 ## Usage
 
 ```jsx
@@ -39,7 +41,7 @@ export default class extends React.Component {
 | Prop         | Type           | Description                                               |
 | ----         | -------        | -----------                                               |
 | className    | string         | If you need to add additional classes                     |
-| currencyCode | string         | Currency of the price                                     |
+| currencyCode | string         | Currency of the price (default: `USD`)                    |
 | discounted   | bool           | Is the price discounted and this is the discounted one?   |
 | inline       | bool           | When set, a `span` will be returned instead of a `div`    |
 | original     | bool           | Is the price discounted and this is the original one?     |
