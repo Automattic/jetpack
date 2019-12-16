@@ -194,32 +194,27 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 	}
 	const { link, name, fullPrice, discountedPrice, type } = selectedUpgrade;
 	let billingTimeFrameString = '';
-	const timeframe = <span />;
 	const price = (
 		<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice || fullPrice } inline />
 	);
 	if ( 'yearly' === billingTimeFrame ) {
-		billingTimeFrameString = __( '{{price/}} {{timeframe}}per year{{/timeframe}}', {
-			components: { price, timeframe },
-			comment:
-				'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+		billingTimeFrameString = __( 'per year', {
+			comment: 'Duration of product subscription timeframe.',
 		} );
 	} else if ( 'monthly' === billingTimeFrame ) {
-		billingTimeFrameString = __( '{{price/}} {{timeframe}}per month{{/timeframe}}', {
-			components: { price, timeframe },
-			comment:
-				'Describes how much a product costs. {{price/}} can be a single value or a range of values',
+		billingTimeFrameString = __( 'per month', {
+			comment: 'Duration of product subscription timeframe.',
 		} );
 	}
 
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( type ) } primary>
-				{ __( 'Upgrade to %(name)s for {{billingTimeFrame /}}', {
-					components: { billingTimeFrame: billingTimeFrameString },
+				{ __( 'Upgrade to %(name)s for {{price/}} {{billingTimeFrame /}}', {
+					components: { billingTimeFrame: billingTimeFrameString, price },
 					args: { name },
 					comment:
-						'Button to purchase product upgrade. %(price) can be a range of prices, and %(billingTimeFrame) is the billing period for the product upgrade.',
+						'Button to purchase product upgrade. {{price /}} can be a range of prices, and %(billingTimeFrame) is the billing period for the product upgrade.',
 				} ) }
 			</Button>
 		</div>
