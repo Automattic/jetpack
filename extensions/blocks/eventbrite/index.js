@@ -14,8 +14,7 @@ export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:eventbrite\
 
 export const name = 'eventbrite';
 
-// Should this be 'Eventbrite Tickets', since we may add other embeds in the future?
-export const title = __( 'Eventbrite', 'jetpack' );
+export const title = __( 'Eventbrite Tickets', 'jetpack' );
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
