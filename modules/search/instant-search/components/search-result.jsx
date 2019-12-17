@@ -26,6 +26,7 @@ class SearchResult extends Component {
 			railcar: this.props.result.railcar.railcar,
 			rec_blog_id: this.props.result.railcar.rec_blog_id,
 			rec_post_id: this.props.result.railcar.rec_post_id,
+			// TODO: Add a way to differentiate between different result formats
 			ui_algo: 'jetpack-instant-search-ui/v1',
 			ui_position: this.props.index,
 		};
@@ -38,10 +39,10 @@ class SearchResult extends Component {
 
 	render() {
 		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
-			return <SearchResultProduct { ...this.props } />;
+			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
 		}
 
-		return <SearchResultMinimal { ...this.props } />;
+		return <SearchResultMinimal onClick={ this.onClick } { ...this.props } />;
 	}
 }
 
