@@ -260,10 +260,10 @@ class Jetpack_WPCOM_Block_Editor {
 		$version = gmdate( 'Ymd' );
 
 		wp_enqueue_script(
-			'wpcom-block-editor-default-script',
+			'wpcom-block-editor-default-editor-script',
 			$debug
-				? '//widgets.wp.com/wpcom-block-editor/default.js?minify=false'
-				: '//widgets.wp.com/wpcom-block-editor/default.min.js',
+				? '//widgets.wp.com/wpcom-block-editor/default.editor.js?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/default.editor.min.js',
 			array(
 				'jquery',
 				'lodash',
@@ -271,7 +271,6 @@ class Jetpack_WPCOM_Block_Editor {
 				'wp-data',
 				'wp-editor',
 				'wp-element',
-				'wp-plugins',
 				'wp-rich-text',
 			),
 			$version,
@@ -279,7 +278,7 @@ class Jetpack_WPCOM_Block_Editor {
 		);
 
 		wp_localize_script(
-			'wpcom-block-editor-default-script',
+			'wpcom-block-editor-default-editor-script',
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
@@ -296,15 +295,16 @@ class Jetpack_WPCOM_Block_Editor {
 
 		if ( jetpack_is_atomic_site() ) {
 			wp_enqueue_script(
-				'wpcom-block-editor-wpcom-script',
+				'wpcom-block-editor-wpcom-editor-script',
 				$debug
-					? '//widgets.wp.com/wpcom-block-editor/wpcom.js?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/wpcom.min.js',
+					? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.js?minify=false'
+					: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.js',
 				array(
+					'lodash',
 					'wp-blocks',
 					'wp-data',
 					'wp-dom-ready',
-					'wp-nux',
+					'wp-plugins',
 				),
 				$version,
 				true
@@ -313,10 +313,10 @@ class Jetpack_WPCOM_Block_Editor {
 
 		if ( $this->is_iframed_block_editor() ) {
 			wp_enqueue_script(
-				'wpcom-block-editor-calypso-iframe-script',
+				'wpcom-block-editor-calypso-editor-script',
 				$debug
-					? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.js?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.min.js',
+					? '//widgets.wp.com/wpcom-block-editor/calypso.editor.js?minify=false'
+					: '//widgets.wp.com/wpcom-block-editor/calypso.editor.min.js',
 				array(
 					'calypsoify_wpadminmods_js',
 					'jquery',
@@ -333,10 +333,10 @@ class Jetpack_WPCOM_Block_Editor {
 			);
 
 			wp_enqueue_style(
-				'wpcom-block-editor-calypso-iframe-styles',
+				'wpcom-block-editor-calypso-editor-styles',
 				$debug
-					? '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.css?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/calypso-iframe-bridge-server.min.css',
+					? '//widgets.wp.com/wpcom-block-editor/calypso.editor.css?minify=false'
+					: '//widgets.wp.com/wpcom-block-editor/calypso.editor.min.css',
 				array(),
 				$version
 			);
@@ -361,10 +361,10 @@ class Jetpack_WPCOM_Block_Editor {
 		$debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 
 		wp_enqueue_style(
-			'wpcom-block-editor-default-styles',
+			'wpcom-block-editor-default-view-styles',
 			$debug
-				? '//widgets.wp.com/wpcom-block-editor/default.css?minify=false'
-				: '//widgets.wp.com/wpcom-block-editor/default.min.css',
+				? '//widgets.wp.com/wpcom-block-editor/default.view.css?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/default.view.min.css',
 			array(),
 			gmdate( 'Ymd' )
 		);
@@ -402,8 +402,8 @@ class Jetpack_WPCOM_Block_Editor {
 				'v',
 				gmdate( 'YW' ),
 				$debug
-					? '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.js?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/calypso-tinymce.min.js'
+					? '//widgets.wp.com/wpcom-block-editor/calypso.tinymce.js?minify=false'
+					: '//widgets.wp.com/wpcom-block-editor/calypso.tinymce.min.js'
 			);
 		}
 
