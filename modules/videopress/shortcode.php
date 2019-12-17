@@ -22,6 +22,8 @@ class VideoPress_Shortcode {
 
 		add_filter( 'oembed_fetch_url', array( $this, 'add_oembed_for_parameter' ) );
 
+		add_filter( 'the_content', array( $this, 'reverse_old_embeds' ) );
+
 		$this->add_video_embed_hander();
 	}
 
@@ -34,6 +36,33 @@ class VideoPress_Shortcode {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Filters old <embed> codes out of the content
+	 *
+	 * @param string $content the content.
+	 * @return string filtered content
+	 */
+	public function reverse_old_embeds( $content ) {
+		$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
+		$content = preg_replace_callback(
+			$regex,
+			function( $matches, $orig_html = null ) {
+				$embed_code  = $matches[0];
+				$url_matches = array();
+
+				// get src="http://v.wordpress.com/KllQxFVq" attribute.
+				$url_matched = preg_match( '/src="http:\/\/v.wordpress.com\/([^"]+)"/', $embed_code, $url_matches );
+
+				if ( $url_matched ) {
+					$video_id = $url_matches[1];
+					return "[videopress $video_id]";
+				}
+			},
+			$content
+		);
+		return $content;
 	}
 
 	/**
