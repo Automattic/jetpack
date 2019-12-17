@@ -9,13 +9,13 @@ Eventually, we expect this module to enhance all front-end views that enable the
 ### High-level overview of the development flow
 
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
-1. Start a new branch.
-1. Modify/Improve the code in the instant-search directories. New libs get added to the common package.json.
-1. Run `yarn build-search [--watch]` to compile your changes.
-1. Now test your changes on the front end of your test site.
-1. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
-1. Test the WordPress.com diff
-1. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
+2. Start a new branch.
+3. Modify/Improve the code in the instant-search directories. New libs get added to the common package.json.
+4. Run `yarn build-search [--watch]` to compile your changes.
+5. Now test your changes on the front end of your test site.
+6. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
+7. Test the WordPress.com diff
+8. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
 
 ### Beta Features
 
@@ -23,13 +23,13 @@ TBD
 
 ### Testing Instructions
 
-Add define( "JETPACK_SEARCH_PROTOTYPE", true ); to your wp-config.php. If using Jetpack's Docker development environment, you can create a file at /docker/mu-plugins/instant-search.php and add the define there.
+1. Add `define( "JETPACK_SEARCH_PROTOTYPE", true );` to your `wp-config.php`. If using Jetpack's Docker development environment, you can create a file at `/docker/mu-plugins/instant-search.php` and add the define there.
 
-Ensure that your site has the Jetpack Pro plan and Jetpack Search enabled. You can enable Jetpack Search in the Performance tab within the Jetpack menu (/wp-admin/admin.php?page=jetpack#/performance).
+2. Ensure that your site has the Jetpack Pro plan and Jetpack Search enabled. You can enable Jetpack Search in the Performance tab within the Jetpack menu (/wp-admin/admin.php?page=jetpack#/performance).
 
-Select a theme of your choice and add a Jetpack Search widget to the site via the customizer. If using a theme with a sidebar widget area, please add the Jetpack Search widget there.
+3. Select a theme of your choice and add a Jetpack Search widget to the site via the customizer. If using a theme with a sidebar widget area, please add the Jetpack Search widget there.
 
-If using a theme with a sidebar widget, you can navigate to / to start the search experience. Otherwise, navigate to your search page (e.g. /?s=hello).
+4. If using a theme with a sidebar widget, you can navigate to / to start the search experience. Otherwise, navigate to your search page (e.g. `/?s=hello`).
 
 ## Architectural Choices
 
