@@ -729,15 +729,18 @@ class Jetpack_Gutenberg {
 	 * @return string $block_varation production|beta|experimental
 	 */
 	public static function blocks_variation() {
+		// Default to production blocks.
+		$block_varation = 'production';
+
 		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
-			return 'beta';
+			$block_varation = 'beta';
 		}
 
 		/*
 		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant.
 		 */
 		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
-			return 'experimental';
+			$block_varation = 'experimental';
 		}
 
 		/**
@@ -747,7 +750,7 @@ class Jetpack_Gutenberg {
 		 *
 		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
 		 */
-		return apply_filters( 'jetpack_blocks_variation', 'production' );
+		return apply_filters( 'jetpack_blocks_variation', $block_varation );
 	}
 
 	/**
