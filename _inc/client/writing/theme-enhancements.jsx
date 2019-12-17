@@ -239,9 +239,8 @@ class ThemeEnhancements extends React.Component {
 							className="jp-form-settings-notice"
 						>
 							{ __(
-								'{{b}}Note:{{/b}} This feature is being discontinued ' +
+								'{{b}}Note:{{/b}} This feature is being retired ' +
 									'and will be removed from Jetpack in March. ' +
-									'Please ensure your current theme is mobile-ready or find a new one. ' +
 									'{{link}}Learn more{{/link}}',
 								{
 									components: {
