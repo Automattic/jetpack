@@ -1053,6 +1053,50 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( ! empty( $synced_value ), 'We couldn\'t synced a value!' );
 	}
 
+	/**
+	 * Test get_hosting_provider() callable to ensure that known hosts have the
+	 * right hosting provider returned.
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_callable() {
+		Constants::set_constant( 'GD_SYSTEM_PLUGIN_DIR', 'set' );
+		if ( Constants::is_defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'gd-managed-wp' );
+			Constants::clear_constants();
+		}
+		Constants::set_constant( 'MM_BASE_DIR', 'set' );
+		if ( Constants::is_defined( 'MM_BASE_DIR' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'bh' );
+			Constants::clear_constants();
+		}
+		Constants::set_constant( 'PAGELYBIN', 'set' );
+		if ( Constants::is_defined( 'PAGELYBIN' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'pagely' );
+			Constants::clear_constants();
+		}
+		Constants::set_constant( 'KINSTAMU_VERSION', 'set' );
+		if ( Constants::is_defined( 'KINSTAMU_VERSION' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'kinsta' );
+			Constants::clear_constants();
+		}
+		Constants::set_constant( 'FLYWHEEL_CONFIG_DIR', 'set' );
+		if ( Constants::is_defined( 'FLYWHEEL_CONFIG_DIR' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'flywheel' );
+			Constants::clear_constants();
+		}
+		Constants::set_constant( 'IS_PRESSABLE', 'set' );
+		if ( Constants::is_defined( 'IS_PRESSABLE' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'pressable' );
+			Constants::clear_constants();
+		}
+		Constants::set_constant( 'VIP_GO_ENV', 'set' );
+		if ( Constants::is_defined( 'VIP_GO_ENV' ) && false !== Constants::get_constant( 'VIP_GO_ENV' ) ) {
+			$this->assertEquals( Functions::get_hosting_provider(), 'vip-go' );
+			Constants::clear_constants();
+		}
+	}
+
 }
 
 function jetpack_recursive_banana() {
