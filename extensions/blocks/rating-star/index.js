@@ -15,7 +15,7 @@ import './style.scss';
 export const name = 'rating-star';
 
 export const settings = {
-	title: 'Star Rating',
+	title: __( 'Star Rating', 'jetpack' ),
 	description: __(
 		'Rate movies, books, songs, recipes — anything you can put a number on.',
 		'jetpack'
