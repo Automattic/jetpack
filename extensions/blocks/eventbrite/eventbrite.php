@@ -36,7 +36,11 @@ function jetpack_eventbrite_block_load_assets( $attr ) {
 
 	$matches = array();
 	preg_match( '/(\d+)$/', $attr['url'], $matches );
-	$event_id = $matches[1];
+	$event_id = isset( $matches[1] ) && $matches[1] ? $matches[1] : null;
+
+	if ( ! $event_id ) {
+		return '';
+	}
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
