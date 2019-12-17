@@ -203,11 +203,11 @@ function ProductSavings( { selectedBackup, currencyCode } ) {
 	);
 
 	return (
-		<span className="single-product-backup__savings">
+		<p className="single-product-backup__savings">
 			{ __( 'You are saving {{savings /}} by paying yearly', {
 				components: { savings },
 			} ) }
-		</span>
+		</p>
 	);
 }
 
@@ -284,13 +284,11 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
-				<p>
-					<ProductSavings
-						selectedBackup={ selectedBackup }
-						billingTimeFrame={ billingTimeFrame }
-						currencyCode={ currencyCode }
-					/>
-				</p>
+				<ProductSavings
+					selectedBackup={ selectedBackup }
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+				/>
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }
 					billingTimeFrame={ billingTimeFrame }
