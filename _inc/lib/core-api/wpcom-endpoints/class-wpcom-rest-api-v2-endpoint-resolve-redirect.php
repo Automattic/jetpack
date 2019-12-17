@@ -56,7 +56,15 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function follow_redirect( $request ) {
-		$response = wp_safe_remote_get( $request['url'] );
+		$response = wp_safe_remote_get(
+			$request['url'],
+			array(
+				'headers' => array(
+					'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:71.0) Gecko/20100101 Firefox/71.0',
+				),
+			)
+		);
+
 		if ( is_wp_error( $response ) ) {
 			return rest_ensure_response( '' );
 		}
