@@ -77,7 +77,8 @@ function SingleProductBackupCard( {
 			link: upgradeLinks.daily,
 			discountedPrice: priceDaily,
 			fullPrice: priceDailyMonthlyPerYear,
-			potentialSavings: priceDailyMonthlyPerYear - priceDaily,
+			potentialSavings:
+				priceDailyMonthlyPerYear && priceDaily ? priceDailyMonthlyPerYear - priceDaily : null,
 		},
 		{
 			type: 'real-time',
@@ -85,7 +86,10 @@ function SingleProductBackupCard( {
 			link: upgradeLinks[ 'real-time' ],
 			discountedPrice: priceRealtime,
 			fullPrice: priceRealtimeMonthlyPerYear,
-			potentialSavings: priceRealtimeMonthlyPerYear - priceRealtime,
+			potentialSavings:
+				priceRealtimeMonthlyPerYear && priceRealtime
+					? priceRealtimeMonthlyPerYear - priceRealtime
+					: null,
 		},
 	];
 
@@ -179,7 +183,7 @@ function PlanRadioButton( {
 }
 
 function ProductSavings( { selectedBackup, currencyCode } ) {
-	if ( ! selectedBackup ) {
+	if ( ! selectedBackup || ! selectedBackup.potentialSavings ) {
 		return null;
 	}
 	const savings = (
