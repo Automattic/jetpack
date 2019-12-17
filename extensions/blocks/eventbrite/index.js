@@ -70,8 +70,4 @@ export const settings = {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
 		},
 	},
-
-	// responsive: false,
-
-	// patterns: [ /^https?:\/\/(.+?\.)?eventbrite\.com(\.[a-z]{2,4})*\/.+/i ],
 };
