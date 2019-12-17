@@ -57,7 +57,7 @@ class VideoPress_Shortcode {
 
 				if ( $url_matched ) {
 					$video_id = $url_matches[1];
-					return "[videopress $video_id]";
+					return "https://videopress.com/v/$video_id";
 				}
 			},
 			$content
