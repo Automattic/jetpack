@@ -534,12 +534,12 @@ class Jetpack_Photon {
 							$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 						} else {
 							$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
-							if ( false == $resize_args ) {
+							if ( false === $resize_args ) {
 								$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
 									? $args['fit']
 									: false;
 							}
-							if ( false == $resize_args ) {
+							if ( false === $resize_args ) {
 								$resize_args = ( ! $resize_args && isset( $args['lb'] ) )
 									? $args['lb']
 									: false;
