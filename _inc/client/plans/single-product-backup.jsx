@@ -35,11 +35,46 @@ export function SingleProductBackup( props ) {
 	);
 }
 
+function getBillingTimeFrameString( billingTimeFrame ) {
+	if ( 'yearly' === billingTimeFrame ) {
+		return __( 'per year', {
+			comment: 'Duration of product subscription timeframe.',
+		} );
+	}
+
+	if ( 'monthly' === billingTimeFrame ) {
+		return __( 'per month', {
+			comment: 'Duration of product subscription timeframe.',
+		} );
+	}
+
+	return '';
+}
+
+function PromoNudge() {
+	const percent = 70;
+
+	return (
+		<div className="single-product-backup__promo">
+			<div className="single-product-backup__promo-star">
+				{ __( 'Up to %(percent)d%% off!', { args: { percent } } ) }
+			</div>
+			<h4 className="single-product-backup__promo-header">
+				{ __( 'Hurry, these are {{s}}Limited time introductory prices!{{/s}}', {
+					components: {
+						s: <strong />,
+					},
+				} ) }
+			</h4>
+		</div>
+	);
+}
+
 function SingleProductBackupCard( {
 	products,
+	upgradeLinks,
 	selectedBackupType,
 	setSelectedBackupType,
-	upgradeLinks,
 } ) {
 	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
@@ -55,14 +90,22 @@ function SingleProductBackupCard( {
 		{
 			type: 'daily',
 			name: __( 'Daily Backups' ),
+			link: upgradeLinks.daily,
 			discountedPrice: priceDaily,
 			fullPrice: priceDailyMonthlyPerYear,
+			potentialSavings:
+				priceDailyMonthlyPerYear && priceDaily ? priceDailyMonthlyPerYear - priceDaily : null,
 		},
 		{
 			type: 'real-time',
 			name: __( 'Real-Time Backups' ),
+			link: upgradeLinks[ 'real-time' ],
 			discountedPrice: priceRealtime,
 			fullPrice: priceRealtimeMonthlyPerYear,
+			potentialSavings:
+				priceRealtimeMonthlyPerYear && priceRealtime
+					? priceRealtimeMonthlyPerYear - priceRealtime
+					: null,
 		},
 	];
 
@@ -70,12 +113,6 @@ function SingleProductBackupCard( {
 		<div className="single-product-backup__accented-card dops-card">
 			<div className="single-product-backup__accented-card-header">
 				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-				<SingleProductBackupPriceGroup
-					billingTimeFrame={ billingTimeFrame }
-					currencyCode={ currencyCode }
-					discountedPrice={ [ priceDaily, priceRealtime ] }
-					fullPrice={ [ priceDailyMonthlyPerYear, priceRealtimeMonthlyPerYear ] }
-				/>
 			</div>
 			<div className="single-product-backup__accented-card-body">
 				<SingleProductBackupBodyWithRouter
@@ -97,7 +134,6 @@ function SingleProductBackupPriceGroup( {
 	discountedPrice,
 	fullPrice,
 } ) {
-	const timeframe = <div className="single-product-backup__price-group-billing-timeframe" />;
 	let price = <PlanPrice currencyCode={ currencyCode } rawPrice={ fullPrice } />;
 
 	if ( !! discountedPrice ) {
@@ -108,20 +144,15 @@ function SingleProductBackupPriceGroup( {
 			</React.Fragment>
 		);
 	}
+
+	const billingTimeFrameString = getBillingTimeFrameString( billingTimeFrame );
+
 	return (
 		<div className="single-product-backup__price-group">
-			{ billingTimeFrame === 'yearly' &&
-				__( '{{price/}} {{timeframe}}per year{{/timeframe}}', {
-					components: { price, timeframe },
-					comment:
-						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
-				} ) }
-			{ billingTimeFrame === 'monthly' &&
-				__( '{{price/}} {{timeframe}}per month{{/timeframe}}', {
-					components: { price, timeframe },
-					comment:
-						'Describes how much a product costs. {{price/}} can be a single value or a range of values',
-				} ) }
+			{ price }
+			<div className="single-product-backup__price-group-billing-timeframe">
+				{ billingTimeFrameString }
+			</div>
 		</div>
 	);
 }
@@ -158,7 +189,52 @@ function PlanRadioButton( {
 	);
 }
 
-// eslint-disable-next-line no-unused-vars
+function ProductSavings( { selectedBackup, currencyCode } ) {
+	if ( ! selectedBackup || ! selectedBackup.potentialSavings ) {
+		return null;
+	}
+	const savings = (
+		<PlanPrice
+			className="single-product-backup__annual-savings"
+			rawPrice={ selectedBackup.potentialSavings }
+			currencyCode={ currencyCode }
+			inline
+		/>
+	);
+
+	return (
+		<p className="single-product-backup__savings">
+			{ __( 'You are saving {{savings /}} by paying yearly', {
+				components: { savings },
+			} ) }
+		</p>
+	);
+}
+
+function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onClickHandler } ) {
+	if ( ! selectedUpgrade ) {
+		return null;
+	}
+	const { link, name, fullPrice, discountedPrice, type } = selectedUpgrade;
+	const billingTimeFrameString = getBillingTimeFrameString( billingTimeFrame );
+	const price = (
+		<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice || fullPrice } inline />
+	);
+
+	return (
+		<div className="single-product-backup__upgrade-button-container">
+			<Button href={ link } onClick={ onClickHandler( type ) } primary>
+				{ __( 'Upgrade to %(name)s for {{price/}} %(billingTimeFrame)s', {
+					components: { price },
+					args: { name, billingTimeFrame: billingTimeFrameString },
+					comment:
+						'Button to purchase product upgrade. %(name)s is the product name, {{price /}} can be a range of prices, and %(billingTimeFrame)s is the billing period for the product upgrade.',
+				} ) }
+			</Button>
+		</div>
+	);
+}
+
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
 		backupOptions: PropTypes.array,
@@ -166,7 +242,6 @@ class SingleProductBackupBody extends React.Component {
 		currencyCode: PropTypes.string,
 		setSelectedBackupType: PropTypes.func,
 		selectedBackupType: PropTypes.string,
-		upgradeLinks: PropTypes.object,
 	};
 
 	handleSelectedBackupTypeChange = event => {
@@ -183,24 +258,17 @@ class SingleProductBackupBody extends React.Component {
 	};
 
 	render() {
-		const {
-			backupOptions,
-			billingTimeFrame,
-			currencyCode,
-			selectedBackupType,
-			upgradeLinks,
-		} = this.props;
+		const { backupOptions, billingTimeFrame, currencyCode, selectedBackupType } = this.props;
 
-		// TODO: Move out those somewhere else to make this a flexible and fully reusable component.
-		const upgradeTitles = {
-			'real-time': __( 'Upgrade to Real-Time Backups' ),
-			daily: __( 'Upgrade to Daily Backups' ),
-		};
+		const selectedBackup = backupOptions.find( ( { type } ) => type === selectedBackupType );
 
 		return (
 			<React.Fragment>
 				<p>{ __( 'Always-on backups ensure you never lose your site.' ) }</p>
-				<h4 className="single-product-backup__options-header">{ __( 'Backup options:' ) }</h4>
+				<PromoNudge />
+				<h4 className="single-product-backup__options-header">
+					{ __( 'Select a backup option:' ) }
+				</h4>
 				<div className="single-product-backup__radio-buttons-container">
 					{ backupOptions.map( option => (
 						<PlanRadioButton
@@ -216,19 +284,17 @@ class SingleProductBackupBody extends React.Component {
 						/>
 					) ) }
 				</div>
-				{ upgradeLinks &&
-					upgradeLinks[ selectedBackupType ] &&
-					upgradeTitles[ selectedBackupType ] && (
-						<div className="single-product-backup__upgrade-button-container">
-							<Button
-								href={ upgradeLinks[ selectedBackupType ] }
-								onClick={ this.handleUpgradeButtonClick( selectedBackupType ) }
-								primary
-							>
-								{ upgradeTitles[ selectedBackupType ] }
-							</Button>
-						</div>
-					) }
+				<ProductSavings
+					selectedBackup={ selectedBackup }
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+				/>
+				<UpgradeButton
+					selectedUpgrade={ selectedBackup }
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					onClickHandler={ this.handleUpgradeButtonClick }
+				/>
 			</React.Fragment>
 		);
 	}
