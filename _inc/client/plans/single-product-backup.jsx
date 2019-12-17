@@ -35,6 +35,22 @@ export function SingleProductBackup( props ) {
 	);
 }
 
+function getBillingTimeFrameString( billingTimeFrame ) {
+	if ( 'yearly' === billingTimeFrame ) {
+		return __( 'per year', {
+			comment: 'Duration of product subscription timeframe.',
+		} );
+	}
+
+	if ( 'monthly' === billingTimeFrame ) {
+		return __( 'per month', {
+			comment: 'Duration of product subscription timeframe.',
+		} );
+	}
+
+	return '';
+}
+
 function PromoNudge() {
 	const percent = 70;
 
@@ -129,16 +145,7 @@ function SingleProductBackupPriceGroup( {
 		);
 	}
 
-	let billingTimeFrameString = '';
-	if ( 'yearly' === billingTimeFrame ) {
-		billingTimeFrameString = __( 'per year', {
-			comment: 'Duration of product subscription timeframe.',
-		} );
-	} else if ( 'monthly' === billingTimeFrame ) {
-		billingTimeFrameString = __( 'per month', {
-			comment: 'Duration of product subscription timeframe.',
-		} );
-	}
+	const billingTimeFrameString = getBillingTimeFrameString( billingTimeFrame );
 
 	return (
 		<div className="single-product-backup__price-group">
@@ -205,19 +212,10 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 		return null;
 	}
 	const { link, name, fullPrice, discountedPrice, type } = selectedUpgrade;
-	let billingTimeFrameString = '';
+	const billingTimeFrameString = getBillingTimeFrameString( billingTimeFrame );
 	const price = (
 		<PlanPrice currencyCode={ currencyCode } rawPrice={ discountedPrice || fullPrice } inline />
 	);
-	if ( 'yearly' === billingTimeFrame ) {
-		billingTimeFrameString = __( 'per year', {
-			comment: 'Duration of product subscription timeframe.',
-		} );
-	} else if ( 'monthly' === billingTimeFrame ) {
-		billingTimeFrameString = __( 'per month', {
-			comment: 'Duration of product subscription timeframe.',
-		} );
-	}
 
 	return (
 		<div className="single-product-backup__upgrade-button-container">
