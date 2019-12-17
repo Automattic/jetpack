@@ -1,91 +1,33 @@
 /**
  * External dependencies
  */
-import { invoke } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { Component, Fragment } from '@wordpress/element';
 import {
+	Placeholder,
+	SandBox,
 	Button,
 	IconButton,
-	PanelBody,
-	Placeholder,
-	RadioControl,
-	SandBox,
-	Spinner,
 	Toolbar,
+	PanelBody,
+	RadioControl,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { InspectorControls } from '@wordpress/editor';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
- * Internal dependences
+ * Internal dependencies
  */
 import { fallback } from './utils';
-// import { icon } from '.';
-
-const EVENTBRITE_URL_REGEX = /^https?:\/\/(.+?\.)?eventbrite\.com(\.[a-z]{2,4})*\/.+/i;
+import { icon } from '.';
 
 class EventbriteEdit extends Component {
 	state = {
 		editedUrl: this.props.attributes.url || '',
 		editingUrl: false,
-		// If this is a customized URL, we're going to need to find where it redirects to.
-		resolvingRedirect: EVENTBRITE_URL_REGEX.test( this.props.attributes.url ),
 		// The interactive-related magic comes from Core's EmbedPreview component,
 		// which currently isn't exported in a way we can use.
 		interactive: false,
-	};
-
-	componentDidMount() {
-		const { resolvingRedirect } = this.state;
-
-		// Check if we need to resolve an Eventbrite URL immediately.
-		if ( resolvingRedirect ) {
-			this.resolveRedirect();
-		}
-	}
-
-	componentDidUpdate( prevProps, prevState ) {
-		// Check if an Eventbrite URL has been entered, so we need to resolve it.
-		if ( ! prevState.resolvingRedirect && this.state.resolvingRedirect ) {
-			this.resolveRedirect();
-		}
-	}
-
-	componentWillUnmount() {
-		invoke( this.fetchRequest, [ 'abort' ] );
-	}
-
-	resolveRedirect = () => {
-		const { url } = this.props.attributes;
-
-		this.fetchRequest = apiFetch( {
-			path: `/wpcom/v2/resolve-redirect/${ url }`,
-		} );
-
-		this.fetchRequest.then(
-			resolvedUrl => {
-				// resolve
-				this.fetchRequest = null;
-				this.props.setAttributes( { url: resolvedUrl } );
-				this.setState( {
-					resolvingRedirect: false,
-					editedUrl: resolvedUrl,
-				} );
-			},
-			xhr => {
-				// reject
-				if ( xhr.statusText === 'abort' ) {
-					return;
-				}
-				this.fetchRequest = null;
-				this.setState( {
-					resolvingRedirect: false,
-					editingUrl: true,
-				} );
-			}
-		);
 	};
 
 	static getDerivedStateFromProps( nextProps, state ) {
@@ -117,13 +59,6 @@ class EventbriteEdit extends Component {
 
 		this.props.setAttributes( { url } );
 		this.setState( { editingUrl: false } );
-
-		if ( EVENTBRITE_URL_REGEX.test( url ) ) {
-			// Setting the `resolvingRedirect` state here, then waiting for `componentDidUpdate()` to
-			// be called before actually resolving it ensures that the `editedUrl` state has also been
-			// updated before resolveRedirect() is called.
-			this.setState( { resolvingRedirect: true } );
-		}
 	};
 
 	/**
@@ -132,62 +67,96 @@ class EventbriteEdit extends Component {
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
 	render() {
-		const { attributes, cannotEmbed, className, preview } = this.props;
+		const { attributes, className, setAttributes } = this.props;
 		const { url, useModal } = attributes;
-		const { editedUrl, interactive, editingUrl, resolvingRedirect } = this.state;
+		const { editedUrl, interactive, editingUrl } = this.state;
 
-		<InspectorControls>
-			<PanelBody>
-				<RadioControl
-					label={ __( 'Embed Type', 'jetpack' ) }
-					help={ __(
-						'Whether to embed the event inline, or as a button that opens a modal.',
-						'jetpack'
-					) }
-					selected={ useModal ? 'modal' : 'inline' }
-					options={ [
-						{ label: __( 'Inline', 'jetpack' ), value: 'inline' },
-						{ label: __( 'Modal', 'jetpack' ), value: 'modal' },
-					] }
-					onChange={ option => this.props.setAttributes( { useModal: 'modal' === option } ) }
-				/>
-			</PanelBody>
-		</InspectorControls>;
+		const eventId = url.substring( url.search( /\d+$/g ) );
 
-		if ( resolvingRedirect ) {
-			return (
-				<div className="wp-block-embed is-loading">
-					<Spinner />
-					<p>{ __( 'Embedding…' ) }</p>
-				</div>
-			);
+		let html = `
+			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
+			<style>
+				* {
+					// Eventbrite embeds have a CSS height transition on loading, which causes <Sandbox>
+					// to not recognise the resizing. We need to disable that transition.
+					transition: none !important;
+				}
+			</style>
+		`;
+		if ( useModal ) {
+			html += `
+				<script>
+					window.EBWidgets.createWidget({
+						widgetType: 'checkout',
+						eventId: ${ eventId },
+						modal: true,
+						modalTriggerElementId: 'eventbrite-widget-modal-trigger-${ eventId }',
+					});
+				</script>
+				<button id="eventbrite-widget-modal-trigger-${ eventId }" type="button">Buy Tickets</button>
+			`;
+		} else {
+			html += `
+				<script>
+					window.EBWidgets.createWidget({
+						widgetType: 'checkout',
+						eventId: ${ eventId },
+						iframeContainerId: 'eventbrite-widget-container-${ eventId }',
+					});
+				</script>
+				<div id="eventbrite-widget-container-${ eventId }"></div>
+			`;
 		}
 
+		const cannotEmbed = ! url;
+
 		const controls = (
-			<BlockControls>
-				<Toolbar>
-					<IconButton
-						className="components-toolbar__control"
-						label={ __( 'Edit URL', 'jetpack' ) }
-						icon="edit"
-						onClick={ () => this.setState( { editingUrl: true } ) }
-					/>
-				</Toolbar>
-			</BlockControls>
+			<Fragment>
+				<BlockControls>
+					<Toolbar>
+						<IconButton
+							className="components-toolbar__control"
+							label={ __( 'Edit URL', 'jetpack' ) }
+							icon="edit"
+							onClick={ () => this.setState( { editingUrl: true } ) }
+						/>
+					</Toolbar>
+				</BlockControls>
+				<InspectorControls>
+					<PanelBody>
+						<RadioControl
+							label={ __( 'Embed Type', 'jetpack' ) }
+							help={ __(
+								'Whether to embed the event inline, or as a button that opens a modal.',
+								'jetpack'
+							) }
+							selected={ useModal ? 'modal' : 'inline' }
+							options={ [
+								{ label: __( 'Inline', 'jetpack' ), value: 'inline' },
+								{ label: __( 'Modal', 'jetpack' ), value: 'modal' },
+							] }
+							onChange={ option => setAttributes( { useModal: 'modal' === option } ) }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			</Fragment>
 		);
 
-		if ( editingUrl || ! url || cannotEmbed ) {
+		if ( editingUrl || ! url ) {
 			return (
 				<div className={ className }>
 					{ controls }
-					<Placeholder label={ __( 'Eventbrite', 'jetpack' ) } icon={ <BlockIcon icon={ '' } /> }>
+					<Placeholder
+						label={ __( 'Eventbrite Tickets', 'jetpack' ) }
+						icon={ <BlockIcon icon={ icon } /> }
+					>
 						<form onSubmit={ this.setUrl }>
 							<input
 								type="url"
 								value={ editedUrl }
 								className="components-placeholder__input"
 								aria-label={ __( 'Eventbrite URL', 'jetpack' ) }
-								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
+								placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 							/>
 							<Button isLarge type="submit">
@@ -216,7 +185,7 @@ class EventbriteEdit extends Component {
 			<div className={ className }>
 				{ controls }
 				<div>
-					<SandBox html={ preview.html } scripts={ preview.scripts } onFocus={ this.hideOverlay } />
+					<SandBox html={ html } onFocus={ this.hideOverlay } />
 					{ ! interactive && (
 						<div
 							className="block-library-embed__interactive-overlay"
