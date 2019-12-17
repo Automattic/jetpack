@@ -10,7 +10,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 
-export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:eventbrite\.[a-z.]+)\/([^/]+)(\/[^/]+)?/i;
+export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[^/]*?(\d+)\/?\s*$/i;
 
 export const name = 'eventbrite';
 
