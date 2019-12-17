@@ -10,28 +10,12 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Item;
 
 /**
  * Class to handle sync for posts.
  */
 class Posts extends Module {
-	/**
-	 * The post IDs of posts that were just published but not synced yet.
-	 *
-	 * @access private
-	 *
-	 * @var array
-	 */
-	private $just_published = array();
-
-	/**
-	 * The previous status of posts that we use for calculating post status transitions.
-	 *
-	 * @access private
-	 *
-	 * @var array
-	 */
-	private $previous_status = array();
 
 	/**
 	 * Action handler callable.
@@ -115,6 +99,12 @@ class Posts extends Module {
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
 
+		// Our aim is to initialize `sync_items` as early as possible, so that other areas of the code base can know
+		// that we are within a post-saving operation. `wp_insert_post_parent` happens early within the action stack.
+		// And we can catch editpost actions early by hooking to `check_admin_referrer`.
+		add_filter( 'wp_insert_post_parent', array( $this, 'maybe_initialize_post_sync_item' ), 10, 3 );
+		add_action( 'check_admin_referer', array( $this, 'maybe_initialize_post_sync_item_referer' ), 10, 2 );
+
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
@@ -131,6 +121,126 @@ class Posts extends Module {
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
 		add_action( 'jetpack_post_meta_batch_delete', $callable, 10, 2 );
+	}
+
+	/**
+	 * Initalizes the post sync item early.
+	 *
+	 * @param int   $post_parent Post Parent ID.
+	 * @param int   $post_ID Post ID.
+	 * @param array $args an Array containing post data.
+	 *
+	 * @return mixed
+	 */
+	public function maybe_initialize_post_sync_item( $post_parent, $post_ID, $args ) {
+		if ( $post_ID ) {
+			$this->set_post_sync_item( $post_ID );
+		} elseif ( ! $this->is_attachment( $args ) ) {
+			$this->set_post_sync_item( 'new' );
+		}
+		return $post_parent;
+	}
+
+	/**
+	 * Initalizes the post sync item early.
+	 *
+	 * @param string $action Not used.
+	 * @param array  $result Used to check if it is not tull.
+	 */
+	public function maybe_initialize_post_sync_item_referer( $action, $result ) {
+		if ( ! $this->is_valid_editpost_action( $result ) ) {
+			return;
+		}
+		$post_ID = $this->get_post_id_from_post_request();
+		if ( ! $post_ID ) {
+			return;
+		}
+		$this->set_post_sync_item( $post_ID );
+	}
+
+	/**
+	 * Sets the post sync item.
+	 *
+	 * @param int|string $post_ID Key under which to store the Sync Item on.
+	 *
+	 * @return Item
+	 */
+	private function set_post_sync_item( $post_ID ) {
+		if ( $this->has_sync_item( $post_ID ) ) {
+			return;
+		}
+		if ( $this->has_sync_item( 'new' ) && 'new' !== $post_ID ) {
+			$this->sync_items[ $post_ID ] = $this->sync_items['new'];
+			unset( $this->sync_items['new'] );
+			return;
+		}
+		$this->sync_items[ $post_ID ] = new Item( 'save_post' );
+	}
+
+	/**
+	 * Check if the post type is an attachment.
+	 *
+	 * @param array $args Post Arguments.
+	 *
+	 * @return bool
+	 */
+	private function is_attachment( $args ) {
+		return ( isset( $args['post_type'] ) && 'attachment' === $args['post_type'] );
+	}
+
+	/**
+	 * Checks if we already have a sync item with a particular post ID.
+	 *
+	 * @param string|int $post_ID Post Id.
+	 *
+	 * @return bool
+	 */
+	private function has_sync_item( $post_ID ) {
+		return isset( $this->sync_items[ $post_ID ] );
+	}
+
+	/**
+	 * Gets the post sync item.
+	 *
+	 * @param string|int $post_ID Post Id.
+	 *
+	 * @return Item
+	 */
+	private function get_post_sync_item( $post_ID ) {
+		$this->set_post_sync_item( $post_ID );
+		return $this->sync_items[ $post_ID ];
+	}
+
+	/**
+	 * Checks if we area dealing with a valid post action.
+	 *
+	 * @param bool $result Result of the post edit action.
+	 *
+	 * @return bool
+	 */
+	private function is_valid_editpost_action( $result ) {
+		if ( ! $result ) {
+			return false;
+		}
+		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] || ! isset( $_POST['action'] ) || ! isset( $_POST['post_ID'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return false;
+		}
+		if ( 'editpost' !== $_POST['action'] ) {  // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Gets the post ID from a post request.
+	 *
+	 * @return int|null Post Id.
+	 */
+	private function get_post_id_from_post_request() {
+		if ( ! isset( $_POST['post_ID'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return null;
+		}
+		return (int) $_POST['post_ID'];  // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -471,11 +581,10 @@ class Posts extends Module {
 	 * @param \WP_Post $post       Post object.
 	 */
 	public function save_published( $new_status, $old_status, $post ) {
-		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published[ $post->ID ] = true;
-		}
-
-		$this->previous_status[ $post->ID ] = $old_status;
+		$sync_item         = $this->get_post_sync_item( $post->ID );
+		$is_just_published = 'publish' === $new_status && 'publish' !== $old_status;
+		$sync_item->add_state_value( 'just_published', $is_just_published );
+		$sync_item->add_state_value( 'previous_status', $old_status );
 	}
 
 	/**
@@ -519,20 +628,14 @@ class Posts extends Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
-			$this->previous_status[ $post_ID ] :
-			self::DEFAULT_PREVIOUS_STATE;
+		$sync_item = $this->set_post_sync_item( $post_ID );
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ?
-			$this->just_published[ $post_ID ] :
-			false;
+		if ( ! $sync_item->has_state( 'previous_status' ) ) {
+			$sync_item->add_state_value( 'previous_status', self::DEFAULT_PREVIOUS_STATE );
+		}
 
-		$state = array(
-			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
-			'previous_status'              => $previous_status,
-			'just_published'               => $just_published,
-			'is_gutenberg_meta_box_update' => $this->is_gutenberg_meta_box_update(),
-		);
+		$sync_item->add_state_value( 'is_auto_save', (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) );
+		$sync_item->add_state_value( 'is_gutenberg_meta_box_update', $this->is_gutenberg_meta_box_update() );
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
@@ -545,9 +648,9 @@ class Posts extends Module {
 		 *
 		 * @module sync
 		 */
-		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
-		unset( $this->previous_status[ $post_ID ] );
-		$this->send_published( $post_ID, $post );
+		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $sync_item->get_state() );
+		$sync_item->unset_state( 'previous_status' );
+		$this->send_published( $post_ID, $post, $sync_item );
 	}
 
 	/**
@@ -555,9 +658,11 @@ class Posts extends Module {
 	 *
 	 * @param int      $post_ID Post ID.
 	 * @param \WP_Post $post    Post object.
+	 * @param Item     $sync_item   Sync Item Object.
 	 */
-	public function send_published( $post_ID, $post ) {
-		if ( ! isset( $this->just_published[ $post_ID ] ) ) {
+	public function send_published( $post_ID, $post, $sync_item ) {
+
+		if ( ! $sync_item->is_state_value_true( 'just_published' ) ) {
 			return;
 		}
 
@@ -572,8 +677,7 @@ class Posts extends Module {
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
 		if ( $author_user_object ) {
-			$roles = new Roles();
-
+			$roles                = new Roles();
 			$post_flags['author'] = array(
 				'id'              => $post->post_author,
 				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
@@ -602,7 +706,7 @@ class Posts extends Module {
 		 * @param mixed array $flags post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
-		unset( $this->just_published[ $post_ID ] );
+		$sync_item->unset_state( 'just_published' );
 
 		/**
 		 * Send additional sync action for Activity Log when post is a Customizer publish
