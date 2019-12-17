@@ -347,27 +347,9 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Enqueues the WordPress.com block editor integration assets for both editor and front-end.
 	 */
 	public function enqueue_block_assets() {
-		// Enqueue only for the block editor in WP Admin.
-		global $pagenow;
-		if ( is_admin() && ! in_array( $pagenow, array( 'post.php', 'post-new.php' ), true ) ) {
-			return;
-		}
-
-		// Enqueue on the front-end only if justified blocks are present.
-		if ( ! is_admin() && ! $this->has_justified_block() ) {
-			return;
-		}
-
-		$debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-
-		wp_enqueue_style(
-			'wpcom-block-editor-default-view-styles',
-			$debug
-				? '//widgets.wp.com/wpcom-block-editor/default.view.css?minify=false'
-				: '//widgets.wp.com/wpcom-block-editor/default.view.min.css',
-			array(),
-			gmdate( 'Ymd' )
-		);
+		// These styles are manually copied from //widgets.wp.com/wpcom-block-editor/default.view.css in order to
+		// improve the performance by avoiding an extra network request to download the CSS file on every page.
+		wp_add_inline_style( 'wp-block-library', '.has-text-align-justify{text-align:justify;}' );
 	}
 
 	/**
