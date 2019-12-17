@@ -50,7 +50,7 @@ function jetpack_eventbrite_block_load_assets( $attr ) {
 			'eventbrite-widget',
 			"window.EBWidgets.createWidget({
 				widgetType: 'checkout',
-				event_id: ${event_id},
+				eventId: ${event_id},
 				iframeContainerId: 'eventbrite-widget-container-${event_id}',
 			});"
 		);
@@ -68,7 +68,7 @@ EOT;
 		'eventbrite-widget',
 		"window.EBWidgets.createWidget({
 			widgetType: 'checkout',
-			event_id: ${event_id},
+			eventId: ${event_id},
 			modal: true,
 			modalTriggerElementId: 'eventbrite-widget-modal-trigger-${event_id}',
 		});"
