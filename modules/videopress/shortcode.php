@@ -52,7 +52,7 @@ class VideoPress_Shortcode {
 				$embed_code  = $matches[0];
 				$url_matches = array();
 
-				// get src="http://v.wordpress.com/KllQxFVq" attribute.
+				// get video ID from flash URL.
 				$url_matched = preg_match( '/src="http:\/\/v.wordpress.com\/([^"]+)"/', $embed_code, $url_matches );
 
 				if ( $url_matched ) {
