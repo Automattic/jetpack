@@ -65,11 +65,19 @@ class SearchApp extends Component {
 	addEventListeners() {
 		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
+
+		document
+			.querySelectorAll( this.props.themeOptions.searchInputSelector )
+			.forEach( input => input.form.addEventListener( 'submit', this.handleSubmit ) );
 	}
 
 	removeEventListeners() {
 		window.removeEventListener( 'popstate', this.onChangeQueryString );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
+
+		document
+			.querySelectorAll( this.props.themeOptions.searchInputSelector )
+			.forEach( input => input.form.removeEventListener( 'submit', this.handleSubmit ) );
 	}
 
 	hasActiveQuery() {
@@ -79,6 +87,11 @@ class SearchApp extends Component {
 	hasNextPage() {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
+
+	handleSubmit = event => {
+		event.preventDefault();
+		this.showResults();
+	};
 
 	showResults = () => this.setState( { showResults: true } );
 	hideResults = () => this.setState( { showResults: false } );
