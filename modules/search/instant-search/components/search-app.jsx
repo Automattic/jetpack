@@ -65,19 +65,11 @@ class SearchApp extends Component {
 	addEventListeners() {
 		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
-
-		document
-			.querySelectorAll( this.props.themeOptions.searchInputSelector )
-			.forEach( input => input.addEventListener( 'focus', this.showResults ) );
 	}
 
 	removeEventListeners() {
 		window.removeEventListener( 'popstate', this.onChangeQueryString );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
-
-		document
-			.querySelectorAll( this.props.themeOptions.searchInputSelector )
-			.forEach( input => input.removeEventListener( 'focus', this.showResults ) );
 	}
 
 	hasActiveQuery() {
