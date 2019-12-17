@@ -179,11 +179,6 @@ input[type='radio'].plan-radio-button__input {
 	text-transform: uppercase;
 	color: $gray-text-min;
 	margin: 0 0 0 100px;
-
-	@include breakpoint( ">660px" ) {
-		text-align: center;
-		margin: 0;
-	}
 }
 
 .single-product-backup__promo-header strong {
