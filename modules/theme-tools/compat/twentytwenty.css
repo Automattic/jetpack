@@ -221,6 +221,11 @@
 	width: 100%;
 }
 
+/* Tiled Galleries in Classic Blocks */
+.entry-content .tiled-gallery {
+	margin: 0 auto 1.5em;
+}
+
 /**
  * Shortcodes
  */
