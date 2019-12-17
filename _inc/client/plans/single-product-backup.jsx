@@ -224,7 +224,7 @@ function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onCli
 					components: { price },
 					args: { name, billingTimeFrame: billingTimeFrameString },
 					comment:
-						'Button to purchase product upgrade. {{price /}} can be a range of prices, and %(billingTimeFrame) is the billing period for the product upgrade.',
+						'Button to purchase product upgrade. %(name)s is the product name, {{price /}} can be a range of prices, and %(billingTimeFrame)s is the billing period for the product upgrade.',
 				} ) }
 			</Button>
 		</div>
