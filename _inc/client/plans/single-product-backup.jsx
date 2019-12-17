@@ -202,9 +202,13 @@ function ProductSavings( { selectedBackup, currencyCode } ) {
 		/>
 	);
 
-	return __( 'You are saving {{savings /}} by paying yearly', {
-		components: { savings },
-	} );
+	return (
+		<span className="single-product-backup__savings">
+			{ __( 'You are saving {{savings /}} by paying yearly', {
+				components: { savings },
+			} ) }
+		</span>
+	);
 }
 
 function UpgradeButton( { selectedUpgrade, billingTimeFrame, currencyCode, onClickHandler } ) {
@@ -281,13 +285,11 @@ class SingleProductBackupBody extends React.Component {
 					) ) }
 				</div>
 				<p>
-					<em>
-						<ProductSavings
-							selectedBackup={ selectedBackup }
-							billingTimeFrame={ billingTimeFrame }
-							currencyCode={ currencyCode }
-						/>
-					</em>
+					<ProductSavings
+						selectedBackup={ selectedBackup }
+						billingTimeFrame={ billingTimeFrame }
+						currencyCode={ currencyCode }
+					/>
 				</p>
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }

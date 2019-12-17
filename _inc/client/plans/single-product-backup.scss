@@ -193,6 +193,10 @@ input[type='radio'].plan-radio-button__input {
 	text-transform: none;
 }
 
+.single-product-backup__savings {
+	font-style: italic;
+}
+
 .single-product-backup__annual-savings {
 	&,
 	.plan-price__integer {
