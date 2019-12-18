@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import {
 	Placeholder,
 	SandBox,
@@ -146,36 +146,23 @@ class EventbriteEdit extends Component {
 		const { setAttributes } = this.props;
 		const { useModal } = this.props.attributes;
 		return (
-			<Fragment>
-				<BlockControls>
-					<Toolbar>
-						<IconButton
-							className="components-toolbar__control"
-							label={ __( 'Edit URL', 'jetpack' ) }
-							icon="edit"
-							onClick={ () => this.setState( { editingUrl: true } ) }
-						/>
-					</Toolbar>
-				</BlockControls>
-
-				<InspectorControls>
-					<PanelBody>
-						<RadioControl
-							label={ __( 'Embed Type', 'jetpack' ) }
-							help={ __(
-								'Whether to embed the event inline, or as a button that opens a modal.',
-								'jetpack'
-							) }
-							selected={ useModal ? 'modal' : 'inline' }
-							options={ [
-								{ label: __( 'Inline', 'jetpack' ), value: 'inline' },
-								{ label: __( 'Modal', 'jetpack' ), value: 'modal' },
-							] }
-							onChange={ option => setAttributes( { useModal: 'modal' === option } ) }
-						/>
-					</PanelBody>
-				</InspectorControls>
-			</Fragment>
+			<InspectorControls>
+				<PanelBody>
+					<RadioControl
+						label={ __( 'Embed Type', 'jetpack' ) }
+						help={ __(
+							'Whether to embed the event inline, or as a button that opens a modal.',
+							'jetpack'
+						) }
+						selected={ useModal ? 'modal' : 'inline' }
+						options={ [
+							{ label: __( 'Inline', 'jetpack' ), value: 'inline' },
+							{ label: __( 'Modal', 'jetpack' ), value: 'modal' },
+						] }
+						onChange={ option => setAttributes( { useModal: 'modal' === option } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
 		);
 	}
 
@@ -266,17 +253,25 @@ class EventbriteEdit extends Component {
 
 		return (
 			<div className={ className }>
-				{ this.renderControls() }
-				<div>
-					<SandBox html={ html } onFocus={ this.hideOverlay } />
-					{ ! interactive && (
-						<div
-							className="block-library-embed__interactive-overlay"
-							onMouseUp={ this.hideOverlay }
-							role="none"
+				<BlockControls>
+					<Toolbar>
+						<IconButton
+							className="components-toolbar__control"
+							label={ __( 'Edit URL', 'jetpack' ) }
+							icon="edit"
+							onClick={ () => this.setState( { editingUrl: true } ) }
 						/>
-					) }
-				</div>
+					</Toolbar>
+				</BlockControls>
+
+				<SandBox html={ html } onFocus={ this.hideOverlay } />
+				{ ! interactive && (
+					<div
+						className="block-library-embed__interactive-overlay"
+						onMouseUp={ this.hideOverlay }
+						role="none"
+					/>
+				) }
 			</div>
 		);
 	}
@@ -291,15 +286,22 @@ class EventbriteEdit extends Component {
 		const { url } = attributes;
 		const { editingUrl, resolvingRedirect } = this.state;
 
+		let component;
+
 		if ( resolvingRedirect ) {
-			return this.renderLoading();
+			component = this.renderLoading();
+		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
+			component = this.renderEditEmbed();
+		} else {
+			component = this.renderPreview();
 		}
 
-		if ( editingUrl || ! url || this.cannotEmbed() ) {
-			return this.renderEditEmbed();
-		}
-
-		return this.renderPreview();
+		return (
+			<>
+				{ this.renderControls() }
+				{ component }
+			</>
+		);
 	}
 }
 
