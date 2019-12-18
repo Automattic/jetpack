@@ -68,6 +68,7 @@ matrix:
     after_script:
       - echo "--exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $TRAVIS_BUILD_DIR"
       - ls -la
+      - ls -la logs
       - pwd
       - echo $TRAVIS_BUILD_DIR
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p logs
