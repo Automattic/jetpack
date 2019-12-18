@@ -14,13 +14,6 @@ import uniqueId from 'lodash/uniqueId';
  */
 import Gridicon from './gridicon';
 
-function ignoreEnterKey( event ) {
-	if ( event.key === 'Enter' ) {
-		// Prevent form submission
-		event.preventDefault();
-	}
-}
-
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 
@@ -33,7 +26,6 @@ const SearchBox = props => {
 			<input
 				id={ inputId }
 				className="search-field jetpack-instant-search__box-input"
-				onKeyPress={ ignoreEnterKey }
 				onInput={ props.onChangeQuery }
 				onFocus={ props.onFocus }
 				onBlur={ props.onBlur }
