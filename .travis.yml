@@ -67,7 +67,7 @@ matrix:
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - echo "$(readlink -f .)
+      - echo "$(readlink -f .)"
       - ls -la
       - ls -la build/logs
       - pwd
