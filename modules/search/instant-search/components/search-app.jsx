@@ -66,18 +66,20 @@ class SearchApp extends Component {
 		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
-		document
-			.querySelectorAll( this.props.themeOptions.searchInputSelector )
-			.forEach( input => input.form.addEventListener( 'submit', this.handleSubmit ) );
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			input.form.addEventListener( 'submit', this.handleSubmit );
+			input.addEventListener( 'input', this.handleInput );
+		} );
 	}
 
 	removeEventListeners() {
 		window.removeEventListener( 'popstate', this.onChangeQueryString );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
-		document
-			.querySelectorAll( this.props.themeOptions.searchInputSelector )
-			.forEach( input => input.form.removeEventListener( 'submit', this.handleSubmit ) );
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			input.form.removeEventListener( 'submit', this.handleSubmit );
+			input.removeEventListener( 'input', this.handleInput );
+		} );
 	}
 
 	hasActiveQuery() {
@@ -91,6 +93,10 @@ class SearchApp extends Component {
 	handleSubmit = event => {
 		event.preventDefault();
 		this.showResults();
+	};
+
+	handleInput = event => {
+		setSearchQuery( event.target.value );
 	};
 
 	showResults = () => this.setState( { showResults: true } );
