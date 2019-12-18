@@ -59,7 +59,6 @@ matrix:
       - WP_BRANCH=previous
       - DO_COVERAGE=true
     before_script:
-      - yarn build
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
@@ -68,7 +67,7 @@ matrix:
       - ./tests/setup-travis.sh
     after_script:
       - echo "--exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $(readlink -f .)"
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $(readlink -f .)
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p ./
 
   - php: "7.0"
     name: "E2E tests"
