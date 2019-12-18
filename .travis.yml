@@ -66,7 +66,10 @@ matrix:
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - echo "--exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $(readlink -f .)"
+      - echo "--exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $TRAVIS_BUILD_DIR"
+      - echo ls
+      - echo pwd
+      - echo $TRAVIS_BUILD_DIR
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $TRAVIS_BUILD_DIR
 
   - php: "7.0"
