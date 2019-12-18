@@ -70,7 +70,7 @@ matrix:
       - ls -la
       - pwd
       - echo $TRAVIS_BUILD_DIR
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $TRAVIS_BUILD_DIR/logs
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p logs
 
   - php: "7.0"
     name: "E2E tests"
