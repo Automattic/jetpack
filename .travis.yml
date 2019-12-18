@@ -75,7 +75,7 @@ matrix:
       - ls -la /tmp/wordpress-previous/src/wp-content/plugins/jetpack
       - ls -la /tmp/wordpress-previous/src/wp-content/plugins/jetpack/build/logs
       - ls -la $TRAVIS_BUILD_DIR
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p $(readlink -f .)
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
   - php: "7.0"
     name: "E2E tests"
