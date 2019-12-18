@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e94057ee50ba873616bd16d98f19813",
+    "content-hash": "23a3df0c752fcfb8b0a94250870ae7b9",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -763,16 +763,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "2.2.7-beta-1",
+            "version": "v2.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9"
+                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/333988bd9caccc5a73578860949f0e2f268b91a9",
-                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
+                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
                 "shasum": ""
             },
             "require": {
@@ -813,7 +813,7 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
-            "time": "2019-10-29T16:28:21+00:00"
+            "time": "2019-11-21T17:09:44+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
@@ -978,8 +978,7 @@
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-tracking": 20,
-        "sirbrillig/phpcs-changed": 20
+        "automattic/jetpack-tracking": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
