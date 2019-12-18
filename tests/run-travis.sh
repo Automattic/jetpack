@@ -77,7 +77,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
 		mkdir -p $TRAVIS_BUILD_DIR/build/logs
-		export WP_TRAVISCI="phpdbg -qrr phpunit --coverage-clover $TRAVIS_BUILD_DIR/build/logs/clover.xml"
+		export WP_TRAVISCI="phpdbg -qrr /home/travis/.phpenv/shims/phpunit --coverage-clover $TRAVIS_BUILD_DIR/clover.xml"
 	fi
 
   if [ "$SYNC_BETA" == "1" ]; then
