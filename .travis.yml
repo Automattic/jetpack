@@ -66,12 +66,12 @@ matrix:
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - echo "--exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p $TRAVIS_BUILD_DIR"
+      - echo "--exit-code $TRAVIS_TEST_RESULT -t clover -p $TRAVIS_BUILD_DIR"
       - ls -la
-      - ls -la logs
+      - ls -la build/logs
       - pwd
       - echo $TRAVIS_BUILD_DIR
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover -p build/logs
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p build/logs
 
   - php: "7.0"
     name: "E2E tests"
