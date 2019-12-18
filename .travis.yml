@@ -70,6 +70,8 @@ matrix:
       - echo "$(readlink -f .)"
       - ls -la
       - ls -la build/logs
+      - ls -la /tmp/wordpress-previous/src/wp-content/plugins/jetpack
+      - ls -la /tmp/wordpress-previous/src/wp-content/plugins/jetpack/build/logs
       - pwd
       - echo $TRAVIS_BUILD_DIR
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p $(readlink -f .)build/logs
