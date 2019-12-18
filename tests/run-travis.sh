@@ -76,8 +76,8 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 	elif [[ "$TRAVIS_EVENT_TYPE" == "api" && ! -z $PHPUNIT_COMMAND_OVERRIDE ]]; then
 		export WP_TRAVISCI="${PHPUNIT_COMMAND_OVERRIDE}"
 	elif [[ "$DO_COVERAGE" == "true" && -x "$(command -v phpdbg)" ]]; then
-		mkdir /home/travis/build/logs
-		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover /home/travis/build/logs/clover.xml"
+		mkdir -p $TRAVIS_BUILD_DIR/build/logs
+		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/build/logs/clover.xml"
 	fi
 
   if [ "$SYNC_BETA" == "1" ]; then
