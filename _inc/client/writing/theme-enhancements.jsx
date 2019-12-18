@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -18,6 +19,7 @@ import { isModuleFound } from 'state/search';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SimpleNotice from 'components/notice';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 class ThemeEnhancements extends React.Component {
@@ -116,6 +118,14 @@ class ThemeEnhancements extends React.Component {
 
 	handleMinilevenOptionChange = ( optionName, module ) => {
 		return () => this.updateOptions( optionName, module );
+	};
+
+	trackMinilevenLearnMore = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'learn-more',
+			feature: 'minileven',
+			extra: 'deprecated-link',
+		} );
 	};
 
 	render() {
@@ -217,8 +227,37 @@ class ThemeEnhancements extends React.Component {
 							),
 							link: 'https://jetpack.com/support/mobile-theme',
 						} }
+						className={ classNames(
+							'minileven',
+							`${ isMinilevenActive ? `active` : `inactive` }`
+						) }
 					>
 						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
+						<SimpleNotice
+							showDismiss={ false }
+							status="is-info"
+							className="jp-form-settings-notice"
+						>
+							{ __(
+								'{{b}}Note:{{/b}} This feature is being retired ' +
+									'and will be removed from Jetpack in March. ' +
+									'{{link}}Learn more{{/link}}',
+								{
+									components: {
+										b: <strong />,
+										link: (
+											<a
+												href="https://jetpack.com/support/mobile-theme/"
+												target="_blank"
+												rel="noopener noreferrer"
+												onClick={ this.trackMinilevenLearnMore }
+											/>
+										),
+									},
+									context: 'Link leads to a support document.',
+								}
+							) }
+						</SimpleNotice>
 						<p>
 							{ __(
 								'Give your site a fast-loading, streamlined look for mobile devices. Visitors will ' +
@@ -230,6 +269,7 @@ class ThemeEnhancements extends React.Component {
 							activated={ isMinilevenActive }
 							toggling={ this.props.isSavingAnyOption( minileven.module ) }
 							toggleModule={ this.props.toggleModuleNow }
+							disabled={ ! isMinilevenActive }
 						>
 							<span className="jp-form-toggle-explanation">{ minileven.description }</span>
 						</ModuleToggle>
