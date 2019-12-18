@@ -25,7 +25,7 @@ const noop = event => event.preventDefault();
 
 class SearchForm extends Component {
 	state = {
-		showFilters: false,
+		showFilters: !! this.props.widget,
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => setFilterQuery( filterName, filterValue );
@@ -33,9 +33,7 @@ class SearchForm extends Component {
 	onChangeSort = sort => setSortQuery( sort );
 
 	toggleFilters = () => {
-		this.setState( state => ( {
-			showFilters: ! state.showFilters,
-		} ) );
+		this.setState( state => ( { showFilters: ! state.showFilters } ) );
 	};
 
 	render() {
@@ -43,6 +41,7 @@ class SearchForm extends Component {
 			<form onSubmit={ noop } role="search" className={ this.props.className }>
 				<div className="search-form">
 					<SearchBox
+						enableFilters
 						onChangeQuery={ this.onChangeQuery }
 						onFocus={ this.props.onSearchFocus }
 						onBlur={ this.props.onSearchBlur }

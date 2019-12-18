@@ -42,7 +42,7 @@ const SearchBox = props => {
 				type="search"
 				value={ props.query }
 			/>
-			{ ! props.widget && (
+			{ props.enableFilters && ! props.widget && (
 				/* Using role='button' rather than button element so we retain control over styling */
 				<div
 					role="button"
