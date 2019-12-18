@@ -59,7 +59,6 @@ matrix:
       - WP_BRANCH=previous
       - DO_COVERAGE=true
     before_script:
-      - composer install --ignore-platform-reqs
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       - chmod +x ./cc-test-reporter
       - ./cc-test-reporter before-build
@@ -67,14 +66,6 @@ matrix:
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - echo "$(readlink -f .)"
-      - pwd
-      - echo $TRAVIS_BUILD_DIR
-      - ls -la
-      - ls -la build/logs
-      - ls -la /tmp/wordpress-previous/src/wp-content/plugins/jetpack
-      - ls -la /tmp/wordpress-previous/src/wp-content/plugins/jetpack/build/logs
-      - ls -la $TRAVIS_BUILD_DIR
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
   - php: "7.0"
