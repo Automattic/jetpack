@@ -162,8 +162,6 @@ class EventbriteEdit extends Component {
 		const { editedUrl } = this.state;
 		return (
 			<div className={ className }>
-				{ this.renderControls() }
-
 				<Placeholder
 					label={ __( 'Eventbrite Tickets', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
