@@ -38,6 +38,7 @@ const presetExperimentalBlocks = [
 	...presetProductionBlocks,
 	..._.get( presetIndex, [ 'experimental' ], [] ),
 ];
+// Beta Blocks include all blocks: beta, experimental, and production blocks.
 const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [ 'beta' ], [] ) ];
 
 // Helps split up each block into its own folder view script

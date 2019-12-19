@@ -55,13 +55,16 @@ Generally, all new extensions should start out as a beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
 - In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
+- When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
 - In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
 ### Experimental Extensions
 
-We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`.
+We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
+
+Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
 
 ### Testing
 
