@@ -24,7 +24,7 @@ function jetpack_devicepx_init() {
 	}
 }
 
-// Use a late priority to ensure that plugins and themes got a chance to disable it.
+// Use a late priority to ensure that plugins and themes can enable or disable this feature.
 add_action( 'init', 'jetpack_devicepx_init', 99 );
 
 /**
