@@ -59,13 +59,13 @@ class PinterestEdit extends Component {
 		} );
 
 		this.fetchRequest.then(
-			resolvedUrl => {
+			response => {
 				// resolve
 				this.fetchRequest = null;
-				this.props.setAttributes( { url: resolvedUrl } );
+				this.props.setAttributes( { url: response.url } );
 				this.setState( {
 					resolvingRedirect: false,
-					editedUrl: resolvedUrl,
+					editedUrl: response.url,
 				} );
 			},
 			xhr => {
