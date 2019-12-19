@@ -14,7 +14,7 @@ export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[
 
 export const name = 'eventbrite';
 
-export const title = __( 'Eventbrite Tickets', 'jetpack' );
+export const title = __( 'Eventbrite Checkout', 'jetpack' );
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -33,6 +33,8 @@ export const settings = {
 	icon,
 
 	category: 'jetpack',
+
+	keywords: [ __( 'events', 'jetpack' ), __( 'tickets', 'jetpack' ) ],
 
 	supports: {
 		html: false,
