@@ -114,7 +114,14 @@ class SearchApp extends Component {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
 	};
 
-	showResults = () => this.setState( { showResults: true } );
+	showResults = () => {
+		this.setState( { showResults: true } );
+
+		// Not working as expected...
+		document.querySelector( '.jetpack-instant-search__overlay input' ).focus();
+		console.log( document.activeElement );
+	};
+
 	hideResults = () => this.setState( { showResults: false } );
 	toggleResults = () => this.setState( state => ( { showResults: ! state.showResults } ) );
 
