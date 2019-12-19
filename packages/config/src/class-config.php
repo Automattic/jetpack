@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Sync\Actions as Sync_Actions;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -23,20 +22,21 @@ class Config {
 	 * @var Array
 	 */
 	protected $config = array(
-		'sync'                => false,
-		'sync_woocommerce'    => false,
-		'sync_wp_super_cache' => false,
-		'tracking'            => false,
-		'tos'                 => false,
+		'sync'     => false,
+		'tracking' => false,
+		'tos'      => false,
 	);
 
 	/**
 	 * Creates the configuration class instance.
 	 */
 	public function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_early' ), 5 );
-		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ) );
-		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded_late' ), 90 );
+
+		/**
+		 * Adding the config handler to run on priority 2 because the class itself is
+		 * being constructed on priority 1.
+		 */
+		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
 	}
 
 	/**
@@ -51,52 +51,113 @@ class Config {
 	}
 
 	/**
-	 * Runs early on plugins_loaded hook execution.
-	 *
-	 * @action plugins_loaded
-	 */
-	public function on_plugins_loaded_early() {
-		if ( $this->config['sync'] ) {
-			Sync_Main::init();
-
-			// Check for WooCommerce support.
-			$this->config['sync_woocommerce'] ? Sync_Actions::initialize_woocommerce() : null;
-
-			// Check for WP Super Cache.
-			$this->config['sync_wp_super_cache'] ? Sync_Actions::initialize_wp_super_cache() : null;
-		}
-	}
-
-	/**
 	 * Runs on default plugins_loaded hook priority.
 	 *
 	 * @action plugins_loaded
 	 */
 	public function on_plugins_loaded() {
-		if ( $this->config['tos'] && $this->config['tracking'] ) {
-			$terms_of_service = new Terms_Of_Service();
-			$tracking         = new Plugin_Tracking();
-			if ( $terms_of_service->has_agreed() ) {
-				add_action( 'init', array( $tracking, 'init' ) );
-			} else {
-				/**
-				 * Initialize tracking right after the user agrees to the terms of service.
-				 */
-				add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
-			}
+		if ( $this->config['tracking'] ) {
+
+			$this->ensure_class( 'Automattic\Jetpack\Terms_Of_Service' )
+				&& $this->ensure_class( 'Automattic\Jetpack\Tracking' )
+				&& $this->ensure_feature( 'tracking' );
+		}
+
+		if ( $this->config['sync'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Sync\Main' )
+				&& $this->ensure_feature( 'sync' );
 		}
 	}
 
 	/**
-	 * Runs after most of plugins_loaded hook functions have been run.
+	 * Returns true if the required class is available and alerts the user if it's not available
+	 * in case the site is in debug mode.
 	 *
-	 * @action plugins_loaded
+	 * @param String $classname a fully qualified class name.
+	 * @return Boolean whether the class is available.
 	 */
-	public function on_plugins_loaded_late() {
-		/*
-		 * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
-		 * with a high priority or sites that use alternate cron.
-		 */
-		Sync_Actions::init();
+	protected function ensure_class( $classname ) {
+		$available = class_exists( $classname );
+
+		if ( ! $available && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				sprintf(
+					/* translators: %1$s is a PHP class name, %2$s is a Jetpack feature code, like 'sync'. */
+					esc_html__(
+						'Unable to load class %1$s, not enabling %2$s feature. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader',
+						'jetpack'
+					),
+					esc_html( $classname )
+				),
+				E_USER_NOTICE
+			);
+		}
+
+		return $available;
 	}
+
+	/**
+	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
+	 *
+	 * @param String $feature slug of the feature.
+	 * @return Boolean whether the feature was enabled. If it was already enabled, returns false.
+	 */
+	protected function ensure_feature( $feature ) {
+		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
+			return false;
+		}
+
+		$method = 'enable_' . $feature;
+		if ( ! method_exists( $this, $method ) ) {
+			return false;
+		}
+
+		$this->{ $method }();
+
+		/**
+		 * Fires when a specific Jetpack package feature is initalized using the Config package.
+		 *
+		 * @since 8.1.0
+		 */
+		do_action( 'jetpack_feature_' . $feature . '_enabled' );
+	}
+
+	/**
+	 * Dummy method to enable Terms of Service.
+	 */
+	protected function enable_tos() {
+		return true;
+	}
+
+	/**
+	 * Enables the tracking feature. Depends on the Terms of Service package, so enables it too.
+	 */
+	protected function enable_tracking() {
+
+		// Enabling dependencies.
+		$this->ensure_feature( 'tos' );
+
+		$terms_of_service = new Terms_Of_Service();
+		$tracking         = new Plugin_Tracking();
+		if ( $terms_of_service->has_agreed() ) {
+			add_action( 'init', array( $tracking, 'init' ) );
+		} else {
+			/**
+			 * Initialize tracking right after the user agrees to the terms of service.
+			 */
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Enables the Sync feature.
+	 */
+	protected function enable_sync() {
+		Sync_Main::configure();
+
+		return true;
+	}
+
 }

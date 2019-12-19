@@ -736,8 +736,6 @@ class Jetpack {
 		foreach (
 			array(
 				'sync',
-				'sync_woocommerce',
-				'sync_wp_super_cache',
 				'tracking',
 				'tos',
 			)
