@@ -55,9 +55,16 @@ Generally, all new extensions should start out as a beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
 - In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
+- When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
 - In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
+
+### Experimental Extensions
+
+We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
+
+Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
 
 ### Testing
 
@@ -69,7 +76,7 @@ Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testin
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
 
-`wp jetpack scaffold <type> <title> [--slug] [--description] [--keywords]`
+`wp jetpack scaffold <type> <title> [--slug] [--description] [--keywords] [--variation]`
 
 **Currently the only `type` is `block`.**
 
@@ -79,6 +86,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 - **--slug**: Specific slug to identify the block that overrides the one generated base don the title.
 - **--description**: Allows to provide a text description of the block.
 - **--keywords**: Provide up to three keywords separated by a comma so users when they search for a block in the editor.
+- **--variation**: Allows to decide whether the block should be a production block, experimental, or beta. Defaults to Beta when arg not provided.
 
 ### Files
 
@@ -101,6 +109,8 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 `wp jetpack scaffold block "Amazing Rock" --slug="good-music" --description="Rock the best music on your site"`
 
 `wp jetpack scaffold block "Jukebox" --keywords="music, audio, media"`
+
+`wp jetpack scaffold block "Jukebox" --variation="experimental"`
 
 ### Can I use Jurassic Ninja to test blocks?
 

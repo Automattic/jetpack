@@ -346,16 +346,12 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function get_jetpack_gutenberg_extensions_whitelist() {
-		$preset_extensions_manifest = self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array();
+		$preset_extensions_manifest = self::preset_exists( 'index' )
+			? self::get_preset( 'index' )
+			: (object) array();
+		$blocks_variation           = self::blocks_variation();
 
-		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array();
-
-		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
-			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
-			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
-		}
-
-		return $preset_extensions;
+		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
 	}
 
 	/**
@@ -585,14 +581,20 @@ class Jetpack_Gutenberg {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$rtl        = is_rtl() ? '.rtl' : '';
-		$beta       = Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
-		$blocks_dir = self::get_blocks_directory();
+		$rtl              = is_rtl() ? '.rtl' : '';
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
 
-		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
 
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.asset.php";
+		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
+
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
 		$editor_deps      = array( 'wp-polyfill' );
 		if ( file_exists( $editor_deps_path ) ) {
 			$asset_manifest = include $editor_deps_path;
@@ -716,5 +718,87 @@ class Jetpack_Gutenberg {
 		}
 
 		return implode( ' ', $classes );
+	}
+
+	/**
+	 * Determine whether a site should use the default set of blocks, or a custom set.
+	 * Possible variations are currently beta, experimental, and production.
+	 *
+	 * @since 8.1.0
+	 *
+	 * @return string $block_varation production|beta|experimental
+	 */
+	public static function blocks_variation() {
+		// Default to production blocks.
+		$block_varation = 'production';
+
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+			$block_varation = 'beta';
+		}
+
+		/*
+		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant.
+		 */
+		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
+			$block_varation = 'experimental';
+		}
+
+		/**
+		 * Allow customizing the variation of blocks in use on a site.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+		 */
+		return apply_filters( 'jetpack_blocks_variation', $block_varation );
+	}
+
+	/**
+	 * Get a list of extensions available for the variation you chose.
+	 *
+	 * @since 8.1.0
+	 *
+	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
+	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
+	 *
+	 * @return array $preset_extensions Array of extensions for that variation
+	 */
+	public static function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation ) {
+		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
+				? (array) $preset_extensions_manifest->{ $blocks_variation }
+				: array();
+
+		/*
+		 * Experimental and Beta blocks need the production blocks as well.
+		 */
+		if (
+			'experimental' === $blocks_variation
+			|| 'beta' === $blocks_variation
+		) {
+			$production_extensions = isset( $preset_extensions_manifest->production )
+				? (array) $preset_extensions_manifest->production
+				: array();
+
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
+		}
+
+		/*
+		 * Beta blocks need the experimental blocks as well.
+		 *
+		 * If you've chosen to see Beta blocks,
+		 * we want to make all blocks available to you:
+		 * - Production
+		 * - Experimental
+		 * - Beta
+		 */
+		if ( 'beta' === $blocks_variation ) {
+			$production_extensions = isset( $preset_extensions_manifest->experimental )
+				? (array) $preset_extensions_manifest->experimental
+				: array();
+
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
+		}
+
+		return $preset_extensions;
 	}
 }
