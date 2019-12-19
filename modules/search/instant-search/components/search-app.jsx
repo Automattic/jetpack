@@ -24,6 +24,7 @@ import {
 	getResultFormatQuery,
 	hasFilter,
 	restorePreviousHref,
+	setSearchQuery,
 } from '../lib/query-string';
 import { removeChildren, hideElements, hideChildren, showChildren } from '../lib/dom';
 
@@ -104,6 +105,8 @@ class SearchApp extends Component {
 			restorePreviousHref( this.props.initialHref );
 		} );
 	};
+
+	onChangeQuery = event => setSearchQuery( event.target.value );
 
 	onChangeQueryString = () => {
 		if ( this.hasActiveQuery() ) {
