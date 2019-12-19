@@ -31,22 +31,23 @@ class EventbriteEdit extends Component {
 		editedUrl: this.props.attributes.url || '',
 		editingUrl: false,
 		// If this is a customized URL, we're going to need to find where it redirects to.
-		resolvingRedirect: EVENTBRITE_CUSTOM_URL_REGEX.test( this.props.attributes.url ),
+		resolvingUrl: EVENTBRITE_CUSTOM_URL_REGEX.test( this.props.attributes.url ),
+		resolvedStatusCode: null,
 	};
 
 	componentDidMount() {
-		const { resolvingRedirect } = this.state;
+		const { resolvingUrl } = this.state;
 
 		// Check if we need to resolve an Eventbrite URL immediately.
-		if ( resolvingRedirect ) {
-			this.resolveRedirect();
+		if ( resolvingUrl ) {
+			this.resolveUrl();
 		}
 	}
 
 	componentDidUpdate( prevProps, prevState ) {
 		// Check if an Eventbrite URL has been entered, so we need to resolve it.
-		if ( ! prevState.resolvingRedirect && this.state.resolvingRedirect ) {
-			this.resolveRedirect();
+		if ( ! prevState.resolvingUrl && this.state.resolvingUrl ) {
+			this.resolveUrl();
 		}
 	}
 
@@ -55,20 +56,26 @@ class EventbriteEdit extends Component {
 		// invoke( this.fetchRequest, [ 'abort' ] );
 	}
 
-	resolveRedirect = () => {
+	resolveUrl = () => {
 		const { url } = this.props.attributes;
+
+		this.setState( { resolvedStatusCode: null } );
 
 		this.fetchRequest = apiFetch( {
 			path: `/wpcom/v2/resolve-redirect/${ url }`,
 		} );
 
 		this.fetchRequest.then(
-			resolvedUrl => {
+			response => {
 				// resolve
 				this.fetchRequest = null;
+				const resolvedUrl = response.url || url;
+				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
+
 				this.props.setAttributes( { url: resolvedUrl } );
 				this.setState( {
-					resolvingRedirect: false,
+					resolvingUrl: false,
+					resolvedStatusCode,
 					editedUrl: resolvedUrl,
 				} );
 			},
@@ -79,7 +86,7 @@ class EventbriteEdit extends Component {
 				}
 				this.fetchRequest = null;
 				this.setState( {
-					resolvingRedirect: false,
+					resolvingUrl: false,
 					editingUrl: true,
 				} );
 			}
@@ -93,21 +100,28 @@ class EventbriteEdit extends Component {
 
 		const { editedUrl: url } = this.state;
 
-		this.props.setAttributes( { url } );
-		this.setState( { editingUrl: false } );
-
-		if ( EVENTBRITE_CUSTOM_URL_REGEX.test( url ) ) {
-			// Setting the `resolvingRedirect` state here, then waiting for `componentDidUpdate()` to
-			// be called before actually resolving it ensures that the `editedUrl` state has also been
-			// updated before resolveRedirect() is called.
-			this.setState( { resolvingRedirect: true } );
+		if ( ! url ) {
+			return;
 		}
+
+		this.props.setAttributes( { url } );
+
+		// Setting the `resolvingUrl` state here, then waiting for `componentDidUpdate()` to
+		// be called before actually resolving it ensures that the `editedUrl` state has also been
+		// updated before resolveUrl() is called.
+		this.setState( {
+			editingUrl: false,
+			resolvingUrl: true,
+		} );
 	};
 
 	cannotEmbed = () => {
 		const { url } = this.props.attributes;
+		const { resolvedStatusCode } = this.state;
 
-		return url && ! URL_REGEX.test( url );
+		return (
+			( url && ! URL_REGEX.test( url ) ) || ( resolvedStatusCode && resolvedStatusCode >= 400 )
+		);
 	};
 
 	renderLoading() {
@@ -258,11 +272,11 @@ class EventbriteEdit extends Component {
 	render() {
 		const { attributes } = this.props;
 		const { url } = attributes;
-		const { editingUrl, resolvingRedirect } = this.state;
+		const { editingUrl, resolvingUrl } = this.state;
 
 		let component;
 
-		if ( resolvingRedirect ) {
+		if ( resolvingUrl ) {
 			component = this.renderLoading();
 		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
 			component = this.renderEditEmbed();
