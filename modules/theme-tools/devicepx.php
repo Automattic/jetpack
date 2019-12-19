@@ -11,13 +11,13 @@
  */
 
 /**
- * Add hooks to enqueue the devicepx JS library, if enabled. The feature must
+ * Enqueue the devicepx JS library, if enabled. The feature must
  * be enabled earlier during `after_setup_theme`.
  *
- * @uses current_theme_supports, add_action, Jetpack::is_active
+ * @uses current_theme_supports, add_action
  */
 function jetpack_devicepx_init() {
-	if ( Jetpack::is_active() && current_theme_supports( 'jetpack-devicepx' ) ) {
+	if ( current_theme_supports( 'jetpack-devicepx' ) ) {
 		add_action( 'wp_enqueue_scripts', 'jetpack_devicepx_enqueue' );
 		add_action( 'customize_controls_enqueue_scripts', 'jetpack_devicepx_enqueue' );
 		add_action( 'admin_enqueue_scripts', 'jetpack_devicepx_enqueue' );
