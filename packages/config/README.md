@@ -20,7 +20,7 @@ composer require automattic/jetpack-terms-of-service
 ```
 
 In your code initialize the configuration package at or before
-plugins_loaded priority 9:
+plugins_loaded priority 1:
 
 ```
 use Automattic/Jetpack/Config;
