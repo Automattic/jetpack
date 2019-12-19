@@ -32,9 +32,6 @@ class EventbriteEdit extends Component {
 		editingUrl: false,
 		// If this is a customized URL, we're going to need to find where it redirects to.
 		resolvingRedirect: EVENTBRITE_CUSTOM_URL_REGEX.test( this.props.attributes.url ),
-		// The interactive-related magic comes from Core's EmbedPreview component,
-		// which currently isn't exported in a way we can use.
-		interactive: false,
 	};
 
 	componentDidMount() {
@@ -87,26 +84,6 @@ class EventbriteEdit extends Component {
 				} );
 			}
 		);
-	};
-
-	static getDerivedStateFromProps( nextProps, state ) {
-		if ( ! nextProps.isSelected && state.interactive ) {
-			// We only want to change this when the block is not selected, because changing it when
-			// the block becomes selected makes the overlap disappear too early. Hiding the overlay
-			// happens on mouseup when the overlay is clicked.
-			return { interactive: false };
-		}
-
-		return null;
-	}
-
-	hideOverlay = () => {
-		// This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
-		// changing, because that happens on mouse down, and the overlay immediately disappears,
-		// and the mouse event can end up in the preview content. We can't use onClick on
-		// the overlay to hide it either, because then the editor misses the mouseup event, and
-		// thinks we're multi-selecting blocks.
-		this.setState( { interactive: true } );
 	};
 
 	setUrl = event => {
@@ -207,7 +184,6 @@ class EventbriteEdit extends Component {
 	renderPreview() {
 		const { className } = this.props;
 		const { url, useModal } = this.props.attributes;
-		const { interactive } = this.state;
 
 		const eventId = url ? url.substring( url.search( /\d+$/g ) ) : null;
 
@@ -267,14 +243,9 @@ class EventbriteEdit extends Component {
 					</Toolbar>
 				</BlockControls>
 
-				<SandBox html={ html } onFocus={ this.hideOverlay } key={ widgetId } />
-				{ ! interactive && (
-					<div
-						className="block-library-embed__interactive-overlay"
-						onMouseUp={ this.hideOverlay }
-						role="none"
-					/>
-				) }
+				<SandBox html={ html } key={ widgetId } />
+				{ /* Use an overlay to prevent interactivity with the preview, since the modal does not resize correctly. */ }
+				<div className="block-library-embed__interactive-overlay" />
 			</div>
 		);
 	}
