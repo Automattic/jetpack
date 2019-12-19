@@ -215,6 +215,7 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
+		let widgetId;
 		let html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>
@@ -227,27 +228,29 @@ class EventbriteEdit extends Component {
 		`;
 
 		if ( useModal ) {
+			widgetId = `eventbrite-widget-modal-trigger-${ eventId }`;
 			html += `
 				<script>
 					window.EBWidgets.createWidget({
 						widgetType: 'checkout',
 						eventId: ${ eventId },
 						modal: true,
-						modalTriggerElementId: 'eventbrite-widget-modal-trigger-${ eventId }',
+						modalTriggerElementId: '${ widgetId }',
 					});
 				</script>
-				<button id="eventbrite-widget-modal-trigger-${ eventId }" type="button">Buy Tickets</button>
+				<button id="${ widgetId }" type="button">Buy Tickets</button>
 			`;
 		} else {
+			widgetId = `eventbrite-widget-container-${ eventId }`;
 			html += `
 				<script>
 					window.EBWidgets.createWidget({
 						widgetType: 'checkout',
 						eventId: ${ eventId },
-						iframeContainerId: 'eventbrite-widget-container-${ eventId }',
+						iframeContainerId: '${ widgetId }',
 					});
 				</script>
-				<div id="eventbrite-widget-container-${ eventId }"></div>
+				<div id="${ widgetId }"></div>
 			`;
 		}
 
@@ -264,7 +267,7 @@ class EventbriteEdit extends Component {
 					</Toolbar>
 				</BlockControls>
 
-				<SandBox html={ html } onFocus={ this.hideOverlay } />
+				<SandBox html={ html } onFocus={ this.hideOverlay } key={ widgetId } />
 				{ ! interactive && (
 					<div
 						className="block-library-embed__interactive-overlay"
