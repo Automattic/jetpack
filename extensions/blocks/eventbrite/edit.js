@@ -218,9 +218,9 @@ class EventbriteEdit extends Component {
 		let html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>
+				/* Eventbrite embeds have a CSS height transition on loading, which causes <Sandbox>
+				to not recognise the resizing. We need to disable that transition. */
 				* {
-					// Eventbrite embeds have a CSS height transition on loading, which causes <Sandbox>
-					// to not recognise the resizing. We need to disable that transition.
 					transition: none !important;
 				}
 			</style>
