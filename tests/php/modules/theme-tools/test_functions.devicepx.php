@@ -30,7 +30,8 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 
 		jetpack_devicepx_init();
 
-		$this->assertTrue(
+		$this->assertEquals(
+			10,
 			has_action( 'wp_enqueue_scripts', 'jetpack_devicepx_enqueue' ),
 			'devicepx script has been enqueued'
 		);
