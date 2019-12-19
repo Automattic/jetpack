@@ -23,10 +23,15 @@ class WP_Test_Jetpack_Theme_Tools_Devicepx extends WP_UnitTestCase {
 			'Support for devicepx has been enabled'
 		);
 
+		$this->assertFalse(
+			has_action( 'wp_enqueue_scripts', 'jetpack_devicepx_enqueue' ),
+			'devicepx is not enqueued until jetpack_devicepx_init() is called'
+		);
+
 		jetpack_devicepx_init();
 
 		$this->assertTrue(
-			wp_script_is( 'jetpack-devicepx', 'enqueued' ),
+			has_action( 'wp_enqueue_scripts', 'jetpack_devicepx_enqueue' ),
 			'devicepx script has been enqueued'
 		);
 
